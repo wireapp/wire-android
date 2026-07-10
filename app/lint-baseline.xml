@@ -320,15 +320,4 @@
             column="20"/>
     </issue>
 
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [participants: List&lt;UICallParticipant>, isSelfUserMuted: Boolean, isSelfUserCameraOn: Boolean, isInPictureInPictureMode: Boolean, isOnFrontCamera: Boolean, contentHeight: Dp, contentWidth: Dp, recentReactions: Map&lt;UserId, String>, onSelfVideoPreviewCreated: (view: View) -> Unit, onSelfClearVideoPreview: () -> Unit, requestVideoStreams: (participants: List&lt;UICallParticipant>) -> Unit, onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit, flipCamera: () -> Unit, gridParams: CallingGridParams = CallingGridParams.fromScreenDimensions(width = contentWidth, height = contentHeight), modifier: Modifier = Modifier] but should be [participants: List&lt;UICallParticipant>, isSelfUserMuted: Boolean, isSelfUserCameraOn: Boolean, isInPictureInPictureMode: Boolean, isOnFrontCamera: Boolean, contentHeight: Dp, contentWidth: Dp, recentReactions: Map&lt;UserId, String>, onSelfVideoPreviewCreated: (view: View) -> Unit, onSelfClearVideoPreview: () -> Unit, requestVideoStreams: (participants: List&lt;UICallParticipant>) -> Unit, onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit, flipCamera: () -> Unit, modifier: Modifier = Modifier, gridParams: CallingGridParams = CallingGridParams.fromScreenDimensions(width = contentWidth, height = contentHeight)].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun VerticalCallingPager("
-        errorLine2="                        ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/calling/ongoing/participantsview/VerticalCallingPager.kt"
-            line="54"
-            column="25"/>
-    </issue>
-
 </issues>

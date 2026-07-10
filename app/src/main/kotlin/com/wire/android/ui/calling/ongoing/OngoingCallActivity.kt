@@ -18,13 +18,9 @@
 package com.wire.android.ui.calling.ongoing
 
 import android.annotation.SuppressLint
-import android.app.PictureInPictureParams
-import android.app.RemoteAction
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Icon
 import android.os.Bundle
-import android.util.Rational
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
@@ -35,20 +31,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.notification.CallNotificationManager
-import com.wire.android.notification.endOngoingCallPendingIntent
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
 
 /**
@@ -147,23 +138,4 @@ fun getOngoingCallIntent(
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_SHOULD_ANSWER_CALL, shouldAnswerCall)
-}
-
-private const val ASPECT_RATIO_NUMERATOR = 2
-private const val ASPECT_RATIO_DENOMINATOR = 3
-
-fun OngoingCallActivity.enterPiPMode(conversationId: ConversationId, userId: UserId) {
-    appLogger.i("$TAG: Entering Picture-in-Picture mode..")
-    val hangupAction = RemoteAction(
-        Icon.createWithResource(this, R.drawable.ic_call_end),
-        getString(R.string.calling_hang_up_call),
-        getString(R.string.content_description_calling_hang_up_call),
-        endOngoingCallPendingIntent(this, conversationId.toString(), userId.toString())
-    )
-
-    val pictureInPictureParams = PictureInPictureParams.Builder()
-        .setAspectRatio(Rational(ASPECT_RATIO_NUMERATOR, ASPECT_RATIO_DENOMINATOR))
-        .setActions(listOf(hangupAction))
-        .build()
-    this.enterPictureInPictureMode(pictureInPictureParams)
 }

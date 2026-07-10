@@ -1362,24 +1362,24 @@ public fun com.wire.android.ui.authentication.login.WireAuthBackgroundLayout(mod
     - content: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.email.ForgotPasswordLabel(forgotPasswordUrl: kotlin.String, textColor: androidx.compose.ui.graphics.Color, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.email.ForgotPasswordLabel(forgotPasswordUrl: kotlin.String, modifier: androidx.compose.ui.Modifier, textColor: androidx.compose.ui.graphics.Color): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - forgotPasswordUrl: STABLE (String is immutable)
-    - textColor: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - textColor: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.email.LoginButton(loading: kotlin.Boolean, enabled: kotlin.Boolean, text: kotlin.String, loadingText: kotlin.String, modifier: androidx.compose.ui.Modifier, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.email.LoginButton(loading: kotlin.Boolean, enabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, text: kotlin.String, loadingText: kotlin.String, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - loading: STABLE (primitive type)
     - enabled: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
     - text: STABLE (String is immutable)
     - loadingText: STABLE (String is immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - onClick: STABLE (function type)
 
 @Composable
@@ -3763,13 +3763,14 @@ public fun com.wire.android.ui.debug.aboutThisAppViewModel(): com.wire.android.u
   params:
 
 @Composable
-private fun com.wire.android.ui.debug.conversation.ConversationActionsView(state: com.wire.android.ui.debug.conversation.DebugConversationViewState, onUpdate: kotlin.Function0<kotlin.Unit>, onReset: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.debug.conversation.ConversationActionsView(state: com.wire.android.ui.debug.conversation.DebugConversationViewState, onUpdate: kotlin.Function0<kotlin.Unit>, onReset: kotlin.Function0<kotlin.Unit>, onMigrateToMLS: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - state: UNSTABLE (has mutable properties or unstable members)
     - onUpdate: STABLE (function type)
     - onReset: STABLE (function type)
+    - onMigrateToMLS: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.debug.conversation.ConversationDetailsView(state: com.wire.android.ui.debug.conversation.DebugConversationViewState): kotlin.Unit
@@ -10206,6 +10207,13 @@ public fun com.wire.android.ui.markdown.MarkdownThematicBreak(messageStyle: com.
   params:
     - messageStyle: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.markdown.getMentions(onOpenProfile: kotlin.Function1<@[ParameterName(name = \): kotlin.collections.List<androidx.compose.ui.semantics.CustomAccessibilityAction>
+  skippable: true
+  restartable: true
+  params:
+    - onOpenProfile: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.miscViewModel(): VM of com.wire.android.ui.miscViewModel

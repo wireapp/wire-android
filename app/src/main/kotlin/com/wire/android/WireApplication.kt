@@ -455,13 +455,27 @@ class WireApplication : BaseApp() {
 
     override fun onLowMemory() {
         super.onLowMemory()
-        appLogger.w("onLowMemory called - Stopping logging, buckling the seatbelt and hoping for the best!")
+        appLogger.w("onLowMemory called - Flushing pending logs")
         globalAppScope.launch {
-            logFileWriter.value.stop()
+            flushLogsAfterLowMemory(logFileWriter.value) { error ->
+                Log.e(TAG, "Failed to flush logs after onLowMemory", error)
+            }
         }
     }
 
     internal companion object {
+        @Suppress("TooGenericExceptionCaught")
+        suspend fun flushLogsAfterLowMemory(
+            logFileWriter: LogFileWriter,
+            reportFailure: (Exception) -> Unit
+        ) {
+            try {
+                logFileWriter.forceFlush()
+            } catch (e: Exception) {
+                reportFailure(e)
+            }
+        }
+
         fun minimalLoggerConfig(additionalLogWriters: List<LogWriter> = emptyList()) = KaliumLogger.Config(
             KaliumLogLevel.WARN,
             listOf(platformLogWriter()) + additionalLogWriters

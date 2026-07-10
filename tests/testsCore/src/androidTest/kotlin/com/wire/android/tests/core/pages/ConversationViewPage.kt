@@ -475,8 +475,10 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickSendButton(): ConversationViewPage {
-        UiWaitUtils.waitElement(sendButton).click()
+    fun clickSendButton(timeout: Duration = UiWaitUtils.DEFAULT_TIMEOUT): ConversationViewPage {
+        if (!UiWaitUtils.clickWhenClickable(sendButton, timeout = timeout)) {
+            throw AssertionError("Send button was not enabled within ${timeout.inWholeMilliseconds}ms.")
+        }
         return this
     }
 

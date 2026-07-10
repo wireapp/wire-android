@@ -616,6 +616,23 @@ suspend fun BackendClient.enableChannelFeatureViaBackdoorTeam(team: Team) {
     )
 }
 
+suspend fun BackendClient.enableCellsFeatureViaBackdoorTeam(team: Team) {
+    val teamId = Uri.encode(team.id)
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("i/teams/$teamId/features/cells".composeCompleteUrl()).toURL(),
+        method = "PATCH",
+        headers = headers,
+        body = JSONObject().put("status", "enabled").toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
 suspend fun BackendClient.unlockChannelFeature(team: Team) {
     val teamId = Uri.encode(team.id)
     val url = URI("i/teams/$teamId/features/channels/unlocked".composeCompleteUrl()).toURL()

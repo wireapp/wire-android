@@ -58,6 +58,8 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val conversationDetailsHeading = UiSelectorParams(text = "Conversation Details")
 
+    private val sharedDriveButton = UiSelectorParams(description = "Open Shared Drive")
+
     private val removeFromConversationButton = UiSelectorParams(text = "Remove From Conversation")
 
     private val addToConversationButton = UiSelectorParams(text = "Add To Conversation")
@@ -73,6 +75,11 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Group details page is not visible.", e)
         }
+        return this
+    }
+
+    fun tapSharedDriveButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(sharedDriveButton).click()
         return this
     }
 

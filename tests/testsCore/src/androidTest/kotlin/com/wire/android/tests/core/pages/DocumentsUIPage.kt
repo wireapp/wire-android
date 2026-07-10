@@ -28,11 +28,11 @@ data class DocumentsUIPage(private val device: UiDevice) {
     private val downloadsOption = UiSelectorParams(textContains = "Download")
     private val showRootsButton = UiSelectorParams(description = "Show roots")
 
-    fun iSeeQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {
-        val qrCodeImage = UiSelectorParams(text = fileName)
+    fun iSeeFile(fileName: String): DocumentsUIPage {
+        val file = UiSelectorParams(text = fileName)
 
-        // Picker may open in Recent folder; switch to Downloads so the generated QR file is visible.
-        if (UiWaitUtils.findElementOrNull(qrCodeImage) == null) {
+        // Picker may open in Recent folder; switch to Downloads so the generated test file is visible.
+        if (UiWaitUtils.findElementOrNull(file) == null) {
             if (!clickWithRetry(downloadsOption)) {
                 clickWithRetry(showRootsButton)
                 clickWithRetry(downloadsOption)
@@ -40,12 +40,14 @@ data class DocumentsUIPage(private val device: UiDevice) {
         }
 
         try {
-            UiWaitUtils.waitElement(qrCodeImage)
+            UiWaitUtils.waitElement(file)
         } catch (e: AssertionError) {
-            throw AssertionError("QR code '$fileName' is not visible", e)
+            throw AssertionError("File '$fileName' is not visible", e)
         }
         return this
     }
+
+    fun iSeeQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage = iSeeFile(fileName)
 
     private fun clickWithRetry(selector: UiSelectorParams, attempts: Int = 3): Boolean {
         repeat(attempts) {
@@ -61,11 +63,12 @@ data class DocumentsUIPage(private val device: UiDevice) {
         return false
     }
 
-    fun iOpenDisplayedQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {
-        val qrCodeImage = UiSelectorParams(text = fileName)
-        UiWaitUtils.waitElement(qrCodeImage).click()
+    fun iOpenDisplayedFile(fileName: String): DocumentsUIPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName)).click()
         return this
     }
+
+    fun iOpenDisplayedQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage = iOpenDisplayedFile(fileName)
 
     fun iTapSendButtonOnPreviewImage(): DocumentsUIPage {
         UiWaitUtils.waitElement(sendButton).click()

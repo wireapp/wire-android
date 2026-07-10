@@ -30,6 +30,7 @@ import backendUtils.conversation.removeUserFromGroupConversation
 import backendUtils.conversation.setArchivedStateForConversation
 import backendUtils.team.addServiceToConversation
 import backendUtils.team.enableChannelFeatureViaBackdoorTeam
+import backendUtils.team.enableCellsFeatureViaBackdoorTeam
 import backendUtils.team.enableForceAppLockFeature
 import backendUtils.team.enableMLSFeatureTeam
 import backendUtils.team.getTeamByName
@@ -270,7 +271,8 @@ class BackendSetupHelper(
         chatOwnerNameAlias: String,
         chatName: String? = null,
         otherParticipantsNameAlises: String? = null,
-        teamName: String
+        teamName: String,
+        cellsEnabled: Boolean = false,
     ) {
         var participants: List<ClientUser>? = null
         val chatOwner = toClientUser(chatOwnerNameAlias)
@@ -284,7 +286,15 @@ class BackendSetupHelper(
 
         runBlocking {
             val dstTeam = backend.getTeamByName(chatOwner, teamName)
-            backend.createTeamConversation(chatOwner, participants, chatName, dstTeam)
+            backend.createTeamConversation(chatOwner, participants, chatName, dstTeam, cellsEnabled)
+        }
+    }
+
+    fun enableCellsFeature(ownerUserAlias: String, teamName: String, backendClient: BackendClient) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.enableCellsFeatureViaBackdoorTeam(team)
         }
     }
 

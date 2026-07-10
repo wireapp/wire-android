@@ -28,7 +28,11 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.io.IOException
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 class PlatformIndependentLogFileWriterTest {
 
@@ -152,6 +156,108 @@ class PlatformIndependentLogFileWriterTest {
     }
 
     @Test
+    fun givenTwoRotationsHaveTheSameTimestamp_whenLogsAreCompressed_thenDistinctArchivesArePublished() = runBlocking {
+        val writer = testWriter(rotationTimestamp = FIXED_ROTATION_TIMESTAMP)
+
+        writer.start()
+        writer.logWriter.log(Severity.Info, "first-${"x".repeat(LARGE_MESSAGE_SIZE)}", "TestTag", null)
+        eventually { compressedLogFiles().size == 1 }
+        writer.logWriter.log(Severity.Info, "second-${"x".repeat(LARGE_MESSAGE_SIZE)}", "TestTag", null)
+        eventually { compressedLogFiles().size == 2 }
+
+        assertEquals(
+            setOf("wire_${FIXED_ROTATION_TIMESTAMP}_1.gz", "wire_${FIXED_ROTATION_TIMESTAMP}_2.gz"),
+            compressedLogFiles().map(File::getName).toSet()
+        )
+        writer.stop()
+    }
+
+    @Test
+    fun givenCompressionFails_whenActiveFileRotates_thenSourceIsPreservedAndPartialOutputIsDeleted() = runBlocking {
+        val writer = testWriter(
+            rotationTimestamp = FIXED_ROTATION_TIMESTAMP,
+            fileCompressor = { _, targetFile ->
+                targetFile.writeText("incomplete gzip")
+                throw IOException("compression failed")
+            }
+        )
+
+        writer.start()
+        writer.logWriter.log(Severity.Info, "preserve-${"x".repeat(LARGE_MESSAGE_SIZE)}", "TestTag", null)
+
+        eventually {
+            temporaryLogFiles().singleOrNull()?.readText()?.contains("preserve-") == true &&
+                partialLogFiles().isEmpty()
+        }
+        assertTrue(compressedLogFiles().isEmpty())
+        writer.stop()
+    }
+
+    @Test
+    fun givenDeleteAllLogsWhileCompressionIsInFlight_whenCompressionFinishes_thenNoRotationFilesRemain() = runBlocking {
+        val compressionStarted = CountDownLatch(1)
+        val releaseCompression = CountDownLatch(1)
+        val compressionFinished = CountDownLatch(1)
+        val writer = testWriter(
+            rotationTimestamp = FIXED_ROTATION_TIMESTAMP,
+            fileCompressor = { _, targetFile ->
+                compressionStarted.countDown()
+                try {
+                    check(releaseCompression.await(COMPRESSION_TIMEOUT_SECONDS, TimeUnit.SECONDS))
+                    targetFile.writeText("compressed")
+                } finally {
+                    compressionFinished.countDown()
+                }
+            }
+        )
+
+        writer.start()
+        writer.logWriter.log(Severity.Info, "delete-${"x".repeat(LARGE_MESSAGE_SIZE)}", "TestTag", null)
+        eventually { compressionStarted.count == 0L }
+
+        writer.deleteAllLogFiles()
+        releaseCompression.countDown()
+
+        eventually { compressionFinished.count == 0L }
+        eventually {
+            compressedLogFiles().isEmpty() && temporaryLogFiles().isEmpty() && partialLogFiles().isEmpty()
+        }
+        writer.stop()
+    }
+
+    @Test
+    fun givenOrphanCompressionInitiallyFails_whenLaterStartupRetries_thenArchiveIsPublishedAndOrphanIsRemoved() = runBlocking {
+        logsDirectory().mkdirs()
+        val orphan = logsDirectory().resolve("wire_orphan.gz.tmp").apply { writeText("diagnostic logs") }
+        val failingWriter = testWriter(
+            rotationTimestamp = FIXED_ROTATION_TIMESTAMP,
+            fileCompressor = { _, targetFile ->
+                targetFile.writeText("incomplete gzip")
+                throw IOException("compression failed")
+            }
+        )
+
+        failingWriter.start()
+
+        assertTrue(orphan.exists())
+        assertEquals("diagnostic logs", orphan.readText())
+        assertFalse(logsDirectory().resolve("wire_orphan.gz").exists())
+        assertTrue(partialLogFiles().isEmpty())
+        failingWriter.stop()
+
+        val retryingWriter = testWriter(rotationTimestamp = FIXED_ROTATION_TIMESTAMP)
+        retryingWriter.start()
+
+        val recoveredArchive = logsDirectory().resolve("wire_orphan.gz")
+        assertTrue(recoveredArchive.exists())
+        assertFalse(orphan.exists())
+        assertTrue(partialLogFiles().isEmpty())
+        val recoveredText = GZIPInputStream(recoveredArchive.inputStream()).bufferedReader().use { it.readText() }
+        assertEquals("diagnostic logs", recoveredText)
+        retryingWriter.stop()
+    }
+
+    @Test
     fun givenFileWriterIsStarted_whenDeletingAllLogs_thenActiveAndCompressedLogsAreDeleted() = runBlocking {
         val writer = PlatformIndependentLogFileWriter(
             logsDirectory = logsDirectory(),
@@ -199,6 +305,32 @@ class PlatformIndependentLogFileWriterTest {
     private fun compressedLogFiles() = logsDirectory().listFiles().orEmpty()
         .filter { it.extension == "gz" }
 
+    private fun temporaryLogFiles() = logsDirectory().listFiles().orEmpty()
+        .filter { it.name.endsWith(".tmp") }
+
+    private fun partialLogFiles() = logsDirectory().listFiles().orEmpty()
+        .filter { it.name.endsWith(".partial") }
+
+    private fun testWriter(
+        rotationTimestamp: String,
+        fileCompressor: (File, File) -> Unit = ::compressToGzip
+    ) = PlatformIndependentLogFileWriter(
+        logsDirectory = logsDirectory(),
+        config = PlatformIndependentLogFileWriterConfig.default().copy(
+            flushIntervalMs = ONE_MINUTE_MS,
+            maxBufferSize = ONE_LOG_LINE,
+            maxFileSize = SMALL_FILE_SIZE_BYTES
+        ),
+        fileCompressor = fileCompressor,
+        rotationTimestampProvider = { rotationTimestamp }
+    )
+
+    private fun compressToGzip(sourceFile: File, targetFile: File) {
+        GZIPOutputStream(targetFile.outputStream()).use { output ->
+            sourceFile.inputStream().use { input -> input.copyTo(output) }
+        }
+    }
+
     private suspend fun eventually(assertion: () -> Boolean) {
         repeat(EVENTUALLY_RETRIES) {
             if (assertion()) return
@@ -222,5 +354,7 @@ class PlatformIndependentLogFileWriterTest {
         const val WORKER_SETTLE_MS = 100L
         const val EVENTUALLY_RETRIES = 20
         const val EVENTUALLY_DELAY_MS = 50L
+        const val FIXED_ROTATION_TIMESTAMP = "2026-01-02_03-04-05"
+        const val COMPRESSION_TIMEOUT_SECONDS = 5L
     }
 }

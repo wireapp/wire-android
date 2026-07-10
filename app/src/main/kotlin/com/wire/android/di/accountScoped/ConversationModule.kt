@@ -65,6 +65,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStat
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
@@ -356,6 +357,12 @@ class ConversationModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ResetMLSConversationUseCase = coreLogic.getSessionScope(currentAccount).resetMlsConversation
+
+    @Provides
+    fun provideMigrateConversationToMLSUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MigrateConversationToMLSUseCase = coreLogic.getSessionScope(currentAccount).migrateConversationToMLS
 
     @Provides
     fun provideFetchConversationUseCase(

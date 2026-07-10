@@ -115,6 +115,7 @@ fun DebugConversationScreen(
                     state = state,
                     onUpdate = { viewModel.updateConversation() },
                     onReset = { viewModel.resetMLSConversation() },
+                    onMigrateToMLS = { viewModel.migrateConversationToMLS() },
                 )
                 if (BuildConfig.CONVERSATION_FEEDER_ENABLED) {
                     SectionHeader("Feeders / performance config")
@@ -146,6 +147,7 @@ private fun ConversationActionsView(
     state: DebugConversationViewState,
     onUpdate: () -> Unit,
     onReset: () -> Unit,
+    onMigrateToMLS: () -> Unit,
 ) {
     RowItemTemplate(
         title = {
@@ -177,6 +179,23 @@ private fun ConversationActionsView(
                 onClick = onReset,
                 text = "Reset now",
                 fillMaxWidth = false,
+            )
+        })
+    }
+    if (state.canMigrateToMLS) {
+        RowItemTemplate(modifier = Modifier.wrapContentWidth(), title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = "Migrate conversation protocol",
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        }, actions = {
+            WirePrimaryButton(
+                onClick = onMigrateToMLS,
+                text = "Migrate to MLS",
+                fillMaxWidth = false,
+                loading = state.isMigratingToMLS,
             )
         })
     }

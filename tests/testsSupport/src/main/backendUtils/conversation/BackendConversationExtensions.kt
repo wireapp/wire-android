@@ -37,6 +37,10 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 suspend fun BackendClient.createTeamConversation(
     user: ClientUser,
@@ -276,6 +280,40 @@ fun BackendClient.addUsersToGroupConversation(
         options = RequestOptions(accessToken = token)
     )
     return JSONObject(response.body)
+}
+
+fun BackendClient.setArchivedStateForConversation(
+    asUser: ClientUser,
+    conversation: Conversation,
+    isArchived: Boolean
+) {
+    val token = runBlocking { getAuthToken(asUser) }
+    val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/self".composeCompleteUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
+    }
+    val requestBody = JSONObject().apply {
+        put("otr_archived", isArchived)
+        put(
+            "otr_archived_ref",
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.999Z'", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }.format(Date())
+        )
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI(url).toURL(),
+        method = "PUT",
+        body = requestBody.toString(),
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
 }
 
 fun BackendClient.removeUserFromGroupConversation(

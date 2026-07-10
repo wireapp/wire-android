@@ -1751,13 +1751,6 @@ public fun com.wire.android.ui.calling.common.CallerDetails(conversationId: com.
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.ui.calling.common.ObservePictureInPictureMode(onChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - onChanged: STABLE (function type)
-
-@Composable
 internal fun com.wire.android.ui.calling.common.ObserveRotation(onChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -2015,7 +2008,7 @@ public fun com.wire.android.ui.calling.ongoing.OngoingCallActivity.Content(): ko
   params:
 
 @Composable
-private fun com.wire.android.ui.calling.ongoing.OngoingCallContent(callState: com.wire.android.ui.calling.model.CallState, inCallReactionsState: com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsState, scaffoldState: androidx.compose.material3.BottomSheetScaffoldState, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleMute: kotlin.Function0<kotlin.Unit>, hangUpCall: kotlin.Function0<kotlin.Unit>, toggleVideo: kotlin.Function0<kotlin.Unit>, flipCamera: kotlin.Function0<kotlin.Unit>, setVideoPreview: kotlin.Function1<@[ParameterName(name = \, clearVideoPreview: kotlin.Function0<kotlin.Unit>, onCollapse: kotlin.Function0<kotlin.Unit>, onOpenCallDetails: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function1<kotlin.String, kotlin.Unit>, requestVideoStreams: kotlin.Function1<@[ParameterName(name = \, onSelectedParticipant: kotlin.Function1<@[ParameterName(name = \, selectedParticipantForFullScreen: com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant?, participants: kotlinx.collections.immutable.PersistentList<com.wire.android.ui.calling.model.UICallParticipant>, recentReactions: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, kotlin.String>, inPictureInPictureMode: kotlin.Boolean, callQuality: com.wire.android.ui.calling.ongoing.details.CallQualityState.Quality, othersVideosDisabled: kotlin.Boolean, toasts: kotlin.collections.Set<com.wire.android.ui.calling.ongoing.toast.InCallToast>, onToastClick: kotlin.Function1<@[ParameterName(name = \, inCallReactionsEnabled: kotlin.Boolean, initialShowInCallReactionsPanel: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.calling.ongoing.OngoingCallContent(callState: com.wire.android.ui.calling.model.CallState, inCallReactionsState: com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsState, scaffoldState: androidx.compose.material3.BottomSheetScaffoldState, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleMute: kotlin.Function0<kotlin.Unit>, hangUpCall: kotlin.Function0<kotlin.Unit>, toggleVideo: kotlin.Function0<kotlin.Unit>, flipCamera: kotlin.Function0<kotlin.Unit>, setVideoPreview: kotlin.Function1<@[ParameterName(name = \, clearVideoPreview: kotlin.Function0<kotlin.Unit>, onCollapse: kotlin.Function0<kotlin.Unit>, onOpenCallDetails: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function1<kotlin.String, kotlin.Unit>, requestVideoStreams: kotlin.Function1<@[ParameterName(name = \, onSelectedParticipant: kotlin.Function1<@[ParameterName(name = \, selectedParticipantForFullScreen: com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant?, participants: kotlinx.collections.immutable.PersistentList<com.wire.android.ui.calling.model.UICallParticipant>, recentReactions: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, kotlin.String>, callQuality: com.wire.android.ui.calling.ongoing.details.CallQualityState.Quality, othersVideosDisabled: kotlin.Boolean, toasts: kotlin.collections.Set<com.wire.android.ui.calling.ongoing.toast.InCallToast>, onToastClick: kotlin.Function1<@[ParameterName(name = \, inCallReactionsEnabled: kotlin.Boolean, initialShowInCallReactionsPanel: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -2038,7 +2031,6 @@ private fun com.wire.android.ui.calling.ongoing.OngoingCallContent(callState: co
     - selectedParticipantForFullScreen: UNSTABLE (has mutable properties or unstable members)
     - participants: STABLE (known stable type)
     - recentReactions: RUNTIME (requires runtime check)
-    - inPictureInPictureMode: STABLE (primitive type)
     - callQuality: STABLE (class with no mutable properties)
     - othersVideosDisabled: STABLE (primitive type)
     - toasts: RUNTIME (requires runtime check)
@@ -2387,21 +2379,6 @@ internal fun com.wire.android.ui.calling.ongoing.participantsview.FlipCameraButt
     - flipCamera: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.calling.ongoing.participantsview.FloatingSelfUserTile(contentHeight: androidx.compose.ui.unit.Dp, contentWidth: androidx.compose.ui.unit.Dp, participant: com.wire.android.ui.calling.model.UICallParticipant, isOnFrontCamera: kotlin.Boolean, onSelfUserVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onClearSelfUserVideoPreview: kotlin.Function0<kotlin.Unit>, flipCamera: kotlin.Function0<kotlin.Unit>, othersVideosDisabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - contentHeight: STABLE (marked @Stable or @Immutable)
-    - contentWidth: STABLE (marked @Stable or @Immutable)
-    - participant: STABLE (marked @Stable or @Immutable)
-    - isOnFrontCamera: STABLE (primitive type)
-    - onSelfUserVideoPreviewCreated: STABLE (function type)
-    - onClearSelfUserVideoPreview: STABLE (function type)
-    - flipCamera: STABLE (function type)
-    - othersVideosDisabled: STABLE (primitive type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 private fun com.wire.android.ui.calling.ongoing.participantsview.MicrophoneTile(isMuted: kotlin.Boolean, hasEstablishedAudio: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -2421,7 +2398,7 @@ private fun com.wire.android.ui.calling.ongoing.participantsview.OthersVideoRend
     - isZoomingEnabled: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile(participantTitleState: com.wire.android.ui.calling.model.UICallParticipant, isSelfUserMuted: kotlin.Boolean, isSelfUserCameraOn: kotlin.Boolean, onSelfUserVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onClearSelfUserVideoPreview: kotlin.Function0<kotlin.Unit>, isOnFrontCamera: kotlin.Boolean, flipCamera: kotlin.Function0<kotlin.Unit>, othersVideosDisabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, isOnPiPMode: kotlin.Boolean, shouldFillSelfUserCameraPreview: kotlin.Boolean, shouldFillOthersVideoPreview: kotlin.Boolean, isZoomingEnabled: kotlin.Boolean, recentReaction: kotlin.String?, inCallReactionsEnabled: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile(participantTitleState: com.wire.android.ui.calling.model.UICallParticipant, isSelfUserMuted: kotlin.Boolean, isSelfUserCameraOn: kotlin.Boolean, onSelfUserVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onClearSelfUserVideoPreview: kotlin.Function0<kotlin.Unit>, isOnFrontCamera: kotlin.Boolean, flipCamera: kotlin.Function0<kotlin.Unit>, othersVideosDisabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, shouldFillSelfUserCameraPreview: kotlin.Boolean, shouldFillOthersVideoPreview: kotlin.Boolean, isZoomingEnabled: kotlin.Boolean, recentReaction: kotlin.String?, inCallReactionsEnabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -2434,7 +2411,6 @@ public fun com.wire.android.ui.calling.ongoing.participantsview.ParticipantTile(
     - flipCamera: STABLE (function type)
     - othersVideosDisabled: STABLE (primitive type)
     - modifier: STABLE (marked @Stable or @Immutable)
-    - isOnPiPMode: STABLE (primitive type)
     - shouldFillSelfUserCameraPreview: STABLE (primitive type)
     - shouldFillOthersVideoPreview: STABLE (primitive type)
     - isZoomingEnabled: STABLE (primitive type)
@@ -2482,14 +2458,13 @@ private fun com.wire.android.ui.calling.ongoing.participantsview.UsernameTile(na
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager(participants: kotlin.collections.List<com.wire.android.ui.calling.model.UICallParticipant>, isSelfUserMuted: kotlin.Boolean, isSelfUserCameraOn: kotlin.Boolean, isInPictureInPictureMode: kotlin.Boolean, isOnFrontCamera: kotlin.Boolean, contentHeight: androidx.compose.ui.unit.Dp, contentWidth: androidx.compose.ui.unit.Dp, recentReactions: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, kotlin.String>, onSelfVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onSelfClearVideoPreview: kotlin.Function0<kotlin.Unit>, requestVideoStreams: kotlin.Function1<@[ParameterName(name = \, onDoubleTap: kotlin.Function1<@[ParameterName(name = \, flipCamera: kotlin.Function0<kotlin.Unit>, othersVideosDisabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, gridParams: com.wire.android.ui.calling.ongoing.participantsview.CallingGridParams): kotlin.Unit
+public fun com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager(participants: kotlin.collections.List<com.wire.android.ui.calling.model.UICallParticipant>, isSelfUserMuted: kotlin.Boolean, isSelfUserCameraOn: kotlin.Boolean, isOnFrontCamera: kotlin.Boolean, contentHeight: androidx.compose.ui.unit.Dp, contentWidth: androidx.compose.ui.unit.Dp, recentReactions: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, kotlin.String>, onSelfVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onSelfClearVideoPreview: kotlin.Function0<kotlin.Unit>, requestVideoStreams: kotlin.Function1<@[ParameterName(name = \, onDoubleTap: kotlin.Function1<@[ParameterName(name = \, flipCamera: kotlin.Function0<kotlin.Unit>, othersVideosDisabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, gridParams: com.wire.android.ui.calling.ongoing.participantsview.CallingGridParams): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - participants: RUNTIME (requires runtime check)
     - isSelfUserMuted: STABLE (primitive type)
     - isSelfUserCameraOn: STABLE (primitive type)
-    - isInPictureInPictureMode: STABLE (primitive type)
     - isOnFrontCamera: STABLE (primitive type)
     - contentHeight: STABLE (marked @Stable or @Immutable)
     - contentWidth: STABLE (marked @Stable or @Immutable)
@@ -2527,7 +2502,7 @@ private fun com.wire.android.ui.calling.ongoing.participantsview.activeSpeakerBo
   params:
 
 @Composable
-public fun com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid(gridParams: com.wire.android.ui.calling.ongoing.participantsview.CallingGridParams, participants: kotlin.collections.List<com.wire.android.ui.calling.model.UICallParticipant>, isSelfUserMuted: kotlin.Boolean, isSelfUserCameraOn: kotlin.Boolean, contentHeight: androidx.compose.ui.unit.Dp, isOnFrontCamera: kotlin.Boolean, onSelfVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onSelfClearVideoPreview: kotlin.Function0<kotlin.Unit>, onDoubleTap: kotlin.Function1<@[ParameterName(name = \, flipCamera: kotlin.Function0<kotlin.Unit>, isInPictureInPictureMode: kotlin.Boolean, recentReactions: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, kotlin.String>, othersVideosDisabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.ui.unit.Dp, spacedBy: androidx.compose.ui.unit.Dp): kotlin.Unit
+public fun com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid(gridParams: com.wire.android.ui.calling.ongoing.participantsview.CallingGridParams, participants: kotlin.collections.List<com.wire.android.ui.calling.model.UICallParticipant>, isSelfUserMuted: kotlin.Boolean, isSelfUserCameraOn: kotlin.Boolean, contentHeight: androidx.compose.ui.unit.Dp, isOnFrontCamera: kotlin.Boolean, onSelfVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onSelfClearVideoPreview: kotlin.Function0<kotlin.Unit>, onDoubleTap: kotlin.Function1<@[ParameterName(name = \, flipCamera: kotlin.Function0<kotlin.Unit>, recentReactions: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, kotlin.String>, othersVideosDisabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.ui.unit.Dp, spacedBy: androidx.compose.ui.unit.Dp): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -2541,7 +2516,6 @@ public fun com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCa
     - onSelfClearVideoPreview: STABLE (function type)
     - onDoubleTap: STABLE (function type)
     - flipCamera: STABLE (function type)
-    - isInPictureInPictureMode: STABLE (primitive type)
     - recentReactions: RUNTIME (requires runtime check)
     - othersVideosDisabled: STABLE (primitive type)
     - modifier: STABLE (marked @Stable or @Immutable)
@@ -2555,13 +2529,6 @@ private fun com.wire.android.ui.calling.ongoing.participantsview.gridview.Previe
   params:
     - participants: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.ui.calling.ongoing.participantsview.rememberParticipantsWithoutPip(participants: kotlin.collections.List<com.wire.android.ui.calling.model.UICallParticipant>): kotlin.collections.List<com.wire.android.ui.calling.model.UICallParticipant>
-  skippable: false
-  restartable: true
-  params:
-    - participants: RUNTIME (requires runtime check)
 
 @Composable
 public fun com.wire.android.ui.calling.ongoing.toast.InCallToast(toast: com.wire.android.ui.calling.ongoing.toast.InCallToast, onClick: kotlin.Function1<@[ParameterName(name = \, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -3763,13 +3730,14 @@ public fun com.wire.android.ui.debug.aboutThisAppViewModel(): com.wire.android.u
   params:
 
 @Composable
-private fun com.wire.android.ui.debug.conversation.ConversationActionsView(state: com.wire.android.ui.debug.conversation.DebugConversationViewState, onUpdate: kotlin.Function0<kotlin.Unit>, onReset: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.debug.conversation.ConversationActionsView(state: com.wire.android.ui.debug.conversation.DebugConversationViewState, onUpdate: kotlin.Function0<kotlin.Unit>, onReset: kotlin.Function0<kotlin.Unit>, onMigrateToMLS: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - state: UNSTABLE (has mutable properties or unstable members)
     - onUpdate: STABLE (function type)
     - onReset: STABLE (function type)
+    - onMigrateToMLS: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.debug.conversation.ConversationDetailsView(state: com.wire.android.ui.debug.conversation.DebugConversationViewState): kotlin.Unit
@@ -11798,4 +11766,3 @@ public fun com.wire.android.util.ui.WireScrollableThemePreview(content: @[Compos
   restartable: true
   params:
     - content: STABLE (composable function type)
-

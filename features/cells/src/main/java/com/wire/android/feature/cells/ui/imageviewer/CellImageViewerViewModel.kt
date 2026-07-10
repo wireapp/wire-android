@@ -21,7 +21,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 
-class CellImageViewerViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+class CellImageViewerViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private val navArgs: CellImageViewerNavArgs = CellImageViewerScreenDestination.argsFrom(savedStateHandle)
 

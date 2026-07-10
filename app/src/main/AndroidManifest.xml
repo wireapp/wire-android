@@ -92,7 +92,6 @@
             android:exported="false"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
-            android:supportsPictureInPicture="true"
             android:taskAffinity="wire.call"
             android:theme="@style/AppTheme" />
 

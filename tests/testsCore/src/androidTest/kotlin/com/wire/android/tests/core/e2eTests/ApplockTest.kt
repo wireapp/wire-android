@@ -59,7 +59,6 @@ class ApplockTest : BaseUiTest() {
                 backendClient,
                 context
             )
-
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name",

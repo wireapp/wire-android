@@ -180,8 +180,8 @@ abstract class BaseUiTest : KoinTest {
             useSpecialEmail = false,
             backendClient = backendClient
         )
-        backendSetupHelper = BackendSetupHelper(clientUserManager)
         testServiceHelper = TestServiceHelper(clientUserManager)
+        backendSetupHelper = BackendSetupHelper(clientUserManager, testServiceHelper::addDevice)
     }
 
     private fun tearDownCommonTestHelpers() {

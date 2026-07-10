@@ -59,6 +59,7 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
 import com.wire.android.di.ApplicationContext
+import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
 import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
@@ -90,6 +91,7 @@ class DebugInfoViewModelFactory @Inject constructor(
     private val fileManager: FileManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
+    private val migrateConversationToMLS: MigrateConversationToMLSUseCase,
     private val fetchConversation: FetchConversationUseCase,
     private val feedConversation: DebugFeedConversationUseCase,
     private val getConversationEpochFromCC: GetConversationEpochFromCCUseCase,
@@ -144,6 +146,7 @@ class DebugInfoViewModelFactory @Inject constructor(
         feedConversation = feedConversation,
         getConversationEpochFromCC = getConversationEpochFromCC,
         savedStateHandle = savedStateHandle,
+        migrateConversationToMLSUseCase = migrateConversationToMLS
     )
 
     fun conversationCryptoStatsViewModel() = ConversationCryptoStatsViewModel(

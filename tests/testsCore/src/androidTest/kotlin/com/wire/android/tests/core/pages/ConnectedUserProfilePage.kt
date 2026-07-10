@@ -22,7 +22,6 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val startConversationButton = UiSelectorParams(text = "Start Conversation")
@@ -38,6 +37,9 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val unblockButtonAlert = UiSelectorParams(text = "Unblock")
     private val blockButtonAlert = UiSelectorParams(text = "Block")
     private val participantRemoveFromConversationButton = UiSelectorParams(textContains = "Remove from conversation")
+    private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
+    private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
+    private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
 
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
 
@@ -62,7 +64,7 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun assertToastMessageIsDisplayed(
         expectedMessage: String,
-        timeout: Duration = 5.seconds
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
     ): ConnectedUserProfilePage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(text = expectedMessage),
@@ -150,6 +152,21 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun clickUnblockButtonAlert(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(unblockButtonAlert).click()
+        return this
+    }
+
+    fun tapMoveToArchiveButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(moveToArchiveButton).click()
+        return this
+    }
+
+    fun tapConfirmArchiveConversationButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(confirmArchiveConversationButton).click()
+        return this
+    }
+
+    fun tapMoveOutOfArchiveButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(moveOutOfArchiveButton).click()
         return this
     }
 

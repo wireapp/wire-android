@@ -31,6 +31,8 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.mls.CipherSuite
+import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCResult
@@ -43,6 +45,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -61,6 +64,7 @@ class DebugConversationViewModelTest {
         advanceUntilIdle()
 
         assertEquals(TestConversation.MLS_PROTOCOL_INFO, viewModel.state.value.mlsProtocolInfo)
+        assertEquals(false, viewModel.state.value.canMigrateToMLS)
         assertEquals(CC_EPOCH, viewModel.state.value.ccEpoch)
         coVerify(exactly = 1) {
             arrangement.getConversationEpochFromCCUseCase(arrangement.conversationId)
@@ -91,6 +95,50 @@ class DebugConversationViewModelTest {
             arrangement.getConversationEpochFromCCUseCase(arrangement.conversationId)
         }
     }
+
+    @Test
+    fun givenProteusConversation_whenInitialising_thenMigrationActionIsAvailable() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationDetails(proteusConversationDetails())
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.state.value.canMigrateToMLS)
+        assertEquals(null, viewModel.state.value.mlsProtocolInfo)
+    }
+
+    @Test
+    fun givenMixedConversation_whenInitialising_thenMigrationActionIsAvailable() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationDetails(mixedConversationDetails())
+            .withCCEpochResult(GetConversationEpochFromCCResult.Success(CC_EPOCH))
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.state.value.canMigrateToMLS)
+        assertEquals(MIXED_PROTOCOL_INFO, viewModel.state.value.mlsProtocolInfo)
+    }
+
+    @Test
+    fun givenProteusConversation_whenMigratingToMLS_thenInvokeUseCaseAndShowSuccessMessage() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationDetails(proteusConversationDetails())
+            .withMigrateConversationToMLSResult(MigrateConversationToMLSUseCase.Result.Success)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.migrateConversationToMLS()
+            assertEquals(ShowMessage("Conversation migrated to MLS successfully."), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        assertEquals(false, viewModel.state.value.isMigratingToMLS)
+        coVerify(exactly = 1) {
+            arrangement.migrateConversationToMLSUseCase(arrangement.conversationId)
+        }
+    }
 }
 
 private class Arrangement {
@@ -113,6 +161,9 @@ private class Arrangement {
     @MockK
     lateinit var getConversationEpochFromCCUseCase: GetConversationEpochFromCCUseCase
 
+    @MockK
+    lateinit var migrateConversationToMLSUseCase: MigrateConversationToMLSUseCase
+
     val conversationId = ConversationId("debug-conversation-id", "wire.com")
 
     init {
@@ -122,6 +173,7 @@ private class Arrangement {
         } returns DebugConversationScreenNavArgs(conversationId)
         coEvery { observeConversationDetailsUseCase(any()) } returns flowOf<ObserveConversationDetailsUseCase.Result>()
         coEvery { getConversationEpochFromCCUseCase(any()) } returns GetConversationEpochFromCCResult.Failure.NotMlsConversation
+        coEvery { migrateConversationToMLSUseCase(any()) } returns MigrateConversationToMLSUseCase.Result.Success
     }
 
     suspend fun withConversationDetails(conversationDetails: ConversationDetails) = apply {
@@ -138,12 +190,17 @@ private class Arrangement {
         coEvery { getConversationEpochFromCCUseCase(any()) } returnsMany results.toList()
     }
 
+    suspend fun withMigrateConversationToMLSResult(result: MigrateConversationToMLSUseCase.Result) = apply {
+        coEvery { migrateConversationToMLSUseCase(any()) } returns result
+    }
+
     fun arrange() = this to DebugConversationViewModel(
         conversationDetails = observeConversationDetailsUseCase,
         resetMLSConversation = resetMLSConversationUseCase,
         fetchConversation = fetchConversationUseCase,
         feedConversation = debugFeedConversationUseCase,
         getConversationEpochFromCC = getConversationEpochFromCCUseCase,
+        migrateConversationToMLSUseCase = migrateConversationToMLSUseCase,
         savedStateHandle = savedStateHandle,
     )
 }
@@ -155,5 +212,29 @@ private fun mlsConversationDetails(): ConversationDetails.Group.Regular =
         selfRole = Conversation.Member.Role.Member,
         wireCell = null,
     )
+
+private fun proteusConversationDetails(): ConversationDetails.Group.Regular =
+    ConversationDetails.Group.Regular(
+        conversation = TestConversation.GROUP(Conversation.ProtocolInfo.Proteus),
+        isSelfUserMember = true,
+        selfRole = Conversation.Member.Role.Member,
+        wireCell = null,
+    )
+
+private fun mixedConversationDetails(): ConversationDetails.Group.Regular =
+    ConversationDetails.Group.Regular(
+        conversation = TestConversation.GROUP(MIXED_PROTOCOL_INFO),
+        isSelfUserMember = true,
+        selfRole = Conversation.Member.Role.Member,
+        wireCell = null,
+    )
+
+private val MIXED_PROTOCOL_INFO = Conversation.ProtocolInfo.Mixed(
+    groupId = TestConversation.GROUP_ID,
+    groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.ESTABLISHED,
+    epoch = 0UL,
+    keyingMaterialLastUpdate = Instant.parse("2021-03-30T15:36:00.000Z"),
+    cipherSuite = CipherSuite.MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519,
+)
 
 private const val CC_EPOCH = 42UL

@@ -25,11 +25,11 @@ import com.wire.android.mapper.MessageMapper
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.MessagePagingStart
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import java.lang.Integer.max
 import dev.zacsweers.metro.Inject
 
 class GetMessagesForConversationUseCase @Inject constructor(
@@ -39,17 +39,20 @@ class GetMessagesForConversationUseCase @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) {
 
-    suspend operator fun invoke(conversationId: ConversationId, lastReadIndex: Int): Flow<PagingData<UIMessage>> {
+    suspend operator fun invoke(
+        conversationId: ConversationId,
+        pagingStart: MessagePagingStart,
+    ): Flow<PagingData<UIMessage>> {
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
             initialLoadSize = INITIAL_LOAD_SIZE,
-            enablePlaceholders = true,
+            enablePlaceholders = false,
         )
         return getMessages(
             conversationId,
             pagingConfig = pagingConfig,
-            startingOffset = max(0, lastReadIndex - PREFETCH_DISTANCE).toLong()
+            pagingStart = pagingStart,
         ).map { pagingData ->
             pagingData.flatMap { messageItem ->
                 val usersForMessage = getUsersForMessage(messageItem)

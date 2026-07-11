@@ -100,6 +100,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
         )
     }
 
+    is Group.Meeting -> TODO("Map meeting conversations to a conversation list item")
+
     is OneOne -> {
         PrivateConversation(
             userAvatarData = UserAvatarData(

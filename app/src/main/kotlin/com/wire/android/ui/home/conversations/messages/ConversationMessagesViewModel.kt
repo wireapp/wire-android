@@ -55,6 +55,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.message.MessagePagingStart
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -212,26 +213,36 @@ class ConversationMessagesViewModel(
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
         val searchedMessageId = conversationViewState.searchedMessageId
-        val lastReadIndex = withContext(dispatchers.io()) {
+        val (pagingStart, initialMessageIndex) = withContext(dispatchers.io()) {
             searchedMessageId?.let { messageId ->
-                when (
+                val position = when (
                     val result = getSearchedConversationMessagePosition(
                         conversationId = conversationId,
-                        messageId = messageId
+                        messageId = messageId,
+                        maximumPosition = INITIAL_POSITION_PROBE_SIZE,
                     )
                 ) {
                     is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
                     is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
                 }
-            } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
-                is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
-                is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
+                MessagePagingStart.AroundMessage(messageId, INITIAL_ITEMS_BEFORE_ANCHOR) to
+                        position.toInitialMessageIndex()
+            } ?: when (
+                val result = getConversationUnreadEventsCount(
+                    conversationId,
+                    maximumCount = INITIAL_POSITION_PROBE_SIZE,
+                )
+            ) {
+                is GetConversationUnreadEventsCountUseCase.Result.Success ->
+                    MessagePagingStart.AroundFirstUnread(INITIAL_ITEMS_BEFORE_ANCHOR) to
+                            result.amount.toInt().toInitialMessageIndex()
+                is GetConversationUnreadEventsCountUseCase.Result.Failure -> MessagePagingStart.Newest to 0
             }
         }
 
         val paginatedMessagesFlow = if (BuildConfig.PENDING_MESSAGES) {
             networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
-                getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
+                getMessageForConversation(conversationId, pagingStart).map { pagingData ->
                     pagingData.withOfflineIndicator(
                         conversationId = conversationId,
                         isOffline = networkState !is NetworkState.ConnectedWithInternet,
@@ -239,18 +250,21 @@ class ConversationMessagesViewModel(
                 }.flowOn(dispatchers.io())
             }.cachedIn(viewModelScope)
         } else {
-            getMessageForConversation(conversationId, lastReadIndex)
+            getMessageForConversation(conversationId, pagingStart)
                 .flowOn(dispatchers.io())
                 .cachedIn(viewModelScope)
         }
 
         conversationViewState = conversationViewState.copy(
             messages = paginatedMessagesFlow,
-            firstUnreadEventIndex = max(lastReadIndex - 1, 0)
+            firstUnreadEventIndex = initialMessageIndex
         )
 
         handleSelectedSearchedMessageHighlighting()
     }
+
+    private fun Int.toInitialMessageIndex(): Int =
+        max(this - 1, 0).coerceAtMost(INITIAL_ITEMS_BEFORE_ANCHOR)
 
     fun fetchOlderMessagesIfNeeded() {
         if (conversationViewState.isFetchingOlderMessages || !conversationViewState.hasMoreRemoteMessages) {
@@ -480,6 +494,8 @@ class ConversationMessagesViewModel(
         const val DEFAULT_ASSET_NAME = "Wire File"
         const val CURRENT_TIME_REFRESH_WINDOW_IN_MILLIS: Long = 60_000
         const val REMOTE_PAGE_SIZE = 20
+        const val INITIAL_ITEMS_BEFORE_ANCHOR = 29
+        const val INITIAL_POSITION_PROBE_SIZE = INITIAL_ITEMS_BEFORE_ANCHOR + 1L
     }
 }
 

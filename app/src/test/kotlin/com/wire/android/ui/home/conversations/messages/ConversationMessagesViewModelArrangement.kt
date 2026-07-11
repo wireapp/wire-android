@@ -169,11 +169,13 @@ class ConversationMessagesViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesFlow
         coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns NomadMessagePagingResult(hasMore = false)
-        coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
+        coEvery {
+            getConversationUnreadEventsCount(any(), any())
+        } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
         coEvery {
-            getSearchedConversationMessagePosition(any(), any())
+            getSearchedConversationMessagePosition(any(), any(), any())
         } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position = 0)
 
         coEvery { observeAssetStatuses(any()) } returns flowOf(mapOf())
@@ -204,7 +206,17 @@ class ConversationMessagesViewModelArrangement {
     }
 
     fun withConversationUnreadEventsCount(result: GetConversationUnreadEventsCountUseCase.Result) = apply {
-        coEvery { getConversationUnreadEventsCount(any()) } returns result
+        coEvery { getConversationUnreadEventsCount(any(), any()) } returns result
+    }
+
+    fun withSearchedMessage(messageId: String, position: Int) = apply {
+        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(
+            conversationId = conversationId,
+            searchedMessageId = messageId,
+        )
+        coEvery {
+            getSearchedConversationMessagePosition(conversationId, messageId, any())
+        } returns GetSearchedConversationMessagePositionUseCase.Result.Success(position)
     }
 
     fun withGetMessageByIdReturning(message: Message) = apply {

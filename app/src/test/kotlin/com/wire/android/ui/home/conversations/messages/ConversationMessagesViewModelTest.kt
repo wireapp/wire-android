@@ -47,6 +47,7 @@ import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.message.MessagePagingStart
 import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
@@ -523,7 +524,9 @@ class ConversationMessagesViewModelTest {
             arrangement.withPaginatedMessagesReturning(PagingData.from(emptyList<UIMessage>()))
             awaitItem()
 
-            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 0) }
+            coVerify(exactly = 1) {
+                arrangement.getMessagesForConversationUseCase(any(), MessagePagingStart.Newest)
+            }
         }
     }
 
@@ -538,7 +541,41 @@ class ConversationMessagesViewModelTest {
             arrangement.withPaginatedMessagesReturning(PagingData.from(emptyList<UIMessage>()))
             awaitItem()
 
-            coVerify(exactly = 1) { arrangement.getMessagesForConversationUseCase(any(), 12) }
+            coVerify(exactly = 1) {
+                arrangement.getMessagesForConversationUseCase(
+                    any(),
+                    MessagePagingStart.AroundFirstUnread(itemsBefore = 29)
+                )
+            }
+            coVerify(exactly = 1) {
+                arrangement.getConversationUnreadEventsCount(any(), maximumCount = 30)
+            }
+            viewModel.conversationViewState.firstUnreadEventIndex shouldBeEqualTo 11
+        }
+    }
+
+    @Test
+    fun `given searched message, then messages requested around that message`() = runTest {
+        val messageId = "searched-message"
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSearchedMessage(messageId, position = 100)
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(PagingData.from(emptyList<UIMessage>()))
+            awaitItem()
+
+            coVerify(exactly = 1) {
+                arrangement.getMessagesForConversationUseCase(
+                    any(),
+                    MessagePagingStart.AroundMessage(messageId, itemsBefore = 29)
+                )
+            }
+            coVerify(exactly = 1) {
+                arrangement.getSearchedConversationMessagePosition(any(), messageId, maximumPosition = 30)
+            }
+            viewModel.conversationViewState.firstUnreadEventIndex shouldBeEqualTo 29
         }
     }
 

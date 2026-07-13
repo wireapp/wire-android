@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
@@ -40,12 +40,12 @@ jobs:
           df -h
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      - uses: WarpBuilds/cache@v1
+      - uses: WarpBuilds/cache@6ab98e7fdd65255995acec1de229a0bf2a40fe37 # v1
         with:
           path: |
             ~/.gradle/caches
@@ -55,7 +55,7 @@ jobs:
             ${{ runner.os }}-gradle-    
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6
+        uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6
 
       - name: Enable KVM group perms
         run: |
@@ -64,7 +64,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: AVD cache
-        uses: WarpBuilds/cache@v1
+        uses: WarpBuilds/cache@6ab98e7fdd65255995acec1de229a0bf2a40fe37 # v1
         id: avd-cache
         with:
           path: |
@@ -76,7 +76,7 @@ jobs:
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
@@ -87,7 +87,7 @@ jobs:
           script: echo "Generated AVD snapshot for caching."
 
       - name: Android Instrumentation Tests
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
@@ -110,7 +110,7 @@ jobs:
           zip -r integration-tests-android_${{ env.COMMIT_HASH }}.zip acceptanceTests/flavors/
 
       - name: Upload zipped test results
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: integration-tests-android_${{ env.COMMIT_HASH }}-${{ inputs.artifact-suffix }}
           path: integration-tests-android_${{ env.COMMIT_HASH }}.zip

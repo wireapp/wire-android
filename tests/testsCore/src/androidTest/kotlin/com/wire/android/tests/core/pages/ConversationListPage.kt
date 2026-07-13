@@ -540,6 +540,12 @@ data class ConversationListPage(private val device: UiDevice) {
     return this
 }
 
+    fun clickUserProfileButtonNoPhoto(): ConversationListPage {
+        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
+        buttonNoPhoto.click()
+    return this
+}
+
     fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationListPage {
         try {
             UiWaitUtils.waitElement(displayedUserName(userName))

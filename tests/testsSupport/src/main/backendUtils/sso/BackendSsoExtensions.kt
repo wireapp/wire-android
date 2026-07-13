@@ -56,3 +56,31 @@ fun BackendClient.createIdentityProvider(user: ClientUser, metadata: String): St
     val responseBody = JSONObject(response.body)
     return responseBody.getString("id")
 }
+
+// Creates an identity provider through the backend v2 API and returns its id.
+fun BackendClient.createIdentityProviderV2(user: ClientUser, metadata: String): String {
+    val token = runBlocking { getAuthToken(user) }
+    val url = URL("v5/identity-providers?api_version=v2".composeCompleteUrl())
+
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token?.type} ${token?.value}")
+        put("Accept", BackendClient.applicationJson)
+        put("Content-Type", "application/xml")
+    }
+
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "POST",
+        body = metadata,
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_CREATED)
+            )
+        )
+    )
+
+    val responseBody = JSONObject(response.body)
+    return responseBody.getString("id")
+}

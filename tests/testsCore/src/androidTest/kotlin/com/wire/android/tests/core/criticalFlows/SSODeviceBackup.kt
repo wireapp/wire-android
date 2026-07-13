@@ -18,264 +18,340 @@
 package com.wire.android.tests.core.criticalFlows
 
 import SSOServiceHelper
-import SSOServiceHelper.thereIsASSOTeamOwnerForOkta
-import SSOServiceHelper.userAddsOktaUser
-import SSOServiceHelper.userXIsMe
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import deleteDownloadedFilesContaining
+import keycloak.KeycloakApiClient
 import kotlinx.coroutines.runBlocking
-import okta.OktaApiClient
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.UiWaitUtils
-import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class SSODeviceBackup : BaseUiTest() {
-    private lateinit var oktaApiClient: OktaApiClient
-    private var teamOwner: ClientUser? = null
-    private var member1: ClientUser? = null
+    private lateinit var keycloakApiClient: KeycloakApiClient
+    private lateinit var teamOwner: ClientUser
+    private lateinit var member1: ClientUser
 
     @Before
     fun setUp() {
-        initCommonTestHelpers()
+        initCommonTestHelpers("mobtown-lemon")
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        SSOServiceHelper.clientUserManager = clientUserManager
-        oktaApiClient = OktaApiClient()
+        SSOServiceHelper.initialize(clientUserManager)
+        keycloakApiClient = KeycloakApiClient(backendClient)
     }
 
     @After
     fun tearDown() {
         deleteDownloadedFilesContaining("Wire")
-        runCatching { oktaApiClient.cleanUp() }
+        runCatching { keycloakApiClient.cleanUp() }
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8604")
     @Category("criticalFlow")
     @Test
-    fun givenSSOTeamWithOkta_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored() {
-        step("Prepare backend SSO team in Okta (owner + member) and set current user") {
+    fun givenSSOTeamWithKeycloak_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored() {
+        var ssoCode = ""
+
+        step("There is TeamOwner with team Messaging on mobtown-lemon backend wired to Keycloak SSO") {
             runBlocking {
-                testServiceHelper.thereIsASSOTeamOwnerForOkta(
+                SSOServiceHelper.createKeycloakSsoTeamOwner(
                     context,
                     "user1Name",
                     "Messaging",
-                    oktaApiClient
-                )
-                teamOwner = clientUserManager.findUserBy(
-                    "user1Name",
-                    ClientUserManager.FindBy.NAME_ALIAS
-                )
-
-                testServiceHelper.userAddsOktaUser("user1Name", "user2Name", oktaApiClient)
-
-                testServiceHelper.userXIsMe("user2Name")
-
-                member1 = clientUserManager.findUserBy(
-                    "user2Name",
-                    ClientUserManager.FindBy.NAME_ALIAS
+                    keycloakApiClient
                 )
             }
+        }
 
-            step("Get SSO code and start the SSO login flow") {
-                val ssoCode = SSOServiceHelper.getSSOCode()
+        step("User TeamOwner is available") {
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
+        }
 
-                step("Start SSO login flow using SSO code") {
-                    pages.registrationPage.apply {
-                        assertEmailWelcomePage()
-                    }
-                    pages.loginPage.apply {
-                        clickStagingDeepLink()
-                        clickProceedButtonOnDeeplinkOverlay()
-                    }
-                    pages.loginPage.apply {
-                        enterSSOCodeOnSSOLoginTab(ssoCode)
-                        clickLoginButton()
-                    }
-                }
+        step("User Member1 is created in Keycloak for SSO login") {
+            runBlocking {
+                SSOServiceHelper.addKeycloakSsoUsers(
+                    "user1Name",
+                    "user2Name",
+                    keycloakApiClient
+                )
+            }
+        }
 
-                step("Complete Okta login (email + password) and wait for Wire auth handoff") {
-                    pages.ssoPage.apply {
-                        waitUntilOktaPageLoaded()
-                        enterOktaEmail(member1?.email ?: "")
-                        enterOktaPassword(member1?.password ?: "")
-                        tapOktaSignIn()
-                        // Wait for Okta → Wire auth handoff to finish; otherwise, setting up wire page will not succeed.
-                        UiWaitUtils.waitFor(5.seconds)
-                    }
-                }
+        step("User Member1 is me") {
+            SSOServiceHelper.setCurrentSsoUser("user2Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+        }
 
-                step("Finish first-time setup after login (notifications, username, privacy prompts)") {
-                    pages.registrationPage.apply {
-                        waitUntilLoginFlowIsCompleted()
-                        clickAllowNotificationButton()
-                        setUserName(member1?.uniqueUsername.orEmpty())
-                        clickConfirmButton()
-                        waitUntilLoginFlowIsCompleted()
-                        clickDeclineShareDataAlert()
-                    }
-                }
+        step("And I get SSO code for team Messaging") {
+            ssoCode = SSOServiceHelper.getSsoCode()
+        }
 
-                step("Start new conversation flow from conversation list") {
-                    pages.conversationListPage.apply {
-                        tapStartNewConversationButton()
-                    }
-                }
+        step("And I see welcome screen before login") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage()
+            }
+        }
 
-                step("Search for team owner and open their profile from search results") {
-                    pages.searchPage.apply {
-                        tapSearchPeopleField()
-                        typeUniqueUserNameInSearchField(clientUserManager, "user1Name")
-                        assertUsernameInSearchResultIs(teamOwner?.name ?: "")
-                        tapUsernameInSearchResult(teamOwner?.name ?: "")
-                    }
-                }
+        step("And I open mobtown-lemon deep link login flow") {
+            pages.loginPage.apply {
+                clickStagingDeepLink("mobtown-lemon")
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
 
-                step("Start conversation with team owner from connected user profile") {
-                    pages.connectedUserProfilePage.apply {
-                        assertStartConversationButtonVisible()
-                        clickStartConversationButton()
-                    }
-                }
+        step("And I start SSO login flow using the team SSO code") {
+            pages.loginPage.apply {
+                enterSSOCodeOnSSOLoginTab(ssoCode)
+                clickLoginButton()
+            }
+        }
 
-                step("Send message in conversation and verify it is visible") {
-                    pages.conversationViewPage.apply {
-                        assertConversationScreenVisible()
-                        typeMessageInInputField("Testing of the backup functionality")
-                        clickSendButton()
-                        assertSentMessageIsVisibleInCurrentConversation("Testing of the backup functionality")
-                        tapBackButtonToCloseConversationViewPage()
-                    }
-                }
+        step("And I complete Keycloak login as Member1") {
+            pages.ssoPage.apply {
+                waitUntilKeycloakPageLoaded()
+                enterKeycloakEmail(member1.email ?: "")
+                enterKeycloakPassword(member1.password ?: "")
+                tapKeycloakSignIn()
+            }
+        }
 
-                step("Exit profile/new conversation flow and return to conversation list") {
-                    pages.connectedUserProfilePage.apply {
-                        tapCloseButtonOnConnectedUserProfilePage()
-                    }
-                    pages.searchPage.apply {
-                        clickCloseButtonOnSearchInputField()
-                    }
-                    pages.conversationListPage.apply {
-                        clickCloseButtonOnNewConversationScreen()
-                        assertConversationListVisible()
-                    }
-                }
+        step("And I allow the notification permission prompt after login") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+            }
+        }
 
-                step("Open Settings from conversations menu entry") {
-                    pages.conversationListPage.apply {
-                        clickConversationsMenuEntry()
-                        clickSettingsButtonOnMenuEntry()
-                    }
-                }
+        step("And I set Member1 username and confirm profile setup") {
+            pages.registrationPage.apply {
+                setUserName(member1.uniqueUsername.orEmpty())
+                clickConfirmButton()
+            }
+        }
 
-                step("Create backup and save backup file") {
-                    pages.settingsPage.apply {
-                        openBackupAndRestoreConversationsMenu()
-                    }
-                    pages.backupPage.apply {
-                        iSeeBackupPageHeading()
-                        clickCreateBackupButton()
-                        clickBackUpNowButton()
-                        iSeeBackupConfirmation("Conversations successfully saved")
-                        iTapSaveFileButton()
-                        iTapSaveInOSMenuButton()
-                        iSeeBackupPageHeading()
-                    }
-                    pages.settingsPage.apply {
-                        clickBackButtonOnSettingsPage()
-                    }
-                }
+        step("And I decline the share data alert after login") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickDeclineShareDataAlert()
+            }
+        }
 
-                step("Navigate to self profile and log out with 'delete personal information' checked") {
-                    pages.conversationListPage.apply {
-                        clickConversationsMenuEntry()
-                        clickConversationsButtonOnMenuEntry()
-                        clickUserProfileButton()
-                    }
-                    pages.selfUserProfilePage.apply {
-                        iSeeUserProfilePage()
-                        tapLogoutButton()
-                        iSeeClearDataOnLogOutAlert()
-                        iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                        tapInfoTextCheckbox()
-                        tapLogoutButton()
-                    }
-                }
+        step("And I start a new conversation from conversation list") {
+            pages.conversationListPage.apply {
+                tapStartNewConversationButton()
+            }
+        }
 
-                step("Start SSO login again using SSO code") {
-                    pages.registrationPage.apply {
-                        assertEmailWelcomePage(timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
-                    }
-                    pages.loginPage.apply {
-                        clickStagingDeepLink()
-                        clickProceedButtonOnDeeplinkOverlay()
-                    }
-                    pages.loginPage.apply {
-                        enterSSOCodeOnSSOLoginTab(ssoCode)
-                        clickLoginButton()
-                    }
+        step("And I search for TeamOwner and open the user profile") {
+            pages.searchPage.apply {
+                tapSearchPeopleField()
+                typeUniqueUserNameInSearchField(clientUserManager, "user1Name")
+                assertUsernameInSearchResultIs(teamOwner.name ?: "")
+                tapUsernameInSearchResult(teamOwner.name ?: "")
+            }
+        }
 
-                    UiWaitUtils.waitFor(5.seconds) // Wait for Okta → Wire auth handoff to finish;
-                }
+        step("And I start conversation with TeamOwner from the user profile") {
+            pages.connectedUserProfilePage.apply {
+                assertStartConversationButtonVisible()
+                clickStartConversationButton()
+            }
+        }
 
-                step("Finish login flow after logout (decline share data)") {
-                    pages.registrationPage.apply {
-                        waitUntilLoginFlowIsCompleted()
-                        clickDeclineShareDataAlert()
-                    }
-                }
+        step("When I send the message Testing of the backup functionality") {
+            pages.conversationViewPage.apply {
+                assertConversationScreenVisible()
+                typeMessageInInputField("Testing of the backup functionality")
+                clickSendButton()
+            }
+        }
 
-                step("Open conversation with team owner and verify message is not visible before restore") {
-                    pages.conversationListPage.apply {
-                        assertConversationIsVisibleWithTeamOwner(teamOwner?.name ?: "")
-                        tapConversationNameInConversationList(teamOwner?.name ?: "")
-                    }
-                    pages.conversationViewPage.apply {
-                        assertMessageNotVisible("Testing of the backup functionality")
-                        tapBackButtonToCloseConversationViewPage()
-                    }
-                }
+        step("Then I see the message Testing of the backup functionality in current conversation") {
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("Testing of the backup functionality")
+            }
+        }
 
-                step("Open Settings again to restore backup") {
-                    pages.conversationListPage.apply {
-                        clickConversationsMenuEntry()
-                        clickSettingsButtonOnMenuEntry()
-                    }
-                }
+        step("And I tap back button to leave the conversation") {
+            pages.conversationViewPage.apply {
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
 
-                step("Restore backup by selecting saved file and confirm restore completion") {
-                    pages.settingsPage.apply {
-                        openBackupAndRestoreConversationsMenu()
-                    }
-                    pages.backupPage.apply {
-                        iSeeBackupPageHeading()
-                        clickRestoreBackupButton()
-                        clickChooseBackupFileButton()
-                        selectBackupFileInDocumentsUI(clientUserManager, "user2Name")
-                        waitUntilThisTextIsDisplayedOnBackupAlert("Conversations have been restored")
-                        clickOkButtonOnBackupAlert()
-                    }
-                }
+        step("And I return from the profile flow to conversation list") {
+            pages.connectedUserProfilePage.apply {
+                tapCloseButtonOnConnectedUserProfilePage()
+            }
+            pages.searchPage.apply {
+                clickCloseButtonOnSearchInputField()
+            }
+            pages.conversationListPage.apply {
+                clickCloseButtonOnNewConversationScreen()
+                assertConversationListVisible()
+            }
+        }
 
-                step("Open conversation again and verify message visibility after restore") {
-                    pages.conversationListPage.apply {
-                        assertConversationListVisible()
-                        assertConversationIsVisibleWithTeamOwner(teamOwner?.name ?: "")
-                        tapConversationNameInConversationList(teamOwner?.name ?: "")
-                    }
-                    pages.conversationViewPage.apply {
-                        assertRestoredBackupMessageIsVisibleInCurrentConversation("Testing of the backup functionality")
-                    }
-                }
+        step("And I open Settings from conversations menu entry") {
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+
+        step("And I open backup page from Settings") {
+            pages.settingsPage.apply {
+                openBackupAndRestoreConversationsMenu()
+            }
+            pages.backupPage.apply {
+                iSeeBackupPageHeading()
+            }
+        }
+
+        step("When I create a backup") {
+            pages.backupPage.apply {
+                clickCreateBackupButton()
+                clickBackUpNowButton()
+                iSeeBackupConfirmation("Conversations successfully saved")
+            }
+        }
+
+        step("And I save the backup file to the device") {
+            pages.backupPage.apply {
+                iTapSaveFileButton()
+                iTapSaveInOSMenuButton()
+            }
+        }
+
+        step("Then I see backup page heading again and return to Settings") {
+            pages.backupPage.apply {
+                iSeeBackupPageHeading()
+            }
+            pages.settingsPage.apply {
+                clickBackButtonOnSettingsPage()
+            }
+        }
+
+        step("And I open my self profile from the conversations menu") {
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickConversationsButtonOnMenuEntry()
+                clickUserProfileButtonNoPhoto()
+            }
+        }
+
+        step("When I tap logout from my self profile and see the clear data alert") {
+            pages.selfUserProfilePage.apply {
+                iSeeUserProfilePage()
+                tapLogoutButton()
+                iSeeClearDataOnLogOutAlert()
+            }
+        }
+
+        step("And I choose to delete personal information from this device and log out") {
+            pages.selfUserProfilePage.apply {
+                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
+                tapInfoTextCheckbox()
+                tapLogoutButton()
+            }
+        }
+
+        step("Then I see welcome screen before logging in again") {
+            pages.registrationPage.apply {
+                assertEmailWelcomePage(timeout = UiWaitUtils.MEDIUM_TIMEOUT)
+            }
+        }
+
+        step("And I open mobtown-lemon deep link login flow again") {
+            pages.loginPage.apply {
+                clickStagingDeepLink("mobtown-lemon")
+                clickProceedButtonOnDeeplinkOverlay()
+            }
+        }
+
+        step("And I start SSO login flow again using the team SSO code") {
+            pages.loginPage.apply {
+                enterSSOCodeOnSSOLoginTab(ssoCode)
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login privacy prompt after logout") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("And I open the conversation with TeamOwner before restoring the backup") {
+            pages.conversationListPage.apply {
+                assertConversationIsVisibleWithTeamOwner(teamOwner.name ?: "")
+                tapConversationNameInConversationList(teamOwner.name ?: "")
+            }
+        }
+
+        step("Then I do not see the message Testing of the backup functionality in current conversation") {
+            pages.conversationViewPage.apply {
+                assertMessageNotVisible("Testing of the backup functionality")
+            }
+        }
+
+        step("And I tap back button to leave the conversation before restore") {
+            pages.conversationViewPage.apply {
+                UiWaitUtils.waitFor(1.seconds)
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+
+        step("And I open Settings from conversations menu entry again") {
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+
+        step("And I open backup page again") {
+            pages.settingsPage.apply {
+                openBackupAndRestoreConversationsMenu()
+            }
+            pages.backupPage.apply {
+                iSeeBackupPageHeading()
+            }
+        }
+
+        step("When I restore the saved backup file") {
+            pages.backupPage.apply {
+                clickRestoreBackupButton()
+                clickChooseBackupFileButton()
+                selectBackupFileInDocumentsUI(clientUserManager, "user2Name")
+            }
+        }
+
+        step("Then I see restore confirmation and accept it") {
+            pages.backupPage.apply {
+                waitUntilThisTextIsDisplayedOnBackupAlert("Conversations have been restored")
+                clickOkButtonOnBackupAlert()
+            }
+        }
+
+        step("And I open the conversation with TeamOwner after restore") {
+            pages.conversationListPage.apply {
+                assertConversationIsVisibleWithTeamOwner(teamOwner.name ?: "")
+                tapConversationNameInConversationList(teamOwner.name ?: "")
+            }
+        }
+
+        step("Then I see the restored message Testing of the backup functionality in current conversation") {
+            pages.conversationViewPage.apply {
+                assertRestoredBackupMessageIsVisibleInCurrentConversation("Testing of the backup functionality")
             }
         }
     }

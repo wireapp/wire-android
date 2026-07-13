@@ -58,7 +58,7 @@ jobs:
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
 
       - name: Install 1Password CLI
-        uses: 1password/install-cli-action@a138a5b7fd0a1df9a016e73c87d2ada1694846b1 # v4
+        uses: 1password/install-cli-action@a5215d3a7f75c1629216c465ea9ab3ab399c4b71 # v4
 
       - name: Fetch runtime secrets
         run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets

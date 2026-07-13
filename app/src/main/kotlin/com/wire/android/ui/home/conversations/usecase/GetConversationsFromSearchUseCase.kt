@@ -83,41 +83,21 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         return when (conversationFilter) {
             ConversationFilter.All,
             ConversationFilter.Groups,
-            ConversationFilter.Channels ->
-                useCase(
-                    queryConfig = ConversationQueryConfig(
-                        searchQuery = searchQuery,
-                        fromArchive = fromArchive,
-                        newActivitiesOnTop = newActivitiesOnTop,
-                        onlyInteractionEnabled = onlyInteractionEnabled,
-                        conversationFilter = conversationFilter,
-                    ),
-                    pagingConfig = pagingConfig,
-                    startingOffset = 0L,
-                    strictMlsFilter = useStrictMlsFilter
-                ).mapToConversationItems(
-                    selfUserTeamId = selfUserTeamId,
-                    initialJoinableCallsByConversationId = initialJoinableCallsByConversationId,
-                    joinableCallsFlow = joinableCallsFlow
-                )
-
-            ConversationFilter.OneOnOne ->
-                useCase(
-                    queryConfig = ConversationQueryConfig(
-                        searchQuery = searchQuery,
-                        fromArchive = fromArchive,
-                        newActivitiesOnTop = newActivitiesOnTop,
-                        onlyInteractionEnabled = onlyInteractionEnabled,
-                        conversationFilter = conversationFilter,
-                    ),
-                    pagingConfig = pagingConfig,
-                    startingOffset = 0L,
-                    strictMlsFilter = useStrictMlsFilter
-                ).mapToConversationItems(
-                    selfUserTeamId = selfUserTeamId,
-                    initialJoinableCallsByConversationId = emptyMap(),
-                    joinableCallsFlow = flowOf(emptyMap())
-                )
+            ConversationFilter.Channels,
+            ConversationFilter.OneOnOne -> getPaginatedConversationItems(
+                queryConfig = ConversationQueryConfig(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    conversationFilter = conversationFilter,
+                ),
+                pagingConfig = pagingConfig,
+                useStrictMlsFilter = useStrictMlsFilter,
+                selfUserTeamId = selfUserTeamId,
+                initialJoinableCallsByConversationId = initialJoinableCallsByConversationId,
+                joinableCallsFlow = joinableCallsFlow
+            )
 
             ConversationFilter.Favorites -> {
                 when (val result = getFavoriteFolderUseCase.invoke()) {
@@ -125,28 +105,50 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     is GetFavoriteFolderUseCase.Result.Success ->
                         observeConversationsFromFromFolder(result.folder.id)
                 }
-                    .combine(joinableCallsFlow) { conversations, joinableCallsByConversationId ->
-                        staticPagingItems(
-                            conversations.toConversationItems(
-                                selfUserTeamId = selfUserTeamId,
-                                joinableCallsByConversationId = joinableCallsByConversationId
-                            )
-                        )
-                    }
+                    .mapToStaticConversationItems(selfUserTeamId, joinableCallsFlow)
             }
 
             is ConversationFilter.Folder -> {
                 observeConversationsFromFromFolder(conversationFilter.folderId)
-                    .combine(joinableCallsFlow) { conversations, joinableCallsByConversationId ->
-                        staticPagingItems(
-                            conversations.toConversationItems(
-                                selfUserTeamId = selfUserTeamId,
-                                joinableCallsByConversationId = joinableCallsByConversationId
-                            )
-                        )
-                    }
+                    .mapToStaticConversationItems(selfUserTeamId, joinableCallsFlow)
             }
         }.flowOn(dispatchers.io())
+    }
+
+    @Suppress("LongParameterList")
+    private suspend fun getPaginatedConversationItems(
+        queryConfig: ConversationQueryConfig,
+        pagingConfig: PagingConfig,
+        useStrictMlsFilter: Boolean,
+        selfUserTeamId: TeamId?,
+        initialJoinableCallsByConversationId: Map<ConversationId, Call>,
+        joinableCallsFlow: Flow<Map<ConversationId, Call>>
+    ): Flow<PagingData<ConversationItem>> {
+        val includeJoinableCalls = queryConfig.conversationFilter != ConversationFilter.OneOnOne
+        val initialCalls = if (includeJoinableCalls) initialJoinableCallsByConversationId else emptyMap()
+        val callsFlow = if (includeJoinableCalls) joinableCallsFlow else flowOf(emptyMap())
+        return useCase(
+            queryConfig = queryConfig,
+            pagingConfig = pagingConfig,
+            startingOffset = 0L,
+            strictMlsFilter = useStrictMlsFilter
+        ).mapToConversationItems(
+            selfUserTeamId = selfUserTeamId,
+            initialJoinableCallsByConversationId = initialCalls,
+            joinableCallsFlow = callsFlow
+        )
+    }
+
+    private fun Flow<List<ConversationDetailsWithEvents>>.mapToStaticConversationItems(
+        selfUserTeamId: TeamId?,
+        joinableCallsFlow: Flow<Map<ConversationId, Call>>
+    ): Flow<PagingData<ConversationItem>> = combine(joinableCallsFlow) { conversations, joinableCallsByConversationId ->
+        staticPagingItems(
+            conversations.toConversationItems(
+                selfUserTeamId = selfUserTeamId,
+                joinableCallsByConversationId = joinableCallsByConversationId
+            )
+        )
     }
 
     private fun Flow<PagingData<ConversationDetailsWithEvents>>.mapToConversationItems(

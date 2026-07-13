@@ -16,7 +16,7 @@ runs:
     - name: Notify
       if: ${{ inputs.body != '' }}
       continue-on-error: true
-      uses: slackapi/slack-github-action@v3
+      uses: slackapi/slack-github-action@0d95c9a7becc1e6e297d76df9bc735c44f4cbcbc # v3
       with:
         webhook: ${{ inputs.webhook-url }}
         webhook-type: incoming-webhook

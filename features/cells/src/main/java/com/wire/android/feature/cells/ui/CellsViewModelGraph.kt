@@ -15,6 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
@@ -33,6 +36,7 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
+import com.wire.android.feature.cells.ui.videoplayer.VideoPlayerViewModel
 
 @Composable
 inline fun <reified VM> cellsViewModel(
@@ -87,3 +91,6 @@ fun versionHistoryViewModel(): VersionHistoryViewModel = cellsViewModel()
 
 @Composable
 fun cellImageViewerViewModel(): CellImageViewerViewModel = cellsViewModel()
+
+@Composable
+fun cellVideoViewerViewModel(): VideoPlayerViewModel = cellsViewModel()

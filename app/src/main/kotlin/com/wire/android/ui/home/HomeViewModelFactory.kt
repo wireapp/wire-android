@@ -37,6 +37,7 @@ import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
@@ -77,6 +78,7 @@ class HomeViewModelFactory @Inject constructor(
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
+    private val observeJoinableCalls: ObserveJoinableCallsUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val refreshConversationsWithoutMetadata: RefreshConversationsWithoutMetadataUseCase,
     private val observeLegalHoldStateForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
@@ -140,6 +142,7 @@ class HomeViewModelFactory @Inject constructor(
         userTypeMapper = userTypeMapper,
         getSelfTeamId = getSelfTeamId,
         uiTextResolver = uiTextResolver,
+        observeJoinableCalls = observeJoinableCalls,
     )
 
     fun newConversationViewModel() = NewConversationViewModel(

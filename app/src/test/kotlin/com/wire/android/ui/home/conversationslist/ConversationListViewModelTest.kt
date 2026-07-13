@@ -42,6 +42,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
@@ -296,6 +297,9 @@ class ConversationListViewModelTest {
                 ObserveConversationListDetailsWithEventsUseCase
 
         @MockK
+        private lateinit var observeJoinableCalls: ObserveJoinableCallsUseCase
+
+        @MockK
         private lateinit var observeLegalHoldStateForSelfUserUseCase: ObserveLegalHoldStateForSelfUserUseCase
 
         @MockK
@@ -323,6 +327,7 @@ class ConversationListViewModelTest {
                 }
             )
             every { audioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
+            coEvery { observeJoinableCalls() } returns flowOf(emptyMap())
             coEvery { getSelfTeamId() } returns TestUser.SELF_USER.teamId
             coEvery { uiTextResolver.resolve(any()) } answers {
                 val text = firstArg<UIText>()
@@ -371,6 +376,7 @@ class ConversationListViewModelTest {
             refreshConversationsWithoutMetadata = refreshConversationsWithoutMetadata,
             currentAccount = TestUser.SELF_USER_ID,
             observeConversationListDetailsWithEvents = observeConversationListDetailsWithEventsUseCase,
+            observeJoinableCalls = observeJoinableCalls,
             observeLegalHoldStateForSelfUser = observeLegalHoldStateForSelfUserUseCase,
             userTypeMapper = UserTypeMapper(),
             getSelfTeamId = getSelfTeamId,

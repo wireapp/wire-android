@@ -18,18 +18,18 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      - uses: WarpBuilds/cache@v1
+      - uses: WarpBuilds/cache@6ab98e7fdd65255995acec1de229a0bf2a40fe37 # v1
         with:
           path: |
             ~/.gradle/caches
@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-gradle-     
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6
+        uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6
 
       - name: Install Git LFS
         run: |
@@ -48,7 +48,7 @@ jobs:
           git lfs checkout
 
       - name: Setup GitHub Actions Bot for Git
-        uses: fregante/setup-git-user@v2
+        uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2
 
       - name: Merge Develop into screenshot-tests
         run: |
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload Screenshot Test Report
         id: upload_artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: screenshot-test-report
           path: screenshot-test-report.zip

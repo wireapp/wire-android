@@ -173,6 +173,10 @@ fun ConversationDetailsWithEvents.toConversationItem(
     is ConversationDetails.Team -> {
         throw IllegalArgumentException("Team conversations should not be visible to the user.")
     }
+
+    is Group.Meeting -> {
+        throw IllegalArgumentException("Meeting conversations should not be visible to the user.")
+    }
 }
 
 private fun Group.hasJoinableCall(joinableCallsByConversationId: Map<ConversationId, Call>): Boolean =

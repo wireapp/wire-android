@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           ref: ${{ env.BASE_BRANCH }}
           clean: true
@@ -45,17 +45,17 @@ jobs:
           submodules: recursive
 
       - name: Set up Java 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
           distribution: temurin
           java-version: "21"
           cache: gradle
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6
+        uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
 
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@a138a5b7fd0a1df9a016e73c87d2ada1694846b1 # v4
@@ -100,7 +100,7 @@ jobs:
           test -s app/src/main/startup-prof.txt
 
       - name: Upload generated profiles
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: baseline-profile-${{ github.run_id }}
           path: |
@@ -108,7 +108,7 @@ jobs:
           if-no-files-found: error
 
       - name: Create or update baseline profile PR
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           branch: ${{ env.REFRESH_BRANCH }}-${{ env.BASE_BRANCH }}

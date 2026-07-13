@@ -20,28 +20,9 @@ package com.wire.android.ui.calling.common
 import android.os.Build
 import android.view.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.PictureInPictureModeChangedInfo
-import androidx.core.util.Consumer
 import com.wire.android.ui.LocalActivity
-
-@Composable
-internal fun ObservePictureInPictureMode(onChanged: (Boolean) -> Unit) {
-    val activity = LocalActivity.current
-    DisposableEffect(Unit) {
-        val consumer = object : Consumer<PictureInPictureModeChangedInfo> {
-            override fun accept(value: PictureInPictureModeChangedInfo) {
-                onChanged(value.isInPictureInPictureMode)
-            }
-        }
-        activity.addOnPictureInPictureModeChangedListener(consumer)
-        onDispose {
-            activity.removeOnPictureInPictureModeChangedListener(consumer)
-        }
-    }
-}
 
 @Composable
 internal fun ObserveRotation(onChanged: (Int) -> Unit) {

@@ -40,12 +40,13 @@ import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCas
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import dev.zacsweers.metro.Inject
+import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -152,26 +153,28 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         selfUserTeamId: TeamId?,
         initialJoinableCallsByConversationId: Map<ConversationId, Call>,
         joinableCallsFlow: Flow<Map<ConversationId, Call>>
-    ): Flow<PagingData<ConversationItem>> = channelFlow {
-        val latestJoinableCallsByConversationId = MutableStateFlow(initialJoinableCallsByConversationId)
-        val callsJob = launch {
-            joinableCallsFlow.collect { latestJoinableCallsByConversationId.value = it }
-        }
-        try {
-            collect { pagingData ->
-                send(
-                    pagingData.map {
-                        it.toConversationItem(
-                            userTypeMapper = userTypeMapper,
-                            uiTextResolver = uiTextResolver,
-                            selfUserTeamId = selfUserTeamId,
-                            joinableCallsByConversationId = latestJoinableCallsByConversationId.value
-                        )
-                    }
-                )
+    ): Flow<PagingData<ConversationItem>> = flow {
+        val latestJoinableCallsByConversationId = AtomicReference(initialJoinableCallsByConversationId)
+        coroutineScope {
+            val callsJob = launch {
+                joinableCallsFlow.collect { latestJoinableCallsByConversationId.set(it) }
             }
-        } finally {
-            callsJob.cancel()
+            try {
+                this@mapToConversationItems.collect { pagingData ->
+                    emit(
+                        pagingData.map {
+                            it.toConversationItem(
+                                userTypeMapper = userTypeMapper,
+                                uiTextResolver = uiTextResolver,
+                                selfUserTeamId = selfUserTeamId,
+                                joinableCallsByConversationId = latestJoinableCallsByConversationId.get()
+                            )
+                        }
+                    )
+                }
+            } finally {
+                callsJob.cancel()
+            }
         }
     }
 

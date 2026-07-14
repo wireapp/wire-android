@@ -19,40 +19,64 @@ package com.wire.android.feature.meetings.mapper
 
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingItem.Status
-import com.wire.android.feature.meetings.ui.mock.Meeting
+import com.wire.android.model.ImageAsset
+import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.util.DateTimeUtil
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.minutes
 
 private val BUFFER_TIME = 5.minutes
 
-fun Meeting.toMeetingItem(time: Instant, ongoingCallStatus: MeetingItem.OngoingCallStatus?): MeetingItem = MeetingItem(
+fun MeetingOccurrence.toMeetingItem(time: Instant, ongoingCallStatus: MeetingItem.OngoingCallStatus?): MeetingItem = MeetingItem(
+    occurrenceId = occurrenceId,
     meetingId = meetingId,
     conversationId = conversationId,
-    belongingType = belongingType,
-    repeatingInterval = repeatingInterval,
+    belongingType = toBelongingType(),
+    repeatingInterval = recurrence.toRepeatingInterval(),
     title = title,
     status = when {
-        startTime > time && endTime != null -> Status.Scheduled(
-            startTime = startTime,
-            endTime = endTime
-        )
-
-        startTime < time && endTime != null && endTime + BUFFER_TIME < time -> Status.Ended(
-            startTime = startTime,
-            endTime = endTime
-        )
-
-        else -> Status.Ongoing(
-            startTime = startTime,
-            scheduledEndTime = endTime,
-            ongoingCallStatus = ongoingCallStatus
-        )
+        startTime > time && endTime != null -> Status.Scheduled(startTime = startTime, endTime = endTime!!)
+        startTime < time && endTime != null && endTime!! + BUFFER_TIME < time -> Status.Ended(startTime = startTime, endTime = endTime!!)
+        else -> Status.Ongoing(startTime = startTime, scheduledEndTime = endTime, ongoingCallStatus = ongoingCallStatus)
     },
-    selfRole = selfRole,
+    selfRole = selfRole.toItemSelfRole()
 )
+
+fun MeetingOccurrence.SelfRole.toItemSelfRole(): MeetingItem.SelfRole = when (this) {
+    MeetingOccurrence.SelfRole.Creator -> MeetingItem.SelfRole.Creator
+    MeetingOccurrence.SelfRole.Member -> MeetingItem.SelfRole.Member
+}
+
+private fun MeetingOccurrence.toBelongingType(): MeetingItem.BelongingType = when (val conversationType = conversationType) {
+    is MeetingOccurrence.ConversationType.Meeting -> MeetingItem.BelongingType.Groupless(
+        avatars = conversationType.previewPictures.map {
+            UserAvatarData(asset = ImageAsset.UserAvatarAsset(it))
+        }.toImmutableList(),
+    )
+
+    is MeetingOccurrence.ConversationType.Group -> MeetingItem.BelongingType.Group(
+        name = conversationName,
+    )
+
+    is MeetingOccurrence.ConversationType.Channel -> MeetingItem.BelongingType.Channel(
+        name = conversationName,
+        isPrivateChannel = conversationType.isPrivateChannel
+    )
+
+    is MeetingOccurrence.ConversationType.OneOnOne -> MeetingItem.BelongingType.OneOnOne(
+        username = conversationName,
+        avatar = UserAvatarData(asset = conversationType.previewPicture?.let { ImageAsset.UserAvatarAsset(it) }),
+    )
+}
+
+private fun MeetingOccurrence.Recurrence?.toRepeatingInterval(): MeetingItem.RepeatingInterval = when (this) {
+    null -> MeetingItem.RepeatingInterval.Never
+    else -> MeetingItem.RepeatingInterval.Every(frequency, interval.toInt())
+}
 
 fun Call.toOngoingCallStatus() = when (status) {
     CallStatus.STARTED,
@@ -65,20 +89,6 @@ fun Call.toOngoingCallStatus() = when (status) {
         },
         isSelfUserAttending = status in listOf(CallStatus.STARTED, CallStatus.ANSWERED, CallStatus.ESTABLISHED),
     )
+
     else -> null // only calls in these states above are considered ongoing, other statuses mean the call is closed
 }
-
-fun MeetingItem.toMeeting(): Meeting = Meeting(
-    meetingId = meetingId,
-    conversationId = conversationId,
-    belongingType = belongingType,
-    title = title,
-    startTime = status.startTime,
-    endTime = when (status) {
-        is Status.Scheduled -> status.endTime
-        is Status.Ongoing -> status.scheduledEndTime
-        is Status.Ended -> status.endTime
-    },
-    repeatingInterval = repeatingInterval,
-    selfRole = selfRole
-)

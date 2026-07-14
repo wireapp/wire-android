@@ -60,9 +60,9 @@ fun MeetingOptionsModalSheetLayout(
     val snackbarHostState = LocalSnackbarHostState.current
     WireModalSheetLayout(
         sheetState = sheetState,
-        sheetContent = { meetingId ->
-            when (val state = viewModel.observeMeetingStateFlow(meetingId).collectAsStateWithLifecycle().value) {
-                is MeetingOptionsMenuState.Meeting -> MeetingOptionsModalContent(meeting = state.meeting).also {
+        sheetContent = { occurrenceId ->
+            when (val state = viewModel.observeMeetingStateFlow(occurrenceId).collectAsStateWithLifecycle().value) {
+                is MeetingOptionsMenuState.Meeting -> MeetingOptionsModalContent(meetingState = state).also {
                     sheetState.updateContent()
                 }
 
@@ -81,7 +81,7 @@ fun MeetingOptionsModalSheetLayout(
 
 @Composable
 private fun MeetingOptionsModalContent(
-    meeting: MeetingItem,
+    meetingState: MeetingOptionsMenuState.Meeting,
     onStartMeeting: () -> Unit = {},
     onCreateConversation: () -> Unit = {},
     onCopyLink: () -> Unit = {},
@@ -91,7 +91,7 @@ private fun MeetingOptionsModalContent(
 ) {
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
-            title = meeting.title,
+            title = meetingState.title,
             leadingIcon = { MeetingLeadingIcon() },
             includeDivider = true
         ),
@@ -103,7 +103,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onStartMeeting,
                 )
             }
-            addIf(meeting.selfRole == MeetingItem.SelfRole.Admin) {
+            addIf(meetingState.selfRole == MeetingItem.SelfRole.Creator) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_create_conversation),
                     leading = {
@@ -116,7 +116,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onCreateConversation,
                 )
             }
-            addIf(meeting.selfRole == MeetingItem.SelfRole.Admin) {
+            addIf(meetingState.selfRole == MeetingItem.SelfRole.Creator) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_copy_link),
                     leading = {
@@ -129,7 +129,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onCopyLink,
                 )
             }
-            addIf(meeting.selfRole == MeetingItem.SelfRole.Admin) {
+            addIf(meetingState.selfRole == MeetingItem.SelfRole.Creator) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_edit_meeting),
                     leading = {
@@ -156,7 +156,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onDeleteMeetingForMe,
                 )
             }
-            addIf(meeting.selfRole == MeetingItem.SelfRole.Admin) {
+            addIf(meetingState.selfRole == MeetingItem.SelfRole.Creator) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_delete_meeting_for_everyone),
                     leading = {
@@ -183,7 +183,7 @@ private fun <E> MutableList<E>.addIf(condition: Boolean, element: E) {
 fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
     MeetingOptionsModalSheetLayout(
         sheetState = rememberWireModalSheetState(
-            initialValue = WireSheetValue.Expanded(CurrentTimeProvider.Preview.scheduledRepeatingGroupMeeting.meetingId)
+            initialValue = WireSheetValue.Expanded(CurrentTimeProvider.Preview.scheduledRepeatingGroupMeeting.occurrenceId)
         )
     )
 }

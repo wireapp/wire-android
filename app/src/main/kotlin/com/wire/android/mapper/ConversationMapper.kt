@@ -49,7 +49,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
     uiTextResolver: UiTextResolver,
     selfUserTeamId: TeamId?
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
-    is Group.Regular -> {
+    is Group.Regular, is Group.Meeting -> {
         Regular(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,

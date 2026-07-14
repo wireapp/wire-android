@@ -211,7 +211,7 @@ fun NewMeetingContent(
                     RepeatingIntervalDropDown(
                         repeatingInterval = state.repeatingInterval,
                         onRepeatingIntervalChanged = onRepeatingIntervalChanged,
-                        items = MeetingItem.RepeatingInterval.entries.minus(MeetingItem.RepeatingInterval.Annually),
+                        items = MeetingItem.RepeatingInterval.Predefined,
                     )
                 }
                 VerticalSpace.x24()
@@ -513,12 +513,12 @@ private fun TimeInput(
 private fun RepeatingIntervalDropDown(
     repeatingInterval: MeetingItem.RepeatingInterval,
     onRepeatingIntervalChanged: (MeetingItem.RepeatingInterval) -> Unit,
-    items: List<MeetingItem.RepeatingInterval> = MeetingItem.RepeatingInterval.entries,
+    items: List<MeetingItem.RepeatingInterval> = MeetingItem.RepeatingInterval.Predefined,
 ) {
     val resources = LocalResources.current
     WireDropDown(
         items = remember(resources) {
-            items.map { resources.getString(it.nameResId) }.toImmutableList()
+            items.map { it.label.asString(resources) }.toImmutableList()
         },
         defaultItemIndex = items.indexOf(repeatingInterval),
         label = stringResource(R.string.new_meeting_repeats_input_label).uppercase(),

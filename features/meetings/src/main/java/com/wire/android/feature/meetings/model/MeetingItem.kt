@@ -17,22 +17,24 @@
  */
 package com.wire.android.feature.meetings.model
 
-import android.os.Parcelable
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.feature.meetings.R
 import com.wire.android.model.UserAvatarData
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence.Recurrence.Frequency
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Instant
-import kotlinx.parcelize.Parcelize
 import kotlin.time.Duration
 
 sealed interface MeetingListItem
 
 @Stable
 data class MeetingItem(
-    val meetingId: String,
+    val occurrenceId: String,
+    val meetingId: MeetingId,
     val conversationId: ConversationId,
     val belongingType: BelongingType,
     val repeatingInterval: RepeatingInterval,
@@ -41,14 +43,24 @@ data class MeetingItem(
     val selfRole: SelfRole,
 ) : MeetingListItem {
     @Stable
-    @Parcelize
-    enum class RepeatingInterval(@StringRes val nameResId: Int) : Parcelable {
-        Never(R.string.meeting_repeating_never),
-        Daily(R.string.meeting_repeating_daily),
-        Weekly(R.string.meeting_repeating_weekly),
-        BiWeekly(R.string.meeting_repeating_biweekly),
-        Monthly(R.string.meeting_repeating_monthly),
-        Annually(R.string.meeting_repeating_annually)
+    sealed class RepeatingInterval(val label: UIText) {
+        data object Never : RepeatingInterval(UIText.StringResource(R.string.meeting_repeating_never))
+        data class Every(val frequency: Frequency, val interval: Int) : RepeatingInterval(
+            when (frequency) {
+                Frequency.DAILY -> UIText.PluralResource(R.plurals.meeting_repeating_days, interval, interval)
+                Frequency.WEEKLY -> UIText.PluralResource(R.plurals.meeting_repeating_weeks, interval, interval)
+                Frequency.MONTHLY -> UIText.PluralResource(R.plurals.meeting_repeating_months, interval, interval)
+                Frequency.YEARLY -> UIText.PluralResource(R.plurals.meeting_repeating_years, interval, interval)
+            }
+        )
+
+        companion object {
+            val Daily = Every(Frequency.DAILY, 1)
+            val Weekly = Every(Frequency.WEEKLY, 1)
+            val BiWeekly = Every(Frequency.WEEKLY, 2)
+            val Monthly = Every(Frequency.MONTHLY, 1)
+            val Predefined: ImmutableList<RepeatingInterval> = persistentListOf(Never, Daily, Weekly, BiWeekly, Monthly)
+        }
     }
 
     @Stable
@@ -89,7 +101,7 @@ data class MeetingItem(
     )
 
     @Stable
-    enum class SelfRole { Admin, Member }
+    enum class SelfRole { Creator, Member }
 }
 
 private const val GROUPLESS_AVATARS_LIMIT = 5

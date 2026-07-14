@@ -1,9 +1,9 @@
 name: QA Android UI Test Manual Deflake
 
-# Keep manual deflake on the shared auto-run lock so it does not compete with
-# other QA office workflows for the same device pool at the same time.
+# The group is an input because concurrency is evaluated before the downloaded
+# deflake metadata is available. Use the same group as the source run.
 concurrency:
-  group: qa-android-ui-tests-office-auto
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'criticalFlow' }}
   cancel-in-progress: false
 
 on:
@@ -18,6 +18,12 @@ on:
         description: "TESTINY_RUN_NAME override. Leave empty to reuse the selected run value."
         required: false
         default: ""
+        type: string
+
+      androidDeviceGroup:
+        description: "Device group used by the source run."
+        required: true
+        default: "criticalFlow"
         type: string
 
 permissions:
@@ -42,6 +48,7 @@ jobs:
       AWS_REGION: eu-west-1
       OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
 
     defaults:
       run:
@@ -87,6 +94,16 @@ jobs:
           TESTINY_RUN_NAME_OVERRIDE: ${{ inputs.testinyRunName }}
         run: python3 scripts/qa_android_ui_tests/inspect_deflake_bundle.py
 
+      - name: Validate source device group
+        env:
+          SOURCE_DEVICE_GROUP: ${{ steps.validate_deflake_input.outputs.androidDeviceGroup }}
+          REQUESTED_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+        run: |
+          if [[ -n "${SOURCE_DEVICE_GROUP}" && "${SOURCE_DEVICE_GROUP}" != "${REQUESTED_DEVICE_GROUP}" ]]; then
+            echo "ERROR: Source run used device group '${SOURCE_DEVICE_GROUP}', but this deflake requested '${REQUESTED_DEVICE_GROUP}'."
+            exit 1
+          fi
+
       # Reuse the same input validators here so malformed selected-run metadata fails
       # before the runner spends time on APK, device, or report setup.
       - name: Validate upgrade inputs
@@ -129,6 +146,7 @@ jobs:
       - name: Detect target device(s)
         env:
           TARGET_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
           RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
 
@@ -244,6 +262,7 @@ jobs:
           ENFORCE_APP_INSTALL: ${{ steps.validate_deflake_input.outputs.enforceAppInstall }}
           TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          ANDROID_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
           RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
         run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle

@@ -75,7 +75,6 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.EMPTY
 
 private const val SKIP_MS = 10_000
 
@@ -126,7 +125,7 @@ internal fun CellAudioPlayerContent(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                title = String.EMPTY,
+                title = fileName ?: stringResource(R.string.conversation_files_title),
                 navigationIconType = NavigationIconType.Back(),
                 onNavigationPressed = ::stopAndBack,
             )

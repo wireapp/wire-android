@@ -36,8 +36,8 @@ import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.conversationAssetPathsViewModel
+import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedStyle
@@ -58,6 +58,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.audio.AudioMess
 import com.wire.android.ui.home.conversations.model.messagetypes.location.LocationMessageContent
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsView
 import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMessage
+import com.wire.android.ui.home.messagecomposer.LinkPreviewCard
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.launchGeoIntent
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -214,44 +215,67 @@ private fun MessageContent(
         }
 
         is UIMessageContent.TextMessage -> {
+            val hasLinkPreview = message.linkPreviews.isNotEmpty()
             Column {
-                messageContent.messageBody.quotedMessage?.let {
-                    VerticalSpace.x4()
-                    when (it) {
-                        is UIQuotedMessage.UIQuotedData -> QuotedMessage(
-                            conversationId = message.conversationId,
-                            messageData = it,
-                            style = QuotedMessageStyle(
-                                quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle,
-                                selfAccent = accent,
-                                senderAccent = it.senderAccent
-                            ),
-                            clickable = onReplyClick
-                        )
-
-                        UIQuotedMessage.UnavailableData -> QuotedUnavailable(
-                            style = QuotedMessageStyle(
-                                quotedStyle = QuotedStyle.COMPLETE,
-                                messageStyle = messageStyle,
-                                selfAccent = accent,
-                                senderAccent = Accent.Unknown
-                            )
-                        )
-                    }
-                    VerticalSpace.x4()
+                message.linkPreviews.firstOrNull()?.let { preview ->
+                    LinkPreviewCard(
+                        preview = preview,
+                        isAvailable = !message.isPending && message.isAvailable,
+                        messageStyle = messageStyle,
+                        onClick = { onLinkClick(preview.url) }
+                    )
                 }
-                MessageBody(
-                    messageBody = messageContent.messageBody,
-                    searchQuery = searchQuery,
-                    isAvailable = !message.isPending && message.isAvailable,
-                    onOpenProfile = onOpenProfile,
-                    buttonList = null,
-                    messageId = message.header.messageId,
-                    onLinkClick = onLinkClick,
-                    messageStyle = messageStyle,
-                    accent = accent
-                )
+                Column(
+                    modifier = if (hasLinkPreview) {
+                        Modifier.padding(
+                            start = dimensions().spacing10x,
+                            end = dimensions().spacing10x,
+                            top = dimensions().spacing8x
+                        )
+                    } else {
+                        Modifier
+                    }
+                ) {
+                    messageContent.messageBody.quotedMessage?.let {
+                        if (!hasLinkPreview) {
+                            VerticalSpace.x4()
+                        }
+                        when (it) {
+                            is UIQuotedMessage.UIQuotedData -> QuotedMessage(
+                                conversationId = message.conversationId,
+                                messageData = it,
+                                style = QuotedMessageStyle(
+                                    quotedStyle = QuotedStyle.COMPLETE,
+                                    messageStyle = messageStyle,
+                                    selfAccent = accent,
+                                    senderAccent = it.senderAccent
+                                ),
+                                clickable = onReplyClick
+                            )
+
+                            UIQuotedMessage.UnavailableData -> QuotedUnavailable(
+                                style = QuotedMessageStyle(
+                                    quotedStyle = QuotedStyle.COMPLETE,
+                                    messageStyle = messageStyle,
+                                    selfAccent = accent,
+                                    senderAccent = Accent.Unknown
+                                )
+                            )
+                        }
+                        VerticalSpace.x4()
+                    }
+                    MessageBody(
+                        messageBody = messageContent.messageBody,
+                        searchQuery = searchQuery,
+                        isAvailable = !message.isPending && message.isAvailable,
+                        onOpenProfile = onOpenProfile,
+                        buttonList = null,
+                        messageId = message.header.messageId,
+                        onLinkClick = onLinkClick,
+                        messageStyle = messageStyle,
+                        accent = accent,
+                    )
+                }
             }
         }
 
@@ -291,7 +315,7 @@ private fun MessageContent(
                     messageId = message.header.messageId,
                     onLinkClick = onLinkClick,
                     messageStyle = messageStyle,
-                    accent = accent
+                    accent = accent,
                 )
             }
         }
@@ -414,7 +438,7 @@ private fun MessageContent(
                         messageId = message.header.messageId,
                         onLinkClick = onLinkClick,
                         messageStyle = messageStyle,
-                        accent = accent
+                        accent = accent,
                     )
                     Spacer(modifier = Modifier.height(dimensions().spacing8x))
                 }

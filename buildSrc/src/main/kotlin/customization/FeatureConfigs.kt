@@ -110,7 +110,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     MAX_REMOTE_SEARCH_RESULT_COUNT("max_remote_search_result_count", ConfigType.INT),
     LIMIT_TEAM_MEMBERS_FETCH_DURING_SLOW_SYNC("limit_team_members_fetch_during_slow_sync", ConfigType.INT),
 
-    PICTURE_IN_PICTURE_ENABLED("picture_in_picture_enabled", ConfigType.BOOLEAN),
     PHONE_LANDSCAPE_ENABLED("phone_landscape_enabled", ConfigType.BOOLEAN),
     PAGINATED_CONVERSATION_LIST_ENABLED("paginated_conversation_list_enabled", ConfigType.BOOLEAN),
 
@@ -163,4 +162,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     BLOCK_CROSS_BACKEND_LOGIN("block_cross_backend_login", ConfigType.BOOLEAN),
 
     PENDING_MESSAGES("pending_messages", ConfigType.BOOLEAN),
+
+    LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
 }

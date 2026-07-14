@@ -38,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.wire.android.BuildConfig
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -54,7 +53,6 @@ fun VerticalCallingPager(
     participants: List<UICallParticipant>,
     isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
-    isInPictureInPictureMode: Boolean,
     isOnFrontCamera: Boolean,
     contentHeight: Dp,
     contentWidth: Dp,
@@ -72,9 +70,8 @@ fun VerticalCallingPager(
         modifier = modifier
             .size(width = contentWidth, height = contentHeight)
     ) {
-        val participantsWithoutPip = rememberParticipantsWithoutPip(participants)
-        val participantsPages = remember(participantsWithoutPip, gridParams.maxItemsPerPage) {
-            participantsWithoutPip.chunked(gridParams.maxItemsPerPage)
+        val participantsPages = remember(participants, gridParams.maxItemsPerPage) {
+            participants.chunked(gridParams.maxItemsPerPage)
         }
         val pagerState = rememberPagerState(pageCount = { participantsPages.size })
 
@@ -83,8 +80,8 @@ fun VerticalCallingPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
-                    val participantsWithCameraOn by rememberUpdatedState(participantsWithoutPip.count { it.isCameraOn })
-                    val participantsWithScreenShareOn by rememberUpdatedState(participantsWithoutPip.count { it.isSharingScreen })
+                    val participantsWithCameraOn by rememberUpdatedState(participants.count { it.isCameraOn })
+                    val participantsWithScreenShareOn by rememberUpdatedState(participants.count { it.isSharingScreen })
                     GroupCallGrid(
                         gridParams = gridParams,
                         participants = participantsPages[pageIndex],
@@ -94,7 +91,6 @@ fun VerticalCallingPager(
                         onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                         onSelfClearVideoPreview = onSelfClearVideoPreview,
                         onDoubleTap = onDoubleTap,
-                        isInPictureInPictureMode = isInPictureInPictureMode,
                         recentReactions = recentReactions,
                         isOnFrontCamera = isOnFrontCamera,
                         flipCamera = flipCamera,
@@ -111,8 +107,7 @@ fun VerticalCallingPager(
                     }
                 }
             }
-            // we don't need to display the indicator if we have one page and when it's in PiP mode
-            if (participantsPages.size > 1 && !isInPictureInPictureMode) {
+            if (participantsPages.size > 1) {
                 Surface(
                     shape = RoundedCornerShape(dimensions().corner16x),
                     modifier = Modifier
@@ -133,17 +128,6 @@ fun VerticalCallingPager(
 }
 
 @Composable
-private fun rememberParticipantsWithoutPip(participants: List<UICallParticipant>): List<UICallParticipant> =
-    remember(BuildConfig.PICTURE_IN_PICTURE_ENABLED, participants) {
-        // if PiP is enabled and more than one participant is present, we need to remove the first participant(self user) from the list
-        if (BuildConfig.PICTURE_IN_PICTURE_ENABLED && participants.size > 1) {
-            participants.subList(1, participants.size)
-        } else {
-            participants
-        }
-    }
-
-@Composable
 private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
     VerticalCallingPager(
         participants = participants,
@@ -156,7 +140,6 @@ private fun PreviewVerticalCallingPager(participants: List<UICallParticipant>) {
         requestVideoStreams = {},
         onDoubleTap = { },
         flipCamera = { },
-        isInPictureInPictureMode = false,
         recentReactions = emptyMap(),
         isOnFrontCamera = false,
         othersVideosDisabled = false,

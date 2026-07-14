@@ -22,6 +22,7 @@ data class PrivacySettingsState(
     val isAnalyticsUsageEnabled: Boolean = true,
     val shouldShowAnalyticsUsage: Boolean = false,
     val areReadReceiptsEnabled: Boolean = true,
+    val areLinkPreviewsEnabled: Boolean = false,
     val isTypingIndicatorEnabled: Boolean = true,
     val screenshotCensoringConfig: ScreenshotCensoringConfig = ScreenshotCensoringConfig.ENABLED_BY_USER,
 )

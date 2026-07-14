@@ -104,7 +104,7 @@ internal fun MessageBody(
     onLinkClick: (String) -> Unit,
     searchQuery: String = "",
     clickable: Boolean = true,
-    messageStyle: MessageStyle = MessageStyle.NORMAL
+    messageStyle: MessageStyle = MessageStyle.NORMAL,
 ) {
     val resources = LocalContext.current.resources
     val configuration = LocalConfiguration.current
@@ -156,6 +156,7 @@ internal fun MessageBody(
             clickable
         )
     }
+
     buttonList?.also {
         VerticalSpace.x4()
         MessageButtonsContent(

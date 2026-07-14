@@ -68,7 +68,7 @@ fun LinkPreviewCard(
 
             WireImage(
                 model = assetDataPath.toFile(),
-                contentDescription = "null",
+                contentDescription = "",
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(aspectRatio),

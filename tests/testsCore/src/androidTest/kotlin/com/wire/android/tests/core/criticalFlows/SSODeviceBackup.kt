@@ -42,7 +42,7 @@ class SSODeviceBackup : BaseUiTest() {
 
     @Before
     fun setUp() {
-        initCommonTestHelpers("mobtown-lemon")
+        initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         SSOServiceHelper.initialize(clientUserManager)
         keycloakApiClient = KeycloakApiClient(backendClient)
@@ -61,7 +61,7 @@ class SSODeviceBackup : BaseUiTest() {
     fun givenSSOTeamWithKeycloak_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored() {
         var ssoCode = ""
 
-        step("There is TeamOwner with team Messaging on mobtown-lemon backend wired to Keycloak SSO") {
+        step("There is TeamOwner with team Messaging on staging backend wired to Keycloak SSO") {
             runBlocking {
                 SSOServiceHelper.createKeycloakSsoTeamOwner(
                     context,
@@ -101,7 +101,7 @@ class SSODeviceBackup : BaseUiTest() {
             }
         }
 
-        step("And I open mobtown-lemon deep link login flow") {
+        step("And I open staging deep link login flow") {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
@@ -270,9 +270,9 @@ class SSODeviceBackup : BaseUiTest() {
             }
         }
 
-        step("And I open mobtown-lemon deep link login flow again") {
+        step("And I open staging deep link login flow again") {
             pages.loginPage.apply {
-                clickStagingDeepLink("mobtown-lemon")
+                clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
             }
         }

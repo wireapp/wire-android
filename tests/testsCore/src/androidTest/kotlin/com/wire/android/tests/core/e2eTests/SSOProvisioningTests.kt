@@ -94,7 +94,7 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.registrationPage.assertEmailWelcomePage()
         }
 
-        step("And I open mobtown-lemon backend deep link and tap proceed button on custom backend alert") {
+        step("And I open staging backend deep link and tap proceed button on custom backend alert") {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
@@ -199,7 +199,7 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.registrationPage.assertEmailWelcomePage()
         }
 
-        step("And I open mobtown-lemon backend deep link and tap proceed button on custom backend alert") {
+        step("And I open staging backend deep link and tap proceed button on custom backend alert") {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()

@@ -39,7 +39,7 @@ class KeycloakApiClient(
 ) {
     private val baseUrl = backend.keycloakUrl.removeSuffix("/")
     private val adminPassword: String by lazy {
-        CredentialsManager.getSecretFieldValue("KEYCLOAK_PASSWORD", "PASSWORD")
+        CredentialsManager.getSecretFieldValue("KEYCLOAK_QA_AUTOMATION", "PASSWORD")
             ?.takeIf { it.isNotBlank() }
             ?: error("Missing Keycloak admin password in generated test BuildConfig.")
     }

@@ -249,4 +249,9 @@
     <string name="sort_size_smallest_first">Kleinste zuerst</string>
     <string name="sort_size_largest_first">Größte zuerst</string>
     <string name="content_description_image_message">Bild</string>
+    <string name="cells_video_enter_fullscreen">Vollbild öffnen</string>
+    <string name="cells_video_exit_fullscreen">Vollbild beenden</string>
+    <string name="cells_video_mute">Stummschalten</string>
+    <string name="cells_video_unmute">Benachrichtigen</string>
+    <string name="cells_video_loading">Video wird geladen</string>
 </resources>

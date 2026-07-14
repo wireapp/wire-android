@@ -36,6 +36,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.AdminlessConversationFailure
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
@@ -371,6 +372,46 @@ class ConversationOptionsMenuViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun `given adminless failure with eligible members, when leaving group, then navigate to promote admin`() =
+        runTest(dispatcherProvider.main()) {
+            val eligibleMembers = listOf(userId)
+            val (arrangement, viewModel) = Arrangement()
+                .withLeaveConversation(
+                    RemoveMemberFromConversationUseCase.Result.Failure(AdminlessConversationFailure(eligibleMembers))
+                )
+                .arrange()
+
+            viewModel.actions.test {
+                viewModel.leaveGroup(conversationId, "name", false)
+
+                coVerify(exactly = 1) { arrangement.leaveConversation(conversationId) }
+                assertIs<ConversationOptionsMenuViewAction.PromoteAdmin>(awaitItem()).also {
+                    assertEquals(conversationId, it.conversationId)
+                    assertEquals(eligibleMembers, it.eligibleMembers)
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `given adminless failure without eligible members, when leaving group, then show leave error`() =
+        runTest(dispatcherProvider.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withLeaveConversation(RemoveMemberFromConversationUseCase.Result.Failure(CoreFailure.Unknown(null)))
+                .arrange()
+
+            viewModel.actions.test {
+                viewModel.leaveGroup(conversationId, "name", false)
+
+                coVerify(exactly = 1) { arrangement.leaveConversation(conversationId) }
+                assertIs<ConversationOptionsMenuViewAction.Message>(awaitItem()).also {
+                    assertIs<HomeSnackBarMessage.LeaveConversationError>(it.message)
+                }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 
     @Test
     fun `given success, when leaving group with deleting, then call proper action`() = runTest(dispatcherProvider.main()) {

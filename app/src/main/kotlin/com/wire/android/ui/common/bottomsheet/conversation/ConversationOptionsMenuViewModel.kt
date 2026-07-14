@@ -45,6 +45,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.AdminlessConversationFailure
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
@@ -79,6 +80,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+
 @ViewModelScopedPreview
 interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsMenuViewAction> {
     val leaveGroupDialogState: VisibilityState<LeaveGroupDialogState> get() = VisibilityState()
@@ -287,7 +289,14 @@ class ConversationOptionsMenuViewModelImpl(
                 leaveConversation(conversationId)
             }.let { result ->
                 when (result) {
-                    is RemoveMemberFromConversationUseCase.Result.Failure -> onMessage(HomeSnackBarMessage.LeaveConversationError)
+                    is RemoveMemberFromConversationUseCase.Result.Failure -> {
+                        when (val cause = result.cause) {
+                            is AdminlessConversationFailure ->
+                                sendAction(ConversationOptionsMenuViewAction.PromoteAdmin(conversationId, cause.eligibleMembers))
+                            else -> onMessage(HomeSnackBarMessage.LeaveConversationError)
+                        }
+                    }
+
                     is RemoveMemberFromConversationUseCase.Result.Success -> when {
                         shouldDelete -> when (markAsDeletedLocallyAndEnqueueWorkerToDeleteCompletely(conversationId)) {
                             false -> onMessage(HomeSnackBarMessage.LeaveConversationError)
@@ -434,6 +443,7 @@ sealed interface ConversationOptionsMenuState {
 
 sealed interface ConversationOptionsMenuViewAction {
     data class Message(val message: SnackBarMessage) : ConversationOptionsMenuViewAction
+    data class PromoteAdmin(val conversationId: ConversationId, val eligibleMembers: List<UserId>) : ConversationOptionsMenuViewAction
     data class Left(val conversationId: ConversationId, val conversationName: String) : ConversationOptionsMenuViewAction
     data class Deleted(val conversationId: ConversationId, val conversationName: String) : ConversationOptionsMenuViewAction
     data class DeletedLocally(val conversationId: ConversationId, val conversationName: String) : ConversationOptionsMenuViewAction

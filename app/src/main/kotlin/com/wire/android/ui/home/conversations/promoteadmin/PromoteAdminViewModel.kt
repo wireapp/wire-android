@@ -27,6 +27,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import kotlinx.coroutines.NonCancellable
@@ -40,13 +41,16 @@ import kotlinx.coroutines.withContext
 class PromoteAdminViewModel(
     private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val dispatchers: DispatcherProvider,
     savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<PromoteAdminAction>() {
 
     private val navArgs: PromoteAdminNavArgs = savedStateHandle.navArgs()
 
-    private val allMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
+    private val clientEligibleMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
+    private val allConversationMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
+    private val eligibleMemberIds = MutableStateFlow(navArgs.eligibleMembers.map { it.toUserId() }.toSet())
     private val searchQuery = MutableStateFlow("")
     private val selectedUserId = MutableStateFlow<UserId?>(null)
 
@@ -55,7 +59,18 @@ class PromoteAdminViewModel(
 
     init {
         viewModelScope.launch {
-            combine(allMembers, searchQuery, selectedUserId) { members, query, selected ->
+            combine(
+                clientEligibleMembers,
+                allConversationMembers,
+                eligibleMemberIds,
+                searchQuery,
+                selectedUserId
+            ) { clientEligibleMembers, allConversationMembers, eligibleIds, query, selected ->
+                val members = if (eligibleIds.isEmpty()) {
+                    clientEligibleMembers
+                } else {
+                    allConversationMembers.filterByEligibleIds(eligibleIds)
+                }
                 PromoteAdminState(
                     searchQuery = query,
                     filteredMembers = filter(members, query),
@@ -69,7 +84,13 @@ class PromoteAdminViewModel(
 
         viewModelScope.launch {
             observeEligibleMembers(navArgs.conversationId).collect { members ->
-                allMembers.value = members.map { it.toMemberItem() }
+                clientEligibleMembers.value = members.map { it.toMemberItem() }
+            }
+        }
+
+        viewModelScope.launch {
+            observeConversationMembers(navArgs.conversationId).collect { members ->
+                allConversationMembers.value = members.map { it.toMemberItem() }
             }
         }
     }
@@ -92,9 +113,17 @@ class PromoteAdminViewModel(
             }
 
             val action = when (result) {
-                PromoteAdminAndLeaveConversationUseCase.Result.Success -> PromoteAdminAction.Success
-                PromoteAdminAndLeaveConversationUseCase.Result.FailedToPromoteUser -> PromoteAdminAction.FailedToPromoteUser
-                PromoteAdminAndLeaveConversationUseCase.Result.FailedToLeaveConversation -> PromoteAdminAction.FailedToLeaveConversation
+                is PromoteAdminAndLeaveConversationUseCase.Result.Success -> PromoteAdminAction.Success
+                is PromoteAdminAndLeaveConversationUseCase.Result.FailedToPromoteUser -> PromoteAdminAction.FailedToPromoteUser
+                is PromoteAdminAndLeaveConversationUseCase.Result.FailedToLeaveConversation -> {
+                    if (result.eligibleMembers.isEmpty()) {
+                        PromoteAdminAction.FailedToLeaveConversation
+                    } else {
+                        selectedUserId.value = null
+                        eligibleMemberIds.value = result.eligibleMembers.toSet()
+                        PromoteAdminAction.FailedToLeaveConversation
+                    }
+                }
             }
 
             sendAction(action)
@@ -113,6 +142,14 @@ class PromoteAdminViewModel(
                         it.handle.contains(normalized, ignoreCase = true)
             }
         }
+
+    private fun List<PromoteAdminMemberItem>.filterByEligibleIds(eligibleIds: Set<UserId>): List<PromoteAdminMemberItem> =
+        if (eligibleIds.isEmpty()) this else filter { it.userId in eligibleIds }
+
+    private fun String.toUserId() = UserId(
+        value = substringBeforeLast(USER_ID_DOMAIN_SEPARATOR),
+        domain = substringAfterLast(USER_ID_DOMAIN_SEPARATOR),
+    )
 
     private fun MemberDetails.toMemberItem() = PromoteAdminMemberItem(
         userId = user.id,

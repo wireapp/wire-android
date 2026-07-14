@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import io.mockk.MockKAnnotations
@@ -172,6 +173,38 @@ class PromoteAdminViewModelTest {
     }
 
     @Test
+    fun givenNoServerEligibleMembers_whenViewModelCreated_thenClientEligibleMembersAreShown() = runTest {
+        val clientEligibleUser = UserId("value0", "domain0")
+        val serverOnlyUser = UserId("value1", "domain1")
+        val (_, viewModel) = Arrangement()
+            .withEligibleMembers(listOf(member(0, "Alice", "alice")))
+            .withConversationMembers(listOf(member(0, "Alice", "alice"), member(1, "Bob", "bob")))
+            .arrange()
+
+        advanceUntilIdle()
+
+        val filteredMemberIds = viewModel.state.value.filteredMembers.map { it.userId }
+        assertEquals(listOf(clientEligibleUser), filteredMemberIds)
+        assertFalse(serverOnlyUser in filteredMemberIds)
+    }
+
+    @Test
+    fun givenNavArgsWithEligibleMembers_whenViewModelCreated_thenServerMembersAreShownFromAllConversationMembers() = runTest {
+        val eligibleUser = UserId("value1", "domain1")
+        val (_, viewModel) = Arrangement()
+            .withNavEligibleMembers(listOf(eligibleUser))
+            .withEligibleMembers(listOf(member(0, "Alice", "alice")))
+            .withConversationMembers(listOf(member(0, "Alice", "alice"), member(1, "Bob", "bob")))
+            .arrange()
+
+        advanceUntilIdle()
+
+        val filteredMembers = viewModel.state.value.filteredMembers
+        assertEquals(1, filteredMembers.size)
+        assertEquals(eligibleUser, filteredMembers.first().userId)
+    }
+
+    @Test
     fun givenUserSelectedAndPromoteSucceeds_whenPromoteAdminAndLeaveCalled_thenEmitSuccess() = runTest {
         val userId = UserId("user1", "wire.com")
         val (_, viewModel) = Arrangement()
@@ -203,7 +236,7 @@ class PromoteAdminViewModelTest {
     fun givenUserSelectedAndLeaveFails_whenPromoteAdminAndLeaveCalled_thenEmitFailedToLeaveConversation() = runTest {
         val userId = UserId("user1", "wire.com")
         val (_, viewModel) = Arrangement()
-            .withPromoteAdminAndLeaveResult(PromoteAdminAndLeaveConversationUseCase.Result.FailedToLeaveConversation)
+            .withPromoteAdminAndLeaveResult(PromoteAdminAndLeaveConversationUseCase.Result.FailedToLeaveConversation())
             .arrange()
 
         viewModel.onUserSelected(userId)
@@ -212,6 +245,46 @@ class PromoteAdminViewModelTest {
             assertEquals(PromoteAdminAction.FailedToLeaveConversation, awaitItem())
         }
     }
+
+    @Test
+    fun givenUserSelectedAndLeaveReturnsServerEligibleMembers_whenPromoteAdminAndLeaveCalled_thenRefreshMembersAndEmitFailedToLeave() =
+        runTest {
+            val selectedUserId = UserId("value1", "domain1")
+            val returnedEligibleUserId = UserId("value2", "domain2")
+            val (_, viewModel) = Arrangement()
+                .withEligibleMembers(listOf(member(1, "Alice", "alice")))
+                .withConversationMembers(listOf(member(1, "Alice", "alice"), member(2, "Bob", "bob")))
+                .withPromoteAdminAndLeaveResult(
+                    PromoteAdminAndLeaveConversationUseCase.Result.FailedToLeaveConversation(listOf(returnedEligibleUserId))
+                )
+                .arrange()
+            advanceUntilIdle()
+
+            viewModel.onUserSelected(selectedUserId)
+            viewModel.actions.test {
+                viewModel.onPromoteAdminAndLeave()
+                assertEquals(PromoteAdminAction.FailedToLeaveConversation, awaitItem())
+                advanceUntilIdle()
+
+                assertNull(viewModel.state.value.selectedUserId)
+                assertEquals(listOf(returnedEligibleUserId), viewModel.state.value.filteredMembers.map { it.userId })
+            }
+        }
+
+    @Test
+    fun givenUserSelectedAndLeaveReturnsAdminlessWithoutMembers_whenPromoteAdminAndLeaveCalled_thenEmitFailedToLeaveConversation() =
+        runTest {
+            val userId = UserId("user1", "wire.com")
+            val (_, viewModel) = Arrangement()
+                .withPromoteAdminAndLeaveResult(PromoteAdminAndLeaveConversationUseCase.Result.FailedToLeaveConversation(emptyList()))
+                .arrange()
+
+            viewModel.onUserSelected(userId)
+            viewModel.actions.test {
+                viewModel.onPromoteAdminAndLeave()
+                assertEquals(PromoteAdminAction.FailedToLeaveConversation, awaitItem())
+            }
+        }
 
     @Test
     fun givenNoUserSelected_whenPromoteAdminAndLeaveCalled_thenNoEventEmitted() = runTest {
@@ -231,6 +304,9 @@ class PromoteAdminViewModelTest {
         lateinit var observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase
 
         @MockK
+        lateinit var observeConversationMembers: ObserveConversationMembersUseCase
+
+        @MockK
         lateinit var promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase
 
         init {
@@ -238,11 +314,21 @@ class PromoteAdminViewModelTest {
             every { savedStateHandle.navArgs<PromoteAdminNavArgs>() } returns
                 PromoteAdminNavArgs(ConversationId("conv1", "wire.com"))
             coEvery { observeEligibleMembers(any()) } returns flowOf(emptyList())
+            coEvery { observeConversationMembers(any()) } returns flowOf(emptyList())
             coEvery { promoteAdminAndLeave(any(), any()) } returns PromoteAdminAndLeaveConversationUseCase.Result.Success
         }
 
         fun withEligibleMembers(members: List<MemberDetails>) = apply {
             coEvery { observeEligibleMembers(any()) } returns flowOf(members)
+        }
+
+        fun withConversationMembers(members: List<MemberDetails>) = apply {
+            coEvery { observeConversationMembers(any()) } returns flowOf(members)
+        }
+
+        fun withNavEligibleMembers(eligibleMembers: List<UserId>) = apply {
+            every { savedStateHandle.navArgs<PromoteAdminNavArgs>() } returns
+                    PromoteAdminNavArgs(ConversationId("conv1", "wire.com"), eligibleMembers.toPromoteAdminEligibleMemberArgs())
         }
 
         fun withPromoteAdminAndLeaveResult(result: PromoteAdminAndLeaveConversationUseCase.Result) = apply {
@@ -251,6 +337,7 @@ class PromoteAdminViewModelTest {
 
         fun arrange() = this to PromoteAdminViewModel(
             observeEligibleMembers = observeEligibleMembers,
+            observeConversationMembers = observeConversationMembers,
             promoteAdminAndLeave = promoteAdminAndLeave,
             dispatchers = TestDispatcherProvider(),
             savedStateHandle = savedStateHandle,

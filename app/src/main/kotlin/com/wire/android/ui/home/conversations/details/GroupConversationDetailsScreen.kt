@@ -107,6 +107,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.UpdateAppsAcc
 import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
+import com.wire.android.ui.home.conversations.promoteadmin.toPromoteAdminEligibleMemberArgs
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.options.LoadingGroupConversation
@@ -131,6 +132,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -304,8 +306,14 @@ fun GroupConversationDetailsScreen(
                 )
             )
         },
-        onPromoteAdmin = { conversationId ->
-            navigator.navigate(NavigationCommand(PromoteAdminScreenDestination(PromoteAdminNavArgs(conversationId))))
+        onPromoteAdmin = { conversationId, eligibleMembers ->
+            navigator.navigate(
+                NavigationCommand(
+                    PromoteAdminScreenDestination(
+                        PromoteAdminNavArgs(conversationId, eligibleMembers.toPromoteAdminEligibleMemberArgs())
+                    )
+                )
+            )
         },
         openConversationDebugMenu = {
             navigator.navigate(
@@ -384,7 +392,7 @@ private fun GroupConversationDetailsContent(
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},
-    onPromoteAdmin: (ConversationId) -> Unit = {},
+    onPromoteAdmin: (ConversationId, List<UserId>) -> Unit = { _, _ -> },
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false),

@@ -201,8 +201,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 )
             }
             when (response) {
-                is RemoveMemberFromConversationUseCase.Result.Failure -> onMessage(RemoveConversationMemberError)
                 is RemoveMemberFromConversationUseCase.Result.Success -> onMessage(RemoveConversationMemberSuccess(state.userName))
+                is RemoveMemberFromConversationUseCase.Result.Failure -> onMessage(RemoveConversationMemberError)
             }
             removeConversationMemberDialogState.dismiss()
         }

@@ -407,6 +407,7 @@ class CellViewModel(
         }
     }
 
+    @Suppress("ReturnCount")
     private fun openLocalFile(file: CellNodeUi.File) {
         when (file.assetType) {
             AttachmentFileType.IMAGE -> {

@@ -34,6 +34,12 @@ jobs:
   validate-request:
     name: Validate trusted ref
     runs-on: ubuntu-latest
+    outputs:
+      sourceRunId: ${{ steps.validate_source_run.outputs.sourceRunId }}
+      sourceRepository: ${{ steps.validate_source_run.outputs.sourceRepository }}
+      sourceWorkflowFile: ${{ steps.validate_source_run.outputs.sourceWorkflowFile }}
+      sourceHeadSha: ${{ steps.validate_source_run.outputs.sourceHeadSha }}
+      sourceHeadBranch: ${{ steps.validate_source_run.outputs.sourceHeadBranch }}
     steps:
       - name: Reject untrusted manual refs
         shell: bash
@@ -45,6 +51,20 @@ jobs:
             echo "ERROR: Secret-bearing Android E2E runs are restricted to ${TRUSTED_REF}."
             exit 1
           fi
+
+      - name: Checkout trusted validation code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Validate selected GitHub Actions run
+        id: validate_source_run
+        env:
+          SOURCE_RUN_ID: ${{ inputs.sourceRunId }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/qa_android_ui_tests/validate_source_run.py
 
   run-manual-deflake:
     name: Run manual deflake
@@ -114,7 +134,28 @@ jobs:
         env:
           DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
           TESTINY_RUN_NAME_OVERRIDE: ${{ inputs.testinyRunName }}
+          EXPECTED_SOURCE_REPOSITORY: ${{ needs.validate-request.outputs.sourceRepository }}
+          EXPECTED_SOURCE_RUN_ID: ${{ needs.validate-request.outputs.sourceRunId }}
+          EXPECTED_SOURCE_SHA: ${{ needs.validate-request.outputs.sourceHeadSha }}
+          EXPECTED_SOURCE_WORKFLOW_FILE: ${{ needs.validate-request.outputs.sourceWorkflowFile }}
+          EXPECTED_SOURCE_REF_NAME: ${{ needs.validate-request.outputs.sourceHeadBranch }}
         run: python3 scripts/qa_android_ui_tests/inspect_deflake_bundle.py
+
+      - name: Checkout source run test revision
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ steps.validate_deflake_input.outputs.testSourceSha }}
+          path: source-run
+          sparse-checkout: |
+            tests/testsCore/src
+            tests/testsSupport/src
+          persist-credentials: false
+
+      - name: Apply source run test revision
+        run: |
+          command -v rsync >/dev/null 2>&1 || { echo "ERROR: rsync is required"; exit 1; }
+          rsync --archive --delete source-run/tests/testsCore/src/ tests/testsCore/src/
+          rsync --archive --delete source-run/tests/testsSupport/src/ tests/testsSupport/src/
 
       - name: Validate source device group
         env:
@@ -274,6 +315,7 @@ jobs:
           SOURCE_REF: ${{ github.ref }}
           SOURCE_REF_NAME: ${{ github.ref_name }}
           SOURCE_SHA: ${{ github.sha }}
+          TEST_SOURCE_SHA: ${{ steps.validate_deflake_input.outputs.testSourceSha }}
           FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
           TAGS_INPUT: ${{ steps.validate_deflake_input.outputs.tags }}
           RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}

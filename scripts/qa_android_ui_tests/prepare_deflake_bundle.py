@@ -80,6 +80,7 @@ metadata = {
     "source_ref": env("SOURCE_REF"),
     "source_ref_name": env("SOURCE_REF_NAME"),
     "source_sha": env("SOURCE_SHA"),
+    "test_source_sha": env("TEST_SOURCE_SHA") or env("SOURCE_SHA"),
     "flavor": env("FLAVOR_INPUT"),
     "tags": env("TAGS_INPUT"),
     "selector_type": selector_type,

@@ -214,11 +214,12 @@ When the selector is left empty and `isUpgrade=true`:
 
 1. Critical flow or an earlier manual deflake run uploads `android-ui-test-deflake-input`.
 2. A user copies the `manual deflake id` from the workflow summary.
-3. The manual deflake workflow downloads the artifact for that selected run.
-4. The workflow validates `metadata.json` and `failed-tests.txt`.
-5. Only the leftover failed tests are executed.
-6. A fresh Allure report is published for that manual deflake run.
-7. A fresh deflake artifact is uploaded again for the next round if needed.
+3. GitHub API metadata must identify a completed allowed workflow run from this repository's default branch.
+4. The downloaded artifact's repository, run, workflow, and SHA must match that API response.
+5. The recorded `testsCore` and `testsSupport` source revision is overlaid onto the current hardened harness.
+6. Only the leftover failed tests are executed.
+7. A fresh sanitized Allure report is published for that manual deflake run.
+8. A fresh deflake artifact is uploaded again for the next round if needed.
 
 ## Python Helpers
 

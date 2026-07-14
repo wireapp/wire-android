@@ -5,12 +5,26 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from collections.abc import Mapping
 
 
 class DeviceGroupError(ValueError):
     """Raised when the device-group configuration is invalid or unusable."""
+
+
+GROUP_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
+
+
+def validate_group_name(group_name: str, source: str) -> str:
+    if not group_name:
+        raise DeviceGroupError(f"{source} is empty.")
+    if not GROUP_NAME_PATTERN.fullmatch(group_name):
+        raise DeviceGroupError(
+            f"{source} must use only letters, digits, '.', '_', or '-': {group_name!r}"
+        )
+    return group_name
 
 
 def parse_groups(raw_json: str) -> dict[str, list[str]]:
@@ -30,11 +44,9 @@ def parse_groups(raw_json: str) -> dict[str, list[str]]:
     groups: dict[str, list[str]] = {}
     device_owners: dict[str, str] = {}
     for raw_name, raw_devices in raw_groups.items():
-        if not isinstance(raw_name, str) or not raw_name.strip():
+        if not isinstance(raw_name, str):
             raise DeviceGroupError("Every device group must have a non-empty string name.")
-        name = raw_name.strip()
-        if name != raw_name:
-            raise DeviceGroupError(f"Device group name must not have surrounding whitespace: {raw_name!r}")
+        name = validate_group_name(raw_name, "Device group name")
         if not isinstance(raw_devices, list) or not raw_devices:
             raise DeviceGroupError(f"Device group '{name}' must contain at least one device serial.")
 
@@ -61,9 +73,10 @@ def parse_groups(raw_json: str) -> dict[str, list[str]]:
 
 def resolve_group(raw_json: str, group_name: str, online_devices: list[str]) -> tuple[list[str], list[str]]:
     groups = parse_groups(raw_json)
-    requested_group = group_name.strip()
-    if not requested_group:
-        raise DeviceGroupError("DEVICE_GROUP is empty.")
+    # Do not normalize this value: GitHub already used the raw workflow input
+    # as the concurrency key. Accepting an alias here could map two locks to the
+    # same physical phone group.
+    requested_group = validate_group_name(group_name, "DEVICE_GROUP")
     if requested_group not in groups:
         available_groups = ", ".join(sorted(groups))
         raise DeviceGroupError(

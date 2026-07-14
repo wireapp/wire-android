@@ -47,6 +47,18 @@ class ResolveDeviceGroupTest(unittest.TestCase):
         with self.assertRaisesRegex(DeviceGroupError, "Unknown device group 'e2eTests'"):
             resolve_group(groups, "e2eTests", ["device-1"])
 
+    def test_rejects_padded_requested_group_that_would_use_a_different_lock(self) -> None:
+        groups = json.dumps({"criticalFlow": ["device-1"]})
+
+        with self.assertRaisesRegex(DeviceGroupError, "must use only"):
+            resolve_group(groups, " criticalFlow ", ["device-1"])
+
+    def test_rejects_unsafe_configured_group_name(self) -> None:
+        groups = json.dumps({"critical Flow": ["device-1"]})
+
+        with self.assertRaisesRegex(DeviceGroupError, "must use only"):
+            parse_groups(groups)
+
     def test_rejects_device_assigned_to_multiple_groups(self) -> None:
         groups = json.dumps(
             {

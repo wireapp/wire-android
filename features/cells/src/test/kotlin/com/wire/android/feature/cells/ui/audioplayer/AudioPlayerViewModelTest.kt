@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
-class CellAudioPlayerViewModelTest {
+class AudioPlayerViewModelTest {
 
     @AfterEach
     fun tearDown() {
@@ -340,9 +340,9 @@ class CellAudioPlayerViewModelTest {
             method.invoke(viewModel)
         }
 
-        fun arrange(): Pair<Arrangement, CellAudioPlayerViewModel> {
+        fun arrange(): Pair<Arrangement, AudioPlayerViewModel> {
             every { CellAudioPlayerScreenDestination.argsFrom(savedStateHandle) } returns navArgs
-            return this to CellAudioPlayerViewModel(context, savedStateHandle)
+            return this to AudioPlayerViewModel(context, savedStateHandle)
         }
     }
 }

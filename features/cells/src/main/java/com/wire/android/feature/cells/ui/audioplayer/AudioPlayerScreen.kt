@@ -87,7 +87,7 @@ private const val SKIP_MS = 10_000
 fun CellAudioPlayerScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellAudioPlayerViewModel = cellAudioPlayerViewModel(),
+    viewModel: AudioPlayerViewModel = cellAudioPlayerViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     CellAudioPlayerContent(
@@ -334,6 +334,7 @@ private fun EqualizerBars(isPlaying: Boolean) {
     }
 }
 
+@Suppress("MagicNumber")
 private fun Int.toTimeString(): String {
     val totalSec = this / 1000
     val min = totalSec / 60

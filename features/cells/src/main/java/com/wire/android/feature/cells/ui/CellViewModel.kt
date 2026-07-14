@@ -377,6 +377,7 @@ class CellViewModel(
         cancelOpenDownload(uuid)
     }
 
+    @Suppress("ReturnCount")
     private fun openFileContentUrl(file: CellNodeUi.File) {
         when (file.assetType) {
             AttachmentFileType.IMAGE -> {

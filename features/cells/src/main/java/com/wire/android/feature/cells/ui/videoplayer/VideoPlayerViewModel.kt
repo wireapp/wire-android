@@ -49,7 +49,7 @@ class VideoPlayerViewModel(
     val fileName: String? = navArgs.fileName
 
     // Held in the ViewModel so playback survives configuration changes (e.g. rotating to full screen)
-    // without re-buffering the media. The PlayerView in the UI binds to this instance directly.
+    // without re-buffering the media.
     val player: ExoPlayer = ExoPlayer.Builder(context).build()
 
     private val _state = MutableStateFlow(

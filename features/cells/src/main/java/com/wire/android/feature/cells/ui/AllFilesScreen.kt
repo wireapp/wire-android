@@ -39,6 +39,7 @@ import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.scaffold.WireScaffold

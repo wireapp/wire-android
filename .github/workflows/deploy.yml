@@ -41,10 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: ${{ inputs.build-flavor }}-${{ inputs.build-variant }}-artifacts
           path: ${{ inputs.artifacts-path }}
@@ -88,7 +88,7 @@ jobs:
 
       - name: Deploy to Google Play
         if: matrix.target.type == 'google-play'
-        uses: r0adkll/upload-google-play@v1
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1
         with:
           serviceAccountJson: service_account.json
           packageName: ${{ matrix.target.package-name }}
@@ -100,7 +100,7 @@ jobs:
 
       - name: Deploy to GitHub Release
         if: matrix.target.type == 'github-release'
-        uses: softprops/action-gh-release@v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           files: |
             ${{ inputs.artifacts-path }}apk/${{ steps.lowercase.outputs.build-flavour }}/${{ steps.lowercase.outputs.build-variant }}/*.apk

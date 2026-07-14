@@ -52,6 +52,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
@@ -66,6 +67,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
@@ -111,6 +113,7 @@ class ConversationListViewModelImpl(
     private val userTypeMapper: UserTypeMapper,
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
+    private val observeJoinableCalls: ObserveJoinableCallsUseCase,
 ) : ConversationListViewModel, ViewModel() {
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
@@ -213,12 +216,13 @@ class ConversationListViewModelImpl(
                     observeConversationListDetailsWithEvents(
                         fromArchive = conversationsSource == ConversationsSource.ARCHIVE,
                         conversationFilter = conversationsSource.toFilter()
-                    ).map { conversations ->
+                    ).combine(observeJoinableCalls()) { conversations, joinableCallsByConversationId ->
                         conversations.map { conversationDetails ->
                             conversationDetails.toConversationItem(
                                 userTypeMapper = userTypeMapper,
                                 uiTextResolver = uiTextResolver,
-                                selfUserTeamId = selfTeamId
+                                selfUserTeamId = selfTeamId,
+                                joinableCallsByConversationId = joinableCallsByConversationId
                             )
                         } to searchQuery
                     }

@@ -22,4 +22,3 @@ data class VideoViewerNavArgs(
     val contentUrl: String? = null,
     val fileName: String? = null,
 )
-

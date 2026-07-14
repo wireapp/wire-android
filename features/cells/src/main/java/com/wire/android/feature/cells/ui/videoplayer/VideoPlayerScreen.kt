@@ -149,11 +149,10 @@ internal fun CellVideoViewerScreenContent(
 
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // Flag to track if the screen is immediately exiting
     var isExiting by remember { mutableStateOf(false) }
 
     // UI-only state. Playback state (playing, position, duration, mute, …) lives in the ViewModel so
-    // it survives the activity recreation on rotation; the values below are pure presentation concerns.
+    // it survives the activity recreation on rotation
     var controlsVisible by remember { mutableStateOf(true) }
     var isSeeking by remember { mutableStateOf(false) }
     var seekProgress by remember { mutableFloatStateOf(0f) }
@@ -351,9 +350,9 @@ internal fun CellVideoViewerScreenContent(
                         label = "videoButtonIcon",
                     ) { buttonState ->
                         val res = when (buttonState) {
-                            VideoButtonState.PLAY -> R.drawable.ic_cell_play
-                            VideoButtonState.PAUSE -> R.drawable.ic_cell_pause
-                            VideoButtonState.REPLAY -> R.drawable.ic_cell_replay
+                            VideoButtonState.PLAY -> R.drawable.ic_play
+                            VideoButtonState.PAUSE -> R.drawable.ic_pause
+                            VideoButtonState.REPLAY -> R.drawable.ic_replay
                         }
                         Icon(
                             painter = painterResource(res),
@@ -441,7 +440,7 @@ internal fun CellVideoViewerScreenContent(
                             )
                             Icon(
                                 painter = painterResource(
-                                    if (state.isMuted) R.drawable.ic_cell_volume_off else R.drawable.ic_cell_volume_on
+                                    if (state.isMuted) R.drawable.ic_volume_off else R.drawable.ic_volume_on
                                 ),
                                 contentDescription = stringResource(
                                     if (state.isMuted) R.string.cells_video_unmute else R.string.cells_video_mute
@@ -457,7 +456,7 @@ internal fun CellVideoViewerScreenContent(
                             )
                             Icon(
                                 painter = painterResource(
-                                    if (isLandscape) R.drawable.ic_cell_fullscreen_exit else R.drawable.ic_cell_fullscreen
+                                    if (isLandscape) R.drawable.ic_fullscreen_exit else R.drawable.ic_fullscreen
                                 ),
                                 contentDescription = stringResource(
                                     if (isLandscape) {
@@ -491,6 +490,7 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
     else -> null
 }
 
+@Suppress("MagicNumber")
 private fun Int.toTimeString(): String {
     val totalSec = this / 1000
     val min = totalSec / 60

@@ -180,6 +180,8 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Create backup and save backup file") {
                     pages.settingsPage.apply {
                         openBackupAndRestoreConversationsMenu()
+                    }
+                    pages.backupPage.apply {
                         iSeeBackupPageHeading()
                         clickCreateBackupButton()
                         clickBackUpNowButton()
@@ -187,6 +189,8 @@ class SSODeviceBackup : BaseUiTest() {
                         iTapSaveFileButton()
                         iTapSaveInOSMenuButton()
                         iSeeBackupPageHeading()
+                    }
+                    pages.settingsPage.apply {
                         clickBackButtonOnSettingsPage()
                     }
                 }
@@ -251,6 +255,8 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Restore backup by selecting saved file and confirm restore completion") {
                     pages.settingsPage.apply {
                         openBackupAndRestoreConversationsMenu()
+                    }
+                    pages.backupPage.apply {
                         iSeeBackupPageHeading()
                         clickRestoreBackupButton()
                         clickChooseBackupFileButton()

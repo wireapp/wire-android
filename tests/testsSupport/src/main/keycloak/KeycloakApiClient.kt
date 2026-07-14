@@ -26,7 +26,7 @@ import network.RequestOptions
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -51,7 +51,7 @@ class KeycloakApiClient(
         path = "/realms/$REALM/protocol/saml/descriptor",
         method = "GET",
         headers = mapOf(
-            "Content-Type" to APPLICATION_XML,
+            HEADER_CONTENT_TYPE to APPLICATION_XML,
             "Accept" to APPLICATION_XML
         ),
         expectedResponseCodes = intArrayOf(HttpURLConnection.HTTP_OK)
@@ -173,18 +173,18 @@ class KeycloakApiClient(
             path = "/realms/$REALM/protocol/openid-connect/token",
             method = "POST",
             body = requestBody,
-            headers = mapOf(
-                "Content-Type" to FORM_URL_ENCODED,
-                "Accept" to applicationJson
-            ),
-            expectedResponseCodes = intArrayOf(HttpURLConnection.HTTP_OK)
+        headers = mapOf(
+            HEADER_CONTENT_TYPE to FORM_URL_ENCODED,
+            "Accept" to applicationJson
+        ),
+        expectedResponseCodes = intArrayOf(HttpURLConnection.HTTP_OK)
         )
 
         return JSONObject(response).getString("access_token")
     }
 
     private fun authorizedHeaders(): Map<String, String> = mapOf(
-        "Content-Type" to applicationJson,
+        HEADER_CONTENT_TYPE to applicationJson,
         "Accept" to applicationJson,
         "Authorization" to "Bearer ${authorize()}"
     )
@@ -230,7 +230,7 @@ class KeycloakApiClient(
         check(baseUrl.isNotBlank()) { "Backend '${backend.name}' is missing keycloakUrl." }
 
         return NetworkBackendClient.makeRequest(
-            url = URL("$baseUrl/${path.removePrefix("/")}"),
+            url = URI("$baseUrl/${path.removePrefix("/")}").toURL(),
             method = method,
             body = body,
             headers = headers,
@@ -248,6 +248,7 @@ class KeycloakApiClient(
     private companion object {
         const val REALM = "master"
         const val ADMIN_USER = "admin"
+        const val HEADER_CONTENT_TYPE = "Content-Type"
         const val APPLICATION_XML = "application/xml"
         const val FORM_URL_ENCODED = "application/x-www-form-urlencoded"
     }

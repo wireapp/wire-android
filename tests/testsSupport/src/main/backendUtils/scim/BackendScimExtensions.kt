@@ -28,14 +28,14 @@ import network.RequestOptions
 import org.json.JSONObject
 import user.utils.ClientUser
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 /**
  * Creates a SCIM auth token for the given backend user so tests can call SCIM endpoints on that team.
  */
 fun BackendClient.createScimAccessToken(asUser: ClientUser, description: String): String {
     val token = runBlocking { getAuthToken(asUser) }
-    val url = URL("scim/auth-tokens".composeCompleteUrl())
+    val url = URI("scim/auth-tokens".composeCompleteUrl()).toURL()
 
     val requestBody = JSONObject().apply {
         put("description", description)

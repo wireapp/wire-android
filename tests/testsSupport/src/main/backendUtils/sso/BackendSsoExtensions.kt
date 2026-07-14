@@ -28,44 +28,37 @@ import network.RequestOptions
 import org.json.JSONObject
 import user.utils.ClientUser
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 fun BackendClient.createIdentityProvider(user: ClientUser, metadata: String): String {
-    val token = runBlocking { getAuthToken(user) }
-    val url = URL("identity-providers".composeCompleteUrl())
-
-    val headers = defaultheaders.toMutableMap().apply {
-        put("Authorization", "${token?.type} ${token?.value}")
-        put("Accept", BackendClient.applicationJson)
-        put("Content-Type", "application/xml")
-    }
-
-    val response = NetworkBackendClient.sendJsonRequestWithCookies(
-        url = url,
-        method = "POST",
-        body = metadata,
-        headers = headers,
-        options = RequestOptions(
-            accessToken = token,
-            expectedResponseCodes = NumberSequence.Array(
-                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_CREATED)
-            )
-        )
+    return createIdentityProviderAtPath(
+        user = user,
+        metadata = metadata,
+        path = "identity-providers"
     )
-
-    val responseBody = JSONObject(response.body)
-    return responseBody.getString("id")
 }
 
 // Creates an identity provider through the backend v2 API and returns its id.
 fun BackendClient.createIdentityProviderV2(user: ClientUser, metadata: String): String {
+    return createIdentityProviderAtPath(
+        user = user,
+        metadata = metadata,
+        path = "v5/identity-providers?api_version=v2"
+    )
+}
+
+private fun BackendClient.createIdentityProviderAtPath(
+    user: ClientUser,
+    metadata: String,
+    path: String
+): String {
     val token = runBlocking { getAuthToken(user) }
-    val url = URL("v5/identity-providers?api_version=v2".composeCompleteUrl())
+    val url = URI(path.composeCompleteUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")
         put("Accept", BackendClient.applicationJson)
-        put("Content-Type", "application/xml")
+        put("Content-Type", APPLICATION_XML)
     }
 
     val response = NetworkBackendClient.sendJsonRequestWithCookies(
@@ -84,3 +77,5 @@ fun BackendClient.createIdentityProviderV2(user: ClientUser, metadata: String): 
     val responseBody = JSONObject(response.body)
     return responseBody.getString("id")
 }
+
+private const val APPLICATION_XML = "application/xml"

@@ -103,7 +103,7 @@ class SSODeviceBackup : BaseUiTest() {
 
         step("And I open mobtown-lemon deep link login flow") {
             pages.loginPage.apply {
-                clickStagingDeepLink("mobtown-lemon")
+                clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
             }
         }

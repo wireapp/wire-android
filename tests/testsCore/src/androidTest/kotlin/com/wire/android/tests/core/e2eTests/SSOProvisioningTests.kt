@@ -42,7 +42,7 @@ class SSOProvisioningTests : BaseUiTest() {
 
     @Before
     fun setUp() {
-        initCommonTestHelpers("mobtown-lemon")
+        initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
         SSOServiceHelper.initialize(clientUserManager)
         keycloakApiClient = KeycloakApiClient(backendClient)
@@ -96,7 +96,7 @@ class SSOProvisioningTests : BaseUiTest() {
 
         step("And I open mobtown-lemon backend deep link and tap proceed button on custom backend alert") {
             pages.loginPage.apply {
-                clickStagingDeepLink("mobtown-lemon")
+                clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
             }
         }
@@ -201,7 +201,7 @@ class SSOProvisioningTests : BaseUiTest() {
 
         step("And I open mobtown-lemon backend deep link and tap proceed button on custom backend alert") {
             pages.loginPage.apply {
-                clickStagingDeepLink("mobtown-lemon")
+                clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
             }
         }

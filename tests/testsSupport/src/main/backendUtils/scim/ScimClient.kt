@@ -26,7 +26,7 @@ import network.RequestOptions
 import org.json.JSONObject
 import user.utils.ClientUser
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 // SCIM provisioning client used to create managed users in Wire after IdP credentials are prepared.
 class ScimClient(
@@ -50,7 +50,7 @@ class ScimClient(
         }
 
         val response = NetworkBackendClient.sendJsonRequest(
-            url = URL("${backend.backendUrl}scim/v2/Users"),
+            url = URI("${backend.backendUrl}scim/v2/Users").toURL(),
             method = "POST",
             body = profile.toString(),
             headers = mapOf(

@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.search.messages.SearchConversation
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase
@@ -46,6 +47,7 @@ class ConversationSearchFolderViewModelFactory @Inject constructor(
     private val getConversationMessagesFromSearch: GetConversationMessagesFromSearchUseCase,
     private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
 ) {
     fun conversationFoldersViewModel(args: ConversationFoldersStateArgs) = ConversationFoldersVMImpl(
         args = args,
@@ -78,6 +80,7 @@ class ConversationSearchFolderViewModelFactory @Inject constructor(
     fun promoteAdminViewModel(savedStateHandle: SavedStateHandle) = PromoteAdminViewModel(
         promoteAdminAndLeave = promoteAdminAndLeave,
         observeEligibleMembers = observeEligibleMembers,
+        observeConversationMembers = observeConversationMembers,
         dispatchers = dispatchers,
         savedStateHandle = savedStateHandle,
     )

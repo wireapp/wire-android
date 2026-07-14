@@ -35,6 +35,7 @@ import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
 import service.enums.LegalHoldStatus
 import service.models.Conversation
+import service.models.SendFileParams
 import service.models.SendLocationParams
 import service.models.SendTextParams
 import service.models.SendTextWithLinkParams
@@ -45,6 +46,7 @@ import util.generateQRCode
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.RandomAccessFile
 import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
@@ -203,6 +205,36 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsLocalImageConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String?,
+        dstConvoName: String
+    ) {
+        val image = getRawResourceAsFile(context, R.raw.testing_image, fileName)
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        if (image?.exists() != true) {
+            throw Exception("Image file not found")
+        }
+
+        testServiceClient.sendImage(
+            SendFileParams(
+                owner = toClientUser(senderAlias),
+                deviceName = deviceName,
+                convoId = conversation.qualifiedID.id,
+                convoDomain = conversation.qualifiedID.domain,
+                timeout = getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+                filePath = image.absolutePath.orEmpty(),
+                type = "image/jpeg",
+                otherAlgorithm = false,
+                otherHash = false,
+                invalidHash = false
+            )
+        )
+    }
+
     fun contactSendsLocalTextPersonalMLSConversation(
         context: Context,
         fileName: String,
@@ -233,6 +265,30 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsOneMbTextFileConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val textFile = File(context.cacheDir, fileName)
+        RandomAccessFile(textFile, "rws").use { file ->
+            file.setLength(1024L * 1024L)
+        }
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            textFile.absolutePath.orEmpty(),
+            "text/plain"
+        )
+    }
+
     fun contactSendsLocalVideoPersonalMLSConversation(
         context: Context,
         fileName: String,
@@ -257,6 +313,31 @@ class TestServiceHelper(
             deviceName,
             convoId,
             convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            videoFile.absolutePath.orEmpty(),
+            "video/mp4"
+        )
+    }
+
+    fun contactSendsLocalVideoConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val videoFile = getRawResourceAsFile(context, R.raw.testing, fileName)
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        if (videoFile?.exists() != true) {
+            throw Exception("Video file not found")
+        }
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
             getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
             videoFile.absolutePath.orEmpty(),
             "video/mp4"

@@ -28,12 +28,14 @@ import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
+import uiautomatorutils.UiWaitUtils.waitElement
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("LargeClass")
 data class ConversationViewPage(private val device: UiDevice) {
     private val fileSavedToastPrefix = "The file "
     private val fileSavedToastMessage = "was saved successfully to the Downloads folder"
@@ -105,6 +107,18 @@ data class ConversationViewPage(private val device: UiDevice) {
         return UiSelectorParams(text = name)
     }
 
+    private fun assertElementNotVisible(params: UiSelectorParams, description: String, timeoutSeconds: Int = 5) {
+        val notVisible = UiWaitUtils.retryUntilTimeout(
+            timeout = timeoutSeconds.seconds,
+            pollingInterval = UiWaitUtils.POLLING_SLOW
+        ) {
+            findElementOrNull(params) == null
+        }
+        if (!notVisible) {
+            throw AssertionError("Expected $description to be absent, but it was found within ${timeoutSeconds}s.")
+        }
+    }
+
     fun assertConversationIsVisibleWithTeamMember(userName: String): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(displayedUserName(userName))
@@ -126,6 +140,11 @@ data class ConversationViewPage(private val device: UiDevice) {
     fun assertAudioMessageIsVisible(): ConversationViewPage {
         val seekBar = UiWaitUtils.waitElement(audioSeekBar)
         Assert.assertTrue("Audio file is not visible", !seekBar.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertAudioMessageNotVisible(): ConversationViewPage {
+        assertElementNotVisible(audioSeekBar, "audio file")
         return this
     }
 
@@ -302,6 +321,11 @@ data class ConversationViewPage(private val device: UiDevice) {
     fun assertFileWithNameIsVisible(fileName3: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName3))
         Assert.assertTrue("File with name '$fileName3' is not visible", !fileNameElement.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertFileWithNameNotVisible(fileName: String): ConversationViewPage {
+        assertElementNotVisible(fileWithName(fileName), "file with name '$fileName'")
         return this
     }
 
@@ -565,6 +589,8 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertSystemMessageVisible(message: String) = apply { waitElement(UiSelectorParams(textContains = message)) }
+
     fun assertVisibleMentionedNameIs(mentionedName: String): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(UiSelectorParams(text = mentionedName))
@@ -697,6 +723,16 @@ data class ConversationViewPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Sent qrCodeImage is not visible in current conversation", e)
         }
+        return this
+    }
+
+    fun assertImageIsVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(sentQRImage)
+        return this
+    }
+
+    fun assertImageNotVisible(): ConversationViewPage {
+        assertElementNotVisible(sentQRImage, "image")
         return this
     }
 

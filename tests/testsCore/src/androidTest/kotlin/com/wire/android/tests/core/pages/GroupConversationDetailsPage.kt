@@ -40,6 +40,14 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val removeGroupButton = UiSelectorParams(text = "Remove")
 
+    private val clearContentButton = UiSelectorParams(textContains = "Clear Content")
+
+    private val clearContentConfirmButton = UiSelectorParams(text = "Clear content")
+
+    private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
+
+    private val leaveConversationConfirmButton = UiSelectorParams(text = "Leave")
+
     private val participantsTab = UiSelectorParams(text = "PARTICIPANTS")
 
     private val addParticipantsButton = UiSelectorParams(text = "Add participants")
@@ -88,6 +96,26 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapMoveOutOfArchiveButton(): GroupConversationDetailsPage {
         UiWaitUtils.waitElement(moveOutOfArchiveButton).click()
+        return this
+    }
+
+    fun tapClearContentButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(clearContentButton).click()
+        return this
+    }
+
+    fun tapClearContentConfirmButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(clearContentConfirmButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(leaveConversationButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationConfirmButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(leaveConversationConfirmButton).click()
         return this
     }
 

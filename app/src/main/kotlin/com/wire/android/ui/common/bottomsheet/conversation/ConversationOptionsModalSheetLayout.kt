@@ -46,6 +46,7 @@ import com.wire.android.ui.home.conversationslist.model.DeleteGroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @SuppressLint("ComposeModifierMissing")
 @Composable
@@ -55,7 +56,7 @@ fun ConversationOptionsModalSheetLayout(
     onLeftConversation: () -> Unit = {},
     onDeletedConversation: () -> Unit = {},
     onDeletedConversationLocally: () -> Unit = {},
-    onPromoteAdmin: (ConversationId) -> Unit = {},
+    onPromoteAdmin: (ConversationId, List<UserId>) -> Unit = { _, _ -> },
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     viewModel: ConversationOptionsMenuViewModel =
         conversationOptionsMenuViewModel()
@@ -70,7 +71,7 @@ fun ConversationOptionsModalSheetLayout(
         dialogState = viewModel.leaveGroupOptionsDialogState,
         onPromoteAdmin = { state ->
             viewModel.leaveGroupOptionsDialogState.dismiss()
-            onPromoteAdmin(state.conversationId)
+            onPromoteAdmin(state.conversationId, emptyList())
         },
         onDeleteGroup = { state ->
             viewModel.leaveGroupOptionsDialogState.dismiss()
@@ -106,6 +107,7 @@ fun ConversationOptionsModalSheetLayout(
             is ConversationOptionsMenuViewAction.Deleted -> onDeletedConversation()
             is ConversationOptionsMenuViewAction.DeletedLocally -> onDeletedConversationLocally()
             is ConversationOptionsMenuViewAction.Left -> onLeftConversation()
+            is ConversationOptionsMenuViewAction.PromoteAdmin -> onPromoteAdmin(action.conversationId, action.eligibleMembers)
             is ConversationOptionsMenuViewAction.Message -> sheetState.hide {
                 snackbarHostState.showSnackbar(action.message.uiText.asString(context.resources))
             }

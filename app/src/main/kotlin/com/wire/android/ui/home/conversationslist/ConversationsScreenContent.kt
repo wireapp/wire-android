@@ -66,6 +66,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
+import com.wire.android.ui.home.conversations.promoteadmin.toPromoteAdminEligibleMemberArgs
 import com.wire.android.ui.home.conversationListViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -276,7 +277,15 @@ fun ConversationsScreenContent(
     ConversationOptionsModalSheetLayout(
         sheetState = sheetState,
         openConversationFolders = { navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it))) },
-        onPromoteAdmin = { navigator.navigate(NavigationCommand(PromoteAdminScreenDestination(PromoteAdminNavArgs(it)))) },
+        onPromoteAdmin = { conversationId, eligibleMembers ->
+            navigator.navigate(
+                NavigationCommand(
+                    PromoteAdminScreenDestination(
+                        PromoteAdminNavArgs(conversationId, eligibleMembers.toPromoteAdminEligibleMemberArgs())
+                    )
+                )
+            )
+        },
         openConversationDebugMenu = { conversationId ->
             navigator.navigate(
                 NavigationCommand(

@@ -16,6 +16,12 @@ val env = Properties()
 // File where secrets will be saved/generated
 val secretsJson = rootProject.file("secrets.json")
 
+val deviceSecretSections = setOf(
+    "CALLINGSERVICE_BASIC_AUTH",
+    "OKTA_API_KEY",
+    "SOCKS_PROXY_PASSWORD"
+)
+
 fun Any?.asStringAnyMap(): Map<String, Any?> = when (this) {
     is Map<*, *> -> entries.mapNotNull { (key, value) ->
         val stringKey = key as? String ?: return@mapNotNull null
@@ -50,6 +56,11 @@ if (secretsJson.exists()) {
 
     parsed.forEach { (title, item) ->
         val sectionName = sanitize(title)  // Sanitize the section/item title
+
+        // TESTINY_API_KEY_ANDROID and any future host-only values must never be
+        // compiled into the instrumentation APK installed on physical devices.
+        val isDeviceSecret = sectionName.startsWith("BACKENDCONNECTION_") || sectionName in deviceSecretSections
+        if (!isDeviceSecret) return@forEach
 
         // Get the fields as a map of label -> field details
         val fields = item.asStringAnyMap()["fields"].asStringAnyMap()

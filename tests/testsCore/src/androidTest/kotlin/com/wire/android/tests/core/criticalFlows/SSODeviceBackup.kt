@@ -140,7 +140,7 @@ class SSODeviceBackup : BaseUiTest() {
 
         step("And I decline the share data alert after login") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                UiWaitUtils.waitFor(1.seconds)
                 clickDeclineShareDataAlert()
             }
         }

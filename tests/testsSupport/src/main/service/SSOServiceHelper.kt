@@ -74,7 +74,7 @@ object SSOServiceHelper {
         client: KeycloakApiClient
     ) {
         val owner = clientUserManager.findUserByNameOrNameAlias(ownerNameAlias)
-        val backend = loadBackend(owner.backendName ?: "mobtown-lemon")
+        val backend = loadBackend(owner.backendName ?: "STAGING")
         BackendSetupHelper(clientUserManager).createTeamOwnerByAlias(
             ownerNameAlias,
             teamName,

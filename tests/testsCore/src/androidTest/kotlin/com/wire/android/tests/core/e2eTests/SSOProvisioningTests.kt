@@ -32,6 +32,7 @@ import org.junit.runner.RunWith
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.STABLE_TIMEOUT
 import user.utils.ClientUser
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class SSOProvisioningTests : BaseUiTest() {
@@ -138,6 +139,7 @@ class SSOProvisioningTests : BaseUiTest() {
         }
 
         step("And I decline share data alert") {
+            UiWaitUtils.waitFor(1.seconds)
             pages.registrationPage.clickDeclineShareDataAlert()
         }
 
@@ -235,6 +237,7 @@ class SSOProvisioningTests : BaseUiTest() {
         }
 
         step("And I decline share data alert") {
+            UiWaitUtils.waitFor(1.seconds)
             pages.registrationPage.clickDeclineShareDataAlert()
         }
 

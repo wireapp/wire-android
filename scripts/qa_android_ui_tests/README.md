@@ -159,6 +159,15 @@ Execution flow:
 5. Run rerun attempts with explicit rerun lists so only the previously failed tests execute.
 6. Merge all attempts into one final Allure dataset and keep the latest outcome per logical test.
 
+Before report generation, the merged dataset is made safe for publication:
+
+- screenshots and other attachments are omitted;
+- test parameters and failure traces/messages are removed;
+- physical device serials are replaced with per-run aliases.
+
+GitHub Pages should still be configured with the narrowest available access
+policy because test names and high-level outcomes remain visible.
+
 Reporting behavior:
 
 - A test that fails first and passes later is reported as `passed` in the final merged report.

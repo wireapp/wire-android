@@ -413,14 +413,15 @@ run_attempt_on_devices() {
       fi
 
       local instr_list instrumentation
-      # Prefer the custom runner so retry args go through TaggedFilter.
-      # Fall back to the app-targeted instrumentation if needed.
+      # Resolve only instrumentation that targets the exact app installed for
+      # this run. This prevents a stale or hostile TaggedTestRunner package from
+      # receiving Testiny credentials and other instrumentation arguments.
       instr_list="$(${adb_cmd} shell pm list instrumentation 2>/dev/null | tr -d '\r' || true)"
-      instrumentation="$(printf '%s\n' "${instr_list}" | grep -m1 'TaggedTestRunner' | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
-      if [[ -z "${instrumentation}" ]]; then
-        instrumentation="$(printf '%s\n' "${instr_list}" | grep -m1 "target=${APP_ID}" | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
-      fi
-      if [[ -z "${instrumentation}" ]]; then
+      if ! instrumentation="$(
+        INSTRUMENTATION_LIST="${instr_list}" \
+          TARGET_APP_ID="${APP_ID}" \
+          python3 scripts/qa_android_ui_tests/resolve_instrumentation.py
+      )"; then
         echo "[${serial}] ERROR: Could not resolve instrumentation. Installed instrumentations:"
         printf '%s\n' "${instr_list}" | sed -u "s/^/[${serial}] /"
         exit 1

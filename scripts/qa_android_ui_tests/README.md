@@ -115,6 +115,16 @@ the source artifact can be downloaded. It validates that the requested group
 matches group metadata from newer source runs. For artifacts created before
 device groups were introduced, select the appropriate group manually.
 
+## Protected Environment
+
+Both secret-bearing jobs use the GitHub environment `android-e2e`. Configure
+that environment with required reviewers and restrict deployment branches to
+the repository default branch. Store the AWS, 1Password, and notification
+secrets used by these workflows as environment secrets rather than repository
+secrets. The workflows also reject manual runs from other refs and check out
+the default branch without persisting credentials, but environment protection
+is the enforcement boundary that a modified branch workflow cannot remove.
+
 ## Flavor Resolution Source
 
 Flavor resolution is runner-driven, not hardcoded in the repo.

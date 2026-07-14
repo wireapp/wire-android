@@ -31,10 +31,12 @@ import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTa
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -129,6 +131,19 @@ fun AllFilesScreen(
                                 contentUrl = file.contentUrl,
                                 previewUrl = file.previewUrl,
                                 contentHash = file.contentHash,
+                                fileName = file.name,
+                            )
+                        )
+                    )
+                )
+            },
+            showVideoPlayer = { file ->
+                navigator.navigate(
+                    NavigationCommand(
+                        VideoPlayerScreenDestination(
+                            VideoViewerNavArgs(
+                                localPath = file.localPath,
+                                contentUrl = file.contentUrl,
                                 fileName = file.name,
                             )
                         )

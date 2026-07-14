@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
@@ -30,6 +31,7 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
+import com.wire.android.feature.cells.ui.videoplayer.VideoPlayerViewModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -217,6 +219,14 @@ class CellsViewModelFactory @Inject constructor(
     )
 
     internal fun cellImageViewerViewModel(savedStateHandle: SavedStateHandle) = CellImageViewerViewModel(
+        savedStateHandle = savedStateHandle,
+    )
+
+    internal fun cellVideoViewerViewModel(
+        context: Context,
+        savedStateHandle: SavedStateHandle
+    ) = VideoPlayerViewModel(
+        context = context,
         savedStateHandle = savedStateHandle,
     )
 }

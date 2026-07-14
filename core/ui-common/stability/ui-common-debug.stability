@@ -907,11 +907,12 @@ public fun com.wire.android.ui.common.button.WireButton(onClick: kotlin.Function
     - description: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.common.button.WireButtonColors.containerColor(state: com.wire.android.ui.common.button.WireButtonState): androidx.compose.runtime.State<androidx.compose.ui.graphics.Color>
+public fun com.wire.android.ui.common.button.WireButtonColors.containerColor(state: com.wire.android.ui.common.button.WireButtonState, isFocused: kotlin.Boolean): androidx.compose.runtime.State<androidx.compose.ui.graphics.Color>
   skippable: true
   restartable: true
   params:
     - state: STABLE (class with no mutable properties)
+    - isFocused: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.common.button.WireButtonColors.contentColor(state: com.wire.android.ui.common.button.WireButtonState): androidx.compose.runtime.State<androidx.compose.ui.graphics.Color>
@@ -921,11 +922,12 @@ public fun com.wire.android.ui.common.button.WireButtonColors.contentColor(state
     - state: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.common.button.WireButtonColors.outlineColor(state: com.wire.android.ui.common.button.WireButtonState): androidx.compose.runtime.State<androidx.compose.ui.graphics.Color>
+public fun com.wire.android.ui.common.button.WireButtonColors.outlineColor(state: com.wire.android.ui.common.button.WireButtonState, isFocused: kotlin.Boolean): androidx.compose.runtime.State<androidx.compose.ui.graphics.Color>
   skippable: true
   restartable: true
   params:
     - state: STABLE (class with no mutable properties)
+    - isFocused: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.common.button.WireButtonColors.rippleColor(state: com.wire.android.ui.common.button.WireButtonState): androidx.compose.runtime.State<androidx.compose.ui.graphics.Color>
@@ -1106,7 +1108,7 @@ public fun com.wire.android.ui.common.button.secondaryButtonColors(): com.wire.a
   params:
 
 @Composable
-private fun com.wire.android.ui.common.button.wireButtonColors(enabled: androidx.compose.ui.graphics.Color, onEnabled: androidx.compose.ui.graphics.Color, enabledOutline: androidx.compose.ui.graphics.Color, enabledRipple: androidx.compose.ui.graphics.Color, disabled: androidx.compose.ui.graphics.Color, onDisabled: androidx.compose.ui.graphics.Color, disabledOutline: androidx.compose.ui.graphics.Color, disabledRipple: androidx.compose.ui.graphics.Color, selected: androidx.compose.ui.graphics.Color, onSelected: androidx.compose.ui.graphics.Color, selectedOutline: androidx.compose.ui.graphics.Color, selectedRipple: androidx.compose.ui.graphics.Color, error: androidx.compose.ui.graphics.Color, onError: androidx.compose.ui.graphics.Color, errorOutline: androidx.compose.ui.graphics.Color, errorRipple: androidx.compose.ui.graphics.Color, positive: androidx.compose.ui.graphics.Color, onPositive: androidx.compose.ui.graphics.Color, positiveOutline: androidx.compose.ui.graphics.Color, positiveRipple: androidx.compose.ui.graphics.Color): com.wire.android.ui.common.button.WireButtonColors
+private fun com.wire.android.ui.common.button.wireButtonColors(enabled: androidx.compose.ui.graphics.Color, onEnabled: androidx.compose.ui.graphics.Color, enabledOutline: androidx.compose.ui.graphics.Color, enabledRipple: androidx.compose.ui.graphics.Color, disabled: androidx.compose.ui.graphics.Color, onDisabled: androidx.compose.ui.graphics.Color, disabledOutline: androidx.compose.ui.graphics.Color, disabledRipple: androidx.compose.ui.graphics.Color, selected: androidx.compose.ui.graphics.Color, onSelected: androidx.compose.ui.graphics.Color, selectedOutline: androidx.compose.ui.graphics.Color, selectedRipple: androidx.compose.ui.graphics.Color, error: androidx.compose.ui.graphics.Color, onError: androidx.compose.ui.graphics.Color, errorOutline: androidx.compose.ui.graphics.Color, errorRipple: androidx.compose.ui.graphics.Color, positive: androidx.compose.ui.graphics.Color, onPositive: androidx.compose.ui.graphics.Color, positiveOutline: androidx.compose.ui.graphics.Color, positiveRipple: androidx.compose.ui.graphics.Color, focused: androidx.compose.ui.graphics.Color, focusedOutline: androidx.compose.ui.graphics.Color): com.wire.android.ui.common.button.WireButtonColors
   skippable: true
   restartable: true
   params:
@@ -1130,6 +1132,8 @@ private fun com.wire.android.ui.common.button.wireButtonColors(enabled: androidx
     - onPositive: STABLE (marked @Stable or @Immutable)
     - positiveOutline: STABLE (marked @Stable or @Immutable)
     - positiveRipple: STABLE (marked @Stable or @Immutable)
+    - focused: STABLE (marked @Stable or @Immutable)
+    - focusedOutline: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.common.button.wireCheckBoxColors(): androidx.compose.material3.CheckboxColors
@@ -1383,6 +1387,13 @@ public fun com.wire.android.ui.common.fixedColorsScheme(): com.wire.android.ui.t
   params:
 
 @Composable
+public fun com.wire.android.ui.common.focusedBorder(isFocused: kotlin.Boolean): androidx.compose.ui.Modifier
+  skippable: true
+  restartable: true
+  params:
+    - isFocused: STABLE (primitive type)
+
+@Composable
 private fun com.wire.android.ui.common.getButton(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -1433,6 +1444,12 @@ public fun com.wire.android.ui.common.legalhold.dialog.connectionfailed.LegalHol
 
 @Composable
 public fun com.wire.android.ui.common.lightColorsScheme(): com.wire.android.ui.theme.WireColorScheme
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.common.maxTitleLines(): kotlin.Int
   skippable: true
   restartable: true
   params:

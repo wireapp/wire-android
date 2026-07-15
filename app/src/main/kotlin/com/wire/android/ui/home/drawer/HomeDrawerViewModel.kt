@@ -30,7 +30,6 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.cells.domain.usecase.ObserveIsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.common.functional.getOrElse
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
-import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.client.ObserveIsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase

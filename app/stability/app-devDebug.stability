@@ -2337,13 +2337,12 @@ public fun com.wire.android.ui.calling.ongoing.participantslist.ParticipantList(
     - lazyListState: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.calling.ongoing.participantsview.AvatarTile(avatar: com.wire.android.model.UserAvatarData, modifier: androidx.compose.ui.Modifier, isOnPiPMode: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.calling.ongoing.participantsview.AvatarTile(avatar: com.wire.android.model.UserAvatarData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - avatar: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
-    - isOnPiPMode: STABLE (primitive type)
 
 @Composable
 private fun com.wire.android.ui.calling.ongoing.participantsview.BottomRow(participantTitleState: com.wire.android.ui.calling.model.UICallParticipant, isSelfUserMuted: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -2973,7 +2972,7 @@ internal fun com.wire.android.ui.common.bottomsheet.conversation.ConversationMai
     - openDebugMenu: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsModalSheetLayout(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetState>, openConversationFolders: kotlin.Function1<com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs, kotlin.Unit>, onLeftConversation: kotlin.Function0<kotlin.Unit>, onDeletedConversation: kotlin.Function0<kotlin.Unit>, onDeletedConversationLocally: kotlin.Function0<kotlin.Unit>, onPromoteAdmin: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, openConversationDebugMenu: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, viewModel: com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModel): kotlin.Unit
+public fun com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsModalSheetLayout(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetState>, openConversationFolders: kotlin.Function1<com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs, kotlin.Unit>, onLeftConversation: kotlin.Function0<kotlin.Unit>, onDeletedConversation: kotlin.Function0<kotlin.Unit>, onDeletedConversationLocally: kotlin.Function0<kotlin.Unit>, onPromoteAdmin: kotlin.Function2<com.wire.kalium.logic.data.id.QualifiedID, kotlin.collections.List<com.wire.kalium.logic.data.id.QualifiedID>, kotlin.Unit>, openConversationDebugMenu: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, viewModel: com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -4980,7 +4979,7 @@ private fun com.wire.android.ui.home.conversations.delete.DeleteMessageForYourse
     - onDeleteForMe: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.details.GroupConversationDetailsContent(groupConversationOptionsState: com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState, sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetState>, onBackPressed: kotlin.Function0<kotlin.Unit>, onProfilePressed: kotlin.Function1<com.wire.android.ui.home.conversations.details.participants.model.UIParticipant, kotlin.Unit>, onAddParticipantsPressed: kotlin.Function0<kotlin.Unit>, onEditGuestAccess: kotlin.Function0<kotlin.Unit>, onAppsAccessItemClicked: kotlin.Function0<kotlin.Unit>, onChannelAccessItemClicked: kotlin.Function0<kotlin.Unit>, onEditSelfDeletingMessages: kotlin.Function0<kotlin.Unit>, onEditGroupName: kotlin.Function0<kotlin.Unit>, groupParticipantsState: com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState, isAbandonedOneOnOneConversation: kotlin.Boolean, isWireCellEnabled: kotlin.Boolean, onSearchConversationMessagesClick: kotlin.Function0<kotlin.Unit>, onConversationMediaClick: kotlin.Function0<kotlin.Unit>, viewModel: com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel?, onMoveToFolder: kotlin.Function1<com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs, kotlin.Unit>, onLeftConversation: kotlin.Function0<kotlin.Unit>, onDeletedConversation: kotlin.Function0<kotlin.Unit>, onPromoteAdmin: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, openConversationDebugMenu: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, initialPageIndex: com.wire.android.ui.home.conversations.details.GroupConversationDetailsTabItem, isScreenLoading: kotlinx.coroutines.flow.StateFlow<kotlin.Boolean>): kotlin.Unit
+private fun com.wire.android.ui.home.conversations.details.GroupConversationDetailsContent(groupConversationOptionsState: com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState, sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetState>, onBackPressed: kotlin.Function0<kotlin.Unit>, onProfilePressed: kotlin.Function1<com.wire.android.ui.home.conversations.details.participants.model.UIParticipant, kotlin.Unit>, onAddParticipantsPressed: kotlin.Function0<kotlin.Unit>, onEditGuestAccess: kotlin.Function0<kotlin.Unit>, onAppsAccessItemClicked: kotlin.Function0<kotlin.Unit>, onChannelAccessItemClicked: kotlin.Function0<kotlin.Unit>, onEditSelfDeletingMessages: kotlin.Function0<kotlin.Unit>, onEditGroupName: kotlin.Function0<kotlin.Unit>, groupParticipantsState: com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState, isAbandonedOneOnOneConversation: kotlin.Boolean, isWireCellEnabled: kotlin.Boolean, onSearchConversationMessagesClick: kotlin.Function0<kotlin.Unit>, onConversationMediaClick: kotlin.Function0<kotlin.Unit>, viewModel: com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel?, onMoveToFolder: kotlin.Function1<com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs, kotlin.Unit>, onLeftConversation: kotlin.Function0<kotlin.Unit>, onDeletedConversation: kotlin.Function0<kotlin.Unit>, onPromoteAdmin: kotlin.Function2<com.wire.kalium.logic.data.id.QualifiedID, kotlin.collections.List<com.wire.kalium.logic.data.id.QualifiedID>, kotlin.Unit>, openConversationDebugMenu: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, initialPageIndex: com.wire.android.ui.home.conversations.details.GroupConversationDetailsTabItem, isScreenLoading: kotlinx.coroutines.flow.StateFlow<kotlin.Boolean>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -11766,3 +11765,4 @@ public fun com.wire.android.util.ui.WireScrollableThemePreview(content: @[Compos
   restartable: true
   params:
     - content: STABLE (composable function type)
+

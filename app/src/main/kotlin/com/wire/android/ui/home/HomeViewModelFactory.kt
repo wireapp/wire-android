@@ -37,8 +37,8 @@ import com.wire.android.util.ui.UiTextResolver
 import com.wire.kalium.cells.domain.usecase.ObserveIsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
+import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.ObserveIsWireCellsEnabledUseCase
@@ -119,7 +119,6 @@ class HomeViewModelFactory @Inject constructor(
         observeArchivedUnreadConversationsCount = observeArchivedUnreadConversationsCount,
         observeSelfUser = observeSelf,
         getTeamUrl = getTeamUrl,
-        isWireCellsEnabled = isWireCellsEnabled,
         observeIsWireCellsEnabled = observeIsWireCellsEnabled,
         observeIsAtLeastOneCellAvailable = observeIsAtLeastOneCellAvailable,
     )

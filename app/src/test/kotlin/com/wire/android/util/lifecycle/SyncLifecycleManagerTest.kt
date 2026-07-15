@@ -26,6 +26,8 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
+import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.logic.sync.SyncRequestResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -49,6 +51,20 @@ class SyncLifecycleManagerTest {
         connectionPolicyManager.syncTemporarily(TestUser.SELF_USER_ID)
 
         assertEquals(1, arrangement.syncExecutor.requestCount)
+        assertEquals(1, arrangement.syncExecutor.waitUntilLiveCount)
+    }
+
+    @Test
+    fun givenSyncFails_whenHandlingPushNotification_thenFailureIsReturned() = runTest {
+        val expectedFailure = NetworkFailure.NoNetworkConnection(null)
+        val (arrangement, syncLifecycleManager) = Arrangement()
+            .withAppInTheForeground()
+            .withTemporarySyncResult(SyncRequestResult.Failure(expectedFailure))
+            .arrange()
+
+        val result = syncLifecycleManager.syncTemporarily(TestUser.SELF_USER_ID)
+
+        assertEquals(SyncRequestResult.Failure(expectedFailure), result)
         assertEquals(1, arrangement.syncExecutor.waitUntilLiveCount)
     }
 
@@ -137,6 +153,12 @@ class SyncLifecycleManagerTest {
 
         fun withAppInTheForeground() = apply {
             every { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(true)
+        }
+
+        fun withTemporarySyncResult(result: SyncRequestResult) = apply {
+            syncExecutor = object : FakeSyncExecutor() {
+                override fun onWaitUntilLiveOrFailure(): SyncRequestResult = result.also { waitUntilLiveCount++ }
+            }
         }
 
         fun arrange() = this to syncLifecycleManager.also {

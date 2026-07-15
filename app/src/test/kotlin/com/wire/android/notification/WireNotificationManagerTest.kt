@@ -27,6 +27,7 @@ import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -64,6 +65,7 @@ import com.wire.kalium.logic.feature.user.ObserveE2EIRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
+import com.wire.kalium.logic.sync.SyncRequestResult
 import io.mockk.MockKAnnotations
 import io.mockk.MockKMatcherScope
 import io.mockk.clearMocks
@@ -74,6 +76,9 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -88,6 +93,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
 
@@ -371,6 +377,7 @@ class WireNotificationManagerTest {
             coEvery { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) } coAnswers {
                 // Push handling is taking 10 minutes
                 delay(10.minutes)
+                SyncRequestResult.Success
             }
             launch {
                 // We call fetchAndShow now
@@ -392,6 +399,72 @@ class WireNotificationManagerTest {
             // After everything ends, should have handled push once
             advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+        }
+
+    @Test
+    fun givenNotificationFetchIsRunning_whenCallerIsCancelled_thenSyncIsCancelled() =
+        runTest(dispatcherProvider.main()) {
+            val userId = TEST_AUTH_TOKEN.userId
+            val syncStarted = CompletableDeferred<Unit>()
+            val syncCancelled = CompletableDeferred<Unit>()
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(emptyList())
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withIncomingCalls(emptyList())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+            coEvery { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) } coAnswers {
+                syncStarted.complete(Unit)
+                try {
+                    awaitCancellation()
+                } finally {
+                    syncCancelled.complete(Unit)
+                }
+            }
+
+            val fetchJob = launch { manager.fetchAndShowNotificationsOnce(userId.value) }
+            syncStarted.await()
+            fetchJob.cancelAndJoin()
+
+            assertTrue(syncCancelled.isCompleted)
+        }
+
+    @Test
+    fun givenNoNetworkConnection_whenNotificationFetchRetriesAreExhausted_thenWorkManagerRetryIsRequested() =
+        runTest(dispatcherProvider.main()) {
+            val userId = TEST_AUTH_TOKEN.userId
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(emptyList())
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withIncomingCalls(emptyList())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+            coEvery { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) } returns
+                    SyncRequestResult.Failure(NetworkFailure.NoNetworkConnection(null))
+
+            val result = manager.fetchAndShowNotificationsOnce(userId.value)
+
+            assertEquals(NotificationFetchResult.Retry, result)
+            coVerify(exactly = 3) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+        }
+
+    @Test
+    fun givenSocketException_whenNotificationFetchRetriesAreExhausted_thenWorkManagerRetryIsRequested() =
+        runTest(dispatcherProvider.main()) {
+            val userId = TEST_AUTH_TOKEN.userId
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(emptyList())
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withIncomingCalls(emptyList())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+            coEvery { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) } throws
+                    java.net.SocketException("Background network blocked")
+
+            val result = manager.fetchAndShowNotificationsOnce(userId.value)
+
+            assertEquals(NotificationFetchResult.Retry, result)
+            coVerify(exactly = 3) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
         }
 
     @Test
@@ -1227,6 +1300,7 @@ class WireNotificationManagerTest {
             coEvery { userScope.observeSelfUser } returns getSelfUser
             coEvery { markConnectionRequestAsNotified(any()) } returns Unit
             coEvery { syncManager.waitUntilLive() } returns Unit
+            coEvery { syncLifecycleManager.syncTemporarily(any(), any()) } returns SyncRequestResult.Success
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope

@@ -27,6 +27,7 @@ import com.wire.android.R
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
+import com.wire.android.notification.NotificationFetchResult
 import com.wire.android.notification.WireNotificationManager
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
@@ -44,11 +45,12 @@ class NotificationFetchWorker
     }
 
     override suspend fun doWork(): Result {
-        inputData.getString(USER_ID_INPUT_DATA)?.let { userId ->
-            wireNotificationManager.fetchAndShowNotificationsOnce(userId)
+        val userId = inputData.getString(USER_ID_INPUT_DATA) ?: return Result.failure()
+        return when (wireNotificationManager.fetchAndShowNotificationsOnce(userId)) {
+            NotificationFetchResult.Success -> Result.success()
+            NotificationFetchResult.Retry -> Result.retry()
+            NotificationFetchResult.Failure -> Result.failure()
         }
-
-        return Result.success()
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {

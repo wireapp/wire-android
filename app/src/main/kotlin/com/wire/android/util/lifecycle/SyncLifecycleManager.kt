@@ -94,21 +94,28 @@ class SyncLifecycleManager @Inject constructor(
      * releasing sync.
      * If there are more ongoing sync requests, this will
      */
-    suspend fun syncTemporarily(userId: UserId, stayAliveExtraDuration: Duration = 0.seconds) {
+    suspend fun syncTemporarily(
+        userId: UserId,
+        stayAliveExtraDuration: Duration = 0.seconds
+    ): SyncRequestResult {
         logger.d(
             "Handling connection policy for push notification of " +
                     "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}"
         )
         coreLogic.getSessionScope(userId).run {
             logger.d("Starting Sync request")
-            syncExecutor.request {
+            return syncExecutor.request {
                 logger.d("Waiting until live")
-                when (waitUntilLiveOrFailure()) {
-                    is SyncRequestResult.Failure ->
+                when (val result = waitUntilLiveOrFailure()) {
+                    is SyncRequestResult.Failure -> {
                         logger.w("Failed waiting until live")
+                        result
+                    }
 
-                    is SyncRequestResult.Success ->
+                    is SyncRequestResult.Success -> {
                         delay(stayAliveExtraDuration)
+                        result
+                    }
                 }
             }
         }

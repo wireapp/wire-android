@@ -170,7 +170,7 @@
     "emm_support_enabled": true,
     "conversation_feeder_enabled": false,
     "background_notification_retry_enabled": true,
-    "background_notification_stay_alive_seconds": 3,
+    "background_notification_stay_alive_seconds": 1,
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
     "offline_files_enabled": true,

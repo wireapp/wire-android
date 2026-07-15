@@ -30,6 +30,8 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.util.logging.logIfEmptyUserName
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -41,12 +43,16 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
+import com.wire.kalium.logic.sync.SyncRequestResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,6 +71,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
+import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
@@ -88,9 +95,8 @@ class WireNotificationManager @Inject constructor(
     private val pingRinger: PingRinger
 ) {
 
-    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
-    private val fetchOnceJobs = hashMapOf<UserId, Job>()
+    private val fetchOnceJobs = hashMapOf<UserId, Deferred<NotificationFetchResult>>()
     private var observingWhileRunningJobs = ObservingJobs()
     private var observingPersistentlyJobs = ObservingJobs()
 
@@ -142,59 +148,52 @@ class WireNotificationManager @Inject constructor(
      * will join the first execution and return together.
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
-    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
-        val userId = checkIfUserIsAuthenticated(userIdValue) ?: return
+    internal suspend fun fetchAndShowNotificationsOnce(userIdValue: String): NotificationFetchResult = coroutineScope {
+        val userId = checkIfUserIsAuthenticated(userIdValue) ?: return@coroutineScope NotificationFetchResult.Success
 
-        val syncAndNotificationJobForUser = fetchAndShowMessageNotificationsJob(userId)
-
-        // Join the jobs for the user, waiting for its completion
-        syncAndNotificationJobForUser?.start()
-        syncAndNotificationJobForUser?.join()
-    }
-
-    private suspend fun fetchAndShowMessageNotificationsJob(userId: UserId): Job? =
-        fetchOnceMutex.withLock {
-            // Use the lock to create a new coroutine if needed
-            val currentJobForUser = fetchOnceJobs[userId]
-            val isJobRunningForUser = currentJobForUser?.run {
-                // Coroutine started, or didn't start yet, and it's waiting to be started
-                isActive || !isCompleted
-            } ?: false
-            if (isJobRunningForUser) {
-                // Return the currently existing job if it's active
+        val syncAndNotificationJobForUser = fetchOnceMutex.withLock {
+            fetchOnceJobs[userId]?.takeUnless { it.isCompleted }?.also {
                 appLogger.d(
                     "$TAG Already processing notifications for user=${userId.toLogString()}, and joining original execution"
                 )
-                currentJobForUser
-            } else {
-                // Create a new job for this user
-                appLogger.d("$TAG Starting to processing notifications for user=${userId.toLogString()}")
-                val newJob = scope.launch(start = CoroutineStart.LAZY) {
-                    triggerSyncForUserIfAuthenticated(userId)
-                }
-                fetchOnceJobs[userId] = newJob
-                newJob
-            }
+            } ?: async(start = CoroutineStart.LAZY) {
+                appLogger.d("$TAG Starting to process notifications for user=${userId.toLogString()}")
+                triggerSyncForUserIfAuthenticated(userId)
+            }.also { fetchOnceJobs[userId] = it }
         }
 
-    private suspend fun triggerSyncForUserIfAuthenticated(userId: UserId) {
+        try {
+            syncAndNotificationJobForUser.start()
+            syncAndNotificationJobForUser.await()
+        } finally {
+            fetchOnceMutex.withLock {
+                if (fetchOnceJobs[userId] === syncAndNotificationJobForUser && syncAndNotificationJobForUser.isCompleted) {
+                    fetchOnceJobs.remove(userId)
+                }
+            }
+        }
+    }
+
+    private suspend fun triggerSyncForUserIfAuthenticated(userId: UserId): NotificationFetchResult = coroutineScope {
         appLogger.d("$TAG checking the notifications once")
 
-        val observeMessagesJob = observeMessageNotificationsOnceJob(userId)
-        val observeCallsJob = observeCallNotificationsOnceJob(userId)
+        val observeMessagesJob = observeMessageNotificationsOnceJob(userId, this)
+        val observeCallsJob = observeCallNotificationsOnceJob(userId, this)
 
         val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
 
-        if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
-            appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
-            retrySync(userId, stayAliveDuration)
-        } else {
-            appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
-            syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+        try {
+            if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
+                appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
+                retrySync(userId, stayAliveDuration)
+            } else {
+                appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
+                syncLifecycleManager.syncTemporarily(userId, stayAliveDuration).toNotificationFetchResult()
+            }
+        } finally {
+            observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
+            observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
         }
-
-        observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
-        observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
     }
 
     /**
@@ -202,52 +201,45 @@ class WireNotificationManager @Inject constructor(
      * This is critical for background notifications during Doze mode where network
      * may not be immediately available despite WorkManager constraints.
      */
-    @Suppress("TooGenericExceptionCaught")
-    private suspend fun retrySync(userId: UserId, stayAliveDuration: Duration) {
-        val maxRetries = MAX_SYNC_RETRY
-        var attempt = 0
-        var lastException: Exception? = null
-
-        while (attempt < maxRetries) {
-            try {
-                appLogger.d("$TAG Sync attempt ${attempt + 1}/$maxRetries")
-                syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
-                appLogger.i("$TAG Sync succeeded on attempt ${attempt + 1}")
-                return // Success, exit retry loop
-            } catch (e: Exception) {
-                lastException = e
-
-                // Only retry on network-related errors
-                val isRetryable = when (e) {
-                    is UnknownHostException -> true
-                    else -> e.cause is UnknownHostException
-                }
-
-                if (!isRetryable) {
-                    appLogger.w("$TAG Non-retryable error during sync: ${e.message}")
-                    throw e
-                }
-
-                attempt++
-                if (attempt < maxRetries) {
-                    // Exponential backoff: 1s, 2s, 4s
-                    val delaySeconds = (1L shl (attempt - 1))
-                    appLogger.w("$TAG Network error on attempt $attempt, retrying in ${delaySeconds}s: ${e.message}")
-                    delay(delaySeconds.seconds)
-                } else {
-                    appLogger.e("$TAG All $maxRetries sync attempts failed with network errors")
-                }
+    private suspend fun retrySync(userId: UserId, stayAliveDuration: Duration): NotificationFetchResult {
+        var attempt = 1
+        var result: NotificationFetchResult
+        do {
+            appLogger.d("$TAG Sync attempt $attempt/$MAX_SYNC_RETRY")
+            result = syncOnce(userId, stayAliveDuration)
+            if (result == NotificationFetchResult.Retry && attempt < MAX_SYNC_RETRY) {
+                val delaySeconds = 1L shl (attempt - 1)
+                appLogger.w("$TAG Retrying notification sync in ${delaySeconds}s")
+                delay(delaySeconds.seconds)
             }
-        }
+            attempt++
+        } while (result == NotificationFetchResult.Retry && attempt <= MAX_SYNC_RETRY)
 
-        // If we exhausted all retries, log and rethrow
-        lastException?.let {
-            appLogger.e("$TAG Sync failed after $maxRetries attempts: ${it.message}")
-            throw it
+        when (result) {
+            NotificationFetchResult.Success -> appLogger.i("$TAG Sync succeeded on attempt ${attempt - 1}")
+            NotificationFetchResult.Retry ->
+                appLogger.e("$TAG All $MAX_SYNC_RETRY sync attempts failed; requesting WorkManager retry")
+            NotificationFetchResult.Failure -> appLogger.w("$TAG Non-retryable notification sync failure")
+        }
+        return result
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun syncOnce(userId: UserId, stayAliveDuration: Duration): NotificationFetchResult = try {
+        syncLifecycleManager.syncTemporarily(userId, stayAliveDuration).toNotificationFetchResult()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        if (e.isRetryableNetworkException()) {
+            appLogger.w("$TAG Retryable network error during notification sync: ${e.message}")
+            NotificationFetchResult.Retry
+        } else {
+            appLogger.w("$TAG Non-retryable error during notification sync: ${e.message}")
+            throw e
         }
     }
 
-    private suspend fun observeMessageNotificationsOnceJob(userId: UserId): Job? {
+    private fun observeMessageNotificationsOnceJob(userId: UserId, scope: CoroutineScope): Job? {
         val isMessagesAlreadyObserving =
             observingWhileRunningJobs.userJobs[userId]?.run { messagesJob.isActive }
                 ?: observingPersistentlyJobs.userJobs[userId]?.run { messagesJob.isActive }
@@ -267,7 +259,7 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private suspend fun observeCallNotificationsOnceJob(userId: UserId): Job? {
+    private suspend fun observeCallNotificationsOnceJob(userId: UserId, scope: CoroutineScope): Job? {
         val isCallsAlreadyObserving =
             observingWhileRunningJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
                 ?: observingPersistentlyJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
@@ -438,19 +430,19 @@ class WireNotificationManager @Inject constructor(
     private suspend fun observeMessageNotifications(
         userId: UserId,
         currentScreenState: StateFlow<CurrentScreen>
-    ) {
+    ) = coroutineScope {
         val selfUserNameState = coreLogic.getSessionScope(userId)
             .users
             .observeSelfUser()
             .onEach { it.logIfEmptyUserName() }
             .map { it.handle ?: it.name ?: "" }
             .distinctUntilChanged()
-            .stateIn(scope)
+            .stateIn(this)
 
         val isBlockedByE2EIRequiredState = coreLogic.getSessionScope(userId).observeE2EIRequired()
             .map { it is E2EIRequiredResult.NoGracePeriod }
             .distinctUntilChanged()
-            .stateIn(scope)
+            .stateIn(this)
 
         coreLogic.getSessionScope(userId)
             .messages
@@ -619,4 +611,34 @@ class WireNotificationManager @Inject constructor(
         private const val TAG = "WireNotificationManager"
         private const val MAX_SYNC_RETRY = 3
     }
+}
+
+internal sealed interface NotificationFetchResult {
+    data object Success : NotificationFetchResult
+    data object Retry : NotificationFetchResult
+    data object Failure : NotificationFetchResult
+}
+
+private fun SyncRequestResult.toNotificationFetchResult(): NotificationFetchResult = when (this) {
+    SyncRequestResult.Success -> NotificationFetchResult.Success
+    is SyncRequestResult.Failure -> if (error.isRetryableNotificationSyncFailure()) {
+        NotificationFetchResult.Retry
+    } else {
+        NotificationFetchResult.Failure
+    }
+}
+
+private fun CoreFailure.isRetryableNotificationSyncFailure(): Boolean = when (this) {
+    is NetworkFailure.NoNetworkConnection -> true
+    is CoreFailure.Unknown -> rootCause.isRetryableNetworkException()
+    else -> false
+}
+
+private fun Throwable?.isRetryableNetworkException(): Boolean {
+    var current = this
+    while (current != null) {
+        if (current is UnknownHostException || current is SocketException) return true
+        current = current.cause
+    }
+    return false
 }

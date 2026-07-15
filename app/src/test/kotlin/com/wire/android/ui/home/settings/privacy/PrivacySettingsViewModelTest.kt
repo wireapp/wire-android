@@ -26,6 +26,9 @@ import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.ObserveLinkPreviewsEnabledUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.PersistLinkPreviewsStatusConfigUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.LinkPreviewsConfigResult
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ReadReceiptStatusConfigResult
@@ -116,6 +119,8 @@ class PrivacySettingsViewModelTest {
     private class Arrangement {
         val persistReadReceiptsStatusConfig = mockk<PersistReadReceiptsStatusConfigUseCase>()
         val observeReadReceiptsEnabled = mockk<ObserveReadReceiptsEnabledUseCase>()
+        val persistLinkPreviewsStatusConfig = mockk<PersistLinkPreviewsStatusConfigUseCase>()
+        val observeLinkPreviewsEnabled = mockk<ObserveLinkPreviewsEnabledUseCase>()
         val persistScreenshotCensoringConfig = mockk<PersistScreenshotCensoringConfigUseCase>()
         val observeScreenshotCensoringConfig = mockk<ObserveScreenshotCensoringConfigUseCase>()
         val persistTypingIndicatorStatusConfig = mockk<PersistTypingIndicatorStatusConfigUseCase>()
@@ -129,6 +134,8 @@ class PrivacySettingsViewModelTest {
                 dispatchers = TestDispatcherProvider(),
                 persistReadReceiptsStatusConfig = persistReadReceiptsStatusConfig,
                 observeReadReceiptsEnabled = observeReadReceiptsEnabled,
+                persistLinkPreviewsStatusConfig = persistLinkPreviewsStatusConfig,
+                observeLinkPreviewsEnabled = observeLinkPreviewsEnabled,
                 persistScreenshotCensoringConfig = persistScreenshotCensoringConfig,
                 observeScreenshotCensoringConfig = observeScreenshotCensoringConfig,
                 persistTypingIndicatorStatusConfig = persistTypingIndicatorStatusConfig,
@@ -145,6 +152,8 @@ class PrivacySettingsViewModelTest {
 
             coEvery { persistReadReceiptsStatusConfig.invoke(true) } returns ReadReceiptStatusConfigResult.Success
             coEvery { observeReadReceiptsEnabled() } returns flowOf(true)
+            coEvery { persistLinkPreviewsStatusConfig.invoke(true) } returns LinkPreviewsConfigResult.Success
+            coEvery { observeLinkPreviewsEnabled() } returns flowOf(false)
             coEvery { persistScreenshotCensoringConfig.invoke(true) } returns PersistScreenshotCensoringConfigResult.Success
             coEvery { observeScreenshotCensoringConfig() } returns
                     flowOf(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)

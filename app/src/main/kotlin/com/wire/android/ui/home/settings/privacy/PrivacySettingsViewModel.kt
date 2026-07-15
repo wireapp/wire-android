@@ -29,6 +29,9 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.LinkPreviewsConfigResult
+import com.wire.kalium.logic.feature.user.linkPreviews.ObserveLinkPreviewsEnabledUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.PersistLinkPreviewsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ReadReceiptStatusConfigResult
@@ -48,6 +51,8 @@ class PrivacySettingsViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val persistReadReceiptsStatusConfig: PersistReadReceiptsStatusConfigUseCase,
     private val observeReadReceiptsEnabled: ObserveReadReceiptsEnabledUseCase,
+    private val persistLinkPreviewsStatusConfig: PersistLinkPreviewsStatusConfigUseCase,
+    private val observeLinkPreviewsEnabled: ObserveLinkPreviewsEnabledUseCase,
     private val persistScreenshotCensoringConfig: PersistScreenshotCensoringConfigUseCase,
     private val observeScreenshotCensoringConfig: ObserveScreenshotCensoringConfigUseCase,
     private val persistTypingIndicatorStatusConfig: PersistTypingIndicatorStatusConfigUseCase,
@@ -66,14 +71,16 @@ class PrivacySettingsViewModel @Inject constructor(
             val shouldShowAnalyticsUsage = shouldShowAnalyticsUsage()
             combine(
                 observeReadReceiptsEnabled(),
+                observeLinkPreviewsEnabled(),
                 observeTypingIndicatorEnabled(),
                 observeScreenshotCensoringConfig(),
                 dataStore.isAnonymousUsageDataEnabled()
-            ) { readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig, anonymousUsageDataEnabled ->
+            ) { readReceiptsEnabled, linkPreviewsEnabled, typingIndicatorEnabled, screenshotCensoringConfig, anonymousUsageDataEnabled ->
                 PrivacySettingsState(
                     isAnalyticsUsageEnabled = anonymousUsageDataEnabled,
                     shouldShowAnalyticsUsage = shouldShowAnalyticsUsage,
                     areReadReceiptsEnabled = readReceiptsEnabled,
+                    areLinkPreviewsEnabled = linkPreviewsEnabled,
                     isTypingIndicatorEnabled = typingIndicatorEnabled,
                     screenshotCensoringConfig = when (screenshotCensoringConfig) {
                         ObserveScreenshotCensoringConfigResult.Disabled ->
@@ -128,6 +135,23 @@ class PrivacySettingsViewModel @Inject constructor(
                 }
         }
     }
+
+    fun setLinkPreviewsState(isEnabled: Boolean) {
+        viewModelScope.launch {
+            state =
+                when (withContext(dispatchers.io()) { persistLinkPreviewsStatusConfig(isEnabled) }) {
+                    is LinkPreviewsConfigResult.Failure -> {
+                        appLogger.e("Something went wrong while updating link previews config")
+                        state.copy(areLinkPreviewsEnabled = !isEnabled)
+                    }
+                    is LinkPreviewsConfigResult.Success -> {
+                        appLogger.d("Link previews config changed")
+                        state.copy(areLinkPreviewsEnabled = isEnabled)
+                    }
+                }
+        }
+    }
+
     fun setScreenshotCensoringConfig(isEnabled: Boolean) {
         viewModelScope.launch {
             when (persistScreenshotCensoringConfig(isEnabled)) {

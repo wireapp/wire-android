@@ -62,6 +62,7 @@ class KaliumConfigsModule {
             domainWithFaultyKeysMap = BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR,
             isDebug = BuildConfig.DEBUG,
             blockCrossBackendLogin = BuildConfig.BLOCK_CROSS_BACKEND_LOGIN,
+            linkPreviewEnabled = BuildConfig.LINK_PREVIEW_ENABLED,
         )
     }
 }

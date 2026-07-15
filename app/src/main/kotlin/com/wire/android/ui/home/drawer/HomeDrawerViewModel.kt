@@ -47,7 +47,6 @@ class HomeDrawerViewModel(
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
-    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
     private val observeIsWireCellsEnabled: ObserveIsWireCellsEnabledUseCase,
     private val observeIsAtLeastOneCellAvailable: ObserveIsAtLeastOneCellAvailableUseCase,
 ) : ViewModel() {

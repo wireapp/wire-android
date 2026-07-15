@@ -59,6 +59,7 @@ sealed class CellNodeUi {
         internal override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
+        val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
 
     data class File internal constructor(
@@ -84,6 +85,7 @@ sealed class CellNodeUi {
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
         val conversationId: String?,
+        val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
 }
 
@@ -114,6 +116,7 @@ internal fun Node.File.toUiModel(
     openLoadState = openLoadState,
     downloadProgress = downloadProgress,
     isAvailableOffline = isAvailableOffline,
+    isViewerOnly = isViewerOnly,
 )
 
 internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
@@ -128,6 +131,7 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     size = size,
     tags = tags,
     publicLinkId = publicLinkId,
+    isViewerOnly = isViewerOnly,
 )
 
 internal fun CellNodeUi.File.withSessionState(
@@ -139,6 +143,7 @@ internal fun CellNodeUi.File.withSessionState(
     localPath = (openLoadState as? OpenLoadState.Ready)?.localPath?.toString() ?: localPath,
     downloadProgress = downloadProgress,
     isAvailableOffline = isAvailableOffline,
+    isViewerOnly = isViewerOnly,
 )
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null

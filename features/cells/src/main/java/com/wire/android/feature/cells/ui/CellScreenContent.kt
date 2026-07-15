@@ -146,6 +146,7 @@ internal fun CellScreenContent(
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
                 showConversationName = !isOffline || isAllFiles || isRecycleBin,
+                showViewerOnlyIcon = isAllFiles,
             )
     }
 

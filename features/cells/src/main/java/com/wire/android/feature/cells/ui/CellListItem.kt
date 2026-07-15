@@ -96,6 +96,7 @@ internal fun CellListItem(
     onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
     showConversationName: Boolean = true,
+    showViewerOnlyIcon: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var showReadyState by remember { mutableStateOf(false) }
@@ -117,7 +118,7 @@ internal fun CellListItem(
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CellItemIcon(cell = cell, showReadyState = showReadyState)
+        CellItemIcon(cell = cell, showReadyState = showReadyState, showViewerOnlyIcon = showViewerOnlyIcon)
 
         Column(
             modifier = Modifier
@@ -157,7 +158,7 @@ internal fun CellListItem(
 }
 
 @Composable
-private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean) {
+private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean, showViewerOnlyIcon: Boolean = false) {
     val iconState = when {
         cell.isOpenLoading -> CellIconState.Loading(cell.openLoadProgress)
         cell.downloadProgress != null -> CellIconState.Downloading(cell.downloadProgress)
@@ -178,7 +179,7 @@ private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean) {
             is CellIconState.Loading -> LoadingIconPreview(progress = state.progress)
             is CellIconState.Downloading -> DownloadingIconPreview(progress = state.progress)
             is CellIconState.Ready -> ReadyIconPreview()
-            is CellIconState.FileIcon -> FileIconPreview(state.cell)
+            is CellIconState.FileIcon -> FileIconPreview(state.cell, showViewerOnlyIcon = showViewerOnlyIcon)
             is CellIconState.FolderIcon -> FolderIconPreview(state.cell)
         }
     }
@@ -369,7 +370,7 @@ internal fun FolderIconPreview(cell: CellNodeUi.Folder) {
 }
 
 @Composable
-internal fun FileIconPreview(cell: CellNodeUi.File) {
+internal fun FileIconPreview(cell: CellNodeUi.File, showViewerOnlyIcon: Boolean = false) {
     Box(
         modifier = Modifier
             .size(dimensions().spacing56x),
@@ -406,6 +407,9 @@ internal fun FileIconPreview(cell: CellNodeUi.File) {
                     offsetY = dimensions().spacing16x
                 )
             }
+            if (showViewerOnlyIcon && cell.isViewerOnly) {
+                ViewerOnlyIcon()
+            }
         } else {
             Image(
                 modifier = Modifier.size(dimensions().spacing32x),
@@ -415,8 +419,38 @@ internal fun FileIconPreview(cell: CellNodeUi.File) {
             cell.publicLinkId?.let {
                 PublicLinkIcon()
             }
+            if (showViewerOnlyIcon && cell.isViewerOnly) {
+                ViewerOnlyIcon()
+            }
         }
     }
+}
+
+@Composable
+internal fun ViewerOnlyIcon(
+    offsetX: Dp = dimensions().spacing12x,
+    offsetY: Dp = dimensions().spacing12x,
+) {
+    Icon(
+        modifier = Modifier
+            .size(dimensions().spacing20x)
+            .offset(
+                x = offsetX,
+                y = offsetY
+            )
+            .background(
+                color = colorsScheme().surfaceVariant,
+                shape = CircleShape
+            )
+            .border(
+                width = dimensions().spacing1x,
+                color = colorsScheme().outline,
+                shape = CircleShape
+            )
+            .padding(dimensions().spacing4x),
+        painter = painterResource(R.drawable.ic_eye),
+        contentDescription = null,
+    )
 }
 
 @Composable

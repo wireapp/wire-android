@@ -50,11 +50,11 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
@@ -70,11 +70,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import java.net.SocketException
 import java.net.UnknownHostException
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
@@ -97,15 +96,28 @@ class WireNotificationManager @Inject constructor(
 
     private val fetchOnceMutex = Mutex()
     private val fetchOnceJobs = hashMapOf<UserId, Deferred<NotificationFetchResult>>()
-    private var observingWhileRunningJobs = ObservingJobs()
-    private var observingPersistentlyJobs = ObservingJobs()
+    private val observerLock = Any()
+    private val observerScope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
+    private val observerOwners = hashMapOf<ObserverOwner, Set<UserId>>()
+    private val observerOwnerCleanupRegistered = hashSetOf<ObserverOwner>()
+    private val userObservers = hashMapOf<UserId, UserObservingJobs>()
+    private var outgoingOngoingCallJob: Job? = null
+    private val currentScreenState = observerScope.async(start = CoroutineStart.LAZY) {
+        currentScreenManager.observeCurrentScreen(observerScope)
+    }
 
     /**
      * Stops all the ObservingNotifications jobs that are currently running, for a specific User.
      */
     fun stopObservingOnLogout(userId: UserId) {
-        stopObservingForUser(userId, observingWhileRunningJobs)
-        stopObservingForUser(userId, observingPersistentlyJobs)
+        synchronized(observerLock) {
+            observerOwners.entries.forEach { entry -> entry.setValue(entry.value - userId) }
+            observerOwners.entries.removeAll { it.value.isEmpty() }
+            userObservers.remove(userId)?.cancelAll()
+            stopOutgoingOngoingCallObserverIfUnused()
+        }
+        messagesNotificationManager.hideAllNotificationsForUser(userId)
+        callNotificationManager.hideAllIncomingCallNotificationsForUser(userId)
     }
 
     /**
@@ -114,7 +126,7 @@ class WireNotificationManager @Inject constructor(
     suspend fun observeNotificationsAndCallsWhileRunning(
         userIds: List<UserId>,
         scope: CoroutineScope
-    ) = observeNotificationsAndCalls(userIds, scope, observingWhileRunningJobs)
+    ) = observeNotificationsAndCalls(userIds, scope, ObserverOwnerType.WHILE_RUNNING)
 
     /**
      * Observes all the Message and Call notifications persistently.
@@ -123,15 +135,21 @@ class WireNotificationManager @Inject constructor(
     suspend fun observeNotificationsAndCallsPersistently(
         userIds: List<UserId>,
         scope: CoroutineScope
-    ) = observeNotificationsAndCalls(userIds, scope, observingPersistentlyJobs)
+    ) = observeNotificationsAndCalls(userIds, scope, ObserverOwnerType.PERSISTENT)
 
     /**
      * When there are no valid users with active sessions, we want to stop all the notifications and calls observing jobs,
      * hide all the notifications and stop the call service, because they are not relevant anymore.
      */
     fun clearWhenNoUsers() {
-        observingWhileRunningJobs.cancelAndClearAll()
-        observingPersistentlyJobs.cancelAndClearAll()
+        synchronized(observerLock) {
+            observerOwners.clear()
+            observerOwnerCleanupRegistered.clear()
+            userObservers.values.forEach { it.cancelAll() }
+            userObservers.clear()
+            outgoingOngoingCallJob?.cancel()
+            outgoingOngoingCallJob = null
+        }
         messagesNotificationManager.hideAllNotifications()
         callNotificationManager.hideAllCallNotifications()
         servicesManager.stopCallService()
@@ -176,9 +194,8 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun triggerSyncForUserIfAuthenticated(userId: UserId): NotificationFetchResult = coroutineScope {
         appLogger.d("$TAG checking the notifications once")
-
-        val observeMessagesJob = observeMessageNotificationsOnceJob(userId, this)
-        val observeCallsJob = observeCallNotificationsOnceJob(userId, this)
+        val owner = ObserverOwner(ObserverOwnerType.TEMPORARY, coroutineContext[Job])
+        updateObserverOwner(owner, setOf(userId), registerScopeCleanup = false)
 
         val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
 
@@ -191,8 +208,9 @@ class WireNotificationManager @Inject constructor(
                 syncLifecycleManager.syncTemporarily(userId, stayAliveDuration).toNotificationFetchResult()
             }
         } finally {
-            observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
-            observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
+            withContext(NonCancellable) {
+                updateObserverOwner(owner, emptySet(), registerScopeCleanup = false)
+            }
         }
     }
 
@@ -239,41 +257,6 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private fun observeMessageNotificationsOnceJob(userId: UserId, scope: CoroutineScope): Job? {
-        val isMessagesAlreadyObserving =
-            observingWhileRunningJobs.userJobs[userId]?.run { messagesJob.isActive }
-                ?: observingPersistentlyJobs.userJobs[userId]?.run { messagesJob.isActive }
-                ?: false
-
-        return if (isMessagesAlreadyObserving) {
-            // notifications are already observed, just need to connect to websocket.
-            appLogger.d("$TAG checking the notifications once, but notifications are already observed, no need to start a new job")
-            null
-        } else {
-            scope.launch {
-                observeMessageNotifications(
-                    userId,
-                    MutableStateFlow(CurrentScreen.InBackground)
-                )
-            }
-        }
-    }
-
-    private suspend fun observeCallNotificationsOnceJob(userId: UserId, scope: CoroutineScope): Job? {
-        val isCallsAlreadyObserving =
-            observingWhileRunningJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
-                ?: observingPersistentlyJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
-                ?: false
-
-        return if (isCallsAlreadyObserving) {
-            // calls are already observed, just need to connect to websocket.
-            appLogger.d("$TAG checking the calls once, but calls are already observed, no need to start a new job")
-            null
-        } else {
-            scope.launch { observeIncomingCalls(userId) }
-        }
-    }
-
     /**
      * @return the userId if the user is authenticated on that device and null otherwise
      */
@@ -302,41 +285,98 @@ class WireNotificationManager @Inject constructor(
     private suspend fun observeNotificationsAndCalls(
         userIds: List<UserId>,
         scope: CoroutineScope,
-        observingJobs: ObservingJobs
+        ownerType: ObserverOwnerType
     ) {
-        val currentScreenState = currentScreenManager.observeCurrentScreen(scope)
+        val owner = ObserverOwner(ownerType, scope.coroutineContext[Job])
+        val currentlyOwnedUsers = synchronized(observerLock) { observerOwners[owner].orEmpty() }
+        val validNewUsers = newUsersWithValidSessionAndWithoutActiveJobs(userIds) { it in currentlyOwnedUsers }
+        val retainedUsers = userIds.filter { it in currentlyOwnedUsers }
+        updateObserverOwner(owner, (retainedUsers + validNewUsers).toSet())
+    }
 
-        // removing notifications and stop observing it for the users that are not logged in anymore
-        observingJobs.userJobs.keys.filter { !userIds.contains(it) }
-            .forEach { userId -> stopObservingForUser(userId, observingJobs) }
+    private fun updateObserverOwner(
+        owner: ObserverOwner,
+        userIds: Set<UserId>,
+        registerScopeCleanup: Boolean = true
+    ) {
+        var shouldRegisterScopeCleanup = false
+        synchronized(observerLock) {
+            val previousUserIds = observerOwners[owner].orEmpty()
+            (previousUserIds - userIds).forEach { userId -> removeOwnerFromUserObserver(owner, userId) }
+            (userIds - previousUserIds).forEach { userId -> addOwnerToUserObserver(owner, userId) }
+            (userIds intersect previousUserIds).forEach { userId -> ensureUserObserverActive(userId) }
 
-        if (userIds.isEmpty()) {
-            return
+            if (userIds.isEmpty()) {
+                observerOwners.remove(owner)
+                observerOwnerCleanupRegistered.remove(owner)
+            } else {
+                observerOwners[owner] = userIds
+                shouldRegisterScopeCleanup = registerScopeCleanup && observerOwnerCleanupRegistered.add(owner)
+            }
+            if (userObservers.isEmpty()) {
+                stopOutgoingOngoingCallObserverIfUnused()
+            } else {
+                startOutgoingOngoingCallObserverIfNeeded()
+            }
         }
 
-        // start observing notifications only for new users with valid session and without active jobs
-        newUsersWithValidSessionAndWithoutActiveJobs(userIds) { observingJobs.userJobs[it]?.isAllActive() == true }
-            .forEach { userId ->
-                val jobs = UserObservingJobs(
-                    currentScreenJob = scope.launch(dispatcherProvider.default()) {
-                        observeCurrentScreenAndHideNotifications(currentScreenState, userId)
-                    },
-                    incomingCallsJob = scope.launch(dispatcherProvider.default()) {
-                        observeIncomingCalls(userId)
-                    },
-                    messagesJob = scope.launch(dispatcherProvider.default()) {
-                        observeMessageNotifications(userId, currentScreenState)
-                    },
-                )
-                observingJobs.userJobs[userId] = jobs
+        if (shouldRegisterScopeCleanup) {
+            owner.lifecycleJob?.invokeOnCompletion {
+                updateObserverOwner(owner, emptySet(), registerScopeCleanup = false)
             }
+        }
+    }
 
-        // start observing outgoing and ongoing calls for all users, but only if not yet started
-        if (observingJobs.outgoingOngoingCallJob.get().let { it == null || !it.isActive }) {
-            val job = scope.launch(dispatcherProvider.default()) {
-                observeOutgoingOngoingCalls()
+    private fun addOwnerToUserObserver(owner: ObserverOwner, userId: UserId) {
+        ensureUserObserverActive(userId).owners.add(owner)
+    }
+
+    private fun ensureUserObserverActive(userId: UserId): UserObservingJobs {
+        val existingObserver = userObservers[userId]
+        return if (existingObserver == null || !existingObserver.isAllActive()) {
+            val existingOwners = existingObserver?.owners.orEmpty()
+            existingObserver?.cancelAll()
+            startUserObserver(userId).also {
+                it.owners.addAll(existingOwners)
+                userObservers[userId] = it
             }
-            observingJobs.outgoingOngoingCallJob.set(job)
+        } else {
+            existingObserver
+        }
+    }
+
+    private fun removeOwnerFromUserObserver(owner: ObserverOwner, userId: UserId) {
+        userObservers[userId]?.let { observer ->
+            observer.owners.remove(owner)
+            if (observer.owners.isEmpty()) {
+                observer.cancelAll()
+                userObservers.remove(userId)
+            }
+        }
+    }
+
+    private fun startUserObserver(userId: UserId): UserObservingJobs = UserObservingJobs(
+        currentScreenJob = observerScope.launch {
+            observeCurrentScreenAndHideNotifications(currentScreenState.await(), userId)
+        },
+        incomingCallsJob = observerScope.launch {
+            observeIncomingCalls(userId)
+        },
+        messagesJob = observerScope.launch {
+            observeMessageNotifications(userId, currentScreenState.await())
+        }
+    )
+
+    private fun startOutgoingOngoingCallObserverIfNeeded() {
+        if (outgoingOngoingCallJob?.isActive != true) {
+            outgoingOngoingCallJob = observerScope.launch { observeOutgoingOngoingCalls() }
+        }
+    }
+
+    private fun stopOutgoingOngoingCallObserverIfUnused() {
+        if (userObservers.isEmpty()) {
+            outgoingOngoingCallJob?.cancel()
+            outgoingOngoingCallJob = null
         }
     }
 
@@ -353,13 +393,6 @@ class WireNotificationManager @Inject constructor(
                 else -> false
             }
         }
-
-    private fun stopObservingForUser(userId: UserId, observingJobs: ObservingJobs) {
-        messagesNotificationManager.hideAllNotificationsForUser(userId)
-        callNotificationManager.hideAllIncomingCallNotificationsForUser(userId)
-        observingJobs.userJobs[userId]?.cancelAll()
-        observingJobs.userJobs.remove(userId)
-    }
 
     /**
      * Infinitely listen for the CurrentScreen changes and update Notifications if needed
@@ -584,6 +617,7 @@ class WireNotificationManager @Inject constructor(
         val currentScreenJob: Job,
         val incomingCallsJob: Job,
         val messagesJob: Job,
+        val owners: MutableSet<ObserverOwner> = mutableSetOf()
     ) {
         fun cancelAll() {
             currentScreenJob.cancel()
@@ -595,16 +629,15 @@ class WireNotificationManager @Inject constructor(
             currentScreenJob.isActive && incomingCallsJob.isActive && messagesJob.isActive
     }
 
-    private data class ObservingJobs(
-        val outgoingOngoingCallJob: AtomicReference<Job?> = AtomicReference(),
-        val userJobs: ConcurrentHashMap<QualifiedID, UserObservingJobs> = ConcurrentHashMap()
-    ) {
-        fun cancelAndClearAll() {
-            outgoingOngoingCallJob.get()?.cancel()
-            outgoingOngoingCallJob.set(null)
-            userJobs.values.forEach { it.cancelAll() }
-            userJobs.clear()
-        }
+    private data class ObserverOwner(
+        val type: ObserverOwnerType,
+        val lifecycleJob: Job?
+    )
+
+    private enum class ObserverOwnerType {
+        WHILE_RUNNING,
+        PERSISTENT,
+        TEMPORARY
     }
 
     companion object {

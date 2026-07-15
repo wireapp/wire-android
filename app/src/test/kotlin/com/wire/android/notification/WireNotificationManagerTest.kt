@@ -77,11 +77,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -427,6 +431,47 @@ class WireNotificationManagerTest {
             fetchJob.cancelAndJoin()
 
             assertTrue(syncCancelled.isCompleted)
+        }
+
+    @Test
+    fun givenNotificationFetchIsRunning_whenExistingObserverOwnerStops_thenObserverRemainsSubscribed() =
+        runTest(dispatcherProvider.main()) {
+            val userId = TEST_AUTH_TOKEN.userId
+            val notification = provideLocalNotificationConversation(
+                messages = listOf(provideLocalNotificationMessage())
+            )
+            val notifications = MutableSharedFlow<List<LocalNotification>>()
+            val syncStarted = CompletableDeferred<Unit>()
+            val finishSync = CompletableDeferred<Unit>()
+            val ownerJob = Job()
+            val ownerScope = CoroutineScope(coroutineContext + ownerJob)
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(notifications)
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withIncomingCalls(MutableStateFlow(emptyList()))
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+            coEvery { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) } coAnswers {
+                syncStarted.complete(Unit)
+                finishSync.await()
+                SyncRequestResult.Success
+            }
+            manager.observeNotificationsAndCallsWhileRunning(listOf(userId), ownerScope)
+            runCurrent()
+
+            val fetchJob = launch { manager.fetchAndShowNotificationsOnce(userId.value) }
+            syncStarted.await()
+            ownerScope.cancel()
+            runCurrent()
+            notifications.emit(listOf(notification))
+            runCurrent()
+
+            coVerify(exactly = 1) {
+                arrangement.messageNotificationManager.handleNotification(listOf(notification), userId, any())
+            }
+
+            finishSync.complete(Unit)
+            fetchJob.join()
         }
 
     @Test
@@ -1372,8 +1417,18 @@ class WireNotificationManagerTest {
             return this
         }
 
+        fun withMessageNotifications(notifications: Flow<List<LocalNotification>>): Arrangement {
+            coEvery { getNotificationsUseCase() } returns notifications
+            return this
+        }
+
         fun withIncomingCalls(calls: List<Call>): Arrangement {
             coEvery { getIncomingCallsUseCase() } returns flowOf(calls)
+            return this
+        }
+
+        fun withIncomingCalls(calls: Flow<List<Call>>): Arrangement {
+            coEvery { getIncomingCallsUseCase() } returns calls
             return this
         }
 

@@ -37,13 +37,15 @@ internal fun MessageBody.shouldHideStandalonePreviewedUrl(preview: MessageLinkPr
         ?: false
 }
 
+@Suppress("ComplexCondition")
 private fun MessageLinkPreview.urlRangeWithin(text: String): IntRange? {
     val urlStart = urlOffset
-    val urlEndExclusive = urlStart + url.length
 
-    if (urlStart < 0 || urlEndExclusive > text.length) {
+    if (url.isEmpty() || urlStart < 0 || url.length > text.length || urlStart > text.length - url.length) {
         return null
     }
+
+    val urlEndExclusive = urlStart + url.length
 
     return if (text.substring(urlStart, urlEndExclusive) == url) {
         urlStart until urlEndExclusive

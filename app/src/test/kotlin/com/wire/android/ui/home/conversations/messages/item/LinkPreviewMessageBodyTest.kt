@@ -53,4 +53,30 @@ class LinkPreviewMessageBodyTest {
 
         assertFalse(messageBody.shouldHideStandalonePreviewedUrl(preview))
     }
+
+    @Test
+    fun givenNegativePreviewOffset_whenCheckingVisibility_thenMessageBodyIsShown() {
+        val url = "https://wire.com"
+        val messageBody = MessageBody(UIText.DynamicString(url))
+        val preview = MessageLinkPreview(url = url, urlOffset = -1)
+
+        assertFalse(messageBody.shouldHideStandalonePreviewedUrl(preview))
+    }
+
+    @Test
+    fun givenPreviewOffsetPastTextLength_whenCheckingVisibility_thenMessageBodyIsShown() {
+        val url = "https://wire.com"
+        val messageBody = MessageBody(UIText.DynamicString(url))
+        val preview = MessageLinkPreview(url = url, urlOffset = Int.MAX_VALUE)
+
+        assertFalse(messageBody.shouldHideStandalonePreviewedUrl(preview))
+    }
+
+    @Test
+    fun givenEmptyPreviewUrl_whenCheckingVisibility_thenMessageBodyIsShown() {
+        val messageBody = MessageBody(UIText.DynamicString("https://wire.com"))
+        val preview = MessageLinkPreview(url = "", urlOffset = 0)
+
+        assertFalse(messageBody.shouldHideStandalonePreviewedUrl(preview))
+    }
 }

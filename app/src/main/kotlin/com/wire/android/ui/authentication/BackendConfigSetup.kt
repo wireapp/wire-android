@@ -50,18 +50,17 @@ import com.wire.android.ui.WireActivity
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.android.ui.common.R as CommonR
 import kotlinx.coroutines.launch
-import java.net.URLDecoder
+import com.wire.android.ui.common.R as CommonR
 
 @Composable
 fun MissingBackendConfigContent(
@@ -76,7 +75,7 @@ fun MissingBackendConfigContent(
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
-    val noCameraAppMessage = stringResource(R.string.no_camera_app)
+    val noCameraAppMessage = stringResource(CommonR.string.no_camera_app)
     val backendConfigTextState = remember { TextFieldState() }
     val isConfigInputEmpty = backendConfigTextState.text.isBlank()
     val textAlign = if (centerText) TextAlign.Center else TextAlign.Start
@@ -109,7 +108,7 @@ fun MissingBackendConfigContent(
             labelText = stringResource(R.string.missing_backend_config_input_label),
             state = errorText?.let(WireTextFieldState::Error) ?: WireTextFieldState.Default,
             keyboardOptions = KeyboardOptions.Default,
-            modifier = Modifier.testTag("backendConfigInput"),
+            modifier = Modifier.testTag("backendConfigInputField"),
             testTag = "backendConfigInput",
             trailingIcon = {
                 IconButton(
@@ -133,7 +132,11 @@ fun MissingBackendConfigContent(
         WirePrimaryButton(
             text = stringResource(R.string.missing_backend_config_button_setup),
             fillMaxWidth = true,
-            state = if (isConfigInputEmpty || isLoading) WireButtonState.Disabled else WireButtonState.Default,
+            state = if (isConfigInputEmpty || isLoading || onConfigurationLinkEntered == null) {
+                WireButtonState.Disabled
+            } else {
+                WireButtonState.Default
+            },
             onClick = { (onConfigurationLinkEntered ?: context::openBackendConfig)(backendConfigTextState.text.toString()) },
             modifier = Modifier.testTag("backendConfigContinueButton"),
         )
@@ -186,18 +189,19 @@ fun BackendConfigSuccessContent(
 
 fun ServerConfig.Links.isConfigured() = api.isNotBlank()
 
+@Suppress("ReturnCount")
 fun String.toBackendConfigUrl(): String? {
-    val sanitizedInput = trim().takeIf { it.isNotBlank() } ?: return null
-    return if (sanitizedInput.startsWith(WIRE_ACCESS_DEEPLINK_PREFIX)) {
-        runCatching {
-            URLDecoder.decode(
-                sanitizedInput.removePrefix(WIRE_ACCESS_DEEPLINK_PREFIX).substringBefore("&"),
-                Charsets.UTF_8.name()
-            )
-        }.getOrNull()
-    } else {
-        sanitizedInput
-    }?.takeIf { it.isNotBlank() }
+    val sanitizedInput = trim().takeIf(String::isNotBlank) ?: return null
+
+    if (!sanitizedInput.startsWith(WIRE_ACCESS_DEEPLINK_BASE)) {
+        return sanitizedInput
+    }
+
+    return runCatching {
+        Uri.parse(sanitizedInput)
+            .getQueryParameter(BACKEND_CONFIG_QUERY_PARAMETER)
+            ?.takeIf(String::isNotBlank)
+    }.getOrNull()
 }
 
 fun Context.openBackendConfig(input: String) {
@@ -226,4 +230,6 @@ fun Context.openExternalCamera(): Boolean {
     }
 }
 
-private const val WIRE_ACCESS_DEEPLINK_PREFIX = "wire://access/?config="
+private const val WIRE_ACCESS_DEEPLINK_BASE = "wire://access/"
+private const val BACKEND_CONFIG_QUERY_PARAMETER = "config"
+private const val WIRE_ACCESS_DEEPLINK_PREFIX = "$WIRE_ACCESS_DEEPLINK_BASE?$BACKEND_CONFIG_QUERY_PARAMETER="

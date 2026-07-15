@@ -216,6 +216,9 @@ private fun MessageContent(
 
         is UIMessageContent.TextMessage -> {
             val hasLinkPreview = message.linkPreviews.isNotEmpty()
+            val shouldHideMessageBody = message.linkPreviews.firstOrNull()?.let { preview ->
+                messageContent.messageBody.shouldHideStandalonePreviewedUrl(preview)
+            } ?: false
             Column {
                 message.linkPreviews.firstOrNull()?.let { preview ->
                     LinkPreviewCard(
@@ -264,17 +267,19 @@ private fun MessageContent(
                         }
                         VerticalSpace.x4()
                     }
-                    MessageBody(
-                        messageBody = messageContent.messageBody,
-                        searchQuery = searchQuery,
-                        isAvailable = !message.isPending && message.isAvailable,
-                        onOpenProfile = onOpenProfile,
-                        buttonList = null,
-                        messageId = message.header.messageId,
-                        onLinkClick = onLinkClick,
-                        messageStyle = messageStyle,
-                        accent = accent,
-                    )
+                    if (!shouldHideMessageBody) {
+                        MessageBody(
+                            messageBody = messageContent.messageBody,
+                            searchQuery = searchQuery,
+                            isAvailable = !message.isPending && message.isAvailable,
+                            onOpenProfile = onOpenProfile,
+                            buttonList = null,
+                            messageId = message.header.messageId,
+                            onLinkClick = onLinkClick,
+                            messageStyle = messageStyle,
+                            accent = accent,
+                        )
+                    }
                 }
             }
         }

@@ -1265,6 +1265,8 @@
     <string name="settings_send_read_receipts">Отправлять отчет о прочтении</string>
     <string name="settings_send_read_receipts_description">Если этот параметр включен, другие пользователи могут видеть, прочитали ли вы их сообщения. 
 В групповых беседах администратор группы может управлять этой настройкой.</string>
+    <string name="settings_link_previews">Предпросмотр ссылки</string>
+    <string name="settings_link_previews_description">При включении будет добавлен предпросмотр ссылки, которой вы поделились в беседе. Предпросмотр ссылок, отправленных другими пользователями, также будет отображен, если они включили этот параметр.</string>
     <string name="settings_censor_screenshots">Запретить скриншоты</string>
     <string name="settings_censor_screenshots_description">При включении этого параметра содержимое сообщений не будет видно на скриншоте или при записи экрана.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Это определяется настройкой самоудаления сообщений для команды и не может быть изменено.\nСодержимое сообщений не будет видно на скриншоте или при записи экрана.</string>

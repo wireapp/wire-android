@@ -49,17 +49,15 @@ data class MeetingItem(
             when (frequency) {
                 Frequency.DAILY -> UIText.PluralResource(R.plurals.meeting_repeating_days, interval, interval)
                 Frequency.WEEKLY -> UIText.PluralResource(R.plurals.meeting_repeating_weeks, interval, interval)
-                Frequency.MONTHLY -> UIText.PluralResource(R.plurals.meeting_repeating_months, interval, interval)
-                Frequency.YEARLY -> UIText.PluralResource(R.plurals.meeting_repeating_years, interval, interval)
             }
         )
 
         companion object {
             val Daily = Every(Frequency.DAILY, 1)
             val Weekly = Every(Frequency.WEEKLY, 1)
-            val BiWeekly = Every(Frequency.WEEKLY, 2)
-            val Monthly = Every(Frequency.MONTHLY, 1)
-            val Predefined: ImmutableList<RepeatingInterval> = persistentListOf(Never, Daily, Weekly, BiWeekly, Monthly)
+            val Every2Weeks = Every(Frequency.WEEKLY, 2)
+            val Every4Weeks = Every(Frequency.WEEKLY, 4)
+            val Predefined: ImmutableList<RepeatingInterval> = persistentListOf(Never, Daily, Weekly, Every2Weeks, Every4Weeks)
         }
     }
 

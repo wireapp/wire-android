@@ -143,6 +143,10 @@ Flavor resolution is runner-driven, not hardcoded in the repo.
 - `run_ui_tests.sh`: instrumentation execution, sharding, failed-test auto-reruns, and manual-deflake failed-list execution.
 - `reporting.sh`: Allure pull/merge/generate/publish, deflake bundle preparation, and cleanup.
 
+Test artifact setup exports both `TEST_APK_PATH` and the generated
+`TEST_APP_ID`. The runner uses `TEST_APP_ID` to bind instrumentation to the
+freshly built test package; `APP_ID` remains the Wire app driven by UI Automator.
+
 ## Retry Flow
 
 The rerun feature is controlled by workflow inputs:

@@ -354,7 +354,9 @@ class WireActivity : BaseActivity() {
         sessionGraphStore: SessionGraphStoreViewModel,
         context: Context,
     ) {
-        val navigator = rememberNavigator(
+        val isUserUiBlocked = viewModel.globalAppState.blockUserUI != null
+        val navigator = rememberWireActivityNavigator(
+            isUserUiBlocked = isUserUiBlocked,
             finish = this@WireActivity::finish,
             isAllowedToNavigate = ::isNavigationAllowed
         )
@@ -367,7 +369,6 @@ class WireActivity : BaseActivity() {
         val sessionBackedAuthenticationUserId = currentBackStackEntryState.value
             ?.arguments
             ?.sessionBackedAuthenticationUserId()
-        val isUserUiBlocked = viewModel.globalAppState.blockUserUI != null
         val isAuthenticationRoute = currentBaseRoute in authenticationGraphRoutes
         val isSessionTransitionInProgress = viewModel.globalAppState.isSessionTransitionInProgress
         var noSessionAuthenticationStartedWithoutSession by remember { mutableStateOf(false) }
@@ -1222,6 +1223,18 @@ class WireActivity : BaseActivity() {
         private const val ORIGINAL_SAVED_INTENT_FLAG = "original_saved_intent"
         private const val TAG = "WireActivity"
     }
+}
+
+@Composable
+internal fun rememberWireActivityNavigator(
+    isUserUiBlocked: Boolean,
+    finish: () -> Unit,
+    isAllowedToNavigate: (NavigationCommand) -> Boolean,
+): Navigator = key(isUserUiBlocked) {
+    rememberNavigator(
+        finish = finish,
+        isAllowedToNavigate = isAllowedToNavigate,
+    )
 }
 
 private data class WireActivityScopedViewModels(

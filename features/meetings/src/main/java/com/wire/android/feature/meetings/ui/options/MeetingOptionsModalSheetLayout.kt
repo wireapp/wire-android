@@ -82,7 +82,6 @@ fun MeetingOptionsModalSheetLayout(
 @Composable
 private fun MeetingOptionsModalContent(
     meetingState: MeetingOptionsMenuState.Meeting,
-    onStartMeeting: () -> Unit = {},
     onCreateConversation: () -> Unit = {},
     onCopyLink: () -> Unit = {},
     onEditMeeting: () -> Unit = {},

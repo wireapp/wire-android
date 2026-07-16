@@ -54,11 +54,9 @@ class LogManagementViewModel(
             globalDataStore.setLoggingEnabled(isEnabled)
             if (isEnabled) {
                 logFileWriter.start()
-                AppLogger.setLogLevel(level = KaliumLogLevel.VERBOSE)
                 CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
             } else {
                 logFileWriter.stop()
-                AppLogger.setLogLevel(level = KaliumLogLevel.WARN)
                 CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
             }
         }

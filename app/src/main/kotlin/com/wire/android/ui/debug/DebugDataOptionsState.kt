@@ -19,7 +19,6 @@ package com.wire.android.ui.debug
 
 data class DebugDataOptionsState(
     val isEventProcessingDisabled: Boolean = false,
-    val isAsyncNotificationsEnabled: Boolean = false,
     val debugId: String = "null",
     val commitish: String = "null",
     val certificate: String = "null",

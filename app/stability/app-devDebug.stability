@@ -8297,6 +8297,16 @@ private fun com.wire.android.ui.home.messagecomposer.ItalicButton(onRichTextItal
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.wire.android.ui.home.messagecomposer.LinkPreviewCard(preview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview, isAvailable: kotlin.Boolean, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, onClick: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - preview: UNSTABLE (has mutable properties or unstable members)
+    - isAvailable: STABLE (primitive type)
+    - messageStyle: STABLE (class with no mutable properties)
+    - onClick: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.home.messagecomposer.MembersMentionList(membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, searchQuery: kotlin.String, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
@@ -8465,6 +8475,14 @@ private fun com.wire.android.ui.home.messagecomposer.buildAttachmentOptionItems(
     - onRecordAudioMessageClicked: STABLE (function type)
     - onLocationPickerClicked: STABLE (function type)
     - onPermissionPermanentlyDenied: STABLE (function type)
+
+@Composable
+private fun com.wire.android.ui.home.messagecomposer.linkPreviewTextColor(messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, isAvailable: kotlin.Boolean): androidx.compose.ui.graphics.Color
+  skippable: true
+  restartable: true
+  params:
+    - messageStyle: STABLE (class with no mutable properties)
+    - isAvailable: STABLE (primitive type)
 
 @Composable
 private fun com.wire.android.ui.home.messagecomposer.location.LoadingLocation(): kotlin.Unit
@@ -9739,7 +9757,7 @@ public fun com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun com.wire.android.ui.home.settings.privacy.PrivacySettingsScreenContent(isAnonymousUsageDataEnabled: kotlin.Boolean, shouldShowAnalyticsUsage: kotlin.Boolean, areReadReceiptsEnabled: kotlin.Boolean, setReadReceiptsState: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, isTypingIndicatorEnabled: kotlin.Boolean, setTypingIndicatorState: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, screenshotCensoringConfig: com.wire.android.ui.home.settings.privacy.ScreenshotCensoringConfig, setScreenshotCensoringConfig: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, setAnonymousUsageDataEnabled: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.settings.privacy.PrivacySettingsScreenContent(isAnonymousUsageDataEnabled: kotlin.Boolean, shouldShowAnalyticsUsage: kotlin.Boolean, areReadReceiptsEnabled: kotlin.Boolean, setReadReceiptsState: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, areLinkPreviewsEnabled: kotlin.Boolean, setLinkPreviewsState: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, isTypingIndicatorEnabled: kotlin.Boolean, setTypingIndicatorState: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, screenshotCensoringConfig: com.wire.android.ui.home.settings.privacy.ScreenshotCensoringConfig, setScreenshotCensoringConfig: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, setAnonymousUsageDataEnabled: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -9747,6 +9765,8 @@ public fun com.wire.android.ui.home.settings.privacy.PrivacySettingsScreenConten
     - shouldShowAnalyticsUsage: STABLE (primitive type)
     - areReadReceiptsEnabled: STABLE (primitive type)
     - setReadReceiptsState: STABLE (function type)
+    - areLinkPreviewsEnabled: STABLE (primitive type)
+    - setLinkPreviewsState: STABLE (function type)
     - isTypingIndicatorEnabled: STABLE (primitive type)
     - setTypingIndicatorState: STABLE (function type)
     - screenshotCensoringConfig: STABLE (class with no mutable properties)

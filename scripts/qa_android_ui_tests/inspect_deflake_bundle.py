@@ -87,6 +87,7 @@ print(f"Selected run id: {metadata['source_run_id']}")
 print(f"Selected ref: {metadata['source_ref_name']}")
 print(f"Flavor: {metadata['flavor']}")
 print(f"Selector: {metadata.get('selector_type', '')}={metadata.get('selector_value', '')}")
+print(f"Device group: {metadata.get('android_device_group', '')}")
 print(f"Resolved build number: {metadata.get('resolved_build_number', '')}")
 print(f"Leftover failed tests: {len(failed_tests)}")
 
@@ -111,6 +112,7 @@ write_output("isUpgrade", str(metadata.get("is_upgrade", False)).lower())
 write_output("oldBuildNumber", str(metadata.get("old_build_number", "")))
 write_output("enforceAppInstall", str(metadata.get("enforce_app_install", False)).lower())
 write_output("androidDeviceId", str(metadata.get("android_device_id", "")))
+write_output("androidDeviceGroup", str(metadata.get("android_device_group", "")))
 write_output("rerunFailedEnabled", str(metadata.get("rerun_failed_enabled", False)).lower())
 write_output("rerunFailedCount", str(metadata.get("rerun_failed_count", "")))
 write_output("failedTestCount", str(len(failed_tests)))
@@ -128,6 +130,7 @@ summary_lines = [
     f"- selected ref: {metadata['source_ref_name']}",
     f"- flavor: {metadata['flavor']}",
     f"- selector: {metadata.get('selector_type', '')} = {metadata.get('selector_value', '')}",
+    f"- device group: {metadata.get('android_device_group', '')}",
     f"- resolved build number: {metadata.get('resolved_build_number', '')}",
     f"- leftover failed tests: {len(failed_tests)}",
 ]

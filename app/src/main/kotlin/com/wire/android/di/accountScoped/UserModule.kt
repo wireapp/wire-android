@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollment
 import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
+import com.wire.kalium.logic.feature.client.ObserveIsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMembersE2EICertificateStatusesUseCase
@@ -55,6 +56,8 @@ import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.feature.user.UserScope
+import com.wire.kalium.logic.feature.user.linkPreviews.ObserveLinkPreviewsEnabledUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.PersistLinkPreviewsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.typingIndicator.ObserveTypingIndicatorEnabledUseCase
@@ -115,6 +118,14 @@ class UserModule {
     @Provides
     fun providePersistReadReceiptsStatusConfig(userScope: UserScope): PersistReadReceiptsStatusConfigUseCase =
         userScope.persistReadReceiptsStatusConfig
+
+    @Provides
+    fun provideObserveLinkPreviewsEnabled(userScope: UserScope): ObserveLinkPreviewsEnabledUseCase =
+        userScope.observeLinkPreviewsEnabled
+
+    @Provides
+    fun providePersistLinkPreviewsStatusConfig(userScope: UserScope): PersistLinkPreviewsStatusConfigUseCase =
+        userScope.persistLinkPreviewsStatusConfig
 
     @Provides
     fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollmentUseCase =
@@ -228,6 +239,9 @@ class UserModule {
     @Provides
     fun provideGetUserMlsClientIdentities(userScope: UserScope): GetUserMlsClientIdentitiesUseCase =
         userScope.getUserMlsClientIdentities
+
+    @Provides
+    fun provideObserveCellsConfigUseCase(userScope: UserScope): ObserveIsWireCellsEnabledUseCase = userScope.observeIsWireCellsEnabled
 
     @Provides
     fun provideIsPersonalToTeamAccountSupportedByBackendUseCase(userScope: UserScope): CanMigrateFromPersonalToTeamUseCase =

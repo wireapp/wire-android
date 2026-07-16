@@ -1215,6 +1215,8 @@
     <string name="settings_send_read_receipts">Lesebestätigungen senden</string>
     <string name="settings_send_read_receipts_description">Wenn diese Option aktiviert ist, können andere sehen, ob Sie ihre Nachrichten lesen. 
 Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreiben.</string>
+    <string name="settings_link_previews">Link-Vorschau</string>
+    <string name="settings_link_previews_description">Wenn diese Option aktiviert ist, erstellen Sie eine Link-Vorschau, wenn Sie eine URL in einer Unterhaltung teilen. Sie erhalten auch Vorschauen, die von anderen gesendet werden, wenn sie diese Funktion aktiviert haben.</string>
     <string name="settings_censor_screenshots">Aufnahme von Screenshots verhindern</string>
     <string name="settings_censor_screenshots_description">Wenn diese Option aktiviert ist, werden Ihre Screenshots oder Bildschirmaufnahmen in Wire ohne Inhalt schwarz dargestellt.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">Dies wird durch die Team-Einstellung für selbstlöschende Nachrichten erzwungen und kann nicht geändert werden.\nDer Nachrichteninhalt ist auf Bildschirmfoto oder -aufzeichnung nicht sichtbar.</string>

@@ -40,7 +40,8 @@
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
             "enforce_configuration_signature": false,
-            "pending_messages": true
+            "pending_messages": true,
+            "link_preview_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -76,7 +77,8 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true
+            "enforce_configuration_signature": true,
+            "link_preview_enabled": true
         },
         "alpha": {
             "application_id": "com.wire.internal",
@@ -93,7 +95,8 @@
             "phone_landscape_enabled": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": false,
-            "pending_messages": true
+            "pending_messages": true,
+            "link_preview_enabled": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -184,5 +187,6 @@
     "call_reactions_enabled": true,
     "nomad_profiles_enabled": true,
     "block_cross_backend_login": false,
-    "pending_messages": false
+    "pending_messages": false,
+    "link_preview_enabled": false
 }

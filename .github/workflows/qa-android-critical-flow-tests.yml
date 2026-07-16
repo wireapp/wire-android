@@ -1,10 +1,9 @@
 name: QA Android Critical Flow Tests
 
-# Concurrency lock:
-# - If androidDeviceId is set, we lock per-device so only one run can use that specific phone at a time (other devices can run in parallel).
-# - If androidDeviceId is empty ("auto"), we lock the shared device pool so only one auto-run uses the farm at a time (other auto-runs queue).
+# Lock each configured device group independently. Groups must be disjoint, so
+# criticalFlow, e2eTests, GrapheneOS, and future pools can run concurrently.
 concurrency:
-  group: qa-android-ui-tests-office-${{ github.event_name == 'workflow_dispatch' && inputs.androidDeviceId || 'auto' }}
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'criticalFlow' }}
   cancel-in-progress: false
 
 on:
@@ -70,9 +69,15 @@ on:
         type: string
 
       androidDeviceId:
-        description: "androidDeviceId. Target a specific device. Leave empty for auto."
+        description: "Target one device from androidDeviceGroup. Leave empty to use the group."
         required: false
         default: ""
+        type: string
+
+      androidDeviceGroup:
+        description: "Named group from the ANDROID_DEVICE_GROUPS_JSON repository variable."
+        required: true
+        default: "criticalFlow"
         type: string
 
       rerunFailedEnabled:
@@ -105,12 +110,25 @@ jobs:
       resolvedTags: ${{ steps.resolve_run_inputs.outputs.TAGS }}
       resolvedTestinyRunName: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
       resolvedAndroidDeviceId: ${{ steps.resolve_run_inputs.outputs.androidDeviceId }}
+      resolvedAndroidDeviceGroup: ${{ steps.resolve_run_inputs.outputs.androidDeviceGroup }}
       resolvedRerunFailedEnabled: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled }}
       resolvedRerunFailedCount: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount }}
       resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
       resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
 
     steps:
+      - name: Reject untrusted manual refs
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          ACTUAL_REF: ${{ github.ref }}
+          TRUSTED_REF: refs/heads/${{ github.event.repository.default_branch }}
+        run: |
+          if [[ "${ACTUAL_REF}" != "${TRUSTED_REF}" ]]; then
+            echo "ERROR: Secret-bearing Android E2E runs are restricted to ${TRUSTED_REF}."
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -128,6 +146,7 @@ jobs:
           TAGS_INPUT: ${{ inputs.TAGS }}
           TESTINY_RUN_NAME_INPUT: ${{ inputs.testinyRunName }}
           ANDROID_DEVICE_ID_INPUT: ${{ inputs.androidDeviceId }}
+          ANDROID_DEVICE_GROUP_INPUT: ${{ inputs.androidDeviceGroup }}
           RERUN_FAILED_ENABLED_INPUT: ${{ inputs.rerunFailedEnabled }}
           RERUN_FAILED_COUNT_INPUT: ${{ inputs.rerunFailedCount }}
         run: |
@@ -149,6 +168,7 @@ jobs:
               echo "TAGS=${TAGS_INPUT}"
               echo "testinyRunName=${testiny_run_name}"
               echo "androidDeviceId=${ANDROID_DEVICE_ID_INPUT}"
+              echo "androidDeviceGroup=${ANDROID_DEVICE_GROUP_INPUT}"
               echo "rerunFailedEnabled=${RERUN_FAILED_ENABLED_INPUT}"
               echo "rerunFailedCount=${RERUN_FAILED_COUNT_INPUT}"
             } >> "${GITHUB_OUTPUT}"
@@ -164,6 +184,7 @@ jobs:
             echo "TAGS=@criticalFlow"
             echo "testinyRunName="
             echo "androidDeviceId="
+            echo "androidDeviceGroup=criticalFlow"
             echo "rerunFailedEnabled=true"
             echo "rerunFailedCount=1"
           } >> "${GITHUB_OUTPUT}"
@@ -206,6 +227,10 @@ jobs:
 
   run-android-ui-tests:
     name: Run Android UI tests
+    # Configure this environment with required reviewers and a deployment-branch
+    # rule limited to the default branch. Move the E2E secrets into it so a
+    # modified workflow on another ref cannot bypass this trust boundary.
+    environment: android-e2e
     runs-on:
       - self-hosted
       - Linux
@@ -221,6 +246,7 @@ jobs:
       AWS_REGION: eu-west-1
       OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
 
     defaults:
       run:
@@ -231,7 +257,9 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           clean: true
+          ref: ${{ github.event.repository.default_branch }}
           submodules: recursive
+          persist-credentials: false
 
       - name: Set up Java 21
         uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
@@ -276,6 +304,7 @@ jobs:
       - name: Detect target device(s)
         env:
           TARGET_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
 
@@ -406,6 +435,7 @@ jobs:
           ENFORCE_APP_INSTALL: ${{ needs.validate-and-resolve-inputs.outputs.resolvedEnforceAppInstall }}
           TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          ANDROID_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
         run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle

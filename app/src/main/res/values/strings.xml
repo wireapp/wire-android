@@ -1270,6 +1270,8 @@
     <string name="settings_send_read_receipts">Send read receipts</string>
     <string name="settings_send_read_receipts_description">If this is on, others can see if you read their messages.
 In group conversations, the group admin can overwrite this setting.</string>
+    <string name="settings_link_previews">Link previews</string>
+    <string name="settings_link_previews_description">When this is on, you create link previews when you share a URL in a conversation. You also get previews sent by others if they have turned it on.</string>
     <string name="settings_censor_screenshots">Censor screenshots</string>
     <string name="settings_censor_screenshots_description">If this is ON, then the content of the messages will not be visible on the screenshot or screen recording.</string>
     <string name="settings_censor_screenshots_enforced_by_team_description">This is enforced by the self-deleting message team setting and cannot be changed.\nThe content of the messages will not be visible on the screenshot or screen recording.</string>

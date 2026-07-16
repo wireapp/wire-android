@@ -877,7 +877,7 @@ class WireActivity : BaseActivity() {
             AccountLoggedOutDialog(
                 viewModel.globalAppState.blockUserUI
             ) {
-                viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin))
+                viewModel.tryToSwitchAccount()
             }
             CrossBackendLoginBlockedDialog(
                 shouldShow = viewModel.globalAppState.crossBackendLoginBlockedDialog,
@@ -1044,7 +1044,7 @@ class WireActivity : BaseActivity() {
                 )
                 AccountLoggedOutDialog(
                     viewModel.globalAppState.blockUserUI
-                ) { viewModel.tryToSwitchAccount(NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin)) }
+                ) { viewModel.tryToSwitchAccount() }
                 NewClientDialog(
                     viewModel.globalAppState.newClientDialog,
                     { navigate(NavigationCommand(SelfDevicesScreenDestination)) },

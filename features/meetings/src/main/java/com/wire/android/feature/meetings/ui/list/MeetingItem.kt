@@ -191,12 +191,14 @@ internal fun CalendarIcon(tint: Color, modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun MeetingLeadingIcon() {
+internal fun MeetingLeadingIcon(
+    padding: PaddingValues = PaddingValues(all = dimensions().avatarClickablePadding)
+) {
     val (cornerRadius, borderWidth) = dimensions().groupAvatarCornerRadius to dimensions().avatarBorderWidth
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(dimensions().avatarClickablePadding)
+            .padding(padding)
             .size(dimensions().avatarDefaultSize)
             .background(color = colorsScheme().surface, shape = RoundedCornerShape(cornerRadius + borderWidth))
             .border(color = colorsScheme().outline, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))

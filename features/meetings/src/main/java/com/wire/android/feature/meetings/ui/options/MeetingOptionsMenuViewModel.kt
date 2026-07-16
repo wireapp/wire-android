@@ -23,6 +23,7 @@ import com.wire.android.feature.meetings.mapper.toItemSelfRole
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -56,7 +57,14 @@ class MeetingOptionsMenuViewModelImpl(
             .flatMapConcat { occurrenceId ->
                 observeMeetingOccurrenceUseCase.invoke(occurrenceId).map {
                     when {
-                        it != null -> MeetingOptionsMenuState.Meeting(title = it.title, selfRole = it.selfRole.toItemSelfRole())
+                        it != null -> MeetingOptionsMenuState.Meeting(
+                            title = it.title,
+                            selfRole = it.selfRole.toItemSelfRole(),
+                            deleteOption = when (it.selfRole) {
+                                MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
+                                MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.ForMe
+                            },
+                        )
                         else -> MeetingOptionsMenuState.NotAvailable
                     }
                 }
@@ -73,5 +81,16 @@ class MeetingOptionsMenuViewModelImpl(
 sealed interface MeetingOptionsMenuState {
     data object Loading : MeetingOptionsMenuState
     data object NotAvailable : MeetingOptionsMenuState
-    data class Meeting(val title: String, val selfRole: MeetingItem.SelfRole) : MeetingOptionsMenuState
+    data class Meeting(
+        val title: String,
+        val selfRole: MeetingItem.SelfRole = MeetingItem.SelfRole.Member,
+        val deleteOption: DeleteOption = DeleteOption.ForMe,
+        val createConversationEnabled: Boolean = false,
+        val copyLinkEnabled: Boolean = false,
+        val editMeetingEnabled: Boolean = false,
+    ) : MeetingOptionsMenuState {
+        enum class DeleteOption {
+            ForMe, ForEveryone
+        }
+    }
 }

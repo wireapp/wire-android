@@ -18,6 +18,7 @@
 package com.wire.android.feature.meetings.ui.options
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,8 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.meetings.R
-import com.wire.android.feature.meetings.model.MeetingItem
-import com.wire.android.feature.meetings.ui.list.CalendarIcon
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
 import com.wire.android.feature.meetings.ui.meetingOptionsMenuListViewModel
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
@@ -41,6 +40,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
@@ -92,18 +92,21 @@ private fun MeetingOptionsModalContent(
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
             title = meetingState.title,
-            leadingIcon = { MeetingLeadingIcon() },
-            includeDivider = true
+            leadingIcon = {
+                MeetingLeadingIcon(
+                    padding = PaddingValues(
+                        top = dimensions().spacing12x,
+                        bottom = dimensions().spacing12x,
+                        start = dimensions().spacing16x,
+                        end = dimensions().spacing4x
+                    )
+                )
+            },
+            includeDivider = true,
+            customVerticalPadding = dimensions().spacing0x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            add {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.meeting_options_start_meeting),
-                    leading = { CalendarIcon(tint = colorsScheme().onSurface) },
-                    onItemClick = onStartMeeting,
-                )
-            }
-            addIf(meetingState.selfRole == MeetingItem.SelfRole.Creator) {
+            addIf(meetingState.createConversationEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_create_conversation),
                     leading = {
@@ -116,7 +119,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onCreateConversation,
                 )
             }
-            addIf(meetingState.selfRole == MeetingItem.SelfRole.Creator) {
+            addIf(meetingState.copyLinkEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_copy_link),
                     leading = {
@@ -129,7 +132,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onCopyLink,
                 )
             }
-            addIf(meetingState.selfRole == MeetingItem.SelfRole.Creator) {
+            addIf(meetingState.editMeetingEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_edit_meeting),
                     leading = {
@@ -142,7 +145,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onEditMeeting,
                 )
             }
-            add {
+            addIf(meetingState.deleteOption == MeetingOptionsMenuState.Meeting.DeleteOption.ForMe) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_delete_meeting_for_me),
                     leading = {
@@ -156,7 +159,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onDeleteMeetingForMe,
                 )
             }
-            addIf(meetingState.selfRole == MeetingItem.SelfRole.Creator) {
+            addIf(meetingState.deleteOption == MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_delete_meeting_for_everyone),
                     leading = {

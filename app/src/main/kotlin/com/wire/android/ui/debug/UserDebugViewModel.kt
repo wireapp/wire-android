@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.AppLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.EMPTY
 import com.wire.android.util.logging.LogFileWriter

@@ -88,7 +88,6 @@ fun DebugDataOptions(
         forceCRLExpirationAfterOneMinute = viewModel.state.forceCRLExpirationAfterOneMinute,
         onForceCRLExpirationAfterOneMinuteChange = viewModel::forceCRLExpirationAfterOneMinute,
         onResendFCMToken = viewModel::forceSendFCMToken,
-        onEnableAsyncNotificationsChange = viewModel::enableAsyncNotifications,
         onShowFeatureFlags = onShowFeatureFlags,
         onShowCryptoStats = onShowCryptoStats,
         onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys,
@@ -103,7 +102,6 @@ fun DebugDataOptionsContent(
     buildVariant: String,
     onCopyText: (String) -> Unit,
     onDisableEventProcessingChange: (Boolean) -> Unit,
-    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     enrollE2EICertificate: () -> Unit,
@@ -254,8 +252,6 @@ fun DebugDataOptionsContent(
             forceCRLExpirationAfterOneMinute = forceCRLExpirationAfterOneMinute,
             onForceCRLExpirationAfterOneMinuteChange = onForceCRLExpirationAfterOneMinuteChange,
             onResendFCMToken = onResendFCMToken,
-            isAsyncNotificationsEnabled = state.isAsyncNotificationsEnabled,
-            onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
         )
 
         if (state.startGettingE2EICertificate) {
@@ -416,7 +412,6 @@ fun PreviewOtherDebugOptions() = WireTheme {
         forceCRLExpirationAfterOneMinute = false,
         onForceCRLExpirationAfterOneMinuteChange = {},
         onResendFCMToken = {},
-        onEnableAsyncNotificationsChange = {},
         onShowFeatureFlags = {},
         onShowCryptoStats = {},
         onRepairFaultyRemovalKeys = {}

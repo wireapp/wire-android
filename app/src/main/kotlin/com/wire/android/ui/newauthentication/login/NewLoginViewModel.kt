@@ -218,7 +218,7 @@ class NewLoginViewModel(
                 is GetServerConfigResult.Success -> {
                     CustomTabsHelper.setBackendWebsiteUrl(result.serverConfigLinks.website)
                     globalDataStore?.let {
-                        BackendSupportConfig.storeFromConfigUrl(it.value, result.serverConfigLinks, configUrl)
+                        BackendSupportConfig.storeFromServerLinks(it.value, result.serverConfigLinks)
                     }
                     withContext(dispatchers.main()) {
                         serverConfig = result.serverConfigLinks

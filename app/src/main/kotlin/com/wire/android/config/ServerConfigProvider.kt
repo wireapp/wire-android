@@ -39,7 +39,8 @@ class ServerConfigProvider @Inject constructor() {
                     website = endpoints.websiteURL,
                     title = title,
                     isOnPremises = true, // EMM configuration always treated as on-premises
-                    apiProxy = null
+                    apiProxy = null,
+                    supportEmail = supportEmail,
                 )
             }
         } else if (!BuildConfig.DEFAULT_BACKEND_ENABLED) {

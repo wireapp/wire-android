@@ -684,7 +684,7 @@ class WireActivityViewModel @Inject constructor(
         when (val result = getServerConfigUseCase.value.invoke(url)) {
             is GetServerConfigResult.Success -> result.serverConfigLinks.also {
                 CustomTabsHelper.setBackendWebsiteUrl(it.website)
-                BackendSupportConfig.storeFromConfigUrl(globalDataStore.value, it, url)
+                BackendSupportConfig.storeFromServerLinks(globalDataStore.value, it)
             }
             is GetServerConfigResult.Failure.Generic -> {
                 appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")

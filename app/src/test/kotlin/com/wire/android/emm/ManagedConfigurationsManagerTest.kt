@@ -53,9 +53,10 @@ class ManagedConfigurationsManagerTest {
                     teamsURL = "https://teams.anta.wire.link",
                     websiteURL = "https://wire.com"
                 ),
-                title = "anta.wire.link"
+                title = "anta.wire.link",
+                supportEmail = "support@anta.wire.link"
             )
-            val (_, manager) = Arrangement()
+            val (arrangement, manager) = Arrangement()
                 .withRestrictions(mapOf(ManagedConfigurationsKeys.DEFAULT_SERVER_URLS.asKey() to validServerConfigJson))
                 .arrange()
 
@@ -70,6 +71,8 @@ class ManagedConfigurationsManagerTest {
             assertEquals(expected.endpoints.blackListURL, serverConfig.blackList)
             assertEquals(expected.endpoints.teamsURL, serverConfig.teams)
             assertEquals(expected.endpoints.websiteURL, serverConfig.website)
+            assertEquals(expected.supportEmail, serverConfig.supportEmail)
+            assertEquals(expected.supportEmail, arrangement.getStoredSupportEmail(serverConfig.api))
         }
 
     @Test
@@ -197,6 +200,7 @@ class ManagedConfigurationsManagerTest {
             val serverConfig = requireNotNull(manager.currentServerConfig)
             assertEquals("Secure Server", serverConfig.title)
             assertEquals("https://secure-account.wire.link", serverConfig.accounts)
+            assertEquals("secure-support@example.com", serverConfig.supportEmail)
         }
 
     @Test
@@ -327,6 +331,9 @@ class ManagedConfigurationsManagerTest {
                 configParser = configParser
             )
         }
+
+        suspend fun getStoredSupportEmail(backendApiUrl: String): String? =
+            GlobalDataStore(context).getBackendSupportEmail(backendApiUrl)
     }
 
     companion object {
@@ -340,7 +347,8 @@ class ManagedConfigurationsManagerTest {
                 "teamsURL": "https://teams.anta.wire.link",
                 "websiteURL": "https://wire.com"
               },
-              "title": "anta.wire.link"
+              "title": "anta.wire.link",
+              "supportEmail": "support@anta.wire.link"
             }
         """.trimIndent()
 
@@ -374,6 +382,7 @@ class ManagedConfigurationsManagerTest {
             {
               "0": {
                 "title": "Secure Server",
+                "supportEmail": "secure-support@example.com",
                 "endpoints": {
                   "accountsURL": "https://secure-account.wire.link",
                   "backendURL": "https://secure-api.wire.link",
@@ -385,6 +394,7 @@ class ManagedConfigurationsManagerTest {
               },
               "default": {
                 "title": "General Server",
+                "supportEmail": "general-support@example.com",
                 "endpoints": {
                   "accountsURL": "https://general-account.wire.link",
                   "backendURL": "https://general-api.wire.link",

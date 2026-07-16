@@ -22,6 +22,7 @@ import android.content.RestrictionsManager
 import com.wire.android.appLogger
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -125,6 +126,7 @@ internal class ManagedConfigurationsManagerImpl(
             )
         }
         _currentServerConfig.set(serverConfig)
+        serverConfig?.let { BackendSupportConfig.storeFromServerLinks(globalDataStore, it) }
         logger.i("Server config refreshed: $serverConfig")
         managedServerConfig
     }

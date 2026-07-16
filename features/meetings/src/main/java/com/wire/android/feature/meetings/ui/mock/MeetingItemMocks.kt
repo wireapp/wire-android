@@ -218,7 +218,7 @@ val CurrentTimeProvider.nextMeetingMocks
             meetingId = MeetingId("next2", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Scheduled 1:1 Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Monthly,
+            repeatingInterval = MeetingItem.RepeatingInterval.Every4Weeks,
             belongingType = BelongingType.OneOnOne(username = "John Doe", avatar = UserAvatarData()),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Scheduled(
@@ -231,7 +231,7 @@ val CurrentTimeProvider.nextMeetingMocks
             meetingId = MeetingId("next3", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Scheduled Private Channel Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Monthly,
+            repeatingInterval = MeetingItem.RepeatingInterval.Every4Weeks,
             belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = true),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Scheduled(

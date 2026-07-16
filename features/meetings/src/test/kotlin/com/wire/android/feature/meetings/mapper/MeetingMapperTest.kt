@@ -128,7 +128,7 @@ class MeetingMapperTest {
         endTime = endTime,
         occurrenceStartTime = startTime,
         occurrenceEndTime = endTime,
-        recurrence = MeetingOccurrence.Recurrence(frequency = MeetingOccurrence.Recurrence.Frequency.WEEKLY, interval = 1L, until = null),
+        recurrence = MeetingOccurrence.Recurrence(frequency = MeetingOccurrence.Recurrence.Frequency.DAILY, interval = 1L, until = null),
         selfRole = MeetingOccurrence.SelfRole.Creator,
     )
 

@@ -166,22 +166,36 @@ detect_target_devices() {
   fi
 
   local target="${TARGET_DEVICE_ID:-}"
+  local target_group="${TARGET_DEVICE_GROUP:-}"
+  local eligible_device_lines="${device_lines}"
+  if [[ -n "${target_group}" ]]; then
+    local grouped_device_list
+    grouped_device_list="$(
+      DEVICE_GROUP="${target_group}" \
+        DEVICE_GROUPS_JSON="${DEVICE_GROUPS_JSON:-}" \
+        ONLINE_DEVICE_IDS="${device_lines}" \
+        python3 scripts/qa_android_ui_tests/resolve_device_group.py
+    )"
+    eligible_device_lines="$(tr ' ' '\n' <<< "${grouped_device_list}")"
+    echo "Using configured device group '${target_group}': ${grouped_device_list}"
+  fi
+
   local device_list
   if [[ -n "${target}" ]]; then
-    # Explicit device targeting keeps retries and manual investigations pinned
-    # to one known phone instead of the shared auto-selected pool.
-    if ! printf '%s\n' "$device_lines" | grep -qx "$target"; then
-      echo "ERROR: androidDeviceId '$target' not found in adb devices."
+    # Explicit targets remain constrained to the requested group. This keeps a
+    # manual run from borrowing a phone locked by another device group.
+    if ! printf '%s\n' "${eligible_device_lines}" | grep -qx "${target}"; then
+      echo "ERROR: androidDeviceId '${target}' is not online in device group '${target_group:-all-online-devices}'."
       exit 1
     fi
     device_list="$target"
   elif [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
     # Single-testcase runs stay on one device so the same test is not fanned
     # out across multiple phones by the default sharding logic.
-    device_list="$(printf '%s\n' "$device_lines" | head -n 1)"
+    device_list="$(printf '%s\n' "${eligible_device_lines}" | head -n 1)"
     echo "Single-testcase mode (${RESOLVED_TESTCASE_ID}): selected device ${device_list}"
   else
-    device_list="$(printf '%s\n' "$device_lines" | xargs)"
+    device_list="$(printf '%s\n' "${eligible_device_lines}" | xargs)"
   fi
 
   local device_count

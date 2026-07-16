@@ -20,7 +20,7 @@ Main critical-flow workflow.
   - upgrade mode enabled
   - `alpha release candidate`
   - `@criticalFlow`
-  - auto device selection
+  - `criticalFlow` device group
   - failed-test rerun enabled with count `1`
 - Exports one standard deflake artifact for later manual reruns.
 
@@ -65,6 +65,55 @@ Bundle contents:
 - device selection
 - rerun configuration
 - Testiny run name
+
+## Device Groups
+
+Physical devices are allocated through named, disjoint groups stored in the
+GitHub repository variable `ANDROID_DEVICE_GROUPS_JSON`. Workflows select a
+group through `androidDeviceGroup`; the critical-flow default is
+`criticalFlow`.
+
+Example repository-variable value:
+
+```json
+{
+  "criticalFlow": [
+    "device-serial-01",
+    "device-serial-02"
+  ],
+  "e2eTests": [
+    "device-serial-03",
+    "device-serial-04"
+  ],
+  "GrapheneOS": [
+    "device-serial-05"
+  ]
+}
+```
+
+Device selection works as follows:
+
+1. Parse and validate the requested group from `ANDROID_DEVICE_GROUPS_JSON`.
+2. Reject configurations that assign one serial to more than one group. This
+   guarantees that independently locked group workflows cannot share a phone.
+3. Intersect the configured group with devices currently online in `adb`.
+4. Warn and continue when only part of the group is online; fail when none of
+   the configured devices are online.
+5. If `androidDeviceId` is set, require that device to be online and belong to
+   the selected group.
+6. If a single testcase is selected, use the first online device in configured
+   group order. Otherwise shard across every online device in the group.
+
+Concurrency is locked by group name, allowing disjoint groups such as
+`criticalFlow`, `e2eTests`, and `GrapheneOS` to run at the same time. Adding,
+removing, or moving a device does not require a repository change: update the
+GitHub repository variable. Group names passed to workflows must match the JSON
+keys.
+
+Manual deflake asks for the group because GitHub evaluates concurrency before
+the source artifact can be downloaded. It validates that the requested group
+matches group metadata from newer source runs. For artifacts created before
+device groups were introduced, select the appropriate group manually.
 
 ## Flavor Resolution Source
 

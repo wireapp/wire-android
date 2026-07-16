@@ -23,9 +23,10 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence.Recurrence.Frequency
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
 
@@ -53,11 +54,8 @@ data class MeetingItem(
         )
 
         companion object {
-            val Daily = Every(Frequency.DAILY, 1)
-            val Weekly = Every(Frequency.WEEKLY, 1)
-            val Every2Weeks = Every(Frequency.WEEKLY, 2)
-            val Every4Weeks = Every(Frequency.WEEKLY, 4)
-            val Predefined: ImmutableList<RepeatingInterval> = persistentListOf(Never, Daily, Weekly, Every2Weeks, Every4Weeks)
+            val Supported: ImmutableList<RepeatingInterval> = MeetingOccurrence.Recurrence.SUPPORTED_RECURRENCES
+                .map { (frequency, interval) -> Every(frequency, interval.toInt()) }.toPersistentList()
         }
     }
 

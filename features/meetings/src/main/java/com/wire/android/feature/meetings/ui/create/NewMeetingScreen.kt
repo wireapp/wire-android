@@ -211,7 +211,7 @@ fun NewMeetingContent(
                     RepeatingIntervalDropDown(
                         repeatingInterval = state.repeatingInterval,
                         onRepeatingIntervalChanged = onRepeatingIntervalChanged,
-                        items = MeetingItem.RepeatingInterval.Predefined,
+                        items = MeetingItem.RepeatingInterval.Supported,
                     )
                 }
                 VerticalSpace.x24()
@@ -513,7 +513,7 @@ private fun TimeInput(
 private fun RepeatingIntervalDropDown(
     repeatingInterval: MeetingItem.RepeatingInterval,
     onRepeatingIntervalChanged: (MeetingItem.RepeatingInterval) -> Unit,
-    items: List<MeetingItem.RepeatingInterval> = MeetingItem.RepeatingInterval.Predefined,
+    items: List<MeetingItem.RepeatingInterval> = MeetingItem.RepeatingInterval.Supported,
 ) {
     val resources = LocalResources.current
     WireDropDown(
@@ -553,7 +553,7 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()),
             endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()).plus(1.hours),
-            repeatingInterval = MeetingItem.RepeatingInterval.Weekly,
+            repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
         ),
     )
 }

@@ -137,7 +137,7 @@ class MeetingMapperTest {
         meetingId = MEETING_ID,
         conversationId = CONVERSATION_ID,
         belongingType = BELONGING_TYPE,
-        repeatingInterval = RepeatingInterval.Weekly,
+        repeatingInterval = RepeatingInterval.Supported.first(),
         title = TITLE,
         status = status,
         selfRole = SelfRole.Creator,

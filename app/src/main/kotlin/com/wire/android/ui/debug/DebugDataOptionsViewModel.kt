@@ -32,19 +32,15 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.uiText
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
-import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
-import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
-import com.wire.kalium.logic.feature.debug.RepairResult
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
+import com.wire.kalium.logic.feature.debug.RepairResult
 import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.TargetedRepairParam
@@ -105,8 +101,6 @@ class DebugDataOptionsViewModelImpl(
     private val dispatcherProvider: DispatcherProvider,
     private val selfServerConfigUseCase: SelfServerConfigUseCase,
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
-    private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
-    private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
     private val repairFaultyRemovalKeys: RepairFaultyRemovalKeysUseCase,
     private val getDebugE2EICertificateExpiration: GetDebugE2EICertificateExpirationUseCase,
     private val setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase,
@@ -130,7 +124,6 @@ class DebugDataOptionsViewModelImpl(
     override val infoMessage = _infoMessage.asSharedFlow()
 
     init {
-        observeAsyncNotificationsEnabledData()
         observeMlsMetadata()
         observeDebugCRLExpiration()
         observeE2EICertificateExpirationInput()
@@ -139,14 +132,6 @@ class DebugDataOptionsViewModelImpl(
         setServerConfigData()
         setDefaultProtocol()
         loadDebugE2EICertificateExpiration()
-    }
-
-    private fun observeAsyncNotificationsEnabledData() {
-        viewModelScope.launch {
-            observeAsyncNotificationsEnabled().collect {
-                state = state.copy(isAsyncNotificationsEnabled = it)
-            }
-        }
     }
 
     private fun setDefaultProtocol() {
@@ -248,6 +233,7 @@ class DebugDataOptionsViewModelImpl(
                     startGettingE2EICertificate = false
                 )
             }
+
             is FinalizeEnrollmentResult.Failure -> {
                 state.copy(
                     certificate = result.toString(),
@@ -255,6 +241,7 @@ class DebugDataOptionsViewModelImpl(
                     startGettingE2EICertificate = false
                 )
             }
+
             is FinalizeEnrollmentResult.Success -> {
                 state.copy(
                     certificate = result.certificate,
@@ -279,19 +266,6 @@ class DebugDataOptionsViewModelImpl(
         viewModelScope.launch {
             disableEventProcessing(disabled)
             state = state.copy(isEventProcessingDisabled = disabled)
-        }
-    }
-
-    override fun enableAsyncNotifications(enabled: Boolean) {
-        if (enabled) {
-            viewModelScope.launch {
-                when (val result = startUsingAsyncNotifications()) {
-                    is StartUsingAsyncNotificationsResult.Failure ->
-                        _infoMessage.emit(UIText.DynamicString("Can't enable async notifications, error: ${result.coreFailure.uiText()}"))
-
-                    is StartUsingAsyncNotificationsResult.Success -> state = state.copy(isAsyncNotificationsEnabled = enabled)
-                }
-            }
         }
     }
 

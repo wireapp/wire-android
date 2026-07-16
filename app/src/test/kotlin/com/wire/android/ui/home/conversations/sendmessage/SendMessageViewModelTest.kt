@@ -35,9 +35,11 @@ import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -69,6 +71,211 @@ class SendMessageViewModelTest {
     @AfterEach
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `given same composer url when updating link preview twice then it is fetched only once`() = runTest {
+        val preview = MessageLinkPreview(
+            url = "https://wire.com",
+            urlOffset = 0,
+            title = "Wire"
+        )
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .arrange()
+
+        viewModel.updateLinkPreview("https://wire.com", emptyList())
+        advanceUntilIdle()
+        viewModel.updateLinkPreview("hello https://wire.com", emptyList())
+        advanceUntilIdle()
+
+        assertEquals(6, viewModel.currentLinkPreview?.urlOffset)
+        coVerify(exactly = 1) {
+            arrangement.generateLinkPreview(any(), any())
+        }
+    }
+
+    @Test
+    fun `given composer url changes when new preview fetch fails then cached preview is removed`() = runTest {
+        val initialPreview = MessageLinkPreview(
+            url = "https://wire.com",
+            urlOffset = 0,
+            title = "Wire"
+        )
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        io.mockk.coEvery {
+            arrangement.generateLinkPreview("https://wire.com", any())
+        } returns initialPreview
+        io.mockk.coEvery {
+            arrangement.generateLinkPreview("https://example.com", any())
+        } returns null
+
+        viewModel.updateLinkPreview("https://wire.com", emptyList())
+        advanceUntilIdle()
+        assertEquals("https://wire.com", viewModel.currentLinkPreview?.url)
+
+        viewModel.updateLinkPreview("https://example.com", emptyList())
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.currentLinkPreview)
+    }
+
+    @Test
+    fun `given prefetched composer preview when sending same text then cached preview is reused`() = runTest {
+        val preview = MessageLinkPreview(
+            url = "https://wire.com",
+            urlOffset = 0,
+            title = "Wire"
+        )
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .withSuccessfulSendTextMessage()
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 0))
+            .arrange()
+
+        viewModel.updateLinkPreview("https://wire.com", emptyList())
+        advanceUntilIdle()
+
+        viewModel.trySendMessage(
+            ComposableMessageBundle.SendTextMessageBundle(
+                conversationId = conversationId,
+                message = "https://wire.com",
+                mentions = emptyList(),
+            )
+        )
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.generateLinkPreview(any(), any())
+        }
+        coVerify(exactly = 1) {
+            arrangement.sendTextMessage(
+                conversationId = conversationId,
+                text = "https://wire.com",
+                linkPreviews = listOf(preview),
+                mentions = emptyList(),
+                quotedMessageId = null
+            )
+        }
+    }
+
+    @Test
+    fun `given prefetched preview snapshot when live preview state is cleared then sending reuses snapshot`() = runTest {
+        val preview = MessageLinkPreview(
+            url = "https://wire.com",
+            urlOffset = 0,
+            title = "Wire"
+        )
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulSendTextMessage()
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 0))
+            .arrange()
+
+        viewModel.clearLinkPreview()
+
+        viewModel.trySendMessage(
+            ComposableMessageBundle.SendTextMessageBundle(
+                conversationId = conversationId,
+                message = "https://wire.com",
+                mentions = emptyList(),
+                prefetchedLinkPreview = preview,
+            )
+        )
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) {
+            arrangement.generateLinkPreview(any(), any())
+        }
+        coVerify {
+            arrangement.sendTextMessage(
+                conversationId = conversationId,
+                text = "https://wire.com",
+                linkPreviews = listOf(preview),
+                mentions = emptyList(),
+                quotedMessageId = null
+            )
+        }
+    }
+
+    @Test
+    fun `given standalone link with preview when sending then raw link remains in outgoing text`() = runTest {
+        val preview = MessageLinkPreview(
+            url = "https://wire.com",
+            urlOffset = 1,
+            title = "Wire"
+        )
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .withSuccessfulSendTextMessage()
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 1))
+            .arrange()
+
+        viewModel.updateLinkPreview(" https://wire.com ", emptyList())
+        advanceUntilIdle()
+
+        viewModel.trySendMessage(
+            ComposableMessageBundle.SendTextMessageBundle(
+                conversationId = conversationId,
+                message = " https://wire.com ",
+                mentions = emptyList(),
+            )
+        )
+        advanceUntilIdle()
+
+        coVerify {
+            arrangement.sendTextMessage(
+                conversationId = conversationId,
+                text = " https://wire.com ",
+                linkPreviews = listOf(preview),
+                mentions = emptyList(),
+                quotedMessageId = null
+            )
+        }
+    }
+
+    @Test
+    fun `given link with surrounding text when sending then raw link remains in outgoing text`() = runTest {
+        val preview = MessageLinkPreview(
+            url = "https://wire.com",
+            urlOffset = 6,
+            title = "Wire"
+        )
+        val message = "hello https://wire.com world"
+        val (arrangement, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGeneratedLinkPreviewResult(preview)
+            .withSuccessfulSendTextMessage()
+            .withDetectedLinkPreviewTarget(LinkPreviewTarget("https://wire.com", 6))
+            .arrange()
+
+        viewModel.updateLinkPreview(message, emptyList())
+        advanceUntilIdle()
+
+        viewModel.trySendMessage(
+            ComposableMessageBundle.SendTextMessageBundle(
+                conversationId = conversationId,
+                message = message,
+                mentions = emptyList(),
+            )
+        )
+        advanceUntilIdle()
+
+        coVerify {
+            arrangement.sendTextMessage(
+                conversationId = conversationId,
+                text = message,
+                linkPreviews = listOf(preview),
+                mentions = emptyList(),
+                quotedMessageId = null
+            )
+        }
     }
 
     @Test

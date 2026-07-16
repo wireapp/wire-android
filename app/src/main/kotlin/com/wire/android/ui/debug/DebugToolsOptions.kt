@@ -51,9 +51,7 @@ private fun DebugToolsOptionsPreview() {
             checkCrlRevocationList = {},
             forceCRLExpirationAfterOneMinute = false,
             onForceCRLExpirationAfterOneMinuteChange = {},
-            onResendFCMToken = {},
-            isAsyncNotificationsEnabled = true,
-            onEnableAsyncNotificationsChange = {}
+            onResendFCMToken = {}
         )
     }
 }
@@ -68,8 +66,6 @@ internal fun DebugToolsOptions(
     forceCRLExpirationAfterOneMinute: Boolean,
     onForceCRLExpirationAfterOneMinuteChange: (Boolean) -> Unit,
     onResendFCMToken: () -> Unit,
-    isAsyncNotificationsEnabled: Boolean,
-    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
 ) {
     SectionHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -81,9 +77,7 @@ internal fun DebugToolsOptions(
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
                 checkCrlRevocationList = checkCrlRevocationList,
                 forceCRLExpirationAfterOneMinute = forceCRLExpirationAfterOneMinute,
-                onForceCRLExpirationAfterOneMinuteChange = onForceCRLExpirationAfterOneMinuteChange,
-                isAsyncNotificationsEnabled = isAsyncNotificationsEnabled,
-                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
+                onForceCRLExpirationAfterOneMinuteChange = onForceCRLExpirationAfterOneMinuteChange
             )
         }
         ProductionDebugToolsOptions(onResendFCMToken = onResendFCMToken)
@@ -99,8 +93,6 @@ private fun PrivateBuildDebugToolsOptions(
     checkCrlRevocationList: () -> Unit,
     forceCRLExpirationAfterOneMinute: Boolean,
     onForceCRLExpirationAfterOneMinuteChange: (Boolean) -> Unit,
-    isAsyncNotificationsEnabled: Boolean,
-    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
 ) {
     Column {
         DisableEventProcessingSwitch(
@@ -114,7 +106,6 @@ private fun PrivateBuildDebugToolsOptions(
         )
         CheckCrlRevocationButton(onClick = checkCrlRevocationList)
         ForceUpdateApiVersionsButton(onClick = onForceUpdateApiVersions)
-        EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
     }
 }
 
@@ -282,36 +273,6 @@ private fun RegisterFCMPushTokenButton(
                 onClick = onClick,
                 text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
                 fillMaxWidth = false
-            )
-        }
-    )
-}
-
-@Composable
-private fun EnableAsyncNotifications(
-    isEnabled: Boolean = false,
-    onCheckedChange: ((Boolean) -> Unit)?,
-) {
-    RowItemTemplate(
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_enable_async_notifications),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WireSwitch(
-                enabled = !isEnabled,
-                checked = isEnabled,
-                onCheckedChange = onCheckedChange,
-                modifier = Modifier
-                    .padding(end = dimensions().spacing8x)
-                    .size(
-                        width = dimensions().buttonSmallMinSize.width,
-                        height = dimensions().buttonSmallMinSize.height
-                    )
             )
         }
     )

@@ -19,8 +19,10 @@ package com.wire.benchmark
 
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
+import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -77,12 +79,30 @@ class StartupBenchmarkWithLogin {
         }
     }
 
+    @OptIn(ExperimentalMetricApi::class)
     private fun startup(
         compilationMode: CompilationMode,
         setupBlock: MacrobenchmarkScope.() -> Unit = {},
     ) = benchmarkRule.measureRepeated(
         packageName = targetPackage,
-        metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
+        metrics = listOf(
+            StartupTimingMetric(),
+            FrameTimingMetric(),
+            MemoryUsageMetric(
+                mode = MemoryUsageMetric.Mode.Max,
+                subMetrics = listOf(
+                    MemoryUsageMetric.SubMetric.HeapSize,
+                    MemoryUsageMetric.SubMetric.RssAnon,
+                ),
+            ),
+            MemoryUsageMetric(
+                mode = MemoryUsageMetric.Mode.Last,
+                subMetrics = listOf(
+                    MemoryUsageMetric.SubMetric.HeapSize,
+                    MemoryUsageMetric.SubMetric.RssAnon,
+                ),
+            ),
+        ),
         iterations = ITERATIONS,
         startupMode = StartupMode.COLD,
         compilationMode = compilationMode,

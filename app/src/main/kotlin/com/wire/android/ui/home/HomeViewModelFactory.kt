@@ -34,12 +34,14 @@ import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UiTextResolver
+import com.wire.kalium.cells.domain.usecase.ObserveIsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
+import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
+import com.wire.kalium.logic.feature.client.ObserveIsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
@@ -73,6 +75,8 @@ class HomeViewModelFactory @Inject constructor(
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    private val observeIsWireCellsEnabled: ObserveIsWireCellsEnabledUseCase,
+    private val observeIsAtLeastOneCellAvailable: ObserveIsAtLeastOneCellAvailableUseCase,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,
@@ -115,7 +119,8 @@ class HomeViewModelFactory @Inject constructor(
         observeArchivedUnreadConversationsCount = observeArchivedUnreadConversationsCount,
         observeSelfUser = observeSelf,
         getTeamUrl = getTeamUrl,
-        isWireCellsEnabled = isWireCellsEnabled,
+        observeIsWireCellsEnabled = observeIsWireCellsEnabled,
+        observeIsAtLeastOneCellAvailable = observeIsAtLeastOneCellAvailable
     )
 
     fun featureFlagNotificationViewModel() = FeatureFlagNotificationViewModel(

@@ -59,6 +59,9 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import java.net.URI
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets.UTF_8
 import kotlinx.coroutines.launch
 import com.wire.android.ui.common.R as CommonR
 
@@ -198,8 +201,12 @@ fun String.toBackendConfigUrl(): String? {
     }
 
     return runCatching {
-        Uri.parse(sanitizedInput)
-            .getQueryParameter(BACKEND_CONFIG_QUERY_PARAMETER)
+        URI.create(sanitizedInput)
+            .rawQuery
+            ?.split('&')
+            ?.firstOrNull { it.substringBefore('=') == BACKEND_CONFIG_QUERY_PARAMETER }
+            ?.substringAfter('=', missingDelimiterValue = "")
+            ?.let { URLDecoder.decode(it, UTF_8.name()) }
             ?.takeIf(String::isNotBlank)
     }.getOrNull()
 }

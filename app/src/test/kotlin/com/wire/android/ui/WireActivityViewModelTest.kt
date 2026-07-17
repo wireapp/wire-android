@@ -39,6 +39,8 @@ import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.framework.TestUser.SELF_USER
@@ -806,6 +808,41 @@ class WireActivityViewModelTest {
         }
 
     @Test
+    fun givenNoOtherAccount_whenTryingToSwitchFromLoggedOutDialog_thenExposeLoggedOutState() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
+            .withAccountSwitchResult(SwitchAccountResult.NoOtherAccountToSwitch)
+            .arrange()
+        advanceUntilIdle()
+        viewModel.globalAppState.blockUserUI shouldBeEqualTo CurrentSessionErrorState.RemovedClient
+
+        viewModel.tryToSwitchAccount()
+        advanceUntilIdle()
+
+        arrangement.verifyTryToSwitchToNextAccount()
+        viewModel.globalAppState.currentUserId shouldBeEqualTo null
+        viewModel.globalAppState.blockUserUI shouldBeEqualTo null
+    }
+
+    @Test
+    fun givenAnotherAccount_whenTryingToSwitchFromLoggedOutDialog_thenExposeSwitchedAccountState() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
+            .withCurrentSession(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+            .withAccountSwitchResult(SwitchAccountResult.SwitchedToAnotherAccount)
+            .arrange()
+        advanceUntilIdle()
+        viewModel.globalAppState.blockUserUI shouldBeEqualTo CurrentSessionErrorState.RemovedClient
+
+        viewModel.tryToSwitchAccount()
+        advanceUntilIdle()
+
+        arrangement.verifyTryToSwitchToNextAccount()
+        viewModel.globalAppState.currentUserId shouldBeEqualTo TEST_ACCOUNT_INFO.userId
+        viewModel.globalAppState.blockUserUI shouldBeEqualTo null
+    }
+
+    @Test
     fun `given automated_login intent with only ssoCode, when handling intents, then intent is ignored`() = runTest {
         val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
         val (arrangement, viewModel) = Arrangement()
@@ -1232,6 +1269,14 @@ class WireActivityViewModelTest {
 
         fun withCurrentSession(result: CurrentSessionResult): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns result
+        }
+
+        fun withAccountSwitchResult(result: SwitchAccountResult): Arrangement = apply {
+            coEvery { switchAccount(SwitchAccountParam.TryToSwitchToNextAccount) } returns result
+        }
+
+        fun verifyTryToSwitchToNextAccount() {
+            coVerify(exactly = 1) { switchAccount(SwitchAccountParam.TryToSwitchToNextAccount) }
         }
 
         fun withE2EIRequiredDuringLogin(required: Boolean): Arrangement = apply {

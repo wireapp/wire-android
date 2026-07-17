@@ -47,7 +47,7 @@ class CellFileLocalPathCache @Inject constructor() {
     val fileReadyEvents: Flow<CellNodeUi.File> = _fileReadyChannel.receiveAsFlow()
 
     private val _openLoadStates = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
-    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
+    val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
 
     private val _downloadProgresses = MutableStateFlow<Map<String, Float?>>(emptyMap())
     internal val downloadProgresses: StateFlow<Map<String, Float?>> = _downloadProgresses.asStateFlow()

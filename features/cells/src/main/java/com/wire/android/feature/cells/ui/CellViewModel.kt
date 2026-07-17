@@ -672,7 +672,7 @@ internal data object ShowOfflineFileSaved : CellViewAction
 internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenVideoPlayer(val file: CellNodeUi.File) : CellViewAction
 
-internal enum class CellError(val message: Int) {
+enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed),
     DOWNLOAD_FAILED(R.string.action_failed),

@@ -42,7 +42,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination.invoke
 import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
@@ -74,6 +73,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @WireCellsDestination(

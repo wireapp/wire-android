@@ -61,7 +61,7 @@ sealed class CellNodeUi {
         override val isAvailableOffline: Boolean = false,
     ) : CellNodeUi()
 
-    data class File internal constructor(
+    data class File(
         override val name: String?,
         override val uuid: String,
         override val userName: String?,

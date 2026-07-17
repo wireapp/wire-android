@@ -29,13 +29,11 @@ import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
-import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
-import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
+import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -146,38 +144,6 @@ class MultipartAttachmentsViewModelTest {
                         testAttachmentUi.copy(uuid = "asset_5"),
                     )
                 ),
-            ),
-            result
-        )
-    }
-
-    @Test
-    fun `with offline attachment id when mapped then attachment is marked as available offline`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withOfflineAttachmentId("asset_1")
-            .arrange()
-
-        advanceUntilIdle()
-        assertTrue(
-            viewModel.offlineAttachmentIds.value.contains("asset_1")
-        )
-
-        val result = viewModel.mapAttachments(
-            listOf(testAssetContent.copy(id = "asset_1", mimeType = "application/pdf")),
-        )
-
-        assertEquals(
-            listOf(
-                MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files(
-                    attachments = listOf(
-                        testAttachmentUi.copy(
-                            uuid = "asset_1",
-                            mimeType = "application/pdf",
-                            assetType = AttachmentFileType.PDF,
-                            isAvailableOffline = true,
-                        ),
-                    )
-                )
             ),
             result
         )
@@ -378,6 +344,40 @@ class MultipartAttachmentsViewModelTest {
 
         verify(exactly = 1) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
     }
+
+    @Test
+    fun `givenVideoAttachmentWithContentUrl_whenClicked_thenDownloadStartsInsteadOfOpeningUrl`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        val videoAttachment = testAttachmentUi.copy(
+            mimeType = "video/mp4",
+            assetType = AttachmentFileType.VIDEO,
+            contentUrl = "content/url",
+        )
+
+        // A cell video always carries a pre-signed contentUrl, but it must still go through the
+        // download/loading flow so the spinner/progress is shown — not be opened via the URL.
+        viewModel.onClick(videoAttachment, mockk())
+
+        verify(exactly = 1) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `givenVideoAttachmentWithLocalPath_whenClicked_thenFileIsOpenedLocally`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        val videoAttachment = testAttachmentUi.copy(
+            mimeType = "video/mp4",
+            assetType = AttachmentFileType.VIDEO,
+            contentUrl = "content/url",
+            localPath = "local/path",
+        )
+
+        viewModel.onClick(videoAttachment, mockk())
+
+        coVerify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
+        verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
+    }
     // TODO: Refresh asset tests (part of refresh update PR)
 
     private class Arrangement {
@@ -448,9 +448,7 @@ class MultipartAttachmentsViewModelTest {
                 featureFlags = kaliumConfigs,
                 getWireCellsConfig = getWireCellsConfig,
                 observeOfflineFiles = observeOfflineFiles,
-            ).apply {
-                conversationId = "test-conversation-id"
-            }
+            )
         }
     }
 

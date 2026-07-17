@@ -29,17 +29,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import coil3.compose.AsyncImage
@@ -52,15 +53,14 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.darkColorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.AssetSource
+import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.transferProgressColor
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -70,6 +70,7 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.durationMs
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
+import com.wire.android.feature.cells.R as cellsR
 
 @Composable
 internal fun VideoAssetPreview(
@@ -81,12 +82,6 @@ internal fun VideoAssetPreview(
         realMediaWidth = item.metadata?.width() ?: 0,
         realMediaHeight = item.metadata?.height() ?: 0
     ).normalizedSize()
-
-    val maxWidth = calculateMaxMediaAssetWidth(
-        item = item,
-        maxDefaultWidth = dimensions().attachmentVideoMaxWidth,
-        maxDefaultWidthLandscape = dimensions().attachmentVideoMaxWidthLandscape
-    )
 
     val fileNameColor = when (messageStyle) {
         MessageStyle.BUBBLE_SELF -> colorsScheme().selfBubble.onPrimary
@@ -120,11 +115,20 @@ internal fun VideoAssetPreview(
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
 
+        val isOpenLoadError = item.openLoadState is MultipartAttachmentOpenLoadState.Error
+        val statusLabel = when (item.openLoadState) {
+            MultipartAttachmentOpenLoadState.Error -> stringResource(cellsR.string.unable_to_load_retry)
+            else -> null
+        }
+
         FileHeaderView(
             modifier = Modifier.padding(dimensions().spacing8x),
             extension = item.mimeType.substringAfter("/"),
             size = item.assetSize,
-            messageStyle = messageStyle
+            messageStyle = messageStyle,
+            label = statusLabel,
+            labelColor = if (isOpenLoadError) colorsScheme().error else null,
+            showLabelInBubble = true,
         )
 
         item.fileName?.let {
@@ -188,26 +192,42 @@ internal fun VideoAssetPreview(
                 )
             }
 
-            item.contentUrl?.let {
-                Image(
-                    modifier = Modifier
-                        .size(dimensions().spacing40x)
-                        .align(Alignment.Center),
-                    painter = painterResource(id = R.drawable.ic_play_circle_filled),
-                    contentDescription = null,
-                )
-            }
+            when (val loadState = item.openLoadState) {
+                is MultipartAttachmentOpenLoadState.Loading -> {
+                    val loadingProgress = loadState.progress
+                    if (loadingProgress != null) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(dimensions().spacing40x)
+                                .align(Alignment.Center),
+                            progress = { loadingProgress },
+                            color = colorsScheme().primary,
+                            trackColor = colorsScheme().primaryVariant,
+                            strokeCap = StrokeCap.Round,
+                        )
+                    } else {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(dimensions().spacing40x)
+                                .align(Alignment.Center),
+                            color = colorsScheme().primary,
+                            trackColor = colorsScheme().primaryVariant,
+                            strokeCap = StrokeCap.Round,
+                        )
+                    }
+                }
 
-            // Download progress
-            item.progress?.let {
-                WireLinearProgressIndicator(
-                    modifier = Modifier
-                        .widthIn(max = maxWidth)
-                        .align(Alignment.BottomStart),
-                    progress = { item.progress },
-                    color = transferProgressColor(item.transferStatus),
-                    trackColor = Color.Transparent,
-                )
+                else -> {
+                    item.contentUrl?.let {
+                        Image(
+                            modifier = Modifier
+                                .size(dimensions().spacing40x)
+                                .align(Alignment.Center),
+                            painter = painterResource(id = R.drawable.ic_play_circle_filled),
+                            contentDescription = null,
+                        )
+                    }
+                }
             }
         }
     }
@@ -250,7 +270,8 @@ private fun PreviewVideoAsset() {
             Box {
                 VideoAssetPreview(
                     item = attachment.copy(
-                        transferStatus = AssetTransferStatus.NOT_DOWNLOADED
+                        transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+                        contentUrl = "content/url",
                     ),
                     messageStyle = MessageStyle.NORMAL
                 )
@@ -258,23 +279,25 @@ private fun PreviewVideoAsset() {
             Box {
                 VideoAssetPreview(
                     item = attachment.copy(
-                        transferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
-                        progress = 0.75f
+                        openLoadState = MultipartAttachmentOpenLoadState.Loading(progress = 0.75f),
                     ),
                     messageStyle = MessageStyle.NORMAL
                 )
             }
             Box {
                 VideoAssetPreview(
-                    item = attachment,
+                    item = attachment.copy(
+                        openLoadState = MultipartAttachmentOpenLoadState.Loading(progress = null),
+                    ),
                     messageStyle = MessageStyle.NORMAL
                 )
             }
+            // Error: "Unable to load, retry"
             Box {
                 VideoAssetPreview(
                     item = attachment.copy(
                         transferStatus = FAILED_DOWNLOAD,
-                        progress = 0.75f
+                        openLoadState = MultipartAttachmentOpenLoadState.Error,
                     ),
                     messageStyle = MessageStyle.NORMAL
                 )

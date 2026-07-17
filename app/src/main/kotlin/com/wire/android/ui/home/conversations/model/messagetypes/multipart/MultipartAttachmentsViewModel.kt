@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -44,7 +45,6 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -76,7 +76,6 @@ interface MultipartAttachmentsViewModel {
         offlineAttachmentIds: Set<String> = emptySet(),
         openLoadStates: Map<String, MultipartAttachmentOpenLoadState> = emptyMap(),
     ): List<MultipartAttachmentGroup> {
-        val offlineIds = offlineAttachmentIds.value
 
         val result = mutableListOf<MultipartAttachmentGroup>()
         var group: MultipartAttachmentGroup? = null
@@ -169,8 +168,6 @@ class MultipartAttachmentsViewModelImpl(
 
     private var isCollaboraEnabled: Boolean = false
 
-    internal var conversationId: String? = null
-
     init {
         loadWireCellConfig()
     }
@@ -247,7 +244,7 @@ class MultipartAttachmentsViewModelImpl(
     private fun startDownload(attachment: MultipartAttachmentUi) {
         openFileDownloadController.start(
             scope = viewModelScope,
-            cellNode = attachment.toCellNode(conversationId),
+            cellNode = attachment.toCellNode(conversationId.toString()),
             onOpenFile = { cellNode ->
                 val localPath = cellNode.localPath ?: return@start
                 openFileAtPath(localPath, attachment)
@@ -301,7 +298,7 @@ private fun MessageAttachment.isMediaAttachment() =
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, PDF)
 
 /**
  * Maps [OpenLoadState] (cells-module type) to [MultipartAttachmentOpenLoadState].

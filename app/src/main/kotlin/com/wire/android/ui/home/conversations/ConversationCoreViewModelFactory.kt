@@ -21,6 +21,8 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.di.CurrentAccount
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
+import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.OpenFileDownloadController
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.media.PingRinger
@@ -66,7 +68,7 @@ import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -192,12 +194,13 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
     private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase,
     private val refreshHelper: CellAssetRefreshHelper,
-    private val downloadCellFile: DownloadCellFileUseCase,
+    private val observeOfflineFiles: ObserveOfflineFilesUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
-    private val observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
+    private val openFileDownloadController: OpenFileDownloadController,
+    private val cellFileLocalPathCache: CellFileLocalPathCache,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     private val generateLinkPreview: GenerateLinkPreviewUseCase,
     private val detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase,
@@ -361,13 +364,13 @@ class ConversationCoreViewModelFactory @Inject constructor(
     fun multipartAttachmentsViewModel(conversationId: ConversationId) = MultipartAttachmentsViewModelImpl(
         conversationId = conversationId,
         refreshHelper = refreshHelper,
-        download = downloadCellFile,
+        sharedPathCache = cellFileLocalPathCache,
         getEditorUrl = getEditorUrl,
         onlineEditor = onlineEditor,
         fileManager = fileManager,
-        kaliumFileSystem = kaliumFileSystem,
         featureFlags = featureFlags,
         getWireCellsConfig = getWireCellsConfig,
-        observeOfflineFilesByConversation = observeOfflineFilesByConversation
+        openFileDownloadController = openFileDownloadController,
+        observeOfflineFiles = observeOfflineFiles
     )
 }

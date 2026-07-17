@@ -27,6 +27,7 @@
 
 package call
 
+import androidx.test.uiautomator.By
 import backendUtils.BackendClient
 import backendUtils.team.getTeamByName
 import call.pinger.UiAutomatorPinger
@@ -129,6 +130,37 @@ class CallHelper {
                         e
                     )
                 }
+            }
+    }
+
+    fun iSeeVideoForUsersEnabled(participants: String) {
+        val resolvedParticipants = clientUserManager.replaceAliasesOccurrences(
+            participants,
+            ClientUserManager.FindBy.NAME_ALIAS
+        )
+
+        resolvedParticipants
+            .split(",")
+            .map { it.trim() }
+            .forEach { participant ->
+                try {
+                    UiWaitUtils.waitElement(
+                        UiSelectorParams(text = participant),
+                        timeout = UiWaitUtils.MEDIUM_TIMEOUT
+                    )
+                } catch (e: AssertionError) {
+                    throw AssertionError(
+                        "User '$participant' is not visible in the ongoing group video call.",
+                        e
+                    )
+                }
+
+                UiWaitUtils.waitUntilGoneOrThrow(
+                    selector = By.hasChild(By.res("User avatar"))
+                        .hasDescendant(By.text(" $participant")),
+                    timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+                    errorMessage = "Video for user '$participant' is not enabled"
+                )
             }
     }
 }

@@ -35,8 +35,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 data class LoginPage(private val device: UiDevice) {
-    val backendClient = BackendClient.loadBackend("STAGING")
-
     // Locators
     private val emailInputField = UiSelector().resourceId("userIdentifierInput")
     private val emailInputFieldSelector = UiSelectorParams(resourceId = "userIdentifierInput")
@@ -152,7 +150,8 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickStagingDeepLink(): LoginPage {
+    fun clickStagingDeepLink(backendName: String = DEFAULT_BACKEND_NAME): LoginPage {
+        val backendClient = BackendClient.loadBackend(backendName)
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val deepLinkUrl = "wire://access/?config=${backendClient.deeplink}"
         val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -343,5 +342,9 @@ data class LoginPage(private val device: UiDevice) {
         } else {
             "Current login-related nodes:\n$nodes"
         }
+    }
+
+    private companion object {
+        const val DEFAULT_BACKEND_NAME = "STAGING"
     }
 }

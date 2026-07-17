@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package backendUtils.sso
+package backendUtils.scim
 
 import backendUtils.BackendClient
 import backendUtils.auth.defaultheaders
@@ -30,52 +30,35 @@ import user.utils.ClientUser
 import java.net.HttpURLConnection
 import java.net.URI
 
-fun BackendClient.createIdentityProvider(user: ClientUser, metadata: String): String {
-    return createIdentityProviderAtPath(
-        user = user,
-        metadata = metadata,
-        path = "identity-providers"
-    )
-}
+/**
+ * Creates a SCIM auth token for the given backend user so tests can call SCIM endpoints on that team.
+ */
+fun BackendClient.createScimAccessToken(asUser: ClientUser, description: String): String {
+    val token = runBlocking { getAuthToken(asUser) }
+    val url = URI("scim/auth-tokens".composeCompleteUrl()).toURL()
 
-// Creates an identity provider through the backend v2 API and returns its id.
-fun BackendClient.createIdentityProviderV2(user: ClientUser, metadata: String): String {
-    return createIdentityProviderAtPath(
-        user = user,
-        metadata = metadata,
-        path = "v5/identity-providers?api_version=v2"
-    )
-}
-
-private fun BackendClient.createIdentityProviderAtPath(
-    user: ClientUser,
-    metadata: String,
-    path: String
-): String {
-    val token = runBlocking { getAuthToken(user) }
-    val url = URI(path.composeCompleteUrl()).toURL()
+    val requestBody = JSONObject().apply {
+        put("description", description)
+        put("password", asUser.password)
+        asUser.verificationCode?.let { put("verification_code", it) }
+    }
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")
         put("Accept", BackendClient.applicationJson)
-        put("Content-Type", APPLICATION_XML)
+        put("Content-Type", BackendClient.applicationJson)
     }
 
     val response = NetworkBackendClient.sendJsonRequestWithCookies(
         url = url,
         method = "POST",
-        body = metadata,
+        body = requestBody.toString(),
         headers = headers,
         options = RequestOptions(
             accessToken = token,
-            expectedResponseCodes = NumberSequence.Array(
-                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_CREATED)
-            )
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
         )
     )
 
-    val responseBody = JSONObject(response.body)
-    return responseBody.getString("id")
+    return JSONObject(response.body).getString("token")
 }
-
-private const val APPLICATION_XML = "application/xml"

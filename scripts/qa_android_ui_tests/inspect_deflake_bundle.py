@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import uuid
 from pathlib import Path
 
 
@@ -16,8 +18,9 @@ def write_output(name: str, value: str) -> None:
     output_path = env("GITHUB_OUTPUT")
     if not output_path:
         return
+    delimiter = f"EOF_{uuid.uuid4().hex}"
     with open(output_path, "a", encoding="utf-8") as output_file:
-        output_file.write(f"{name}={value}\n")
+        output_file.write(f"{name}<<{delimiter}\n{value}\n{delimiter}\n")
 
 
 def append_summary(lines: list[str]) -> None:
@@ -58,13 +61,35 @@ required_fields = [
     "source_workflow_name",
     "source_workflow_file",
     "source_run_id",
+    "source_repository",
     "source_ref_name",
+    "source_sha",
     "flavor",
 ]
 for field in required_fields:
     value = str(metadata.get(field, "")).strip()
     if not value:
         raise SystemExit(f"ERROR: Missing required metadata field '{field}'.")
+
+expected_fields = {
+    "source_repository": env("EXPECTED_SOURCE_REPOSITORY"),
+    "source_run_id": env("EXPECTED_SOURCE_RUN_ID"),
+    "source_sha": env("EXPECTED_SOURCE_SHA"),
+    "source_workflow_file": env("EXPECTED_SOURCE_WORKFLOW_FILE"),
+    "source_ref_name": env("EXPECTED_SOURCE_REF_NAME"),
+}
+for field, expected_value in expected_fields.items():
+    actual_value = str(metadata.get(field, "")).strip()
+    if not expected_value:
+        raise SystemExit(f"ERROR: Missing expected source validation value for '{field}'.")
+    if actual_value != expected_value:
+        raise SystemExit(
+            f"ERROR: Deflake metadata field '{field}' does not match the selected GitHub Actions run."
+        )
+
+test_source_sha = str(metadata.get("test_source_sha") or metadata["source_sha"]).strip()
+if not re.fullmatch(r"[0-9a-f]{40}", test_source_sha):
+    raise SystemExit("ERROR: test_source_sha must be a full lowercase Git commit SHA.")
 
 failed_tests = [
     line.strip()
@@ -87,6 +112,7 @@ print(f"Selected run id: {metadata['source_run_id']}")
 print(f"Selected ref: {metadata['source_ref_name']}")
 print(f"Flavor: {metadata['flavor']}")
 print(f"Selector: {metadata.get('selector_type', '')}={metadata.get('selector_value', '')}")
+print(f"Device group: {metadata.get('android_device_group', '')}")
 print(f"Resolved build number: {metadata.get('resolved_build_number', '')}")
 print(f"Leftover failed tests: {len(failed_tests)}")
 
@@ -100,6 +126,8 @@ write_output("sourceWorkflowName", str(metadata["source_workflow_name"]))
 write_output("sourceWorkflowFile", str(metadata["source_workflow_file"]))
 write_output("sourceRunId", str(metadata["source_run_id"]))
 write_output("sourceRefName", str(metadata["source_ref_name"]))
+write_output("sourceSha", str(metadata["source_sha"]))
+write_output("testSourceSha", test_source_sha)
 write_output("flavor", str(metadata["flavor"]))
 write_output("tags", str(metadata.get("tags", "")))
 write_output("selectorType", str(metadata.get("selector_type", "")))
@@ -111,6 +139,7 @@ write_output("isUpgrade", str(metadata.get("is_upgrade", False)).lower())
 write_output("oldBuildNumber", str(metadata.get("old_build_number", "")))
 write_output("enforceAppInstall", str(metadata.get("enforce_app_install", False)).lower())
 write_output("androidDeviceId", str(metadata.get("android_device_id", "")))
+write_output("androidDeviceGroup", str(metadata.get("android_device_group", "")))
 write_output("rerunFailedEnabled", str(metadata.get("rerun_failed_enabled", False)).lower())
 write_output("rerunFailedCount", str(metadata.get("rerun_failed_count", "")))
 write_output("failedTestCount", str(len(failed_tests)))
@@ -128,6 +157,7 @@ summary_lines = [
     f"- selected ref: {metadata['source_ref_name']}",
     f"- flavor: {metadata['flavor']}",
     f"- selector: {metadata.get('selector_type', '')} = {metadata.get('selector_value', '')}",
+    f"- device group: {metadata.get('android_device_group', '')}",
     f"- resolved build number: {metadata.get('resolved_build_number', '')}",
     f"- leftover failed tests: {len(failed_tests)}",
 ]

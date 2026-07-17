@@ -293,16 +293,10 @@ cleanup_workspace() {
     # remain extractable from a shared physical phone after the run.
     read -ra DEVICES <<< "${DEVICE_LIST}"
     for serial in "${DEVICES[@]}"; do
+      if [[ -n "${TEST_APP_ID:-}" ]]; then
+        adb -s "${serial}" uninstall "${TEST_APP_ID}" >/dev/null 2>&1 || true
+      fi
       if [[ -n "${APP_ID:-}" ]]; then
-        local instrumentation_lines
-        instrumentation_lines="$(adb -s "${serial}" shell pm list instrumentation 2>/dev/null | tr -d '\r' || true)"
-        while IFS= read -r instrumentation_line; do
-          [[ "${instrumentation_line}" == *"(target=${APP_ID})"* ]] || continue
-          local component="${instrumentation_line#instrumentation:}"
-          component="${component%% *}"
-          local test_package="${component%%/*}"
-          [[ -n "${test_package}" ]] && adb -s "${serial}" uninstall "${test_package}" >/dev/null 2>&1 || true
-        done <<< "${instrumentation_lines}"
         adb -s "${serial}" uninstall "${APP_ID}" >/dev/null 2>&1 || true
       fi
       adb -s "${serial}" shell rm -f /data/local/tmp/Wire.old.apk /data/local/tmp/Wire.new.apk || true

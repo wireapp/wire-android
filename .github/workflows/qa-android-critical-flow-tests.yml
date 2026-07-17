@@ -1,10 +1,9 @@
 name: QA Android Critical Flow Tests
 
-# Concurrency lock:
-# - If androidDeviceId is set, we lock per-device so only one run can use that specific phone at a time (other devices can run in parallel).
-# - If androidDeviceId is empty ("auto"), we lock the shared device pool so only one auto-run uses the farm at a time (other auto-runs queue).
+# Lock each configured device group independently. Groups must be disjoint, so
+# criticalFlow, e2eTests, GrapheneOS, and future pools can run concurrently.
 concurrency:
-  group: qa-android-ui-tests-office-${{ github.event_name == 'workflow_dispatch' && inputs.androidDeviceId || 'auto' }}
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'criticalFlow' }}
   cancel-in-progress: false
 
 on:
@@ -70,9 +69,15 @@ on:
         type: string
 
       androidDeviceId:
-        description: "androidDeviceId. Target a specific device. Leave empty for auto."
+        description: "Target one device from androidDeviceGroup. Leave empty to use the group."
         required: false
         default: ""
+        type: string
+
+      androidDeviceGroup:
+        description: "Named group from the ANDROID_DEVICE_GROUPS_JSON repository variable."
+        required: true
+        default: "criticalFlow"
         type: string
 
       rerunFailedEnabled:
@@ -105,6 +110,7 @@ jobs:
       resolvedTags: ${{ steps.resolve_run_inputs.outputs.TAGS }}
       resolvedTestinyRunName: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
       resolvedAndroidDeviceId: ${{ steps.resolve_run_inputs.outputs.androidDeviceId }}
+      resolvedAndroidDeviceGroup: ${{ steps.resolve_run_inputs.outputs.androidDeviceGroup }}
       resolvedRerunFailedEnabled: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled }}
       resolvedRerunFailedCount: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount }}
       resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
@@ -140,6 +146,7 @@ jobs:
           TAGS_INPUT: ${{ inputs.TAGS }}
           TESTINY_RUN_NAME_INPUT: ${{ inputs.testinyRunName }}
           ANDROID_DEVICE_ID_INPUT: ${{ inputs.androidDeviceId }}
+          ANDROID_DEVICE_GROUP_INPUT: ${{ inputs.androidDeviceGroup }}
           RERUN_FAILED_ENABLED_INPUT: ${{ inputs.rerunFailedEnabled }}
           RERUN_FAILED_COUNT_INPUT: ${{ inputs.rerunFailedCount }}
         run: |
@@ -161,6 +168,7 @@ jobs:
               echo "TAGS=${TAGS_INPUT}"
               echo "testinyRunName=${testiny_run_name}"
               echo "androidDeviceId=${ANDROID_DEVICE_ID_INPUT}"
+              echo "androidDeviceGroup=${ANDROID_DEVICE_GROUP_INPUT}"
               echo "rerunFailedEnabled=${RERUN_FAILED_ENABLED_INPUT}"
               echo "rerunFailedCount=${RERUN_FAILED_COUNT_INPUT}"
             } >> "${GITHUB_OUTPUT}"
@@ -176,6 +184,7 @@ jobs:
             echo "TAGS=@criticalFlow"
             echo "testinyRunName="
             echo "androidDeviceId="
+            echo "androidDeviceGroup=criticalFlow"
             echo "rerunFailedEnabled=true"
             echo "rerunFailedCount=1"
           } >> "${GITHUB_OUTPUT}"
@@ -237,6 +246,7 @@ jobs:
       AWS_REGION: eu-west-1
       OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
 
     defaults:
       run:
@@ -294,6 +304,7 @@ jobs:
       - name: Detect target device(s)
         env:
           TARGET_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
 
@@ -414,6 +425,7 @@ jobs:
           SOURCE_REF: ${{ github.ref }}
           SOURCE_REF_NAME: ${{ github.ref_name }}
           SOURCE_SHA: ${{ github.sha }}
+          TEST_SOURCE_SHA: ${{ github.sha }}
           FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
           TAGS_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
@@ -424,6 +436,7 @@ jobs:
           ENFORCE_APP_INSTALL: ${{ needs.validate-and-resolve-inputs.outputs.resolvedEnforceAppInstall }}
           TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          ANDROID_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
         run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle

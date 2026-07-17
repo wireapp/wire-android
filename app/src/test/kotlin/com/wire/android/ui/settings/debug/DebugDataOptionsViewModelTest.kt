@@ -36,13 +36,10 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
-import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
-import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
@@ -218,38 +215,6 @@ class DebugDataOptionsViewModelTest {
     }
 
     @Test
-    fun `given async notifications is not enabled, when enabling, then start using async notifications is called`() = runTest {
-        // given
-        val (arrangement, viewModel) = DebugDataOptionsArrangement()
-            .withObserveIsConsumableNotificationsEnabled(false)
-            .withStartUsingAsyncNotificationsResult()
-            .arrange()
-
-        assertEquals(false, viewModel.state.isAsyncNotificationsEnabled)
-
-        viewModel.enableAsyncNotifications(true)
-
-        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
-        coVerify(exactly = 1) { arrangement.startUsingAsyncNotifications() }
-    }
-
-    @Test
-    fun `given async notifications is enabled, then start using async notifications is never called`() = runTest {
-        // given
-        val (arrangement, viewModel) = DebugDataOptionsArrangement()
-            .withObserveIsConsumableNotificationsEnabled(true)
-            .withStartUsingAsyncNotificationsResult()
-            .arrange()
-
-        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
-
-        viewModel.enableAsyncNotifications(false)
-
-        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
-        coVerify(exactly = 0) { arrangement.startUsingAsyncNotifications() }
-    }
-
-    @Test
     fun `given e2ei expiration is loaded, view state should contain loaded value`() = runTest {
         val (_, viewModel) = DebugDataOptionsArrangement()
             .withDebugE2EICertificateExpiration(999)
@@ -342,12 +307,6 @@ internal class DebugDataOptionsArrangement {
     lateinit var sendFCMToken: SendFCMTokenUseCase
 
     @MockK
-    lateinit var observeIsConsumableNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase
-
-    @MockK
-    lateinit var startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase
-
-    @MockK
     lateinit var repairFaultyRemovalKeysUseCase: RepairFaultyRemovalKeysUseCase
 
     @MockK
@@ -375,8 +334,6 @@ internal class DebugDataOptionsArrangement {
             dispatcherProvider = TestDispatcherProvider(),
             selfServerConfigUseCase = selfServerConfigUseCase,
             getDefaultProtocolUseCase = getDefaultProtocolUseCase,
-            startUsingAsyncNotifications = startUsingAsyncNotifications,
-            observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled,
             repairFaultyRemovalKeys = repairFaultyRemovalKeysUseCase,
             getDebugE2EICertificateExpiration = getDebugE2EICertificateExpiration,
             setDebugE2EICertificateExpiration = setDebugE2EICertificateExpiration,
@@ -419,7 +376,6 @@ internal class DebugDataOptionsArrangement {
                 getDefaultProtocolUseCase()
             } returns SupportedProtocol.PROTEUS
 
-            withObserveIsConsumableNotificationsEnabled(false)
             coEvery { getDebugE2EICertificateExpiration() } returns 360
             coEvery { setDebugE2EICertificateExpiration(any()) } returns Unit
             every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(false)
@@ -433,18 +389,6 @@ internal class DebugDataOptionsArrangement {
 
     fun withDebugCRLExpirationAfterOneMinute(enabled: Boolean) = apply {
         every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(enabled)
-    }
-
-    suspend fun withObserveIsConsumableNotificationsEnabled(isEnabled: Boolean = false) = apply {
-        coEvery {
-            observeIsConsumableNotificationsEnabled()
-        } returns flowOf(isEnabled)
-    }
-
-    suspend fun withStartUsingAsyncNotificationsResult(
-        result: StartUsingAsyncNotificationsResult = StartUsingAsyncNotificationsResult.Success
-    ) = apply {
-        coEvery { startUsingAsyncNotifications() } returns result
     }
 
     fun withSendFCMTokenSuccess() = apply {

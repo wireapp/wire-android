@@ -57,8 +57,8 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveCallQualityDataUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
@@ -132,7 +132,7 @@ class CallingViewModelFactory @Inject constructor(
     private val flipToBackCamera: FlipToBackCameraUseCase,
     private val observeSpeaker: ObserveSpeakerUseCase,
     private val userTypeMapper: UserTypeMapper,
-    private val observeOngoingCalls: ObserveOngoingCallsUseCase,
+    private val observeJoinableCalls: ObserveJoinableCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
     private val isConferenceCallingEnabled: IsEligibleToStartCallUseCase,
@@ -219,7 +219,7 @@ class CallingViewModelFactory @Inject constructor(
     fun conversationCallViewModel(savedStateHandle: SavedStateHandle) = ConversationCallViewModel(
         savedStateHandle = savedStateHandle,
         currentAccount = currentAccount,
-        observeOngoingCalls = observeOngoingCalls,
+        observeJoinableCalls = observeJoinableCalls,
         observeEstablishedCalls = observeEstablishedCalls,
         observeParticipantsForConversation = observeParticipantsForConversation,
         answerCall = answerCall,

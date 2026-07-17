@@ -17,7 +17,9 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration
@@ -25,33 +27,42 @@ import kotlin.time.Duration.Companion.seconds
 
 data class SSOPage(private val device: UiDevice) {
 
-    private val oktaUsernameField = UiSelectorParams(resourceId = "okta-signin-username")
-    private val oktaPasswordField = UiSelectorParams(resourceId = "okta-signin-password")
-    private val oktaSignInButton = UiSelectorParams(resourceId = "okta-signin-submit")
-    fun enterOktaEmail(email: String): SSOPage {
-        val usernameField = UiWaitUtils.waitElement(oktaUsernameField)
+    private val keycloakUsernameLabel = UiSelectorParams(text = "Username or email")
+    private val keycloakPasswordLabel = UiSelectorParams(text = "Password")
+    private val keycloakSignInButton = UiSelectorParams(text = "Sign In")
+
+    fun enterKeycloakEmail(email: String): SSOPage {
+        val usernameField = inputFieldBelow(keycloakUsernameLabel, "Keycloak username field")
+        usernameField.click()
         usernameField.text = email
         return this
     }
 
-    fun enterOktaPassword(password: String): SSOPage {
-        val passwordField = UiWaitUtils.waitElement(oktaPasswordField)
+    fun enterKeycloakPassword(password: String): SSOPage {
+        val passwordField = inputFieldBelow(keycloakPasswordLabel, "Keycloak password field")
+        passwordField.click()
         passwordField.text = password
         return this
     }
 
-    fun tapOktaSignIn(): SSOPage {
-        val signInBtn = UiWaitUtils.waitElement(oktaSignInButton)
+    fun tapKeycloakSignIn(): SSOPage {
+        val signInBtn = UiWaitUtils.waitElement(keycloakSignInButton)
         signInBtn.click()
         return this
     }
 
-    fun waitUntilOktaPageLoaded(timeout: Duration = 20.seconds): SSOPage {
-        UiWaitUtils.waitUntilVisibleOrThrow(
-            params = oktaSignInButton,
-            timeout = timeout,
-            errorMessage = "Okta page did not load: Email and password input field is not visible"
-        )
+    fun waitUntilKeycloakPageLoaded(timeout: Duration = 20.seconds): SSOPage {
+        UiWaitUtils.waitElement(keycloakUsernameLabel, timeout = timeout)
         return this
+    }
+
+    private fun inputFieldBelow(label: UiSelectorParams, fieldName: String): UiObject2 {
+        val labelElement = UiWaitUtils.waitElement(label, timeout = 15.seconds)
+        return device.findObjects(By.clazz("android.widget.EditText"))
+            .firstOrNull { editText ->
+                !editText.visibleBounds.isEmpty &&
+                    editText.visibleBounds.top >= labelElement.visibleBounds.bottom
+            }
+            ?: throw AssertionError("$fieldName was not visible.")
     }
 }

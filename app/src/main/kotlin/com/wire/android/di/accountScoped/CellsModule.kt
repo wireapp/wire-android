@@ -40,6 +40,7 @@ import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
+import com.wire.kalium.cells.domain.usecase.ObserveIsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
 import com.wire.kalium.cells.domain.usecase.RefreshCellAssetStateUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
@@ -170,6 +171,10 @@ class CellsModule {
 
     @Provides
     fun provideCellAvailableUseCase(cellsScope: CellsScope): IsAtLeastOneCellAvailableUseCase = cellsScope.isCellAvailable
+
+    @Provides
+    fun provideObserveCellAvailableUseCase(cellsScope: CellsScope): ObserveIsAtLeastOneCellAvailableUseCase =
+        cellsScope.observeIsCellAvailable
 
     @Provides
     fun provideGetAttachmentUseCase(cellsScope: CellsScope): GetMessageAttachmentUseCase = cellsScope.getMessageAttachmentUseCase

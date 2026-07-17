@@ -69,6 +69,8 @@ data class ConversationListPage(private val device: UiDevice) {
     private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
     private val blockButtonAlert = UiSelectorParams(text = "Block")
     private val unblockButtonAlert = UiSelectorParams(text = "Unblock")
+    private val clearContentButton = UiSelectorParams(textContains = "Clear Content")
+    private val clearContentConfirmButton = UiSelectorParams(text = "Clear content")
 
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
@@ -272,6 +274,16 @@ data class ConversationListPage(private val device: UiDevice) {
         val center = conversation.visibleCenter
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .swipe(center.x, center.y, center.x, center.y, 120)
+        return this
+    }
+
+    fun tapClearContentButtonOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(clearContentButton).click()
+        return this
+    }
+
+    fun tapClearContentConfirmButtonOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(clearContentConfirmButton).click()
         return this
     }
 
@@ -549,6 +561,12 @@ data class ConversationListPage(private val device: UiDevice) {
         val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
         buttonNoPhoto.click()
     }
+    return this
+}
+
+    fun clickUserProfileButtonNoPhoto(): ConversationListPage {
+        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
+        buttonNoPhoto.click()
     return this
 }
 

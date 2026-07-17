@@ -257,4 +257,9 @@
     <string name="sort_size_smallest_first">Сначала маленькие</string>
     <string name="sort_size_largest_first">Сначала большие</string>
     <string name="content_description_image_message">Изображение</string>
+    <string name="cells_video_enter_fullscreen">Полноэкранный режим</string>
+    <string name="cells_video_exit_fullscreen">Выход из полноэкранного режима</string>
+    <string name="cells_video_mute">Отключить уведомления</string>
+    <string name="cells_video_unmute">Включить уведомления</string>
+    <string name="cells_video_loading">Загрузка видео</string>
 </resources>

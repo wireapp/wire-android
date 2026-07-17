@@ -32,6 +32,7 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
@@ -52,6 +53,9 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.DetectLinkPreviewTargetUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -83,6 +87,19 @@ internal class SendMessageViewModelArrangement {
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
         coEvery { setNotifiedAboutConversationUnderLegalHold(any()) } returns Unit
         coEvery { observeConversationUnderLegalHoldNotified(any()) } returns flowOf(true)
+        every { detectLinkPreviewTarget(any(), any()) } answers {
+            val text = firstArg<String>()
+            val start = text.indexOf("https://")
+            if (start < 0) {
+                null
+            } else {
+                val end = text.indexOf(' ', start).takeIf { it >= 0 } ?: text.length
+                LinkPreviewTarget(
+                    url = text.substring(start, end),
+                    position = start
+                )
+            }
+        }
     }
 
     @MockK
@@ -159,6 +176,12 @@ internal class SendMessageViewModelArrangement {
     @MockK
     lateinit var sharedState: MessageSharedState
 
+    @MockK
+    lateinit var generateLinkPreview: GenerateLinkPreviewUseCase
+
+    @MockK
+    lateinit var detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase
+
     private val viewModel by lazy {
         SendMessageViewModel(
             sendTextMessage = sendTextMessage,
@@ -183,7 +206,9 @@ internal class SendMessageViewModelArrangement {
             analyticsManager = analyticsManager,
             sendMultipartMessage = sendMultipartMessage,
             isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
-            sharedState = sharedState
+            sharedState = sharedState,
+            generateLinkPreview = generateLinkPreview,
+            detectLinkPreviewTarget = detectLinkPreviewTarget
         )
     }
 
@@ -295,6 +320,14 @@ internal class SendMessageViewModelArrangement {
 
     fun withCellsEnabledForConversation(result: Boolean) = apply {
         coEvery { isWireCellsEnabledForConversation.invoke(conversationId) } returns result
+    }
+
+    fun withGeneratedLinkPreviewResult(result: MessageLinkPreview?) = apply {
+        coEvery { generateLinkPreview(any(), any()) } returns result
+    }
+
+    fun withDetectedLinkPreviewTarget(result: LinkPreviewTarget?) = apply {
+        every { detectLinkPreviewTarget(any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

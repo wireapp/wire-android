@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.settings.privacy
 
+import com.wire.android.BuildConfig
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,6 +52,8 @@ fun PrivacySettingsConfigScreen(
             shouldShowAnalyticsUsage = state.shouldShowAnalyticsUsage,
             areReadReceiptsEnabled = state.areReadReceiptsEnabled,
             setReadReceiptsState = ::setReadReceiptsState,
+            areLinkPreviewsEnabled = state.areLinkPreviewsEnabled,
+            setLinkPreviewsState = ::setLinkPreviewsState,
             isTypingIndicatorEnabled = state.isTypingIndicatorEnabled,
             setTypingIndicatorState = ::setTypingIndicatorState,
             screenshotCensoringConfig = state.screenshotCensoringConfig,
@@ -67,6 +70,8 @@ fun PrivacySettingsScreenContent(
     shouldShowAnalyticsUsage: Boolean,
     areReadReceiptsEnabled: Boolean,
     setReadReceiptsState: (Boolean) -> Unit,
+    areLinkPreviewsEnabled: Boolean,
+    setLinkPreviewsState: (Boolean) -> Unit,
     isTypingIndicatorEnabled: Boolean,
     setTypingIndicatorState: (Boolean) -> Unit,
     screenshotCensoringConfig: ScreenshotCensoringConfig,
@@ -106,6 +111,15 @@ fun PrivacySettingsScreenContent(
                 subtitle = stringResource(id = R.string.settings_send_read_receipts_description)
             )
             WireDivider(color = colorsScheme().divider)
+            if (BuildConfig.LINK_PREVIEW_ENABLED) {
+                GroupConversationOptionsItem(
+                    title = stringResource(R.string.settings_link_previews),
+                    switchState = SwitchState.Enabled(value = areLinkPreviewsEnabled, onCheckedChange = setLinkPreviewsState),
+                    arrowType = ArrowType.NONE,
+                    subtitle = stringResource(id = R.string.settings_link_previews_description)
+                )
+                WireDivider(color = colorsScheme().divider)
+            }
             GroupConversationOptionsItem(
                 title = stringResource(R.string.settings_censor_screenshots),
                 switchState = when (screenshotCensoringConfig) {
@@ -145,6 +159,8 @@ fun PreviewSendReadReceipts() = WireTheme {
         shouldShowAnalyticsUsage = true,
         areReadReceiptsEnabled = true,
         setReadReceiptsState = {},
+        areLinkPreviewsEnabled = false,
+        setLinkPreviewsState = {},
         isTypingIndicatorEnabled = true,
         setTypingIndicatorState = {},
         screenshotCensoringConfig = ScreenshotCensoringConfig.DISABLED,

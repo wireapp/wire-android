@@ -18,8 +18,6 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": true,
-            "offline_files_enabled": true,
-            "in_app_image_viewer_enabled": true,
             "ignore_ssl_certificates": true,
             "firebase_push_sender_id": "723990470614",
             "firebase_app_id": "1:723990470614:android:10cf802bfcc7bb71d28e77",
@@ -42,7 +40,8 @@
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
             "enforce_configuration_signature": false,
-            "pending_messages": true
+            "pending_messages": true,
+            "link_preview_enabled": true
         },
         "staging": {
             "application_id": "com.waz.zclient.dev",
@@ -78,7 +77,8 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true
+            "enforce_configuration_signature": true,
+            "link_preview_enabled": true
         },
         "alpha": {
             "application_id": "com.wire.internal",
@@ -86,8 +86,6 @@
             "logging_enabled": true,
             "application_is_private_build": true,
             "development_api_enabled": false,
-            "offline_files_enabled": true,
-            "in_app_image_viewer_enabled": true,
             "analytics_enabled": true,
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
@@ -97,7 +95,8 @@
             "phone_landscape_enabled": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": false,
-            "pending_messages": true
+            "pending_messages": true,
+            "link_preview_enabled": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -174,8 +173,8 @@
     "background_notification_stay_alive_seconds": 3,
     "is_bubble_ui_enabled": true,
     "collabora_integration": true,
-    "offline_files_enabled": false,
-    "in_app_image_viewer_enabled": false,
+    "offline_files_enabled": true,
+    "in_app_image_viewer_enabled": true,
     "db_invalidation_control_enabled": false,
     "configuration_signature_keys": {
         "0": "MCowBQYDK2VwAyEAxPrvUdt+531eDcnAFfLAv9K9gkxPDBMVEz75BkNgd1E=",
@@ -186,5 +185,6 @@
     "call_reactions_enabled": true,
     "nomad_profiles_enabled": true,
     "block_cross_backend_login": false,
-    "pending_messages": false
+    "pending_messages": false,
+    "link_preview_enabled": false
 }

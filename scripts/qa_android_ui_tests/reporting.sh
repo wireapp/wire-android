@@ -288,9 +288,17 @@ cleanup_workspace() {
   rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
 
   if [[ -n "${DEVICE_LIST:-}" ]]; then
-    # Remove APK copies pushed for upgrade runs; each new job pushes fresh files.
+    # Remove app data and instrumentation packages as well as pushed upgrade
+    # APKs. The test APK contains the limited device credential set and must not
+    # remain extractable from a shared physical phone after the run.
     read -ra DEVICES <<< "${DEVICE_LIST}"
     for serial in "${DEVICES[@]}"; do
+      if [[ -n "${TEST_APP_ID:-}" ]]; then
+        adb -s "${serial}" uninstall "${TEST_APP_ID}" >/dev/null 2>&1 || true
+      fi
+      if [[ -n "${APP_ID:-}" ]]; then
+        adb -s "${serial}" uninstall "${APP_ID}" >/dev/null 2>&1 || true
+      fi
       adb -s "${serial}" shell rm -f /data/local/tmp/Wire.old.apk /data/local/tmp/Wire.new.apk || true
     done
   fi

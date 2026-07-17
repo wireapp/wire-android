@@ -112,6 +112,8 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.DetectLinkPreviewTargetUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkStateObserver
@@ -197,6 +199,8 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    private val generateLinkPreview: GenerateLinkPreviewUseCase,
+    private val detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase,
     private val networkStateObserver: NetworkStateObserver,
     @CurrentAccount private val selfUserId: UserId,
 ) {
@@ -266,6 +270,8 @@ class ConversationCoreViewModelFactory @Inject constructor(
         analyticsManager = analyticsManager,
         isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
         sharedState = messageSharedState,
+        generateLinkPreview = generateLinkPreview,
+        detectLinkPreviewTarget = detectLinkPreviewTarget
     )
 
     fun messageDraftViewModel(savedStateHandle: SavedStateHandle) = MessageDraftViewModel(

@@ -1,9 +1,9 @@
 name: QA Android UI Test Manual Deflake
 
-# Keep manual deflake on the shared auto-run lock so it does not compete with
-# other QA office workflows for the same device pool at the same time.
+# The group is an input because concurrency is evaluated before the downloaded
+# deflake metadata is available. Use the same group as the source run.
 concurrency:
-  group: qa-android-ui-tests-office-auto
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'criticalFlow' }}
   cancel-in-progress: false
 
 on:
@@ -20,13 +20,59 @@ on:
         default: ""
         type: string
 
+      androidDeviceGroup:
+        description: "Device group used by the source run."
+        required: true
+        default: "criticalFlow"
+        type: string
+
 permissions:
   contents: read
   actions: read
 
 jobs:
+  validate-request:
+    name: Validate trusted ref
+    runs-on: ubuntu-latest
+    outputs:
+      sourceRunId: ${{ steps.validate_source_run.outputs.sourceRunId }}
+      sourceRepository: ${{ steps.validate_source_run.outputs.sourceRepository }}
+      sourceWorkflowFile: ${{ steps.validate_source_run.outputs.sourceWorkflowFile }}
+      sourceHeadSha: ${{ steps.validate_source_run.outputs.sourceHeadSha }}
+      sourceHeadBranch: ${{ steps.validate_source_run.outputs.sourceHeadBranch }}
+    steps:
+      - name: Reject untrusted manual refs
+        shell: bash
+        env:
+          ACTUAL_REF: ${{ github.ref }}
+          TRUSTED_REF: refs/heads/${{ github.event.repository.default_branch }}
+        run: |
+          if [[ "${ACTUAL_REF}" != "${TRUSTED_REF}" ]]; then
+            echo "ERROR: Secret-bearing Android E2E runs are restricted to ${TRUSTED_REF}."
+            exit 1
+          fi
+
+      - name: Checkout trusted validation code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Validate selected GitHub Actions run
+        id: validate_source_run
+        env:
+          SOURCE_RUN_ID: ${{ inputs.sourceRunId }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/qa_android_ui_tests/validate_source_run.py
+
   run-manual-deflake:
     name: Run manual deflake
+    needs: validate-request
+    # Configure this environment with required reviewers and a deployment-branch
+    # rule limited to the default branch. Move the E2E secrets into it so a
+    # modified workflow on another ref cannot bypass this trust boundary.
+    environment: android-e2e
     runs-on:
       - self-hosted
       - Linux
@@ -42,6 +88,7 @@ jobs:
       AWS_REGION: eu-west-1
       OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
 
     defaults:
       run:
@@ -51,20 +98,22 @@ jobs:
       # Mirror qa-android-critical-flow-tests.yml runner setup so manual
       # deflake executes in the same QA office runner environment.
       - name: Checkout (with submodules)
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           clean: true
+          ref: ${{ github.event.repository.default_branch }}
           submodules: recursive
+          persist-credentials: false
 
       - name: Set up Java 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
           distribution: temurin
           java-version: "21"
           cache: gradle
 
       - name: Set up Android SDK (ANDROID_HOME + adb)
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
 
       - name: Ensure required tools exist
         run: bash scripts/qa_android_ui_tests/execution_setup.sh ensure-required-tools
@@ -72,7 +121,7 @@ jobs:
       # Download the standard deflake artifact exported by
       # qa-android-critical-flow-tests.yml or a previous manual deflake run.
       - name: Download deflake input artifact
-        uses: dawidd6/action-download-artifact@v21
+        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
           run_id: ${{ inputs.sourceRunId }}
           name: android-ui-test-deflake-input
@@ -85,7 +134,38 @@ jobs:
         env:
           DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
           TESTINY_RUN_NAME_OVERRIDE: ${{ inputs.testinyRunName }}
+          EXPECTED_SOURCE_REPOSITORY: ${{ needs.validate-request.outputs.sourceRepository }}
+          EXPECTED_SOURCE_RUN_ID: ${{ needs.validate-request.outputs.sourceRunId }}
+          EXPECTED_SOURCE_SHA: ${{ needs.validate-request.outputs.sourceHeadSha }}
+          EXPECTED_SOURCE_WORKFLOW_FILE: ${{ needs.validate-request.outputs.sourceWorkflowFile }}
+          EXPECTED_SOURCE_REF_NAME: ${{ needs.validate-request.outputs.sourceHeadBranch }}
         run: python3 scripts/qa_android_ui_tests/inspect_deflake_bundle.py
+
+      - name: Checkout source run test revision
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ steps.validate_deflake_input.outputs.testSourceSha }}
+          path: source-run
+          sparse-checkout: |
+            tests/testsCore/src
+            tests/testsSupport/src
+          persist-credentials: false
+
+      - name: Apply source run test revision
+        run: |
+          command -v rsync >/dev/null 2>&1 || { echo "ERROR: rsync is required"; exit 1; }
+          rsync --archive --delete source-run/tests/testsCore/src/ tests/testsCore/src/
+          rsync --archive --delete source-run/tests/testsSupport/src/ tests/testsSupport/src/
+
+      - name: Validate source device group
+        env:
+          SOURCE_DEVICE_GROUP: ${{ steps.validate_deflake_input.outputs.androidDeviceGroup }}
+          REQUESTED_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+        run: |
+          if [[ -n "${SOURCE_DEVICE_GROUP}" && "${SOURCE_DEVICE_GROUP}" != "${REQUESTED_DEVICE_GROUP}" ]]; then
+            echo "ERROR: Source run used device group '${SOURCE_DEVICE_GROUP}', but this deflake requested '${REQUESTED_DEVICE_GROUP}'."
+            exit 1
+          fi
 
       # Reuse the same input validators here so malformed selected-run metadata fails
       # before the runner spends time on APK, device, or report setup.
@@ -109,7 +189,7 @@ jobs:
         run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-flavor
 
       - name: Configure AWS credentials (for S3)
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@517a711dbcd0e402f90c77e7e2f81e849156e31d # v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -129,6 +209,7 @@ jobs:
       - name: Detect target device(s)
         env:
           TARGET_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
           RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
 
@@ -142,7 +223,7 @@ jobs:
         run: bash scripts/qa_android_ui_tests/execution_setup.sh install-apks-on-devices
 
       - name: Install 1Password CLI
-        uses: 1password/install-cli-action@a138a5b7fd0a1df9a016e73c87d2ada1694846b1 # v4
+        uses: 1password/install-cli-action@a5215d3a7f75c1629216c465ea9ab3ab399c4b71 # v4
 
       - name: Fetch secrets.json (runtime only)
         env:
@@ -234,6 +315,7 @@ jobs:
           SOURCE_REF: ${{ github.ref }}
           SOURCE_REF_NAME: ${{ github.ref_name }}
           SOURCE_SHA: ${{ github.sha }}
+          TEST_SOURCE_SHA: ${{ steps.validate_deflake_input.outputs.testSourceSha }}
           FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
           TAGS_INPUT: ${{ steps.validate_deflake_input.outputs.tags }}
           RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
@@ -244,13 +326,14 @@ jobs:
           ENFORCE_APP_INSTALL: ${{ steps.validate_deflake_input.outputs.enforceAppInstall }}
           TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          ANDROID_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
           RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
         run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle
 
       - name: Upload deflake input artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: android-ui-test-deflake-input
           path: ${{ runner.temp }}/deflake-input-next
@@ -287,7 +370,7 @@ jobs:
 
       - name: Checkout GitHub Pages branch
         if: always()
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           ref: gh-pages
           path: gh-pages

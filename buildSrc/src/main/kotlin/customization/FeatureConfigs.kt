@@ -162,4 +162,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     BLOCK_CROSS_BACKEND_LOGIN("block_cross_backend_login", ConfigType.BOOLEAN),
 
     PENDING_MESSAGES("pending_messages", ConfigType.BOOLEAN),
+
+    LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
 }

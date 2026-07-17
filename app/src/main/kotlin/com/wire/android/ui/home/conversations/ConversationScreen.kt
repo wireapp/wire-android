@@ -132,6 +132,7 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
@@ -205,6 +206,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -337,6 +340,28 @@ fun ConversationScreen(
         }
     }
 
+    LaunchedEffect(
+        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState,
+        messageAttachmentsViewModel.attachments,
+    ) {
+        if (messageAttachmentsViewModel.attachments.isNotEmpty()) {
+            sendMessageViewModel.clearLinkPreview()
+            return@LaunchedEffect
+        }
+
+        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState
+            .textAsFlow()
+            .distinctUntilChanged()
+            .collectLatest { text ->
+                sendMessageViewModel.updateLinkPreview(
+                    text = text.toString(),
+                    mentions = messageComposerStateHolder.messageComposition.value.selectedMentions.map {
+                        it.intoMessageMention()
+                    }
+                )
+            }
+    }
+
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
         navigator.navigate(
             NavigationCommand(
@@ -420,7 +445,9 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = { sendMessageViewModel.trySendMessage(it) },
+        onSendMessage = {
+            sendMessageViewModel.trySendMessage(it.withPrefetchedLinkPreview(sendMessageViewModel.currentLinkPreview))
+        },
         onPingOptionClicked = {
             if (conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
                 showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION
@@ -758,6 +785,15 @@ fun ConversationScreen(
                 )
             }
         }
+    }
+}
+
+private fun MessageBundle.withPrefetchedLinkPreview(
+    linkPreview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview?
+): MessageBundle {
+    return when (this) {
+        is ComposableMessageBundle.SendTextMessageBundle -> copy(prefetchedLinkPreview = linkPreview)
+        else -> this
     }
 }
 

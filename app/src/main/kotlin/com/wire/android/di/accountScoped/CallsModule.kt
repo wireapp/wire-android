@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnable
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveInCallReactionsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveLastActiveCallWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
@@ -82,6 +83,10 @@ class CallsModule {
     @Provides
     fun provideObserveOngoingCallsUseCase(callsScope: CallsScope): ObserveOngoingCallsUseCase =
         callsScope.observeOngoingCalls
+
+    @Provides
+    fun provideObserveJoinableCallsUseCase(callsScope: CallsScope): ObserveJoinableCallsUseCase =
+        callsScope.observeJoinableCalls
 
     @Provides
     fun provideObserveEstablishedCallWithSortedParticipantsUseCase(

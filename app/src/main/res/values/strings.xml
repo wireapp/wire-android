@@ -1861,8 +1861,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
     <string name="reaction_sender_self">You</string>
     <string name="emoji_picker_select_reaction">Select Reaction</string>
-    <string name="content_description_add_this_reaction">Double tap to add this reaction</string>
-    <string name="content_description_remove_your_reaction">Double tap to remove reaction</string>
     <string name="label_user_database_profile">Database Logger</string>
 
     <!-- Move to Folder -->

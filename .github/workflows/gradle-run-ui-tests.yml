@@ -15,7 +15,7 @@ jobs:
     runs-on: warp-ubuntu-latest-x64-8x
     strategy:
       matrix:
-        api-level: [ 29 ]
+        api-level: [ 31 ]
 
     steps:
       - name: Checkout

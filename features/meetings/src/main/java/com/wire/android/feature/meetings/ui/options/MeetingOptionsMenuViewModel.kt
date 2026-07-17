@@ -29,11 +29,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import java.util.concurrent.ConcurrentHashMap
 
 interface MeetingOptionsMenuViewModel {
     fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState>
@@ -51,30 +51,38 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
 class MeetingOptionsMenuViewModelImpl(
     private val observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase,
 ) : MeetingOptionsMenuViewModel, ViewModel() {
-    private val stateFlow: ConcurrentHashMap<String, StateFlow<MeetingOptionsMenuState>> = ConcurrentHashMap()
-    override fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState> = stateFlow.getOrPut(occurrenceId) {
-        flowOf(occurrenceId)
-            .flatMapConcat { occurrenceId ->
-                observeMeetingOccurrenceUseCase.invoke(occurrenceId).map {
-                    when {
-                        it != null -> MeetingOptionsMenuState.Meeting(
-                            title = it.title,
-                            selfRole = it.selfRole.toItemSelfRole(),
-                            deleteOption = when (it.selfRole) {
-                                MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
-                                MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.ForMe
-                            },
-                        )
-                        else -> MeetingOptionsMenuState.NotAvailable
+    private val currentIdFlow = MutableStateFlow<String?>(null)
+    private val stateFlow: StateFlow<MeetingOptionsMenuState> = currentIdFlow
+        .flatMapLatest { occurrenceId ->
+            occurrenceId?.let {
+                observeMeetingOccurrenceUseCase.invoke(occurrenceId)
+                    .map {
+                        when {
+                            it != null -> MeetingOptionsMenuState.Meeting(
+                                title = it.title,
+                                selfRole = it.selfRole.toItemSelfRole(),
+                                deleteOption = when (it.selfRole) {
+                                    MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
+                                    MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.ForMe
+                                },
+                            )
+
+                            else -> MeetingOptionsMenuState.NotAvailable
+                        }
                     }
-                }
-            }
-            .distinctUntilChanged()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L),
-                initialValue = MeetingOptionsMenuState.Loading,
-            )
+                    .onStart { emit(MeetingOptionsMenuState.Loading) }
+            } ?: flowOf(MeetingOptionsMenuState.Loading)
+        }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L, replayExpirationMillis = 0L),
+            initialValue = MeetingOptionsMenuState.Loading,
+        )
+
+    override fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState> {
+        currentIdFlow.value = occurrenceId
+        return stateFlow
     }
 }
 

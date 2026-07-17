@@ -52,13 +52,17 @@ class MessageNotificationManager
     private val context: Context,
     private val notificationManagerCompat: NotificationManagerCompat,
     private val notificationManager: NotificationManager,
-    private val lockCodeTimeManager: LockCodeTimeManager
+    private val lockCodeTimeManager: LockCodeTimeManager,
+    private val notificationPrivacyMapper: NotificationPrivacyMapper
 ) {
     suspend fun handleNotification(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
         if (newNotifications.isEmpty()) return
 
-        addNotifications(newNotifications, userId, userName)
-        updateNotifications(newNotifications, userId)
+        // Capture the privacy snapshot once per batch; the per-notification code path is not suspend.
+        val privacySnapshot = notificationPrivacyMapper.snapshot(userId)
+
+        addNotifications(newNotifications, userId, userName, privacySnapshot)
+        updateNotifications(newNotifications, userId, privacySnapshot)
         removeSeenNotifications(newNotifications, userId)
 
         // This delay is required to let notification manager update activeNotifications list
@@ -67,14 +71,19 @@ class MessageNotificationManager
         appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
     }
 
-    private fun addNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
+    private fun addNotifications(
+        newNotifications: List<LocalNotification>,
+        userId: QualifiedID,
+        userName: String,
+        privacySnapshot: NotificationPrivacyMapper.Snapshot
+    ) {
         val notificationsToAdd: List<LocalNotification.Conversation> = newNotifications
             .filterIsInstance(LocalNotification.Conversation::class.java)
 
         val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: arrayOf()
 
         notificationsToAdd.forEach {
-            showConversationNotification(it, userId, activeNotifications)
+            showConversationNotification(it, userId, activeNotifications, privacySnapshot)
         }
 
         showSummaryIfNeeded(userId, activeNotifications, userName)
@@ -82,13 +91,22 @@ class MessageNotificationManager
         appLogger.i("$TAG: added notifications: newNotifications size ${notificationsToAdd.size}; ")
     }
 
-    private fun updateNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID) {
+    private fun updateNotifications(
+        newNotifications: List<LocalNotification>,
+        userId: QualifiedID,
+        privacySnapshot: NotificationPrivacyMapper.Snapshot
+    ) {
         val notificationsToUpdate: List<LocalNotification.UpdateMessage> = newNotifications
             .filterIsInstance(LocalNotification.UpdateMessage::class.java)
 
         val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: return
 
         notificationsToUpdate.groupBy { it.conversationId }.forEach { (conversationId, updateMessages) ->
+            // Suppress edit/delete propagation for redacted conversations — applying an edit would reveal
+            // the (real) updated text in the tray. The existing redacted placeholder is left untouched.
+            if (notificationPrivacyMapper.isRedacted(conversationId.toString(), privacySnapshot)) {
+                return@forEach
+            }
             updateConversationNotification(conversationId, updateMessages, userId, activeNotifications)
         }
 
@@ -147,9 +165,13 @@ class MessageNotificationManager
     private fun showConversationNotification(
         localConversation: LocalNotification.Conversation,
         userId: QualifiedID,
-        activeNotifications: Array<StatusBarNotification>
+        activeNotifications: Array<StatusBarNotification>,
+        privacySnapshot: NotificationPrivacyMapper.Snapshot
     ) {
-        val conversation = localConversation.intoNotificationConversation()
+        val conversation = notificationPrivacyMapper.redact(
+            localConversation.intoNotificationConversation(),
+            privacySnapshot
+        )
         val notificationId = getConversationNotificationId(conversation.id, userId.toString())
         getConversationNotification(conversation, userId, activeNotifications)?.let { notification ->
             appLogger.i("$TAG adding ConversationNotification")

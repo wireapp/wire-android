@@ -115,8 +115,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.conversationCallViewModel
+import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.PageLoadingIndicator
@@ -892,6 +892,9 @@ fun ConversationScreen(
             }
         }
     }
+
+    // Privacy lock/blur overlay for Sensitive / Highly-Sensitive conversations (and Panic Mode).
+    com.wire.android.ui.home.conversations.privacy.ConversationLockGate(onBack = navigator::navigateBack)
 }
 
 private fun conversationScreenOnBackButtonClick(

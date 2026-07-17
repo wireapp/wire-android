@@ -119,6 +119,10 @@ fun backupAndRestoreViewModel(): BackupAndRestoreViewModel =
     settingsViewModel()
 
 @Composable
+fun conversationPrivacyViewModel(): com.wire.android.ui.home.conversations.privacy.ConversationPrivacyViewModel =
+    settingsSavedStateViewModel { conversationPrivacyViewModel(it) }
+
+@Composable
 fun setLockScreenViewModel(): SetLockScreenViewModel =
     settingsViewModel()
 

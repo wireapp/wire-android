@@ -24,6 +24,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.wire.android.BuildConfig
@@ -58,6 +59,13 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
         private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
         private val PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM = booleanPreferencesKey("persistent_websocket_enforced_by_mdm")
+
+        // Conversation privacy / Panic Mode (all local, device-level, never synced)
+        private val PANIC_MODE_ACTIVE = booleanPreferencesKey("panic_mode_active")
+        private val PANIC_MODE_EXPIRES_AT = longPreferencesKey("panic_mode_expires_at")
+        private val PANIC_DEFAULT_DURATION = stringPreferencesKey("panic_default_duration")
+        private val CHAT_PIN = stringPreferencesKey("chat_pin")
+        private val HIDE_NOTIFICATION_CONTENT_PRIVATE = booleanPreferencesKey("hide_notification_content_private")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -214,4 +222,67 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setPersistentWebSocketEnforcedByMDM(enforced: Boolean) {
         context.dataStore.edit { it[PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM] = enforced }
     }
+
+    // region Panic Mode (global, device-level)
+
+    fun isPanicModeActive(): Flow<Boolean> = getBooleanPreference(PANIC_MODE_ACTIVE, false)
+
+    fun panicModeExpiresAt(): Flow<Long?> = context.dataStore.data.map { it[PANIC_MODE_EXPIRES_AT] }
+
+    suspend fun setPanicMode(active: Boolean, expiresAtEpochMs: Long?) {
+        context.dataStore.edit {
+            it[PANIC_MODE_ACTIVE] = active
+            if (expiresAtEpochMs != null) it[PANIC_MODE_EXPIRES_AT] = expiresAtEpochMs else it.remove(PANIC_MODE_EXPIRES_AT)
+        }
+    }
+
+    /** Stored as the [com.wire.android.feature.privacy.model.PanicDuration] enum name. */
+    fun panicDefaultDuration(): Flow<String?> = context.dataStore.data.map { it[PANIC_DEFAULT_DURATION] }
+
+    suspend fun setPanicDefaultDuration(durationName: String) {
+        context.dataStore.edit { it[PANIC_DEFAULT_DURATION] = durationName }
+    }
+
+    fun hideNotificationContentForPrivateChats(): Flow<Boolean> =
+        getBooleanPreference(HIDE_NOTIFICATION_CONTENT_PRIVATE, false)
+
+    suspend fun setHideNotificationContentForPrivateChats(enabled: Boolean) {
+        context.dataStore.edit { it[HIDE_NOTIFICATION_CONTENT_PRIVATE] = enabled }
+    }
+
+    // endregion
+
+    // region Chat PIN (fallback authentication for highly-sensitive conversations)
+
+    /** Whether a Chat PIN is set, without decoding it. */
+    fun isChatPinSetFlow(): Flow<Boolean> = context.dataStore.data.map { it.contains(CHAT_PIN) }
+
+    /** Returns the decoded (still hashed) Chat PIN, or null if unset/undecodable. */
+    @Suppress("TooGenericExceptionCaught")
+    fun getChatPinHashFlow(): Flow<String?> = context.dataStore.data.map {
+        it[CHAT_PIN]?.let { stored ->
+            try {
+                EncryptionManager.decrypt(CHAT_PIN.name, stored)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    suspend fun setChatPin(pin: String) {
+        context.dataStore.edit {
+            try {
+                it[CHAT_PIN] = EncryptionManager.encrypt(CHAT_PIN.name, pin.sha256())
+            } catch (e: Exception) {
+                it.remove(CHAT_PIN)
+            }
+        }
+    }
+
+    suspend fun clearChatPin() {
+        context.dataStore.edit { it.remove(CHAT_PIN) }
+    }
+
+    // endregion
 }

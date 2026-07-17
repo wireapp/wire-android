@@ -56,6 +56,10 @@ fun PrivacySettingsConfigScreen(
             screenshotCensoringConfig = state.screenshotCensoringConfig,
             setScreenshotCensoringConfig = ::setScreenshotCensoringConfig,
             setAnonymousUsageDataEnabled = ::setAnonymousUsageDataEnabled,
+            isPanicModeActive = state.isPanicModeActive,
+            setPanicMode = ::setPanicMode,
+            hideNotificationContentForPrivateChats = state.hideNotificationContentForPrivateChats,
+            setHideNotificationContentForPrivateChats = ::setHideNotificationContentForPrivateChats,
             onBackPressed = navigator::navigateBack,
         )
     }
@@ -72,6 +76,10 @@ fun PrivacySettingsScreenContent(
     screenshotCensoringConfig: ScreenshotCensoringConfig,
     setScreenshotCensoringConfig: (Boolean) -> Unit,
     setAnonymousUsageDataEnabled: (Boolean) -> Unit,
+    isPanicModeActive: Boolean,
+    setPanicMode: (Boolean) -> Unit,
+    hideNotificationContentForPrivateChats: Boolean,
+    setHideNotificationContentForPrivateChats: (Boolean) -> Unit,
     onBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -133,6 +141,22 @@ fun PrivacySettingsScreenContent(
                 arrowType = ArrowType.NONE,
                 subtitle = stringResource(id = R.string.settings_show_typing_indicator_description)
             )
+            WireDivider(color = colorsScheme().divider)
+            GroupConversationOptionsItem(
+                title = stringResource(R.string.panic_mode_title),
+                switchState = SwitchState.Enabled(value = isPanicModeActive, onCheckedChange = setPanicMode),
+                arrowType = ArrowType.NONE,
+                subtitle = stringResource(id = R.string.panic_mode_description)
+            )
+            WireDivider(color = colorsScheme().divider)
+            GroupConversationOptionsItem(
+                title = stringResource(R.string.panic_mode_hide_notifications_title),
+                switchState = SwitchState.Enabled(
+                    value = hideNotificationContentForPrivateChats,
+                    onCheckedChange = setHideNotificationContentForPrivateChats
+                ),
+                arrowType = ArrowType.NONE,
+            )
         }
     }
 }
@@ -150,6 +174,10 @@ fun PreviewSendReadReceipts() = WireTheme {
         screenshotCensoringConfig = ScreenshotCensoringConfig.DISABLED,
         setScreenshotCensoringConfig = {},
         setAnonymousUsageDataEnabled = {},
+        isPanicModeActive = false,
+        setPanicMode = {},
+        hideNotificationContentForPrivateChats = false,
+        setHideNotificationContentForPrivateChats = {},
         onBackPressed = {},
     )
 }

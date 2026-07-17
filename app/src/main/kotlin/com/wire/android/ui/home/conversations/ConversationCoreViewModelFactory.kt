@@ -199,7 +199,16 @@ class ConversationCoreViewModelFactory @Inject constructor(
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     private val networkStateObserver: NetworkStateObserver,
     @CurrentAccount private val selfUserId: UserId,
+    private val secureSessionManager: com.wire.android.feature.privacy.session.SecureSessionManager,
+    private val conversationAuthenticator: com.wire.android.feature.privacy.auth.ConversationAuthenticator,
 ) {
+    fun conversationPrivacyGateViewModel(savedStateHandle: SavedStateHandle) =
+        com.wire.android.ui.home.conversations.privacy.ConversationPrivacyGateViewModel(
+            savedStateHandle = savedStateHandle,
+            secureSessionManager = secureSessionManager,
+            authenticator = conversationAuthenticator,
+        )
+
     fun conversationMessagesViewModel(savedStateHandle: SavedStateHandle) = ConversationMessagesViewModel(
         savedStateHandle = savedStateHandle,
         observeConversationDetails = observeConversationDetails,

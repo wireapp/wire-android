@@ -18,11 +18,23 @@
 
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.theme.wireTypography
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +49,8 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ConversationPrivacyScreenDestination
+import com.wire.android.ui.home.conversations.privacy.ConversationPrivacyNavArgs
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
@@ -67,6 +81,7 @@ import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogS
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
 import com.wire.android.ui.home.conversationListViewModel
 import com.wire.android.ui.home.conversationslist.common.ConversationList
+import com.wire.android.ui.home.conversationslist.common.LocalConversationEffectivePrivacy
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
@@ -174,9 +189,14 @@ fun ConversationsScreenContent(
     }
     val isSelfUserUnderLegalHold by conversationListViewModel.isSelfUserUnderLegalHold.collectAsStateWithLifecycle(false)
     val playingAudio by conversationListViewModel.playingAudio.collectAsStateWithLifecycle(null)
+    val effectivePrivacy by conversationListViewModel.effectivePrivacy.collectAsStateWithLifecycle(emptyMap())
+    val panicModeActive by conversationListViewModel.panicModeActive.collectAsStateWithLifecycle(false)
     val searchQuery = searchBarState.searchQueryTextState.text.toString()
 
-    Box(modifier = modifier) {
+    CompositionLocalProvider(LocalConversationEffectivePrivacy provides effectivePrivacy) {
+    Column(modifier = modifier) {
+    PanicModeBanner(visible = panicModeActive)
+    Box(modifier = Modifier.weight(1f)) {
         when (val state = conversationListViewModel.conversationListState) {
             is ConversationListState.Paginated -> {
                 val lazyPagingItems = state.conversations.collectAsLazyPagingItemsWithLifecycle()
@@ -258,6 +278,8 @@ fun ConversationsScreenContent(
             }
         }
     }
+    }
+    }
 
     VisibilityState(conversationListCallViewModel.joinCallDialogState) { callConversationId ->
         appLogger.i("$TAG showing showJoinAnywayDialog..")
@@ -275,6 +297,9 @@ fun ConversationsScreenContent(
     ConversationOptionsModalSheetLayout(
         sheetState = sheetState,
         openConversationFolders = { navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it))) },
+        openConversationPrivacy = {
+            navigator.navigate(NavigationCommand(ConversationPrivacyScreenDestination(ConversationPrivacyNavArgs(it))))
+        },
         onPromoteAdmin = { navigator.navigate(NavigationCommand(PromoteAdminScreenDestination(PromoteAdminNavArgs(it)))) },
         openConversationDebugMenu = { conversationId ->
             navigator.navigate(
@@ -299,6 +324,21 @@ private fun LazyPagingItems<ConversationItemType>.isLoading(): Boolean {
         initialLoadCompleted = true
     }
     return !initialLoadCompleted && loadState.refresh == LoadState.Loading && itemCount == 0
+}
+
+@Composable
+private fun PanicModeBanner(visible: Boolean) {
+    if (!visible) return
+    Text(
+        text = stringResource(R.string.panic_mode_active_indicator),
+        style = MaterialTheme.wireTypography.body02,
+        color = colorsScheme().onError,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorsScheme().error)
+            .padding(dimensions().spacing8x),
+    )
 }
 
 private const val TAG = "BaseConversationsScreen"

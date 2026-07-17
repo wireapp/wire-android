@@ -113,6 +113,10 @@ fun conversationInfoViewModel(): ConversationInfoViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun conversationPrivacyGateViewModel(): com.wire.android.ui.home.conversations.privacy.ConversationPrivacyGateViewModel =
+    conversationSavedStateViewModel { this.conversationPrivacyGateViewModel(it) }
+
+@Composable
 fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =
     sessionKeyedAssistedMetroViewModel<MultipartAttachmentsViewModelImpl, ConversationCoreManualViewModelFactory>(
         key = conversationId.value,

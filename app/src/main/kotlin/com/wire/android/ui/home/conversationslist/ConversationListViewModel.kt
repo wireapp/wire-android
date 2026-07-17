@@ -29,6 +29,8 @@ import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.wire.android.BuildConfig
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.privacy.data.ConversationPrivacyRepository
+import com.wire.android.feature.privacy.model.EffectivePrivacyLevel
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
 import com.wire.android.media.audiomessage.AudioMediaPlayingState
@@ -58,6 +60,7 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.Flow
@@ -65,6 +68,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -83,6 +88,8 @@ interface ConversationListViewModel {
     val isSelfUserUnderLegalHold: Flow<Boolean> get() = emptyFlow()
     val playingAudio: Flow<PlayingAudioInConversation?> get() = emptyFlow()
     val conversationListState: ConversationListState get() = ConversationListState.Paginated(emptyFlow())
+    val effectivePrivacy: Flow<Map<ConversationId, EffectivePrivacyLevel>> get() = emptyFlow()
+    val panicModeActive: Flow<Boolean> get() = emptyFlow()
     suspend fun refreshMissingMetadata() {}
     fun searchQueryChanged(searchQuery: String) {}
     fun playPauseCurrentAudio() {}
@@ -111,7 +118,18 @@ class ConversationListViewModelImpl(
     private val userTypeMapper: UserTypeMapper,
     private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
+    private val conversationPrivacyRepository: ConversationPrivacyRepository,
 ) : ConversationListViewModel, ViewModel() {
+
+    override val effectivePrivacy: StateFlow<Map<ConversationId, EffectivePrivacyLevel>> =
+        conversationPrivacyRepository.observeEffectiveAll()
+            .flowOn(dispatcher.io())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyMap())
+
+    override val panicModeActive: StateFlow<Boolean> =
+        conversationPrivacyRepository.observePanicMode()
+            .flowOn(dispatcher.io())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     override val infoMessage = _infoMessage.asSharedFlow()

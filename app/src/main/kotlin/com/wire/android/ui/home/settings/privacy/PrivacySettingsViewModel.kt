@@ -22,8 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.datastore.UserDataStore
+import com.wire.android.feature.privacy.model.PanicDuration
+import com.wire.android.feature.privacy.panic.PanicModeManager
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
@@ -54,8 +58,10 @@ class PrivacySettingsViewModel @Inject constructor(
     private val observeTypingIndicatorEnabled: ObserveTypingIndicatorEnabledUseCase,
     private val analyticsEnabled: AnalyticsConfiguration,
     private val selfServerConfig: SelfServerConfigUseCase,
-    userDataStoreProvider: UserDataStoreProvider,
+    private val dataStore: UserDataStore,
     @CurrentAccount selfUserId: UserId,
+    private val panicModeManager: PanicModeManager,
+    private val globalDataStore: GlobalDataStore,
 ) : ViewModel() {
     private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
 
@@ -70,7 +76,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 observeScreenshotCensoringConfig(),
                 dataStore.isAnonymousUsageDataEnabled()
             ) { readReceiptsEnabled, typingIndicatorEnabled, screenshotCensoringConfig, anonymousUsageDataEnabled ->
-                PrivacySettingsState(
+                state.copy(
                     isAnalyticsUsageEnabled = anonymousUsageDataEnabled,
                     shouldShowAnalyticsUsage = shouldShowAnalyticsUsage,
                     areReadReceiptsEnabled = readReceiptsEnabled,
@@ -86,6 +92,35 @@ class PrivacySettingsViewModel @Inject constructor(
                 )
             }.collect { state = it }
         }
+        viewModelScope.launch {
+            combine(
+                panicModeManager.state,
+                globalDataStore.panicDefaultDuration(),
+                globalDataStore.hideNotificationContentForPrivateChats(),
+            ) { panic, defaultDurationName, hideNotificationContent ->
+                Triple(panic.isActive, PanicDuration.fromNameOrDefault(defaultDurationName), hideNotificationContent)
+            }.collect { (isActive, defaultDuration, hideNotificationContent) ->
+                state = state.copy(
+                    isPanicModeActive = isActive,
+                    panicDefaultDuration = defaultDuration,
+                    hideNotificationContentForPrivateChats = hideNotificationContent,
+                )
+            }
+        }
+    }
+
+    fun setPanicMode(enabled: Boolean) {
+        viewModelScope.launch {
+            if (enabled) panicModeManager.activate(state.panicDefaultDuration) else panicModeManager.deactivate()
+        }
+    }
+
+    fun setPanicDefaultDuration(duration: PanicDuration) {
+        viewModelScope.launch { globalDataStore.setPanicDefaultDuration(duration.name) }
+    }
+
+    fun setHideNotificationContentForPrivateChats(enabled: Boolean) {
+        viewModelScope.launch { globalDataStore.setHideNotificationContentForPrivateChats(enabled) }
     }
     private suspend fun shouldShowAnalyticsUsage(): Boolean {
         // TODO(Analytics): To be changed with UseCase

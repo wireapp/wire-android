@@ -89,6 +89,8 @@ fun ConversationItemFactory(
     isSelfUserUnderLegalHold: Boolean = false,
     playingAudio: PlayingAudioInConversation? = null
 ) {
+    val effectivePrivacy = LocalConversationEffectivePrivacy.current[conversation.conversationId]
+        ?: com.wire.android.feature.privacy.model.EffectivePrivacyLevel.NORMAL
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
     val openUserProfileDescription = stringResource(commonR.string.content_description_open_user_profile_label)
     val acceptOrIgnoreDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
@@ -128,10 +130,14 @@ fun ConversationItemFactory(
         conversation = conversation,
         isSelectable = isSelectableItem,
         isChecked = isChecked,
+        effectivePrivacy = effectivePrivacy,
         selectOnRadioGroup = onConversationSelectedOnRadioGroup,
         subTitle = {
             if (!isSelectableItem) {
-                when (val messageContent = conversation.lastMessageContent) {
+                if (effectivePrivacy.hidesPreviewInList) {
+                    // Sensitive/Highly-Sensitive: never show the message preview in the list.
+                    RedactedSubtitle()
+                } else when (val messageContent = conversation.lastMessageContent) {
                     is UILastMessageContent.TextMessage -> LastMessageSubtitle(
                         messageContent.messageBody.message,
                         messageContent.markdownPreview,
@@ -177,6 +183,8 @@ private fun GeneralConversationItem(
     onJoinCallClick: () -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit,
     showLegalHoldIndicator: Boolean,
+    effectivePrivacy: com.wire.android.feature.privacy.model.EffectivePrivacyLevel =
+        com.wire.android.feature.privacy.model.EffectivePrivacyLevel.NORMAL,
     modifier: Modifier = Modifier,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
@@ -209,11 +217,18 @@ private fun GeneralConversationItem(
                         }
                     },
                     title = {
-                        ConversationTitle(
-                            name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
-                            showLegalHoldIndicator = showLegalHoldIndicator,
-                            searchQuery = searchQuery
-                        )
+                        if (effectivePrivacy.hidesIdentityInList) {
+                            ConversationTitle(
+                                name = stringResource(id = R.string.privacy_hidden_conversation),
+                                searchQuery = searchQuery,
+                            )
+                        } else {
+                            ConversationTitle(
+                                name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
+                                showLegalHoldIndicator = showLegalHoldIndicator,
+                                searchQuery = searchQuery
+                            )
+                        }
                     },
                     subtitle = subTitle,
                     clickable = onConversationItemClick,
@@ -264,10 +279,17 @@ private fun GeneralConversationItem(
                         }
                     },
                     title = {
-                        UserLabel(
-                            userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
-                            searchQuery = searchQuery
-                        )
+                        if (effectivePrivacy.hidesIdentityInList) {
+                            ConversationTitle(
+                                name = stringResource(id = R.string.privacy_hidden_conversation),
+                                searchQuery = searchQuery,
+                            )
+                        } else {
+                            UserLabel(
+                                userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
+                                searchQuery = searchQuery
+                            )
+                        }
                     },
                     subtitle = subTitle,
                     clickable = onConversationItemClick,
@@ -306,10 +328,17 @@ private fun GeneralConversationItem(
                         }
                     },
                     title = {
-                        UserLabel(
-                            userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
-                            searchQuery = searchQuery
-                        )
+                        if (effectivePrivacy.hidesIdentityInList) {
+                            ConversationTitle(
+                                name = stringResource(id = R.string.privacy_hidden_conversation),
+                                searchQuery = searchQuery,
+                            )
+                        } else {
+                            UserLabel(
+                                userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
+                                searchQuery = searchQuery
+                            )
+                        }
                     },
                     subtitle = subTitle,
                     clickable = onConversationItemClick,
@@ -321,6 +350,14 @@ private fun GeneralConversationItem(
         }
     }
 }
+
+@Composable
+private fun RedactedSubtitle() {
+    // Dotted placeholder shown instead of the message preview for Sensitive/Highly-Sensitive chats.
+    LastMessageSubtitle(UIText.DynamicString(PRIVACY_REDACTED_DOTS))
+}
+
+private const val PRIVACY_REDACTED_DOTS = "••••••••••••••••"
 
 @Composable
 private fun ConversationLeadingAvatar(

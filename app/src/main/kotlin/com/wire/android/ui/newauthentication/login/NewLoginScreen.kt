@@ -204,11 +204,11 @@ private fun LoginContent(
     loginEmailSSOState: NewLoginScreenState,
     userIdentifierState: TextFieldState,
     serverConfig: ServerConfig.Links,
+    canNavigateBack: Boolean,
     onNextClicked: () -> Unit,
     onBackendConfigLinkEntered: (String) -> Unit,
     onBackendConfigSuccessContinue: () -> Unit,
     onNoBackendSelected: () -> Unit = {},
-    canNavigateBack: Boolean,
     navigateBack: () -> Unit,
 ) {
     val isBackendConfigSetup = loginEmailSSOState.flowState == NewLoginFlowState.MissingBackendConfig ||

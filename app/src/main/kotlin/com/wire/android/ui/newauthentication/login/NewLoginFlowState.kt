@@ -26,6 +26,10 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 sealed class NewLoginFlowState {
     data object Default : NewLoginFlowState()
     data object Loading : NewLoginFlowState()
+    data object MissingBackendConfig : NewLoginFlowState()
+    data object LoadingBackendConfig : NewLoginFlowState()
+    data object BackendConfigError : NewLoginFlowState()
+    data object BackendConfigSuccess : NewLoginFlowState()
     data class CustomConfigDialog(val serverLinks: ServerConfig.Links) : NewLoginFlowState()
     sealed class Error : NewLoginFlowState() {
         sealed class TextFieldError : Error() {

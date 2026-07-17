@@ -15,18 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.videoplayer
+package com.wire.android.mediaplayer
 
 import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
-import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,16 +34,18 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 
+/**
+ * Plays a single video from either a local file ([localPath]) or a remote URL ([contentUrl]).
+ *
+ * The screen arguments are passed in through assisted injection (see [MediaPlayerViewModelFactory])
+ * rather than read from a navigation destination, so the player can be reused from any module.
+ */
 class VideoPlayerViewModel(
-    @ApplicationContext context: Context,
-    savedStateHandle: SavedStateHandle,
+    context: Context,
+    val localPath: String?,
+    val contentUrl: String?,
+    val fileName: String?,
 ) : ViewModel() {
-
-    private val navArgs: VideoViewerNavArgs = VideoPlayerScreenDestination.argsFrom(savedStateHandle)
-
-    val localPath: String? = navArgs.localPath
-    val contentUrl: String? = navArgs.contentUrl
-    val fileName: String? = navArgs.fileName
 
     // Held in the ViewModel so playback survives configuration changes (e.g. rotating to full screen)
     // without re-buffering the media.

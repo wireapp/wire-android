@@ -15,26 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.videoplayer
+package com.wire.android.ui.home.conversations.videoplayer
 
 import androidx.compose.runtime.Composable
 import com.wire.android.mediaplayer.VideoPlayer
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
+import com.wire.android.navigation.Navigator
+import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 
 /**
- * Cells navigation entry point for the shared [VideoPlayer]. Reads the destination's [VideoViewerNavArgs]
- * and delegates rendering + playback to the reusable player in `core:media-player`.
+ * App navigation entry point for the shared [VideoPlayer]. Lets chat (and any app screen) play a
+ * downloaded video in-app instead of handing it off to an external application.
  */
-@WireCellsDestination(
+@WireRootDestination(
+    navArgs = VideoPlayerNavArgs::class,
     style = PopUpNavigationAnimation::class,
-    navArgs = VideoViewerNavArgs::class,
 )
 @Composable
 fun VideoPlayerScreen(
-    navigator: WireNavigator,
-    navArgs: VideoViewerNavArgs,
+    navigator: Navigator,
+    navArgs: VideoPlayerNavArgs,
 ) {
     VideoPlayer(
         localPath = navArgs.localPath,

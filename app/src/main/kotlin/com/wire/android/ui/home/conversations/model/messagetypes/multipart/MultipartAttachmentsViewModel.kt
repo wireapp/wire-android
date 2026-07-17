@@ -53,7 +53,11 @@ import okio.Path.Companion.toPath
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
-    fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
+    fun onClick(
+        attachment: MultipartAttachmentUi,
+        openInImageViewer: (String) -> Unit,
+        openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+    )
     fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
         val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
         return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
@@ -115,7 +119,11 @@ interface MultipartAttachmentsViewModel {
 @Suppress("EmptyFunctionBlock")
 object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override val offlineAttachmentIds: StateFlow<Set<String>> = MutableStateFlow(emptySet<String>())
-    override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {}
+    override fun onClick(
+        attachment: MultipartAttachmentUi,
+        openInImageViewer: (String) -> Unit,
+        openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+    ) {}
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
@@ -148,6 +156,7 @@ class MultipartAttachmentsViewModelImpl(
     override fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
+        openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
     ) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
@@ -157,6 +166,9 @@ class MultipartAttachmentsViewModelImpl(
             attachment.fileNotFound() -> {
                 refreshHelper.refresh(attachment.uuid)
             }
+
+            attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
+                openInVideoPlayer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -249,6 +261,8 @@ private fun MessageAttachment.mimeType() =
     }
 
 private fun MultipartAttachmentUi.isImage() = AttachmentFileType.fromMimeType(mimeType) == IMAGE
+
+private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
 
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {

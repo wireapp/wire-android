@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.config.ServerConfigProvider
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStoreProvider
@@ -45,6 +46,8 @@ import com.wire.kalium.logic.feature.backup.SetLastDeviceIdResult
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdUseCase
 import android.database.sqlite.SQLiteException
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
@@ -55,6 +58,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -668,6 +672,9 @@ class NewLoginViewModelTest {
         @MockK
         lateinit var setLastDeviceIdUseCase: SetLastDeviceIdUseCase
 
+        @MockK
+        lateinit var getServerConfigUseCase: GetServerConfigUseCase
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every {
@@ -866,6 +873,16 @@ class NewLoginViewModelTest {
             )
         }
 
+        fun withEmptyCustomServerConfig() = apply {
+            every {
+                savedStateHandle.navArgs<LoginNavArgs>()
+            } returns LoginNavArgs(
+                loginPasswordPath = LoginPasswordPath(
+                    customServerConfig = ServerConfigProvider.EmptyServerConfig
+                )
+            )
+        }
+
         fun withRestoreCryptoStateReturning(result: RestoreCryptoStateResult) = apply {
             every { coreLogic.getSessionScope(any()).backup.restoreCryptoState } returns restoreCryptoStateUseCase
             coEvery { restoreCryptoStateUseCase() } returns result
@@ -874,6 +891,10 @@ class NewLoginViewModelTest {
         fun withSetLastDeviceIdForNewClientSuccess() = apply {
             every { coreLogic.getSessionScope(any()).backup.setLastDeviceId } returns setLastDeviceIdUseCase
             coEvery { setLastDeviceIdUseCase(any()) } returns SetLastDeviceIdResult.Success
+        }
+
+        fun withGetServerConfigReturning(result: GetServerConfigResult) = apply {
+            coEvery { getServerConfigUseCase(any()) } returns result
         }
 
         fun withRevertSSOSessionSuccess() = apply {
@@ -892,6 +913,11 @@ class NewLoginViewModelTest {
         }
 
         private var defaultSSOCodeConfig: String = String.EMPTY
+        private var isDefaultBackendConfigured: Boolean = true
+
+        fun withDefaultBackendConfigured(configured: Boolean) = apply {
+            isDefaultBackendConfigured = configured
+        }
 
         fun arrange() = this to NewLoginViewModel(
             validateEmailOrSSOCodeUseCase,
@@ -903,7 +929,9 @@ class NewLoginViewModelTest {
             loginSSOViewModelExtension,
             dispatchers,
             ServerConfig.STAGING,
-            defaultSSOCodeConfig
+            defaultSSOCodeConfig,
+            isDefaultBackendConfigured,
+            lazy { getServerConfigUseCase },
         )
     }
 
@@ -920,6 +948,168 @@ class NewLoginViewModelTest {
 
             coVerify(exactly = 1) {
                 arrangement.loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            }
+        }
+
+    @Test
+    fun `given default backend is not configured, when initializing view model, then block login and do not fetch default SSO code`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withDefaultBackendConfigured(false)
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .arrange()
+
+            advanceUntilIdle()
+
+            assertEquals(NewLoginFlowState.MissingBackendConfig, viewModel.state.flowState)
+            assertEquals(false, viewModel.state.nextEnabled)
+            coVerify(exactly = 0) {
+                arrangement.loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            }
+        }
+
+    @Test
+    fun `given default backend is not configured, when login is started, then do not proceed to login flow`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withDefaultBackendConfigured(false)
+                .withUserIdentifierAlreadySet("user@example.com")
+                .arrange()
+
+            viewModel.onLoginStarted()
+            advanceUntilIdle()
+
+            assertEquals(NewLoginFlowState.MissingBackendConfig, viewModel.state.flowState)
+            verify(exactly = 0) {
+                arrangement.validateEmailOrSSOCodeUseCase(any())
+            }
+            coVerify(exactly = 0) {
+                arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
+            }
+        }
+
+    @Test
+    fun `given configured backend, when no backend is selected, then switch to missing backend config`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withUserIdentifierAlreadySet("user@example.com")
+                .arrange()
+
+            viewModel.onNoBackendSelected()
+            advanceUntilIdle()
+            viewModel.onLoginStarted()
+            advanceUntilIdle()
+
+            assertEquals(ServerConfigProvider.EmptyServerConfig, viewModel.serverConfig)
+            assertEquals(NewLoginFlowState.MissingBackendConfig, viewModel.state.flowState)
+            assertEquals(false, viewModel.state.nextEnabled)
+            verify(exactly = 0) {
+                arrangement.validateEmailOrSSOCodeUseCase(any())
+            }
+            coVerify(exactly = 0) {
+                arrangement.authenticationScope.getLoginFlowForDomainUseCase(any())
+            }
+        }
+
+    @Test
+    fun `given empty custom server config, when initializing view model, then block login and do not fetch default SSO code`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withEmptyCustomServerConfig()
+                .withDefaultSSOCodeConfig("default-sso-code")
+                .withFetchDefaultSSOCodeSuccess("default-sso-code")
+                .arrange()
+
+            advanceUntilIdle()
+
+            assertEquals(ServerConfigProvider.EmptyServerConfig, viewModel.serverConfig)
+            assertEquals(NewLoginFlowState.MissingBackendConfig, viewModel.state.flowState)
+            assertEquals(String.EMPTY, viewModel.userIdentifierTextState.text.toString())
+            coVerify(exactly = 0) {
+                arrangement.loginSSOViewModelExtension.fetchDefaultSSOCode(any(), any(), any(), any())
+            }
+        }
+
+    @Test
+    fun `given default backend is not configured, when raw config link is entered, then load backend config and show success`() =
+        runTest(dispatchers.main()) {
+            val configUrl = "https://example.com/deeplink.json"
+            val serverConfig = newServerConfig(1).links
+            val (arrangement, viewModel) = Arrangement()
+                .withDefaultBackendConfigured(false)
+                .withGetServerConfigReturning(GetServerConfigResult.Success(serverConfig))
+                .arrange()
+
+            viewModel.onBackendConfigLinkEntered(configUrl)
+            advanceUntilIdle()
+
+            assertEquals(serverConfig, viewModel.serverConfig)
+            assertEquals(NewLoginFlowState.BackendConfigSuccess, viewModel.state.flowState)
+            coVerify(exactly = 1) {
+                arrangement.getServerConfigUseCase(configUrl)
+            }
+        }
+
+    @Test
+    fun `given backend config was loaded, when success is continued and login starts, then proceed to login flow`() =
+        runTest(dispatchers.main()) {
+            val configUrl = "https://example.com/deeplink.json"
+            val serverConfig = newServerConfig(1).links
+            val (arrangement, viewModel) = Arrangement()
+                .withDefaultBackendConfigured(false)
+                .withUserIdentifierAlreadySet("user@example.com")
+                .withGetServerConfigReturning(GetServerConfigResult.Success(serverConfig))
+                .withEmailOrSSOCodeValidatorReturning(ValidateEmailOrSSOCodeUseCase.Result.ValidEmail)
+                .withAuthenticationScopeSuccess()
+                .withGetLoginFlowForDomainReturning(EnterpriseLoginResult.Success(LoginRedirectPath.Default))
+                .arrange()
+
+            viewModel.onBackendConfigLinkEntered(configUrl)
+            advanceUntilIdle()
+            viewModel.onBackendConfigSuccessContinue()
+            viewModel.onLoginStarted()
+            advanceUntilIdle()
+
+            assertEquals(serverConfig, viewModel.serverConfig)
+            coVerify(exactly = 1) {
+                arrangement.authenticationScope.getLoginFlowForDomainUseCase("user@example.com")
+            }
+        }
+
+    @Test
+    fun `given default backend is not configured, when mobile deeplink is entered, then load config url from deeplink`() =
+        runTest(dispatchers.main()) {
+            val configUrl = "https://example.com/deeplink.json"
+            val deepLink = "wire://access/?config=https%3A%2F%2Fexample.com%2Fdeeplink.json"
+            val serverConfig = newServerConfig(1).links
+            val (arrangement, viewModel) = Arrangement()
+                .withDefaultBackendConfigured(false)
+                .withGetServerConfigReturning(GetServerConfigResult.Success(serverConfig))
+                .arrange()
+
+            viewModel.onBackendConfigLinkEntered(deepLink)
+            advanceUntilIdle()
+
+            assertEquals(NewLoginFlowState.BackendConfigSuccess, viewModel.state.flowState)
+            coVerify(exactly = 1) {
+                arrangement.getServerConfigUseCase(configUrl)
+            }
+        }
+
+    @Test
+    fun `given default backend is not configured, when config loading fails, then show setup error`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement()
+                .withDefaultBackendConfigured(false)
+                .withGetServerConfigReturning(GetServerConfigResult.Failure.Generic(CoreFailure.Unknown(Throwable())))
+                .arrange()
+
+            viewModel.onBackendConfigLinkEntered("https://example.com/deeplink.json")
+            advanceUntilIdle()
+
+            assertEquals(NewLoginFlowState.BackendConfigError, viewModel.state.flowState)
+            coVerify(exactly = 1) {
+                arrangement.getServerConfigUseCase(any())
             }
         }
 

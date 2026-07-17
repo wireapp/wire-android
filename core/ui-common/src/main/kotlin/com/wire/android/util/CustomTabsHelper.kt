@@ -29,7 +29,19 @@ import com.wire.kalium.logger.KaliumLogLevel
 
 object CustomTabsHelper {
 
-    fun launchUrl(context: Context, url: String) = launchUri(context, Uri.parse(url))
+    private const val SUPPORT_PATH = "support"
+
+    @Volatile
+    private var backendWebsiteUrl: String? = null
+
+    fun setBackendWebsiteUrl(url: String?) {
+        backendWebsiteUrl = url?.takeIf { it.isNotBlank() }
+    }
+
+    fun launchUrl(context: Context, url: String) {
+        val resolvedUrl = resolveUrl(url) ?: return
+        launchUri(context, Uri.parse(resolvedUrl))
+    }
 
     @JvmStatic
     fun launchUri(context: Context, uri: Uri) {
@@ -45,6 +57,11 @@ object CustomTabsHelper {
             )
         }
     }
+
+    fun resolveUrl(url: String): String? =
+        url.ifBlank {
+            backendWebsiteUrl?.trimEnd('/')?.let { "$it/$SUPPORT_PATH" }
+        }
 
     fun buildCustomTabIntent(context: Context): CustomTabsIntent {
         val customTabsIntent = CustomTabsIntent.Builder()

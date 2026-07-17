@@ -23,17 +23,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.AssistedViewModelFactory
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -42,7 +37,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-
 @ViewModelScopedPreview
 interface AudioMessageViewModel {
     val state: AudioMessageState get() = AudioMessageState()
@@ -51,11 +45,10 @@ interface AudioMessageViewModel {
     fun changeAudioSpeed(audioSpeed: AudioSpeed) {}
 }
 
-@HiltViewModel(assistedFactory = AudioMessageViewModelImpl.Factory::class)
-class AudioMessageViewModelImpl @AssistedInject constructor(
+class AudioMessageViewModelImpl(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     private val observeMessageById: ObserveMessageByIdUseCase,
-    @Assisted private val args: AudioMessageArgs,
+    private val args: AudioMessageArgs,
 ) : ViewModel(), AudioMessageViewModel {
 
     override var state: AudioMessageState by mutableStateOf(AudioMessageState())
@@ -138,11 +131,6 @@ class AudioMessageViewModelImpl @AssistedInject constructor(
         viewModelScope.launch {
             audioMessagePlayer.setSpeed(audioSpeed)
         }
-    }
-
-    @AssistedFactory
-    interface Factory : AssistedViewModelFactory<AudioMessageViewModelImpl, AudioMessageArgs> {
-        override fun create(args: AudioMessageArgs): AudioMessageViewModelImpl
     }
 }
 

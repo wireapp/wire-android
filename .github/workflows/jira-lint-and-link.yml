@@ -17,9 +17,12 @@ jobs:
     steps:
       - name: Get version name from source
         id: version
+        env:
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
-          VERSION=$(curl -s https://raw.githubusercontent.com/${{ github.repository }}/${{ github.head_ref || github.ref_name }}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
-          echo "version_name=$VERSION" >> $GITHUB_OUTPUT
+          VERSION=$(curl -s "https://raw.githubusercontent.com/${REPO}/${BRANCH}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt" | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version_name=$VERSION" >> "$GITHUB_OUTPUT"
 
   add-jira-description:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
@@ -27,7 +30,7 @@ jobs:
     uses: wireapp/.github/.github/workflows/jira-link-pr-reusable.yml@b00595235816b9a935c7463b990fae39864903a5
     with:
       skip-branches: '^(production-release|main|master|release\/v\d+)$'
-      skip-actors: 'dependabot[bot],AndroidBob'
+      skip-actors: 'dependabot[bot],renovate[bot],AndroidBob'
       version-name: ${{ needs.get-version.outputs.version_name }}
       fix-version-regex: '(?:^|[\s\-_])(v?\d+\.\d+(?:\.\d+)?(?:[\-\+][\w\.\-]*)?)'
     secrets:

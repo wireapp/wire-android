@@ -29,14 +29,12 @@ import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.sha256
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@HiltViewModel
 class EnterLockScreenViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
     private val globalDataStore: GlobalDataStore,

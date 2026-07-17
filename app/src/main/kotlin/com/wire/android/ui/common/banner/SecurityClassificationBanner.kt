@@ -40,8 +40,12 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
+import com.wire.android.ui.common.R as commonR
+import com.wire.android.ui.common.securityClassificationViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
@@ -56,12 +60,9 @@ fun SecurityClassificationBannerForConversation(
     conversationId: ConversationId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        hiltViewModelScoped<
-                SecurityClassificationViewModelImpl,
-                SecurityClassificationViewModel,
-                SecurityClassificationArgs,
-                SecurityClassificationViewModelImpl.Factory
-                >(SecurityClassificationArgs.Conversation(conversationId))
+        securityClassificationViewModel(
+            SecurityClassificationArgs.Conversation(conversationId)
+        )
 ) {
     SecurityClassificationBanner(
         state = viewModel.state(),
@@ -74,12 +75,7 @@ fun SecurityClassificationBannerForUser(
     userId: UserId,
     modifier: Modifier = Modifier,
     viewModel: SecurityClassificationViewModel =
-        hiltViewModelScoped<
-                SecurityClassificationViewModelImpl,
-                SecurityClassificationViewModel,
-                SecurityClassificationArgs,
-                SecurityClassificationViewModelImpl.Factory
-                >(
+        securityClassificationViewModel(
             SecurityClassificationArgs.User(id = userId)
         )
 ) {
@@ -94,8 +90,12 @@ private fun SecurityClassificationBanner(
     state: SecurityClassificationType,
     modifier: Modifier = Modifier
 ) {
-    val state = if (LocalInspectionMode.current) (LocalPreviewSecurityClassificationBannerState.current ?: state) else state
+    val state = when {
+        LocalInspectionMode.current -> LocalPreviewSecurityClassificationBannerState.current ?: state
+        else -> state
+    }
     if (state != SecurityClassificationType.NONE) {
+        val text = getTextFor(state)
         Column(modifier = modifier) {
             HorizontalDivider(color = getDividerColorFor(state))
             Row(
@@ -105,6 +105,9 @@ private fun SecurityClassificationBanner(
                     .background(getBackgroundColorFor(state))
                     .height(dimensions().spacing24x)
                     .fillMaxWidth()
+                    .semantics {
+                        contentDescription = text
+                    }
             ) {
                 Icon(
                     painter = getIconFor(state),
@@ -113,9 +116,10 @@ private fun SecurityClassificationBanner(
                     modifier = Modifier.padding(end = dimensions().spacing8x)
                 )
                 Text(
-                    text = getTextFor(state),
+                    text = text,
                     color = getColorTextFor(state),
-                    style = MaterialTheme.wireTypography.label03
+                    style = MaterialTheme.wireTypography.label03,
+                    modifier = Modifier.clearAndSetSemantics { }
                 )
             }
             HorizontalDivider(color = getDividerColorFor(state))
@@ -172,9 +176,9 @@ private fun getDividerColorFor(securityClassificationType: SecurityClassificatio
 @Composable
 private fun getIconFor(securityClassificationType: SecurityClassificationType): Painter {
     return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
-        painterResource(id = R.drawable.ic_check_tick)
+        painterResource(id = commonR.drawable.ic_check_tick)
     } else {
-        painterResource(id = R.drawable.ic_info)
+        painterResource(id = commonR.drawable.ic_info)
     }
 }
 

@@ -28,6 +28,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.focus.FocusRequester
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.navigation.HomeDestination
@@ -60,6 +61,9 @@ class HomeStateHolder(
     private val conversationFilterState: ConversationFilterState,
     private val lazyListStateProvider: LazyListStateProvider<String>,
 ) {
+    val emptySearchResultFocusRequester = FocusRequester()
+    val firstConversationFocusRequester = FocusRequester()
+
     val currentNavigationItem
         get() = currentNavigationItemState.value
 
@@ -97,6 +101,14 @@ class HomeStateHolder(
     fun changeConversationFilter(filter: ConversationFilter) {
         lazyListStateFor(Conversations, conversationFilterState.filter).requestScrollToItem(0, 0) // reset scroll for previous filter
         conversationFilterState.changeFilter(filter)
+    }
+
+    fun requestClearSearchOnNextResume() {
+        searchBarState.requestClearSearchOnNextResume()
+    }
+
+    fun clearSearchOnResumeIfRequested() {
+        searchBarState.clearSearchOnResumeIfRequested()
     }
 }
 

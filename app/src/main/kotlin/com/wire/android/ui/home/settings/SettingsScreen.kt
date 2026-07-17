@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.home.settings
 
-import com.wire.android.navigation.annotation.app.WireHomeDestination
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -26,9 +26,11 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
+import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -36,21 +38,23 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.annotation.app.WireHomeDestination
 import com.wire.android.navigation.handleNavigation
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.ui.sectionWithElements
+import com.wire.android.util.logging.LogShareLauncher
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.sectionWithElements
 
 @WireHomeDestination
 @Composable
 fun SettingsScreen(
     homeStateHolder: HomeStateHolder,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = settingsScreenViewModel()
 ) {
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
     val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
@@ -65,15 +69,39 @@ fun SettingsScreen(
     }
 
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val shareLogsFailureMessage = stringResource(R.string.label_share_logs_failed)
+    val logShareLauncher = remember(context, coroutineScope, shareLogsFailureMessage) {
+        LogShareLauncher(
+            context = context,
+            coroutineScope = coroutineScope,
+            onFailure = {
+                Toast.makeText(context, shareLogsFailureMessage, Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
     SettingsScreenContent(
         lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Settings),
         settingsState = viewModel.state,
-        onItemClicked = remember {
+        onItemClicked = remember(context, homeStateHolder.navigator, logShareLauncher, viewModel) {
             {
-                it.direction.handleNavigation(
-                    context = context,
-                    handleOtherDirection = { homeStateHolder.navigator.navigate(NavigationCommand(it)) }
-                )
+                item ->
+                when (item) {
+                    is SettingsItem.DirectionItem -> item.direction.handleNavigation(
+                        context = context,
+                        handleOtherDirection = { direction ->
+                            homeStateHolder.navigator.navigate(NavigationCommand(direction))
+                        }
+                    )
+
+                    is SettingsItem.ActionItem -> when (item) {
+                        SettingsItem.ReportBug -> logShareLauncher.shareBugReport {
+                            viewModel.flushLogs().await()
+                        }
+                    }
+
+                    is SettingsItem.SwitchItem -> Unit
+                }
             }
         },
         onAppLockSwitchChanged = onAppLockSwitchClicked
@@ -84,12 +112,11 @@ fun SettingsScreen(
 @Composable
 fun SettingsScreenContent(
     settingsState: SettingsState,
-    onItemClicked: (SettingsItem.DirectionItem) -> Unit,
+    onItemClicked: (SettingsItem) -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     onAppLockSwitchChanged: (Boolean) -> Unit
 ) {
-    val context = LocalContext.current
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
     with(featureVisibilityFlags) {
@@ -156,6 +183,7 @@ fun SettingsScreenContent(
                 header = UIText.StringResource(R.string.settings_other_group_title),
                 items = buildList {
                     add(SettingsItem.Support)
+                    add(SettingsItem.ReportMisuse)
                     if (BuildConfig.DEBUG_SCREEN_ENABLED) {
                         add(SettingsItem.DebugSettings)
                     }
@@ -174,7 +202,7 @@ private fun LazyListScope.sectionWithElements(
     header: UIText,
     items: List<SettingsItem>,
     trailingText: ((SettingsItem) -> String?)? = null,
-    onItemClicked: (SettingsItem.DirectionItem) -> Unit
+    onItemClicked: (SettingsItem) -> Unit
 ) {
     sectionWithElements(
         header = header,
@@ -183,16 +211,19 @@ private fun LazyListScope.sectionWithElements(
         SettingsItem(
             text = settingsItem.title.asString(),
             switchState = (settingsItem as? SettingsItem.SwitchItem)?.switchState ?: SwitchState.None,
-            onRowPressed = remember {
-                Clickable(enabled = settingsItem is SettingsItem.DirectionItem) {
-                    (settingsItem as? SettingsItem.DirectionItem)?.let(onItemClicked)
+            onRowPressed = remember(settingsItem) {
+                Clickable(enabled = settingsItem.isClickable) {
+                    onItemClicked(settingsItem)
                 }
             },
-            trailingIcon = if (settingsItem is SettingsItem.DirectionItem) R.drawable.ic_arrow_right else null,
+            trailingIcon = if (settingsItem.isClickable) commonR.drawable.ic_arrow_right else null,
             trailingText = trailingText?.invoke(settingsItem),
         )
     }
 }
+
+private val SettingsItem.isClickable: Boolean
+    get() = this is SettingsItem.DirectionItem || this is SettingsItem.ActionItem
 
 @PreviewMultipleThemes
 @Composable

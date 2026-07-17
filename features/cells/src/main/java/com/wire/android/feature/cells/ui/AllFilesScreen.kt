@@ -26,14 +26,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
+import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.OfflineBanner
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -47,11 +50,13 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 fun AllFilesScreen(
     navigator: WireNavigator,
     modifier: Modifier = Modifier,
-    viewModel: CellViewModel = hiltViewModel(),
+    viewModel: CellViewModel = cellViewModel(),
 ) {
 
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
-    val isOnline by viewModel.isOnline.collectAsState()
+    val isOnlineState by viewModel.isOnline.collectAsState()
+    // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
+    val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
 
     WireScaffold(
         modifier = modifier,
@@ -117,6 +122,34 @@ fun AllFilesScreen(
             },
             isRefreshing = viewModel.isPullToRefresh.collectAsState(),
             onRefresh = { viewModel.onPullToRefresh() },
+            showImageViewer = { file ->
+                navigator.navigate(
+                    NavigationCommand(
+                        CellImageViewerScreenDestination(
+                            CellImageViewerNavArgs(
+                                localPath = file.localPath,
+                                contentUrl = file.contentUrl,
+                                previewUrl = file.previewUrl,
+                                contentHash = file.contentHash,
+                                fileName = file.name,
+                            )
+                        )
+                    )
+                )
+            },
+            showVideoPlayer = { file ->
+                navigator.navigate(
+                    NavigationCommand(
+                        VideoPlayerScreenDestination(
+                            VideoViewerNavArgs(
+                                localPath = file.localPath,
+                                contentUrl = file.contentUrl,
+                                fileName = file.name,
+                            )
+                        )
+                    )
+                )
+            },
             fileReadyFlow = viewModel.fileReadyFlow,
         )
     }

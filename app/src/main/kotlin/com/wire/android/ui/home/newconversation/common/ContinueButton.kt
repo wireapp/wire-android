@@ -41,6 +41,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun ContinueButton(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
     leadingIcon: @Composable (() -> Unit)? = null,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation
 ) {
@@ -61,6 +62,7 @@ fun ContinueButton(
                 onClick = onContinue,
                 state = WireButtonState.Default,
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                modifier = buttonModifier,
             )
         }
     }

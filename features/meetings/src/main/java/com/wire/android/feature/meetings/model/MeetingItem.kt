@@ -19,25 +19,31 @@ package com.wire.android.feature.meetings.model
 
 import android.os.Parcelable
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Stable
 import com.wire.android.feature.meetings.R
 import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.Instant
 import kotlinx.parcelize.Parcelize
 import kotlin.time.Duration
 
 sealed interface MeetingListItem
 
+@Stable
 data class MeetingItem(
     val meetingId: String,
     val conversationId: ConversationId,
     val belongingType: BelongingType,
+    val repeatingInterval: RepeatingInterval,
     val title: String,
     val status: Status,
     val selfRole: SelfRole,
 ) : MeetingListItem {
+    @Stable
     @Parcelize
     enum class RepeatingInterval(@StringRes val nameResId: Int) : Parcelable {
+        Never(R.string.meeting_repeating_never),
         Daily(R.string.meeting_repeating_daily),
         Weekly(R.string.meeting_repeating_weekly),
         BiWeekly(R.string.meeting_repeating_biweekly),
@@ -45,19 +51,21 @@ data class MeetingItem(
         Annually(R.string.meeting_repeating_annually)
     }
 
+    @Stable
     sealed interface BelongingType {
         data class Group(val name: String) : BelongingType
         data class Channel(val name: String, val isPrivateChannel: Boolean) : BelongingType
         data class OneOnOne(val username: String, val avatar: UserAvatarData) : BelongingType
-        data class Groupless(val avatars: List<UserAvatarData>, val limit: Int = GROUPLESS_AVATARS_LIMIT) : BelongingType
+        data class Groupless(val avatars: ImmutableList<UserAvatarData>, val limit: Int = GROUPLESS_AVATARS_LIMIT) : BelongingType
     }
 
+    @Stable
     sealed interface Status {
         val startTime: Instant
+
         data class Scheduled(
             override val startTime: Instant, // scheduled start time
             val endTime: Instant, // scheduled end time
-            val repeatingInterval: RepeatingInterval? = null, // null for one-time meetings
         ) : Status
 
         data class Ongoing(
@@ -74,11 +82,13 @@ data class MeetingItem(
         }
     }
 
+    @Stable
     data class OngoingCallStatus(
-        val currentCallStartedTime: Instant, // time when the current call started (there can be many calls one after another in a meeting)
+        val currentCallEstablishedTime: Instant?, // there can be many calls one after another in a meeting, so take the current one
         val isSelfUserAttending: Boolean // is the current user attending the ongoing call
     )
 
+    @Stable
     enum class SelfRole { Admin, Member }
 }
 

@@ -23,13 +23,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.PowerManager
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
-@Singleton
+@SingleIn(AppScope::class)
 class ScreenStateObserver @Inject constructor(@ApplicationContext val context: Context) : BroadcastReceiver() {
 
     private val _screenStateFlow = MutableStateFlow(true)

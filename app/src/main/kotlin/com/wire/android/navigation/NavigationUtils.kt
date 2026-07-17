@@ -29,6 +29,7 @@ import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.ramcosta.composedestinations.spec.Route
+import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.findDestination
 import com.ramcosta.composedestinations.utils.navGraph
 import com.ramcosta.composedestinations.utils.route
@@ -40,8 +41,8 @@ import com.wire.android.util.CustomTabsHelper
 @Suppress("CyclomaticComplexMethod")
 internal fun NavController.navigateToItem(command: NavigationCommand) {
 
-    fun firstDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec }
-    fun lastDestination() = currentBackStack.value.lastOrNull { it.route() is DestinationSpec }
+    fun firstDestination() = currentBackStack.value.firstOrNull { it.safeRoute() is DestinationSpec }
+    fun lastDestination() = currentBackStack.value.lastOrNull { it.safeRoute() is DestinationSpec }
     fun lastNestedGraph() = lastDestination()?.takeIf { it.navGraph() != navGraph }?.navGraph()
     fun firstDestinationWithRoute(route: String) =
         currentBackStack.value.firstOrNull { it.destination.route?.getBaseRoute() == route.getBaseRoute() }
@@ -62,7 +63,7 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
 
             BackStackMode.REMOVE_CURRENT_NESTED_GRAPH -> {
                 popUpTo(
-                    getInclusive = { it.route() is NavGraphSpec },
+                    getInclusive = { it.safeRoute() is NavGraphSpec },
                     getNavBackStackEntry = { lastNestedGraph()?.let { lastDestinationFromOtherGraph(it) } }
                 )
             }
@@ -102,8 +103,10 @@ private fun DestinationsNavOptionsBuilder.popUpTo(
 ) {
     getNavBackStackEntry()?.let { entry ->
         appLogger.d("[$TAG] -> popUpTo:${entry.destination.route?.getBaseRoute()} inclusive:${getInclusive(entry)}")
-        popUpTo(entry.route()) {
-            this.inclusive = getInclusive(entry)
+        entry.safeRoute()?.let { route ->
+            popUpTo(route) {
+                this.inclusive = getInclusive(entry)
+            }
         }
     }
 }
@@ -125,7 +128,10 @@ fun String.getBaseRoute(): String {
 val Direction.baseRoute: String
     get() = (this as? Route)?.baseRoute ?: route.getBaseRoute()
 
-fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
+fun Direction.handleNavigation(
+    context: Context,
+    handleOtherDirection: (Direction) -> Unit
+) = when (this) {
     is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)
     is ExternalUriStringResDirection -> CustomTabsHelper.launchUri(context, this.getUri(context.resources))
     is IntentDirection -> context.startActivity(this.intent(context))
@@ -133,6 +139,10 @@ fun Direction.handleNavigation(context: Context, handleOtherDirection: (Directio
 }
 
 @SuppressLint("RestrictedApi")
-fun NavController.startDestination() = currentBackStack.value.firstOrNull { it.route() is DestinationSpec }
+fun NavController.startDestination() = currentBackStack.value.firstOrNull { it.safeRoute() is DestinationSpec }
+
+internal fun NavBackStackEntry.safeRoute(): Route? = runCatching { route() }.getOrNull()
+
+internal fun NavBackStackEntry.safeDestination(): DestinationSpec? = runCatching { destination() }.getOrNull()
 
 private const val TAG = "NavigationUtils"

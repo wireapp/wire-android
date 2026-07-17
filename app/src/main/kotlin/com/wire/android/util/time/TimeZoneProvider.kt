@@ -18,7 +18,7 @@
 package com.wire.android.util.time
 
 import kotlinx.datetime.TimeZone
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class TimeZoneProvider @Inject constructor() {
     fun currentSystemDefault(): TimeZone = TimeZone.currentSystemDefault()

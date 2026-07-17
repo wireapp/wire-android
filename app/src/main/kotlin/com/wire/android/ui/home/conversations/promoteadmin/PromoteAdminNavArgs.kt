@@ -20,9 +20,19 @@ package com.wire.android.ui.home.conversations.promoteadmin
 import android.os.Parcelable
 import com.wire.android.ui.home.conversations.QualifiedIdParceler
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 
 @Parcelize
-@TypeParceler<ConversationId, QualifiedIdParceler>()
-data class PromoteAdminNavArgs(val conversationId: ConversationId) : Parcelable
+@TypeParceler<QualifiedID, QualifiedIdParceler>()
+data class PromoteAdminNavArgs(
+    val conversationId: ConversationId,
+    val eligibleMembers: ArrayList<String> = arrayListOf(),
+) : Parcelable
+
+fun List<UserId>.toPromoteAdminEligibleMemberArgs(): ArrayList<String> =
+    mapTo(ArrayList()) { "${it.value}$USER_ID_DOMAIN_SEPARATOR${it.domain}" }
+
+const val USER_ID_DOMAIN_SEPARATOR = "@"

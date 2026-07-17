@@ -25,7 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -35,6 +37,7 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
+import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -68,7 +71,8 @@ import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePosit
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -78,19 +82,19 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
-import javax.inject.Inject
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
-@HiltViewModel
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationMessagesViewModel @Inject constructor(
+class ConversationMessagesViewModel(
     val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
@@ -109,6 +113,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
+    private val networkStateObserver: NetworkStateObserver,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -136,6 +141,17 @@ class ConversationMessagesViewModel @Inject constructor(
         loadLastMessageInstant()
         observeAudioPlayerState()
         observeAssetStatuses()
+        observeNetworkAvailability()
+    }
+
+    private fun observeNetworkAvailability() {
+        viewModelScope.launch {
+            networkStateObserver.observeNetworkState().collect { networkState ->
+                conversationViewState = conversationViewState.copy(
+                    isNetworkAvailable = networkState is NetworkState.ConnectedWithInternet
+                )
+            }
+        }
     }
 
     val currentTimeInMillisFlow: Flow<Long> = flow {
@@ -172,7 +188,7 @@ class ConversationMessagesViewModel @Inject constructor(
         }
 
     private fun clearOrphanedTypingEvents() {
-        viewModelScope.launch { clearUsersTypingEvents() }
+        viewModelScope.launch(dispatchers.io()) { clearUsersTypingEvents() }
     }
 
     private fun observeAudioPlayerState() {
@@ -195,23 +211,38 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
-        val lastReadIndex = conversationViewState.searchedMessageId?.let { messageId ->
-            when (
-                val result = getSearchedConversationMessagePosition(
-                    conversationId = conversationId,
-                    messageId = messageId
-                )
-            ) {
-                is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
-                is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
+        val searchedMessageId = conversationViewState.searchedMessageId
+        val lastReadIndex = withContext(dispatchers.io()) {
+            searchedMessageId?.let { messageId ->
+                when (
+                    val result = getSearchedConversationMessagePosition(
+                        conversationId = conversationId,
+                        messageId = messageId
+                    )
+                ) {
+                    is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
+                    is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
+                }
+            } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
+                is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
+                is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
             }
-        } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
-            is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
-            is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
         }
 
-        val paginatedMessagesFlow = getMessageForConversation(conversationId, lastReadIndex)
-            .flowOn(dispatchers.io())
+        val paginatedMessagesFlow = if (BuildConfig.PENDING_MESSAGES) {
+            networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
+                getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
+                    pagingData.withOfflineIndicator(
+                        conversationId = conversationId,
+                        isOffline = networkState !is NetworkState.ConnectedWithInternet,
+                    )
+                }.flowOn(dispatchers.io())
+            }.cachedIn(viewModelScope)
+        } else {
+            getMessageForConversation(conversationId, lastReadIndex)
+                .flowOn(dispatchers.io())
+                .cachedIn(viewModelScope)
+        }
 
         conversationViewState = conversationViewState.copy(
             messages = paginatedMessagesFlow,

@@ -82,6 +82,7 @@ import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.incallreactions.InCallReactions
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.ui.common.colorsScheme
@@ -106,7 +107,6 @@ fun ParticipantTile(
     flipCamera: () -> Unit,
     othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
-    isOnPiPMode: Boolean = false,
     shouldFillSelfUserCameraPreview: Boolean = false,
     shouldFillOthersVideoPreview: Boolean = true,
     isZoomingEnabled: Boolean = false,
@@ -158,7 +158,7 @@ fun ParticipantTile(
                         .alpha(if (participantTitleState.hasEstablishedAudio) 1f else 0.5f)
                         .padding(
                             top = activeSpeakerBorderPadding,
-                            bottom = if (isOnPiPMode) activeSpeakerBorderPadding else 0.dp
+                            bottom = 0.dp
                         )
                         .align(Alignment.Center)
                         .sizeIn(
@@ -169,24 +169,21 @@ fun ParticipantTile(
                         asset = participantTitleState.avatar,
                         nameBasedAvatar = NameBasedAvatar(participantTitleState.name, participantTitleState.accentId)
                     ),
-                    isOnPiPMode = isOnPiPMode
                 )
             }
 
             // Layer 3: Bottom row
-            if (!isOnPiPMode) {
-                BottomRow(
-                    participantTitleState = participantTitleState,
-                    isSelfUserMuted = isSelfUserMuted,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(
-                            start = dimensions().spacing6x,
-                            end = dimensions().spacing6x,
-                            bottom = dimensions().spacing6x,
-                        )
-                )
-            }
+            BottomRow(
+                participantTitleState = participantTitleState,
+                isSelfUserMuted = isSelfUserMuted,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(
+                        start = dimensions().spacing6x,
+                        end = dimensions().spacing6x,
+                        bottom = dimensions().spacing6x,
+                    )
+            )
 
             // Layer 4: Reaction emoji (top-left)
             ReactionEmoji(
@@ -261,7 +258,7 @@ private fun BottomRow(
     isSelfUserMuted: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val defaultUserName = stringResource(id = R.string.username_unavailable_label)
+    val defaultUserName = stringResource(id = commonR.string.username_unavailable_label)
     Layout(
         modifier = modifier,
         content = {
@@ -412,16 +409,14 @@ private fun OthersVideoRenderer(
 private fun AvatarTile(
     avatar: UserAvatarData,
     modifier: Modifier = Modifier,
-    isOnPiPMode: Boolean = false
 ) {
     BoxWithConstraints(
         modifier = modifier,
         contentAlignment = Alignment.Center,
     ) {
-        val size = if (isOnPiPMode) 20.dp else min(maxWidth, maxHeight)
         UserProfileAvatar(
             padding = dimensions().spacing0x,
-            size = size,
+            size = min(maxWidth, maxHeight),
             avatarData = avatar,
             type = UserProfileAvatarType.WithoutIndicators,
         )

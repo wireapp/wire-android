@@ -22,6 +22,7 @@ import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,15 +47,16 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
+import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -73,6 +75,7 @@ import com.wire.android.ui.authentication.welcome.isProxyEnabled
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.focusedBorder
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.textfield.DefaultEmailNext
 import com.wire.android.ui.common.textfield.DefaultPassword
@@ -105,7 +108,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginPasswordScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+    loginEmailViewModel: LoginEmailViewModel = loginEmailViewModel(navArgs)
 ) {
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
@@ -206,13 +209,34 @@ internal fun LoginPasswordContent(
                     },
                     isEnabled = loginEmailState.userIdentifierEnabled,
                 )
+                val invalidCredentialsErrorText = if (loginEmailState.showInvalidCredentialsError) {
+                    stringResource(R.string.login_error_invalid_credentials_message)
+                } else {
+                    null
+                }
                 PasswordInput(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = dimensions().spacing8x)
                         .testTag("PasswordInput"),
                     passwordState = passwordTextState,
+                    state = if (loginEmailState.showInvalidCredentialsError) {
+                        WireTextFieldState.Error()
+                    } else {
+                        WireTextFieldState.Default
+                    },
                 )
+                if (loginEmailState.showInvalidCredentialsError) {
+                    Text(
+                        text = invalidCredentialsErrorText.orEmpty(),
+                        style = typography().body01,
+                        color = colorsScheme().error,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = dimensions().spacing16x)
+                            .testTag("invalidCredentialsError")
+                    )
+                }
                 if (serverConfig.isProxyAuthRequired) {
                     ForgotPasswordLabel(
                         forgotPasswordUrl = serverConfig.forgotPassword,
@@ -288,10 +312,11 @@ fun EmailInput(
 }
 
 @Composable
-fun PasswordInput(passwordState: TextFieldState, modifier: Modifier = Modifier) {
+fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modifier: Modifier = Modifier) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
         textState = passwordState,
+        state = state,
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboardController?.hide() },
         semanticDescription = stringResource(R.string.content_description_login_password_field),
@@ -351,6 +376,8 @@ private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: M
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(dimensions().spacing8x)
         ) {
+            val interactionSource = remember { MutableInteractionSource() }
+            val isFocused = interactionSource.collectIsFocusedAsState()
             Text(
                 text = stringResource(R.string.enterprise_login_create_account_label),
                 style = typography().body01,
@@ -365,8 +392,9 @@ private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: M
                 ),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
+                    .focusedBorder(isFocused.value)
                     .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
+                        interactionSource = interactionSource,
                         indication = null,
                         onClick = onCreateAccountClicked,
                         onClickLabel = stringResource(R.string.content_description_self_profile_new_account_btn)
@@ -385,7 +413,9 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
         when (it) {
             is LoginState.Success -> {
                 val destination = when {
-                    it.isE2EIRequired -> E2EIEnrollmentScreenDestination
+                    it.isE2EIRequired -> E2EIEnrollmentScreenDestination(
+                        SessionBackedAuthenticationNavArgs.from(it.userId)
+                    )
                     it.initialSyncCompleted -> HomeScreenDestination
                     else -> InitialSyncScreenDestination
                 }
@@ -394,7 +424,12 @@ fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Na
 
             is LoginState.Error.TooManyDevicesError -> {
                 viewModel.clearLoginErrors()
-                navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+                navigator.navigate(
+                    NavigationCommand(
+                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(it.userId)),
+                        BackStackMode.CLEAR_WHOLE,
+                    )
+                )
             }
 
             is LoginState.Canceled -> {

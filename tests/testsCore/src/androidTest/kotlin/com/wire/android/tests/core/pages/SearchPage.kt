@@ -18,13 +18,16 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
-import backendUtils.team.TeamHelper
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 
 data class SearchPage(private val device: UiDevice) {
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
+    private val closeSearchInputFieldButton = UiSelectorParams(
+        className = "android.view.View",
+        description = "Go back to add participants view"
+    )
 
     fun assertUsernameInSearchResultIs(expectedHandle: String): SearchPage {
         val handleSelector = UiSelectorParams(
@@ -54,9 +57,14 @@ data class SearchPage(private val device: UiDevice) {
         return this
     }
 
-    fun typeUniqueUserNameInSearchField(teamHelper: TeamHelper, alias: String): SearchPage {
+    fun clickCloseButtonOnSearchInputField(): SearchPage {
+        UiWaitUtils.waitElement(closeSearchInputFieldButton).click()
+        return this
+    }
+
+    fun typeUniqueUserNameInSearchField(clientUserManager: ClientUserManager, alias: String): SearchPage {
         // Resolve the alias to the (unique) username
-        val uniqueUserName = teamHelper.usersManager.findUserBy(
+        val uniqueUserName = clientUserManager.findUserBy(
             alias,
             ClientUserManager.FindBy.NAME_ALIAS
         )
@@ -67,12 +75,9 @@ data class SearchPage(private val device: UiDevice) {
         return this
     }
 
-    fun typeUserNameInSearchField(alias: String): SearchPage {
-        val teamHelper by lazy {
-            TeamHelper()
-        }
+    fun typeUserNameInSearchField(clientUserManager: ClientUserManager, alias: String): SearchPage {
         // Resolve the alias to the username
-        val userName = teamHelper.usersManager.replaceAliasesOccurrences(
+        val userName = clientUserManager.replaceAliasesOccurrences(
             alias,
             ClientUserManager.FindBy.NAME_ALIAS
         )

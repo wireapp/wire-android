@@ -25,42 +25,35 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import backendUtils.team.TeamHelper
 import junit.framework.TestCase.assertFalse
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import user.usermanager.ClientUserManager
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 data class SettingsPage(private val device: UiDevice) {
-    private fun backupFileLocator(uniqueUserName: String) = UiSelectorParams(textContains = "Wire-$uniqueUserName")
     private val privacySettingsButton = UiSelectorParams(text = "Privacy Settings")
     private val backUpMenuButton = UiSelectorParams(text = "Back up & Restore Conversations")
-    private val backupPageHeading = UiSelectorParams(text = "Back up & Restore Conversations")
     private val restoreBackupButton = UiSelectorParams(text = "Restore from Backup")
 
     private val createBackupButton = UiSelectorParams(text = "Create a Backup")
-    private val backUpNowButton = UiSelectorParams(text = "Back Up Now")
-
-    private val saveFileButton = UiSelectorParams(text = "Save File")
-
-    private val okButton = UiSelectorParams(text = "OK")
-    private val saveButtonOSMenu = UiSelectorParams(text = "SAVE")
-
-    private val chooseBackupButton = UiSelectorParams(text = "Choose Backup File")
     private val debugSettingsButton = UiSelectorParams(text = "Debug Settings")
     private val analyticsInitializedLabel = UiSelectorParams(text = "Analytics Initialized")
     private val enableLoggingText = UiSelector().text("Enable Logging")
 
     private val lockWithPasscodeText = UiSelector().text("Lock with passcode")
+    private val lockWithPasscodeLabel = UiSelectorParams(text = "Lock with passcode")
+    private val setAppLockPageTitle = UiSelectorParams(text = "Set app lock passcode")
     private val appLockPassCode = UiSelectorParams(text = "Set a passcode")
 
     private val accountDetails = UiSelectorParams(text = "Account Details")
     private val toggle = UiSelector().className("android.view.View")
+    private val clickableToggle = UiSelector().className("android.view.View").clickable(true)
+    private val toggleOnText = UiSelector().text("ON")
+    private val toggleOffText = UiSelector().text("OFF")
     private val analyticsTrackingLabel = UiSelector().text("Analytics Tracking Identifier")
     private val anonymousUsageDataText = UiSelector().text("Send anonymous usage data")
     private val setAppLockInfoText = UiSelectorParams(
@@ -104,6 +97,7 @@ data class SettingsPage(private val device: UiDevice) {
 
     private val saveButton = UiSelectorParams(text = "Save")
     fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
+        scrollTextIntoView("Send anonymous usage data")
         val container = device.findObject(
             UiSelector().className("android.view.View").childSelector(anonymousUsageDataText)
         )
@@ -134,15 +128,6 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-    fun iSeeBackupPageHeading(): SettingsPage {
-        try {
-            UiWaitUtils.waitElement(backupPageHeading)
-        } catch (e: AssertionError) {
-            throw AssertionError("Backup Page is not displayed", e)
-        }
-        return this
-    }
-
     fun openBackupAndRestoreConversationsMenu(timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT): SettingsPage {
         val opened = UiWaitUtils.retryUntilTimeout(
             timeout = timeout,
@@ -168,57 +153,44 @@ data class SettingsPage(private val device: UiDevice) {
             UiWaitUtils.findElementOrNull(createBackupButton)?.let { !it.visibleBounds.isEmpty } == true
     }
 
-    fun clickRestoreBackupButton(): SettingsPage {
-        UiWaitUtils.waitElement(restoreBackupButton).click()
-        return this
-    }
-
-    fun clickCreateBackupButton(): SettingsPage {
-        UiWaitUtils.waitElement(createBackupButton).click()
-        return this
-    }
-
-    fun clickBackUpNowButton(): SettingsPage {
-        UiWaitUtils.waitElement(backUpNowButton).click()
-        return this
-    }
-
-    fun iTapSaveFileButton(): SettingsPage {
-        UiWaitUtils.waitElement(saveFileButton).click()
-        return this
-    }
-
-    fun iTapSaveInOSMenuButton(): SettingsPage {
-        UiWaitUtils.waitElement(saveButtonOSMenu).click()
-        return this
-    }
-
-    fun iSeeBackupConfirmation(text: String): SettingsPage {
-        UiWaitUtils.waitUntilVisibleOrThrow(
-            params = UiSelectorParams(textContains = text),
-            timeout = UiWaitUtils.SHORT_TIMEOUT,
-            errorMessage = "Expected message '$text' was not displayed"
-        )
-        return this
-    }
-
-    fun clickChooseBackupFileButton(): SettingsPage {
-        UiWaitUtils.waitElement(chooseBackupButton).click()
-        return this
-    }
-
     fun clickDebugSettingsButton(): SettingsPage {
         UiWaitUtils.waitElement(debugSettingsButton).click()
         return this
     }
 
     fun scrollTextIntoView(text: String): SettingsPage {
-        val scrollable = UiScrollable(UiSelector().scrollable(true))
-        scrollable.setAsVerticalList()
-        scrollable.setMaxSearchSwipes(20)
-        val found = scrollable.scrollIntoView(UiSelector().textContains(text))
+        if (device.findObject(UiSelector().textContains(text)).exists()) {
+            return this
+        }
+
+        val foundByScrollable = runCatching {
+            val scrollable = UiScrollable(UiSelector().scrollable(true))
+            scrollable.setAsVerticalList()
+            scrollable.setMaxSearchSwipes(20)
+            scrollable.scrollIntoView(UiSelector().textContains(text))
+        }.getOrDefault(false)
+
+        val found = foundByScrollable || scrollToTextByGesture(text)
         assertTrue("Text '$text' was not found in scrollable view", found)
         return this
+    }
+
+    private fun scrollToTextByGesture(text: String): Boolean {
+        val selector = UiSelector().textContains(text)
+        repeat(MAX_SCROLL_ATTEMPTS) {
+            if (device.findObject(selector).exists()) {
+                return true
+            }
+            device.swipe(
+                device.displayWidth / 2,
+                (device.displayHeight * SCROLL_START_RATIO).toInt(),
+                device.displayWidth / 2,
+                (device.displayHeight * SCROLL_END_RATIO).toInt(),
+                SCROLL_STEPS
+            )
+            device.waitForIdle()
+        }
+        return device.findObject(selector).exists()
     }
 
     fun assertAnalyticsTrackingIdentifierIsDispayed(): SettingsPage {
@@ -257,21 +229,31 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun assertLockWithPasswordToggleIsOff(): SettingsPage {
-        val toggle = device.findObject(toggleOff)
-        assertFalse("Lock with passcode toggle should be OFF", toggle.isChecked)
+        UiWaitUtils.waitElement(lockWithPasscodeLabel)
+        val label = device.findObject(lockWithPasscodeText)
+        val offText = label.getFromParent(toggleOffText)
+        assertTrue("Lock with passcode toggle should be OFF", offText.exists() && !offText.visibleBounds.isEmpty)
         return this
     }
 
     fun turnOnLockWithPasscodeToggle(): SettingsPage {
+        UiWaitUtils.waitElement(lockWithPasscodeLabel)
         val label = device.findObject(lockWithPasscodeText)
-        val toggle = label.getFromParent(toggle)
+        val toggle = label.getFromParent(clickableToggle)
+        assertTrue("Lock with passcode toggle is not visible", toggle.exists() && !toggle.visibleBounds.isEmpty)
         toggle.click()
+        return this
+    }
+
+    fun assertSetUpAppLockPageVisible(): SettingsPage {
+        val title = UiWaitUtils.waitElement(setAppLockPageTitle)
+        Assert.assertTrue("Set up app lock page is not visible", !title.visibleBounds.isEmpty)
         return this
     }
 
     fun assertAppLockDescriptionText(): SettingsPage {
         val appLockInfo = UiWaitUtils.waitElement(setAppLockInfoText)
-        Assert.assertTrue("Username help text is not visible", !appLockInfo.visibleBounds.isEmpty)
+        Assert.assertTrue("App lock description text is not visible", !appLockInfo.visibleBounds.isEmpty)
         return this
     }
 
@@ -290,8 +272,18 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun assertLockWithPasswordToggleIsOn(): SettingsPage {
-        val toggle = device.findObject(toggleOn)
-        assertTrue("Lock with passcode toggle should be ON", toggle.isChecked)
+        UiWaitUtils.waitElement(lockWithPasscodeLabel)
+        val label = device.findObject(lockWithPasscodeText)
+        val onText = label.getFromParent(toggleOnText)
+        assertTrue("Lock with passcode toggle should be ON", onText.exists() && !onText.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertLockWithPasscodeToggleCannotBeChanged(): SettingsPage {
+        UiWaitUtils.waitElement(lockWithPasscodeLabel)
+        val label = device.findObject(lockWithPasscodeText)
+        val toggle = label.getFromParent(clickableToggle)
+        assertFalse("Lock with passcode toggle is clickable.", toggle.exists() && toggle.isClickable)
         return this
     }
 
@@ -455,34 +447,10 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-    fun selectBackupFileInDocumentsUI(teamHelper: TeamHelper, userAlias: String): SettingsPage {
-        val user = teamHelper.usersManager.findUserBy(
-            userAlias,
-            ClientUserManager.FindBy.NAME_ALIAS
-        )
-        val uniqueUserName = user?.uniqueUsername.orEmpty()
-        try {
-            UiWaitUtils.waitElement(backupFileLocator(uniqueUserName)).click()
-        } catch (e: AssertionError) {
-            throw AssertionError(
-                "Backup file with name 'Wire-$uniqueUserName' not found in DocumentsUI",
-                e
-            )
-        }
-        return this
-    }
-
-    fun waitUntilThisTextIsDisplayedOnBackupAlert(text: String): SettingsPage {
-        UiWaitUtils.waitUntilVisibleOrThrow(
-            params = UiSelectorParams(text = text),
-            timeout = UiWaitUtils.SHORT_TIMEOUT,
-            errorMessage = "Text '$text' was not displayed on the backup alert within timeout"
-        )
-        return this
-    }
-
-    fun clickOkButtonOnBackupAlert(): SettingsPage {
-        UiWaitUtils.waitElement(okButton).click()
-        return this
+    private companion object {
+        const val MAX_SCROLL_ATTEMPTS = 8
+        const val SCROLL_START_RATIO = 0.8f
+        const val SCROLL_END_RATIO = 0.35f
+        const val SCROLL_STEPS = 40
     }
 }

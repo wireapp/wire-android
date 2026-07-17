@@ -32,10 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.annotation.ExperimentalCoilApi
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -60,6 +60,7 @@ import com.wire.android.ui.edit.SharePublicLinkMenuOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.mediaGalleryViewModel
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
@@ -78,8 +79,8 @@ fun MediaGalleryScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>,
     modifier: Modifier = Modifier,
-    mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()
 ) {
+    val mediaGalleryViewModel: MediaGalleryViewModel = mediaGalleryViewModel()
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
@@ -93,7 +94,7 @@ fun MediaGalleryScreen(
         onPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.save_permission_dialog_description
                 )
             )

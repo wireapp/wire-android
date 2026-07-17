@@ -21,14 +21,8 @@ import SSOServiceHelper
 import SSOServiceHelper.thereIsASSOTeamOwnerForOkta
 import SSOServiceHelper.userAddsOktaUser
 import SSOServiceHelper.userXIsMe
-import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import backendUtils.BackendClient
-import backendUtils.team.TeamHelper
 import com.wire.android.tests.core.BaseUiTest
-import com.wire.android.tests.core.pages.AllPages
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
@@ -39,8 +33,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.inject
-import service.TestServiceHelper
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
@@ -48,30 +40,20 @@ import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class SSODeviceBackup : BaseUiTest() {
-    private val pages: AllPages by inject()
-    private lateinit var device: UiDevice
-    private lateinit var context: Context
     private lateinit var oktaApiClient: OktaApiClient
-    private lateinit var backendClient: BackendClient
-    private lateinit var teamHelper: TeamHelper
-    private lateinit var testServiceHelper: TestServiceHelper
     private var teamOwner: ClientUser? = null
     private var member1: ClientUser? = null
 
     @Before
     fun setUp() {
-        context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
-        backendClient = BackendClient.loadBackend("STAGING")
-        teamHelper = TeamHelper()
-        SSOServiceHelper.usersManager = teamHelper.usersManager
+        initCommonTestHelpers()
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
+        SSOServiceHelper.clientUserManager = clientUserManager
         oktaApiClient = OktaApiClient()
-        testServiceHelper = TestServiceHelper(teamHelper.usersManager)
     }
 
     @After
     fun tearDown() {
-        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
         deleteDownloadedFilesContaining("Wire")
         runCatching { oktaApiClient.cleanUp() }
     }
@@ -89,7 +71,7 @@ class SSODeviceBackup : BaseUiTest() {
                     "Messaging",
                     oktaApiClient
                 )
-                teamOwner = teamHelper.usersManager.findUserBy(
+                teamOwner = clientUserManager.findUserBy(
                     "user1Name",
                     ClientUserManager.FindBy.NAME_ALIAS
                 )
@@ -98,7 +80,7 @@ class SSODeviceBackup : BaseUiTest() {
 
                 testServiceHelper.userXIsMe("user2Name")
 
-                member1 = teamHelper.usersManager.findUserBy(
+                member1 = clientUserManager.findUserBy(
                     "user2Name",
                     ClientUserManager.FindBy.NAME_ALIAS
                 )
@@ -152,7 +134,7 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Search for team owner and open their profile from search results") {
                     pages.searchPage.apply {
                         tapSearchPeopleField()
-                        typeUniqueUserNameInSearchField(teamHelper, "user1Name")
+                        typeUniqueUserNameInSearchField(clientUserManager, "user1Name")
                         assertUsernameInSearchResultIs(teamOwner?.name ?: "")
                         tapUsernameInSearchResult(teamOwner?.name ?: "")
                     }
@@ -179,6 +161,9 @@ class SSODeviceBackup : BaseUiTest() {
                     pages.connectedUserProfilePage.apply {
                         tapCloseButtonOnConnectedUserProfilePage()
                     }
+                    pages.searchPage.apply {
+                        clickCloseButtonOnSearchInputField()
+                    }
                     pages.conversationListPage.apply {
                         clickCloseButtonOnNewConversationScreen()
                         assertConversationListVisible()
@@ -195,6 +180,8 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Create backup and save backup file") {
                     pages.settingsPage.apply {
                         openBackupAndRestoreConversationsMenu()
+                    }
+                    pages.backupPage.apply {
                         iSeeBackupPageHeading()
                         clickCreateBackupButton()
                         clickBackUpNowButton()
@@ -202,6 +189,8 @@ class SSODeviceBackup : BaseUiTest() {
                         iTapSaveFileButton()
                         iTapSaveInOSMenuButton()
                         iSeeBackupPageHeading()
+                    }
+                    pages.settingsPage.apply {
                         clickBackButtonOnSettingsPage()
                     }
                 }
@@ -224,7 +213,7 @@ class SSODeviceBackup : BaseUiTest() {
 
                 step("Start SSO login again using SSO code") {
                     pages.registrationPage.apply {
-                        assertEmailWelcomePage()
+                        assertEmailWelcomePage(timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
                     }
                     pages.loginPage.apply {
                         clickStagingDeepLink()
@@ -266,10 +255,12 @@ class SSODeviceBackup : BaseUiTest() {
                 step("Restore backup by selecting saved file and confirm restore completion") {
                     pages.settingsPage.apply {
                         openBackupAndRestoreConversationsMenu()
+                    }
+                    pages.backupPage.apply {
                         iSeeBackupPageHeading()
                         clickRestoreBackupButton()
                         clickChooseBackupFileButton()
-                        selectBackupFileInDocumentsUI(teamHelper, "user2Name")
+                        selectBackupFileInDocumentsUI(clientUserManager, "user2Name")
                         waitUntilThisTextIsDisplayedOnBackupAlert("Conversations have been restored")
                         clickOkButtonOnBackupAlert()
                     }

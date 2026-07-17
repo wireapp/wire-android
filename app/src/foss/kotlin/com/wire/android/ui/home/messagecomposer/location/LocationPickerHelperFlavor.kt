@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.home.messagecomposer.location
 
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class LocationPickerHelperFlavor @Inject constructor(
     private val locationPickerHelper: LocationPickerHelper,

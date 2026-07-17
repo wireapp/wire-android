@@ -26,12 +26,14 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
+import com.wire.android.util.CurrentTimeProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.runner.RunWith
@@ -193,7 +195,7 @@ class LocationPickerHelperTest {
             LocationPickerHelper(
                 context = context,
                 scope = scope,
-                currentTimestampProvider = dispatcher.scheduler::currentTime,
+                currentTime = CurrentTimeProvider { Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime) },
                 geocoderHelper = geocoderHelper,
                 parameters = LocationPickerParameters(
                     lastLocationTimeLimit = lastLocationTimeLimit,

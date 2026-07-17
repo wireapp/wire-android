@@ -27,28 +27,27 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.util.EMPTY
+import com.wire.kalium.cells.domain.usecase.ObserveIsAtLeastOneCellAvailableUseCase
+import com.wire.kalium.common.functional.getOrElse
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
-import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
+import com.wire.kalium.logic.feature.client.ObserveIsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class HomeDrawerViewModel @Inject constructor(
+class HomeDrawerViewModel(
     val savedStateHandle: SavedStateHandle,
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
-    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    private val observeIsWireCellsEnabled: ObserveIsWireCellsEnabledUseCase,
+    private val observeIsAtLeastOneCellAvailable: ObserveIsAtLeastOneCellAvailableUseCase
 ) : ViewModel() {
 
     var drawerState by mutableStateOf(HomeDrawerState())
@@ -71,13 +70,16 @@ class HomeDrawerViewModel @Inject constructor(
     private fun buildDrawerItems() {
         viewModelScope.launch {
             combine(
-                flowOf(isWireCellsEnabled()),
-                observeArchivedUnreadConversationsCount.get().invoke(),
-                observeTeamManagementUrlForUser()
-            ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
+                observeIsWireCellsEnabled(),
+                observeIsAtLeastOneCellAvailable().getOrElse { flowOf(false) },
+                observeArchivedUnreadConversationsCount.value.invoke(),
+                observeTeamManagementUrlForUser(),
+            ) { wireCellsEnabled, isAtLeastOneCellAvailable, unreadArchiveConversationsCount, teamManagementUrl ->
+                val shouldShowCells = wireCellsEnabled || isAtLeastOneCellAvailable
+
                 buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
-                    if (wireCellsEnabled) {
+                    if (shouldShowCells) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
                     }
                     if (BuildConfig.MEETINGS_ENABLED) {

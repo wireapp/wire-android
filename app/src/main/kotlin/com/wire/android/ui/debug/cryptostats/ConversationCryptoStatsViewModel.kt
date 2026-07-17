@@ -23,14 +23,13 @@ import androidx.lifecycle.viewModelScope
 import com.wire.kalium.logic.feature.debug.ConversationCryptoDetail
 import com.wire.kalium.logic.feature.debug.ConversationCryptoProtocolType
 import com.wire.kalium.logic.feature.debug.ConversationCryptoStats
+import com.wire.kalium.logic.feature.debug.DetailGroupState
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsResult
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 enum class ProtocolFilter(val label: String) {
     ALL("All"),
@@ -41,13 +40,14 @@ enum class ProtocolFilter(val label: String) {
 
 enum class EstablishmentFilter(val label: String) {
     ALL("All"),
-    ESTABLISHED("Established"),
-    NOT_ESTABLISHED("Not established"),
+    IN_SYNC("In sync"),
+    DRIFT("Drift"),
+    LEFT("Left"),
+    LOOKUP_FAILED("Lookup failed"),
     NOT_APPLICABLE("N/A (Proteus)"),
 }
 
-@HiltViewModel
-class ConversationCryptoStatsViewModel @Inject constructor(
+class ConversationCryptoStatsViewModel(
     private val getConversationCryptoStats: GetConversationCryptoStatsUseCase,
 ) : ViewModel() {
 
@@ -100,23 +100,9 @@ class ConversationCryptoStatsViewModel @Inject constructor(
         val current = _state.value
         val query = current.searchQuery.text.toString().trim().lowercase()
         return allDetails.filter { detail ->
-            val matchesProtocol = when (current.protocolFilter) {
-                ProtocolFilter.ALL -> true
-                ProtocolFilter.PROTEUS -> detail.protocolType == "Proteus"
-                ProtocolFilter.MLS -> detail.protocolType == "MLS"
-                ProtocolFilter.MIXED -> detail.protocolType == "Mixed"
-            }
-            val matchesEstablishment = when (current.establishmentFilter) {
-                EstablishmentFilter.ALL -> true
-                EstablishmentFilter.ESTABLISHED -> detail.establishedInCrypto == "Yes"
-                EstablishmentFilter.NOT_ESTABLISHED -> detail.establishedInCrypto == "No"
-                EstablishmentFilter.NOT_APPLICABLE -> detail.establishedInCrypto == "N/A"
-            }
-            val matchesQuery = query.isEmpty() ||
-                detail.conversationName.lowercase().contains(query) ||
-                detail.conversationId.lowercase().contains(query) ||
-                detail.groupId?.lowercase()?.contains(query) == true
-            matchesProtocol && matchesEstablishment && matchesQuery
+            current.protocolFilter.matches(detail) &&
+                current.establishmentFilter.matches(detail) &&
+                detail.matches(query)
         }
     }
 }
@@ -135,8 +121,11 @@ data class ConversationCryptoStatsUiModel(
     val proteusCount: Int,
     val mlsCount: Int,
     val mixedCount: Int,
-    val mlsNotEstablishedInCrypto: Int,
-    val mixedNotEstablishedInCrypto: Int,
+    val mlsDriftCount: Int,
+    val mixedDriftCount: Int,
+    val mlsLeftCount: Int,
+    val mixedLeftCount: Int,
+    val ccLookupFailedCount: Int,
     val details: List<ConversationCryptoDetailUiModel>,
 )
 
@@ -148,25 +137,33 @@ data class ConversationCryptoDetailUiModel(
     val dbGroupState: String?,
     val dbEpoch: String?,
     val ccEpoch: String?,
-    val establishedInCrypto: String?,
+    val ccLookupFailed: Boolean,
+    val selfIsMember: Boolean,
+    val cryptoStatus: ConversationCryptoStatus,
 )
+
+enum class ConversationCryptoStatus(val label: String, val sortOrder: Int) {
+    LOOKUP_FAILED("Lookup failed", SORT_ORDER_LOOKUP_FAILED),
+    DRIFT("Drift", SORT_ORDER_DRIFT),
+    LEFT("Left", SORT_ORDER_LEFT),
+    IN_SYNC("In sync", SORT_ORDER_NORMAL),
+    NOT_APPLICABLE("N/A", SORT_ORDER_NORMAL),
+}
 
 fun ConversationCryptoStats.toUiModel(): ConversationCryptoStatsUiModel = ConversationCryptoStatsUiModel(
     totalConversations = totalConversations,
     proteusCount = proteusCount,
     mlsCount = mlsCount,
     mixedCount = mixedCount,
-    mlsNotEstablishedInCrypto = mlsNotEstablishedInCrypto,
-    mixedNotEstablishedInCrypto = mixedNotEstablishedInCrypto,
+    mlsDriftCount = mlsDriftCount,
+    mixedDriftCount = mixedDriftCount,
+    mlsLeftCount = mlsLeftCount,
+    mixedLeftCount = mixedLeftCount,
+    ccLookupFailedCount = ccLookupFailedCount,
     details = conversationDetails
         .sortedWith(
-            compareBy<ConversationCryptoDetail> {
-                when {
-                    it.protocolType != ConversationCryptoProtocolType.PROTEUS && it.establishedInCrypto == false -> 0
-                    it.protocolType != ConversationCryptoProtocolType.PROTEUS -> 1
-                    else -> 2
-                }
-            }.thenBy { it.conversationName }
+            compareBy<ConversationCryptoDetail> { it.cryptoStatus().sortOrder }
+                .thenBy { it.conversationName }
         )
         .map { it.toUiModel() },
 )
@@ -185,11 +182,43 @@ private fun ConversationCryptoDetail.toUiModel(): ConversationCryptoDetailUiMode
         dbGroupState = dbGroupState?.name,
         dbEpoch = dbEpoch?.toString(),
         ccEpoch = ccEpoch?.toString(),
-        establishedInCrypto = when {
-            establishedInCrypto == null && protocolType == ConversationCryptoProtocolType.PROTEUS -> "N/A"
-            establishedInCrypto == true -> "Yes"
-            establishedInCrypto == false -> "No"
-            else -> "Unknown"
-        },
+        ccLookupFailed = ccLookupFailed,
+        selfIsMember = selfIsMember,
+        cryptoStatus = cryptoStatus(),
     )
 }
+
+private fun ConversationCryptoDetail.cryptoStatus(): ConversationCryptoStatus = when {
+    protocolType == ConversationCryptoProtocolType.PROTEUS -> ConversationCryptoStatus.NOT_APPLICABLE
+    ccLookupFailed -> ConversationCryptoStatus.LOOKUP_FAILED
+    !selfIsMember -> ConversationCryptoStatus.LEFT
+    dbGroupState == DetailGroupState.ESTABLISHED && ccEpoch == null -> ConversationCryptoStatus.DRIFT
+    else -> ConversationCryptoStatus.IN_SYNC
+}
+
+private fun ProtocolFilter.matches(detail: ConversationCryptoDetailUiModel): Boolean = when (this) {
+    ProtocolFilter.ALL -> true
+    ProtocolFilter.PROTEUS -> detail.protocolType == "Proteus"
+    ProtocolFilter.MLS -> detail.protocolType == "MLS"
+    ProtocolFilter.MIXED -> detail.protocolType == "Mixed"
+}
+
+private fun EstablishmentFilter.matches(detail: ConversationCryptoDetailUiModel): Boolean = when (this) {
+    EstablishmentFilter.ALL -> true
+    EstablishmentFilter.IN_SYNC -> detail.cryptoStatus == ConversationCryptoStatus.IN_SYNC
+    EstablishmentFilter.DRIFT -> detail.cryptoStatus == ConversationCryptoStatus.DRIFT
+    EstablishmentFilter.LEFT -> detail.cryptoStatus == ConversationCryptoStatus.LEFT
+    EstablishmentFilter.LOOKUP_FAILED -> detail.cryptoStatus == ConversationCryptoStatus.LOOKUP_FAILED
+    EstablishmentFilter.NOT_APPLICABLE -> detail.cryptoStatus == ConversationCryptoStatus.NOT_APPLICABLE
+}
+
+private fun ConversationCryptoDetailUiModel.matches(query: String): Boolean =
+    query.isEmpty() ||
+        conversationName.lowercase().contains(query) ||
+        conversationId.lowercase().contains(query) ||
+        groupId?.lowercase()?.contains(query) == true
+
+private const val SORT_ORDER_LOOKUP_FAILED = 0
+private const val SORT_ORDER_DRIFT = 1
+private const val SORT_ORDER_LEFT = 2
+private const val SORT_ORDER_NORMAL = 3

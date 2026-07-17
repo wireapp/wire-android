@@ -19,87 +19,51 @@
 package com.wire.android.ui.home
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DrawerDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
-import com.ramcosta.composedestinations.navigation.dependency
-import com.ramcosta.composedestinations.navigation.destination
-import com.wire.android.feature.cells.ui.CellViewModel
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.HomeDestination.FabOptions
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.navigation.handleNavigation
-import com.wire.android.navigation.rememberWireNavHostEngine
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
-import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
-import com.wire.android.ui.home.drawer.HomeDrawer
 import com.wire.android.ui.home.drawer.HomeDrawerState
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
+import com.wire.android.ui.analyticsUsageViewModel
 import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
 import kotlinx.coroutines.launch
 
@@ -112,12 +76,13 @@ fun HomeScreen(
     otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
     conversationFoldersScreenResultRecipient:
     ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    appSyncViewModel: AppSyncViewModel = hiltViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = hiltViewModel(),
-    analyticsUsageViewModel: AnalyticsUsageViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = homeViewModel(),
+    appSyncViewModel: AppSyncViewModel = appSyncViewModel(),
+    homeDrawerViewModel: HomeDrawerViewModel = homeDrawerViewModel(),
+    analyticsUsageViewModel: AnalyticsUsageViewModel = analyticsUsageViewModel(),
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     homeViewModel.checkRequirements()
 
@@ -130,7 +95,7 @@ fun HomeScreen(
     val showNotificationsPermissionDeniedDialog = {
         notificationsPermissionDeniedDialogState.show(
             PermissionPermanentlyDeniedDialogState.Visible(
-                title = R.string.app_permission_dialog_title,
+                title = commonR.string.app_permission_dialog_title,
                 description = R.string.notifications_permission_dialog_description,
             )
         )
@@ -144,12 +109,12 @@ fun HomeScreen(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val snackbarHostState = LocalSnackbarHostState.current
-    val coroutineScope = rememberCoroutineScope()
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 appSyncViewModel.startSyncingAppConfig()
+                homeScreenState.clearSearchOnResumeIfRequested()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -265,8 +230,37 @@ fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val searchFocusRequester = remember { FocusRequester() }
+    val fabFocusRequester = remember { FocusRequester() }
+    val drawerFocusRequester = remember { FocusRequester() }
+    val firstDrawerItemFocusRequester = remember { FocusRequester() }
+    val lastDrawerItemFocusRequester = remember { FocusRequester() }
+    var isDrawerSheetFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(homeStateHolder.drawerState.isOpen) {
+        if (homeStateHolder.drawerState.isOpen) {
+            withFrameNanos { }
+            if (!firstDrawerItemFocusRequester.requestFocus()) {
+                drawerFocusRequester.requestFocus()
+            }
+        }
+    }
 
     with(homeStateHolder) {
+        fun closeHomeDrawer() {
+            focusManager.clearFocus(force = true)
+            closeDrawer()
+        }
+
+        fun requestDrawerItemFocus(isShiftPressed: Boolean) {
+            if (isShiftPressed) {
+                lastDrawerItemFocusRequester.requestFocus()
+            } else {
+                firstDrawerItemFocusRequester.requestFocus()
+            }
+        }
+
         fun openWireHomeDestination(item: HomeDestination) {
             item.direction.handleNavigation(
                 context = context,
@@ -284,137 +278,53 @@ fun HomeContent(
             )
         }
 
+        val drawerSheetFocusTrapState = HomeDrawerSheetFocusTrapState(
+            enabled = drawerState.isOpen,
+            focusRequester = drawerFocusRequester,
+            isSheetFocused = isDrawerSheetFocused
+        )
+        val drawerSheetFocusTrapActions = HomeDrawerSheetFocusTrapActions(
+            onSheetFocusChanged = { isDrawerSheetFocused = it },
+            onItemFocusRequested = ::requestDrawerItemFocus,
+            onClose = ::closeHomeDrawer
+        )
+
         ModalNavigationDrawer(
-            modifier = modifier,
+            modifier = modifier.homeDrawerKeyboardNavigation(
+                isDrawerOpen = drawerState.isOpen,
+                isDrawerSheetFocused = isDrawerSheetFocused,
+                onDrawerItemFocusRequested = ::requestDrawerItemFocus,
+                onCloseDrawer = ::closeHomeDrawer
+            ),
             drawerState = drawerState,
             drawerContent = {
-                BoxWithConstraints {
-                    val width = min(this.maxWidth - dimensions().homeDrawerSheetEndPadding, DrawerDefaults.MaximumDrawerWidth)
-                    ModalDrawerSheet(
-                        drawerContainerColor = MaterialTheme.colorScheme.surface,
-                        drawerTonalElevation = 0.dp,
-                        drawerShape = RectangleShape,
-                        modifier = Modifier.width(width)
-                    ) {
-                        HomeDrawer(
-                            currentRoute = currentNavigationItem.direction.route,
-                            homeDrawerState = homeDrawerState,
-                            navigateToHomeItem = ::openWireHomeDestination,
-                            onCloseDrawer = ::closeDrawer
-                        )
-                    }
-                }
+                HomeDrawerSheet(
+                    currentRoute = currentNavigationItem.direction.route,
+                    homeDrawerState = homeDrawerState,
+                    focusTrapState = drawerSheetFocusTrapState,
+                    focusTrapActions = drawerSheetFocusTrapActions,
+                    firstItemFocusRequester = firstDrawerItemFocusRequester,
+                    lastItemFocusRequester = lastDrawerItemFocusRequester,
+                    onNavigateToHomeItem = ::openWireHomeDestination,
+                    onCloseDrawer = ::closeHomeDrawer
+                )
             },
             gesturesEnabled = drawerState.isOpen,
             content = {
-                CollapsingTopBarScaffold(
-                    snapOnFling = false,
-                    topBarHeader = {
-                        AnimatedVisibility(
-                            modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                            visible = !searchBarState.isSearchActive,
-                            enter = fadeIn() + expandVertically(),
-                            exit = shrinkVertically() + fadeOut(),
-                        ) {
-                            HomeTopBar(
-                                title = currentTitle.asString(),
-                                currentConversationFilter = currentConversationFilter,
-                                navigationItem = currentNavigationItem,
-                                userAvatarData = homeState.userAvatarData,
-                                elevation = dimensions().spacing0x, // CollapsingTopBarScaffold manages applied elevation
-                                withLegalHoldIndicator = homeState.shouldDisplayLegalHoldIndicator,
-                                shouldShowCreateTeamUnreadIndicator = homeState.shouldShowCreateTeamUnreadIndicator,
-                                onHamburgerMenuClick = ::openDrawer,
-                                onNavigateToSelfUserProfile = onSelfUserClick,
-                                onOpenConversationFilter = {
-                                    homeStateHolder.conversationsFilterBottomSheetState.show(Unit)
-                                },
-                            )
-                        }
-                    },
-                    topBarCollapsing = {
-                        currentNavigationItem.searchBar?.let { searchBar ->
-                            AnimatedVisibility(
-                                visible = searchBarState.isSearchVisible,
-                                enter = fadeIn() + slideInVertically(),
-                                exit = fadeOut() + slideOutVertically()
-                            ) {
-                                SearchTopBar(
-                                    isSearchActive = searchBarState.isSearchActive,
-                                    searchBarHint = stringResource(searchBar.hint),
-                                    searchQueryTextState = searchBarState.searchQueryTextState,
-                                    onActiveChanged = searchBarState::searchActiveChanged,
-                                )
-                            }
-                        }
-                    },
-                    collapsingEnabled = !searchBarState.isSearchActive,
-                    contentLazyListState = homeStateHolder.lazyListStateFor(currentNavigationItem, currentConversationFilter),
-                    content = {
-                        /**
-                         * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
-                         * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
-                         * compositions in the round they are to be disposed. More here:
-                         * https://github.com/google/accompanist/issues/1487
-                         * https://issuetracker.google.com/issues/268422136
-                         * https://issuetracker.google.com/issues/254645321
-                         */
-                        val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
-                        if (lifecycleState != Lifecycle.State.DESTROYED) {
-                            val navHostEngine = rememberWireNavHostEngine()
-                            DestinationsNavHost(
-                                navGraph = HomeGraph,
-                                start = HomeGraph.defaultStartDirection,
-                                engine = navHostEngine,
-                                navController = navController,
-                                dependenciesContainerBuilder = {
-                                    dependency(homeStateHolder)
-
-                                    // 👇 Scope CellViewModel to HomeScreen so SearchScreen can reuse it via previousBackStackEntry
-                                    destination(GlobalCellsScreenDestination) {
-                                        val parentEntry = remember(navBackStackEntry) {
-                                            homeStateHolder.navigator.navController
-                                                .getBackStackEntry(HomeScreenDestination.route)
-                                        }
-                                        dependency(hiltViewModel<CellViewModel>(parentEntry))
-                                    }
-                                }
-                            )
-                        }
-                    },
-                    floatingActionButton = {
-                        AnimatedVisibility(
-                            visible = currentNavigationItem.fab != null && !searchBarState.isSearchActive,
-                            enter = scaleIn(),
-                            exit = scaleOut(),
-                        ) {
-                            var currentFab by remember { mutableStateOf(currentNavigationItem.fab ?: FabOptions.NewConversation) }
-                            // to keep the fab during the exit animation, we need to keep last known (non-null) fab data
-                            if (currentNavigationItem.fab != null) currentFab = currentNavigationItem.fab!!
-
-                            FloatingActionButton(
-                                text = stringResource(currentFab.text),
-                                icon = {
-                                    Image(
-                                        painter = painterResource(currentFab.icon),
-                                        contentDescription = stringResource(currentFab.contentDescription),
-                                        contentScale = ContentScale.FillBounds,
-                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                        modifier = Modifier
-                                            .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                                            .size(dimensions().fabIconSize)
-                                    )
-                                },
-                                onClick = {
-                                    when (currentNavigationItem.fab) {
-                                        FabOptions.NewConversation -> onNewConversationClick()
-                                        FabOptions.NewMeeting -> homeStateHolder.newMeetingBottomSheetState.show(Unit)
-                                        else -> { /* no-op */ }
-                                    }
-                                }
-                            )
-                        }
-                    }
+                HomeScaffold(
+                    homeState = homeState,
+                    state = remember(homeStateHolder) { HomeScaffoldState(homeStateHolder) },
+                    drawerState = drawerState,
+                    focusRequesters = HomeScaffoldFocusRequesters(
+                        search = searchFocusRequester,
+                        fab = fabFocusRequester
+                    ),
+                    actions = HomeScaffoldActions(
+                        onDrawerItemFocusRequested = ::requestDrawerItemFocus,
+                        onNewConversationClick = onNewConversationClick,
+                        onSelfUserClick = onSelfUserClick,
+                        onHamburgerMenuClick = ::openDrawer
+                    )
                 )
             }
         )

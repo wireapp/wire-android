@@ -27,24 +27,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
 import com.wire.android.appLogger
-import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.uiText
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
-import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
-import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
-import com.wire.kalium.logic.feature.debug.RepairResult
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
+import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
+import com.wire.kalium.logic.feature.debug.RepairResult
+import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.TargetedRepairParam
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
@@ -58,8 +55,6 @@ import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -68,7 +63,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
 
 @Suppress("TooManyFunctions")
@@ -79,6 +73,7 @@ interface DebugDataOptionsViewModel {
     val e2eiCertificateExpirationInputState: TextFieldState get() = TextFieldState("6")
     fun currentAccount(): UserId = UserId("value", "domain")
     fun checkCrlRevocationList() {}
+    fun forceCRLExpirationAfterOneMinute(enabled: Boolean) {}
     fun restartSlowSyncForRecovery() {}
     fun enrollE2EICertificate() {}
     fun updateE2EICertificateExpiration(seconds: Long) {}
@@ -94,11 +89,9 @@ interface DebugDataOptionsViewModel {
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class DebugDataOptionsViewModelImpl
-@Inject constructor(
-    @ApplicationContext private val context: Context,
-    @CurrentAccount val currentAccount: UserId,
+class DebugDataOptionsViewModelImpl(
+    private val context: Context,
+    val currentAccount: UserId,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,
@@ -108,11 +101,11 @@ class DebugDataOptionsViewModelImpl
     private val dispatcherProvider: DispatcherProvider,
     private val selfServerConfigUseCase: SelfServerConfigUseCase,
     private val getDefaultProtocolUseCase: GetDefaultProtocolUseCase,
-    private val observeAsyncNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase,
-    private val startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase,
     private val repairFaultyRemovalKeys: RepairFaultyRemovalKeysUseCase,
     private val getDebugE2EICertificateExpiration: GetDebugE2EICertificateExpirationUseCase,
     private val setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase,
+    private val observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase,
+    private val setDebugCRLExpirationAfterOneMinute: SetDebugCRLExpirationAfterOneMinuteUseCase,
 ) : ViewModel(), DebugDataOptionsViewModel {
     private companion object {
         val DEFAULT_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS = 90.days.inWholeSeconds
@@ -131,22 +124,14 @@ class DebugDataOptionsViewModelImpl
     override val infoMessage = _infoMessage.asSharedFlow()
 
     init {
-        observeAsyncNotificationsEnabledData()
         observeMlsMetadata()
+        observeDebugCRLExpiration()
         observeE2EICertificateExpirationInput()
         setGitHashAndDeviceId()
         setAnalyticsTrackingId()
         setServerConfigData()
         setDefaultProtocol()
         loadDebugE2EICertificateExpiration()
-    }
-
-    private fun observeAsyncNotificationsEnabledData() {
-        viewModelScope.launch {
-            observeAsyncNotificationsEnabled().collect {
-                state = state.copy(isAsyncNotificationsEnabled = it)
-            }
-        }
     }
 
     private fun setDefaultProtocol() {
@@ -205,6 +190,15 @@ class DebugDataOptionsViewModelImpl
         }
     }
 
+    override fun forceCRLExpirationAfterOneMinute(enabled: Boolean) {
+        viewModelScope.launch {
+            setDebugCRLExpirationAfterOneMinute(enabled)
+            if (enabled) {
+                checkCrlRevocationList(forceUpdate = true)
+            }
+        }
+    }
+
     override fun restartSlowSyncForRecovery() {
         viewModelScope.launch {
             restartSlowSyncProcessForRecovery()
@@ -239,6 +233,7 @@ class DebugDataOptionsViewModelImpl
                     startGettingE2EICertificate = false
                 )
             }
+
             is FinalizeEnrollmentResult.Failure -> {
                 state.copy(
                     certificate = result.toString(),
@@ -246,6 +241,7 @@ class DebugDataOptionsViewModelImpl
                     startGettingE2EICertificate = false
                 )
             }
+
             is FinalizeEnrollmentResult.Success -> {
                 state.copy(
                     certificate = result.certificate,
@@ -270,19 +266,6 @@ class DebugDataOptionsViewModelImpl
         viewModelScope.launch {
             disableEventProcessing(disabled)
             state = state.copy(isEventProcessingDisabled = disabled)
-        }
-    }
-
-    override fun enableAsyncNotifications(enabled: Boolean) {
-        if (enabled) {
-            viewModelScope.launch {
-                when (val result = startUsingAsyncNotifications()) {
-                    is StartUsingAsyncNotificationsResult.Failure ->
-                        _infoMessage.emit(UIText.DynamicString("Can't enable async notifications, error: ${result.coreFailure.uiText()}"))
-
-                    is StartUsingAsyncNotificationsResult.Success -> state = state.copy(isAsyncNotificationsEnabled = enabled)
-                }
-            }
         }
     }
 
@@ -369,6 +352,14 @@ class DebugDataOptionsViewModelImpl
                         state = state.copy(mlsInfoState = state.mlsInfoState.copy(mlsErrorMessage = "Not Enabled!"))
                     }
                 }
+            }
+        }
+    }
+
+    private fun observeDebugCRLExpiration() {
+        viewModelScope.launch {
+            observeDebugCRLExpirationAfterOneMinute().collect { enabled ->
+                state = state.copy(forceCRLExpirationAfterOneMinute = enabled)
             }
         }
     }

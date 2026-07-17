@@ -44,9 +44,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.authentication.createAccountSelectorViewModel
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -55,6 +57,8 @@ import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
+import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -82,7 +86,7 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun CreateAccountSelectorScreen(
     navigator: Navigator,
-    viewModel: CreateAccountSelectorViewModel = hiltViewModel()
+    viewModel: CreateAccountSelectorViewModel = createAccountSelectorViewModel()
 ) {
     val context = LocalContext.current
     fun navigateToEmailScreen() {
@@ -94,10 +98,14 @@ fun CreateAccountSelectorScreen(
     }
 
     val startForResult = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+        val loginNavArgs = LoginNavArgs(
+            userHandle = PreFilledUserIdentifierType.PreFilled(viewModel.email),
+            loginPasswordPath = LoginPasswordPath(customServerConfig = viewModel.serverConfig)
+        )
         navigator.navigate(
             NavigationCommand(
-                NewLoginPasswordScreenDestination(PreFilledUserIdentifierType.PreFilled(viewModel.email)),
-                BackStackMode.REMOVE_CURRENT_NESTED_GRAPH
+                NewLoginPasswordScreenDestination(loginNavArgs),
+                BackStackMode.UPDATE_EXISTED
             )
         )
     }
@@ -138,7 +146,8 @@ fun CreateAccountSelectorContent(
                 title = {
                     Text(
                         text = stringResource(id = R.string.create_account_selector_title),
-                        style = MaterialTheme.wireTypography.title01
+                        style = MaterialTheme.wireTypography.title01,
+                        modifier = Modifier.semantics { heading() }
                     )
                     if (customServerLinks?.isOnPremises == true) {
                         ServerTitle(
@@ -226,6 +235,7 @@ private fun AccountType(
                 modifier = Modifier
                     .padding(horizontal = dimensions().spacing8x)
                     .fillMaxWidth()
+                    .semantics { heading() }
             )
             Text(
                 text = subtitle,

@@ -25,22 +25,32 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toConversationItem
-import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UiTextResolver
+import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
+import dev.zacsweers.metro.Inject
+import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 class GetConversationsFromSearchUseCase @Inject constructor(
     private val useCase: GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase,
@@ -48,8 +58,9 @@ class GetConversationsFromSearchUseCase @Inject constructor(
     private val observeConversationsFromFromFolder: ObserveConversationsFromFolderUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider,
-    private val getSelfUser: GetSelfUserUseCase,
+    private val getSelfTeamId: GetSelfTeamIdUseCase,
     private val uiTextResolver: UiTextResolver,
+    private val observeJoinableCalls: ObserveJoinableCallsUseCase,
 ) {
     @Suppress("LongParameterList")
     suspend operator fun invoke(
@@ -58,9 +69,11 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         newActivitiesOnTop: Boolean = false,
         onlyInteractionEnabled: Boolean = false,
         conversationFilter: ConversationFilter = ConversationFilter.All,
-        playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,
         useStrictMlsFilter: Boolean,
     ): Flow<PagingData<ConversationItem>> {
+        val selfUserTeamId = getSelfTeamId()
+        val joinableCallsFlow = observeJoinableCalls()
+        val initialJoinableCallsByConversationId = joinableCallsFlow.first()
         val pagingConfig = PagingConfig(
             pageSize = PAGE_SIZE,
             prefetchDistance = PREFETCH_DISTANCE,
@@ -71,7 +84,7 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             ConversationFilter.All,
             ConversationFilter.Groups,
             ConversationFilter.Channels,
-            ConversationFilter.OneOnOne -> useCase(
+            ConversationFilter.OneOnOne -> getPaginatedConversationItems(
                 queryConfig = ConversationQueryConfig(
                     searchQuery = searchQuery,
                     fromArchive = fromArchive,
@@ -80,8 +93,10 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     conversationFilter = conversationFilter,
                 ),
                 pagingConfig = pagingConfig,
-                startingOffset = 0L,
-                strictMlsFilter = useStrictMlsFilter
+                useStrictMlsFilter = useStrictMlsFilter,
+                selfUserTeamId = selfUserTeamId,
+                initialJoinableCallsByConversationId = initialJoinableCallsByConversationId,
+                joinableCallsFlow = joinableCallsFlow
             )
 
             ConversationFilter.Favorites -> {
@@ -90,28 +105,94 @@ class GetConversationsFromSearchUseCase @Inject constructor(
                     is GetFavoriteFolderUseCase.Result.Success ->
                         observeConversationsFromFromFolder(result.folder.id)
                 }
-                    .map { staticPagingItems(it) }
+                    .mapToStaticConversationItems(selfUserTeamId, joinableCallsFlow)
             }
 
             is ConversationFilter.Folder -> {
                 observeConversationsFromFromFolder(conversationFilter.folderId)
-                    .map { staticPagingItems(it) }
+                    .mapToStaticConversationItems(selfUserTeamId, joinableCallsFlow)
             }
-        }
-            .map { pagingData ->
-                pagingData.map {
-                    it.toConversationItem(
-                        userTypeMapper = userTypeMapper,
-                        uiTextResolver = uiTextResolver,
-                        searchQuery = searchQuery,
-                        selfUserTeamId = getSelfUser()?.teamId,
-                        playingAudioMessage = playingAudioMessage
-                    )
-                }
-            }.flowOn(dispatchers.io())
+        }.flowOn(dispatchers.io())
     }
 
-    private fun staticPagingItems(conversations: List<ConversationDetailsWithEvents>): PagingData<ConversationDetailsWithEvents> {
+    @Suppress("LongParameterList")
+    private suspend fun getPaginatedConversationItems(
+        queryConfig: ConversationQueryConfig,
+        pagingConfig: PagingConfig,
+        useStrictMlsFilter: Boolean,
+        selfUserTeamId: TeamId?,
+        initialJoinableCallsByConversationId: Map<ConversationId, Call>,
+        joinableCallsFlow: Flow<Map<ConversationId, Call>>
+    ): Flow<PagingData<ConversationItem>> {
+        val includeJoinableCalls = queryConfig.conversationFilter != ConversationFilter.OneOnOne
+        val initialCalls = if (includeJoinableCalls) initialJoinableCallsByConversationId else emptyMap()
+        val callsFlow = if (includeJoinableCalls) joinableCallsFlow else flowOf(emptyMap())
+        return useCase(
+            queryConfig = queryConfig,
+            pagingConfig = pagingConfig,
+            startingOffset = 0L,
+            strictMlsFilter = useStrictMlsFilter
+        ).mapToConversationItems(
+            selfUserTeamId = selfUserTeamId,
+            initialJoinableCallsByConversationId = initialCalls,
+            joinableCallsFlow = callsFlow
+        )
+    }
+
+    private fun Flow<List<ConversationDetailsWithEvents>>.mapToStaticConversationItems(
+        selfUserTeamId: TeamId?,
+        joinableCallsFlow: Flow<Map<ConversationId, Call>>
+    ): Flow<PagingData<ConversationItem>> = combine(joinableCallsFlow) { conversations, joinableCallsByConversationId ->
+        staticPagingItems(
+            conversations.toConversationItems(
+                selfUserTeamId = selfUserTeamId,
+                joinableCallsByConversationId = joinableCallsByConversationId
+            )
+        )
+    }
+
+    private fun Flow<PagingData<ConversationDetailsWithEvents>>.mapToConversationItems(
+        selfUserTeamId: TeamId?,
+        initialJoinableCallsByConversationId: Map<ConversationId, Call>,
+        joinableCallsFlow: Flow<Map<ConversationId, Call>>
+    ): Flow<PagingData<ConversationItem>> = flow {
+        val latestJoinableCallsByConversationId = AtomicReference(initialJoinableCallsByConversationId)
+        coroutineScope {
+            val callsJob = launch {
+                joinableCallsFlow.collect { latestJoinableCallsByConversationId.set(it) }
+            }
+            try {
+                this@mapToConversationItems.collect { pagingData ->
+                    emit(
+                        pagingData.map {
+                            it.toConversationItem(
+                                userTypeMapper = userTypeMapper,
+                                uiTextResolver = uiTextResolver,
+                                selfUserTeamId = selfUserTeamId,
+                                joinableCallsByConversationId = latestJoinableCallsByConversationId.get()
+                            )
+                        }
+                    )
+                }
+            } finally {
+                callsJob.cancel()
+            }
+        }
+    }
+
+    private fun List<ConversationDetailsWithEvents>.toConversationItems(
+        selfUserTeamId: TeamId?,
+        joinableCallsByConversationId: Map<ConversationId, Call>
+    ): List<ConversationItem> = map {
+        it.toConversationItem(
+            userTypeMapper = userTypeMapper,
+            uiTextResolver = uiTextResolver,
+            selfUserTeamId = selfUserTeamId,
+            joinableCallsByConversationId = joinableCallsByConversationId
+        )
+    }
+
+    private fun <T : Any> staticPagingItems(conversations: List<T>): PagingData<T> {
         return PagingData.from(
             conversations,
             sourceLoadStates = LoadStates(

@@ -37,12 +37,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -62,7 +66,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -79,7 +82,6 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -92,6 +94,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryS
 import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
@@ -102,8 +105,6 @@ import com.sebaslogen.resaca.rememberKeysInScope
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
-import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
@@ -115,9 +116,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.ui.calling.getOutgoingCallIntent
-import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.calling.conversationCallViewModel
 import com.wire.android.ui.common.PageLoadingIndicator
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -128,19 +127,12 @@ import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureActivatedDialog
-import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableDialog
-import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableTeamAdminDialog
-import com.wire.android.ui.common.dialogs.calling.CallingFeatureUnavailableTeamMemberDialog
-import com.wire.android.ui.common.dialogs.calling.ConfirmStartCallDialog
-import com.wire.android.ui.common.dialogs.calling.JoinAnywayDialog
-import com.wire.android.ui.common.dialogs.calling.OngoingActiveCallDialog
-import com.wire.android.ui.common.dialogs.calling.SureAboutCallingInDegradedConversationDialog
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldHaveSmallBottomPadding
@@ -150,9 +142,10 @@ import com.wire.android.ui.home.conversations.attachment.IncompatibleFileNameDia
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
-import com.wire.android.ui.home.conversations.call.ConversationCallViewActions
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
+import com.wire.android.ui.home.conversations.call.HandleActions
+import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
@@ -171,6 +164,7 @@ import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
@@ -191,6 +185,7 @@ import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialo
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.openDownloadFolder
@@ -198,30 +193,28 @@ import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
-import com.wire.kalium.common.error.NetworkFailure
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.isInternal
-import com.wire.kalium.logic.data.user.type.isTeamAdmin
-import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import java.util.Date
-import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
+import androidx.compose.ui.platform.LocalLocale
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -230,10 +223,7 @@ import com.wire.android.ui.common.R as commonR
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 
-/**
- * The maximum number of participants to start a call without showing a confirmation dialog.
- */
-private const val MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT = 5
+private const val SCOPED_VIEW_MODEL_PREFETCH_WINDOW = 3
 
 /**
  * The maximum number of participants to send a ping without showing a confirmation dialog.
@@ -254,15 +244,15 @@ fun ConversationScreen(
     imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
-    conversationInfoViewModel: ConversationInfoViewModel = hiltViewModel(),
-    conversationBannerViewModel: ConversationBannerViewModel = hiltViewModel(),
-    conversationCallViewModel: ConversationCallViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel(),
-    messageComposerViewModel: MessageComposerViewModel = hiltViewModel(),
-    sendMessageViewModel: SendMessageViewModel = hiltViewModel(),
-    conversationMigrationViewModel: ConversationMigrationViewModel = hiltViewModel(),
-    messageDraftViewModel: MessageDraftViewModel = hiltViewModel(),
-    messageAttachmentsViewModel: MessageAttachmentsViewModel = hiltViewModel(),
+    conversationInfoViewModel: ConversationInfoViewModel = conversationInfoViewModel(),
+    conversationBannerViewModel: ConversationBannerViewModel = conversationBannerViewModel(),
+    conversationCallViewModel: ConversationCallViewModel = conversationCallViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel(),
+    messageComposerViewModel: MessageComposerViewModel = messageComposerViewModel(),
+    sendMessageViewModel: SendMessageViewModel = sendMessageViewModel(),
+    conversationMigrationViewModel: ConversationMigrationViewModel = conversationMigrationViewModel(),
+    messageDraftViewModel: MessageDraftViewModel = messageDraftViewModel(),
+    messageAttachmentsViewModel: MessageAttachmentsViewModel = messageAttachmentsViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
@@ -303,8 +293,6 @@ fun ConversationScreen(
     // this is to prevent from double navigating back after user deletes a group on group details screen
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
-
-    val context = LocalContext.current
 
     LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
@@ -352,18 +340,26 @@ fun ConversationScreen(
         }
     }
 
-    HandleActions(conversationCallViewModel.actions) { action ->
-        when (action) {
-            is ConversationCallViewActions.InitiatedCall -> {
-                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
-            }
-
-            is ConversationCallViewActions.JoinedCall -> {
-                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
-                AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-            }
+    LaunchedEffect(
+        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState,
+        messageAttachmentsViewModel.attachments,
+    ) {
+        if (messageAttachmentsViewModel.attachments.isNotEmpty()) {
+            sendMessageViewModel.clearLinkPreview()
+            return@LaunchedEffect
         }
+
+        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState
+            .textAsFlow()
+            .distinctUntilChanged()
+            .collectLatest { text ->
+                sendMessageViewModel.updateLinkPreview(
+                    text = text.toString(),
+                    mentions = messageComposerStateHolder.messageComposition.value.selectedMentions.map {
+                        it.intoMessageMention()
+                    }
+                )
+            }
     }
 
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
@@ -375,57 +371,7 @@ fun ConversationScreen(
         )
     }
 
-    with(conversationCallViewModel) {
-        if (conversationCallViewState.shouldShowJoinAnywayDialog) {
-            appLogger.i("showing showJoinAnywayDialog..")
-            JoinAnywayDialog(
-                onDismiss = ::dismissJoinCallAnywayDialog,
-                onConfirm = ::joinAnyway,
-            )
-        }
-    }
-
     when (showDialog.value) {
-        ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
-            OngoingActiveCallDialog(
-                onInitiateCallAnyway = {
-                    conversationCallViewModel.initiateCall()
-                    showDialog.value = ConversationScreenDialogType.NONE
-                },
-                onDialogDismiss = {
-                    showDialog.value = ConversationScreenDialogType.NONE
-                }
-            )
-        }
-
-        ConversationScreenDialogType.NO_CONNECTIVITY -> {
-            CoreFailureErrorDialog(coreFailure = NetworkFailure.NoNetworkConnection(null)) {
-                showDialog.value = ConversationScreenDialogType.NONE
-            }
-        }
-
-        ConversationScreenDialogType.CALL_CONFIRMATION -> {
-            ConfirmStartCallDialog(
-                participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount,
-                onConfirm = {
-                    startCallIfPossible(
-                        conversationCallViewModel,
-                        showDialog,
-                        coroutineScope,
-                        conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOngoingCallScreen = { conversationId, userId ->
-                            getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
-                                context.startActivity(this)
-                            }
-                        }
-                    )
-                },
-                onDialogDismiss = {
-                    showDialog.value = ConversationScreenDialogType.NONE
-                }
-            )
-        }
-
         ConversationScreenDialogType.PING_CONFIRMATION -> {
             ConfirmSendingPingDialog(
                 participantsCount = conversationCallViewModel.conversationCallViewState.participantsCount,
@@ -439,55 +385,17 @@ fun ConversationScreen(
             )
         }
 
-        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE -> {
-            CallingFeatureUnavailableDialog {
-                showDialog.value = ConversationScreenDialogType.NONE
-            }
-        }
-
-        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER -> {
-            CallingFeatureUnavailableTeamMemberDialog {
-                showDialog.value = ConversationScreenDialogType.NONE
-            }
-        }
-
-        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN -> {
-            CallingFeatureUnavailableTeamAdminDialog(
-                onUpgradeAction = uriHandler::openUri,
-                onDialogDismiss = {
-                    showDialog.value = ConversationScreenDialogType.NONE
-                }
-            )
-        }
-
         ConversationScreenDialogType.CALLING_FEATURE_ACTIVATED -> {
             CallingFeatureActivatedDialog {
                 showDialog.value = ConversationScreenDialogType.NONE
             }
         }
 
-        ConversationScreenDialogType.VERIFICATION_DEGRADED -> {
-            SureAboutCallingInDegradedConversationDialog(
-                callAnyway = {
-                    conversationCallViewModel.onApplyConversationDegradation()
-                    startCallIfPossible(
-                        conversationCallViewModel,
-                        showDialog,
-                        coroutineScope,
-                        conversationInfoViewModel.conversationInfoViewState.conversationType,
-                        onOpenOngoingCallScreen = { conversationId, userId ->
-                            getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
-                                context.startActivity(this)
-                            }
-                        }
-                    )
-                },
-                onDialogDismiss = { showDialog.value = ConversationScreenDialogType.NONE }
-            )
-        }
-
         ConversationScreenDialogType.NONE -> {}
     }
+
+    conversationCallViewModel.callManager.actions.HandleActions()
+    conversationCallViewModel.callManager.HandleJoinOrStartCallScreenDialogs()
 
     ConversationScreen(
         bannerMessage = conversationBannerViewModel.bannerState,
@@ -497,15 +405,37 @@ fun ConversationScreen(
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
         attachments = messageAttachmentsViewModel.attachments,
-        onOpenProfile = {
+        onOpenProfile = { senderId: MessageSenderId ->
             with(conversationInfoViewModel) {
-                val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(it)
-                if (isSelfUser) {
-                    navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-                } else {
-                    (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)?.conversationId.let {
-                        navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(mentionUserId, it)))
+                val route = when (senderId) {
+                    is MessageSenderId.Bot -> ServiceDetailsScreenDestination(
+                        null,
+                        ServiceDetailsNavArgs.Id.BotServiceId(senderId.botService)
+                    )
+
+                    is MessageSenderId.App -> ServiceDetailsScreenDestination(
+                        null,
+                        ServiceDetailsNavArgs.Id.AppId(senderId.appId)
+                    )
+
+                    is MessageSenderId.User -> {
+                        val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(senderId.id.toString())
+                        if (isSelfUser) {
+                            SelfUserProfileScreenDestination
+                        } else {
+                            (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)
+                                ?.conversationId?.let { conversationId ->
+                                    OtherUserProfileScreenDestination(
+                                        mentionUserId,
+                                        conversationId
+                                    )
+                            }
+                        }
                     }
+                }
+
+                route?.let {
+                    navigator.navigate(NavigationCommand(it))
                 }
             }
         },
@@ -515,7 +445,9 @@ fun ConversationScreen(
                 NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
             )
         },
-        onSendMessage = { sendMessageViewModel.trySendMessage(it) },
+        onSendMessage = {
+            sendMessageViewModel.trySendMessage(it.withPrefetchedLinkPreview(sendMessageViewModel.currentLinkPreview))
+        },
         onPingOptionClicked = {
             if (conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_PING) {
                 showDialog.value = ConversationScreenDialogType.PING_CONFIRMATION
@@ -581,17 +513,7 @@ fun ConversationScreen(
             }
         },
         onStartCall = {
-            startCallIfPossible(
-                conversationCallViewModel,
-                showDialog,
-                coroutineScope,
-                conversationInfoViewModel.conversationInfoViewState.conversationType,
-                onOpenOngoingCallScreen = { conversationId, userId ->
-                    getOngoingCallIntent(context, conversationId.toString(), userId.toString()).run {
-                        context.startActivity(this)
-                    }
-                }
-            )
+            conversationCallViewModel.startCallIfPossible(conversationInfoViewModel.conversationInfoViewState.conversationType)
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onReactionClick = { messageId, emoji ->
@@ -601,16 +523,37 @@ fun ConversationScreen(
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = {
             with(conversationInfoViewModel) {
-                when (val data = conversationInfoViewState.conversationDetailsData) {
-                    is ConversationDetailsData.OneOne ->
-                        navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(data.otherUserId)))
+                val route = when (val data = conversationInfoViewState.conversationDetailsData) {
+                    is ConversationDetailsData.OneOne -> {
+                        val botService = data.botService
+                        when {
+                            botService != null ->
+                                ServiceDetailsScreenDestination(
+                                    null,
+                                    ServiceDetailsNavArgs.Id.BotServiceId(botService)
+                                )
+
+                            data.userType == UserTypeInfo.App ->
+                                ServiceDetailsScreenDestination(
+                                    null,
+                                    ServiceDetailsNavArgs.Id.AppId(data.otherUserId)
+                                )
+
+                            else -> OtherUserProfileScreenDestination(data.otherUserId)
+                        }
+                    }
 
                     is ConversationDetailsData.Group ->
-                        navigator.navigate(NavigationCommand(GroupConversationDetailsScreenDestination(conversationId)))
+                        GroupConversationDetailsScreenDestination(conversationId)
 
                     is ConversationDetailsData.None -> {
                         /* do nothing */
+                        null
                     }
+                }
+
+                route?.let {
+                    navigator.navigate(NavigationCommand(it))
                 }
             }
         },
@@ -639,7 +582,7 @@ fun ConversationScreen(
             }
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = description
                 )
             )
@@ -704,7 +647,7 @@ fun ConversationScreen(
         onPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.save_permission_dialog_description
                 )
             )
@@ -845,6 +788,15 @@ fun ConversationScreen(
     }
 }
 
+private fun MessageBundle.withPrefetchedLinkPreview(
+    linkPreview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview?
+): MessageBundle {
+    return when (this) {
+        is ComposableMessageBundle.SendTextMessageBundle -> copy(prefetchedLinkPreview = linkPreview)
+        else -> this
+    }
+}
+
 private fun conversationScreenOnBackButtonClick(
     messageComposerViewModel: MessageComposerViewModel,
     messageComposerStateHolder: MessageComposerStateHolder,
@@ -853,56 +805,6 @@ private fun conversationScreenOnBackButtonClick(
     messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
     messageComposerStateHolder.messageCompositionInputStateHolder.collapseComposer(null)
     navigator.navigateBack()
-}
-
-@Suppress("LongParameterList")
-private fun startCallIfPossible(
-    conversationCallViewModel: ConversationCallViewModel,
-    showDialog: MutableState<ConversationScreenDialogType>,
-    coroutineScope: CoroutineScope,
-    conversationType: Conversation.Type,
-    onOpenOngoingCallScreen: (ConversationId, UserId) -> Unit
-) {
-    coroutineScope.launch {
-        if (!conversationCallViewModel.hasStableConnectivity()) {
-            showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
-        } else if (conversationCallViewModel.shouldInformAboutVerification.value) {
-            showDialog.value = ConversationScreenDialogType.VERIFICATION_DEGRADED
-        } else {
-            val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
-                ConferenceCallingResult.Enabled -> {
-                    if (
-                        showDialog.value != ConversationScreenDialogType.CALL_CONFIRMATION &&
-                        conversationCallViewModel.conversationCallViewState.participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT
-                    ) {
-                        ConversationScreenDialogType.CALL_CONFIRMATION
-                    } else {
-                        conversationCallViewModel.initiateCall()
-                        ConversationScreenDialogType.NONE
-                    }
-                }
-
-                ConferenceCallingResult.Disabled.Established -> {
-                    onOpenOngoingCallScreen(conversationCallViewModel.conversationId, conversationCallViewModel.currentAccount)
-                    AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
-                    ConversationScreenDialogType.NONE
-                }
-
-                ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
-                ConferenceCallingResult.Disabled.Unavailable -> {
-                    val type = conversationCallViewModel.selfTeamRole.value
-                    when {
-                        type.isInternal() -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_MEMBER
-                        type.isTeamAdmin() -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE_TEAM_ADMIN
-                        else -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
-                    }
-                }
-
-                else -> ConversationScreenDialogType.NONE
-            }
-            showDialog.value = dialogValue
-        }
-    }
 }
 
 @Suppress("LongParameterList")
@@ -915,7 +817,7 @@ private fun ConversationScreen(
     conversationMessagesViewState: ConversationMessagesViewState,
     attachments: List<AttachmentDraftUi>,
     bottomSheetVisible: Boolean,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (MessageBundle) -> Unit,
     onPingOptionClicked: () -> Unit,
@@ -1009,6 +911,7 @@ private fun ConversationScreen(
                     }
                 )
             },
+            contentWindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Vertical),
             content = { internalPadding ->
                 Box(
                     modifier = Modifier
@@ -1069,6 +972,7 @@ private fun ConversationScreen(
         MessageOptionsModalSheetLayout(
             conversationId = conversationInfoViewState.conversationId,
             sheetState = conversationScreenState.editSheetState,
+            isNetworkAvailable = conversationMessagesViewState.isNetworkAvailable,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,
             onReactionClick = onReactionClick,
@@ -1123,7 +1027,7 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
@@ -1349,11 +1253,22 @@ fun MessageList(
         }
     }
 
-    val audioMessageKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
-        lazyPagingMessages.itemSnapshotList.items.mapNotNull { it.audioMessageScopedKeyOrNull() }.distinct()
+    val scopedMessages by remember(lazyListState, lazyPagingMessages) {
+        derivedStateOf {
+            lazyPagingMessages.peekVisibleWindowItems(lazyListState, SCOPED_VIEW_MODEL_PREFETCH_WINDOW)
+        }
     }
-    val assetLocalPathKeysInScope = remember(lazyPagingMessages.itemSnapshotList.items) {
-        lazyPagingMessages.itemSnapshotList.items
+    val playingAudioMessageKey = (playingAudioMessage as? PlayingAudioMessage.Some)?.let {
+        AudioMessageArgs(it.conversationId, it.messageId).key
+    }
+    val audioMessageKeysInScope = remember(scopedMessages, playingAudioMessageKey) {
+        buildList {
+            scopedMessages.mapNotNullTo(this) { it.audioMessageScopedKeyOrNull() }
+            playingAudioMessageKey?.let(::add)
+        }.distinct()
+    }
+    val assetLocalPathKeysInScope = remember(scopedMessages) {
+        scopedMessages
             .flatMap { it.assetLocalPathScopedKeys() }
             .distinct()
     }
@@ -1651,6 +1566,27 @@ private fun BoxScope.ScrollDateOverlay(
 private fun LazyPagingItems<UIMessage>.peekOrNull(index: Int): UIMessage? =
     if (index in 0 until itemCount) peek(index) else null
 
+private fun LazyPagingItems<UIMessage>.peekVisibleWindowItems(
+    lazyListState: LazyListState,
+    prefetchWindow: Int
+): List<UIMessage> {
+    val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+    return if (itemCount == 0 || visibleItems.isEmpty()) {
+        emptyList()
+    } else {
+        val firstVisibleIndex = visibleItems.minOf { it.index }
+        val lastVisibleIndex = visibleItems.maxOf { it.index }
+        val firstIndex = (firstVisibleIndex - prefetchWindow).coerceAtLeast(0)
+        val lastIndex = (lastVisibleIndex + prefetchWindow).coerceAtMost(itemCount - 1)
+
+        if (firstIndex > lastIndex) {
+            emptyList()
+        } else {
+            (firstIndex..lastIndex).mapNotNull { index -> peekOrNull(index) }
+        }
+    }
+}
+
 @Composable
 private fun MessageGroupDateTime(
     now: Long,
@@ -1712,7 +1648,7 @@ private fun MessageGroupDateTime(
             HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
             HorizontalSpace.x4()
             Text(
-                text = timeString.uppercase(Locale.getDefault()),
+                text = timeString.uppercase(LocalLocale.current.platformLocale),
                 maxLines = 1,
                 color = colorsScheme().onBackground,
                 style = MaterialTheme.wireTypography.label02,
@@ -1736,7 +1672,7 @@ private fun MessageGroupDateTime(
                 )
         ) {
             Text(
-                text = timeString.uppercase(Locale.getDefault()),
+                text = timeString.uppercase(LocalLocale.current.platformLocale),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,
             )

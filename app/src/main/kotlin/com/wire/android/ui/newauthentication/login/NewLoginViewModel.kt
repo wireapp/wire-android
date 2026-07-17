@@ -62,7 +62,6 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -72,11 +71,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Named
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
 class NewLoginViewModel(
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
@@ -231,7 +229,7 @@ class NewLoginViewModel(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
-                                            customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig,
+                                            customServerConfig = serverConfig,
                                             isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
                                         )
                                     )
@@ -244,7 +242,7 @@ class NewLoginViewModel(
                                     NewLoginAction.EmailPassword(
                                         userIdentifier = email,
                                         loginPasswordPath = LoginPasswordPath(
-                                            customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig,
+                                            customServerConfig = serverConfig,
                                             isCloudAccountCreationPossible = loginRedirectPath.isCloudAccountCreationPossible,
                                             isDomainClaimedByOrg = DomainClaimedByOrg.Claimed(
                                                 loginRedirectPath.domain
@@ -369,12 +367,12 @@ class NewLoginViewModel(
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
-                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment))
+                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.E2EIEnrollment(userId)))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
 
                     is RegisterClientResult.Failure.TooManyClients -> {
-                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices))
+                        sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.TooManyDevices(userId)))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
 

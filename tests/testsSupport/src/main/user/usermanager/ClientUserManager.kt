@@ -18,11 +18,11 @@
 package user.usermanager
 
 import android.content.Context
-import android.util.Log
 import backendUtils.BackendClient
 import backendUtils.team.TeamRoles
 import backendUtils.team.createTeamOwnerViaBackend
 import backendUtils.team.createTeamUserViaBackend
+import backendUtils.user.createPersonalUserViaBackend
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
 import user.usermanager.exceptions.NoSuchUserException
@@ -51,7 +51,8 @@ import java.util.stream.Collectors
 
 @Suppress("TooManyFunctions")
 class ClientUserManager(
-    private val useSpecialEmail: Boolean = false
+    private val useSpecialEmail: Boolean = false,
+    private val backendClient: BackendClient? = BackendClient.getDefault()
 ) {
     private val usersMap: MutableMap<UserState, MutableList<ClientUser>> =
         ConcurrentHashMap<UserState, MutableList<ClientUser>>()
@@ -114,12 +115,7 @@ class ClientUserManager(
         usersMap[UserState.Created] = ArrayList()
         usersMap[UserState.NotCreated] = ArrayList()
 
-        // Workaround for federation tests (can be deleted when inbucket is rolled out completely)
-        val actualUseSpecialEmail = if (BackendClient.getDefault() == null || BackendClient.getDefault()?.hasInbucketSetup() == true) {
-            false
-        } else {
-            useSpecialEmail
-        }
+        actualUseSpecialEmail = shouldUseSpecialEmail()
 
         for (userIdx in 0 until MAX_USERS) {
             val pendingUser = ClientUser()
@@ -137,6 +133,9 @@ class ClientUserManager(
         return "$uniqueUserName+$userNumber@wire.engineering"
     }
 
+    private fun shouldUseSpecialEmail(): Boolean =
+        useSpecialEmail && backendClient?.hasInbucketSetup() == false
+
     /**
      * Sets default values and aliases for a user based on their index.
      * @param user The ClientUser object to modify
@@ -144,6 +143,9 @@ class ClientUserManager(
      * @param useSpecialEmail Whether to use special email generation
      */
     private fun setUserDefaults(user: ClientUser, userIdx: Int, useSpecialEmail: Boolean) {
+        // Helpers resolve backend from user.backendName, so this prevents hidden STAGING fallback.
+        user.backendName = backendClient?.name
+
         // If special email flag is set, generate a unique email and password
         if (useSpecialEmail) {
             user.email = generateIndexedEmail(user.uniqueUsername ?: user.email.orEmpty(), userIdx + 1)
@@ -570,22 +572,9 @@ class ClientUserManager(
     /**
      * Initialize users on first access if not already initialized
      */
-    @Suppress("TooGenericExceptionCaught")
     private fun ensureUsersInitialized() {
         if (usersMap[UserState.NotCreated].isNullOrEmpty()) {
-            // Workaround for federation tests (can be deleted when inbucket is rolled out completely)
-            val hasInbucketSetup = try {
-                BackendClient.getDefault()?.hasInbucketSetup() == true
-            } catch (e: Exception) {
-                Log.d("Debug", "Failed to check Inbucket setup: ${e.message}")
-                false
-            }
-
-            actualUseSpecialEmail = if (BackendClient.getDefault() == null || hasInbucketSetup) {
-                false
-            } else {
-                useSpecialEmail
-            }
+            actualUseSpecialEmail = shouldUseSpecialEmail()
 
             for (userIdx in 0 until MAX_USERS) {
                 val pendingUser = ClientUser()

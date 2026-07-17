@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
@@ -55,7 +56,7 @@ fun RowItem(
             Row(
                 verticalAlignment = verticalAlignment,
                 modifier = Modifier
-                    .clickable(clickable)
+                    .clickable(clickable, role = Role.Button)
                     .then(
                         modifier
                             .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationItemRowHeight)

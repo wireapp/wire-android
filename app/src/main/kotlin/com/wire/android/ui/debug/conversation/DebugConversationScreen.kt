@@ -35,11 +35,11 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
+import com.wire.android.ui.debug.debugConversationViewModel
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -66,7 +66,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun DebugConversationScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
-    viewModel: DebugConversationViewModel = hiltViewModel(),
+    viewModel: DebugConversationViewModel = debugConversationViewModel(),
 ) {
 
     val context = LocalContext.current
@@ -115,6 +115,7 @@ fun DebugConversationScreen(
                     state = state,
                     onUpdate = { viewModel.updateConversation() },
                     onReset = { viewModel.resetMLSConversation() },
+                    onMigrateToMLS = { viewModel.migrateConversationToMLS() },
                 )
                 if (BuildConfig.CONVERSATION_FEEDER_ENABLED) {
                     SectionHeader("Feeders / performance config")
@@ -146,6 +147,7 @@ private fun ConversationActionsView(
     state: DebugConversationViewState,
     onUpdate: () -> Unit,
     onReset: () -> Unit,
+    onMigrateToMLS: () -> Unit,
 ) {
     RowItemTemplate(
         title = {
@@ -177,6 +179,23 @@ private fun ConversationActionsView(
                 onClick = onReset,
                 text = "Reset now",
                 fillMaxWidth = false,
+            )
+        })
+    }
+    if (state.canMigrateToMLS) {
+        RowItemTemplate(modifier = Modifier.wrapContentWidth(), title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = "Migrate conversation protocol",
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        }, actions = {
+            WirePrimaryButton(
+                onClick = onMigrateToMLS,
+                text = "Migrate to MLS",
+                fillMaxWidth = false,
+                loading = state.isMigratingToMLS,
             )
         })
     }

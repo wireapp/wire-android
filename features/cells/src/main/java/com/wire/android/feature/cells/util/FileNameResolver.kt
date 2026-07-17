@@ -18,7 +18,7 @@
 package com.wire.android.feature.cells.util
 
 import java.io.File
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class FileNameResolver @Inject constructor() {
     /**

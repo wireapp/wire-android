@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.home.conversations.details.participants.model.MemberSectionActions
 import com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState
@@ -73,7 +74,7 @@ fun LazyListScope.sectionWithElements(
     items = items.associateBy { it.id.toString() },
     animateItemPlacement = false,
     factory = {
-        val onClickDescription = stringResource(id = R.string.content_description_open_user_profile_label)
+        val onClickDescription = stringResource(id = commonR.string.content_description_open_user_profile_label)
         ConversationParticipantItem(
             uiParticipant = it,
             clickable = remember { Clickable(enabled = true, onClickDescription = onClickDescription) { onRowItemClicked(it) } },
@@ -102,7 +103,7 @@ fun LazyListScope.sectionWithElements(
     items = items,
     animateItemPlacement = false,
     factory = {
-        val onClickDescription = stringResource(id = R.string.content_description_open_user_profile_label)
+        val onClickDescription = stringResource(id = commonR.string.content_description_open_user_profile_label)
         ConversationParticipantItem(
             uiParticipant = it,
             clickable = remember { Clickable(enabled = true, onClickDescription = onClickDescription) { onRowItemClicked(it) } },

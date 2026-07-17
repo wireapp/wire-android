@@ -21,7 +21,6 @@ package com.wire.android.workmanager.worker
 
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ForegroundInfo
@@ -38,13 +37,12 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker.Companion.NAME
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker.Companion.TAG
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker.Companion.WORK_INTERVAL
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.coroutineScope
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.toJavaDuration
 
-@HiltWorker
 class PersistentWebsocketCheckWorker
 @AssistedInject constructor(
     @Assisted private val appContext: Context,

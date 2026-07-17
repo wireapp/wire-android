@@ -29,6 +29,9 @@ import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
+import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
+import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.CellAssetContent
@@ -143,6 +146,38 @@ class MultipartAttachmentsViewModelTest {
                         testAttachmentUi.copy(uuid = "asset_5"),
                     )
                 ),
+            ),
+            result
+        )
+    }
+
+    @Test
+    fun `with offline attachment id when mapped then attachment is marked as available offline`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withOfflineAttachmentId("asset_1")
+            .arrange()
+
+        advanceUntilIdle()
+        assertTrue(
+            viewModel.offlineAttachmentIds.value.contains("asset_1")
+        )
+
+        val result = viewModel.mapAttachments(
+            listOf(testAssetContent.copy(id = "asset_1", mimeType = "application/pdf")),
+        )
+
+        assertEquals(
+            listOf(
+                MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files(
+                    attachments = listOf(
+                        testAttachmentUi.copy(
+                            uuid = "asset_1",
+                            mimeType = "application/pdf",
+                            assetType = AttachmentFileType.PDF,
+                            isAvailableOffline = true,
+                        ),
+                    )
+                )
             ),
             result
         )
@@ -403,6 +438,7 @@ class MultipartAttachmentsViewModelTest {
             every { openFileDownloadController.start(any(), any(), any(), any()) } returns Unit
 
             return this to MultipartAttachmentsViewModelImpl(
+                conversationId = testConversationId,
                 refreshHelper = refreshHelper,
                 openFileDownloadController = openFileDownloadController,
                 sharedPathCache = sharedPathCache,
@@ -419,6 +455,8 @@ class MultipartAttachmentsViewModelTest {
     }
 
     private companion object {
+        val testConversationId = ConversationId("test-conversation-id", "test-domain")
+
         val testAssetContent = CellAssetContent(
             id = "assetId1",
             versionId = "1",

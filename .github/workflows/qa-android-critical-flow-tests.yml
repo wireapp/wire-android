@@ -1,10 +1,9 @@
 name: QA Android Critical Flow Tests
 
-# Concurrency lock:
-# - If androidDeviceId is set, we lock per-device so only one run can use that specific phone at a time (other devices can run in parallel).
-# - If androidDeviceId is empty ("auto"), we lock the shared device pool so only one auto-run uses the farm at a time (other auto-runs queue).
+# Lock each configured device group independently. Groups must be disjoint, so
+# criticalFlow, e2eTests, GrapheneOS, and future pools can run concurrently.
 concurrency:
-  group: qa-android-ui-tests-office-${{ github.event_name == 'workflow_dispatch' && inputs.androidDeviceId || 'auto' }}
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'criticalFlow' }}
   cancel-in-progress: false
 
 on:
@@ -23,13 +22,13 @@ on:
         type: string
 
       isUpgrade:
-        description: "Upgrade test? If true, oldBuildNumber is REQUIRED."
+        description: "Upgrade test? If true, oldBuildNumber is optional and defaults to the previous APK."
         required: true
         default: false
         type: boolean
 
       oldBuildNumber:
-        description: "For upgrade runs: type the old build number here"
+        description: "For upgrade runs: optional old build number. Leave empty to auto-pick the previous APK."
         required: false
         default: ""
         type: string
@@ -45,8 +44,8 @@ on:
         required: true
         type: choice
         options:
-          - internal release candidate
-          - internal beta
+          - alpha release candidate
+          - alpha beta
           - staging compat
           - experimental
           - column-1
@@ -55,7 +54,7 @@ on:
           - debug
           - fdroid
           - production
-        default: internal release candidate
+        default: alpha release candidate
 
       TAGS:
         description: "Tags: '@regression' OR '@TC-8143'."
@@ -70,9 +69,15 @@ on:
         type: string
 
       androidDeviceId:
-        description: "androidDeviceId. Target a specific device. Leave empty for auto."
+        description: "Target one device from androidDeviceGroup. Leave empty to use the group."
         required: false
         default: ""
+        type: string
+
+      androidDeviceGroup:
+        description: "Named group from the ANDROID_DEVICE_GROUPS_JSON repository variable."
+        required: true
+        default: "criticalFlow"
         type: string
 
       rerunFailedEnabled:
@@ -98,53 +103,88 @@ jobs:
 
     outputs:
       resolvedAppBuildNumber: ${{ steps.resolve_run_inputs.outputs.appBuildNumber }}
-      resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
+      resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
       resolvedOldBuildNumber: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
       resolvedEnforceAppInstall: ${{ steps.resolve_run_inputs.outputs.enforceAppInstall }}
       resolvedFlavor: ${{ steps.resolve_run_inputs.outputs.flavor }}
       resolvedTags: ${{ steps.resolve_run_inputs.outputs.TAGS }}
       resolvedTestinyRunName: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
       resolvedAndroidDeviceId: ${{ steps.resolve_run_inputs.outputs.androidDeviceId }}
+      resolvedAndroidDeviceGroup: ${{ steps.resolve_run_inputs.outputs.androidDeviceGroup }}
       resolvedRerunFailedEnabled: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled }}
       resolvedRerunFailedCount: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount }}
       resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
       resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
 
     steps:
+      - name: Reject untrusted manual refs
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          ACTUAL_REF: ${{ github.ref }}
+          TRUSTED_REF: refs/heads/${{ github.event.repository.default_branch }}
+        run: |
+          if [[ "${ACTUAL_REF}" != "${TRUSTED_REF}" ]]; then
+            echo "ERROR: Secret-bearing Android E2E runs are restricted to ${TRUSTED_REF}."
+            exit 1
+          fi
+
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       # Scheduled and PR runs do not have UI inputs, so resolve one shared set
       # of values here and let later jobs consume the same outputs.
       - name: Resolve run inputs
         id: resolve_run_inputs
         shell: bash
+        env:
+          APP_BUILD_NUMBER_INPUT: ${{ inputs.appBuildNumber }}
+          IS_UPGRADE_INPUT: ${{ inputs.isUpgrade }}
+          OLD_BUILD_NUMBER_INPUT: ${{ inputs.oldBuildNumber }}
+          ENFORCE_APP_INSTALL_INPUT: ${{ inputs.enforceAppInstall }}
+          FLAVOR_INPUT: ${{ inputs.flavor }}
+          TAGS_INPUT: ${{ inputs.TAGS }}
+          TESTINY_RUN_NAME_INPUT: ${{ inputs.testinyRunName }}
+          ANDROID_DEVICE_ID_INPUT: ${{ inputs.androidDeviceId }}
+          ANDROID_DEVICE_GROUP_INPUT: ${{ inputs.androidDeviceGroup }}
+          RERUN_FAILED_ENABLED_INPUT: ${{ inputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT_INPUT: ${{ inputs.rerunFailedCount }}
         run: |
+          trim_surrounding_whitespace() {
+            local value="$1"
+            value="${value#"${value%%[![:space:]]*}"}"
+            value="${value%"${value##*[![:space:]]}"}"
+            printf '%s' "${value}"
+          }
+
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            testiny_run_name="$(trim_surrounding_whitespace "${TESTINY_RUN_NAME_INPUT}")"
             {
-              echo "appBuildNumber=${{ inputs.appBuildNumber }}"
-              echo "isUpgrade=${{ inputs.isUpgrade }}"
-              echo "oldBuildNumber=${{ inputs.oldBuildNumber }}"
-              echo "enforceAppInstall=${{ inputs.enforceAppInstall }}"
-              echo "flavor=${{ inputs.flavor }}"
-              echo "TAGS=${{ inputs.TAGS }}"
-              echo "testinyRunName=${{ inputs.testinyRunName }}"
-              echo "androidDeviceId=${{ inputs.androidDeviceId }}"
-              echo "rerunFailedEnabled=${{ inputs.rerunFailedEnabled }}"
-              echo "rerunFailedCount=${{ inputs.rerunFailedCount }}"
+              echo "appBuildNumber=${APP_BUILD_NUMBER_INPUT}"
+              echo "isUpgrade=${IS_UPGRADE_INPUT}"
+              echo "oldBuildNumber=${OLD_BUILD_NUMBER_INPUT}"
+              echo "enforceAppInstall=${ENFORCE_APP_INSTALL_INPUT}"
+              echo "flavor=${FLAVOR_INPUT}"
+              echo "TAGS=${TAGS_INPUT}"
+              echo "testinyRunName=${testiny_run_name}"
+              echo "androidDeviceId=${ANDROID_DEVICE_ID_INPUT}"
+              echo "androidDeviceGroup=${ANDROID_DEVICE_GROUP_INPUT}"
+              echo "rerunFailedEnabled=${RERUN_FAILED_ENABLED_INPUT}"
+              echo "rerunFailedCount=${RERUN_FAILED_COUNT_INPUT}"
             } >> "${GITHUB_OUTPUT}"
             exit 0
           fi
 
           {
             echo "appBuildNumber=latest"
-            echo "isUpgrade=false"
+            echo "isUpgrade=true"
             echo "oldBuildNumber="
             echo "enforceAppInstall=false"
-            echo "flavor=internal release candidate"
+            echo "flavor=alpha release candidate"
             echo "TAGS=@criticalFlow"
             echo "testinyRunName="
             echo "androidDeviceId="
+            echo "androidDeviceGroup=criticalFlow"
             echo "rerunFailedEnabled=true"
             echo "rerunFailedCount=1"
           } >> "${GITHUB_OUTPUT}"
@@ -179,6 +219,7 @@ jobs:
         env:
           WORKFLOW_REF: ${{ github.ref_name }}
           FLAVOR_INPUT: ${{ steps.resolve_run_inputs.outputs.flavor }}
+          IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
           RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
           RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
           TESTINY_RUN_NAME: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
@@ -186,6 +227,10 @@ jobs:
 
   run-android-ui-tests:
     name: Run Android UI tests
+    # Configure this environment with required reviewers and a deployment-branch
+    # rule limited to the default branch. Move the E2E secrets into it so a
+    # modified workflow on another ref cannot bypass this trust boundary.
+    environment: android-e2e
     runs-on:
       - self-hosted
       - Linux
@@ -201,6 +246,7 @@ jobs:
       AWS_REGION: eu-west-1
       OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
 
     defaults:
       run:
@@ -208,20 +254,22 @@ jobs:
 
     steps:
       - name: Checkout (with submodules)
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           clean: true
+          ref: ${{ github.event.repository.default_branch }}
           submodules: recursive
+          persist-credentials: false
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v5
+      - name: Set up Java 21
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
           cache: gradle
 
       - name: Set up Android SDK (ANDROID_HOME + adb)
-        uses: android-actions/setup-android@v4
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
 
       # Verify required CLIs on the runner before setup continues.
       - name: Ensure required tools exist
@@ -236,7 +284,7 @@ jobs:
         run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-flavor
 
       - name: Configure AWS credentials (for S3)
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@517a711dbcd0e402f90c77e7e2f81e849156e31d # v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -249,12 +297,14 @@ jobs:
           APP_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
           OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
-        run: S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
 
       # Select device(s): use input device when provided, otherwise auto-pick.
       - name: Detect target device(s)
         env:
           TARGET_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
         run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
 
@@ -270,11 +320,13 @@ jobs:
         run: bash scripts/qa_android_ui_tests/execution_setup.sh install-apks-on-devices
 
       - name: Install 1Password CLI
-        uses: 1password/install-cli-action@v3
+        uses: 1password/install-cli-action@a5215d3a7f75c1629216c465ea9ab3ab399c4b71 # v4
 
       # Fetch runtime secrets only for this run.
       - name: Fetch secrets.json (runtime only)
-        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
@@ -297,7 +349,66 @@ jobs:
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
-        run: bash scripts/qa_android_ui_tests/run_ui_tests.sh
+          # Testiny sync is keyed by testcase ids but grouped under one run name.
+          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
+            # Single upgrade-tagged runs do not need the normal phase. They only
+            # pin execution to one device and install the old APK before launch.
+            upgrade_device="${DEVICE_LIST%% *}"
+            DEVICE_LIST="${upgrade_device}" \
+              DEVICE_COUNT="1" \
+              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh
+          elif [[ "${IS_UPGRADE}" == "true" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
+            # For broad upgrade runs, run the selected normal tests on the new APK first.
+            # Then run only the selected upgrade subset afterward, starting from the old APK.
+            upgrade_device="${DEVICE_LIST%% *}"
+            normal_category="${RESOLVED_CATEGORY}"
+            normal_status=0
+            upgrade_status=0
+
+            echo "Running normal tests first on the new APK, excluding upgrade tests."
+            RESOLVED_CATEGORY="${normal_category}" \
+              EXCLUDE_CATEGORY="upgrade" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-normal" \
+              ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/normal" \
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh || normal_status=$?
+
+            echo "Running upgrade tests last with old APK installed before each attempt."
+            DEVICE_LIST="${upgrade_device}" \
+              DEVICE_COUNT="1" \
+              RESOLVED_CATEGORY="${normal_category}" \
+              REQUIRED_CATEGORY="upgrade" \
+              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
+              ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh || upgrade_status=$?
+
+            RETRY_STATE_DIRS="${RUNNER_TEMP}/retry-state-normal ${RUNNER_TEMP}/retry-state-upgrade" \
+              COMBINED_RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-combined" \
+              bash scripts/qa_android_ui_tests/reporting.sh combine-retry-state
+
+            if (( normal_status != 0 )); then
+              exit "${normal_status}"
+            fi
+            if (( upgrade_status != 0 )); then
+              exit "${upgrade_status}"
+            fi
+          else
+            if [[ "${IS_UPGRADE}" != "true" && -n "${RESOLVED_CATEGORY}" ]]; then
+              # When upgrade mode is off, keep category runs in their selected
+              # scope but skip upgrade-tagged tests instead of executing them
+              # in the normal phase.
+              EXCLUDE_CATEGORY="upgrade" \
+                bash scripts/qa_android_ui_tests/run_ui_tests.sh
+            else
+              bash scripts/qa_android_ui_tests/run_ui_tests.sh
+            fi
+          fi
 
       # Export one standard artifact so future manual deflake runs can reuse
       # this workflow's exact run context and leftover failed test list.
@@ -314,23 +425,25 @@ jobs:
           SOURCE_REF: ${{ github.ref }}
           SOURCE_REF_NAME: ${{ github.ref_name }}
           SOURCE_SHA: ${{ github.sha }}
+          TEST_SOURCE_SHA: ${{ github.sha }}
           FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
           TAGS_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
           APP_BUILD_NUMBER_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
-          OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
+          OLD_BUILD_NUMBER: ${{ steps.download_apks.outputs.OLD_BUILD_NUMBER }}
           ENFORCE_APP_INSTALL: ${{ needs.validate-and-resolve-inputs.outputs.resolvedEnforceAppInstall }}
           TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          ANDROID_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
         run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle
 
       - name: Upload deflake input artifact
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: android-ui-test-deflake-input
           path: ${{ runner.temp }}/deflake-input
@@ -369,7 +482,7 @@ jobs:
 
       - name: Checkout GitHub Pages branch
         if: always()
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           ref: gh-pages
           path: gh-pages

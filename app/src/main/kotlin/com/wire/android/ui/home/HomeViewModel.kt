@@ -38,18 +38,14 @@ import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersona
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dagger.Lazy
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     val savedStateHandle: SavedStateHandle,
     private val dataStore: UserDataStore,
     private val observeSelf: ObserveSelfUserUseCase,
@@ -118,10 +114,10 @@ class HomeViewModel @Inject constructor(
     fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
-            if (isLoggedOut()) return@launch
+            val accountInfo = currentValidAccountInfo() ?: return@launch
             when {
                 needsToRegisterClient() -> // check if the client needs to be registered
-                    sendAction(HomeRequirement.RegisterDevice)
+                    sendAction(HomeRequirement.RegisterDevice(accountInfo.userId))
 
                 !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
                     sendAction(HomeRequirement.InitialSync)
@@ -132,8 +128,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isLoggedOut(): Boolean {
-        val accountInfo = (currentSessionFlow.get().invoke().firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
-        return accountInfo !is AccountInfo.Valid
-    }
+    private suspend fun currentValidAccountInfo(): AccountInfo.Valid? =
+        (currentSessionFlow.value.invoke().firstOrNull() as? CurrentSessionResult.Success)
+            ?.accountInfo as? AccountInfo.Valid
 }

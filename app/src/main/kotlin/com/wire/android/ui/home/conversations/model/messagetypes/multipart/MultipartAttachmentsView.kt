@@ -26,12 +26,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.decode.Decoder
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -40,6 +43,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
+import com.wire.android.ui.home.conversations.multipartAttachmentsViewModel
 import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
@@ -64,9 +68,7 @@ fun MultipartAttachmentsView(
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
-        else -> hiltViewModel<MultipartAttachmentsViewModelImpl>(key = conversationId.value).apply {
-            this.conversationId = conversationId.value
-        }
+        else -> multipartAttachmentsViewModel(conversationId)
     }
 ) {
     val context = LocalContext.current

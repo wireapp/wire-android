@@ -21,6 +21,8 @@ import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -29,10 +31,16 @@ import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.wire.android.ui.home.conversations.search.SearchPeopleScreenType
-import com.wire.android.ui.home.conversations.search.SearchUsersAndAppsScreen
+import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
+import com.wire.android.model.ItemActionType
+import com.wire.android.search.SearchUsersAndAppsScreen
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
+import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
+import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.BotService
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 
 @WireNewConversationDestination(
@@ -47,30 +55,57 @@ fun NewConversationSearchPeopleScreen(
     val showCreateTeamDialog = remember { mutableStateOf(false) }
     SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
-        shouldShowChannelPromotion = false,
-        isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
         onOpenUserProfile = { contact ->
             OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
                 .let { navigator.navigate(NavigationCommand(it)) }
         },
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onCreateNewGroup = {
-            newConversationViewModel.setIsChannel(false)
-            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
-        },
-        onCreateNewChannel = {
-            newConversationViewModel.setIsChannel(true)
-            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
-        },
-        isGroupSubmitVisible = newConversationViewModel.newGroupState.isGroupCreatingAllowed == true,
         onClose = navigator::navigateBack,
-        screenType = SearchPeopleScreenType.NEW_CONVERSATION,
+        navigationIconType = NavigationIconType.Close(R.string.content_description_new_conversation_close_btn),
+        itemActionType = ItemActionType.CLICK,
+        shouldHideBottomActionForSearch = true,
         selectedContacts = newConversationViewModel.newGroupState.selectedUsers,
         isAppsTabVisible = (newConversationViewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Enabled),
         conversationProtocol = null,
         onAppClicked = { contact ->
-            OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
-                .let { navigator.navigate(NavigationCommand(it)) }
+            val serviceDetailsNavArgsId: ServiceDetailsNavArgs.Id =
+                if (newConversationViewModel.groupOptionsState.shouldShowNewAppsUi) {
+                    ServiceDetailsNavArgs.Id.AppId(
+                        UserId(contact.id, contact.domain)
+                    )
+                } else {
+                    ServiceDetailsNavArgs.Id.BotServiceId(
+                        BotService(id = contact.id, provider = contact.domain)
+                    )
+                }
+
+            navigator.navigate(
+                NavigationCommand(
+                    ServiceDetailsScreenDestination(
+                        null,
+                        serviceDetailsNavArgsId
+                    )
+                )
+            )
+        },
+        peopleBottomActions = if (newConversationViewModel.newGroupState.isGroupCreatingAllowed == true) {
+            { focusRequester ->
+                CreateRegularGroupOrChannelButtons(
+                    shouldShowChannelPromotion = false,
+                    isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
+                    onCreateNewRegularGroup = {
+                        newConversationViewModel.setIsChannel(false)
+                        navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
+                    },
+                    onCreateNewChannel = {
+                        newConversationViewModel.setIsChannel(true)
+                        navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
+                    },
+                    firstVisibleButtonModifier = Modifier.focusRequester(focusRequester),
+                )
+            }
+        } else {
+            null
         }
     )
 

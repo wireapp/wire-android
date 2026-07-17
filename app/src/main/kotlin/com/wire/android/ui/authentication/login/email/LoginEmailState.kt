@@ -23,4 +23,5 @@ data class LoginEmailState(
     val userIdentifierEnabled: Boolean = true,
     val loginEnabled: Boolean = false,
     val flowState: LoginState = LoginState.Default,
+    val showInvalidCredentialsError: Boolean = false,
 )

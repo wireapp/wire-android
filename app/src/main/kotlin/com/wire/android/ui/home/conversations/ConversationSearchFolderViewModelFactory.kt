@@ -1,0 +1,87 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.android.ui.home.conversations
+
+import androidx.lifecycle.SavedStateHandle
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
+import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderArgs
+import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl
+import com.wire.android.ui.home.conversations.folder.NewFolderViewModel
+import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
+import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
+import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
+import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
+import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
+import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.folder.CreateConversationFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.MoveConversationToFolderUseCase
+import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
+import dev.zacsweers.metro.Inject
+
+@Suppress("LongParameterList")
+class ConversationSearchFolderViewModelFactory @Inject constructor(
+    private val dispatchers: DispatcherProvider,
+    private val observeUserFolders: ObserveUserFoldersUseCase,
+    private val createConversationFolder: CreateConversationFolderUseCase,
+    private val moveConversationToFolder: MoveConversationToFolderUseCase,
+    private val addMemberToConversation: AddMemberToConversationUseCase,
+    private val getConversationMessagesFromSearch: GetConversationMessagesFromSearchUseCase,
+    private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
+    private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
+) {
+    fun conversationFoldersViewModel(args: ConversationFoldersStateArgs) = ConversationFoldersVMImpl(
+        args = args,
+        observeUserFoldersUseCase = observeUserFolders,
+    )
+
+    fun moveConversationToFolderViewModel(args: MoveConversationToFolderArgs) = MoveConversationToFolderVMImpl(
+        dispatchers = dispatchers,
+        args = args,
+        moveConversationToFolder = moveConversationToFolder,
+    )
+
+    fun newFolderViewModel() = NewFolderViewModel(
+        observeUserFolders = observeUserFolders,
+        createConversationFolder = createConversationFolder,
+    )
+
+    fun addMembersToConversationViewModel(savedStateHandle: SavedStateHandle) = AddMembersToConversationViewModel(
+        addMemberToConversation = addMemberToConversation,
+        dispatchers = dispatchers,
+        savedStateHandle = savedStateHandle,
+    )
+
+    fun searchConversationMessagesViewModel(savedStateHandle: SavedStateHandle) = SearchConversationMessagesViewModel(
+        getSearchMessagesForConversation = getConversationMessagesFromSearch,
+        dispatchers = dispatchers,
+        savedStateHandle = savedStateHandle,
+    )
+
+    fun promoteAdminViewModel(savedStateHandle: SavedStateHandle) = PromoteAdminViewModel(
+        promoteAdminAndLeave = promoteAdminAndLeave,
+        observeEligibleMembers = observeEligibleMembers,
+        observeConversationMembers = observeConversationMembers,
+        dispatchers = dispatchers,
+        savedStateHandle = savedStateHandle,
+    )
+}

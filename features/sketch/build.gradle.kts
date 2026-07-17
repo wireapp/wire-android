@@ -5,7 +5,8 @@ plugins {
     id(BuildPlugins.junit5)
     alias(libs.plugins.ksp)
     id(libs.plugins.wire.android.navigation.get().pluginId)
-    alias(libs.plugins.compose.compiler)
+    id(libs.plugins.wire.compose.compiler.get().pluginId)
+    alias(libs.plugins.compose.stability.analyzer)
 }
 
 dependencies {
@@ -14,7 +15,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.ktx.immutableCollections)
 
-    val composeBom = platform(libs.compose.bom)
+    val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)

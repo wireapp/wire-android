@@ -420,6 +420,31 @@ object UiWaitUtils {
     }
 
     /**
+     * Waits until a system message containing all [messageParts] is visible, regardless of order.
+     */
+    fun iSeeSystemMessageContainingAll(
+        vararg messageParts: String,
+        timeout: Duration = SHORT_TIMEOUT
+    ) {
+        val parts = messageParts.filter(String::isNotBlank)
+        require(parts.isNotEmpty()) { "At least one system message fragment must be provided." }
+
+        val pattern = parts.joinToString(
+            prefix = "(?s)",
+            separator = "",
+            postfix = ".*"
+        ) { "(?=.*${Pattern.quote(it)})" }
+
+        waitUntilVisible(
+            params = UiSelectorParams(textMatches = pattern),
+            timeout = timeout,
+            errorMessage =
+                "System message containing ${parts.joinToString()} " +
+                    "was not displayed within ${timeout.inWholeMilliseconds}ms."
+        )
+    }
+
+    /**
      * Asserts a toast with [text] is emitted while executing [trigger].
      *
      * This uses accessibility events and is useful when UI tree based lookup is not reliable.

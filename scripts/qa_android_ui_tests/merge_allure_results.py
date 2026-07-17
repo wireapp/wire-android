@@ -6,10 +6,11 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import shutil
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
+
+from allure_sanitization import sanitize_allure_payload
 
 out_dir = Path(os.environ["OUT_DIR"])
 merged_dir = Path(os.environ["MERGED_DIR"])
@@ -39,9 +40,10 @@ def list_attempt_device_dirs(base_dir: Path) -> list[tuple[int, Path]]:
         src_dir = src_candidate if src_candidate.is_dir() else device_dir
         return src_dir.is_dir() and any(src_dir.glob("*-result.json"))
 
-    # Discover retry-aware layout first: OUT_DIR/attempt-N/<serial>/...
+    # Discover retry-aware layout first. Upgrade runs can keep phase results
+    # under OUT_DIR/<phase>/attempt-N/<serial>/..., so search recursively.
     attempt_dirs = []
-    for candidate in sorted(base_dir.iterdir()):
+    for candidate in sorted(base_dir.rglob("attempt-*")):
         if not candidate.is_dir():
             continue
         if not candidate.name.startswith("attempt-"):
@@ -78,11 +80,15 @@ def resolve_src_dir(device_dir: Path) -> Path:
     return candidate if candidate.is_dir() else device_dir
 
 
-def device_label(serial: str, cache: dict[str, dict[str, str]]) -> str:
+def device_label(
+    serial: str,
+    cache: dict[str, dict[str, str]],
+    aliases: dict[str, str],
+) -> str:
     meta = cache.get(serial) or {}
     model = meta.get("model") or "unknown"
     sdk = meta.get("sdk") or "unknown"
-    return f"{model} - {sdk} ({serial})"
+    return f"{model} - {sdk} ({aliases.get(serial, 'device')})"
 
 
 def add_label(data: dict, name: str, value: str) -> dict:
@@ -152,6 +158,10 @@ for _, device_dir in attempt_device_dirs:
     model = get_prop(serial, "ro.product.model") or "unknown"
     sdk = get_prop(serial, "ro.build.version.release") or get_prop(serial, "ro.build.version.sdk") or "unknown"
     device_info[serial] = {"model": model, "sdk": sdk}
+device_aliases = {
+    serial: f"device-{index}"
+    for index, serial in enumerate(sorted(device_info), start=1)
+}
 
 first_status: dict[str, str] = {}
 latest_by_test: dict[str, dict] = {}
@@ -165,7 +175,7 @@ for attempt, device_dir in attempt_device_dirs:
     if not src_dir.is_dir():
         continue
 
-    label = device_label(serial, device_info)
+    label = device_label(serial, device_info, device_aliases)
     for item in src_dir.iterdir():
         if item.is_dir():
             continue
@@ -177,6 +187,7 @@ for attempt, device_dir in attempt_device_dirs:
             except Exception:
                 continue
 
+            data = sanitize_allure_payload(data)
             data = add_label(data, "device", label)
             data = add_label(data, "host", label)
             data = add_parameter(data, "device", label)
@@ -197,9 +208,18 @@ for attempt, device_dir in attempt_device_dirs:
                     "data": data,
                 }
         else:
-            # Copy attachments and sidecar files as-is; only *-result.json needs
-            # retry-aware de-duplication.
-            shutil.copy2(item, merged_dir / item.name)
+            # Keep structural JSON such as fixture containers, but sanitize it
+            # too. Binary/text sidecars are attachments and are intentionally
+            # excluded from the publishable report.
+            if item.suffix == ".json":
+                try:
+                    sidecar_data = json.loads(item.read_text(encoding="utf-8"))
+                except Exception:
+                    continue
+                safe_write_result(
+                    item.name,
+                    json.dumps(sanitize_allure_payload(sidecar_data), ensure_ascii=True),
+                )
 
 # Write the final reportable result set after all attempts have been compared.
 for identity, info in latest_by_test.items():
@@ -230,7 +250,10 @@ for identity, info in latest_by_test.items():
 # Write Environment tab metadata for the merged Allure report.
 env_lines = []
 if device_info:
-    devices = ", ".join(device_label(serial, device_info) for serial in sorted(device_info.keys()))
+    devices = ", ".join(
+        device_label(serial, device_info, device_aliases)
+        for serial in sorted(device_info.keys())
+    )
     env_lines.append(f"devices={devices}")
 
 apk_version = os.environ.get("REAL_BUILD_NUMBER", "").strip()

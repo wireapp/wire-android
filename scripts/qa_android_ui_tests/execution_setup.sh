@@ -92,6 +92,8 @@ download_apks() {
 
   local new_s3_key=""
   local old_s3_key=""
+  local new_apk_name=""
+  local old_apk_name=""
   while IFS= read -r line || [[ -n "${line}" ]]; do
     [[ -z "${line}" ]] && continue
     if [[ "${line}" != *=* ]]; then
@@ -119,6 +121,12 @@ download_apks() {
       OLD_S3_KEY)
         old_s3_key="${value}"
         ;;
+      NEW_APK_NAME)
+        new_apk_name="${value}"
+        ;;
+      OLD_APK_NAME)
+        old_apk_name="${value}"
+        ;;
     esac
   done < "${apk_env_file}"
 
@@ -133,6 +141,9 @@ download_apks() {
   test -s "${new_apk_path}"
 
   if [[ "${IS_UPGRADE:-}" == "true" ]]; then
+    echo "OLD_APK_NAME=${old_apk_name}"
+    echo "NEW_APK_NAME=${new_apk_name}"
+
     if [[ -z "${old_s3_key}" ]]; then
       echo "ERROR: Missing OLD_S3_KEY for upgrade flow"
       exit 1
@@ -155,22 +166,36 @@ detect_target_devices() {
   fi
 
   local target="${TARGET_DEVICE_ID:-}"
+  local target_group="${TARGET_DEVICE_GROUP:-}"
+  local eligible_device_lines="${device_lines}"
+  if [[ -n "${target_group}" ]]; then
+    local grouped_device_list
+    grouped_device_list="$(
+      DEVICE_GROUP="${target_group}" \
+        DEVICE_GROUPS_JSON="${DEVICE_GROUPS_JSON:-}" \
+        ONLINE_DEVICE_IDS="${device_lines}" \
+        python3 scripts/qa_android_ui_tests/resolve_device_group.py
+    )"
+    eligible_device_lines="$(tr ' ' '\n' <<< "${grouped_device_list}")"
+    echo "Using configured device group '${target_group}': ${grouped_device_list}"
+  fi
+
   local device_list
   if [[ -n "${target}" ]]; then
-    # Explicit device targeting keeps retries and manual investigations pinned
-    # to one known phone instead of the shared auto-selected pool.
-    if ! printf '%s\n' "$device_lines" | grep -qx "$target"; then
-      echo "ERROR: androidDeviceId '$target' not found in adb devices."
+    # Explicit targets remain constrained to the requested group. This keeps a
+    # manual run from borrowing a phone locked by another device group.
+    if ! printf '%s\n' "${eligible_device_lines}" | grep -qx "${target}"; then
+      echo "ERROR: androidDeviceId '${target}' is not online in device group '${target_group:-all-online-devices}'."
       exit 1
     fi
     device_list="$target"
   elif [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
     # Single-testcase runs stay on one device so the same test is not fanned
     # out across multiple phones by the default sharding logic.
-    device_list="$(printf '%s\n' "$device_lines" | head -n 1)"
+    device_list="$(printf '%s\n' "${eligible_device_lines}" | head -n 1)"
     echo "Single-testcase mode (${RESOLVED_TESTCASE_ID}): selected device ${device_list}"
   else
-    device_list="$(printf '%s\n' "$device_lines" | xargs)"
+    device_list="$(printf '%s\n' "${eligible_device_lines}" | xargs)"
   fi
 
   local device_count
@@ -198,6 +223,8 @@ install_apks_on_devices() {
   : "${NEW_APK_PATH:?NEW_APK_PATH missing}"
   : "${GITHUB_ENV:?GITHUB_ENV not set}"
 
+  # Export stable device paths so upgrade tests can install the new APK during
+  # the in-test upgrade step. CI also keeps the old APK available for setup.
   local new_apk_device_path="/data/local/tmp/Wire.new.apk"
   local old_apk_device_path="/data/local/tmp/Wire.old.apk"
   echo "NEW_APK_DEVICE_PATH=${new_apk_device_path}" >> "$GITHUB_ENV"
@@ -228,15 +255,15 @@ install_apks_on_devices() {
 
     if [[ "${IS_UPGRADE:-}" == "true" ]]; then
       : "${OLD_APK_PATH:?OLD_APK_PATH missing for upgrade}"
-      # Upgrade tests need both APKs on the device because instrumentation
-      # receives those paths and performs the in-test upgrade flow itself.
+      # Keep both APK files available on the device for the in-test upgrade
+      # flow. Remove stale copies first so retries do not reuse an older file.
       ${adb_cmd} shell rm -f "${new_apk_device_path}" "${old_apk_device_path}" || true
       ${adb_cmd} push "${OLD_APK_PATH}" "${old_apk_device_path}" >/dev/null
       ${adb_cmd} push "${NEW_APK_PATH}" "${new_apk_device_path}" >/dev/null
-      ${adb_cmd} install ${install_flags} "${OLD_APK_PATH}"
-    else
-      ${adb_cmd} install ${install_flags} "${NEW_APK_PATH}"
     fi
+    # Always install the selected new APK during general setup. The upgrade
+    # phase explicitly reinstalls the old device-side APK before instrumentation.
+    ${adb_cmd} install ${install_flags} "${NEW_APK_PATH}"
 
     if ! ${adb_cmd} shell pm list packages | grep -qx "package:${APP_ID}"; then
       echo "ERROR: '${APP_ID}' not installed on ${serial}."
@@ -294,7 +321,21 @@ resolve_test_apk_path() {
     echo "ERROR: Could not find built androidTest APK under tests/testsCore/build/outputs/apk/androidTest/debug/"
     exit 1
   fi
+
+  local test_apk_metadata_path test_app_id
+  test_apk_metadata_path="$(dirname "${test_apk_path}")/output-metadata.json"
+  if [[ ! -f "${test_apk_metadata_path}" ]]; then
+    echo "ERROR: Could not find test APK metadata at ${test_apk_metadata_path}"
+    exit 1
+  fi
+  test_app_id="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["applicationId"])' "${test_apk_metadata_path}")"
+  if [[ -z "${test_app_id}" ]]; then
+    echo "ERROR: Test APK metadata has an empty applicationId"
+    exit 1
+  fi
+
   echo "TEST_APK_PATH=${test_apk_path}" >> "$GITHUB_ENV"
+  echo "TEST_APP_ID=${test_app_id}" >> "$GITHUB_ENV"
 }
 
 # Resolve newest cached artifacts so Test Services/Orchestrator can be installed without rebuilding.

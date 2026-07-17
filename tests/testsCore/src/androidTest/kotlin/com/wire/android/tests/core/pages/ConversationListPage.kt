@@ -23,19 +23,18 @@ import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert
+import java.util.regex.Pattern
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
+import uiautomatorutils.UiWaitUtils.toBySelector
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 data class ConversationListPage(private val device: UiDevice) {
 
     private val searchField = UiSelectorParams(description = "Search conversations")
     private val userProfileButtonNoPhoto = UiSelectorParams(description = "Your profile")
-
     private val userProfileButton = UiSelectorParams(resourceId = "User avatar")
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
@@ -44,12 +43,33 @@ data class ConversationListPage(private val device: UiDevice) {
     private val settingsButton = UiSelectorParams(text = "Settings")
 
     private val conversationsButton = UiSelectorParams(text = "Conversations")
+    private val archiveButton = UiSelectorParams(text = "Archive")
 
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
         UiSelectorParams(text = conversationName)
     }
+    private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
+
+    private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
+
+    private val removeConversationButton = UiSelectorParams(text = "Remove")
+
+    private val leaveConversationButtonOnModal = UiSelectorParams(text = "Leave")
+
+    private val leaveConversationDescriptionOnModal =
+        UiSelectorParams(textContains = "You will then no longer be able to send or read messages")
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
+    private val createNewChannelButton = UiSelectorParams(text = "New Channel")
+    private val blockedLabel = UiSelectorParams(text = "Blocked")
+    private val blockOption = UiSelectorParams(text = "Block")
+    private val unblockOption = UiSelectorParams(text = "Unblock")
+    private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
+    private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
+    private val blockButtonAlert = UiSelectorParams(text = "Block")
+    private val unblockButtonAlert = UiSelectorParams(text = "Unblock")
+    private val clearContentButton = UiSelectorParams(textContains = "Clear Content")
+    private val clearContentConfirmButton = UiSelectorParams(text = "Clear content")
 
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
@@ -63,6 +83,15 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationListNotVisible(): ConversationListPage {
+        val heading = findElementOrNull(conversationListHeading)
+        Assert.assertTrue(
+            "Conversation list heading is visible",
+            heading == null || heading.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun clickConversationsMenuEntry(): ConversationListPage {
         UiWaitUtils.waitElement(mainMenuButton).click()
         return this
@@ -72,7 +101,7 @@ data class ConversationListPage(private val device: UiDevice) {
      * The navigation drawer can appear before the Settings entry is fully attached and clickable.
      * Retry for a short window, reopening the drawer at a throttled pace until the Settings row is stable.
      */
-    fun clickSettingsButtonOnMenuEntry(timeout: Duration = 10.seconds): ConversationListPage {
+    fun clickSettingsButtonOnMenuEntry(timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT): ConversationListPage {
         var lastMenuClickAt = 0L
 
         val success = UiWaitUtils.retryUntilTimeout(
@@ -135,6 +164,33 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun clickArchiveButtonOnMenuEntry(timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT): ConversationListPage {
+        var lastMenuClickAt = 0L
+
+        val success = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            if (
+                UiWaitUtils.clickWhenClickable(
+                    archiveButton,
+                    timeout = UiWaitUtils.POLLING_DEFAULT,
+                    pollingInterval = UiWaitUtils.POLLING_FAST
+                )
+            ) {
+                true
+            } else {
+                lastMenuClickAt = reopenMenuIfNeeded(lastMenuClickAt)
+                false
+            }
+        }
+
+        if (!success) {
+            throw AssertionError("Archive menu entry was not found within ${timeout.inWholeMilliseconds}ms.")
+        }
+        return this
+    }
+
     fun assertConversationVisible(conversationName: String): ConversationListPage {
         val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
@@ -142,6 +198,10 @@ data class ConversationListPage(private val device: UiDevice) {
     }
 
     fun assertGroupConversationVisible(conversationName: String): ConversationListPage {
+        return assertConversationVisible(conversationName)
+    }
+
+    fun assertChannelConversationVisible(conversationName: String): ConversationListPage {
         return assertConversationVisible(conversationName)
     }
 
@@ -175,7 +235,10 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickGroupConversation(conversationName: String, timeout: Duration = 10.seconds): ConversationListPage {
+    fun clickGroupConversation(
+        conversationName: String,
+        timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT
+    ): ConversationListPage {
         val clicked = UiWaitUtils.clickWhenClickable(
             params = conversationNameSelector(conversationName),
             timeout = timeout,
@@ -184,6 +247,150 @@ data class ConversationListPage(private val device: UiDevice) {
         if (!clicked) {
             throw AssertionError("Group conversation '$conversationName' was not found.")
         }
+        return this
+    }
+
+    fun clickChannelConversation(
+        conversationName: String,
+        timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT
+    ): ConversationListPage {
+        return clickGroupConversation(conversationName, timeout)
+    }
+
+    fun longPressConversation(conversationName: String): ConversationListPage {
+        val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
+        val center = conversation.visibleCenter
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .swipe(center.x, center.y, center.x, center.y, 120)
+        return this
+    }
+
+    fun tapClearContentButtonOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(clearContentButton).click()
+        return this
+    }
+
+    fun tapClearContentConfirmButtonOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(clearContentConfirmButton).click()
+        return this
+    }
+
+    fun assertDeleteConversationButtonVisibleInConversationActions(): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(deleteConversationButton)
+        } catch (e: AssertionError) {
+            throw AssertionError("Delete Conversation button is not visible in conversation actions.", e)
+        }
+        return this
+    }
+
+    fun assertBlockOptionNotVisibleInConversationActions(): ConversationListPage {
+        val block = findElementOrNull(blockOption)
+        Assert.assertTrue(
+            "Block option is visible in conversation actions.",
+            block == null || block.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun tapBlockOptionOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(blockOption).click()
+        return this
+    }
+
+    fun tapBlockConfirmButtonOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(blockButtonAlert).click()
+        return this
+    }
+
+    fun tapUnblockOptionOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(unblockOption).click()
+        return this
+    }
+
+    fun tapUnblockConfirmButtonOnConversationList(): ConversationListPage {
+        UiWaitUtils.waitElement(unblockButtonAlert).click()
+        return this
+    }
+
+    fun tapMoveToArchiveButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(moveToArchiveButton).click()
+        return this
+    }
+
+    fun tapConfirmArchiveConversationButton(): ConversationListPage {
+        UiWaitUtils.waitElement(confirmArchiveConversationButton).click()
+        return this
+    }
+
+    fun assertDeleteConversationButtonNotVisibleInConversationActions(): ConversationListPage {
+        val deleteConversation = findElementOrNull(deleteConversationButton)
+        Assert.assertTrue(
+            "Delete Conversation button is visible in conversation actions.",
+            deleteConversation == null || deleteConversation.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertLeaveConversationButtonVisibleInConversationActions(): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(leaveConversationButton)
+        } catch (e: AssertionError) {
+            throw AssertionError("Leave Conversation button is not visible in conversation actions.", e)
+        }
+        return this
+    }
+
+    fun tapDeleteConversationButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(deleteConversationButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationButtonInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(leaveConversationButton).click()
+        return this
+    }
+
+    fun assertRemoveConversationConfirmationModalVisible(conversationName: String): ConversationListPage {
+        val modalTitle = UiSelectorParams(
+            textMatches = ".*Remove.*${Pattern.quote(conversationName)}.*"
+        )
+        try {
+            UiWaitUtils.waitElement(modalTitle)
+            UiWaitUtils.waitElement(removeConversationButton)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Remove conversation confirmation modal for '$conversationName' is not visible.",
+                e
+            )
+        }
+        return this
+    }
+
+    fun assertLeaveConversationConfirmationModalVisible(conversationName: String): ConversationListPage {
+        val modalTitle = UiSelectorParams(
+            textMatches = ".*Leave.*${Pattern.quote(conversationName)}.*"
+        )
+        try {
+            UiWaitUtils.waitElement(modalTitle)
+            UiWaitUtils.waitElement(leaveConversationDescriptionOnModal)
+            UiWaitUtils.waitElement(leaveConversationButtonOnModal)
+        } catch (e: AssertionError) {
+            throw AssertionError(
+                "Leave conversation confirmation modal for '$conversationName' is not visible.",
+                e
+            )
+        }
+        return this
+    }
+
+    fun tapRemoveConversationButton(): ConversationListPage {
+        UiWaitUtils.waitElement(removeConversationButton).click()
+        return this
+    }
+
+    fun tapLeaveConversationButtonOnModal(): ConversationListPage {
+        UiWaitUtils.waitElement(leaveConversationButtonOnModal).click()
         return this
     }
 
@@ -206,11 +413,44 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertConversationNotVisible(conversationName: String): ConversationListPage {
-        val conversation = findElementOrNull(conversationNameSelector(conversationName))
+    fun assertConversationNotVisible(
+        conversationName: String,
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
+    ): ConversationListPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = conversationNameSelector(conversationName).toBySelector(),
+            timeout = timeout,
+            errorMessage = "Conversation '$conversationName' is still visible."
+        )
+        return this
+    }
+
+    fun assertBlockedLabelVisibleInConversationList(): ConversationListPage {
+        try {
+            UiWaitUtils.waitElement(blockedLabel)
+        } catch (e: AssertionError) {
+            throw AssertionError("Blocked label is not visible in conversation list.", e)
+        }
+        return this
+    }
+
+    fun assertBlockedLabelNotVisibleInConversationList(): ConversationListPage {
+        val label = findElementOrNull(blockedLabel)
         Assert.assertTrue(
-            "Conversation '$conversationName' is still visible.",
-            conversation == null || conversation.visibleBounds.isEmpty
+            "Blocked label is visible in conversation list.",
+            label == null || label.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertToastMessageIsDisplayedOnConversationList(
+        expectedMessage: String,
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
+    ): ConversationListPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = expectedMessage),
+            timeout = timeout,
+            errorMessage = "Toast message '$expectedMessage' was not displayed within ${timeout.inWholeMilliseconds}ms."
         )
         return this
     }
@@ -220,7 +460,16 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickCloseButtonOnNewConversationScreen(timeout: Duration = 5.seconds): ConversationListPage {
+    fun assertCreateNewChannelButtonNotVisible(): ConversationListPage {
+        val createNewChannel = findElementOrNull(createNewChannelButton)
+        Assert.assertTrue(
+            "Create new channel button is visible.",
+            createNewChannel == null || createNewChannel.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun clickCloseButtonOnNewConversationScreen(timeout: Duration = UiWaitUtils.SHORT_TIMEOUT): ConversationListPage {
         val closeButton = UiSelectorParams(
             className = "android.view.View",
             description = "Close new conversation view"
@@ -253,7 +502,7 @@ data class ConversationListPage(private val device: UiDevice) {
         try {
             UiWaitUtils.waitUntilVisibleOrThrow(
                 params = UiSelectorParams(text = userName),
-                timeout = 10.seconds,
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT,
                 errorMessage = "User '$userName' is not visible in the conversation list"
             )
         } catch (e: Throwable) {
@@ -263,7 +512,7 @@ data class ConversationListPage(private val device: UiDevice) {
         try {
             UiWaitUtils.waitUntilVisibleOrThrow(
                 params = pendingApprovalLabel,
-                timeout = 10.seconds,
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT,
                 errorMessage = "Pending status is not visible for user '$userName'"
             )
         } catch (e: Throwable) {
@@ -279,8 +528,8 @@ data class ConversationListPage(private val device: UiDevice) {
         UiWaitUtils.waitUntilElementGone(
             device = device,
             selector = userConversationNamePendingLabelSelector,
-            timeout = 10.seconds,
-            pollingInterval = 250.milliseconds
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = UiWaitUtils.POLLING_SLOW
         )
 
         return this
@@ -292,16 +541,16 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickUserProfileButton(): ConversationListPage {
-        val buttonWithPhoto = UiWaitUtils.findElementOrNull(userProfileButton)
-        if (buttonWithPhoto != null && !buttonWithPhoto.visibleBounds.isEmpty) {
-            buttonWithPhoto.click()
-        } else {
-            val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
-            buttonNoPhoto.click()
-        }
-        return this
+  fun clickUserProfileButton(): ConversationListPage {
+    val buttonWithPhoto = UiWaitUtils.findElementOrNull(userProfileButton)
+    if (buttonWithPhoto != null && !buttonWithPhoto.visibleBounds.isEmpty) {
+        buttonWithPhoto.click()
+    } else {
+        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
+        buttonNoPhoto.click()
     }
+    return this
+}
 
     fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationListPage {
         try {

@@ -61,6 +61,7 @@ import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.call.Call
@@ -82,13 +83,13 @@ import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
+import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
@@ -113,8 +114,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -133,7 +134,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+        assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
     }
 
     @Test
@@ -144,7 +145,29 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+        assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
+    }
+
+    @Test
+    fun `given current session flow starts empty but current session exists, then initialAppState is LOGGED_IN`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withCurrentSessionFlow(flowOf(CurrentSessionResult.Failure.SessionNotFound))
+            .withCurrentSession(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+            .arrange()
+
+        assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
+        assertEquals(TEST_ACCOUNT_INFO.userId, viewModel.globalAppState.currentUserId)
+    }
+
+    @Test
+    fun `given E2EI is required, when currentSession is present, then initialAppState carries user id`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withE2EIRequiredDuringLogin(required = true)
+            .arrange()
+
+        assertEquals(InitialAppState.EnrollE2EI(TEST_ACCOUNT_INFO.userId), viewModel.initialAppState())
+        assertEquals(TEST_ACCOUNT_INFO.userId, viewModel.globalAppState.currentUserId)
     }
 
     @Test
@@ -177,7 +200,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 expectNoEvents()
             }
@@ -196,7 +219,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
                 assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 expectNoEvents()
             }
@@ -215,7 +238,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 assertEquals(
                     newServerConfig(1).links,
@@ -236,7 +259,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
                 assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 assertEquals(
                     newServerConfig(1).links,
@@ -273,7 +296,7 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
             assertEquals(OnSSOLogin(ssoLogin), expectMostRecentItem())
         }
     }
@@ -290,7 +313,7 @@ class WireActivityViewModelTest {
         viewModel.actions.test {
 
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
 
             assertEquals(OnSSOLogin(ssoLogin), expectMostRecentItem())
         }
@@ -308,7 +331,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertEquals(OnMigrationLogin(result), expectMostRecentItem())
             }
         }
@@ -325,7 +348,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
                 assertEquals(OnMigrationLogin(result), expectMostRecentItem())
             }
         }
@@ -342,7 +365,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertEquals(OpenConversation(result), expectMostRecentItem())
             }
         }
@@ -360,7 +383,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LoggedIn, viewModel.initialAppState())
                 assertEquals(OnOpenUserProfile(result), expectMostRecentItem())
             }
         }
@@ -375,7 +398,7 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.NotLoggedIn, viewModel.initialAppState())
             assertEquals(OnAuthorizationNeeded, expectMostRecentItem())
         }
     }
@@ -797,33 +820,34 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given automated login intent with backend config, when selector disables new login, then resolved action uses old login`() = runTest {
-        val serverLinks = newServerConfig(1).links
-        val (_, viewModel) = Arrangement()
-            .withCanUseNewLogin(false)
-            .withAutomatedLoginIntent(
-                ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                backendConfig = "url"
-            )
-            .arrange()
-
-        viewModel.actions.test {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-            advanceUntilIdle()
-
-            assertTrue(handled)
-            assertEquals(
-                OnAutomaticLogin(
-                    serverLinks = serverLinks,
+    fun `given automated login intent with backend config, when selector disables new login, then resolved action uses old login`() =
+        runTest {
+            val serverLinks = newServerConfig(1).links
+            val (_, viewModel) = Arrangement()
+                .withCanUseNewLogin(false)
+                .withAutomatedLoginIntent(
                     ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                    nomadServiceUrl = "https://nomad.example.com",
-                    cookieLabel = "shared-device",
-                    useNewLogin = false
-                ),
-                expectMostRecentItem()
-            )
+                    backendConfig = "url"
+                )
+                .arrange()
+
+            viewModel.actions.test {
+                val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
+                advanceUntilIdle()
+
+                assertTrue(handled)
+                assertEquals(
+                    OnAutomaticLogin(
+                        serverLinks = serverLinks,
+                        ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
+                        nomadServiceUrl = "https://nomad.example.com",
+                        cookieLabel = "shared-device",
+                        useNewLogin = false
+                    ),
+                    expectMostRecentItem()
+                )
+            }
         }
-    }
 
     @Test
     fun `given automated login intent with only backend config, when handling intents, then intent is ignored`() = runTest {
@@ -980,30 +1004,31 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given custom backend dialog with default login type, when selector disables new login, then old login action is emitted`() = runTest {
-        val serverLinks = newServerConfig(1).links
-        val (_, viewModel) = Arrangement()
-            .withCanUseNewLogin(false)
-            .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Failure.NoSessionFound))
-            .arrange()
+    fun `given custom backend dialog with default login type, when selector disables new login, then old login action is emitted`() =
+        runTest {
+            val serverLinks = newServerConfig(1).links
+            val (_, viewModel) = Arrangement()
+                .withCanUseNewLogin(false)
+                .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Failure.NoSessionFound))
+                .arrange()
 
-        viewModel.actions.test {
-            viewModel.onCustomServerConfig("url", LoginType.Default)
-            advanceUntilIdle()
-            viewModel.initValidSessionsFlowIfNeeded()
+            viewModel.actions.test {
+                viewModel.onCustomServerConfig("url", LoginType.Default)
+                advanceUntilIdle()
+                viewModel.initValidSessionsFlowIfNeeded()
 
-            viewModel.customBackendDialogProceedButtonClicked(LoginType.Default)
-            advanceUntilIdle()
+                viewModel.customBackendDialogProceedButtonClicked(LoginType.Default)
+                advanceUntilIdle()
 
-            assertEquals(
-                OnCustomBackendLogin(
-                    serverLinks = serverLinks,
-                    useNewLogin = false
-                ),
-                expectMostRecentItem()
-            )
+                assertEquals(
+                    OnCustomBackendLogin(
+                        serverLinks = serverLinks,
+                        useNewLogin = false
+                    ),
+                    expectMostRecentItem()
+                )
+            }
         }
-    }
 
     private class Arrangement {
 
@@ -1019,6 +1044,7 @@ class WireActivityViewModelTest {
             mockUri()
             coEvery { monitorSyncWorkUseCase() } returns Unit
             coEvery { currentSessionFlow() } returns flowOf()
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
             coEvery { intentsProcessor(any()) } returns null
@@ -1029,7 +1055,8 @@ class WireActivityViewModelTest {
             coEvery { observeNewClients() } returns flowOf()
             every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
                     observeScreenshotCensoringConfigUseCase
-            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
+            every { observeScreenshotCensoringConfigUseCase.invoke() } returns
+                    flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther())
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
             coEvery {
@@ -1049,6 +1076,9 @@ class WireActivityViewModelTest {
             coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(true)
             coEvery { loginTypeSelector.canUseNewLogin(any()) } returns true
             coEvery { doesValidNomadAccountExist() } returns false
+            coEvery {
+                coreLogic.getGlobalScope().isCrossBackendLoginBlocked(any<IsCrossBackendLoginBlockedUseCase.Target>())
+            } returns false
         }
 
         @MockK
@@ -1106,7 +1136,7 @@ class WireActivityViewModelTest {
         lateinit var currentScreenManager: CurrentScreenManager
 
         @MockK
-        private lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
+        lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
 
         @MockK
         private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
@@ -1143,25 +1173,25 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                coreLogic = { coreLogic },
+                coreLogic = lazyOf(coreLogic),
                 dispatchers = TestDispatcherProvider(),
-                currentSessionFlow = { currentSessionFlow },
-                doesValidSessionExist = { doesValidSessionExist },
-                getServerConfigUseCase = { getServerConfigUseCase },
-                deepLinkProcessor = { deepLinkProcessor },
-                intentsProcessor = { intentsProcessor },
-                observeSessions = { observeSessionsUseCase },
-                accountSwitch = { switchAccount },
-                servicesManager = { servicesManager },
+                currentSessionFlow = lazyOf(currentSessionFlow),
+                doesValidSessionExist = lazyOf(doesValidSessionExist),
+                getServerConfigUseCase = lazyOf(getServerConfigUseCase),
+                deepLinkProcessor = lazyOf(deepLinkProcessor),
+                intentsProcessor = lazyOf(intentsProcessor),
+                observeSessions = lazyOf(observeSessionsUseCase),
+                accountSwitch = lazyOf(switchAccount),
+                servicesManager = lazyOf(servicesManager),
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
-                observeIfAppUpdateRequired = { observeIfAppUpdateRequired },
-                observeNewClients = { observeNewClients },
-                clearNewClientsForUser = { clearNewClientsForUser },
-                currentScreenManager = { currentScreenManager },
+                observeIfAppUpdateRequired = lazyOf(observeIfAppUpdateRequired),
+                observeNewClients = lazyOf(observeNewClients),
+                clearNewClientsForUser = lazyOf(clearNewClientsForUser),
+                currentScreenManager = lazyOf(currentScreenManager),
                 observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
-                globalDataStore = { globalDataStore },
+                globalDataStore = lazyOf(globalDataStore),
                 observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
-                workManager = { workManager },
+                workManager = lazyOf(workManager),
                 isProfileQRCodeEnabledFactory = isProfileQRCodeEnabledFactory,
                 observeSelfUserFactory = observeSelfUserFactory,
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
@@ -1169,7 +1199,7 @@ class WireActivityViewModelTest {
                 automatedLoginManager = automatedLoginManager,
                 nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
                 loginTypeSelector = loginTypeSelector,
-                doesValidNomadAccountExist = { doesValidNomadAccountExist },
+                doesValidNomadAccountExist = lazyOf(doesValidNomadAccountExist),
             )
         }
 
@@ -1198,6 +1228,16 @@ class WireActivityViewModelTest {
 
         fun withCurrentSessionFlow(result: Flow<CurrentSessionResult>): Arrangement = apply {
             coEvery { currentSessionFlow() } returns result
+        }
+
+        fun withCurrentSession(result: CurrentSessionResult): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns result
+        }
+
+        fun withE2EIRequiredDuringLogin(required: Boolean): Arrangement = apply {
+            coEvery {
+                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
+            } returns flowOf(required)
         }
 
         fun withObserveSessionsFlow(result: Flow<GetAllSessionsResult>): Arrangement = apply {
@@ -1272,7 +1312,7 @@ class WireActivityViewModelTest {
         }
 
         suspend fun withScreenshotCensoringConfig(result: ObserveScreenshotCensoringConfigResult) = apply {
-            coEvery { observeScreenshotCensoringConfigUseCase() } returns flowOf(result)
+            every { observeScreenshotCensoringConfigUseCase.invoke() } returns flowOf(result)
         }
 
         suspend fun withScreenshotCensoringConfigForUser(id: UserId, result: ObserveScreenshotCensoringConfigResult) = apply {

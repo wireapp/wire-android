@@ -36,7 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.changeHandleViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
@@ -63,7 +63,7 @@ import com.wire.android.ui.common.R as commonR
 fun ChangeHandleScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: ChangeHandleViewModel = hiltViewModel()
+    viewModel: ChangeHandleViewModel = changeHandleViewModel()
 ) {
     LaunchedEffect(viewModel.state.isSuccess) {
         if (viewModel.state.isSuccess) {

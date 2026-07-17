@@ -17,51 +17,28 @@
  */
 package com.wire.android.tests.core.criticalFlows
 
-import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import backendUtils.BackendClient
-import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
+import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
-import com.wire.android.tests.core.pages.AllPages
-import org.junit.After
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.inject
-import service.TestServiceHelper
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
-import com.wire.android.tests.core.BaseUiTest
-import com.wire.android.tests.support.tags.Category
-import com.wire.android.tests.support.tags.TestCaseId
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class GroupMessaging : BaseUiTest() {
-    private val pages: AllPages by inject()
-    private lateinit var device: UiDevice
-    private lateinit var context: Context
     private var teamOwner: ClientUser? = null
-    private lateinit var backendClient: BackendClient
-    private lateinit var teamHelper: TeamHelper
-    private lateinit var testServiceHelper: TestServiceHelper
 
     @Before
     fun setUp() {
-        context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
-        backendClient = BackendClient.loadBackend("STAGING")
-        teamHelper = TeamHelper()
-        testServiceHelper = TestServiceHelper(teamHelper.usersManager)
-    }
-
-    @After
-    fun tearDown() {
-        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
+        initCommonTestHelpers()
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -70,7 +47,7 @@ class GroupMessaging : BaseUiTest() {
     @Test
     fun givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires() {
         step("Prepare team via backend and group conversation with members") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "GroupMessaging",
                 "en_US",
@@ -79,9 +56,9 @@ class GroupMessaging : BaseUiTest() {
                 context
             )
 
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name,user6Name",
                 "GroupMessaging",
@@ -91,7 +68,7 @@ class GroupMessaging : BaseUiTest() {
                 true
             )
 
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "MyTeam",
                 "user2Name,user3Name,user4Name,user5Name,user6Name",
@@ -149,7 +126,7 @@ class GroupMessaging : BaseUiTest() {
         step("Send a message to the group conversation as another member via backend") {
             testServiceHelper.apply {
                 addDevice("user2Name", null, "Device1")
-                userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam", false)
+                userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam")
             }
         }
 

@@ -61,7 +61,6 @@ fun GroupCallGrid(
     onSelfClearVideoPreview: () -> Unit,
     onDoubleTap: (selectedParticipant: SelectedParticipant) -> Unit,
     flipCamera: () -> Unit,
-    isInPictureInPictureMode: Boolean,
     recentReactions: Map<UserId, String>,
     othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
@@ -105,9 +104,8 @@ fun GroupCallGrid(
                                 )
                             }
                         )
-                    },
+                },
                 participantTitleState = participant,
-                isOnPiPMode = isInPictureInPictureMode,
                 isSelfUserMuted = isSelfUserMuted,
                 isSelfUserCameraOn = isSelfUserCameraOn,
                 onSelfUserVideoPreviewCreated = onSelfVideoPreviewCreated,
@@ -139,7 +137,6 @@ private fun PreviewGroupCallGrid(participants: List<UICallParticipant>, modifier
                 onSelfVideoPreviewCreated = {},
                 onSelfClearVideoPreview = {},
                 onDoubleTap = { },
-                isInPictureInPictureMode = false,
                 recentReactions = emptyMap(),
                 isOnFrontCamera = false,
                 flipCamera = {},

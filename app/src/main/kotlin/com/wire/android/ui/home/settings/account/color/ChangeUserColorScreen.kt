@@ -36,7 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.changeUserColorViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
@@ -75,6 +75,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
+import kotlinx.collections.immutable.toImmutableList
 
 @WireRootDestination(
     style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
@@ -83,7 +84,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 fun ChangeUserColorScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: ChangeUserColorViewModel = hiltViewModel()
+    viewModel: ChangeUserColorViewModel = changeUserColorViewModel()
 ) {
     with(viewModel) {
         ChangeUserColorContent(
@@ -173,7 +174,7 @@ fun ChangeUserColorContent(
                             val items = Accent.entries.filter { accent -> accent != Accent.Unknown }
 
                             WireDropDown(
-                                items = items.map { stringResource(it.resourceId()) },
+                                items = items.map { stringResource(it.resourceId()) }.toImmutableList(),
                                 defaultItemIndex = if (accentColor == Accent.Unknown) -1 else items.indexOf(accentColor),
                                 label = null,
                                 modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),

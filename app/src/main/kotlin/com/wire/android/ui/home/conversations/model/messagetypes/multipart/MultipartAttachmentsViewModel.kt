@@ -39,6 +39,7 @@ import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
@@ -55,7 +56,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import javax.inject.Inject
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -66,11 +66,17 @@ interface MultipartAttachmentsViewModel {
     // (keyed by conversationId), so using SharedFlow would broadcast to all of them.
     val openAttachmentErrorEvent: Flow<Unit>
     fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
+    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
+        val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
+        return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
+    }
+
     fun mapAttachments(
         attachments: List<MessageAttachment>,
         offlineAttachmentIds: Set<String> = emptySet(),
         openLoadStates: Map<String, MultipartAttachmentOpenLoadState> = emptyMap(),
     ): List<MultipartAttachmentGroup> {
+        val offlineIds = offlineAttachmentIds.value
 
         val result = mutableListOf<MultipartAttachmentGroup>()
         var group: MultipartAttachmentGroup? = null
@@ -128,8 +134,9 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
-@HiltViewModel
-class MultipartAttachmentsViewModelImpl @Inject constructor(
+@Suppress("LongParameterList")
+class MultipartAttachmentsViewModelImpl(
+    private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,
     private val openFileDownloadController: OpenFileDownloadController,
     private val sharedPathCache: CellFileLocalPathCache,
@@ -153,6 +160,8 @@ class MultipartAttachmentsViewModelImpl @Inject constructor(
         sharedPathCache.openLoadStates
             .map { states -> states.mapValues { (_, state) -> state.toMultipartState() } }
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    private val uploadProgress = mutableStateMapOf<String, Float>()
 
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()
         .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }

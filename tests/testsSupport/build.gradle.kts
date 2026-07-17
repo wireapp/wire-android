@@ -1,11 +1,13 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.gradle.api.tasks.PathSensitivity
 import java.util.Properties
 
 // Apply your test library plugin
 plugins {
     id(libs.plugins.wire.android.test.library.get().pluginId)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    id(libs.plugins.wire.compose.compiler.get().pluginId)
 }
 
 // Map to store environment variables (secrets)
@@ -13,6 +15,12 @@ val env = Properties()
 
 // File where secrets will be saved/generated
 val secretsJson = rootProject.file("secrets.json")
+
+val deviceSecretSections = setOf(
+    "CALLINGSERVICE_BASIC_AUTH",
+    "OKTA_API_KEY",
+    "SOCKS_PROXY_PASSWORD"
+)
 
 fun Any?.asStringAnyMap(): Map<String, Any?> = when (this) {
     is Map<*, *> -> entries.mapNotNull { (key, value) ->
@@ -49,6 +57,11 @@ if (secretsJson.exists()) {
     parsed.forEach { (title, item) ->
         val sectionName = sanitize(title)  // Sanitize the section/item title
 
+        // TESTINY_API_KEY_ANDROID and any future host-only values must never be
+        // compiled into the instrumentation APK installed on physical devices.
+        val isDeviceSecret = sectionName.startsWith("BACKENDCONNECTION_") || sectionName in deviceSecretSections
+        if (!isDeviceSecret) return@forEach
+
         // Get the fields as a map of label -> field details
         val fields = item.asStringAnyMap()["fields"].asStringAnyMap()
 
@@ -76,6 +89,15 @@ android {
     }
 }
 
+// Regenerate BuildConfig when backend secrets change, for example when a new backend is added.
+if (secretsJson.exists()) {
+    tasks.matching { it.name.startsWith("generate") && it.name.endsWith("BuildConfig") }.configureEach {
+        inputs.file(secretsJson)
+            .withPropertyName("secretsJson")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
+    }
+}
+
 dependencies {
     // Android test dependencies
     androidTestImplementation(libs.androidx.test.runner)
@@ -83,7 +105,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.uiAutomator)
     implementation(libs.datafaker)
-    androidTestImplementation(libs.gson)
+    implementation(libs.ktx.serialization)
 }
 
 // Register a custom Gradle task 'fetchSecrets' to fetch secrets from 1Password CLI and generate secrets.json

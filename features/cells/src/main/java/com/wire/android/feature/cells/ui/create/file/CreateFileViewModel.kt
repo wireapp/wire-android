@@ -33,14 +33,11 @@ import com.wire.kalium.cells.domain.usecase.create.CreatePresentationFileUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreateSpreadsheetFileUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class CreateFileViewModel @Inject constructor(
+class CreateFileViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val createPresentationFileUseCase: CreatePresentationFileUseCase,
     private val createDocumentFileUseCase: CreateDocumentFileUseCase,

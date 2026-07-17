@@ -40,9 +40,8 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                 ),
                 items
             )
@@ -83,9 +82,9 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
-                    NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -106,9 +105,8 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                 ),
                 items
             )
@@ -129,12 +127,12 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.EDIT,
                     NodeBottomSheetAction.VERSION_HISTORY,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -157,10 +155,11 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -460,8 +459,8 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
                 ),
                 items
@@ -480,10 +479,11 @@ class CellFileActionsMenuTest {
             // THEN
             assertEquals(
                 listOf(
+                    NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
                     NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.MOVE,
                     NodeBottomSheetAction.RENAME,
                     NodeBottomSheetAction.DELETE,
@@ -533,29 +533,153 @@ class CellFileActionsMenuTest {
             )
         }
 
+    @Test
+    fun `GIVEN offlineFilesEnabled AND file not available offline AND collabora enabled AND edit NOT supported WHEN building menu THEN MAKE_AVAILABLE_OFFLINE is added`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isEditSupported = false),
+                withCollaboraIntegration = true,
+                isAllFiles = true,
+            )
+
+            // THEN
+            assert(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE in items)
+            assert(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS !in items)
+        }
+
+    @Test
+    fun `GIVEN offlineFilesEnabled AND file not available offline AND collabora enabled AND edit IS supported WHEN building menu THEN no offline action is added`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isEditSupported = true),
+                withCollaboraIntegration = true,
+                isAllFiles = true,
+            )
+
+            // THEN
+            assert(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE !in items)
+            assert(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS !in items)
+        }
+
+    @Test
+    fun `GIVEN offline files disabled WHEN building allFiles menu THEN no offline action is added`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                isAllFiles = true,
+                offlineFilesEnabled = false,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.SHARE,
+                ),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN offline files disabled AND file available offline WHEN building conversation menu THEN no offline action is added`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isAvailableOffline = true),
+                isConversationFiles = true,
+                offlineFilesEnabled = false,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MOVE,
+                    NodeBottomSheetAction.RENAME,
+                    NodeBottomSheetAction.DELETE,
+                ),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN offline files enabled AND offline AND file available offline WHEN building menu THEN emits OPEN and REMOVE_OFFLINE_ACCESS`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isAvailableOffline = true),
+                isConversationFiles = true,
+                isOnline = false,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
+                ),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN offline files disabled AND offline WHEN building menu THEN falls through to online menu`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                isConversationFiles = true,
+                isOnline = false,
+                offlineFilesEnabled = false,
+            )
+
+            // THEN - offline branch skipped, normal conversation menu without offline action
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MOVE,
+                    NodeBottomSheetAction.RENAME,
+                    NodeBottomSheetAction.DELETE,
+                ),
+                items
+            )
+        }
+
     private fun actionsMenu(
         withCollaboraIntegration: Boolean = false,
+        offlineFilesEnabled: Boolean = true,
     ) = CellFileActionsMenu(
         featureFlags = KaliumConfigs(
-            collaboraIntegration = withCollaboraIntegration
-        )
+            collaboraIntegration = withCollaboraIntegration,
+        ),
+        offlineFilesEnabled = offlineFilesEnabled,
     )
 
     @Suppress("LongParameterList")
     private fun buildMenu(
         fileNode: CellNodeUi = Companion.fileNode,
         withCollaboraIntegration: Boolean = false,
+        offlineFilesEnabled: Boolean = true,
         isRecycleBin: Boolean = false,
         isConversationFiles: Boolean = false,
         isAllFiles: Boolean = false,
         isSearching: Boolean = false,
         isCollaboraEnabled: Boolean = false,
+        isOnline: Boolean = true,
     ): List<NodeBottomSheetAction> =
         CellFileActionsMenu(
             featureFlags = KaliumConfigs(
-                collaboraIntegration = withCollaboraIntegration
-            )
-        ).buildMenu(fileNode, isRecycleBin, isConversationFiles, isAllFiles, isSearching, isCollaboraEnabled)
+                collaboraIntegration = withCollaboraIntegration,
+            ),
+            offlineFilesEnabled = offlineFilesEnabled,
+        ).buildMenu(fileNode, isRecycleBin, isConversationFiles, isAllFiles, isSearching, isCollaboraEnabled, isOnline)
 
     private companion object {
         val fileNode = CellNodeUi.File(

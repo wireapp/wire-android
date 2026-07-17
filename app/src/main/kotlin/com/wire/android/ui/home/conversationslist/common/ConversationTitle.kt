@@ -30,7 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.LegalHoldIndicator
-import com.wire.android.ui.home.conversations.search.HighlightName
+import com.wire.android.ui.common.maxTitleLines
+import com.wire.android.search.widget.HighlightName
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -41,6 +42,8 @@ fun ConversationTitle(
     showLegalHoldIndicator: Boolean = false,
     badges: @Composable () -> Unit = {}
 ) {
+    val maxTitleLines = maxTitleLines()
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -50,11 +53,11 @@ fun ConversationTitle(
                 text = name,
                 style = MaterialTheme.wireTypography.body02,
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
+                maxLines = maxTitleLines,
                 modifier = Modifier.weight(weight = 1f, fill = false)
             )
         } else {
-            HighlightName(name = name, searchQuery = searchQuery)
+            HighlightName(name = name, searchQuery = searchQuery, maxLines = maxTitleLines)
         }
         badges()
         if (showLegalHoldIndicator) {

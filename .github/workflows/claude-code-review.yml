@@ -14,6 +14,7 @@ jobs:
     if: |
       github.event.issue.pull_request &&
       github.actor != 'dependabot[bot]' &&
+      github.actor != 'renovate[bot]' &&
       contains(github.event.comment.body, '@claude review') &&
       (
         github.event.comment.author_association == 'OWNER' ||
@@ -30,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 1
 
@@ -61,7 +62,7 @@ jobs:
 
       - name: Run Claude Code Review
         id: claude-review
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@e90deca47693f9457b72f2b53c17d7c445a87342 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |

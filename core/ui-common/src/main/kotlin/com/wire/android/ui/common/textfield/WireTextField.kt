@@ -53,6 +53,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.R
 import com.wire.android.ui.theme.WireTheme
@@ -65,6 +66,7 @@ import com.wire.android.util.PreviewMultipleThemes
 fun WireTextField(
     textState: TextFieldState,
     modifier: Modifier = Modifier,
+    inputModifier: Modifier = Modifier,
     placeholderText: String? = null,
     labelText: String? = null,
     labelMandatoryIcon: Boolean = false,
@@ -89,9 +91,12 @@ fun WireTextField(
     colors: WireTextFieldColors = wireTextFieldColors(),
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
+    onInputSizeChanged: (IntSize) -> Unit = { },
     onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY,
     validateKeyboardOptions: Boolean = true,
+    readOnly: Boolean = false,
+    enabled: Boolean = state !is WireTextFieldState.Disabled,
 ) {
     if (validateKeyboardOptions) {
         assert(
@@ -130,6 +135,7 @@ fun WireTextField(
                 textState::setTextAndPlaceCursorAtEnd
             )
         ),
+        onInputSizeChanged = onInputSizeChanged,
         onTap = onTap,
         testTag = testTag,
         innerBasicTextField = { decorator, textFieldModifier ->
@@ -145,11 +151,11 @@ fun WireTextField(
                 inputTransformation = inputTransformation,
                 outputTransformation = outputTransformation,
                 scrollState = scrollState,
-                readOnly = state is WireTextFieldState.ReadOnly,
-                enabled = state !is WireTextFieldState.Disabled,
+                readOnly = readOnly,
+                enabled = enabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
-                modifier = textFieldModifier,
+                modifier = textFieldModifier.then(inputModifier),
                 decorator = decorator,
                 onTextLayout = onTextLayout(
                     textState,

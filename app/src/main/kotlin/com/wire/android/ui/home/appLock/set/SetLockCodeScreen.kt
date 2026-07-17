@@ -49,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
@@ -65,6 +64,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.settings.setLockScreenViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -72,13 +72,13 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.toTimeLongLabelUiText
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @WireRootDestination
 @Composable
 fun SetLockCodeScreen(
     navigator: Navigator,
-    viewModel: SetLockScreenViewModel = hiltViewModel(),
+    viewModel: SetLockScreenViewModel = setLockScreenViewModel(),
 ) {
     SetLockCodeScreenContent(
         navigator = navigator,
@@ -155,7 +155,8 @@ fun SetLockCodeScreenContent(
                     state = WireTextFieldState.Default,
                     autoFill = false,
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
-                    labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(Locale.getDefault())
+                    labelText = stringResource(R.string.settings_set_lock_screen_passcode_label)
+                        .uppercase(LocalLocale.current.platformLocale)
                 )
                 VerticalSpace.x24()
                 PasswordVerificationGroup(state.passwordValidation)

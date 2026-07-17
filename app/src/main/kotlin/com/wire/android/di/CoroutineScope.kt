@@ -18,16 +18,15 @@
 
 package com.wire.android.di
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import javax.inject.Qualifier
-import javax.inject.Singleton
+import dev.zacsweers.metro.Qualifier
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
@@ -49,11 +48,10 @@ annotation class MainDispatcher
 @Qualifier
 annotation class MainImmediateDispatcher
 
-@InstallIn(SingletonComponent::class)
-@Module
+@BindingContainer
 object CoroutinesScopesModule {
 
-    @Singleton
+    @SingleIn(AppScope::class)
     @ApplicationScope
     @Provides
     fun providesCoroutineScope(
@@ -61,8 +59,7 @@ object CoroutinesScopesModule {
     ): CoroutineScope = CoroutineScope(SupervisorJob() + defaultDispatcher)
 }
 
-@InstallIn(SingletonComponent::class)
-@Module
+@BindingContainer
 object CoroutinesDispatchersModule {
 
     @DefaultDispatcher

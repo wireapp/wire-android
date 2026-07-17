@@ -28,13 +28,13 @@ import androidx.paging.map
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
-import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
@@ -63,7 +63,6 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -86,11 +85,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import java.io.File
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class CellViewModel @Inject constructor(
+class CellViewModel(
     val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
@@ -110,14 +107,21 @@ class CellViewModel @Inject constructor(
     private val networkStateObserver: NetworkStateObserver,
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
+    /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
+    val offlineFilesEnabled: Boolean,
+    private val inAppImageViewerEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
-    private val navArgs: CellFilesNavArgs = ConversationFilesScreenDestination.argsFrom(savedStateHandle)
     private val searchNavArgs: SearchNavArgs? = try {
         SearchScreenDestination.argsFrom(savedStateHandle)
     } catch (_: RuntimeException) {
         // Not coming from Search screen, ignore
         null
+    }
+    private val navArgs: CellFilesNavArgs = try {
+        ConversationFilesScreenDestination.argsFrom(savedStateHandle)
+    } catch (_: RuntimeException) {
+        searchNavArgs?.toCellFilesNavArgs() ?: CellFilesNavArgs()
     }
 
     // Show menu with actions for the selected file.
@@ -272,7 +276,7 @@ class CellViewModel @Inject constructor(
     }.flatMapLatest { (cellAvailable, online) ->
         when {
             !cellAvailable || searchNavArgs != null -> flowOf(emptyData)
-            !online -> offlineNodesFlow
+            offlineFilesEnabled && !online -> offlineNodesFlow
             else -> sharedNodesFlow
         }
     }
@@ -374,6 +378,21 @@ class CellViewModel @Inject constructor(
     }
 
     private fun openFileContentUrl(file: CellNodeUi.File) {
+        when (file.assetType) {
+            AttachmentFileType.IMAGE -> {
+                if (file.shouldOpenInAppImageViewer()) {
+                    sendAction(OpenImageViewer(file))
+                    return
+                }
+            }
+
+            AttachmentFileType.VIDEO -> {
+                sendAction(OpenVideoPlayer(file))
+                return
+            }
+
+            else -> Unit
+        }
         file.contentUrl?.let { url ->
             fileHelper.openAssetUrlWithExternalApp(
                 url = url,
@@ -386,6 +405,21 @@ class CellViewModel @Inject constructor(
     }
 
     private fun openLocalFile(file: CellNodeUi.File) {
+        when (file.assetType) {
+            AttachmentFileType.IMAGE -> {
+                if (file.shouldOpenInAppImageViewer()) {
+                    sendAction(OpenImageViewer(file))
+                    return
+                }
+            }
+
+            AttachmentFileType.VIDEO -> {
+                sendAction(OpenVideoPlayer(file))
+                return
+            }
+
+            else -> Unit
+        }
         file.localPath?.let { path ->
             fileHelper.openAssetFileWithExternalApp(
                 localPath = path.toPath(),
@@ -397,6 +431,9 @@ class CellViewModel @Inject constructor(
             )
         }
     }
+
+    private fun CellNodeUi.File.shouldOpenInAppImageViewer(): Boolean =
+        inAppImageViewerEnabled && assetType == AttachmentFileType.IMAGE
 
     private fun onItemMenuClick(cellNode: CellNodeUi) = viewModelScope.launch {
 
@@ -632,8 +669,10 @@ internal data object RefreshData : CellViewAction
 internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
+internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
+internal data class OpenVideoPlayer(val file: CellNodeUi.File) : CellViewAction
 
-enum class CellError(val message: Int) {
+internal enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed),
     DOWNLOAD_FAILED(R.string.action_failed),
@@ -644,5 +683,8 @@ data class MenuOptions(
     val node: CellNodeUi,
     val actions: List<NodeBottomSheetAction>
 )
+
+private fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
+    CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L

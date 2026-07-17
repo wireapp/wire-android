@@ -22,11 +22,13 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.isEditSupported
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Named
 
 @Suppress("CyclomaticComplexMethod", "LongParameterList")
 class CellFileActionsMenu @Inject constructor(
-    private val featureFlags: KaliumConfigs
+    private val featureFlags: KaliumConfigs,
+    @Named("offlineFilesEnabled") private val offlineFilesEnabled: Boolean,
 ) {
     internal fun buildMenu(
         cellNode: CellNodeUi,
@@ -37,7 +39,7 @@ class CellFileActionsMenu @Inject constructor(
         isCollaboraEnabled: Boolean,
         isOnline: Boolean = true,
     ): List<NodeBottomSheetAction> {
-        if (!isOnline) {
+        if (offlineFilesEnabled && !isOnline) {
             return buildList {
                 val canOpenOffline = cellNode is CellNodeUi.Folder ||
                         (cellNode is CellNodeUi.File && cellNode.localFileAvailable())
@@ -104,13 +106,13 @@ class CellFileActionsMenu @Inject constructor(
                         add(NodeBottomSheetAction.SHARE)
                     }
 
-                    add(
+                    if (offlineFilesEnabled) {
                         if (cellNode.isAvailableOffline) {
-                            NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS
-                        } else {
-                            NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE
-                        },
-                    )
+                            add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
+                        } else if (featureFlags.collaboraIntegration && !cellNode.isEditSupported()) {
+                            add(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
+                        }
+                    }
                 }
             }
         } else {

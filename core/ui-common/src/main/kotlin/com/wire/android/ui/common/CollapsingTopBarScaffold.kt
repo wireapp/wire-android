@@ -98,7 +98,12 @@ fun CollapsingTopBarScaffold(
     val maxBarElevationPx = with(LocalDensity.current) { maxBarElevation.toPx() }
     val anchoredDraggableState = remember {
         AnchoredDraggableState(
-            initialValue = State.EXPANDED,
+            initialValue = when {
+                !collapsingEnabled -> State.EXPANDED
+                contentLazyListState == null -> State.EXPANDED
+                contentLazyListState.firstVisibleItemIndex > 0 || contentLazyListState.firstVisibleItemScrollOffset > 0 -> State.COLLAPSED
+                else -> State.EXPANDED
+            },
             anchors = calculateAnchors(collapsingEnabled, 0),
             positionalThreshold = { totalDistance: Float -> totalDistance * 0.5f },
             velocityThreshold = { with(density) { 125.dp.toPx() } },
@@ -110,7 +115,7 @@ fun CollapsingTopBarScaffold(
         derivedStateOf {
             with(density) {
                 val collapsingHeight = anchoredDraggableState.calculateCollapsingHeight()
-                val offset = -anchoredDraggableState.offset
+                val offset = -anchoredDraggableState.offset.orExpandedTopBarOffset()
                 val scaledOffset = if (collapsingHeight > 0f && collapsingHeight < maxBarElevationPx) {
                     // if collapsingHeight is less than maxBarElevationPx then the offset needs to be scaled
                     (offset / collapsingHeight) * maxBarElevationPx
@@ -240,9 +245,12 @@ fun CollapsingTopBarScaffold(
                     )
                     hasCollapsingSegment = collapsingPlaceable.height > 0
                     hasFooterSegment = footerPlaceable.height > 0
-                    anchoredDraggableState.updateAnchors(calculateAnchors(collapsingEnabled, collapsingPlaceable.height))
+                    anchoredDraggableState.updateAnchors(
+                        newAnchors = calculateAnchors(collapsingEnabled, collapsingPlaceable.height),
+                        newTarget = contentLazyListState.targetTopBarState(collapsingEnabled, collapsingPlaceable.height)
+                    )
                     layout(constraints.maxWidth, constraints.maxHeight) {
-                        val swipeOffset = anchoredDraggableState.offset.roundToInt()
+                        val swipeOffset = anchoredDraggableState.offset.orExpandedTopBarOffset().roundToInt()
                         contentPlaceable.placeRelative(0, collapsingPlaceable.height + footerPlaceable.height + swipeOffset)
                         containerPlaceable.placeRelative(0, swipeOffset)
                         footerPlaceable.placeRelative(0, collapsingPlaceable.height + swipeOffset)
@@ -259,6 +267,14 @@ private fun LazyListState?.calculateContentOffset(maxValue: Float) = when {
     firstVisibleItemIndex == 0 -> min(firstVisibleItemScrollOffset.toFloat(), maxValue)
     else -> maxValue
 }
+
+private fun LazyListState?.targetTopBarState(collapsingEnabled: Boolean, collapsingHeight: Int): State = when {
+    !collapsingEnabled || collapsingHeight == 0 || this == null -> State.EXPANDED
+    firstVisibleItemIndex > 0 || firstVisibleItemScrollOffset > 0 -> State.COLLAPSED
+    else -> State.EXPANDED
+}
+
+internal fun Float.orExpandedTopBarOffset() = if (isNaN()) 0f else this
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun AnchoredDraggableState<State>.calculateCollapsingHeight() = anchors.positionOf(State.COLLAPSED).let {

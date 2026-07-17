@@ -32,10 +32,6 @@ import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -44,9 +40,8 @@ import org.jetbrains.annotations.VisibleForTesting
 import java.util.Calendar
 
 @Suppress("LongParameterList")
-@HiltViewModel(assistedFactory = OutgoingCallViewModel.Factory::class)
-class OutgoingCallViewModel @AssistedInject constructor(
-    @Assisted val conversationId: ConversationId,
+class OutgoingCallViewModel(
+    val conversationId: ConversationId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeOutgoingCall: ObserveOutgoingCallUseCase,
     private val startCall: StartCallUseCase,
@@ -132,10 +127,5 @@ class OutgoingCallViewModel @AssistedInject constructor(
             stopRingerAndMarkCallAsHungUp()
             state = state.copy(flowState = OutgoingCallState.FlowState.CallClosed)
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationId: ConversationId): OutgoingCallViewModel
     }
 }

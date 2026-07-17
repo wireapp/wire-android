@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
+import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -24,7 +25,7 @@ import com.wire.kalium.logic.data.user.UserId
 sealed class MessageClickActions {
     open val onFullMessageClicked: ((messageId: String) -> Unit)? = null
     open val onFullMessageLongClicked: ((UIMessage.Regular) -> Unit)? = null
-    open val onProfileClicked: (String) -> Unit = {}
+    open val onProfileClicked: (senderId: MessageSenderId) -> Unit = {}
     open val onReactionClicked: (String, String) -> Unit = { _, _ -> }
     open val onAssetClicked: (String) -> Unit = {}
     open val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> }
@@ -41,7 +42,7 @@ sealed class MessageClickActions {
 
     data class Content(
         override val onFullMessageLongClicked: ((UIMessage.Regular) -> Unit)? = null,
-        override val onProfileClicked: (String) -> Unit = {},
+        override val onProfileClicked: (senderId: MessageSenderId) -> Unit = {},
         override val onReactionClicked: (String, String) -> Unit = { _, _ -> },
         override val onAssetClicked: (String) -> Unit = {},
         override val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> },

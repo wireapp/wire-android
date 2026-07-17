@@ -62,7 +62,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.android.util.PreviewMultipleThemes
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @Composable
 fun WirePasswordTextField(
@@ -93,7 +93,7 @@ fun WirePasswordTextField(
     WireTextFieldLayout(
         shouldShowPlaceholder = textState.text.isEmpty(),
         placeholderText = placeholderText,
-        labelText = labelText?.uppercase(Locale.getDefault()),
+        labelText = labelText?.uppercase(LocalLocale.current.platformLocale),
         labelMandatoryIcon = labelMandatoryIcon,
         descriptionText = descriptionText,
         semanticDescription = semanticDescription,

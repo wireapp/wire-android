@@ -31,7 +31,6 @@
     <string name="label_learn_more">Loe lähemalt</string>
     <string name="label_removing">Eemaldamine…</string>
     <string name="label_logging_in">Sisselogimine…</string>
-    <string name="label_user_deleted">Kustutatud</string>
     <string name="label_message_receive_failure">Allalaadimise viga</string>
     <string name="label_message_decryption_failure_message">Sõnumi dekrüpteerimine ebaõnnestus.</string>
     <string name="label_message_decryption_failure_informative_message">Proovi seanss lähtestada, et luua uued krüptimisvõtmed.</string>
@@ -43,7 +42,6 @@
     <string name="label_open_asset_externally">Ava</string>
     <string name="label_show">Kuva</string>
     <string name="label_show_all">Kuva kõik</string>
-    <string name="label_show_less">Kuva vähem</string>
     <string name="label_message_status_edited_with_date">Muudetud: %s</string>
     <string name="label_on">SEES</string>
     <string name="label_off">VÄLJAS</string>
@@ -51,7 +49,6 @@
     <string name="label_disable">Keela</string>
     <string name="folder_label_access">Juurdepääs</string>
     <string name="folder_label_messaging">Sõnumside</string>
-    <string name="label_user_blocked">Blokeeritud</string>
     <string name="label_and">ja</string>
     <string name="label_retry">Proovi uuesti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -260,14 +257,12 @@
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <!-- Conversation Media -->
-    <!-- Search Contact-->
     <!-- Search Channels -->
     <!-- Snackbar messages -->
     <string name="blocking_user_success">%s blokeeritud</string>
     <!-- Archiving -->
     <!-- Favorite -->
     <!-- Animation label -->
-    <string name="label_open_conversation">Ava vestlus</string>
     <string name="email_label">E-post</string>
     <string name="phone_label">Telefon</string>
     <!-- Notifications -->
@@ -285,7 +280,6 @@
     <string name="notification_incoming_call_content">Helistab…</string>
     <string name="notification_ongoing_call_content">Käimasolev kõne…</string>
     <string name="notification_call_default_caller_name">Keegi</string>
-    <string name="notification_call_default_group_name">Sissetulev grupikõne</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Ühtlane bitisagedus</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -305,12 +299,9 @@
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Naase kõnesse</string>
     <string name="connectivity_status_bar_waiting_for_network">Ühenduse ootamine</string>
-    <!-- Connections -->
-    <!-- Missing keyPackages dialog -->
     <!-- Gallery -->
     <!--sso dialog-->
     <!--prohibited asset messages -->
-    <!--wire dropdown-->
     <!--block user dialog -->
     <string name="block_user_dialog_confirm_button">Blokeeri</string>
     <string name="other_user_devices_description">Wire annab igale seadmele unikaalse sõrmejälje. Võrdle neid kasutaja %1$s-ga ja kinnita oma vestluse turvalisus.</string>
@@ -340,7 +331,6 @@
     <!--Devices -->
     <string name="devices_title">Sinu seadmed</string>
     <string name="other_devices_label">Teised seadmed</string>
-    <!--unblock user dialog -->
     <!--max account reached dialog-->
     <!--nomad account blocks login dialog-->
     <string name="label_client_option_title">Kliendi ID</string>
@@ -430,10 +420,8 @@
     <!-- legal hold -->
     <!-- Sure want to send message Dialog -->
     <!-- Sure want to call Dialog -->
-    <!-- Go to app settings permissions dialog -->
     <!-- Share Location -->
     <!-- Asset Preview -->
-    <!-- No Activity Errors -->
     <!--    Ping dialog-->
     <!-- Call Feedback Dialog -->
     <!-- Debug Settings -->

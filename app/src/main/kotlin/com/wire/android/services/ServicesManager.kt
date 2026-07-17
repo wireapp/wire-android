@@ -33,15 +33,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 /**
  * This is helper class that should be used for starting/stopping any services.
  * The idea is that we don't want to inject, or provide any context into ViewModel,
  * but to have an ability start Service from it.
  */
-@Singleton
+@SingleIn(AppScope::class)
 class ServicesManager @Inject constructor(
     private val context: Context,
     dispatcherProvider: DispatcherProvider,

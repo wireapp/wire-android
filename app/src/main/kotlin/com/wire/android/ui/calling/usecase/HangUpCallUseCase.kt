@@ -26,13 +26,10 @@ import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@ViewModelScoped
+import dev.zacsweers.metro.Inject
 class HangUpCallUseCase @Inject constructor(
     @ApplicationScope private val coroutineScope: CoroutineScope,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,

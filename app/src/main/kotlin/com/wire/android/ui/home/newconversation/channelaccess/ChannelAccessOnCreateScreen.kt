@@ -44,7 +44,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun ChannelAccessOnCreateScreen(
     navigator: Navigator,
-    newConversationViewModel: NewConversationViewModel
+    newConversationViewModel: NewConversationViewModel,
 ) {
     WireScaffold(
         topBar = {

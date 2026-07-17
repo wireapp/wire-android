@@ -1,0 +1,27 @@
+<!--
+  ~ Wire
+  ~ Copyright (C) 2026 Wire Swiss GmbH
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see http://www.gnu.org/licenses/.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14dp"
+    android:height="14dp"
+    android:viewportWidth="14"
+    android:viewportHeight="14">
+  <path
+      android:pathData="M11.5,0C12.881,0 14,1.119 14,2.5V8.5C14,9.881 12.881,11 11.5,11H3.726L0.814,13.345C0.598,13.518 0.284,13.484 0.111,13.269C0.039,13.18 0,13.07 0,12.955V2.5C0,1.119 1.119,0 2.5,0H11.5ZM5.572,2.074C5.465,1.972 5.371,1.99 5.287,2.04C5.058,2.182 4.822,2.322 4.579,2.459C4.475,2.521 4.441,2.599 4.461,2.731C4.586,3.522 4.314,4.189 3.631,4.772C3.599,4.799 3.564,4.824 3.524,4.847C3.462,4.884 3.394,4.914 3.327,4.941L3.228,4.978L3.131,5.022C3.07,5.058 3.035,5.105 3.02,5.172L3.013,5.245L3,6.116C2.998,6.24 3.048,6.317 3.159,6.358C3.564,6.506 3.873,6.795 4.132,7.268C4.387,7.732 4.46,8.201 4.357,8.699C4.34,8.782 4.357,8.849 4.412,8.903L4.459,8.941L5.012,9.3L5.214,9.425C5.237,9.436 5.264,9.446 5.294,9.448C5.328,9.45 5.36,9.443 5.39,9.425L5.421,9.403L5.532,9.293C5.59,9.243 5.654,9.196 5.723,9.155C6.032,8.973 6.459,8.89 6.882,8.935C7.26,8.975 7.595,9.111 7.821,9.314L7.941,9.436L7.978,9.466L8.022,9.489L8.074,9.5L8.123,9.497L8.177,9.48L8.236,9.45L8.904,9.055C9.044,8.973 9.059,8.87 9.045,8.781L9.012,8.609C8.971,8.297 9.041,7.922 9.21,7.558C9.4,7.15 9.687,6.81 9.999,6.626C10.069,6.585 10.14,6.551 10.211,6.526L10.357,6.483C10.397,6.468 10.441,6.439 10.465,6.38L10.48,6.332L10.486,6.272L10.497,5.662L10.5,5.368C10.501,5.255 10.457,5.183 10.363,5.147C9.912,4.976 9.579,4.661 9.346,4.184C9.109,3.698 9.044,3.264 9.141,2.818C9.162,2.722 9.144,2.647 9.085,2.589L9.034,2.547L8.336,2.097C8.236,2.031 8.142,2.057 8.096,2.085L8.064,2.106L7.927,2.22C7.871,2.266 7.811,2.312 7.749,2.349C7.709,2.372 7.671,2.39 7.632,2.405C7.284,2.536 6.957,2.593 6.662,2.574C6.256,2.548 5.9,2.384 5.572,2.074ZM6.75,4C7.716,4 8.5,4.784 8.5,5.75C8.5,6.716 7.716,7.5 6.75,7.5C5.784,7.5 5,6.716 5,5.75C5,4.784 5.784,4 6.75,4Z"
+      android:fillColor="#000000"
+      android:fillType="evenOdd"/>
+</vector>

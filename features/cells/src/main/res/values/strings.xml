@@ -259,4 +259,10 @@
     <string name="sort_size_smallest_first">Smallest first</string>
     <string name="sort_size_largest_first">Largest first</string>
     <string name="content_description_offline_available">Offline available</string>
+    <string name="content_description_image_message">Image</string>
+    <string name="cells_video_enter_fullscreen">Enter full screen</string>
+    <string name="cells_video_exit_fullscreen">Exit full screen</string>
+    <string name="cells_video_mute">Mute</string>
+    <string name="cells_video_unmute">Unmute</string>
+    <string name="cells_video_loading">Loading video</string>
 </resources>

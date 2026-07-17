@@ -106,7 +106,7 @@ class HomeViewModelTest {
             // when
             viewModel.checkRequirements()
             // then
-            assertEquals(HomeRequirement.RegisterDevice, expectMostRecentItem())
+            assertEquals(HomeRequirement.RegisterDevice(TEST_ACCOUNT_INFO.userId), expectMostRecentItem())
         }
     }
 
@@ -175,7 +175,7 @@ class HomeViewModelTest {
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
-                currentSessionFlow = { currentSessionFlow },
+                currentSessionFlow = lazyOf(currentSessionFlow),
             )
         }
 

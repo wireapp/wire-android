@@ -17,19 +17,22 @@
  */
 package com.wire.android.ui.home.conversations
 
+import com.wire.android.di.metro.MetroSessionScope
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
 /**
  * WARNING:
- * This is a Singleton and is NOT lifecycle-aware.
+ * This is session-scoped and is NOT lifecycle-aware.
  *
  * ⚠️ Do NOT store Android Context, Activity, View, Bitmap, InputStream, or any other
  * large or lifecycle-bound objects here, as it can lead to memory leaks.
  *
  */
+@SingleIn(MetroSessionScope::class)
 class MessageSharedState @Inject constructor() {
     private val pendingBundles = MutableSharedFlow<List<AssetBundle>>()
 

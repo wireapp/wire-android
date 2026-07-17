@@ -49,9 +49,9 @@ private fun DebugToolsOptionsPreview() {
             onRestartSlowSyncForRecovery = {},
             onForceUpdateApiVersions = {},
             checkCrlRevocationList = {},
-            onResendFCMToken = {},
-            isAsyncNotificationsEnabled = true,
-            onEnableAsyncNotificationsChange = {}
+            forceCRLExpirationAfterOneMinute = false,
+            onForceCRLExpirationAfterOneMinuteChange = {},
+            onResendFCMToken = {}
         )
     }
 }
@@ -63,9 +63,9 @@ internal fun DebugToolsOptions(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     checkCrlRevocationList: () -> Unit,
+    forceCRLExpirationAfterOneMinute: Boolean,
+    onForceCRLExpirationAfterOneMinuteChange: (Boolean) -> Unit,
     onResendFCMToken: () -> Unit,
-    isAsyncNotificationsEnabled: Boolean,
-    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
 ) {
     SectionHeader(stringResource(R.string.label_debug_tools_title))
     Column {
@@ -76,8 +76,8 @@ internal fun DebugToolsOptions(
                 onRestartSlowSyncForRecovery = onRestartSlowSyncForRecovery,
                 onForceUpdateApiVersions = onForceUpdateApiVersions,
                 checkCrlRevocationList = checkCrlRevocationList,
-                isAsyncNotificationsEnabled = isAsyncNotificationsEnabled,
-                onEnableAsyncNotificationsChange = onEnableAsyncNotificationsChange
+                forceCRLExpirationAfterOneMinute = forceCRLExpirationAfterOneMinute,
+                onForceCRLExpirationAfterOneMinuteChange = onForceCRLExpirationAfterOneMinuteChange
             )
         }
         ProductionDebugToolsOptions(onResendFCMToken = onResendFCMToken)
@@ -91,8 +91,8 @@ private fun PrivateBuildDebugToolsOptions(
     onRestartSlowSyncForRecovery: () -> Unit,
     onForceUpdateApiVersions: () -> Unit,
     checkCrlRevocationList: () -> Unit,
-    isAsyncNotificationsEnabled: Boolean,
-    onEnableAsyncNotificationsChange: (Boolean) -> Unit,
+    forceCRLExpirationAfterOneMinute: Boolean,
+    onForceCRLExpirationAfterOneMinuteChange: (Boolean) -> Unit,
 ) {
     Column {
         DisableEventProcessingSwitch(
@@ -100,9 +100,12 @@ private fun PrivateBuildDebugToolsOptions(
             onCheckedChange = onDisableEventProcessingChange
         )
         RestartSlowSyncButton(onClick = onRestartSlowSyncForRecovery)
+        ForceCRLExpirationAfterOneMinuteSwitch(
+            isEnabled = forceCRLExpirationAfterOneMinute,
+            onCheckedChange = onForceCRLExpirationAfterOneMinuteChange
+        )
         CheckCrlRevocationButton(onClick = checkCrlRevocationList)
         ForceUpdateApiVersionsButton(onClick = onForceUpdateApiVersions)
-        EnableAsyncNotifications(isAsyncNotificationsEnabled, onEnableAsyncNotificationsChange)
     }
 }
 
@@ -124,6 +127,35 @@ private fun DisableEventProcessingSwitch(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
                 text = stringResource(R.string.label_disable_event_processing),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WireSwitch(
+                checked = isEnabled,
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier
+                    .padding(end = dimensions().spacing8x)
+                    .size(
+                        width = dimensions().buttonSmallMinSize.width,
+                        height = dimensions().buttonSmallMinSize.height
+                    )
+            )
+        }
+    )
+}
+
+@Composable
+private fun ForceCRLExpirationAfterOneMinuteSwitch(
+    isEnabled: Boolean = false,
+    onCheckedChange: ((Boolean) -> Unit)?,
+) {
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = "Force CRL expiry after 1 minute",
                 modifier = Modifier.padding(start = dimensions().spacing8x)
             )
         },
@@ -241,36 +273,6 @@ private fun RegisterFCMPushTokenButton(
                 onClick = onClick,
                 text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
                 fillMaxWidth = false
-            )
-        }
-    )
-}
-
-@Composable
-private fun EnableAsyncNotifications(
-    isEnabled: Boolean = false,
-    onCheckedChange: ((Boolean) -> Unit)?,
-) {
-    RowItemTemplate(
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = stringResource(R.string.label_enable_async_notifications),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
-        },
-        actions = {
-            WireSwitch(
-                enabled = !isEnabled,
-                checked = isEnabled,
-                onCheckedChange = onCheckedChange,
-                modifier = Modifier
-                    .padding(end = dimensions().spacing8x)
-                    .size(
-                        width = dimensions().buttonSmallMinSize.width,
-                        height = dimensions().buttonSmallMinSize.height
-                    )
             )
         }
     )

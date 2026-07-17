@@ -25,12 +25,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combineTransform
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@Singleton
+@SingleIn(AppScope::class)
 class ObserveAppLockConfigUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     @KaliumCoreLogic private val coreLogic: CoreLogic

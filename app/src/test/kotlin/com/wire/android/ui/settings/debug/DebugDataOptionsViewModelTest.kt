@@ -36,12 +36,11 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdentifierUseCase
-import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
-import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsResult
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
+import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
+import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -79,7 +78,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given token sending token will succeed, when sending FCM token, then info message should emmit success message`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withSendFCMTokenSuccess()
             .arrange()
 
@@ -96,7 +95,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given there is not client ID, when sending FCM token,info message should emit error message`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withSendFCMTokenClientIdFailure()
             .arrange()
 
@@ -113,7 +112,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given there is not notification token, when sending FCM token,info message should emit error message`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withSendFCMTokenNotificationTokenFailure()
             .arrange()
 
@@ -130,7 +129,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that there is API failure, when sending FCM token,info message should emit error message`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withSendFCMTokenClientRepositoryRegisterTokenFailure()
             .arrange()
 
@@ -147,7 +146,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that Proteus protocol is used, view state should have Proteus protocol name`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withProteusProtocolSetup()
             .arrange()
 
@@ -157,7 +156,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that Mls protocol is used, view state should have proteus Mls name`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withMlsProtocolSetup()
             .arrange()
 
@@ -167,7 +166,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that federation is disabled, view state should have federation value of false`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withFederationDisabled()
             .arrange()
 
@@ -177,7 +176,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that federation is enabled, view state should have federation value of true`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withFederationEnabled()
             .arrange()
 
@@ -187,7 +186,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that api version is unknown, view state should have api version unknown`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withApiVersionUnknown()
             .arrange()
 
@@ -197,7 +196,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given that api version is set, view state should have api version set`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withApiVersionSet(7)
             .arrange()
 
@@ -207,7 +206,7 @@ class DebugDataOptionsViewModelTest {
     @Test
     fun `given server config failure, view state should have default values`() = runTest {
         // given
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withServerConfigError()
             .arrange()
 
@@ -216,40 +215,8 @@ class DebugDataOptionsViewModelTest {
     }
 
     @Test
-    fun `given async notifications is not enabled, when enabling, then start using async notifications is called`() = runTest {
-        // given
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
-            .withObserveIsConsumableNotificationsEnabled(false)
-            .withStartUsingAsyncNotificationsResult()
-            .arrange()
-
-        assertEquals(false, viewModel.state.isAsyncNotificationsEnabled)
-
-        viewModel.enableAsyncNotifications(true)
-
-        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
-        coVerify(exactly = 1) { arrangement.startUsingAsyncNotifications() }
-    }
-
-    @Test
-    fun `given async notifications is enabled, then start using async notifications is never called`() = runTest {
-        // given
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
-            .withObserveIsConsumableNotificationsEnabled(true)
-            .withStartUsingAsyncNotificationsResult()
-            .arrange()
-
-        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
-
-        viewModel.enableAsyncNotifications(false)
-
-        assertEquals(true, viewModel.state.isAsyncNotificationsEnabled)
-        coVerify(exactly = 0) { arrangement.startUsingAsyncNotifications() }
-    }
-
-    @Test
     fun `given e2ei expiration is loaded, view state should contain loaded value`() = runTest {
-        val (_, viewModel) = DebugDataOptionsHiltArrangement()
+        val (_, viewModel) = DebugDataOptionsArrangement()
             .withDebugE2EICertificateExpiration(999)
             .arrange()
 
@@ -258,7 +225,7 @@ class DebugDataOptionsViewModelTest {
 
     @Test
     fun `given default e2ei expiration is loaded, then minimum debug value is applied`() = runTest {
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+        val (arrangement, viewModel) = DebugDataOptionsArrangement()
             .withDebugE2EICertificateExpiration(90.days.inWholeSeconds)
             .arrange()
 
@@ -268,7 +235,7 @@ class DebugDataOptionsViewModelTest {
 
     @Test
     fun `given expiration below minimum, when updating e2ei expiration, then minimum value is used`() = runTest {
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement().arrange()
+        val (arrangement, viewModel) = DebugDataOptionsArrangement().arrange()
 
         viewModel.updateE2EICertificateExpiration(120)
 
@@ -278,7 +245,7 @@ class DebugDataOptionsViewModelTest {
 
     @Test
     fun `given valid expiration value, when updating e2ei expiration, then value is updated and use case is called`() = runTest {
-        val (arrangement, viewModel) = DebugDataOptionsHiltArrangement()
+        val (arrangement, viewModel) = DebugDataOptionsArrangement()
             .withDebugE2EICertificateExpiration(360)
             .arrange()
 
@@ -287,9 +254,28 @@ class DebugDataOptionsViewModelTest {
         coVerify(exactly = 1) { arrangement.setDebugE2EICertificateExpiration(420) }
         assertEquals(420, viewModel.state.e2eiCertificateExpirationSeconds)
     }
+
+    @Test
+    fun `given CRL force expiration is observed, then view state contains loaded value`() = runTest {
+        val (_, viewModel) = DebugDataOptionsArrangement()
+            .withDebugCRLExpirationAfterOneMinute(true)
+            .arrange()
+
+        assertEquals(true, viewModel.state.forceCRLExpirationAfterOneMinute)
+    }
+
+    @Test
+    fun `when forcing CRL expiration after one minute, then setting use case is called`() = runTest {
+        val (arrangement, viewModel) = DebugDataOptionsArrangement().arrange()
+
+        viewModel.forceCRLExpirationAfterOneMinute(true)
+
+        coVerify(exactly = 1) { arrangement.setDebugCRLExpirationAfterOneMinute(true) }
+        coVerify(exactly = 1) { arrangement.checkCrlRevocationList(forceUpdate = true) }
+    }
 }
 
-internal class DebugDataOptionsHiltArrangement {
+internal class DebugDataOptionsArrangement {
 
     @MockK(relaxed = true)
     lateinit var context: Context
@@ -321,12 +307,6 @@ internal class DebugDataOptionsHiltArrangement {
     lateinit var sendFCMToken: SendFCMTokenUseCase
 
     @MockK
-    lateinit var observeIsConsumableNotificationsEnabled: ObserveIsConsumableNotificationsEnabledUseCase
-
-    @MockK
-    lateinit var startUsingAsyncNotifications: StartUsingAsyncNotificationsUseCase
-
-    @MockK
     lateinit var repairFaultyRemovalKeysUseCase: RepairFaultyRemovalKeysUseCase
 
     @MockK
@@ -334,6 +314,12 @@ internal class DebugDataOptionsHiltArrangement {
 
     @MockK
     lateinit var setDebugE2EICertificateExpiration: SetDebugE2EICertificateExpirationUseCase
+
+    @MockK
+    lateinit var observeDebugCRLExpirationAfterOneMinute: ObserveDebugCRLExpirationAfterOneMinuteUseCase
+
+    @MockK
+    lateinit var setDebugCRLExpirationAfterOneMinute: SetDebugCRLExpirationAfterOneMinuteUseCase
 
     private val viewModel by lazy {
         DebugDataOptionsViewModelImpl(
@@ -348,11 +334,11 @@ internal class DebugDataOptionsHiltArrangement {
             dispatcherProvider = TestDispatcherProvider(),
             selfServerConfigUseCase = selfServerConfigUseCase,
             getDefaultProtocolUseCase = getDefaultProtocolUseCase,
-            startUsingAsyncNotifications = startUsingAsyncNotifications,
-            observeAsyncNotificationsEnabled = observeIsConsumableNotificationsEnabled,
             repairFaultyRemovalKeys = repairFaultyRemovalKeysUseCase,
             getDebugE2EICertificateExpiration = getDebugE2EICertificateExpiration,
-            setDebugE2EICertificateExpiration = setDebugE2EICertificateExpiration
+            setDebugE2EICertificateExpiration = setDebugE2EICertificateExpiration,
+            observeDebugCRLExpirationAfterOneMinute = observeDebugCRLExpirationAfterOneMinute,
+            setDebugCRLExpirationAfterOneMinute = setDebugCRLExpirationAfterOneMinute
         )
     }
 
@@ -390,9 +376,10 @@ internal class DebugDataOptionsHiltArrangement {
                 getDefaultProtocolUseCase()
             } returns SupportedProtocol.PROTEUS
 
-            withObserveIsConsumableNotificationsEnabled(false)
             coEvery { getDebugE2EICertificateExpiration() } returns 360
             coEvery { setDebugE2EICertificateExpiration(any()) } returns Unit
+            every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(false)
+            coEvery { setDebugCRLExpirationAfterOneMinute(any()) } returns Unit
         }
     }
 
@@ -400,16 +387,8 @@ internal class DebugDataOptionsHiltArrangement {
         coEvery { getDebugE2EICertificateExpiration() } returns expiration
     }
 
-    suspend fun withObserveIsConsumableNotificationsEnabled(isEnabled: Boolean = false) = apply {
-        coEvery {
-            observeIsConsumableNotificationsEnabled()
-        } returns flowOf(isEnabled)
-    }
-
-    suspend fun withStartUsingAsyncNotificationsResult(
-        result: StartUsingAsyncNotificationsResult = StartUsingAsyncNotificationsResult.Success
-    ) = apply {
-        coEvery { startUsingAsyncNotifications() } returns result
+    fun withDebugCRLExpirationAfterOneMinute(enabled: Boolean) = apply {
+        every { observeDebugCRLExpirationAfterOneMinute() } returns flowOf(enabled)
     }
 
     fun withSendFCMTokenSuccess() = apply {

@@ -23,7 +23,11 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,6 +59,7 @@ import kotlin.math.ceil
 fun WireCenterAlignedTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
+    navigationIconModifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.wireTypography.title01,
     maxLines: Int = 2,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
@@ -77,6 +82,7 @@ fun WireCenterAlignedTopAppBar(
         subtitleContent = subtitleContent,
         onNavigationPressed = onNavigationPressed,
         navigationIconType = navigationIconType,
+        navigationIconModifier = navigationIconModifier,
         elevation = elevation,
         actions = actions,
         modifier = modifier,
@@ -89,6 +95,7 @@ fun WireCenterAlignedTopAppBar(
 fun WireCenterAlignedTopAppBar(
     titleContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
+    navigationIconModifier: Modifier = Modifier,
     subtitleContent: @Composable ColumnScope.() -> Unit = {},
     onNavigationPressed: () -> Unit = {},
     navigationIconType: NavigationIconType? = NavigationIconType.Back(),
@@ -109,9 +116,18 @@ fun WireCenterAlignedTopAppBar(
                         subtitleContent()
                     }
                 },
-                navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it, onClick = onNavigationPressed) } },
+                navigationIcon = {
+                    navigationIconType?.let {
+                        NavigationIconButton(
+                            iconType = it,
+                            onClick = onNavigationPressed,
+                            modifier = navigationIconModifier
+                        )
+                    }
+                },
                 colors = wireTopAppBarColors(),
                 actions = actions,
+                windowInsets = WindowInsets.statusBars.only(WindowInsetsSides.Top),
                 modifier = Modifier
                     // TopAppBarHorizontalPadding is 4.dp so another 4.dp needs to be added to match 8.dp from designs
                     .padding(end = dimensions().spacing4x),

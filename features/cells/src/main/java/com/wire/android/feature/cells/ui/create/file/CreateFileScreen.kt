@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.feature.cells.ui.createFileViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FileNameError
@@ -53,7 +53,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import java.util.Locale
+  import androidx.compose.ui.platform.LocalLocale
 
 @WireCellsDestination(
     style = PopUpNavigationAnimation::class,
@@ -64,7 +64,7 @@ fun CreateFileScreen(
     navigator: WireNavigator,
     resultNavigator: ResultBackNavigator<Boolean>,
     modifier: Modifier = Modifier,
-    createFileViewModel: CreateFileViewModel = hiltViewModel()
+    createFileViewModel: CreateFileViewModel = createFileViewModel(),
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 
@@ -123,7 +123,7 @@ fun CreateFileScreen(
         WireTextField(
             textState = createFileViewModel.fileNameTextFieldState,
             placeholderText = stringResource(R.string.cell_file_name),
-            labelText = stringResource(R.string.cell_file_name).uppercase(Locale.getDefault()),
+            labelText = stringResource(R.string.cell_file_name).uppercase(LocalLocale.current.platformLocale),
             modifier = Modifier
                 .padding(it)
                 .padding(

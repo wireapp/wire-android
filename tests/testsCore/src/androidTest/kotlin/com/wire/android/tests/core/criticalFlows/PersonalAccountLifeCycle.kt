@@ -17,56 +17,35 @@
  */
 package com.wire.android.tests.core.criticalFlows
 
+import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.runner.RunWith
-import android.content.Context
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import backendUtils.BackendClient
-import backendUtils.team.TeamHelper
-import com.wire.android.testSupport.BuildConfig
-import com.wire.android.tests.core.pages.AllPages
+import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
+import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.TestCaseId
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.koin.test.inject
-import service.TestServiceHelper
+import org.junit.runner.RunWith
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
-import kotlin.getValue
-import com.wire.android.tests.core.BaseUiTest
-import com.wire.android.tests.support.tags.Category
-import com.wire.android.tests.support.tags.TestCaseId
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class PersonalAccountLifeCycle : BaseUiTest() {
-    private val pages: AllPages by inject()
-    private lateinit var device: UiDevice
-    private lateinit var context: Context
+    // This test creates a standalone personal user, so shared BaseUiTest cleanup should delete personal users too.
+    override val deletePersonalUsersAfterTest = true
+
     private var teamOwner: ClientUser? = null
     private var personalUser: ClientUser? = null
-    private lateinit var backendClient: BackendClient
-    private lateinit var teamHelper: TeamHelper
-    private lateinit var testServiceHelper: TestServiceHelper
 
     @Before
     fun setUp() {
-        context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
-        backendClient = BackendClient.loadBackend("STAGING")
-        teamHelper = TeamHelper()
-        testServiceHelper = TestServiceHelper(teamHelper.usersManager)
-    }
-
-    @After
-    fun tearDown() {
-         cleanupCreatedUsers(backendClient, teamHelper.usersManager, deletePersonalUsers = true)
+        initCommonTestHelpers()
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -75,7 +54,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
     @Test
     fun givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved() {
         step("Prepare backend users and device") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "chatFriend",
                 "en_US",
@@ -84,8 +63,8 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 context
             )
 
-            teamOwner = teamHelper.usersManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-            personalUser = teamHelper.usersManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+            personalUser = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
 
             testServiceHelper.addDevice("user1Name", null, "Device1")
         }
@@ -129,10 +108,10 @@ class PersonalAccountLifeCycle : BaseUiTest() {
         step("Fetch OTP to complete 2FA verification and complete registration") {
             val otp = runBlocking {
                 InbucketClient.getVerificationCode(
-                    personalUser?.email.orEmpty(),
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETURL,
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETPASSWORD,
-                    BuildConfig.BACKENDCONNECTION_STAGING_INBUCKETUSERNAME
+                    personalUser?.email!!,
+                    backendClient.inbucketUrl,
+                    backendClient.inbucketPassword,
+                    backendClient.inbucketUsername
                 )
             }
 
@@ -149,7 +128,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 assertConversationPageVisible()
             }
             // Register the UI-created personal user so shared teardown can see and delete it.
-            personalUser?.let(teamHelper.usersManager::appendCustomUser)
+            personalUser?.let(::trackCreatedUserForCleanup)
         }
 
         step("Send connection request to existing team owner") {
@@ -157,7 +136,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
             pages.searchPage.apply {
                 tapSearchPeopleField()
-                typeUniqueUserNameInSearchField(teamHelper, "user1Name")
+                typeUniqueUserNameInSearchField(clientUserManager, "user1Name")
                 assertUsernameInSearchResultIs(teamOwner?.name ?: "")
                 tapUsernameInSearchResult(teamOwner?.name ?: "")
             }
@@ -166,16 +145,14 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             pages.connectedUserProfilePage.assertToastMessageIsDisplayed("Connection request sent")
 
             pages.unconnectedUserProfilePage.clickCloseButtonOnUnconnectedUserProfilePage()
+            pages.searchPage.clickCloseButtonOnSearchInputField()
             pages.conversationListPage.clickCloseButtonOnNewConversationScreen()
             pages.conversationListPage
                 .assertConversationNameWithPendingStatusVisibleInConversationList(teamOwner?.name ?: "")
         }
 
         step("Accept connection request via backend and start conversation") {
-            runBlocking {
-                val user = teamHelper.usersManager.findUserByNameOrNameAlias("user1Name")
-                backendClient.acceptAllIncomingConnectionRequests(user)
-            }
+            backendSetupHelper.userAcceptsAllIncomingConnectionRequests("user1Name", backendClient)
             UiWaitUtils.waitFor(1.seconds)
             pages.conversationListPage.apply {
                 assertPendingStatusIsNoLongerVisible()
@@ -203,8 +180,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 "user1Name",
                 "Hello to you too!",
                 "Device1",
-                "user3Name",
-                false
+                "user3Name"
             )
 
             closeKeyboardIfOpened()

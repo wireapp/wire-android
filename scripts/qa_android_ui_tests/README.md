@@ -17,9 +17,10 @@ Main critical-flow workflow.
 - Runs nightly on `schedule` at `04:00 UTC`.
 - Uses built-in defaults for non-manual runs:
   - latest APK
-  - `internal release candidate`
+  - upgrade mode enabled
+  - `alpha release candidate`
   - `@criticalFlow`
-  - auto device selection
+  - `criticalFlow` device group
   - failed-test rerun enabled with count `1`
 - Exports one standard deflake artifact for later manual reruns.
 
@@ -65,6 +66,65 @@ Bundle contents:
 - rerun configuration
 - Testiny run name
 
+## Device Groups
+
+Physical devices are allocated through named, disjoint groups stored in the
+GitHub repository variable `ANDROID_DEVICE_GROUPS_JSON`. Workflows select a
+group through `androidDeviceGroup`; the critical-flow default is
+`criticalFlow`.
+
+Example repository-variable value:
+
+```json
+{
+  "criticalFlow": [
+    "device-serial-01",
+    "device-serial-02"
+  ],
+  "e2eTests": [
+    "device-serial-03",
+    "device-serial-04"
+  ],
+  "GrapheneOS": [
+    "device-serial-05"
+  ]
+}
+```
+
+Device selection works as follows:
+
+1. Parse and validate the requested group from `ANDROID_DEVICE_GROUPS_JSON`.
+2. Reject configurations that assign one serial to more than one group. This
+   guarantees that independently locked group workflows cannot share a phone.
+3. Intersect the configured group with devices currently online in `adb`.
+4. Warn and continue when only part of the group is online; fail when none of
+   the configured devices are online.
+5. If `androidDeviceId` is set, require that device to be online and belong to
+   the selected group.
+6. If a single testcase is selected, use the first online device in configured
+   group order. Otherwise shard across every online device in the group.
+
+Concurrency is locked by group name, allowing disjoint groups such as
+`criticalFlow`, `e2eTests`, and `GrapheneOS` to run at the same time. Adding,
+removing, or moving a device does not require a repository change: update the
+GitHub repository variable. Group names passed to workflows must match the JSON
+keys.
+
+Manual deflake asks for the group because GitHub evaluates concurrency before
+the source artifact can be downloaded. It validates that the requested group
+matches group metadata from newer source runs. For artifacts created before
+device groups were introduced, select the appropriate group manually.
+
+## Protected Environment
+
+Both secret-bearing jobs use the GitHub environment `android-e2e`. Configure
+that environment with required reviewers and restrict deployment branches to
+the repository default branch. Store the AWS, 1Password, and notification
+secrets used by these workflows as environment secrets rather than repository
+secrets. The workflows also reject manual runs from other refs and check out
+the default branch without persisting credentials, but environment protection
+is the enforcement boundary that a modified branch workflow cannot remove.
+
 ## Flavor Resolution Source
 
 Flavor resolution is runner-driven, not hardcoded in the repo.
@@ -83,6 +143,10 @@ Flavor resolution is runner-driven, not hardcoded in the repo.
 - `run_ui_tests.sh`: instrumentation execution, sharding, failed-test auto-reruns, and manual-deflake failed-list execution.
 - `reporting.sh`: Allure pull/merge/generate/publish, deflake bundle preparation, and cleanup.
 
+Test artifact setup exports both `TEST_APK_PATH` and the generated
+`TEST_APP_ID`. The runner uses `TEST_APP_ID` to bind instrumentation to the
+freshly built test package; `APP_ID` remains the Wire app driven by UI Automator.
+
 ## Retry Flow
 
 The rerun feature is controlled by workflow inputs:
@@ -99,6 +163,15 @@ Execution flow:
 5. Run rerun attempts with explicit rerun lists so only the previously failed tests execute.
 6. Merge all attempts into one final Allure dataset and keep the latest outcome per logical test.
 
+Before report generation, the merged dataset is made safe for publication:
+
+- screenshots and other attachments are omitted;
+- test parameters and failure traces/messages are removed;
+- physical device serials are replaced with per-run aliases.
+
+GitHub Pages should still be configured with the narrowest available access
+policy because test names and high-level outcomes remain visible.
+
 Reporting behavior:
 
 - A test that fails first and passes later is reported as `passed` in the final merged report.
@@ -108,15 +181,49 @@ Reporting behavior:
   - `passed_on_rerun`
   - `failed_after_retries`
 
+## Selector And Upgrade Behavior
+
+The selector decides which tests are in scope. Upgrade mode decides how the
+selected upgrade-tagged subset is executed.
+
+- `@criticalFlow` runs only `criticalFlow` tests.
+- `@regression` runs only `regression` tests.
+- `@TC-1234` runs only that test case.
+
+When `isUpgrade=true` and the selector is a broad category run:
+
+1. the workflow runs the selected category first on the new APK and excludes tests tagged `upgrade`
+2. the workflow then runs only the selected `upgrade` subset last on one device, starting from the old APK
+
+Examples:
+
+- `@criticalFlow` + `isUpgrade=true`:
+  - normal phase: `criticalFlow` tests except `criticalFlow + upgrade`
+  - upgrade phase: only `criticalFlow + upgrade`
+- `@regression` + `isUpgrade=true`:
+  - normal phase: `regression` tests except `regression + upgrade`
+  - upgrade phase: only `regression + upgrade`
+
+When `isUpgrade=false` and the selector is a category run:
+
+- the workflow keeps the selected category scope
+- tests also tagged `upgrade` are skipped instead of running in the normal phase
+
+When the selector is left empty and `isUpgrade=true`:
+
+- the workflow runs all non-upgrade tests first
+- then runs all upgrade-tagged tests last
+
 ## Manual Deflake Flow
 
 1. Critical flow or an earlier manual deflake run uploads `android-ui-test-deflake-input`.
 2. A user copies the `manual deflake id` from the workflow summary.
-3. The manual deflake workflow downloads the artifact for that selected run.
-4. The workflow validates `metadata.json` and `failed-tests.txt`.
-5. Only the leftover failed tests are executed.
-6. A fresh Allure report is published for that manual deflake run.
-7. A fresh deflake artifact is uploaded again for the next round if needed.
+3. GitHub API metadata must identify a completed allowed workflow run from this repository's default branch.
+4. The downloaded artifact's repository, run, workflow, and SHA must match that API response.
+5. The recorded `testsCore` and `testsSupport` source revision is overlaid onto the current hardened harness.
+6. Only the leftover failed tests are executed.
+7. A fresh sanitized Allure report is published for that manual deflake run.
+8. A fresh deflake artifact is uploaded again for the next round if needed.
 
 ## Python Helpers
 

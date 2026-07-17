@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
+import com.wire.android.ui.home.conversations.editSelfDeletingMessagesViewModel
+
 import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -38,9 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
@@ -67,7 +69,7 @@ import com.wire.android.util.ui.sectionWithElements
 @Composable
 fun EditSelfDeletingMessagesScreen(
     navigator: Navigator,
-    editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = hiltViewModel(),
+    editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = editSelfDeletingMessagesViewModel(),
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -151,7 +153,11 @@ fun SelectableSelfDeletingItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .selectableBackground(isSelected, onClick = { onSelfDeletionDurationSelected(duration) })
+            .selectableBackground(
+                isSelected = isSelected,
+                role = Role.RadioButton,
+                onClick = { onSelfDeletionDurationSelected(duration) }
+            )
             .background(color = MaterialTheme.wireColorScheme.surface)
             .padding(all = MaterialTheme.wireDimensions.spacing16x)
     ) {

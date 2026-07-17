@@ -37,8 +37,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
-import com.wire.android.di.assistedViewModels
+import com.wire.android.di.metro.LocalWireViewModelScopeKey
+import com.wire.android.di.metro.AppSessionViewModelGraph
+import com.wire.android.di.metro.createSessionViewModelGraph
+import com.wire.android.di.metro.wireApplicationGraph
+import com.wire.android.model.LocalWireSessionImageLoader
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
@@ -51,11 +57,12 @@ import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.HasMemberInjections
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 
-@AndroidEntryPoint
+@HasMemberInjections
 abstract class CallActivity : BaseActivity() {
 
     @Inject
@@ -63,10 +70,6 @@ abstract class CallActivity : BaseActivity() {
 
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
-
-    private val commonTopAppBarViewModel by assistedViewModels<CommonTopAppBarViewModel, CommonTopAppBarViewModel.Factory> { factory ->
-        factory.create(CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false))
-    }
 
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
@@ -76,7 +79,23 @@ abstract class CallActivity : BaseActivity() {
         const val TAG = "CallActivity"
     }
 
-    private val callActivityViewModel: CallActivityViewModel by viewModels()
+    private val imageAssetViewModelGraph by lazy { wireApplicationGraph.imageAssetViewModelGraph }
+    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                imageAssetViewModelGraph.commonViewModelFactory.commonTopAppBarViewModel(
+                    CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false)
+                )
+            }
+        }
+    }
+    private val callActivityViewModel: CallActivityViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                imageAssetViewModelGraph.callingViewModelFactory.callActivityViewModel()
+            }
+        }
+    }
     protected val qualifiedIdMapper = QualifiedIdMapper(null)
 
     override fun onNewIntent(intent: Intent) {
@@ -86,12 +105,19 @@ abstract class CallActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         setupOrientationForDevice()
         setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 
         enableEdgeToEdge()
+
+        val sessionViewModelGraph = createCallSessionViewModelGraph(intent) ?: run {
+            appLogger.e("$TAG missing call session user id, closing call activity")
+            finish()
+            return
+        }
 
         handleNewIntent(intent)
 
@@ -100,8 +126,12 @@ abstract class CallActivity : BaseActivity() {
 
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
+            val rememberedSessionViewModelGraph = remember { sessionViewModelGraph }
             CompositionLocalProvider(
                 LocalSnackbarHostState provides snackbarHostState,
+                LocalMetroViewModelFactory provides rememberedSessionViewModelGraph.metroViewModelFactory,
+                LocalWireViewModelScopeKey provides rememberedSessionViewModelGraph.viewModelScopeKey,
+                LocalWireSessionImageLoader provides rememberedSessionViewModelGraph.wireSessionImageLoader,
                 LocalActivity provides this
             ) {
                 WireTheme {
@@ -128,6 +158,11 @@ abstract class CallActivity : BaseActivity() {
     @Composable
     protected abstract fun Content()
 
+    private fun createCallSessionViewModelGraph(intent: Intent): AppSessionViewModelGraph? =
+        intent.getStringExtra(EXTRA_USER_ID)
+            ?.let(qualifiedIdMapper::fromStringToQualifiedID)
+            ?.let(wireApplicationGraph::createSessionViewModelGraph)
+
     fun switchAccountIfNeeded(userId: String?) {
         userId?.let {
             qualifiedIdMapper.fromStringToQualifiedID(it).run {
@@ -140,6 +175,9 @@ abstract class CallActivity : BaseActivity() {
         Intent(this, AppLockActivity::class.java)
             .apply {
                 flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                intent.getStringExtra(EXTRA_USER_ID)?.let {
+                    putExtra(AppLockActivity.EXTRA_USER_ID, it)
+                }
             }.run {
                 startActivity(this)
             }

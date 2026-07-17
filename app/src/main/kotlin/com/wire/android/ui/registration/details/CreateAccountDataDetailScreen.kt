@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -53,7 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.authentication.createAccountDataDetailViewModel
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
@@ -95,7 +97,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 fun CreateAccountDataDetailScreen(
     navigator: Navigator,
-    createAccountDataDetailViewModel: CreateAccountDataDetailViewModel = hiltViewModel()
+    createAccountDataDetailViewModel: CreateAccountDataDetailViewModel = createAccountDataDetailViewModel()
 ) {
     with(createAccountDataDetailViewModel) {
         fun navigateToCodeScreen() = navigator.navigate(
@@ -162,7 +164,8 @@ private fun AccountDetailsContent(
                 title = {
                     Text(
                         text = stringResource(id = R.string.create_personal_account_title),
-                        style = MaterialTheme.wireTypography.title01
+                        style = MaterialTheme.wireTypography.title01,
+                        modifier = Modifier.semantics { heading() }
                     )
                     if (serverConfig.isOnPremises) {
                         ServerTitle(

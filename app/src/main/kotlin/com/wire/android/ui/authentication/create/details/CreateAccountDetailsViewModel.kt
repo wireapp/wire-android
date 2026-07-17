@@ -30,13 +30,11 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 // TODO: Cover this viewModel  with unit test
-@HiltViewModel
 class CreateAccountDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val validatePasswordUseCase: ValidatePasswordUseCase,

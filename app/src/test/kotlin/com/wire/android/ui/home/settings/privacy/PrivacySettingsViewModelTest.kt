@@ -20,10 +20,15 @@ package com.wire.android.ui.home.settings.privacy
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
+import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.ObserveLinkPreviewsEnabledUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.PersistLinkPreviewsStatusConfigUseCase
+import com.wire.kalium.logic.feature.user.linkPreviews.LinkPreviewsConfigResult
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ReadReceiptStatusConfigResult
@@ -114,25 +119,31 @@ class PrivacySettingsViewModelTest {
     private class Arrangement {
         val persistReadReceiptsStatusConfig = mockk<PersistReadReceiptsStatusConfigUseCase>()
         val observeReadReceiptsEnabled = mockk<ObserveReadReceiptsEnabledUseCase>()
+        val persistLinkPreviewsStatusConfig = mockk<PersistLinkPreviewsStatusConfigUseCase>()
+        val observeLinkPreviewsEnabled = mockk<ObserveLinkPreviewsEnabledUseCase>()
         val persistScreenshotCensoringConfig = mockk<PersistScreenshotCensoringConfigUseCase>()
         val observeScreenshotCensoringConfig = mockk<ObserveScreenshotCensoringConfigUseCase>()
         val persistTypingIndicatorStatusConfig = mockk<PersistTypingIndicatorStatusConfigUseCase>()
         val observeTypingIndicatorEnabled = mockk<ObserveTypingIndicatorEnabledUseCase>()
         val selfServerConfig = mockk<SelfServerConfigUseCase>()
         val dataStore = mockk<UserDataStore>()
+        val userDataStoreProvider = mockk<UserDataStoreProvider>()
 
         val viewModel by lazy {
             PrivacySettingsViewModel(
                 dispatchers = TestDispatcherProvider(),
                 persistReadReceiptsStatusConfig = persistReadReceiptsStatusConfig,
                 observeReadReceiptsEnabled = observeReadReceiptsEnabled,
+                persistLinkPreviewsStatusConfig = persistLinkPreviewsStatusConfig,
+                observeLinkPreviewsEnabled = observeLinkPreviewsEnabled,
                 persistScreenshotCensoringConfig = persistScreenshotCensoringConfig,
                 observeScreenshotCensoringConfig = observeScreenshotCensoringConfig,
                 persistTypingIndicatorStatusConfig = persistTypingIndicatorStatusConfig,
                 observeTypingIndicatorEnabled = observeTypingIndicatorEnabled,
                 analyticsEnabled = AnalyticsConfiguration.Enabled,
                 selfServerConfig = selfServerConfig,
-                dataStore = dataStore
+                userDataStoreProvider = userDataStoreProvider,
+                selfUserId = TestUser.SELF_USER.id,
             )
         }
 
@@ -141,11 +152,14 @@ class PrivacySettingsViewModelTest {
 
             coEvery { persistReadReceiptsStatusConfig.invoke(true) } returns ReadReceiptStatusConfigResult.Success
             coEvery { observeReadReceiptsEnabled() } returns flowOf(true)
+            coEvery { persistLinkPreviewsStatusConfig.invoke(true) } returns LinkPreviewsConfigResult.Success
+            coEvery { observeLinkPreviewsEnabled() } returns flowOf(false)
             coEvery { persistScreenshotCensoringConfig.invoke(true) } returns PersistScreenshotCensoringConfigResult.Success
             coEvery { observeScreenshotCensoringConfig() } returns
                     flowOf(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
             coEvery { persistTypingIndicatorStatusConfig.invoke(true) } returns TypingIndicatorConfigResult.Success
             coEvery { observeTypingIndicatorEnabled() } returns flowOf(true)
+            every { userDataStoreProvider.getOrCreate(TestUser.SELF_USER.id) } returns dataStore
             coEvery { dataStore.setIsAnonymousAnalyticsEnabled(any()) } returns Unit
             coEvery { selfServerConfig.invoke() } returns SelfServerConfigUseCase.Result.Success(
                 serverLinks = newServerConfig(1).copy(links = ServerConfig.STAGING)

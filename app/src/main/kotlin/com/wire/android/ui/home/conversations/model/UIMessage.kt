@@ -43,6 +43,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
@@ -75,6 +76,8 @@ sealed interface UIMessage {
         val userAvatarData: UserAvatarData,
         override val messageContent: UIMessageContent.Regular?,
         val messageFooter: MessageFooter,
+        @Transient
+        val linkPreviews: List<com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview> = emptyList(),
     ) : UIMessage {
         val isDeleted: Boolean = header.messageStatus.isDeleted
         override val sendingFailed: Boolean = header.messageStatus.flowStatus is MessageFlowStatus.Failure.Send
@@ -93,7 +96,18 @@ sealed interface UIMessage {
             else -> null
         }
 
-        val hasAssetParams: Boolean = assetParams != null && !decryptionFailed
+        val linkPreviewParams: VisualMediaParams? =
+            if (messageContent is UIMessageContent.TextMessage) {
+                linkPreviews.firstNotNullOfOrNull { preview ->
+                    preview.image
+                        ?.takeIf { it.assetWidth > 0 && it.assetHeight > 0 }
+                        ?.let { VisualMediaParams(it.assetWidth, it.assetHeight) }
+                }
+            } else {
+                null
+            }
+
+        val hasAssetParams: Boolean = (assetParams != null || linkPreviewParams != null) && !decryptionFailed
 
         private val isReplyableContent: Boolean
             get() = messageContent is UIMessageContent.TextMessage ||
@@ -163,8 +177,15 @@ data class MessageHeader(
     val isSenderUnavailable: Boolean,
     val clientId: ClientId? = null,
     val accent: Accent = Accent.Unknown,
-    val guestExpiresAt: Instant? = null
+    val guestExpiresAt: Instant? = null,
+    val senderId: MessageSenderId? = null
 )
+
+sealed interface MessageSenderId {
+    data class User(val id: String) : MessageSenderId
+    data class App(val appId: UserId) : MessageSenderId
+    data class Bot(val botService: BotService) : MessageSenderId
+}
 
 @Stable
 @Serializable
@@ -430,6 +451,9 @@ sealed interface UIMessageContent {
     sealed interface SystemMessage : UIMessageContent {
 
         @Serializable
+        data object Offline : SystemMessage
+
+        @Serializable
         data class Knock(
             val author: UIText,
             val isSelfTriggered: Boolean
@@ -613,6 +637,9 @@ sealed interface UIMessageContent {
         }
 
         @Serializable
+        data object SelfUserPromotedToAdmin : SystemMessage
+
+        @Serializable
         data object NewConversationWithCellStarted : SystemMessage
 
         @Serializable
@@ -641,8 +668,18 @@ enum class MessageSource {
 
 @Serializable
 data class MessageTime(val instant: Instant) {
-    val utcISO: String = instant.toIsoDateTimeString()
-    val formattedDate: String = utcISO.uiMessageDateTime() ?: ""
+    @Transient
+    private val utcISOValue: Lazy<String> = lazy(LazyThreadSafetyMode.PUBLICATION) {
+        instant.toIsoDateTimeString()
+    }
+
+    @Transient
+    private val formattedDateValue: Lazy<String> = lazy(LazyThreadSafetyMode.PUBLICATION) {
+        utcISO.uiMessageDateTime() ?: ""
+    }
+
+    val utcISO: String get() = utcISOValue.value
+    val formattedDate: String get() = formattedDateValue.value
     fun getFormattedDateGroup(now: Long): MessageDateTimeGroup? = utcISO.groupedUIMessageDateTime(now = now)
     fun shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean =
         utcISO.shouldDisplayDatesDifferenceDivider(previousDate = previousDate)

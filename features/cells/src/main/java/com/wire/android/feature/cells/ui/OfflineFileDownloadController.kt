@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * Controller that handles downloading a cell file to app-specific external storage

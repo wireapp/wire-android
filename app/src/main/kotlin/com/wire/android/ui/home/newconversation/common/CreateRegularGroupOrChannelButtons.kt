@@ -48,8 +48,10 @@ fun CreateRegularGroupOrChannelButtons(
     onCreateNewRegularGroup: () -> Unit,
     onCreateNewChannel: () -> Unit,
     modifier: Modifier = Modifier,
+    firstVisibleButtonModifier: Modifier = Modifier,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
 ) {
+    val isChannelButtonVisible = isUserAllowedToCreateChannels || shouldShowChannelPromotion
     Surface(
         color = MaterialTheme.wireColorScheme.background,
         shadowElevation = elevation
@@ -59,7 +61,7 @@ fun CreateRegularGroupOrChannelButtons(
             modifier = modifier
                 .padding(dimensions().spacing16x)
         ) {
-            if (isUserAllowedToCreateChannels || shouldShowChannelPromotion) {
+            if (isChannelButtonVisible) {
                 WirePrimaryButton(
                     text = stringResource(R.string.label_create_new_channel),
                     onClick = onCreateNewChannel,
@@ -82,7 +84,7 @@ fun CreateRegularGroupOrChannelButtons(
                         }
                     },
                     clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
-                    modifier = Modifier.padding(bottom = dimensions().spacing12x)
+                    modifier = firstVisibleButtonModifier.padding(bottom = dimensions().spacing12x)
                 )
             }
 
@@ -99,6 +101,7 @@ fun CreateRegularGroupOrChannelButtons(
                     )
                 },
                 clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
+                modifier = if (isChannelButtonVisible) Modifier else firstVisibleButtonModifier,
             )
         }
     }

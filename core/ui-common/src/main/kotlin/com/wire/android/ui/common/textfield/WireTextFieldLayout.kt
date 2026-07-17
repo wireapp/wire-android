@@ -38,7 +38,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -46,8 +48,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import com.wire.android.ui.common.Tint
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
@@ -81,6 +85,7 @@ internal fun WireTextFieldLayout(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
+    onInputSizeChanged: (IntSize) -> Unit = { },
     onTap: (() -> Unit)? = null,
     testTag: String = String.EMPTY
 ) {
@@ -105,9 +110,14 @@ internal fun WireTextFieldLayout(
                     style = state,
                     placeholderTextStyle = placeholderTextStyle,
                     placeholderAlignment = placeholderAlignment,
-                    inputMinHeight = inputMinHeight,
                     colors = colors,
-                    onTap = onTap,
+                    onInputSizeChanged = onInputSizeChanged,
+                    modifier = Modifier
+                        .heightIn(min = inputMinHeight)
+                        .clip(shape)
+                        .let {
+                            if (onTap != null) it.clickable(onClick = onTap) else it
+                        }
                 )
             },
             textFieldModifier = Modifier
@@ -148,25 +158,19 @@ internal fun WireTextFieldLayout(
 private fun InnerTextLayout(
     innerTextField: @Composable () -> Unit,
     shouldShowPlaceholder: Boolean,
+    modifier: Modifier = Modifier,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     placeholderText: String? = null,
     style: WireTextFieldState = WireTextFieldState.Default,
     placeholderTextStyle: TextStyle = MaterialTheme.wireTypography.body01,
     placeholderAlignment: Alignment.Horizontal = Alignment.Start,
-    inputMinHeight: Dp = dimensions().spacing48x,
     colors: WireTextFieldColors = wireTextFieldColors(),
-    onTap: (() -> Unit)? = null
+    onInputSizeChanged: (IntSize) -> Unit = { },
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .heightIn(min = inputMinHeight)
-            .then(
-                onTap?.let {
-                    Modifier.clickable { onTap() }
-                } ?: Modifier
-            )
+        modifier = modifier,
     ) {
         val trailingOrStateIcon: @Composable (() -> Unit)? = when {
             trailingIcon != null -> trailingIcon
@@ -201,13 +205,17 @@ private fun InnerTextLayout(
                     text = placeholderText,
                     style = placeholderTextStyle,
                     color = colors.placeholderColor(style).value,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .align(placeholderAlignment.toAlignment())
                         .clearAndSetSemantics {}
                 )
             }
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onSizeChanged(onInputSizeChanged),
                 propagateMinConstraints = true
             ) {
                 innerTextField()

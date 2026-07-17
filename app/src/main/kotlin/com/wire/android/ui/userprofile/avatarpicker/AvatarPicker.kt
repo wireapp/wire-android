@@ -35,9 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.avatarPickerViewModel
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
@@ -72,7 +73,7 @@ import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 fun AvatarPickerScreen(
     navigator: Navigator,
     resultNavigator: ResultBackNavigator<String?>,
-    viewModel: AvatarPickerViewModel = hiltViewModel()
+    viewModel: AvatarPickerViewModel = avatarPickerViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -91,7 +92,7 @@ fun AvatarPickerScreen(
         onGalleryPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.open_gallery_permission_dialog_description
                 )
             )
@@ -99,7 +100,7 @@ fun AvatarPickerScreen(
         onCameraPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.take_picture_permission_dialog_description
                 )
             )

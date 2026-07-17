@@ -19,12 +19,10 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.markdown.MarkdownConstants
-import com.wire.android.ui.markdown.MarkdownPreview
-import com.wire.android.ui.markdown.getFirstInlines
-import com.wire.android.ui.markdown.toMarkdownDocument
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.android.util.ui.toUIText
@@ -55,11 +53,11 @@ fun MessagePreview?.toUIPreview(
         unreadEventCount.size == 1 && unreadEventCount.values.first() == 1 ->
             uiLastMessageContent(uiTextResolver)
         // for the rest take 1 or 2 most prioritized events with count to last message
-        else -> multipleUnreadEventsToLastMessage(unreadEventCount, uiTextResolver)
+        else -> multipleUnreadEventsToLastMessage(unreadEventCount)
     }
 }
 
-private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount, uiTextResolver: UiTextResolver): UILastMessageContent {
+private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount): UILastMessageContent {
     val unreadContentTexts = unreadEventCount
         .toSortedMap()
         .mapNotNull { type ->
@@ -106,11 +104,8 @@ private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount
     } else {
         UILastMessageContent.TextMessage(
             MessageBody(
-                message = first,
-                markdownDocument = (first as? UIText.DynamicString)?.value?.toMarkdownDocument()
+                message = first
             ),
-            markdownPreview = first.toMarkdownPreviewOrNull(uiTextResolver),
-            markdownLocaleTag = uiTextResolver.localeTag()
         )
     }
 }
@@ -118,10 +113,10 @@ private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount
 private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
     isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
     this != null -> UIText.DynamicString(this)
-    else -> UIText.StringResource(R.string.username_unavailable_label)
+    else -> UIText.StringResource(commonR.string.username_unavailable_label)
 }
 
-@Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth")
+@Suppress("LongMethod", "ComplexMethod", "NestedBlockDepth", "UNUSED_PARAMETER")
 fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastMessageContent {
     return when (content) {
         is WithUser -> {
@@ -134,8 +129,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                             UILastMessageContent.SenderWithMessage(
                                 userUIText,
                                 message,
-                                markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                                markdownLocaleTag = uiTextResolver.localeTag()
                             )
                         }
 
@@ -150,8 +143,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                             UILastMessageContent.SenderWithMessage(
                                 userUIText,
                                 message,
-                                markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                                markdownLocaleTag = uiTextResolver.localeTag()
                             )
                         }
 
@@ -166,8 +157,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                             UILastMessageContent.SenderWithMessage(
                                 userUIText,
                                 message,
-                                markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                                markdownLocaleTag = uiTextResolver.localeTag()
                             )
                         }
 
@@ -182,8 +171,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                             UILastMessageContent.SenderWithMessage(
                                 userUIText,
                                 message,
-                                markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                                markdownLocaleTag = uiTextResolver.localeTag()
                             )
                         }
                 }
@@ -198,8 +185,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     UILastMessageContent.SenderWithMessage(
                         userUIText,
                         message,
-                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -213,8 +198,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     UILastMessageContent.SenderWithMessage(
                         userUIText,
                         message,
-                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -228,8 +211,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     UILastMessageContent.SenderWithMessage(
                         userUIText,
                         message,
-                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -243,8 +224,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     UILastMessageContent.SenderWithMessage(
                         userUIText,
                         message,
-                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -252,8 +231,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     UILastMessageContent.SenderWithMessage(
                         userUIText,
                         message,
-                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -261,8 +238,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     UILastMessageContent.SenderWithMessage(
                         userUIText,
                         message,
-                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -291,11 +266,8 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
 
                     UILastMessageContent.TextMessage(
                         MessageBody(
-                            message = previewMessageContent,
-                            markdownDocument = (previewMessageContent as? UIText.DynamicString)?.value?.toMarkdownDocument()
-                        ),
-                        previewMessageContent.toMarkdownPreviewOrNull(uiTextResolver),
-                        uiTextResolver.localeTag()
+                            message = previewMessageContent
+                        )
                     )
                 }
 
@@ -328,11 +300,8 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
 
                     UILastMessageContent.TextMessage(
                         MessageBody(
-                            message = previewMessageContent,
-                            markdownDocument = (previewMessageContent as? UIText.DynamicString)?.value?.toMarkdownDocument()
-                        ),
-                        previewMessageContent.toMarkdownPreviewOrNull(uiTextResolver),
-                        uiTextResolver.localeTag()
+                            message = previewMessageContent
+                        )
                     )
                 }
 
@@ -343,11 +312,8 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
 
                     UILastMessageContent.TextMessage(
                         MessageBody(
-                            message = previewMessageContent,
-                            markdownDocument = (previewMessageContent as? UIText.DynamicString)?.value?.toMarkdownDocument()
-                        ),
-                        previewMessageContent.toMarkdownPreviewOrNull(uiTextResolver),
-                        uiTextResolver.localeTag()
+                            message = previewMessageContent
+                        )
                     )
                 }
 
@@ -355,10 +321,7 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
                     message = (content as WithUser.Text).messageBody.let { UIText.DynamicString(it) },
-                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
-                    markdownPreview = UIText.DynamicString((content as WithUser.Text).messageBody)
-                        .toMarkdownPreviewOrNull(uiTextResolver),
-                    markdownLocaleTag = uiTextResolver.localeTag()
+                    separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
                 )
 
                 is WithUser.Composite -> {
@@ -368,8 +331,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                         sender = userUIText,
                         message = text,
                         separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
-                        markdownPreview = text.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -396,8 +357,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     UILastMessageContent.SenderWithMessage(
                         userUIText,
                         message,
-                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
 
@@ -406,8 +365,6 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                         userUIText,
                         message,
                         separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
-                        markdownPreview = message.toMarkdownPreviewOrNull(uiTextResolver),
-                        markdownLocaleTag = uiTextResolver.localeTag()
                     )
                 }
             }
@@ -438,11 +395,8 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
 
             UILastMessageContent.TextMessage(
                 MessageBody(
-                    message = previewMessageContent,
-                    markdownDocument = (previewMessageContent as? UIText.DynamicString)?.value?.toMarkdownDocument()
-                ),
-                previewMessageContent.toMarkdownPreviewOrNull(uiTextResolver),
-                uiTextResolver.localeTag()
+                    message = previewMessageContent
+                )
             )
         }
 
@@ -475,17 +429,9 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
         is MessagePreviewContent.Draft -> UILastMessageContent.SenderWithMessage(
             UIText.StringResource(R.string.label_draft),
             (content as MessagePreviewContent.Draft).message.toUIText(),
-            separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
-            markdownPreview = (content as MessagePreviewContent.Draft).message.toUIText()
-                .toMarkdownPreviewOrNull(uiTextResolver),
-            markdownLocaleTag = uiTextResolver.localeTag()
+            separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
         )
 
         Unknown -> UILastMessageContent.None
     }
-}
-
-private fun UIText.toMarkdownPreviewOrNull(uiTextResolver: UiTextResolver): MarkdownPreview? {
-    val resolved = uiTextResolver.resolve(this)
-    return resolved.toMarkdownDocument().getFirstInlines()
 }

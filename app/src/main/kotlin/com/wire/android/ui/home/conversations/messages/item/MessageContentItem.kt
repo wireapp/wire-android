@@ -145,7 +145,8 @@ fun MessageContentItem(
                     messageStatus = header.messageStatus,
                     useSmallBottomPadding = useSmallBottomPadding,
                     selfDeletionTimerState = selfDeletionTimerState,
-                    decryptionFailed = decryptionFailed
+                    decryptionFailed = decryptionFailed,
+                    isPending = isPending,
                 )
             ) {
                 VerticalSpace.x4()
@@ -206,9 +207,11 @@ private fun shouldShowBottomLabels(
     messageStatus: MessageStatus,
     useSmallBottomPadding: Boolean,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
-    decryptionFailed: Boolean
+    decryptionFailed: Boolean,
+    isPending: Boolean,
 ): Boolean = messageStyle.isBubble() && !decryptionFailed && (
         !useSmallBottomPadding
                 || messageStatus.editStatus is MessageEditStatus.Edited
                 || selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable
+                || isPending
         )

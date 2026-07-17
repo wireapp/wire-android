@@ -44,8 +44,6 @@ import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.util.DateTimeUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -53,13 +51,11 @@ import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import java.io.File
 import java.io.IOException
-import javax.inject.Inject
 import kotlin.io.path.deleteIfExists
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@HiltViewModel
-class RecordAudioViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+class RecordAudioViewModel(
+    private val context: Context,
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,

@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.settings.account.email.updateEmail
-
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -29,22 +28,17 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.Patterns
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
+import dev.zacsweers.metro.Inject
 class ChangeEmailViewModel @Inject constructor(
     private val updateEmail: UpdateEmailUseCase,
     private val getSelf: GetSelfUserUseCase,
 ) : ViewModel() {
-
     val textState: TextFieldState = TextFieldState()
     var state: ChangeEmailState by mutableStateOf(ChangeEmailState())
         @VisibleForTesting
         set
-
     init {
         viewModelScope.launch {
             getSelf()?.email?.let { currentEmail ->
@@ -61,7 +55,6 @@ class ChangeEmailViewModel @Inject constructor(
             }
         }
     }
-
     fun onSaveClicked() {
         state = state.copy(saveEnabled = false, flowState = ChangeEmailState.FlowState.Loading)
         viewModelScope.launch {
@@ -73,21 +66,18 @@ class ChangeEmailViewModel @Inject constructor(
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.AlreadyInUse,
                     )
-
                 UpdateEmailUseCase.Result.Failure.InvalidEmail ->
                     state =
                     state.copy(
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.InvalidEmail
                     )
-
                 is UpdateEmailUseCase.Result.Failure.GenericFailure ->
                     state =
                     state.copy(
                         saveEnabled = false,
                         flowState = ChangeEmailState.FlowState.Error.TextFieldError.Generic
                     )
-
                 is UpdateEmailUseCase.Result.Success.VerificationEmailSent ->
                     state = state.copy(flowState = ChangeEmailState.FlowState.Success(email))
                 is UpdateEmailUseCase.Result.Success.NoChange ->

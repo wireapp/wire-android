@@ -22,6 +22,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockConfig
 import com.wire.android.feature.ObserveAppLockConfigUseCase
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.CurrentTimeProvider
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -34,6 +35,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
@@ -299,7 +301,7 @@ class LockCodeTimeManagerTest {
                 currentScreenManager,
                 observeAppLockConfigUseCase,
                 globalDataStore,
-                dispatcher.scheduler::currentTime
+                CurrentTimeProvider { Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime) }
             )
         }
 

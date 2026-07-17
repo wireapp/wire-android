@@ -40,9 +40,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
+import com.wire.android.model.BadgeEventType
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -50,7 +52,7 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
-import com.wire.android.ui.home.conversationslist.model.BadgeEventType
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -82,12 +84,18 @@ fun ConversationItemFactory(
     joinCall: (ConversationId) -> Unit = {},
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
-    onStopCurrentAudio: () -> Unit = {}
+    onStopCurrentAudio: () -> Unit = {},
+    searchQuery: String = "",
+    isSelfUserUnderLegalHold: Boolean = false,
+    playingAudio: PlayingAudioInConversation? = null
 ) {
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
-    val openUserProfileDescription = stringResource(R.string.content_description_open_user_profile_label)
+    val openUserProfileDescription = stringResource(commonR.string.content_description_open_user_profile_label)
     val acceptOrIgnoreDescription = stringResource(R.string.content_description_accept_or_ignore_connection_label)
-    val openConversationDescription = stringResource(R.string.content_description_open_conversation_label)
+    val openConversationDescription = stringResource(commonR.string.content_description_open_conversation_label)
+    val showLegalHoldIndicator = conversation.legalHoldStatus.showLegalHoldIndicator() && !isSelfUserUnderLegalHold
+    val playingAudioInConversation = playingAudio
+        ?.takeIf { it.conversationId == conversation.conversationId }
     val onConversationItemClick = remember(conversation) {
         when (val lastEvent = conversation.lastMessageContent) {
             is UILastMessageContent.Connection -> {
@@ -151,6 +159,9 @@ fun ConversationItemFactory(
             joinCall(conversation.conversationId)
         },
         onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+        searchQuery = searchQuery,
+        showLegalHoldIndicator = showLegalHoldIndicator,
+        playingAudio = playingAudioInConversation,
         onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
         onStopCurrentAudio = onStopCurrentAudio
     )
@@ -165,9 +176,12 @@ private fun GeneralConversationItem(
     onConversationItemClick: Clickable,
     onJoinCallClick: () -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit,
+    showLegalHoldIndicator: Boolean,
     modifier: Modifier = Modifier,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
+    searchQuery: String = "",
+    playingAudio: PlayingAudioInConversation? = null,
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {}
 ) {
@@ -197,7 +211,7 @@ private fun GeneralConversationItem(
                     title = {
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
-                            showLegalHoldIndicator = conversation.showLegalHoldIndicator,
+                            showLegalHoldIndicator = showLegalHoldIndicator,
                             searchQuery = searchQuery
                         )
                     },
@@ -210,9 +224,9 @@ private fun GeneralConversationItem(
                                     buttonClick = onJoinCallClick,
                                     onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
                                 )
-                            } else if (conversation.playingAudio != null) {
+                            } else if (playingAudio != null) {
                                 AudioControlButtons(
-                                    playingAudio = conversation.playingAudio!!,
+                                    playingAudio = playingAudio,
                                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                                     onStopCurrentAudio = onStopCurrentAudio
                                 )
@@ -251,7 +265,7 @@ private fun GeneralConversationItem(
                     },
                     title = {
                         UserLabel(
-                            userInfoLabel = toUserInfoLabel(),
+                            userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
                             searchQuery = searchQuery
                         )
                     },
@@ -259,9 +273,9 @@ private fun GeneralConversationItem(
                     clickable = onConversationItemClick,
                     actions = {
                         if (!isSelectable) {
-                            if (conversation.playingAudio != null) {
+                            if (playingAudio != null) {
                                 AudioControlButtons(
-                                    playingAudio = conversation.playingAudio,
+                                    playingAudio = playingAudio,
                                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                                     onStopCurrentAudio = onStopCurrentAudio
                                 )
@@ -293,7 +307,7 @@ private fun GeneralConversationItem(
                     },
                     title = {
                         UserLabel(
-                            userInfoLabel = toUserInfoLabel(),
+                            userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
                             searchQuery = searchQuery
                         )
                     },
@@ -388,8 +402,7 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -418,7 +431,6 @@ fun PreviewChannelGroupConversationItemWithUnreadCount() = WireTheme {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             folder = null,
-            playingAudio = null,
             isPrivate = false
         ),
         modifier = Modifier,
@@ -448,7 +460,6 @@ fun PreviewPrivateChannelGroupConversationItemWithUnreadCount() = WireTheme {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             folder = null,
-            playingAudio = null,
             isPrivate = true
         ),
         modifier = Modifier,
@@ -477,8 +488,7 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -508,8 +518,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -537,8 +546,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -567,8 +575,7 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -653,8 +660,7 @@ fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
             isUserDeleted = false,
-            folder = null,
-            playingAudio = null
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
@@ -682,12 +688,12 @@ fun PreviewPrivateConversationItemWithPlayingAudio() = WireTheme {
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             proteusVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
             isFavorite = false,
-            folder = null,
-            playingAudio = PlayingAudioInConversation("some_id", true)
+            folder = null
         ),
         modifier = Modifier,
         isSelectableItem = false,
         isChecked = false,
-        {}, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {},
+        playingAudio = PlayingAudioInConversation(QualifiedID("value", "domain"), "some_id", true)
     )
 }

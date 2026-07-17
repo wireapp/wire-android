@@ -47,7 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.authentication.newLoginViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
@@ -63,6 +63,7 @@ import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
@@ -97,7 +98,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 fun NewLoginScreen(
     navigator: Navigator,
     navArgs: LoginNavArgs,
-    viewModel: NewLoginViewModel = hiltViewModel()
+    viewModel: NewLoginViewModel = newLoginViewModel()
 ) {
     val context = LocalContext.current
     val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
@@ -184,9 +185,11 @@ fun NewLoginScreen(
 
 private fun NewLoginAction.Success.NextStep.toDestination(): Direction = when (this) {
     NewLoginAction.Success.NextStep.None -> HomeScreenDestination
-    NewLoginAction.Success.NextStep.E2EIEnrollment -> E2EIEnrollmentScreenDestination
+    is NewLoginAction.Success.NextStep.E2EIEnrollment ->
+        E2EIEnrollmentScreenDestination(SessionBackedAuthenticationNavArgs.from(userId))
     NewLoginAction.Success.NextStep.InitialSync -> InitialSyncScreenDestination
-    NewLoginAction.Success.NextStep.TooManyDevices -> RemoveDeviceScreenDestination
+    is NewLoginAction.Success.NextStep.TooManyDevices ->
+        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(userId))
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

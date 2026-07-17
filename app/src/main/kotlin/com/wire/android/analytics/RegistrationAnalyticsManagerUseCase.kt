@@ -21,7 +21,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import kotlinx.coroutines.flow.firstOrNull
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class RegistrationAnalyticsManagerUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,

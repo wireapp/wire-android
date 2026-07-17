@@ -29,15 +29,15 @@ import androidx.core.location.LocationManagerCompat
 import com.wire.android.AppJsonStyledLogger
 import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
-import com.wire.android.ui.home.appLock.CurrentTimestampProvider
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logger.KaliumLogLevel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.function.Consumer
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -47,7 +47,7 @@ import kotlin.time.Duration.Companion.seconds
 class LocationPickerHelper @Inject constructor(
     @ApplicationContext private val context: Context,
     @ApplicationScope private val scope: CoroutineScope,
-    private val currentTimestampProvider: CurrentTimestampProvider,
+    private val currentTime: CurrentTimeProvider,
     private val geocoderHelper: GeocoderHelper,
     private val parameters: LocationPickerParameters,
 ) {
@@ -74,7 +74,7 @@ class LocationPickerHelper @Inject constructor(
             locationManager.getLastKnownLocation(LocationManager.FUSED_PROVIDER).let { lastLocation ->
                 if (
                     lastLocation != null
-                        && currentTimestampProvider() - lastLocation.time <= parameters.lastLocationTimeLimit.inWholeMilliseconds
+                        && currentTime().toEpochMilliseconds() - lastLocation.time <= parameters.lastLocationTimeLimit.inWholeMilliseconds
                 ) {
                     // use last known location if present and not older than given limit
                     onSuccess(geocoderHelper.getGeoLocatedAddress(lastLocation))

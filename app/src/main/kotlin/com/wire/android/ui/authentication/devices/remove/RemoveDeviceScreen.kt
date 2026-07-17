@@ -37,7 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.authentication.clearSessionViewModel
+import com.wire.android.ui.authentication.removeDeviceViewModel
 import com.wire.android.R
 import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.navigation.BackStackMode
@@ -49,6 +50,7 @@ import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
@@ -73,18 +75,20 @@ import com.wire.kalium.logic.data.conversation.ClientId
 
 @WireRootDestination(
     style = PopUpNavigationAnimation::class,
+    navArgs = SessionBackedAuthenticationNavArgs::class,
 )
 @Composable
 fun RemoveDeviceScreen(
     navigator: Navigator,
     loginTypeSelector: LoginTypeSelector,
-    viewModel: RemoveDeviceViewModel = hiltViewModel(),
-    clearSessionViewModel: ClearSessionViewModel = hiltViewModel(),
+    sessionBackedAuthenticationNavArgs: SessionBackedAuthenticationNavArgs,
+    viewModel: RemoveDeviceViewModel = removeDeviceViewModel(),
+    clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
 ) {
     fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
         NavigationCommand(
             destination = if (isE2EIRequired) {
-                E2EIEnrollmentScreenDestination
+                E2EIEnrollmentScreenDestination(sessionBackedAuthenticationNavArgs)
             } else if (initialSyncCompleted) {
                 HomeScreenDestination
             } else {

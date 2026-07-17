@@ -49,6 +49,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import kotlinx.datetime.Instant
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -457,5 +458,28 @@ fun PreviewBubbleSelfImageFailedDownload() {
                 isBubbleUiEnabled = true
             )
         }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMessageWithLinkPreviews() = WireTheme {
+    Box(modifier = Modifier.background(color = colorsScheme().surface)) {
+        RegularMessageItem(
+            message = mockMessageWithText.copy(
+                linkPreviews = listOf(
+                    MessageLinkPreview(
+                        url = "https://wire.com",
+                        urlOffset = 0,
+                        permanentUrl = "https://wire.com",
+                        title = "Wire",
+                        summary = "Secure collaboration for teams with messaging, file sharing, and calling."
+                    )
+                )
+            ),
+            conversationDetailsData = ConversationDetailsData.None(null),
+            clickActions = MessageClickActions.Content(),
+            isBubbleUiEnabled = true
+        )
     }
 }

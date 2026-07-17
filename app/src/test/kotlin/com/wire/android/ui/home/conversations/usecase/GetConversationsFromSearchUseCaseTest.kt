@@ -28,21 +28,28 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.data.conversation.FolderType
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.folder.GetFavoriteFolderUseCase
 import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFromFolderUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -87,7 +94,7 @@ class GetConversationsFromSearchUseCaseTest {
             ConversationDetailsWithEvents(TestConversationDetails.CONVERSATION_ONE_ONE),
             ConversationDetailsWithEvents(TestConversationDetails.GROUP),
         )
-        val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
+        val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfTeamId().arrange()
         // When
         val result = with(arrangement.queryConfig) {
             useCase(
@@ -101,7 +108,6 @@ class GetConversationsFromSearchUseCaseTest {
         // Then
         result.forEachIndexed { index, conversationItem ->
             assertEquals(conversationsList[index].conversationDetails.conversation.id, conversationItem.conversationId)
-            assertEquals(arrangement.queryConfig.searchQuery, conversationItem.searchQuery)
         }
     }
 
@@ -117,7 +123,7 @@ class GetConversationsFromSearchUseCaseTest {
         )
 
         val (arrangement, useCase) = Arrangement().withFavoriteFolderResult(folderResult).withFolderConversationsResult(conversationsList)
-            .withSelfUser().arrange()
+            .withSelfTeamId().arrange()
 
         // When
         useCase(
@@ -148,7 +154,7 @@ class GetConversationsFromSearchUseCaseTest {
                     )
                 )
             )
-            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
+            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfTeamId().arrange()
             // When
             val result = with(arrangement.queryConfig) {
                 useCase(
@@ -170,7 +176,7 @@ class GetConversationsFromSearchUseCaseTest {
         runTest(dispatcherProvider.main()) {
             // Given
             val conversationsList = listOf(ConversationDetailsWithEvents(TestConversationDetails.GROUP))
-            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfUser().arrange()
+            val (arrangement, useCase) = Arrangement().withPaginatedResult(conversationsList).withSelfTeamId().arrange()
             // When
             val result = with(arrangement.queryConfig) {
                 useCase(
@@ -187,6 +193,64 @@ class GetConversationsFromSearchUseCaseTest {
             assertEquals(false, conversation.isFromTheSameTeam)
         }
 
+    @Test
+    fun givenJoinableGroupCall_whenGettingPaginatedList_thenGroupItemHasOngoingCallMarker() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversation = ConversationDetailsWithEvents(TestConversationDetails.GROUP)
+            val (arrangement, useCase) = Arrangement()
+                .withPaginatedResult(listOf(conversation))
+                .withJoinableCalls(listOf(joinableCall(conversation.conversationDetails.conversation.id)))
+                .arrange()
+
+            // When
+            val result = with(arrangement.queryConfig) {
+                useCase(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    useStrictMlsFilter = true
+                ).asSnapshot()
+            }
+
+            // Then
+            val group = assertInstanceOf<ConversationItem.Group>(result.first())
+            assertEquals(true, group.hasOnGoingCall)
+            assertEquals(true, group.hasNewActivitiesToShow)
+        }
+
+    @Test
+    fun givenJoinableCallsChange_whenGettingPaginatedList_thenDoNotReEmitSamePagingData() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversation = ConversationDetailsWithEvents(TestConversationDetails.GROUP)
+            val call = joinableCall(conversation.conversationDetails.conversation.id)
+            val (_, useCase) = Arrangement()
+                .withPaginatedResult(listOf(conversation))
+                .withJoinableCallsFlow(
+                    flowOf(
+                        mapOf(call.conversationId to call),
+                        emptyMap()
+                    )
+                )
+                .arrange()
+
+            // When
+            val result = with(ConversationQueryConfig("search")) {
+                useCase(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    useStrictMlsFilter = true
+                ).toList()
+            }
+
+            // Then
+            assertEquals(1, result.size)
+        }
+
     inner class Arrangement {
 
         @MockK
@@ -199,10 +263,13 @@ class GetConversationsFromSearchUseCaseTest {
         lateinit var observeConversationsFromFolderUseCase: ObserveConversationsFromFolderUseCase
 
         @MockK
+        lateinit var observeJoinableCalls: ObserveJoinableCallsUseCase
+
+        @MockK
         lateinit var userTypeMapper: UserTypeMapper
 
         @MockK
-        lateinit var getSelfUser: GetSelfUserUseCase
+        lateinit var getSelfTeamId: GetSelfTeamIdUseCase
 
         @MockK
         lateinit var uiTextResolver: UiTextResolver
@@ -226,6 +293,8 @@ class GetConversationsFromSearchUseCaseTest {
                 }
             }
             coEvery { uiTextResolver.localeTag() } returns "test-locale"
+            coEvery { observeJoinableCalls() } returns flowOf(emptyMap())
+            withSelfTeamId()
             withPaginatedResult(emptyList())
         }
 
@@ -245,8 +314,16 @@ class GetConversationsFromSearchUseCaseTest {
             } returns flowOf(conversations)
         }
 
-        fun withSelfUser() = apply {
-            coEvery { getSelfUser() } returns TestUser.SELF_USER
+        fun withJoinableCalls(calls: List<Call>) = apply {
+            coEvery { observeJoinableCalls() } returns flowOf(calls.associateBy { it.conversationId })
+        }
+
+        fun withJoinableCallsFlow(result: Flow<Map<ConversationId, Call>>) = apply {
+            coEvery { observeJoinableCalls() } returns result
+        }
+
+        fun withSelfTeamId() = apply {
+            coEvery { getSelfTeamId() } returns TestUser.SELF_USER.teamId
         }
 
         fun arrange() = this to GetConversationsFromSearchUseCase(
@@ -255,8 +332,22 @@ class GetConversationsFromSearchUseCaseTest {
             observeConversationsFromFolderUseCase,
             userTypeMapper,
             dispatcherProvider,
-            getSelfUser,
-            uiTextResolver
+            getSelfTeamId,
+            uiTextResolver,
+            observeJoinableCalls
         )
     }
+
+    private fun joinableCall(conversationId: ConversationId) = Call(
+        conversationId = conversationId,
+        status = CallStatus.STILL_ONGOING,
+        isMuted = false,
+        isCameraOn = false,
+        isCbrEnabled = false,
+        callerId = TestUser.SELF_USER_ID,
+        conversationName = null,
+        conversationType = Conversation.Type.Group.Regular,
+        callerName = null,
+        callerTeamName = null
+    )
 }

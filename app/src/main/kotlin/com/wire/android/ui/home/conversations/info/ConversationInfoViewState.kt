@@ -22,9 +22,11 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 
 data class ConversationInfoViewState(
     val conversationId: QualifiedID,
@@ -52,7 +54,9 @@ sealed class ConversationDetailsData(open val conversationProtocol: Conversation
         val otherUserName: String?,
         val connectionState: ConnectionState,
         val isBlocked: Boolean,
-        val isDeleted: Boolean
+        val isDeleted: Boolean,
+        val botService: BotService?,
+        val userType: UserTypeInfo
     ) : ConversationDetailsData(conversationProtocol)
 
     data class Group(

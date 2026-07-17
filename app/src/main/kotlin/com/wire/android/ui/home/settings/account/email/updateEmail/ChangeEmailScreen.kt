@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.home.settings.changeEmailViewModel
 import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
@@ -69,7 +69,7 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun ChangeEmailScreen(
     navigator: Navigator,
-    viewModel: ChangeEmailViewModel = hiltViewModel()
+    viewModel: ChangeEmailViewModel = changeEmailViewModel()
 ) {
     when (val flowState = viewModel.state.flowState) {
         is ChangeEmailState.FlowState.NoChange,
@@ -142,6 +142,7 @@ fun ChangeEmailContent(
                         inputTransformation = InputTransformation.forceLowercase(),
                         state = computeEmailErrorState(state.flowState),
                         keyboardOptions = KeyboardOptions.DefaultEmailDone,
+                        readOnly = state.flowState is ChangeEmailState.FlowState.Loading,
                         onKeyboardAction = { keyboardController?.hide() },
                         modifier = Modifier.padding(
                             horizontal = MaterialTheme.wireDimensions.spacing16x
@@ -190,8 +191,6 @@ private fun computeEmailErrorState(state: ChangeEmailState.FlowState): WireTextF
         ChangeEmailState.FlowState.Error.TextFieldError.Generic -> WireTextFieldState.Error(
             stringResource(id = R.string.settings_myaccount_email_generic_error)
         )
-
-        ChangeEmailState.FlowState.Loading -> WireTextFieldState.ReadOnly
 
         else -> WireTextFieldState.Default
     }

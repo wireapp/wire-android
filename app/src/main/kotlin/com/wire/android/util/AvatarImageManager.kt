@@ -23,7 +23,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import okio.Path
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class AvatarImageManager @Inject constructor(val context: Context) {
 

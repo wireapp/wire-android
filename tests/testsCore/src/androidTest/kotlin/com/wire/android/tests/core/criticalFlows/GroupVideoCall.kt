@@ -17,70 +17,35 @@
  */
 package com.wire.android.tests.core.criticalFlows
 
-import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import backendUtils.BackendClient
-import backendUtils.team.TeamHelper
 import backendUtils.team.TeamRoles
-import call.CallHelper
-import call.CallingManager
-import com.wire.android.tests.core.BaseUiTest
-import com.wire.android.tests.core.pages.AllPages
+import com.wire.android.tests.core.BaseCallUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.test.inject
-import service.TestServiceHelper
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
-import uiautomatorutils.PermissionUtils.grantRuntimePermsForForegroundApp
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.assertToastDisplayed
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessage
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
-import kotlin.getValue
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
-class GroupVideoCall : BaseUiTest() {
-    private val pages: AllPages by inject()
-    private lateinit var device: UiDevice
-    private lateinit var context: Context
-    private lateinit var backendClient: BackendClient
-    private lateinit var teamHelper: TeamHelper
-    private lateinit var testServiceHelper: TestServiceHelper
-    private val callHelper by lazy { CallHelper() }
+class GroupVideoCall : BaseCallUiTest() {
     private var teamOwnerA: ClientUser? = null
     private var teamOwnerB: ClientUser? = null
-    private lateinit var callingManager: CallingManager
 
     @Before
     fun setUp() {
-        context = InstrumentationRegistry.getInstrumentation().context
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_INTERNAL)
-        backendClient = BackendClient.loadBackend("STAGING")
-        teamHelper = TeamHelper()
-        testServiceHelper = TestServiceHelper(teamHelper.usersManager)
-        callHelper.init(teamHelper.usersManager)
-        callingManager = callHelper.callingManager
-        grantRuntimePermsForForegroundApp(
-            device,
-            android.Manifest.permission.RECORD_AUDIO,
-            android.Manifest.permission.CAMERA
-        )
-    }
-
-    @After
-    fun tearDown() {
-        cleanupCreatedUsers(backendClient, teamHelper.usersManager)
+        initCommonTestHelpers()
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
+        initCallTestHelpers()
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -90,7 +55,7 @@ class GroupVideoCall : BaseUiTest() {
     fun givenGroupCall_whenVideoIsEnabled_thenGroupVideoIsVisible() {
 
         step("Given backend teams are prepared (WeLikeCalls + IJoinCalls) with owners and members") {
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "WeLikeCalls",
                 "en_US",
@@ -98,12 +63,12 @@ class GroupVideoCall : BaseUiTest() {
                 backendClient,
                 context
             )
-            teamOwnerA = teamHelper.usersManager.findUserBy(
+            teamOwnerA = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
             )
 
-            teamHelper.userXAddsUsersToTeam(
+            backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name, user3Name",
                 "WeLikeCalls",
@@ -113,7 +78,7 @@ class GroupVideoCall : BaseUiTest() {
                 true
             )
 
-            teamHelper.usersManager.createTeamOwnerByAlias(
+            backendSetupHelper.createTeamOwnerByAlias(
                 "user4Name",
                 "IJoinCalls",
                 "en_US",
@@ -121,14 +86,14 @@ class GroupVideoCall : BaseUiTest() {
                 backendClient,
                 context
             )
-            teamOwnerB = teamHelper.usersManager.findUserBy(
+            teamOwnerB = clientUserManager.findUserBy(
                 "user4Name",
                 ClientUserManager.FindBy.NAME_ALIAS
             )
         }
 
         step("And WeLikeCalls team owner creates GroupVideoCall conversation with team members") {
-            testServiceHelper.userHasGroupConversationInTeam(
+            backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
                 "GroupVideoCall",
                 "user2Name, user3Name",
@@ -137,12 +102,10 @@ class GroupVideoCall : BaseUiTest() {
         }
 
         step("And participant devices and unique username are prepared for group call") {
-            testServiceHelper.apply {
-                addDevice("user4Name", null, "Device2")
-                addDevice("user3Name", null, "Device1")
-                runBlocking {
-                    usersSetUniqueUsername("user3Name")
-                }
+            testServiceHelper.addDevice("user4Name", null, "Device2")
+            testServiceHelper.addDevice("user3Name", null, "Device1")
+            runBlocking {
+                backendSetupHelper.usersSetUniqueUsername("user3Name")
             }
         }
 
@@ -204,7 +167,7 @@ class GroupVideoCall : BaseUiTest() {
 
         step("And I search TeamOwnerB by unique username") {
             pages.searchPage.apply {
-                typeUniqueUserNameInSearchField(teamHelper, "user4Name")
+                typeUniqueUserNameInSearchField(clientUserManager, "user4Name")
             }
         }
 
@@ -228,10 +191,19 @@ class GroupVideoCall : BaseUiTest() {
             }
         }
 
-        step("And I close unconnected profile and return to conversation list") {
+        step("And I close unconnected profile") {
             pages.unconnectedUserProfilePage.apply {
                 clickCloseButtonOnUnconnectedUserProfilePage()
             }
+        }
+
+        step("And I close the search input field") {
+            pages.searchPage.apply {
+                clickCloseButtonOnSearchInputField()
+            }
+        }
+
+        step("And I close new conversation flow and return to conversation list") {
             pages.conversationListPage.apply {
                 clickCloseButtonOnNewConversationScreen()
             }
@@ -246,10 +218,7 @@ class GroupVideoCall : BaseUiTest() {
         }
 
         step("And TeamOwnerB connection request is accepted via backend") {
-            runBlocking {
-                val user = teamHelper.usersManager.findUserByNameOrNameAlias("user4Name")
-                backendClient.acceptAllIncomingConnectionRequests(user)
-            }
+            backendSetupHelper.userAcceptsAllIncomingConnectionRequests("user4Name", backendClient)
         }
 
         step("And I verify pending status is removed and GroupVideoCall conversation remains visible") {
@@ -350,7 +319,7 @@ class GroupVideoCall : BaseUiTest() {
         step("And users <Member1>, <Member2>, and <TeamOwnerB> switch video on") {
             runBlocking {
                 val callParticipantsSwitchVideoOn =
-                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
+                    clientUserManager.splitAliases("user2Name, user3Name, user4Name")
                 callingManager.switchVideoOn(callParticipantsSwitchVideoOn)
             }
         }
@@ -358,7 +327,7 @@ class GroupVideoCall : BaseUiTest() {
         step("And users <Member1>, <Member2>, and <TeamOwnerB> verify audio and video are received") {
             runBlocking {
                 val assertCallParticipantsReceiveAudioVideo =
-                    teamHelper.usersManager.splitAliases("user2Name, user3Name, user4Name")
+                    clientUserManager.splitAliases("user2Name, user3Name, user4Name")
                 callingManager.verifyReceiveAudioAndVideo(assertCallParticipantsReceiveAudioVideo)
             }
         }

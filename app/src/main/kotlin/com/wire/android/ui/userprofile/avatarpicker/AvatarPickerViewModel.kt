@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.ui.userprofile.avatarpicker
-
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.Stable
@@ -29,7 +27,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.CurrentAccount
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.ImageUtil
@@ -40,24 +39,23 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okio.Path
 import java.io.FileNotFoundException
-import javax.inject.Inject
-
-@HiltViewModel
+import dev.zacsweers.metro.Inject
 @Suppress("LongParameterList")
 class AvatarPickerViewModel @Inject constructor(
-    private val dataStore: UserDataStore,
+    userDataStoreProvider: UserDataStoreProvider,
+    @CurrentAccount selfUserId: UserId,
     private val getAvatarAsset: GetAvatarAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
     private val avatarImageManager: AvatarImageManager,
@@ -66,18 +64,15 @@ class AvatarPickerViewModel @Inject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     @ApplicationContext private val appContext: Context
 ) : ViewModel() {
+    private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
 
     var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
         private set
-
     private var initialPictureLoadingState by mutableStateOf<InitialPictureLoadingState>(InitialPictureLoadingState.None)
-
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
-
     val defaultAvatarPath: Path
         get() = kaliumFileSystem.selfUserAvatarPath()
-
     val temporaryAvatarUri: Uri = avatarImageManager.getShareableTempAvatarUri(defaultAvatarPath)
 
     init {
@@ -105,7 +100,6 @@ class AvatarPickerViewModel @Inject constructor(
             }
         }
     }
-
     fun updatePickedAvatarUri(originalUri: Uri, updatedUri: Uri) = viewModelScope.launch {
         sanitizeAvatarImage(originalUri, defaultAvatarPath)
         pictureState = PictureState.Picked(updatedUri)
@@ -123,23 +117,18 @@ class AvatarPickerViewModel @Inject constructor(
             shouldRemoveMetadata = true
         )
     }
-
     fun uploadNewPickedAvatar() {
         val imgUri = pictureState.avatarUri
-
         viewModelScope.launch {
             pictureState = PictureState.Uploading(imgUri)
-
             val avatarPath = defaultAvatarPath
             try {
                 val imageDataSize = imgUri.toByteArray(appContext, dispatchers).size.toLong()
-
                 when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
                     is UploadAvatarResult.Success -> {
                         dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
                         pictureState = PictureState.Completed(imgUri, dataStore.avatarAssetId.first())
                     }
-
                     is UploadAvatarResult.Failure -> {
                         when (result.coreFailure) {
                             is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
@@ -159,7 +148,6 @@ class AvatarPickerViewModel @Inject constructor(
             }
         }
     }
-
     private suspend fun showInfoMessage(type: SnackBarMessage) {
         _infoMessage.emit(type.uiText)
     }
@@ -179,7 +167,6 @@ class AvatarPickerViewModel @Inject constructor(
         data class Completed(override val avatarUri: Uri, val assetId: String?) : PictureState(avatarUri)
         data object Empty : PictureState("".toUri())
     }
-
     sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
         data object UploadAvatarError : InfoMessageType(UIText.StringResource(R.string.error_uploading_user_avatar))
         data object NoNetworkError : InfoMessageType(UIText.StringResource(R.string.error_no_network_message))

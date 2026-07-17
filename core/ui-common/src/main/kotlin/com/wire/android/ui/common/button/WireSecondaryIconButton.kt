@@ -31,13 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
@@ -79,38 +80,61 @@ fun WireSecondaryIconButton(
     )
 }
 
-@Preview
+@MultipleThemePreviews
 @Composable
 fun PreviewWireSecondaryIconButton() {
-    WireSecondaryIconButton(
-        {},
-        loading = false,
-        iconResource = R.drawable.ic_close,
-        contentDescription = 0
-    )
+    WireTheme {
+        WireSecondaryIconButton(
+            {},
+            loading = false,
+            iconResource = R.drawable.ic_close,
+            contentDescription = 0
+        )
+    }
 }
 
-@Preview
+@MultipleThemePreviews
 @Composable
 fun PreviewWireSecondaryIconButtonLoading() {
-    WireSecondaryIconButton(
-        {},
-        loading = true,
-        iconResource = R.drawable.ic_close,
-        contentDescription = 0
-    )
+    WireTheme {
+        WireSecondaryIconButton(
+            {},
+            loading = true,
+            iconResource = R.drawable.ic_close,
+            contentDescription = 0
+        )
+    }
 }
 
-@Preview
+@MultipleThemePreviews
 @Composable
 fun PreviewWireSecondaryIconButtonRound() {
-    WireSecondaryIconButton(
-        {},
-        loading = false,
-        iconResource = R.drawable.ic_close,
-        contentDescription = 0,
-        shape = CircleShape,
-        minSize = DpSize(40.dp, 40.dp),
-        minClickableSize = DpSize(48.dp, 48.dp)
-    )
+    WireTheme {
+        WireSecondaryIconButton(
+            {},
+            loading = false,
+            iconResource = R.drawable.ic_close,
+            contentDescription = 0,
+            shape = CircleShape,
+            minSize = DpSize(40.dp, 40.dp),
+            minClickableSize = DpSize(48.dp, 48.dp)
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewWireSecondaryIconButtonRoundDisabled() {
+    WireTheme {
+        WireSecondaryIconButton(
+            {},
+            loading = false,
+            iconResource = R.drawable.ic_close,
+            contentDescription = 0,
+            shape = CircleShape,
+            minSize = DpSize(40.dp, 40.dp),
+            minClickableSize = DpSize(48.dp, 48.dp),
+            state = WireButtonState.Disabled
+        )
+    }
 }

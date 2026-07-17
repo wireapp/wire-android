@@ -20,6 +20,7 @@ package com.wire.android.ui.home.conversations.composer
 
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
@@ -37,7 +38,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.FileSharingStatus
@@ -46,6 +46,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -61,6 +62,7 @@ import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
@@ -100,6 +102,7 @@ internal class MessageComposerViewModelArrangement {
         coEvery {
             currentSessionFlowUseCase()
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+        coEvery { isSelfUserViewerOnConversationUseCase(any()) } returns true
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
         coEvery { observeEstablishedCalls() } returns emptyFlow()
         coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns MarkConversationAsReadResult.Success(false)
@@ -119,6 +122,9 @@ internal class MessageComposerViewModelArrangement {
 
     @MockK
     private lateinit var observeConversationInteractionAvailabilityUseCase: ObserveConversationInteractionAvailabilityUseCase
+
+    @MockK
+    private lateinit var isSelfUserViewerOnConversationUseCase: IsSelfUserViewerOnConversationUseCase
 
     @MockK
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
@@ -176,6 +182,7 @@ internal class MessageComposerViewModelArrangement {
             currentSessionFlowUseCase = currentSessionFlowUseCase,
             observeEstablishedCalls = observeEstablishedCalls,
             globalDataStore = globalDataStore,
+            isSelfUserViewerOnConversation = isSelfUserViewerOnConversationUseCase
         )
     }
 
@@ -195,6 +202,10 @@ internal class MessageComposerViewModelArrangement {
 
     fun withCurrentSessionFlowResult(resultFlow: Flow<CurrentSessionResult>) = apply {
         coEvery { currentSessionFlowUseCase() } returns resultFlow
+    }
+
+    fun withAttachmentOptionsAvailability(available: Boolean) = apply {
+        coEvery { isSelfUserViewerOnConversationUseCase(any()) } returns available
     }
 
     fun arrange() = this to viewModel
@@ -217,20 +228,23 @@ internal fun withMockConversationDetailsOneOnOne(
         every { isUnavailableUser } returns unavailable
         every { deleted } returns false
         every { accentId } returns 0
+        every { botService } returns null
+        every { userType } returns UserTypeInfo.Regular(UserType.NONE)
     },
     userType = UserTypeInfo.Regular(UserType.INTERNAL),
 )
 
 internal fun mockConversationDetailsGroup(
     conversationName: String,
-    mockedConversationId: ConversationId = ConversationId("someId", "someDomain")
+    mockedConversationId: ConversationId = ConversationId("someId", "someDomain"),
+    teamId: TeamId? = TestConversation.GROUP().teamId,
+    wireCell: String? = null,
 ) = ConversationDetails.Group.Regular(
     conversation = TestConversation.GROUP()
-        .copy(name = conversationName, id = mockedConversationId),
-    hasOngoingCall = false,
+        .copy(name = conversationName, id = mockedConversationId, teamId = teamId),
     isSelfUserMember = true,
     selfRole = Conversation.Member.Role.Member,
-    wireCell = null,
+    wireCell = wireCell,
 )
 
 internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {

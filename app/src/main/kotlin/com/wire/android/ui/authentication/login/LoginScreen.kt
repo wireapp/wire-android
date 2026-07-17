@@ -44,18 +44,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.R
+import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireLoginDestination
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
@@ -76,6 +77,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
 @WireLoginDestination(
@@ -86,14 +88,14 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navigator: Navigator,
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
+    loginEmailViewModel: LoginEmailViewModel = loginEmailViewModel(loginNavArgs)
 ) {
 
     LoginContent(
         onBackPressed = navigator::navigateBack,
-        onSuccess = { initialSyncCompleted, isE2EIRequired ->
+        onSuccess = { initialSyncCompleted, isE2EIRequired, userId ->
             val destination = if (isE2EIRequired) {
-                E2EIEnrollmentScreenDestination
+                E2EIEnrollmentScreenDestination(SessionBackedAuthenticationNavArgs.from(userId))
             } else if (initialSyncCompleted) {
                 HomeScreenDestination
             } else {
@@ -102,9 +104,15 @@ fun LoginScreen(
 
             navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
         },
-        onRemoveDeviceNeeded = {
-            navigator.navigate(NavigationCommand(RemoveDeviceScreenDestination, BackStackMode.CLEAR_WHOLE))
+        onRemoveDeviceNeeded = { userId ->
+            navigator.navigate(
+                NavigationCommand(
+                    RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(userId)),
+                    BackStackMode.CLEAR_WHOLE,
+                )
+            )
         },
+        loginNavArgs = loginNavArgs,
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult,
         ssoCodeAutoLogin = loginNavArgs.ssoCodeAutoLogin
@@ -114,8 +122,9 @@ fun LoginScreen(
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
-    onRemoveDeviceNeeded: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
+    onRemoveDeviceNeeded: (UserId) -> Unit,
+    loginNavArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
@@ -139,6 +148,7 @@ private fun LoginContent(
                     onBackPressed = onBackPressed,
                     onSuccess = onSuccess,
                     onRemoveDeviceNeeded = onRemoveDeviceNeeded,
+                    loginNavArgs = loginNavArgs,
                     loginEmailViewModel = loginEmailViewModel,
                     ssoLoginResult = ssoLoginResult,
                     ssoCodeAutoLogin = ssoCodeAutoLogin
@@ -152,8 +162,9 @@ private fun LoginContent(
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean) -> Unit,
-    onRemoveDeviceNeeded: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
+    onRemoveDeviceNeeded: (UserId) -> Unit,
+    loginNavArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
@@ -233,6 +244,7 @@ private fun MainLoginContent(
                     LoginTabItem.SSO -> LoginSSOScreen(
                         onSuccess,
                         onRemoveDeviceNeeded,
+                        loginNavArgs,
                         ssoLoginResult,
                         ssoCodeAutoLogin,
                     )
@@ -262,9 +274,10 @@ private fun PreviewLoginScreen() = WireTheme {
     WireTheme {
         MainLoginContent(
             onBackPressed = {},
-            onSuccess = { _, _ -> },
+            onSuccess = { _, _, _ -> },
             onRemoveDeviceNeeded = {},
-            loginEmailViewModel = hiltViewModel(),
+            loginNavArgs = LoginNavArgs(),
+            loginEmailViewModel = loginEmailViewModel(LoginNavArgs()),
             ssoLoginResult = null,
             ssoCodeAutoLogin = null
         )

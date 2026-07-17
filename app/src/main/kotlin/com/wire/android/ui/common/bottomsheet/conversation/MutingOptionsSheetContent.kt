@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowLeftIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -55,7 +56,7 @@ internal fun MutingOptionsSheetContent(
                     subLine = stringResource(id = R.string.muting_option_all_allowed_text),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label)
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label)
                     ) {
                         onMuteConversation(MutedConversationStatus.AllAllowed)
                     },
@@ -73,7 +74,7 @@ internal fun MutingOptionsSheetContent(
                     subLine = stringResource(id = R.string.muting_option_only_mentions_text),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label)
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label)
                     ) {
                         onMuteConversation(MutedConversationStatus.OnlyMentionsAndRepliesAllowed)
                     },
@@ -91,7 +92,7 @@ internal fun MutingOptionsSheetContent(
                     subLine = stringResource(id = R.string.muting_option_all_muted_text),
                     onItemClick = Clickable(
                         enabled = state == RichMenuItemState.DEFAULT,
-                        onClickDescription = stringResource(id = R.string.content_description_select_label)
+                        onClickDescription = stringResource(id = commonR.string.content_description_select_label)
                     ) {
                         onMuteConversation(MutedConversationStatus.AllMuted)
                     },

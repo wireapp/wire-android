@@ -18,9 +18,10 @@
 <resources>
     <string name="all_meetings_tab_next">NEXT</string>
     <string name="all_meetings_tab_past">PAST</string>
+    <string name="meeting_repeating_never">Never</string>
     <string name="meeting_repeating_daily">Daily</string>
     <string name="meeting_repeating_weekly">Weekly</string>
-    <string name="meeting_repeating_biweekly">Biweekly</string>
+    <string name="meeting_repeating_biweekly">Every 2 weeks</string>
     <string name="meeting_repeating_monthly">Monthly</string>
     <string name="meeting_repeating_annually">Annually</string>
     <string name="meeting_started_at">Started at %1$s</string>
@@ -51,8 +52,38 @@
     <string name="meetings_empty_text_next">"Start a meeting with team members, guests or external parties."</string>
     <string name="meetings_empty_text_past">Previous meetings will be listed here.</string>
     <string name="new_meeting_title">New Meeting</string>
+    <string name="new_meeting_participants_title">Select participants</string>
     <string name="new_meeting_now">Meet Now</string>
-    <string name="new_meeting_schedule">Schedule a Meeting</string>
-    <string name="content_description_new_meeting_now_icon">Meet now icon</string>
-    <string name="content_description_new_meeting_schedule_icon">Schedule a Meeting icon</string>
+    <string name="new_meeting_schedule">Schedule a Meeting</string>v
+    <string name="new_meeting_action_start">Start Meeting</string>
+    <string name="new_meeting_action_schedule">Schedule</string>
+    <string name="new_meeting_title_input_label">Title</string>
+    <string name="new_meeting_title_input_placeholder">Enter meeting title</string>
+    <string name="new_meeting_participants_input_label">Participants</string>
+    <string name="new_meeting_participants_input_placeholder">Select participants</string>
+    <string name="content_description_new_meeting_back_icon">Close new meeting view</string>
+    <string name="content_description_new_meeting_participants_back_icon">Close select participants view</string>
+    <string name="new_meeting_title_name_error_empty">Please enter a meeting name</string>
+    <string name="new_meeting_title_name_error_exceeded_limit">Meeting name should not exceed 64 characters</string>
+    <string name="new_meeting_starts_input_label">Starts</string>
+    <string name="new_meeting_start_date_input_placeholder">Select start date</string>
+    <string name="new_meeting_start_time_input_placeholder">Select start time</string>
+    <string name="new_meeting_ends_input_label">Ends</string>
+    <string name="new_meeting_end_date_input_placeholder">Select end date</string>
+    <string name="new_meeting_end_time_input_placeholder">Select end time</string>
+    <string name="new_meeting_start_in_past_error">Start time cannot be in the past</string>
+    <string name="new_meeting_end_in_past_error">End time cannot be in the past</string>
+    <string name="new_meeting_end_before_start_error">End time cannot be before start time</string>
+    <string name="new_meeting_repeats_input_label">Repeats</string>
+    <string name="content_description_new_meeting_repeating_options">Select repeat option</string>
+    <string name="new_meeting_allow_guests_label">Allow guests</string>
+    <string name="content_description_join_meeting_label">join a meeting call</string>
+    <string name="content_description_attending_meeting_label">return to a meeting call</string>
+    <string name="meeting_audio_permission_dialog_description">To join a meeting, allow Wire to access your microphone in your device settings.</string>
+
+    <plurals name="new_meeting_participants_input_more_suffix">
+        <item quantity="one">+%1$d more</item>
+        <item quantity="other">+%1$d more</item>
+    </plurals>
+
 </resources>

@@ -34,12 +34,9 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class MessageDraftViewModel @Inject constructor(
+class MessageDraftViewModel(
     val savedStateHandle: SavedStateHandle,
     private val getMessageDraft: GetMessageDraftUseCase,
     private val getQuotedMessage: GetQuoteMessageForConversationUseCase,

@@ -8,12 +8,40 @@ set -euo pipefail
 : "${DEVICE_LIST:?DEVICE_LIST missing}"
 : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
 : "${APP_ID:?APP_ID missing}"
+: "${TEST_APP_ID:?TEST_APP_ID missing}"
 : "${TEST_APK_PATH:?TEST_APK_PATH missing}"
 : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
 : "${TEST_SERVICES_APK_PATH:?TEST_SERVICES_APK_PATH missing}"
 
 is_true() {
   [[ "${1:-}" == "true" ]]
+}
+
+trim_surrounding_whitespace() {
+  local value="$1"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s' "${value}"
+}
+
+encode_testiny_arg() {
+  printf '%s' "$1" | base64 | tr -d '\r\n'
+}
+
+load_testiny_api_key() {
+  local secrets_json_path="${SECRETS_JSON_PATH:-secrets.json}"
+  if [[ ! -f "${secrets_json_path}" ]]; then
+    echo "ERROR: Testiny reporting needs runtime secrets, but ${secrets_json_path} was not found."
+    exit 1
+  fi
+
+  TESTINY_API_KEY_VALUE="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["TESTINY_API_KEY_ANDROID"]["fields"]["password"]["value"])' "${secrets_json_path}")"
+  if [[ -z "${TESTINY_API_KEY_VALUE}" ]]; then
+    echo "ERROR: TESTINY_API_KEY_ANDROID is missing from runtime secrets."
+    exit 1
+  fi
+
+  echo "::add-mask::${TESTINY_API_KEY_VALUE}"
 }
 
 RERUN_FAILED_ENABLED="${RERUN_FAILED_ENABLED:-true}"
@@ -23,6 +51,8 @@ ALLURE_PULL_MAX_ATTEMPTS="${ALLURE_PULL_MAX_ATTEMPTS:-3}"
 ALLURE_PULL_BASE_DELAY_SEC="${ALLURE_PULL_BASE_DELAY_SEC:-5}"
 RERUN_INLINE_PART_MAX_CHARS="${RERUN_INLINE_PART_MAX_CHARS:-7000}"
 INITIAL_FAILED_TESTS_FILE="${INITIAL_FAILED_TESTS_FILE:-}"
+TESTINY_RUN_NAME_TRIMMED="$(trim_surrounding_whitespace "${TESTINY_RUN_NAME:-}")"
+TESTINY_API_KEY_VALUE=""
 
 if [[ ! "${RERUN_FAILED_ENABLED}" =~ ^(true|false)$ ]]; then
   echo "ERROR: RERUN_FAILED_ENABLED must be true or false."
@@ -49,6 +79,11 @@ if [[ ! "${RERUN_INLINE_PART_MAX_CHARS}" =~ ^[0-9]+$ || $((10#${RERUN_INLINE_PAR
   exit 1
 fi
 
+if [[ -n "${TESTINY_RUN_NAME_TRIMMED}" ]]; then
+  # Keep the Testiny key scoped to this script instead of exporting it to later workflow steps.
+  load_testiny_api_key
+fi
+
 MAX_RERUNS=0
 if is_true "${RERUN_FAILED_ENABLED}"; then
   MAX_RERUNS="$((10#${RERUN_FAILED_COUNT}))"
@@ -58,7 +93,7 @@ PULL_BASE_DELAY_SEC="$((10#${ALLURE_PULL_BASE_DELAY_SEC}))"
 INLINE_PART_MAX_CHARS="$((10#${RERUN_INLINE_PART_MAX_CHARS}))"
 
 LOG_DIR="${RUNNER_TEMP}/instrumentation-logs"
-STATE_DIR="${RUNNER_TEMP}/retry-state"
+STATE_DIR="${RETRY_STATE_DIR:-${RUNNER_TEMP}/retry-state}"
 mkdir -p "${LOG_DIR}" "${STATE_DIR}" "${ALLURE_RESULTS_ROOT}"
 
 read -ra DEVICES <<< "${DEVICE_LIST}"
@@ -117,9 +152,33 @@ declare -a RERUN_INLINE_PARTS=()
 extract_failed_ids() {
   local attempt="$1"
   local failed_output="$2"
+  local executed_output="$3"
   ATTEMPT_RESULTS_DIR="${ALLURE_RESULTS_ROOT}/attempt-${attempt}" \
     FAILED_TESTS_FILE="${failed_output}" \
+    EXECUTED_TESTS_FILE="${executed_output}" \
     python3 scripts/qa_android_ui_tests/extract_failed_tests.py
+}
+
+validate_explicit_attempt_coverage() {
+  local attempt="$1"
+  local executed_file="$2"
+  shift 2
+  local devices=("$@")
+  local expected_file="${STATE_DIR}/attempt-${attempt}-expected.txt"
+  local difference_file="${STATE_DIR}/attempt-${attempt}-coverage-difference.txt"
+
+  : > "${expected_file}"
+  for serial in "${devices[@]}"; do
+    cat "$(rerun_list_file_for_device "${attempt}" "${serial}")" >> "${expected_file}"
+  done
+  sort -u "${expected_file}" -o "${expected_file}"
+
+  comm -3 "${expected_file}" "${executed_file}" > "${difference_file}"
+  if [[ -s "${difference_file}" ]]; then
+    echo "ERROR: Attempt ${attempt} Allure results do not match the explicitly assigned test IDs."
+    echo "Coverage difference: ${difference_file}"
+    return 1
+  fi
 }
 
 build_rerun_inline_parts() {
@@ -170,6 +229,41 @@ count_tests_in_list_file() {
   fi
 
   wc -l < "${list_file}" | tr -d ' '
+}
+
+install_app_before_attempt_if_needed() {
+  local attempt="$1"
+  # The first argument is the attempt number and the remaining arguments are device serials.
+  # shift removes the first argument, so "$@" only contains device serials for the install loop.
+  shift
+  local devices=("$@")
+  local apk_path="${APP_APK_BEFORE_ATTEMPT:-}"
+
+  if [[ -z "${apk_path}" ]]; then
+    return
+  fi
+
+  echo "Installing app APK before attempt ${attempt}: ${apk_path}"
+  for serial in "${devices[@]}"; do
+    adb -s "${serial}" wait-for-device
+    # Upgrade attempts must start from the old APK. Uninstall first because
+    # Android rejects installing an older version over an already-newer app.
+    adb -s "${serial}" uninstall "${APP_ID}" >/dev/null 2>&1 || true
+    if [[ "${apk_path}" == /data/local/tmp/* ]]; then
+      local output
+      output="$(adb -s "${serial}" shell pm install -r -g "${apk_path}" 2>&1 | tr -d '\r' || true)"
+      if [[ "${output}" != *"Success"* ]]; then
+        echo "ERROR: Failed to install app APK on ${serial} from ${apk_path}. Output: ${output:-<empty>}"
+        exit 1
+      fi
+    else
+      if [[ ! -s "${apk_path}" ]]; then
+        echo "ERROR: APP_APK_BEFORE_ATTEMPT does not exist or is empty: ${apk_path}"
+        exit 1
+      fi
+      adb -s "${serial}" install -r "${apk_path}" >/dev/null
+    fi
+  done
 }
 
 rerun_list_file_for_device() {
@@ -344,14 +438,16 @@ run_attempt_on_devices() {
       fi
 
       local instr_list instrumentation
-      # Prefer the custom runner so retry args go through TaggedFilter.
-      # Fall back to the app-targeted instrumentation if needed.
+      # testsCore is a library androidTest APK, so its instrumentation targets
+      # the generated test app rather than the Wire app driven by UI Automator.
+      # Bind to the exact package from the freshly built test APK so a stale or
+      # unrelated TaggedTestRunner cannot receive instrumentation arguments.
       instr_list="$(${adb_cmd} shell pm list instrumentation 2>/dev/null | tr -d '\r' || true)"
-      instrumentation="$(printf '%s\n' "${instr_list}" | grep -m1 'TaggedTestRunner' | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
-      if [[ -z "${instrumentation}" ]]; then
-        instrumentation="$(printf '%s\n' "${instr_list}" | grep -m1 "target=${APP_ID}" | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
-      fi
-      if [[ -z "${instrumentation}" ]]; then
+      if ! instrumentation="$(
+        INSTRUMENTATION_LIST="${instr_list}" \
+          TEST_APP_ID="${TEST_APP_ID}" \
+          python3 scripts/qa_android_ui_tests/resolve_instrumentation.py
+      )"; then
         echo "[${serial}] ERROR: Could not resolve instrumentation. Installed instrumentations:"
         printf '%s\n' "${instr_list}" | sed -u "s/^/[${serial}] /"
         exit 1
@@ -372,6 +468,23 @@ run_attempt_on_devices() {
       args+=(-e numShards "${num_shards}")
       args+=(-e shardIndex "${this_shard_index}")
       args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
+      # The tests must launch the exact app flavor CI installed for this run.
+      args+=(-e appPackage "${APP_ID}")
+
+      # Only Testiny-enabled runs need the reporting config and secret.
+      if [[ -n "${TESTINY_RUN_NAME_TRIMMED}" ]]; then
+        if [[ -n "${TESTINY_PROJECT_NAME:-}" ]]; then
+          args+=(-e testinyProjectNameB64 "$(encode_testiny_arg "${TESTINY_PROJECT_NAME}")")
+        fi
+        args+=(-e testinyRunNameB64 "$(encode_testiny_arg "${TESTINY_RUN_NAME_TRIMMED}")")
+        local encoded_testiny_api_key
+        encoded_testiny_api_key="$(encode_testiny_arg "${TESTINY_API_KEY_VALUE}")"
+        echo "::add-mask::${encoded_testiny_api_key}"
+        args+=(-e testinyApiKeyB64 "${encoded_testiny_api_key}")
+        if [[ -n "${TESTINY_SOURCE_RUN_URL:-}" ]]; then
+          args+=(-e testinySourceRunUrlB64 "$(encode_testiny_arg "${TESTINY_SOURCE_RUN_URL}")")
+        fi
+      fi
 
       if attempt_uses_selector_mode "${attempt}"; then
         if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
@@ -379,6 +492,12 @@ run_attempt_on_devices() {
         fi
         if [[ -n "${RESOLVED_CATEGORY:-}" ]]; then
           args+=(-e category "${RESOLVED_CATEGORY}")
+        fi
+        if [[ -n "${EXCLUDE_CATEGORY:-}" ]]; then
+          args+=(-e excludeCategory "${EXCLUDE_CATEGORY}")
+        fi
+        if [[ -n "${REQUIRED_CATEGORY:-}" ]]; then
+          args+=(-e requiredCategory "${REQUIRED_CATEGORY}")
         fi
       else
         local retry_list_file
@@ -412,7 +531,6 @@ run_attempt_on_devices() {
 
       if [[ "${IS_UPGRADE:-}" == "true" ]]; then
         args+=(-e newApkPath "${NEW_APK_DEVICE_PATH}")
-        args+=(-e oldApkPath "${OLD_APK_DEVICE_PATH}")
       fi
 
       local log_file="${LOG_DIR}/attempt-${attempt}-instrument-${serial}.log"
@@ -506,6 +624,7 @@ while true; do
   fi
 
   echo "=== Attempt ${attempt} ==="
+  install_app_before_attempt_if_needed "${attempt}" "${attempt_devices[@]}"
   attempt_worker_failed=0
   if ! run_attempt_on_devices "${attempt}" "${attempt_num_shards}" "${attempt_devices[@]}"; then
     attempt_worker_failed=1
@@ -518,9 +637,20 @@ while true; do
   fi
 
   attempt_failed_file="${STATE_DIR}/attempt-${attempt}-failed.txt"
-  extract_failed_ids "${attempt}" "${attempt_failed_file}"
+  attempt_executed_file="${STATE_DIR}/attempt-${attempt}-executed.txt"
+  extract_failed_ids "${attempt}" "${attempt_failed_file}" "${attempt_executed_file}"
+  executed_count="$(wc -l < "${attempt_executed_file}" | tr -d ' ')"
+  if (( executed_count == 0 )); then
+    echo "ERROR: Attempt ${attempt} produced no identifiable executed tests."
+    exit 1
+  fi
+  if ! attempt_uses_selector_mode "${attempt}"; then
+    if ! validate_explicit_attempt_coverage "${attempt}" "${attempt_executed_file}" "${attempt_devices[@]}"; then
+      exit 1
+    fi
+  fi
   failed_count="$(wc -l < "${attempt_failed_file}" | tr -d ' ')"
-  echo "Attempt ${attempt} failed tests: ${failed_count}"
+  echo "Attempt ${attempt} results: executed=${executed_count}, failed=${failed_count}"
 
   if [[ ! -f "${first_failed_file}" ]]; then
     cp "${attempt_failed_file}" "${first_failed_file}"

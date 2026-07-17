@@ -42,8 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
@@ -66,6 +66,8 @@ import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryS
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.home.conversations.conversationAssetMessagesViewModel
+import com.wire.android.ui.home.conversations.conversationMessagesViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
@@ -87,8 +89,8 @@ import kotlinx.serialization.Serializable
 @Composable
 fun ConversationMediaScreen(
     navigator: Navigator,
-    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = hiltViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltViewModel()
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = conversationAssetMessagesViewModel(),
+    conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel()
 ) {
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val context = LocalContext.current
@@ -142,7 +144,7 @@ fun ConversationMediaScreen(
         onPermissionPermanentlyDenied = {
             permissionPermanentlyDeniedDialogState.show(
                 PermissionPermanentlyDeniedDialogState.Visible(
-                    title = R.string.app_permission_dialog_title,
+                    title = commonR.string.app_permission_dialog_title,
                     description = R.string.save_permission_dialog_description
                 )
             )

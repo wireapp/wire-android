@@ -127,10 +127,7 @@ elif app_build == "latest":
 else:
     new_key = pick_by_substring(app_build)
     if is_upgrade:
-        if not old_input:
-            print("ERROR: isUpgrade=true but oldBuildNumber is empty.", file=sys.stderr)
-            sys.exit(1)
-        old_key = pick_by_substring(old_input)
+        old_key = pick_by_substring(old_input) if old_input else second_latest_key
 
 if not new_key:
     print(f"ERROR: Could not resolve NEW apk for appBuildNumber='{app_build}'", file=sys.stderr)

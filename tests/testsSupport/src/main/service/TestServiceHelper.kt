@@ -19,30 +19,45 @@
 package service
 
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.annotation.RawRes
 import backendUtils.BackendClient
-import backendUtils.team.getTeamByName
+import backendUtils.conversation.getConversationByName
+import backendUtils.conversation.getPersonalConversationByName
+import backendUtils.team.getSelfDeletingMessagesSettings
+import backendUtils.team.getTeamMembers
+import backendUtils.user.getPropertyValues
+import backendUtils.user.getUserNameByID
+import backendUtils.user.isDevelopmentApiEnabled
 import com.wire.android.testSupport.R
 import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
 import service.enums.LegalHoldStatus
 import service.models.Conversation
+import service.models.SendFileParams
 import service.models.SendLocationParams
 import service.models.SendTextParams
+import service.models.SendTextWithLinkParams
+import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import util.generateQRCode
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.RandomAccessFile
 import java.time.Duration
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
+import java.util.regex.Matcher
+import kotlin.time.Duration.Companion.seconds
 
 class TestServiceHelper(
     private val usersManager: ClientUserManager
 ) {
     val wireReceiptMode = "WIRE_RECEIPT_MODE"
+    private val noExpirationTimeout = Duration.ZERO
 
     val testServiceClient by lazy {
         TestService("http://192.168.2.18:8080", "TestService")
@@ -108,7 +123,7 @@ class TestServiceHelper(
             return Duration.ofMillis(conversationMessageTimerMillis.toLong())
         }
 
-        return Duration.ofMillis(Int.MAX_VALUE.toLong()) // ~24.8 days, safe int millis
+        return noExpirationTimeout
     }
 
     private fun getConversationMessageTimer(user: ClientUser, conversationName: String): Int {
@@ -190,21 +205,33 @@ class TestServiceHelper(
         )
     }
 
-    fun userXAddedContactsToGroupChat(
-        userAsNameAlias: String,
-        contactsToAddNameAliases: String,
-        chatName: String
+    fun contactSendsLocalImageConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String?,
+        dstConvoName: String
     ) {
-        val userAs = toClientUser(userAsNameAlias)
+        val image = getRawResourceAsFile(context, R.raw.testing_image, fileName)
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
 
-        val contactsToAdd = usersManager
-            .splitAliases(contactsToAddNameAliases)
-            .map { toClientUser(it) }
+        if (image?.exists() != true) {
+            throw Exception("Image file not found")
+        }
 
-        backendFor(userAs).addUsersToGroupConversation(
-            asUser = userAs,
-            contacts = contactsToAdd,
-            conversation = toConvoObj(userAs, chatName)
+        testServiceClient.sendImage(
+            SendFileParams(
+                owner = toClientUser(senderAlias),
+                deviceName = deviceName,
+                convoId = conversation.qualifiedID.id,
+                convoDomain = conversation.qualifiedID.domain,
+                timeout = getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+                filePath = image.absolutePath.orEmpty(),
+                type = "image/jpeg",
+                otherAlgorithm = false,
+                otherHash = false,
+                invalidHash = false
+            )
         )
     }
 
@@ -238,6 +265,30 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsOneMbTextFileConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val textFile = File(context.cacheDir, fileName)
+        RandomAccessFile(textFile, "rws").use { file ->
+            file.setLength(1024L * 1024L)
+        }
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            textFile.absolutePath.orEmpty(),
+            "text/plain"
+        )
+    }
+
     fun contactSendsLocalVideoPersonalMLSConversation(
         context: Context,
         fileName: String,
@@ -262,6 +313,31 @@ class TestServiceHelper(
             deviceName,
             convoId,
             convoDomain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            videoFile.absolutePath.orEmpty(),
+            "video/mp4"
+        )
+    }
+
+    fun contactSendsLocalVideoConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val videoFile = getRawResourceAsFile(context, R.raw.testing, fileName)
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        if (videoFile?.exists() != true) {
+            throw Exception("Video file not found")
+        }
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
             getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
             videoFile.absolutePath.orEmpty(),
             "video/mp4"
@@ -315,30 +391,6 @@ class TestServiceHelper(
         return backend.getConversationByName(owner, convoName)
     }
 
-    suspend fun usersSetUniqueUsername(userNameAliases: String) {
-        usersManager.splitAliases(userNameAliases).forEach { userNameAlias ->
-            val user = toClientUser(userNameAlias)
-            val backend = backendFor(user)
-            backend.updateUniqueUsername(
-                user,
-                user.uniqueUsername.orEmpty()
-            )
-        }
-    }
-
-    fun connectionRequestIsSentTo(userFromNameAlias: String, usersToNameAliases: String) {
-        val userFrom = toClientUser(userFromNameAlias)
-        val backend = backendFor(userFrom)
-        val usersTo = usersManager
-            .splitAliases(usersToNameAliases)
-            .map(this::toClientUser)
-        runBlocking {
-            usersTo.forEach {
-                backend.sendConnectionRequest(userFrom, it)
-            }
-        }
-    }
-
     fun addDevice(
         ownerAlias: String,
         verificationCode: String? = null,
@@ -368,45 +420,6 @@ class TestServiceHelper(
         }
     }
 
-    fun userHasGroupConversationInTeam(
-        chatOwnerNameAlias: String,
-        chatName: String? = null,
-        otherParticipantsNameAlises: String? = null,
-        teamName: String
-    ) {
-        var participants: List<ClientUser>? = null
-        val chatOwner = toClientUser(chatOwnerNameAlias)
-        if (otherParticipantsNameAlises != null) {
-            participants = usersManager
-                .splitAliases(otherParticipantsNameAlises)
-                .map(this::toClientUser)
-        }
-
-        val backend = backendFor(chatOwner)
-
-        runBlocking {
-            val dstTeam = backend.getTeamByName(chatOwner, teamName)
-            backend.createTeamConversation(chatOwner, participants, chatName, dstTeam)
-        }
-    }
-
-    fun userHas1on1ConversationInTeam(
-        chatOwnerNameAlias: String,
-        otherParticipantsNameAlises: String,
-        teamName: String
-    ) {
-        val chatOwner = toClientUser(chatOwnerNameAlias)
-        val participants = usersManager
-            .splitAliases(otherParticipantsNameAlises)
-            .map(this::toClientUser)
-        val backend = backendFor(chatOwner)
-
-        runBlocking {
-            val dstTeam = backend.getTeamByName(chatOwner, teamName)
-            backend.createTeamConversation(chatOwner, participants, null, dstTeam)
-        }
-    }
-
     fun isSendReadReceiptEnabled(userNameAlias: String): Boolean {
         val user = toClientUser(userNameAlias)
         val backend = backendFor(user)
@@ -423,24 +436,6 @@ class TestServiceHelper(
 
     private fun Int.toBoolean(): Boolean {
         return this != 0
-    }
-
-    @Suppress("LongParameterList")
-    fun thereIsATeamOwner(
-        context: Context,
-        ownerNameAlias: String,
-        teamName: String,
-        updateHandle: Boolean,
-        locale: String = "en_US",
-        backend: BackendClient = BackendClient.getDefault()!!
-    ) {
-        val owner = toClientUser(ownerNameAlias)
-        if (usersManager.isUserCreated(owner)) {
-            throw Exception(
-                "Cannot create team with user ${owner.nameAliases} as owner because user is already created"
-            )
-        }
-        usersManager.createTeamOwnerByAlias(ownerNameAlias, teamName, locale, updateHandle, backend, context)
     }
 
     fun syncUserIdsForUsersCreatedThroughIdP(ownerNameAlias: String, user: ClientUser) {
@@ -472,9 +467,8 @@ class TestServiceHelper(
     fun userSendMessageToConversation(
         senderAlias: String,
         msg: String,
-        deviceName: String,
-        dstConvoName: String,
-        isSelfDeleting: Boolean
+        deviceName: String?,
+        dstConvoName: String
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObj(clientUser, dstConvoName)
@@ -483,16 +477,15 @@ class TestServiceHelper(
             conversation = conversation,
             msg = msg,
             deviceName = deviceName,
-            timeout = resolveMessageTimeout(senderAlias, dstConvoName, isSelfDeleting)
+            timeout = resolveMessageTimeout(senderAlias, dstConvoName)
         )
     }
 
     fun userSendMessageToPersonalMlsConversation(
         senderAlias: String,
         msg: String,
-        deviceName: String,
-        dstConvoName: String,
-        isSelfDeleting: Boolean
+        deviceName: String?,
+        dstConvoName: String
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObjPersonal(clientUser, dstConvoName)
@@ -501,39 +494,174 @@ class TestServiceHelper(
             conversation = conversation,
             msg = msg,
             deviceName = deviceName,
-            timeout = resolveMessageTimeout(senderAlias, dstConvoName, isSelfDeleting)
+            timeout = resolveMessageTimeout(senderAlias, dstConvoName)
         )
+    }
+
+    fun userSendEphemeralMessageToConversation(
+        senderAlias: String,
+        msg: String,
+        deviceName: String,
+        dstConvoName: String,
+        messageTimer: Duration
+    ) {
+        val clientUser = toClientUser(senderAlias)
+        val conversation = if (runCatching { usersManager.findUserByNameOrNameAlias(dstConvoName) }.isSuccess) {
+            toConvoObjPersonal(clientUser, dstConvoName)
+        } else {
+            toConvoObj(clientUser, dstConvoName)
+        }
+        sendMessageInternal(
+            clientUser = clientUser,
+            conversation = conversation,
+            msg = msg,
+            deviceName = deviceName,
+            timeout = messageTimer
+        )
+    }
+
+    fun userSendsGenericMessageToConversation(
+        senderAlias: String,
+        convoName: String,
+        deviceName: String? = null,
+        message: String
+    ) {
+        matchUrl(message)?.let { matcher ->
+            val title = matcher.group(0).orEmpty()
+            val bitmap = generateQRCode(title, 512)
+            val tempFile = File.createTempFile("link_preview_", ".png")
+
+            FileOutputStream(tempFile).use { output ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+            }
+
+            userSendsLinkPreview(
+                senderAlias = senderAlias,
+                convoName = convoName,
+                deviceName = deviceName,
+                msg = message,
+                title = title,
+                imagePath = tempFile.absolutePath
+            )
+
+            tempFile.deleteOnExit()
+        } ?: userSendMessageToConversation(senderAlias, message, deviceName.orEmpty(), convoName)
+    }
+
+    @Suppress("LongParameterList")
+    private fun userSendsLinkPreview(
+        senderAlias: String,
+        convoName: String,
+        deviceName: String? = null,
+        msg: String,
+        title: String,
+        imagePath: String
+    ) {
+        val matcher = matchUrl(msg)
+            ?: throw IllegalArgumentException("Text does not contain any URL: $msg")
+
+        val urlOffset = matcher.regionStart()
+        val url = matcher.group(0).orEmpty()
+
+        val user = toClientUser(senderAlias)
+        val conversation = toConvoObj(user, convoName)
+        val messageTimer = resolveMessageTimeout(senderAlias, convoName)
+
+        testServiceClient.sendLinkPreview(
+            SendTextWithLinkParams(
+                owner = user,
+                deviceName = deviceName,
+                convoId = conversation.qualifiedID.id,
+                convoDomain = conversation.qualifiedID.domain,
+                expectsReadConfirmation = false,
+                text = msg,
+                legalHoldStatus = LegalHoldStatus.ENABLED.code,
+                summary = title,
+                title = title,
+                url = url,
+                permUrl = url,
+                urlOffset = urlOffset.toString(),
+                filePath = imagePath,
+                imagePath = imagePath,
+                imageFile = File(imagePath),
+                timeout = messageTimer,
+                messageTimer = messageTimer,
+            )
+        )
+    }
+
+    private fun matchUrl(message: String): Matcher? {
+        val pattern = Regex("""([a-z]+://)?[a-z0-9\-]+\.[a-z]+[^\s\n]*""", RegexOption.IGNORE_CASE)
+        val matcher = pattern.toPattern().matcher(message)
+        return if (matcher.find()) matcher else null
+    }
+
+    fun userTogglesReactionOnLatestMessage(
+        senderAlias: String,
+        convoName: String,
+        deviceName: String,
+        reaction: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, convoName)
+        val convoId = conversation.qualifiedID.id
+        val convoDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(sender, deviceName, convoId, convoDomain)
+
+        testServiceClient.toggleReaction(
+            sender,
+            deviceName,
+            convoId,
+            convoDomain,
+            recentMessageId,
+            reaction
+        )
+    }
+
+    private fun getRecentMessageId(
+        user: ClientUser,
+        deviceName: String?,
+        convoId: String,
+        convoDomain: String
+    ): String {
+        var messageIds = emptyList<String>()
+        val hasMessages = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = 1.seconds
+        ) {
+            messageIds = testServiceClient.getMessageIds(user, deviceName, convoId, convoDomain)
+            messageIds.isNotEmpty()
+        }
+
+        if (hasMessages) {
+            return messageIds.last()
+        }
+        throw IllegalStateException("The conversation contains no messages")
     }
 
     private fun resolveMessageTimeout(
         senderAlias: String,
-        dstConvoName: String,
-        isSelfDeleting: Boolean
+        dstConvoName: String
     ): Duration {
-        return if (isSelfDeleting) {
-            Duration.ofSeconds(1000)
-        } else {
-            getSelfDeletingMessageTimeout(senderAlias, dstConvoName).let { timeout ->
-                if (timeout == Duration.ofMillis(Int.MAX_VALUE.toLong())) Duration.ZERO else timeout
-            }
-        }
+        return getSelfDeletingMessageTimeout(senderAlias, dstConvoName)
     }
 
     fun userXSharesLocationTo(
         senderAlias: String,
         convoName: String,
-        deviceName: String,
-        isSelfDeleting: Boolean
+        deviceName: String
     ) {
         val clientUser = toClientUser(senderAlias)
         val conversation = toConvoObj(clientUser, convoName)
+        val timeout = resolveMessageTimeout(senderAlias, convoName)
+
         testServiceClient.sendLocation(
             SendLocationParams(
                 owner = clientUser,
                 deviceName = deviceName,
                 convoId = conversation.id,
                 convoDomain = conversation.qualifiedID.domain,
-                timeout = if (isSelfDeleting) Duration.ofSeconds(1000) else Duration.ZERO,
+                timeout = timeout,
                 longitude = 0f,
                 latitude = 0f,
                 locationName = "location",
@@ -546,7 +674,7 @@ class TestServiceHelper(
         clientUser: ClientUser,
         conversation: Conversation,
         msg: String,
-        deviceName: String,
+        deviceName: String?,
         timeout: Duration
     ) {
         val convoId = conversation.qualifiedID.id

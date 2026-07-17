@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -32,7 +33,6 @@ import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -45,9 +45,10 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
-import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
@@ -55,7 +56,6 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -66,11 +66,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class MessageComposerViewModel @Inject constructor(
+class MessageComposerViewModel(
     val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
@@ -87,6 +85,7 @@ class MessageComposerViewModel @Inject constructor(
     private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val globalDataStore: GlobalDataStore,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
 ) : ViewModel() {
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -116,6 +115,7 @@ class MessageComposerViewModel @Inject constructor(
         initTempWritableImageUri()
         observeIsTypingAvailable()
         setFileSharingStatus()
+        checkAttachmentOptionsAvailability()
         getEnterToSendState()
         observeCallState()
     }
@@ -196,6 +196,15 @@ class MessageComposerViewModel @Inject constructor(
                 FileSharingStatus.Value.EnabledAll ->
                     messageComposerViewState.value.copy(isFileSharingEnabled = true)
             }
+        }
+    }
+
+    private fun checkAttachmentOptionsAvailability() {
+        viewModelScope.launch {
+            val areAttachmentOptionsEnabled = isSelfUserViewerOnConversation(conversationId)
+            messageComposerViewState.value = messageComposerViewState.value.copy(
+                areAttachmentOptionsEnabled = areAttachmentOptionsEnabled
+            )
         }
     }
 

@@ -32,6 +32,7 @@ import androidx.test.uiautomator.Until
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForApp
+import uiautomatorutils.PermissionUtils.grantStoragePermissionsIfSupported
 
 const val TIMEOUT_IN_MILLISECONDS = 20_000L
 
@@ -41,19 +42,27 @@ object UiAutomatorSetup {
     const val APP_STAGING: String = "com.waz.zclient.dev"
     const val APP_BETA: String = "com.wire.android.internal"
     const val APP_PROD: String = "com.wire"
-    const val APP_INTERNAL: String = "com.wire.internal"
+    const val APP_ALPHA: String = "com.wire.internal"
+    private const val APP_PACKAGE_ARGUMENT = "appPackage"
     lateinit var appPackage: String
 
     fun start(appPackage: String, clearData: Boolean = true): UiDevice {
-        this.appPackage = appPackage
+        val selectedPackage = InstrumentationRegistry.getArguments()
+            .getString(APP_PACKAGE_ARGUMENT)
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: appPackage
+
+        this.appPackage = selectedPackage
 
         val device = getDevice()
 
         if (clearData) {
-            device.executeShellCommand("pm clear $appPackage")
+            device.executeShellCommand("pm clear $selectedPackage")
         }
 
-        grantNotificationPermissionIfSupported(appPackage)
+        grantNotificationPermissionIfSupported(selectedPackage)
+        grantStoragePermissionsIfSupported(selectedPackage)
 
         device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 0")
         device.executeShellCommand("settings put global window_animation_scale 0")
@@ -116,19 +125,13 @@ object UiAutomatorSetup {
         reportUpgradeLog("Upgrading Wire using APK: $apkPath")
 
         val output = device.executeShellCommand("pm install -r -d -g $apkPath").trim()
-
-        if (!output.contains("Success")) {
-            val installOutput = output.ifBlank { "<empty>" }
-            throw IllegalStateException(
-                "Failed to upgrade Wire using APK from '$apkPath'. Output: $installOutput"
-            )
-        }
-
         val versionAfterUpgrade = getInstalledWireVersion()
         reportUpgradeLog("Installed Wire after upgrade: $versionAfterUpgrade")
         if (versionAfterUpgrade.versionCode <= versionBeforeUpgrade.versionCode) {
+            val installOutput = output.ifBlank { "<empty>" }
             throw IllegalStateException(
-                "Wire was not upgraded. Before: $versionBeforeUpgrade. After: $versionAfterUpgrade"
+                "Wire was not upgraded using APK from '$apkPath'. " +
+                        "Before: $versionBeforeUpgrade. After: $versionAfterUpgrade. Install output: $installOutput"
             )
         }
 

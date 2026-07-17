@@ -38,15 +38,13 @@ import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
-@HiltViewModel
 class RegisterDeviceViewModel @Inject constructor(
     private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,

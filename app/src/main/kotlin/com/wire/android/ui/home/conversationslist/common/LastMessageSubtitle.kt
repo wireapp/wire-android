@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.markdown.MarkdownConstants
@@ -29,6 +30,8 @@ import com.wire.android.ui.markdown.MarkdownPreview
 import com.wire.android.ui.markdown.MarkdownNode
 import com.wire.android.ui.markdown.MessageColors
 import com.wire.android.ui.markdown.NodeData
+import com.wire.android.ui.markdown.previewMarkdownSource
+import com.wire.android.ui.markdown.toLightweightMarkdownPreviewFromSource
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -83,8 +86,13 @@ private fun LastMessageMarkdown(
     val locales = LocalConfiguration.current.locales
     val currentLocaleTag = if (locales.isEmpty) "" else locales[0].toLanguageTag()
     val shouldUsePreview = markdownPreview != null && (markdownLocaleTag == null || markdownLocaleTag == currentLocaleTag)
+    val resolvedMarkdownPreview = if (shouldUsePreview) {
+        markdownPreview
+    } else {
+        rememberLightweightMarkdownPreview(text = text)
+    }
 
-    if (shouldUsePreview) {
+    if (resolvedMarkdownPreview != null) {
         val leadingInlines = if (leadingText.isBlank()) {
             persistentListOf()
         } else {
@@ -94,10 +102,7 @@ private fun LastMessageMarkdown(
                 )
             )
         }
-        MarkdownInline(
-            inlines = leadingInlines.plus(markdownPreview.children),
-            nodeData = nodeData
-        )
+        MarkdownInline(inlines = leadingInlines.plus(resolvedMarkdownPreview.children), nodeData = nodeData)
     } else {
         Text(
             text = leadingText.replace(MarkdownConstants.NON_BREAKING_SPACE, " ") +
@@ -108,4 +113,10 @@ private fun LastMessageMarkdown(
             overflow = TextOverflow.Ellipsis
         )
     }
+}
+
+@Composable
+private fun rememberLightweightMarkdownPreview(text: String): MarkdownPreview? {
+    val source = remember(text) { text.previewMarkdownSource() }
+    return remember(source) { source.toLightweightMarkdownPreviewFromSource() }
 }

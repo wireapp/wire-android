@@ -75,18 +75,22 @@ import com.wire.kalium.logic.feature.message.SendLocationUseCase
 import com.wire.kalium.logic.feature.message.SendMultipartMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.wire.kalium.logic.feature.message.linkpreview.DetectLinkPreviewTargetUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
+import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
+import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
+import com.wire.kalium.logic.data.message.mention.MessageMention
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@HiltViewModel
-class SendMessageViewModel @Inject constructor(
+class SendMessageViewModel(
     val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -109,7 +113,9 @@ class SendMessageViewModel @Inject constructor(
     private val removeMessageDraft: RemoveMessageDraftUseCase,
     private val analyticsManager: AnonymousAnalyticsManager,
     private val isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase,
-    private val sharedState: MessageSharedState
+    private val sharedState: MessageSharedState,
+    private val generateLinkPreview: GenerateLinkPreviewUseCase,
+    private val detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase,
 ) : ViewModel() {
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
@@ -125,6 +131,12 @@ class SendMessageViewModel @Inject constructor(
     var sureAboutMessagingDialogState: SureAboutMessagingDialogState by mutableStateOf(
         SureAboutMessagingDialogState.Hidden
     )
+
+    var currentLinkPreview: MessageLinkPreview? by mutableStateOf(null)
+        private set
+
+    private var activeLinkPreviewTarget: LinkPreviewTarget? = null
+    private var activeLinkPreviewRequest: Job? = null
 
     init {
         conversationNavArgs.pendingTextBundle?.let { text ->
@@ -266,9 +278,16 @@ class SendMessageViewModel @Inject constructor(
                 removeMessageDraft(messageBundle.conversationId)
                 sendTypingEvent(messageBundle.conversationId, TypingIndicatorMode.STOPPED)
                 with(messageBundle) {
+                    val linkPreviews = resolveLinkPreviewsForSend(
+                        text = message,
+                        mentions = mentions.map { it.intoMessageMention() },
+                        prefetchedLinkPreview = prefetchedLinkPreview,
+                    )
+
                     sendTextMessage(
                         conversationId = conversationId,
                         text = message,
+                        linkPreviews = linkPreviews,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
                     ).toEither()
@@ -525,6 +544,78 @@ class SendMessageViewModel @Inject constructor(
             }
         }
         sureAboutMessagingDialogState = SureAboutMessagingDialogState.Hidden
+    }
+
+    @Suppress("ReturnCount")
+    fun updateLinkPreview(text: String, mentions: List<MessageMention>) {
+        val nextTarget = detectLinkPreviewTarget(text, mentions)
+        val currentTarget = activeLinkPreviewTarget
+
+        if (nextTarget == null) {
+            clearLinkPreview()
+            return
+        }
+
+        if (currentTarget == nextTarget) {
+            return
+        }
+
+        if (currentTarget?.url == nextTarget.url) {
+            activeLinkPreviewTarget = nextTarget
+            currentLinkPreview = currentLinkPreview?.copy(urlOffset = nextTarget.position)
+            return
+        }
+
+        activeLinkPreviewRequest?.cancel()
+        activeLinkPreviewTarget = nextTarget
+        currentLinkPreview = null
+        activeLinkPreviewRequest = viewModelScope.launch {
+            val preview = try {
+                withContext(dispatchers.io()) {
+                    generateLinkPreview(text = text, mentions = mentions)
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (_: Throwable) {
+                null
+            }
+
+            val latestTarget = activeLinkPreviewTarget
+            if (latestTarget?.url == nextTarget.url) {
+                currentLinkPreview = preview?.copy(urlOffset = latestTarget.position)
+            }
+        }
+    }
+
+    fun clearLinkPreview() {
+        activeLinkPreviewRequest?.cancel()
+        activeLinkPreviewRequest = null
+        activeLinkPreviewTarget = null
+        currentLinkPreview = null
+    }
+
+    @Suppress("ReturnCount")
+    private suspend fun resolveLinkPreviewsForSend(
+        text: String,
+        mentions: List<MessageMention>,
+        prefetchedLinkPreview: MessageLinkPreview?,
+    ): List<MessageLinkPreview> {
+        val target = detectLinkPreviewTarget(text, mentions) ?: return emptyList()
+        val activeTarget = activeLinkPreviewTarget
+
+        if (prefetchedLinkPreview?.url == target.url) {
+            return listOf(prefetchedLinkPreview.copy(urlOffset = target.position))
+        }
+
+        if (activeTarget?.url == target.url) {
+            return currentLinkPreview
+                ?.copy(urlOffset = target.position)
+                ?.let(::listOf)
+                ?: emptyList()
+        }
+
+        val generatedPreview = withContext(dispatchers.io()) { generateLinkPreview(text = text, mentions = mentions) }
+        return generatedPreview?.let(::listOf) ?: emptyList()
     }
 
     private fun AssetBundle.uploadParams(

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,19 +17,20 @@
  */
 package com.wire.android.mapper
 
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.PlayingAudioMessage
+import com.wire.android.model.BadgeEventType
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
-import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation
-import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
+import com.wire.android.ui.home.conversationslist.model.ConversationItem.ConnectionConversation
+import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Channel
+import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Regular
+import com.wire.android.ui.home.conversationslist.model.ConversationItem.PrivateConversation
 import com.wire.android.util.ui.UiTextResolver
+import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
@@ -38,6 +39,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.ConversationDetailsWithEvents
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -47,22 +49,22 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 fun ConversationDetailsWithEvents.toConversationItem(
     userTypeMapper: UserTypeMapper,
     uiTextResolver: UiTextResolver,
-    searchQuery: String,
     selfUserTeamId: TeamId?,
-    playingAudioMessage: PlayingAudioMessage
+    joinableCallsByConversationId: Map<ConversationId, Call> = emptyMap()
 ): ConversationItem = when (val conversationDetails = this.conversationDetails) {
     is Group.Regular -> {
-        ConversationItem.Group.Regular(
+        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallsByConversationId)
+        Regular(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
             ),
-            hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
+            hasOnGoingCall = hasJoinableCall,
             isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
@@ -70,26 +72,25 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isArchived = conversationDetails.conversation.archived,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow,
-            searchQuery = searchQuery,
+            hasNewActivitiesToShow = hasNewActivitiesToShow || hasJoinableCall,
             isFavorite = conversationDetails.isFavorite,
-            folder = conversationDetails.folder,
-            playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails)
+            folder = conversationDetails.folder
         )
     }
 
     is Group.Channel -> {
-        ConversationItem.Group.Channel(
+        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallsByConversationId)
+        Channel(
             groupName = conversationDetails.conversation.name.orEmpty(),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
             ),
-            hasOnGoingCall = conversationDetails.hasOngoingCall && conversationDetails.isSelfUserMember,
+            hasOnGoingCall = hasJoinableCall,
             isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
             isSelfUserMember = conversationDetails.isSelfUserMember,
             teamId = conversationDetails.conversation.teamId,
@@ -97,17 +98,15 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isArchived = conversationDetails.conversation.archived,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow,
-            searchQuery = searchQuery,
+            hasNewActivitiesToShow = hasNewActivitiesToShow || hasJoinableCall,
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
-            playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails),
             isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE
         )
     }
 
     is OneOne -> {
-        ConversationItem.PrivateConversation(
+        PrivateConversation(
             userAvatarData = UserAvatarData(
                 asset = conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) },
                 availabilityStatus = conversationDetails.otherUser.availabilityStatus,
@@ -121,7 +120,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             ),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            showLegalHoldIndicator = conversationDetails.conversation.legalHoldStatus.showLegalHoldIndicator(),
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
             badgeEventType = parsePrivateConversationEventType(
                 conversationDetails.otherUser.connectionStatus,
@@ -139,17 +138,15 @@ fun ConversationDetailsWithEvents.toConversationItem(
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow,
-            searchQuery = searchQuery,
             isFavorite = conversationDetails.isFavorite,
-            folder = conversationDetails.folder,
-            playingAudio = getPlayingAudioInConversation(playingAudioMessage, conversationDetails)
+            folder = conversationDetails.folder
         )
     }
 
     is Connection -> {
-        ConversationItem.ConnectionConversation(
+        ConnectionConversation(
             userAvatarData = UserAvatarData(
-                asset = conversationDetails.otherUser?.previewPicture?.let { UserAvatarAsset(it) },
+                asset = previewPictureAsset(conversationDetails),
                 availabilityStatus = conversationDetails.otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE,
                 nameBasedAvatar = NameBasedAvatar(conversationDetails.otherUser?.name, conversationDetails.otherUser?.accentId ?: -1)
             ),
@@ -165,8 +162,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             badgeEventType = parseConnectionEventType(conversationDetails.connection.status),
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow,
-            searchQuery = searchQuery,
+            hasNewActivitiesToShow = hasNewActivitiesToShow
         )
     }
 
@@ -174,29 +170,17 @@ fun ConversationDetailsWithEvents.toConversationItem(
         throw IllegalArgumentException("Self conversations should not be visible to the user.")
     }
 
-    else -> {
-        throw IllegalArgumentException("$this conversations should not be visible to the user.")
+    is ConversationDetails.Team -> {
+        throw IllegalArgumentException("Team conversations should not be visible to the user.")
+    }
+
+    is Group.Meeting -> {
+        throw IllegalArgumentException("Meeting conversations should not be visible to the user.")
     }
 }
 
-private fun getPlayingAudioInConversation(
-    playingAudioMessage: PlayingAudioMessage,
-    conversationDetails: ConversationDetails
-): PlayingAudioInConversation? =
-    if (playingAudioMessage is PlayingAudioMessage.Some
-        && playingAudioMessage.conversationId == conversationDetails.conversation.id
-    ) {
-        if (playingAudioMessage.state.isPlaying()) {
-            PlayingAudioInConversation(playingAudioMessage.messageId, false)
-        } else if (playingAudioMessage.state.audioMediaPlayingState is AudioMediaPlayingState.Paused) {
-            PlayingAudioInConversation(playingAudioMessage.messageId, true)
-        } else {
-            // states Fetching, Completed, Stopped, etc. should not be shown in ConversationItem
-            null
-        }
-    } else {
-        null
-    }
+private fun Group.hasJoinableCall(joinableCallsByConversationId: Map<ConversationId, Call>): Boolean =
+    joinableCallsByConversationId.containsKey(conversation.id) && isSelfUserMember
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) {
@@ -242,4 +226,15 @@ private fun parseConversationEventType(
             else -> BadgeEventType.None
         }
     }
+}
+
+private const val WIRE_DOMAIN = "wire.com"
+
+private fun previewPictureAsset(connection: Connection): UserAvatarAsset? {
+    val otherUser = connection.otherUser ?: return null
+    val hidePicture = connection.connection.status == ConnectionState.PENDING &&
+            otherUser.id.domain == WIRE_DOMAIN
+    return otherUser.previewPicture
+        ?.takeUnless { hidePicture }
+        ?.let { UserAvatarAsset(it) }
 }

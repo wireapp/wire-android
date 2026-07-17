@@ -47,7 +47,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.WireActivity
@@ -59,6 +58,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.settings.forgotLockScreenViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -71,7 +71,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @WireRootDestination
 @Composable
 fun ForgotLockCodeScreen(
-    viewModel: ForgotLockScreenViewModel = hiltViewModel(),
+    viewModel: ForgotLockScreenViewModel = forgotLockScreenViewModel(),
 ) {
     val activity = LocalActivity.current
     val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()

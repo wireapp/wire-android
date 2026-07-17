@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
@@ -70,6 +72,7 @@ fun ProxyScreen(
                 .padding(
                     vertical = MaterialTheme.wireDimensions.spacing16x
                 )
+                .semantics { heading() }
         )
 
         apiProxyUrl?.let {

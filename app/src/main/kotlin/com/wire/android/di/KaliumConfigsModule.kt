@@ -22,13 +22,10 @@ import android.os.Build
 import com.wire.android.BuildConfig
 import com.wire.kalium.logic.featureFlags.BuildFileRestrictionState
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.Provides
 
-@Module
-@InstallIn(SingletonComponent::class)
+@BindingContainer
 class KaliumConfigsModule {
 
     @Provides
@@ -61,8 +58,11 @@ class KaliumConfigsModule {
             isMlsResetEnabled = BuildConfig.IS_MLS_RESET_ENABLED,
             collaboraIntegration = BuildConfig.COLLABORA_INTEGRATION_ENABLED,
             dbInvalidationControlEnabled = BuildConfig.DB_INVALIDATION_CONTROL_ENABLED,
+            pendingMessages = BuildConfig.PENDING_MESSAGES,
             domainWithFaultyKeysMap = BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR,
-            isDebug = BuildConfig.DEBUG
+            isDebug = BuildConfig.DEBUG,
+            blockCrossBackendLogin = BuildConfig.BLOCK_CROSS_BACKEND_LOGIN,
+            linkPreviewEnabled = BuildConfig.LINK_PREVIEW_ENABLED,
         )
     }
 }

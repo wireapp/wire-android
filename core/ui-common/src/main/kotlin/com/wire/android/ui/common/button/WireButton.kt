@@ -21,6 +21,7 @@ package com.wire.android.ui.common.button
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -94,15 +95,16 @@ fun WireButton(
     onClickDescription: String? = null,
     description: String? = null
 ) {
+    val isFocused by interactionSource.collectIsFocusedAsState()
     val border = when {
-        borderWidth > 0.dp -> BorderStroke(width = borderWidth, color = colors.outlineColor(state).value)
+        borderWidth > 0.dp -> BorderStroke(width = borderWidth, color = colors.outlineColor(state, isFocused).value)
         else -> null
     }
     val baseColors = ButtonDefaults.buttonColors(
-        containerColor = colors.containerColor(state).value,
+        containerColor = colors.containerColor(state, isFocused).value,
         // actual content color is set directly for the children, here it's only used for the ripple
         contentColor = colors.rippleColor(state).value,
-        disabledContainerColor = colors.containerColor(state).value,
+        disabledContainerColor = colors.containerColor(state, isFocused).value,
         disabledContentColor = colors.rippleColor(state).value,
     )
     val onClickWithSyncObserver = rememberClickBlockAction(clickBlockParams, onClick)

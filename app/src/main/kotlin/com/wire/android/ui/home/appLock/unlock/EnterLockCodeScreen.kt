@@ -48,7 +48,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.utils.destination
 import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
@@ -63,18 +62,19 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWithBiometricsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ForgotLockCodeScreenDestination
+import com.wire.android.ui.home.settings.enterLockScreenViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @WireRootDestination
 @Composable
 fun EnterLockCodeScreen(
     navigator: Navigator,
-    viewModel: EnterLockScreenViewModel = hiltViewModel(),
+    viewModel: EnterLockScreenViewModel = enterLockScreenViewModel(),
 ) {
     EnterLockCodeScreenContent(
         state = viewModel.state,
@@ -152,7 +152,7 @@ fun EnterLockCodeScreenContent(
                     autoFill = false,
                     placeholderText = stringResource(R.string.settings_set_lock_screen_passcode_label),
                     labelText = stringResource(R.string.settings_set_lock_screen_passcode_label).uppercase(
-                        Locale.getDefault()
+                        LocalLocale.current.platformLocale
                     )
                 )
 

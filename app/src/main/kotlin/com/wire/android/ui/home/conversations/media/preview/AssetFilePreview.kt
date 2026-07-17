@@ -44,7 +44,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.FileSizeFormatter
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @Composable
 fun AssetFilePreview(assetName: String, sizeInBytes: Long, modifier: Modifier = Modifier) {
@@ -65,7 +65,7 @@ fun AssetFilePreview(assetName: String, sizeInBytes: Long, modifier: Modifier = 
             )
             Text(
                 modifier = Modifier.padding(bottom = dimensions().spacing8x),
-                text = assetName.split(".").last().uppercase(Locale.getDefault()),
+                text = assetName.split(".").last().uppercase(LocalLocale.current.platformLocale),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.wireTypography.title05
             )

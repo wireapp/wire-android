@@ -170,6 +170,21 @@ fun MessageBubbleItem(
                                 Modifier.width(normalizedSize.width)
                             }
 
+                            is UIMessageContent.TextMessage -> {
+                                val previewParams = message.linkPreviewParams
+                                if (previewParams != null) {
+                                    val normalizedSize = previewParams.normalizedSize(
+                                        maxBounds = MaxBounds.ScreenFraction(
+                                            maxWFraction = dimensions().messageVisualMaxFractionWidth,
+                                            maxHFraction = dimensions().messageVisualMaxFractionHeight
+                                        )
+                                    )
+                                    Modifier.width(normalizedSize.width)
+                                } else {
+                                    Modifier
+                                }
+                            }
+
                             else -> {
                                 Modifier
                             }
@@ -201,7 +216,11 @@ fun MessageBubbleItem(
                     Column {
                         val contentModifier = if (message.hasAssetParams) {
                             Modifier.padding(
-                                bottom = if (useSmallBottomPadding) dimensions().spacing0x else paddingValue
+                                bottom = if (useSmallBottomPadding && message.linkPreviewParams == null) {
+                                    dimensions().spacing0x
+                                } else {
+                                    paddingValue
+                                }
                             )
                         } else {
                             Modifier.padding(all = paddingValue)

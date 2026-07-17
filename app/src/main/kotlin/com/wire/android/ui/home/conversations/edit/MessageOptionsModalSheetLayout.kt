@@ -25,8 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.di.hiltViewModelScoped
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -36,6 +36,7 @@ import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.home.conversations.messageOptionsMenuViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -52,6 +53,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 fun MessageOptionsModalSheetLayout(
     conversationId: ConversationId,
     sheetState: WireModalSheetState<String>,
+    isNetworkAvailable: Boolean,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -62,12 +64,9 @@ fun MessageOptionsModalSheetLayout(
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     viewModel: MessageOptionsMenuViewModel =
-        hiltViewModelScoped<
-                MessageOptionsMenuViewModelImpl,
-                MessageOptionsMenuViewModel,
-                MessageOptionsMenuArgs,
-                MessageOptionsMenuViewModelImpl.Factory
-                >(MessageOptionsMenuArgs(conversationId))
+        messageOptionsMenuViewModel(
+            args = MessageOptionsMenuArgs(conversationId)
+        )
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
@@ -78,6 +77,7 @@ fun MessageOptionsModalSheetLayout(
                 is MessageOptionsMenuState.Message -> MessageOptionsModalContent( // message state - show the sheet with proper content
                     message = state.message,
                     sheetState = sheetState,
+                    isNetworkAvailable = isNetworkAvailable,
                     onCopyClick = onCopyClick,
                     onDeleteClick = onDeleteClick,
                     onReactionClick = onReactionClick,
@@ -111,6 +111,7 @@ fun MessageOptionsModalSheetLayout(
 private fun MessageOptionsModalContent(
     message: UIMessage.Regular,
     sheetState: WireModalSheetState<String>,
+    isNetworkAvailable: Boolean,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -122,7 +123,7 @@ private fun MessageOptionsModalContent(
     onOpenAssetClick: (messageId: String) -> Unit,
 ) {
     val context = LocalContext.current
-    val isUploading = message.isPending
+    val isPending = message.isPending
     val isDeleted = message.isDeleted
     val isMyMessage = message.isMyMessage
     val isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable
@@ -134,7 +135,14 @@ private fun MessageOptionsModalContent(
             isUploading = message.isPending,
             isComposite = message.messageContent is UIMessageContent.Composite,
             isEphemeral = isEphemeral,
-            isEditable = !isUploading && !isDeleted && (message.messageContent?.isEditable() ?: false) && isMyMessage,
+            isEditable = isMessageEditOptionAvailable(
+                isDeleted = isDeleted,
+                isContentEditable = message.messageContent?.isEditable() ?: false,
+                isMyMessage = isMyMessage,
+                isPending = isPending,
+                isNetworkAvailable = isNetworkAvailable,
+                pendingMessagesEnabled = BuildConfig.PENDING_MESSAGES
+            ),
             isCopyable = message.isCopyable(),
             isOpenable = true,
             onCopyClick = remember(message.messageContent) {
@@ -231,6 +239,20 @@ private fun MessageOptionsModalContent(
     )
 }
 
+@Suppress("LongParameterList")
+internal fun isMessageEditOptionAvailable(
+    isDeleted: Boolean,
+    isContentEditable: Boolean,
+    isMyMessage: Boolean,
+    isPending: Boolean,
+    isNetworkAvailable: Boolean,
+    pendingMessagesEnabled: Boolean,
+): Boolean =
+    !isDeleted &&
+            isContentEditable &&
+            isMyMessage &&
+            (!isPending || pendingMessagesEnabled && !isNetworkAvailable)
+
 private fun UIMessage.Regular.isCopyable() =
     when {
         isPending -> false
@@ -255,6 +277,7 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
     MessageOptionsModalSheetLayout(
         conversationId = ConversationId("cid", "domain"),
         sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded("id")),
+        isNetworkAvailable = true,
         onCopyClick = {},
         onDeleteClick = { _, _ -> },
         onReactionClick = { _, _ -> },

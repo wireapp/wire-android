@@ -29,7 +29,7 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 class ObserveQuoteMessageForConversationUseCase @Inject constructor(
     private val observeMessageById: ObserveMessageByIdUseCase,

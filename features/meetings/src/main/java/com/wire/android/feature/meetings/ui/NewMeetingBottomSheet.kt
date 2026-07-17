@@ -20,6 +20,7 @@ package com.wire.android.feature.meetings.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -45,9 +46,9 @@ fun NewMeetingBottomSheet(
                             title = stringResource(R.string.new_meeting_now),
                             leading = {
                                 MenuItemIcon(
-                                    id = com.wire.android.ui.common.R.drawable.ic_video_call,
+                                    id = commonR.drawable.ic_video_call,
                                     tint = colorsScheme().onSurface,
-                                    contentDescription = stringResource(R.string.content_description_new_meeting_now_icon),
+                                    contentDescription = null, // no separate content description as the title already describes the action
                                 )
                             },
                             onItemClick = onMeetNowClick,
@@ -58,9 +59,9 @@ fun NewMeetingBottomSheet(
                             title = stringResource(R.string.new_meeting_schedule),
                             leading = {
                                 MenuItemIcon(
-                                    id = com.wire.android.ui.common.R.drawable.ic_calendar,
+                                    id = commonR.drawable.ic_calendar,
                                     tint = colorsScheme().onSurface,
-                                    contentDescription = stringResource(R.string.content_description_new_meeting_schedule_icon),
+                                    contentDescription = null, // no separate content description as the title already describes the action
                                 )
                             },
                             onItemClick = onScheduleClick,

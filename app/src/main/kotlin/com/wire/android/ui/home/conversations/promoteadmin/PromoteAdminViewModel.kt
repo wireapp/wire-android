@@ -18,32 +18,39 @@
 package com.wire.android.ui.home.conversations.promoteadmin
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.avatar
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import kotlinx.coroutines.withContext
 
-@HiltViewModel
-class PromoteAdminViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class PromoteAdminViewModel(
+    private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
-) : ViewModel() {
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val dispatchers: DispatcherProvider,
+    savedStateHandle: SavedStateHandle,
+) : ActionsViewModel<PromoteAdminAction>() {
 
     private val navArgs: PromoteAdminNavArgs = savedStateHandle.navArgs()
 
-    private val allMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
+    private val clientEligibleMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
+    private val allConversationMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
+    private val eligibleMemberIds = MutableStateFlow(navArgs.eligibleMembers.map { it.toUserId() }.toSet())
     private val searchQuery = MutableStateFlow("")
     private val selectedUserId = MutableStateFlow<UserId?>(null)
 
@@ -52,7 +59,18 @@ class PromoteAdminViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(allMembers, searchQuery, selectedUserId) { members, query, selected ->
+            combine(
+                clientEligibleMembers,
+                allConversationMembers,
+                eligibleMemberIds,
+                searchQuery,
+                selectedUserId
+            ) { clientEligibleMembers, allConversationMembers, eligibleIds, query, selected ->
+                val members = if (eligibleIds.isEmpty()) {
+                    clientEligibleMembers
+                } else {
+                    allConversationMembers.filterByEligibleIds(eligibleIds)
+                }
                 PromoteAdminState(
                     searchQuery = query,
                     filteredMembers = filter(members, query),
@@ -66,7 +84,13 @@ class PromoteAdminViewModel @Inject constructor(
 
         viewModelScope.launch {
             observeEligibleMembers(navArgs.conversationId).collect { members ->
-                allMembers.value = members.map { it.toMemberItem() }
+                clientEligibleMembers.value = members.map { it.toMemberItem() }
+            }
+        }
+
+        viewModelScope.launch {
+            observeConversationMembers(navArgs.conversationId).collect { members ->
+                allConversationMembers.value = members.map { it.toMemberItem() }
             }
         }
     }
@@ -80,7 +104,32 @@ class PromoteAdminViewModel @Inject constructor(
     }
 
     fun onPromoteAdminAndLeave() {
-        TODO("implement with use cases")
+        val userId = state.value.selectedUserId ?: return
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+
+            val result = withContext(NonCancellable + dispatchers.io()) {
+                promoteAdminAndLeave(navArgs.conversationId, userId)
+            }
+
+            val action = when (result) {
+                is PromoteAdminAndLeaveConversationUseCase.Result.Success -> PromoteAdminAction.Success
+                is PromoteAdminAndLeaveConversationUseCase.Result.FailedToPromoteUser -> PromoteAdminAction.FailedToPromoteUser
+                is PromoteAdminAndLeaveConversationUseCase.Result.FailedToLeaveConversation -> {
+                    if (result.eligibleMembers.isEmpty()) {
+                        PromoteAdminAction.FailedToLeaveConversation
+                    } else {
+                        selectedUserId.value = null
+                        eligibleMemberIds.value = result.eligibleMembers.toSet()
+                        PromoteAdminAction.FailedToLeaveConversation
+                    }
+                }
+            }
+
+            sendAction(action)
+
+            _state.update { it.copy(isLoading = false) }
+        }
     }
 
     private fun filter(members: List<PromoteAdminMemberItem>, query: String): List<PromoteAdminMemberItem> =
@@ -93,6 +142,14 @@ class PromoteAdminViewModel @Inject constructor(
                         it.handle.contains(normalized, ignoreCase = true)
             }
         }
+
+    private fun List<PromoteAdminMemberItem>.filterByEligibleIds(eligibleIds: Set<UserId>): List<PromoteAdminMemberItem> =
+        if (eligibleIds.isEmpty()) this else filter { it.userId in eligibleIds }
+
+    private fun String.toUserId() = UserId(
+        value = substringBeforeLast(USER_ID_DOMAIN_SEPARATOR),
+        domain = substringAfterLast(USER_ID_DOMAIN_SEPARATOR),
+    )
 
     private fun MemberDetails.toMemberItem() = PromoteAdminMemberItem(
         userId = user.id,
@@ -107,7 +164,14 @@ data class PromoteAdminState(
     val filteredMembers: List<PromoteAdminMemberItem> = emptyList(),
     val selectedUserId: UserId? = null,
     val isButtonEnabled: Boolean = false,
+    val isLoading: Boolean = false,
 )
+
+sealed interface PromoteAdminAction {
+    data object Success : PromoteAdminAction
+    data object FailedToPromoteUser : PromoteAdminAction
+    data object FailedToLeaveConversation : PromoteAdminAction
+}
 
 data class PromoteAdminMemberItem(
     val userId: UserId,

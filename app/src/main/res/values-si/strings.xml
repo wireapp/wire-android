@@ -36,7 +36,6 @@
     <string name="label_learn_more">තව දැනගන්න</string>
     <string name="label_removing">ඉවත් කෙරෙමින්…</string>
     <string name="label_logging_in">පිවිසෙමින්…</string>
-    <string name="label_user_deleted">මකා ඇත</string>
     <string name="label_try_again">නැවත උත්සාහ කරන්න</string>
     <string name="label_done">කළා</string>
     <string name="label_message_sent_failure">සම්බන්ධතා ගැටලු නිසා පණිවිඩය යැවීමට නොහැකි විය.</string>
@@ -65,7 +64,6 @@
     <string name="label_open_asset_externally">අරින්න</string>
     <string name="label_show">පෙන්වන්න</string>
     <string name="label_show_all">සියල්ල පෙන්වන්න</string>
-    <string name="label_show_less">අඩුවෙන් පෙන්වන්න</string>
     <string name="label_show_details">විස්තර පෙන්වන්න</string>
     <string name="label_hide_details">විස්තර සඟවන්න</string>
     <string name="label_message_status_edited_with_date">%s දී සංශෝධිතයි</string>
@@ -76,7 +74,6 @@
     <string name="folder_label_access">ප්‍රවේශය</string>
     <string name="folder_label_protocol_details">කෙටුම්පතෙහි විස්තර</string>
     <string name="folder_label_messaging">පණිවිඩ</string>
-    <string name="label_user_blocked">අවහිර කර ඇත</string>
     <string name="label_and">සහ</string>
     <string name="label_retry">නැවත</string>
     <string name="label_draft">*කටුපිටපත*</string>
@@ -101,7 +98,6 @@
     <string name="content_description_conversation_back_btn">සංවාද ලැයිස්තුවට ආපසු යන්න</string>
     <string name="content_description_conversation_open_details_label">සංවාද විස්තර විවෘත කරන්න</string>
     <string name="content_description_send_button">යවන්න</string>
-    <string name="content_description_timed_message_button">ඉබේ මැකෙන පණිවිඩ බොත්තම</string>
     <string name="content_description_menu_button">ප්‍රධාන යාත්‍රණය</string>
     <string name="content_description_drop_down_icon">වට්ටෝරු ඊතලය</string>
     <string name="content_description_remove_devices_screen_device_item_icon">උපාංගය</string>
@@ -109,8 +105,6 @@
     <string name="content_description_avatar_preview">පැතිකඩ රූපයෙහි පෙරදසුන</string>
     <string name="content_description_choose_from_gallery">එකතුවෙන් තෝරන්න</string>
     <string name="content_description_take_a_picture">ඡායාරූපයක් ගන්න</string>
-    <string name="content_description_right_arrow">දකුණු ඊතලය</string>
-    <string name="content_description_left_arrow">ආපසු යන්න</string>
     <string name="content_description_mention_icon">සැඳහුම නිරූපකය</string>
     <string name="content_description_open_message_details">පණිවිඩයේ විස්තර අරින්න</string>
     <string name="content_description_copy_the_message">පණිවිඩයේ පිටපතක්</string>
@@ -118,7 +112,6 @@
     <string name="content_description_delete_the_message">පණිවිඩය මකන්න</string>
     <string name="content_description_edit_the_message">පණිවිඩය සංස්කරණය</string>
     <string name="content_description_more_options">තව විකල්ප</string>
-    <string name="content_description_add_contact">සබඳතාවය යොදන්න</string>
     <string name="content_description_image_message">ඡායාරූප පණිවිඩයකි</string>
     <string name="content_description_pause_audio">ශ්‍රව්‍ය විරාම කරන්න</string>
     <string name="content_description_play_audio">ශ්‍රව්‍ය වාදනය කරන්න</string>
@@ -147,7 +140,6 @@
     <string name="content_description_calling_call_unmuted">ඇමතුම නොනිහඬයි</string>
     <string name="content_description_calling_call_paused_camera">රූගතය විරාමයක</string>
     <string name="content_description_more_emojis">තව ඉමෝජි</string>
-    <string name="content_description_self_deletion_selector_button">ඉබේ මැකෙන ප්‍රකාරය, බොත්තම</string>
     <string name="content_description_message_sending_status">පණවිඩය යවන තත්‍වය</string>
     <string name="content_description_message_sent_status">යැවූ පණිවිඩයේ තත්‍වය</string>
     <string name="content_description_message_error_status">පණවිඩයේ දෝෂ තත්‍වය</string>
@@ -175,28 +167,18 @@
     <string name="content_description_search_text_in_conversation_btn">කෙටි පණිවිඩ සොයන්න</string>
     <string name="content_description_see_media_in_conversation_btn">පින්තූර සහ ගොනු පිළිබඳ දළ විශ්ලේෂණය විවෘත කරන්න</string>
     <string name="content_description_add_participants_close">සහභාගිවන්නන් එක් කිරීමේ දසුන වසන්න</string>
-    <string name="content_description_add_participants_search_field">නම හෝ පරිශීලක නාමය අනුව පුද්ගලයින් සොයන්න</string>
-    <string name="content_description_add_participants_back_btn">සහභාගිවන්නන්ගේ දසුන එක් කිරීමට ආපසු යන්න</string>
     <string name="content_description_home_profile_btn">ඔබගේ පැතිකඩ</string>
     <string name="content_description_home_profile_btn_with_notification">ඔබගේ පැතිකඩ, නොකියවූ ඉඟියක්.</string>
     <string name="content_description_open_label">විවෘත</string>
     <string name="content_description_join_call_label">ඇමතුමකට සම්බන්ධ වන්න</string>
     <string name="content_description_share_label">බෙදාගන්න</string>
     <string name="content_description_edit_label">සංස්කරණය කරන්න</string>
-    <string name="content_description_select_label">තෝරන්න</string>
-    <string name="content_description_unselect_label">තේරීම ඉවත් කරන්න</string>
     <string name="content_description_selected_label">තෝරා ගන්නා ලදී</string>
     <string name="content_description_toggle_setting_label">ටොගල් සැකසුම</string>
     <string name="content_description_edit_guests_option_back_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
     <string name="content_description_edit_self_delete_back_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
     <string name="content_description_accept_or_ignore_connection_label">ඉල්ලීම පිළිගන්න හෝ නොසලකා හරින්න</string>
-    <string name="content_description_open_user_profile_label">පැතිකඩ විවෘත කරන්න</string>
-    <string name="content_description_open_conversation_label">විවෘත සංවාදය</string>
-    <string name="content_description_change_it_label">එය වෙනස් කරන්න</string>
-    <string name="content_description_open_link_label">සබැඳිය විවෘත කරන්න</string>
     <string name="content_description_alert">අනතුරු ඇඟවීම</string>
-    <string name="content_description_drop_down">පතන</string>
-    <string name="content_description_close_dropdown">පතන ලැයිස්තුව වසන්න</string>
     <string name="content_description_open_notification_settings_label">දැනුම්දීම් සැකසුම් විවෘත කරන්න</string>
     <string name="content_description_new_conversation_close_btn">නව සංවාද දසුන වසන්න</string>
     <string name="content_description_new_conversation_back_btn">නව සංවාද දසුනට ආපසු යන්න</string>
@@ -502,7 +484,6 @@
     <string name="member_name_you_label_titlecase">ඔබ</string>
     <string name="member_name_you_label_lowercase">ඔබ</string>
     <string name="label_add_participants">සහභාගීන් යොදන්න</string>
-    <string name="username_unavailable_label">නම නොතිබේ</string>
     <string name="temporary_user_label">%s ඉතිරියි</string>
     <string name="conversation_unavailable_label">සංවාද නම නොමැත.</string>
     <string name="conversation_details_title">සංවාදයේ විස්තර</string>
@@ -532,7 +513,6 @@
     <string name="leave_conversation_dialog_delete_fully_check">මගේ සියලු උපාංගවල සංවාදය සහ එහි අන්තර්ගතය මා වෙනුවෙන් මකන්න.</string>
     <string name="delete_conversation_conversation_menu_item">සංවාදය මකන්න…</string>
     <string name="delete_conversation_conversation_dialog_title">“%s” ඉවත් කරන්නද?</string>
-    <string name="delete_conversation_conversation_dialog_description">ඔබගේ සියලු උපාංගවල සංවාද ලැයිස්තුවෙන් සංවාදය ඉවත් කරනු ලැබේ. ඔබට තවදුරටත් සංවාදයට සහ එහි අන්තර්ගතයට ප්‍රවේශ වීමට නොහැකි වනු ඇත.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">මට \"%s\" සංවාදය මකන්නද?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">ඔබට සංවාදයට සහ එහි අන්තර්ගතයට ප්‍රවේශ වීමට නොහැකි වනු ඇත. එය ප්‍රතිසාධනය කිරීමට විකල්පයක් නොමැත.</string>
     <string name="delete_conversation_locally_delete_for_me_label">මා වෙනුවෙන් මකන්න</string>
@@ -583,7 +563,6 @@
     <string name="user_profile_conversation_role">භූමිකාව</string>
     <string name="user_profile_role_in_conversation">\"%s\" චිත්‍රපටයේ භූමිකාව</string>
     <string name="user_profile_role_change_error">භූමිකාව වෙනස් කිරීමට තැත් කිරීමේ දී දෝෂයක් සිදු විය. ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කර නැවත උත්සාහ කරන්න</string>
-    <string name="user_profile_unblock_user">අනවහිර කරන්න</string>
     <string name="user_profile_conversation_remove_button">සංවාදයෙන් ඉවත් කරන්න</string>
     <string name="user_profile_logging_out_progress">නික්මෙමින්...</string>
     <string name="user_profile_qr_code">QR කේතය විවෘත කරන්න</string>
@@ -836,8 +815,6 @@
     <string name="label_conversation_pictures">ඡායාරූප</string>
     <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
     <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
-    <!-- Search Contact-->
-    <string name="label_contacts">සම්බන්ධතා</string>
     <string name="label_new_group">නව සමූහයක්</string>
     <string name="label_new_channel">නව නාලිකාව</string>
     <string name="label_create_new_group">නව කණ්ඩායම</string>
@@ -854,13 +831,7 @@
     <string name="label_search_channels_empty_title">මෙම කණ්ඩායම සඳහා තවමත් පොදු නාලිකා නිර්මාණය කර නොමැත.</string>
     <string name="label_learn_more_about_channels">නාලිකා ගැන තව දැනගන්න</string>
     <string name="label_new_conversation">නව සංවාදය</string>
-    <string name="label_search_people">පුද්ගලයින් සොයන්න</string>
-    <string name="label_public_wire">පොදු වයර්</string>
-    <string name="label_search_people_instruction">සරල නමින් හෝ @නමින් පුද්ගලයින් සොයාගන්න</string>
-    <string name="label_learn_more_searching_user">තව දැනගන්න</string>
-    <string name="label_no_results_found">ප්‍රතිඵල හමු නොවිණි. නැවත උත්සාහ කරන්න.</string>
     <string name="label_general_error">යමක් වැරදී ඇත</string>
-    <string name="label_add_member_people">පුද්ගලයින්</string>
     <string name="label_empty_contacts_list">සංවාදයක් ඇරඹීමට නමින් හෝ පරිශ්‍රීලක නාමයෙන් සොයන්න 🔍</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">යමක් වැරදී ඇත</string>
@@ -893,7 +864,6 @@
     <string name="leave_conversation_error">සංවාදයෙන් ඉවත් වන අතරතුර දෝෂයක් ඇති විය.</string>
     <string name="joined_conversation_success">ඔබ සංවාදයට එක් විය.</string>
     <string name="left_conversation_success">ඔබ සංවාදයෙන් ඉවත් විය.</string>
-    <string name="error_unblocking_user">පරිශ්‍රීලකයා අනවහිර කිරීමට නොහැකි විය</string>
     <string name="delete_conversation_conversation_error">සංවාදය මකා දැමීමේදී දෝෂයක් ඇති විය.</string>
     <string name="error_limit_number_assets_imported_exceeded">එකවර ගොනු 20 ක් පමණක් යැවීමට හැකිය</string>
     <!-- Archiving -->
@@ -910,8 +880,6 @@
     <string name="error_adding_to_favorite">“%s” ප්‍රියතමයන් වෙත එක් කළ නොහැකි විය.</string>
     <string name="error_removing_from_favorite">“%s” ප්‍රියතමයන්ගෙන් ඉවත් කළ නොහැකි විය.</string>
     <!-- Animation label -->
-    <string name="label_open_conversation">සංවාදය අරින්න</string>
-    <string name="label_start_conversation">සංවාදය අරඹන්න</string>
     <string name="email_label">වි-තැපෑල</string>
     <string name="phone_label">දුරකථනය</string>
     <!-- Notifications -->
@@ -934,7 +902,6 @@
     <string name="notification_ongoing_call_content">පවතින ඇමතුම…</string>
     <string name="notification_group_channel_call_content">%s අමතමින්...</string>
     <string name="notification_call_default_caller_name">යමෙක්</string>
-    <string name="notification_call_default_group_name">ලැබෙන සමූහ ඇමතුම</string>
     <string name="notification_outgoing_call_tap_to_return">ඇමතුමට යාමට ඔබන්න - අමතමින්...</string>
     <string name="notification_audio_message_body">ශ්‍රව්‍ය පණිවිඩය</string>
     <string name="notification_deleting_conversation">…සංවාදය මකා දමමින්</string>
@@ -982,33 +949,15 @@
     <string name="connectivity_status_bar_return_to_outgoing_call">%1$s අමතමින්…</string>
     <string name="connectivity_status_bar_connecting">පණිවිඩ විසංකේතනය වෙමින්</string>
     <string name="connectivity_status_bar_waiting_for_network">ජාලය සඳහා රැඳෙමින්</string>
-    <!-- Connections -->
-    <string name="connection_label_connect">සබඳින්න</string>
-    <string name="connection_label_cancel_request">ඉල්ලීම ඉවතලන්න</string>
     <string name="connection_label_member_not_belongs_to_team">මෙම පරිශ්‍රීලකයා ඔබගේ කණ්ඩායමට අයත් නොවේ. ඔබගේ සම්බන්ධතා ඉල්ලීම පිළිගන්නේ නම්, සබඳතාවක් බවට පත්වනු ඇත</string>
     <string name="connection_label_member_not_conneted">ඔබගේ සම්බන්ධතා ඉල්ලීම පිළිගත් විට, මෙම සබඳතාව සමඟ සෘජුව සන්නිවේදනයට හැකිය.</string>
-    <string name="connection_request_sent">සම්බන්ධතා ඉල්ලීම යැවිණි</string>
-    <string name="connection_request_canceled">සම්බන්ධතා ඉල්ලීම ඉවතලිණි</string>
-    <string name="connection_request_ignored">ඔබ %1$sගේ ඉල්ලීම නොසලකා හැර ඇත</string>
-    <string name="connection_request_accepted">සම්බන්ධතා ඉල්ලීම පිළිගැනිණි</string>
-    <string name="connection_request_sent_error">සම්බන්ධතා ඉල්ලීම යැවීමට නොහැකි විය</string>
-    <string name="connection_request_sent_federation_denied_error">%1$s සහ ඔබගේ සේවාදායක එකිනෙක ඒකාබද්ධ නොවන බැවින් ඔබට ඔවුන් සමඟ සම්බන්ධ වීමට නොහැකිය.</string>
-    <string name="connection_request_accept_error">සම්බන්ධතා ඉල්ලීම පිළිගැනීමට නොහැකි විය</string>
-    <string name="connection_request_ignore_error">සම්බන්ධතා ඉල්ලීම නොසැලකීමට නොහැකි විය</string>
-    <string name="connection_request_cancel_error">සම්බන්ධතා ඉල්ලීම ඉවතලීමට නොහැකි විය</string>
     <string name="connection_pending_message">සබැඳීමට වුවමනාය</string>
-    <string name="connection_pending_label">පොරොත්තු</string>
     <string name="connection_label_user_wants_to_conect">මෙම පරිශ්‍රීලකයාට සම්බන්ධ වීමට වුවමනාය.</string>
     <string name="connection_label_accepting_request_description">ඔබ ඔවුන්ගේ ඉල්ලීම පිළිගන්නේ නම්, ඔවුන් සබඳතාවක් ලෙස එකතු කෙරෙන අතර ඔබ දෙදෙනාට සෘජුව සන්නිවේදනයට හැකිය.</string>
-    <string name="connection_label_accept">පිළිගන්න</string>
-    <string name="connection_label_ignore">නොසලකන්න</string>
     <string name="connection_label_send_unverified_warning">සම්බන්ධ වීමට පෙර %sගේ අනන්‍යතාවය නිශ්චිත කරගන්න.</string>
     <string name="connection_label_received_unverified_warning">සම්බන්ධතා ඉල්ලීම පිළිගැනීමට පෙර පුද්ගලයාගේ අනන්‍යතාවය සත්‍යාපනය කරගන්න.</string>
     <string name="connection_label_user_not_found_warning_title">වයර්ට මේ පුද්ගලයාව හොයාගන්න බෑ.</string>
     <string name="connection_label_user_not_found_warning_description">ඔබට මෙම ගිණුම සමඟ අවසරය නොමැති විය හැකිය, නැතහොත් පුද්ගලයා Wire හි නොමැති විය හැකිය.</string>
-    <!-- Missing keyPackages dialog -->
-    <string name="missing_keypackage_dialog_title">සංවාදය ඇරඹීමට නොහැකිය</string>
-    <string name="missing_keypackage_dialog_body">ඔබට දැන් %1$s සමඟ සංවාදය ආරම්භ කළ නොහැක. %1$s හට Wire විවෘත කිරීමට හෝ පළමුව නැවත ලොග් වීමට අවශ්‍ය වේ. කරුණාකර පසුව නැවත උත්සාහ කරන්න.</string>
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">මාධ්‍ය එකතුව</string>
     <string name="media_gallery_on_image_downloaded">බාගැනීමේ බහාලුමට සුරැකිණි</string>
@@ -1020,7 +969,6 @@
     </string>
     <string name="asset_download_dialog_default_title">ගොනුව බාගන්න</string>
     <string name="empty_conversation_label">නම් නොකළ සංවාදය</string>
-    <string name="label_show_more">තව පෙන්වන්න</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">රූප ලැබීම වළක්වා ඇත</string>
     <string name="prohibited_videos_message">දෘශ්‍යක ලැබීම වළක්වා ඇත</string>
@@ -1029,9 +977,6 @@
     <string name="team_settings_changed">කණ්ඩායමේ සැකසුම් සංශෝධිතයි</string>
     <string name="sharing_files_enabled">ඕනෑම වර්ගයක ගොනු බෙදාගැනීම සහ ලැබීම සබල කර ඇත</string>
     <string name="sharing_files_disabled">ඕනෑම වර්ගයක ගොනු බෙදාගැනීම සහ ලැබීම අබල කර ඇත</string>
-    <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">" (පෙරනිමි)"</string>
-    <string name="wire_dropdown_placeholder">අථකයක් තෝරන්න</string>
     <string name="change">සංශෝධනය</string>
     <string name="allow_guests">අමුත්තන්ට ඉඩදෙන්න</string>
     <string name="allow_guest_switch_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කරන්න. මෙය පසුව වෙනස් කිරීමට හැකිය.</string>
@@ -1123,10 +1068,6 @@
     <string name="current_device_label">වත්මන් උපාංගය</string>
     <string name="other_devices_label">වෙනත් උපාංග</string>
     <string name="devices_loading_error">උපාංග ලබා ගැනීමට උත්සාහ කිරීමේදී දෝෂයක් ඇති විය. කරුණාකර ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.</string>
-    <!--unblock user dialog -->
-    <string name="unblock_user_dialog_title">අනවහිර කරන්නද?</string>
-    <string name="unblock_user_dialog_body">%1$s හට ඔබ ඇමතීමට සහ ඔබව සමූහ සංවාද වලට එක් කිරීමට හැකි වනු ඇත. ඔබට ඔවුන් සමඟ සෘජු සංවාදයකට ප්‍රවේශ වීමට හැකිය.</string>
-    <string name="unblock_user_dialog_confirm_button">අනවහිර</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">ගිණුමක් සක්‍රියයි</item>
@@ -1490,7 +1431,6 @@
     <string name="legal_hold_requested_dialog_enter_password">තහවුරු කිරීමට මුරපදය යොදන්න.</string>
     <string name="legal_hold_requested_dialog_accept_button">පිළිගන්න</string>
     <string name="legal_hold_requested_dialog_not_now_button">දැන් නොවේ</string>
-    <string name="legal_hold_learn_more_button">නෛතික රැඳවුම ගැන තව දැනගන්න</string>
     <string name="legal_hold_deactivated_dialog_title">නෛතික රැඳවුම අක්‍රිය කෙරිණි</string>
     <string name="legal_hold_deactivated_dialog_description">මින් මතු පණිවිඩ පටිගත නොවේ.</string>
     <string name="legal_hold_subject_dialog_title">%1$s දැන් නෛතික රැඳවුමට යටත් වේ</string>
@@ -1501,8 +1441,6 @@
     <string name="legal_hold_subject_dialog_message_title">සංවාදය දැන් නෛතික රැඳවුමට යටත් වේ</string>
     <string name="legal_hold_subject_dialog_description_message">තවමත් ඔබගේ පණිවිඩය යැවීමට වුවමනාද?</string>
     <string name="legal_hold_subject_dialog_send_anyway_button">කෙසේ වුවත් යවන්න</string>
-    <string name="legal_hold_connection_failed_dialog_title">සබැඳීමට නොහැකිය</string>
-    <string name="legal_hold_connection_failed_dialog_description">නෛතික රැඳවුම නිසා මෙම පරිශ්‍රීලකයාට සම්බන්ධ වීමට නොහැකිය.</string>
     <string name="legal_hold_subject_to">%1$s සඳහා යටත් වේ.</string>
     <string name="legal_hold_label">නෛතික රැඳවුම</string>
     <string name="legal_hold_is_active_label">නෛතික රැඳවුම ක්‍රියාත්මකයි</string>
@@ -1523,10 +1461,6 @@
     <string name="sure_about_calling_in_degraded_dialog_title">සංවාදය තවදුරටත් සත්‍යාපිත නොවේ</string>
     <string name="sure_about_calling_in_degraded_dialog_body">අවම වශයෙන් එක් සහභාගියෙක් නව උපාංගයක් භාවිතා කරයි හෝ වලංගු නොවන සහතිකයක් ඇත.\n\nඔබට තවමත් ඇමතීමට වුවමනා ද?</string>
     <string name="sure_about_calling_in_degraded_dialog_positiv_button">කෙසේ වුවත් අමතන්න</string>
-    <!-- Go to app settings permissions dialog -->
-    <string name="app_permission_dialog_title">යෙදුමේ අවසර</string>
-    <string name="app_permission_dialog_settings_positive_button">සැකසුම්</string>
-    <string name="app_permission_dialog_settings_negative_button">දැන් නොවේ</string>
     <string name="notifications_permission_dialog_description">යෙදුමෙන් පූර්ණ ප්‍රයෝජන ගැනීමට, පණිවිඩ ලබා ගැනීමට සහ දුරකථන ඇමතුම්වලට පිළිතුරු දීමට, කරුණාකර Wire හට දැනුම්දීම් පෙන්වීමට ඉඩ දෙන්න.</string>
     <string name="call_permission_dialog_description">ඇමතුමක් ගැනීමට වයර් වෙත ඔබගේ උපාංගයේ සැකසුම් හරහා ශබ්දවාහිනියට ප්‍රවේශ වීමට ඉඩ දෙන්න.</string>
     <string name="record_video_permission_dialog_description">දෘශ්‍ය පටිගතයට උපාංගයේ සැකසුම් වලින් වයර් වෙත ඔබගේ රූගතයට ප්‍රවේශ වීමට ඉඩ දෙන්න.</string>
@@ -1545,10 +1479,6 @@
     <!-- Asset Preview -->
     <string name="remove_asset_description">වත්කම ඉවත් කරන්න</string>
     <string name="asset_attention_description">වත්කම් අවධානය</string>
-    <!-- No Activity Errors -->
-    <string name="no_camera_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට කැමරා යෙදුමක් හමු නොවීය.</string>
-    <string name="no_gallery_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට ගැලරි යෙදුමක් හමු නොවීය.</string>
-    <string name="no_file_manager_app">මෙම ක්‍රියාව සම්පූර්ණ කිරීමට ගොනු කළමනාකරු යෙදුමක් හමු නොවීය.</string>
     <string name="restricted_asset_error_toast_message">සමාගම් සීමාවන් නිසා ලිපිගොනු යැවීම තහනම්ය.</string>
     <!--    Ping dialog-->
     <string name="ping_confirm_sending_title_dialog">පිං එකක් යවන්න</string>

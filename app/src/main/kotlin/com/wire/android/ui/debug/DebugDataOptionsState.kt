@@ -19,13 +19,13 @@ package com.wire.android.ui.debug
 
 data class DebugDataOptionsState(
     val isEventProcessingDisabled: Boolean = false,
-    val isAsyncNotificationsEnabled: Boolean = false,
     val debugId: String = "null",
     val commitish: String = "null",
     val certificate: String = "null",
     val showCertificate: Boolean = false,
     val startGettingE2EICertificate: Boolean = false,
     val e2eiCertificateExpirationSeconds: Long = 360L,
+    val forceCRLExpirationAfterOneMinute: Boolean = false,
     val analyticsTrackingId: String = "null",
     val isFederationEnabled: Boolean = false,
     val currentApiVersion: String = "null",

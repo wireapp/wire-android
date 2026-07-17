@@ -56,6 +56,7 @@ fun WireTabRow(
     selectedTabIndex: Int,
     onTabChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    tabModifiers: List<Modifier> = emptyList(),
     containerColor: Color = MaterialTheme.colorScheme.background,
     divider: @Composable () -> Unit = @Composable {
         HorizontalDivider(
@@ -82,7 +83,8 @@ fun WireTabRow(
             val selectText = stringResource(id = R.string.content_description_select_label)
 
             Tab(
-                modifier = Modifier.semantics { onClick(selectText) { false } },
+                modifier = tabModifiers.getOrElse(index) { Modifier }
+                    .semantics { onClick(selectText) { false } },
                 enabled = true,
                 text = {
                     Text(

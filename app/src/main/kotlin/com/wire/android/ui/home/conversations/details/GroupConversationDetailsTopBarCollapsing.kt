@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,11 +36,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.maxTitleLines
 import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
@@ -65,12 +69,15 @@ fun GroupConversationDetailsTopBarCollapsing(
     onLegalHoldLearnMoreClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val maxTitleLines = maxTitleLines()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .focusGroup()
     ) {
         Box(contentAlignment = Alignment.Center) {
             GroupConversationAvatar(
@@ -101,7 +108,7 @@ fun GroupConversationDetailsTopBarCollapsing(
                 Text(
                     text = title.ifBlank { UIText.StringResource(R.string.conversation_unavailable_label).asString() },
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
+                    maxLines = maxTitleLines,
                     style = MaterialTheme.wireTypography.body02,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
@@ -109,6 +116,7 @@ fun GroupConversationDetailsTopBarCollapsing(
                             horizontal = dimensions().spacing16x,
                             vertical = dimensions().spacing4x
                         )
+                        .semantics { heading() }
                 )
                 Text(
                     text = stringResource(

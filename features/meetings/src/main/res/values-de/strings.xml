@@ -19,13 +19,16 @@
 <resources>
     <string name="all_meetings_tab_next">NÄCHSTE</string>
     <string name="all_meetings_tab_past">LETZTE</string>
+    <string name="meeting_repeating_never">Niemals</string>
     <string name="meeting_repeating_daily">Täglich</string>
     <string name="meeting_repeating_weekly">Wöchentlich</string>
     <string name="meeting_repeating_biweekly">Alle 2 Wochen</string>
     <string name="meeting_repeating_monthly">Monatlich</string>
     <string name="meeting_repeating_annually">Jährlich</string>
     <string name="meeting_started_at">Begann %1$s</string>
+    <string name="content_description_more_menu_icon">Weitere Optionen öffnen</string>
     <string name="meeting_join_button">Beitreten</string>
+    <string name="meeting_attending">Anwesend</string>
     <string name="meeting_starting_in">Beginnt in %1$s</string>
     <string name="meeting_button_show_all">Alle anzeigen</string>
     <string name="meeting_date_header_today">Heute (%1$s)</string>
@@ -45,4 +48,20 @@
     <string name="new_meeting_title">Neues Meeting</string>
     <string name="new_meeting_now">Meeting starten</string>
     <string name="new_meeting_schedule">Meeting planen</string>
+    <string name="new_meeting_action_start">Meeting starten</string>
+    <string name="new_meeting_action_schedule">Planen</string>
+    <string name="new_meeting_title_input_label">Titel</string>
+    <string name="new_meeting_title_input_placeholder">Meeting-Titel eingeben</string>
+    <string name="new_meeting_starts_input_label">Beginnt</string>
+    <string name="new_meeting_start_date_input_placeholder">Startdatum auswählen</string>
+    <string name="new_meeting_start_time_input_placeholder">Startzeit auswählen</string>
+    <string name="new_meeting_ends_input_label">Endet</string>
+    <string name="new_meeting_end_date_input_placeholder">Enddatum auswählen</string>
+    <string name="new_meeting_end_time_input_placeholder">Endzeit auswählen</string>
+    <string name="new_meeting_start_in_past_error">Startzeit darf nicht in der Vergangenheit liegen</string>
+    <string name="new_meeting_end_in_past_error">Endzeit kann nicht in der Vergangenheit sein</string>
+    <string name="new_meeting_end_before_start_error">Die Endzeit darf nicht vor der Startzeit liegen</string>
+    <string name="new_meeting_repeats_input_label">Wiederholt sich</string>
+    <string name="content_description_new_meeting_repeating_options">Wiederholungsoption auswählen</string>
+    <string name="new_meeting_allow_guests_label">Gäste zulassen</string>
 </resources>

@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.CurrentAccount
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.calling.incoming.IncomingCallState.WaitingUnlockState
 import com.wire.android.ui.common.ActionsViewModel
@@ -35,10 +34,6 @@ import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -49,10 +44,9 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
-@HiltViewModel(assistedFactory = IncomingCallViewModel.Factory::class)
-class IncomingCallViewModel @AssistedInject constructor(
-    @Assisted val conversationId: ConversationId,
-    @CurrentAccount val currentAccount: UserId,
+class IncomingCallViewModel(
+    val conversationId: ConversationId,
+    val currentAccount: UserId,
     private var callNotificationManager: CallNotificationManager,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
@@ -202,11 +196,6 @@ class IncomingCallViewModel @AssistedInject constructor(
 
     companion object {
         const val DELAY_END_CALL = 200L
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(conversationId: ConversationId): IncomingCallViewModel
     }
 }
 

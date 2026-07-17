@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 import kotlin.math.max
 
 class GetAssetMessagesFromConversationUseCase @Inject constructor(

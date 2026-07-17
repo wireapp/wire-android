@@ -37,7 +37,6 @@ import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
-import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Activity that handles starting call screens, Incoming and Outgoing
@@ -49,7 +48,6 @@ import dagger.hilt.android.AndroidEntryPoint
  * @see OutgoingCallScreen
  */
 @OptIn(ExperimentalComposeUiApi::class)
-@AndroidEntryPoint
 class StartingCallActivity : CallActivity() {
     private var conversationId: String? by mutableStateOf(null)
     private var userId: String? by mutableStateOf(null)

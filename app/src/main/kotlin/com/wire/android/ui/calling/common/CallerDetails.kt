@@ -35,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
@@ -57,7 +59,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.call.ConversationTypeForCall
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -99,7 +101,7 @@ fun CallerDetails(
         if (isCbrEnabled) {
             Text(
                 text = stringResource(id = R.string.calling_constant_bit_rate_indication).uppercase(
-                    Locale.getDefault()
+                    LocalLocale.current.platformLocale
                 ),
                 color = colorsScheme().secondaryText,
                 style = MaterialTheme.wireTypography.title03,
@@ -114,6 +116,7 @@ fun CallerDetails(
                 },
                 color = colorsScheme().onBackground,
                 style = MaterialTheme.wireTypography.title01,
+                modifier = Modifier.semantics { heading() }
             )
 
             ConversationVerificationIcons(

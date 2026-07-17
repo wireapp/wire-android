@@ -36,7 +36,7 @@ fun MeetingOccurrence.toMeetingItem(time: Instant, ongoingCallStatus: MeetingIte
     meetingId = meetingId,
     conversationId = conversationId,
     belongingType = toBelongingType(),
-    repeatingInterval = recurrence.toRepeatingInterval(),
+    repeatingInterval = recurrence?.let { MeetingItem.RepeatingInterval(it.frequency, it.interval.toInt()) },
     title = title,
     status = when {
         startTime > time && endTime != null -> Status.Scheduled(startTime = startTime, endTime = endTime!!)
@@ -71,11 +71,6 @@ private fun MeetingOccurrence.toBelongingType(): MeetingItem.BelongingType = whe
         username = conversationName,
         avatar = UserAvatarData(asset = conversationType.previewPicture?.let { ImageAsset.UserAvatarAsset(it) }),
     )
-}
-
-private fun MeetingOccurrence.Recurrence?.toRepeatingInterval(): MeetingItem.RepeatingInterval = when (this) {
-    null -> MeetingItem.RepeatingInterval.Never
-    else -> MeetingItem.RepeatingInterval.Every(frequency, interval.toInt())
 }
 
 fun Call.toOngoingCallStatus() = when (status) {

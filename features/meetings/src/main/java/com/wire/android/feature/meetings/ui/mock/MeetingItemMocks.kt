@@ -42,7 +42,7 @@ val CurrentTimeProvider.endedPrivateChannelMeeting
         conversationId = ConversationId("cid1", "domain"),
         title = "Ended Private Channel Meeting",
         belongingType = BelongingType.Channel(name = "Private Channel Name", isPrivateChannel = true),
-        repeatingInterval = MeetingItem.RepeatingInterval.Never,
+        repeatingInterval = null,
         selfRole = MeetingItem.SelfRole.Creator,
         status = Status.Ended(
             startTime = currentTime().fullMinutes().minus(1.days).minus(120.minutes),
@@ -57,7 +57,7 @@ val CurrentTimeProvider.ongoingAttendingOneOnOneMeeting
         conversationId = ConversationId("cid2", "domain"),
         title = "Ongoing Attending 1:1 Meeting",
         belongingType = BelongingType.OneOnOne(username = "John Doe", avatar = UserAvatarData()),
-        repeatingInterval = MeetingItem.RepeatingInterval.Never,
+        repeatingInterval = null,
         selfRole = MeetingItem.SelfRole.Creator,
         status = Status.Ongoing(
             startTime = currentTime().fullMinutes().minus(15.minutes),
@@ -85,7 +85,7 @@ val CurrentTimeProvider.grouplessOngoingMeeting
         meetingId = MeetingId("id3", "domain"),
         conversationId = ConversationId("cid3", "domain"),
         title = "Groupless Ongoing Meeting",
-        repeatingInterval = MeetingItem.RepeatingInterval.Never,
+        repeatingInterval = null,
         belongingType = BelongingType.Groupless(avatars = avatars, limit = 5),
         selfRole = MeetingItem.SelfRole.Creator,
         status = Status.Ongoing(
@@ -100,7 +100,7 @@ val CurrentTimeProvider.scheduledChannelMeetingStartingSoon
         meetingId = MeetingId("id4", "domain"),
         conversationId = ConversationId("cid4", "domain"),
         title = "Scheduled Channel Meeting Starting Soon",
-        repeatingInterval = MeetingItem.RepeatingInterval.Never,
+        repeatingInterval = null,
         belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = false),
         selfRole = MeetingItem.SelfRole.Creator,
         status = Status.Scheduled(
@@ -132,7 +132,7 @@ val CurrentTimeProvider.pastMeetingMocks
             meetingId = MeetingId("past1", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Groupless Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Never,
+            repeatingInterval = null,
             belongingType = BelongingType.Groupless(avatars = avatars, limit = 5),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Ended(
@@ -145,7 +145,7 @@ val CurrentTimeProvider.pastMeetingMocks
             meetingId = MeetingId("past2", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Channel Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Never,
+            repeatingInterval = null,
             belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = false),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Ended(
@@ -158,7 +158,7 @@ val CurrentTimeProvider.pastMeetingMocks
             meetingId = MeetingId("past3", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Ended 1:1 Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Never,
+            repeatingInterval = null,
             belongingType = BelongingType.OneOnOne(username = "John Doe", avatar = UserAvatarData()),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Ended(
@@ -171,7 +171,7 @@ val CurrentTimeProvider.pastMeetingMocks
             meetingId = MeetingId("past4", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Group Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Never,
+            repeatingInterval = null,
             belongingType = BelongingType.Group(name = "Group Name"),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Ended(
@@ -184,7 +184,7 @@ val CurrentTimeProvider.pastMeetingMocks
             meetingId = MeetingId("past5", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Channel Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Never,
+            repeatingInterval = null,
             belongingType = BelongingType.Channel(name = "Channel Name", isPrivateChannel = true),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Ended(
@@ -197,7 +197,7 @@ val CurrentTimeProvider.pastMeetingMocks
             meetingId = MeetingId("past6", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Ended Groupless Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Never,
+            repeatingInterval = null,
             belongingType = BelongingType.Groupless(avatars = avatars.take(2).toPersistentList(), limit = 5),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Scheduled(
@@ -244,7 +244,7 @@ val CurrentTimeProvider.nextMeetingMocks
             meetingId = MeetingId("next4", "domain"),
             conversationId = ConversationId("cid", "domain"),
             title = "Scheduled Groupless Meeting",
-            repeatingInterval = MeetingItem.RepeatingInterval.Never,
+            repeatingInterval = null,
             belongingType = BelongingType.Groupless(avatars = avatars.take(2).toPersistentList(), limit = 5),
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Scheduled(

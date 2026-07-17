@@ -158,7 +158,7 @@ fun NewMeetingContent(
     onCreateClicked: () -> Unit = {},
     onStartTimeChanged: (startTime: Instant) -> Unit = {},
     onEndTimeChanged: (endTime: Instant) -> Unit = {},
-    onRepeatingIntervalChanged: (interval: MeetingItem.RepeatingInterval) -> Unit = {},
+    onRepeatingIntervalChanged: (interval: MeetingItem.RepeatingInterval?) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     WireScaffold(
@@ -211,7 +211,6 @@ fun NewMeetingContent(
                     RepeatingIntervalDropDown(
                         repeatingInterval = state.repeatingInterval,
                         onRepeatingIntervalChanged = onRepeatingIntervalChanged,
-                        items = MeetingItem.RepeatingInterval.Supported,
                     )
                 }
                 VerticalSpace.x24()
@@ -511,23 +510,27 @@ private fun TimeInput(
 
 @Composable
 private fun RepeatingIntervalDropDown(
-    repeatingInterval: MeetingItem.RepeatingInterval,
-    onRepeatingIntervalChanged: (MeetingItem.RepeatingInterval) -> Unit,
-    items: List<MeetingItem.RepeatingInterval> = MeetingItem.RepeatingInterval.Supported,
+    repeatingInterval: MeetingItem.RepeatingInterval?,
+    onRepeatingIntervalChanged: (MeetingItem.RepeatingInterval?) -> Unit,
 ) {
     val resources = LocalResources.current
+    val (keys, labels) = remember(resources) {
+        val map = buildMap {
+            put(null, resources.getString(R.string.meeting_repeating_never))
+            putAll(MeetingItem.RepeatingInterval.Supported.associateWith { it.label.asString(resources) })
+        }
+        map.keys.toImmutableList() to map.values.toImmutableList()
+    }
     WireDropDown(
-        items = remember(resources) {
-            items.map { it.label.asString(resources) }.toImmutableList()
-        },
-        defaultItemIndex = items.indexOf(repeatingInterval),
+        items = labels.toImmutableList(),
+        defaultItemIndex = keys.indexOf(repeatingInterval),
         label = stringResource(R.string.new_meeting_repeats_input_label).uppercase(),
         autoUpdateSelection = false,
         showDefaultTextIndicator = false,
         showSelectionFieldWhenExpanded = false,
         onChangeClickDescription = stringResource(R.string.content_description_new_meeting_repeating_options)
     ) { selectedIndex ->
-        onRepeatingIntervalChanged(items[selectedIndex])
+        onRepeatingIntervalChanged(keys[selectedIndex])
     }
 }
 

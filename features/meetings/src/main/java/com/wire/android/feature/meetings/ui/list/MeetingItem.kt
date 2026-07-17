@@ -221,14 +221,14 @@ private fun MeetingOngoingDurationTimeSublineText(startedTime: Instant) {
 }
 
 @Composable
-private fun RepeatingIntervalInfoLabel(repeatingInterval: MeetingItem.RepeatingInterval) {
-    if (repeatingInterval != MeetingItem.RepeatingInterval.Never) {
+private fun RepeatingIntervalInfoLabel(repeatingInterval: MeetingItem.RepeatingInterval?) {
+    if (repeatingInterval != null) {
         WireItemLabel(text = repeatingInterval.label.asString(), textStyle = typography().label01)
     }
 }
 
 @Composable
-private fun MeetingTimeInfoRow(status: Status, repeatingInterval: MeetingItem.RepeatingInterval) {
+private fun MeetingTimeInfoRow(status: Status, repeatingInterval: MeetingItem.RepeatingInterval?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing3x)

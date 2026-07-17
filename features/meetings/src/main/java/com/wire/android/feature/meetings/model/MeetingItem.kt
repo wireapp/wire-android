@@ -38,24 +38,21 @@ data class MeetingItem(
     val meetingId: MeetingId,
     val conversationId: ConversationId,
     val belongingType: BelongingType,
-    val repeatingInterval: RepeatingInterval,
+    val repeatingInterval: RepeatingInterval?,
     val title: String,
     val status: Status,
     val selfRole: SelfRole,
 ) : MeetingListItem {
     @Stable
-    sealed class RepeatingInterval(val label: UIText) {
-        data object Never : RepeatingInterval(UIText.StringResource(R.string.meeting_repeating_never))
-        data class Every(val frequency: Frequency, val interval: Int) : RepeatingInterval(
-            when (frequency) {
-                Frequency.DAILY -> UIText.PluralResource(R.plurals.meeting_repeating_days, interval, interval)
-                Frequency.WEEKLY -> UIText.PluralResource(R.plurals.meeting_repeating_weeks, interval, interval)
-            }
-        )
+    data class RepeatingInterval(val frequency: Frequency, val interval: Int) {
+        val label: UIText = when (frequency) {
+            Frequency.DAILY -> UIText.PluralResource(R.plurals.meeting_repeating_days, interval, interval)
+            Frequency.WEEKLY -> UIText.PluralResource(R.plurals.meeting_repeating_weeks, interval, interval)
+        }
 
         companion object {
             val Supported: ImmutableList<RepeatingInterval> = MeetingOccurrence.Recurrence.SUPPORTED_RECURRENCES
-                .map { (frequency, interval) -> Every(frequency, interval.toInt()) }.toPersistentList()
+                .map { (frequency, interval) -> RepeatingInterval(frequency, interval.toInt()) }.toPersistentList()
         }
     }
 

@@ -623,11 +623,12 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun tryToSwitchAccount(actions: SwitchAccountActions) {
+    fun tryToSwitchAccount() {
         viewModelScope.launch {
-            val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
+            accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
             syncCurrentUserIdFromSession()
-            result.callAction(actions)
+            // Clearing the dialog recreates the NavHost from the synchronized session state.
+            // WireActivity then performs any required navigation after the graph is installed.
             globalAppState = globalAppState.copy(blockUserUI = null)
         }
     }

@@ -51,7 +51,9 @@ import com.wire.android.ui.common.textfield.forceLowercase
 import kotlinx.collections.immutable.toImmutableList
 
 @Composable
-internal fun BackendSelectorDropDown() {
+internal fun BackendSelectorDropDown(
+    onNoBackendSelected: () -> Unit = {},
+) {
 
     val context = LocalContext.current
     var showCustomBackendDialog by remember { mutableStateOf(false) }
@@ -64,16 +66,15 @@ internal fun BackendSelectorDropDown() {
     ) {
         WireDropDown(
             modifier = Modifier.alpha(0.5f),
-            items = backendConfigs.map { it.first }.toImmutableList(),
+            items = backendConfigs.map { it.name }.toImmutableList(),
             label = null,
             autoUpdateSelection = false,
             placeholder = "Change application backend",
             onSelected = { index ->
-                val backend = backendConfigs[index].second
-                if (backend.isNotEmpty()) {
-                    openConfigUrl(context, backend)
-                } else {
-                    showCustomBackendDialog = true
+                when (val backend = backendConfigs[index]) {
+                    BackendConfig.Custom -> showCustomBackendDialog = true
+                    BackendConfig.NoBackend -> onNoBackendSelected()
+                    is BackendConfig.Predefined -> openConfigUrl(context, backend.configUrl)
                 }
             },
         )
@@ -146,16 +147,34 @@ private fun openConfigUrl(context: Context, configUrl: String) {
     )
 }
 
+private sealed interface BackendConfig {
+    val name: String
+
+    data class Predefined(
+        override val name: String,
+        val configUrl: String,
+    ) : BackendConfig
+
+    data object Custom : BackendConfig {
+        override val name: String = "Custom"
+    }
+
+    data object NoBackend : BackendConfig {
+        override val name: String = "No backend"
+    }
+}
+
 private val backendConfigs = listOf(
-    "Production" to "https://prod-nginz-https.wire.com/deeplink.json",
-    "Staging" to "https://staging-nginz-https.zinfra.io/deeplink.json",
-    "Anta" to "https://nginz-https.anta.wire.link/deeplink.json",
-    "Bella" to "https://nginz-https.bella.wire.link/deeplink.json",
-    "Chala" to "https://nginz-https.chala.wire.link/deeplink.json",
-    "Elna" to "https://nginz-https.elna.wire.link/deeplink.json",
-    "Foma" to "https://nginz-https.foma.wire.link/deeplink.json",
-    "Imai" to "https://nginz-https.imai.wire.link/deeplink.json",
-    "Fulu" to "https://nginz-https.fulu.wire.link/deeplink.json",
-    "Mira" to "https://nginz-https.mira.wire.link/deeplink.json",
-    "Custom" to "",
+    BackendConfig.Predefined("Production", "https://prod-nginz-https.wire.com/deeplink.json"),
+    BackendConfig.Predefined("Staging", "https://staging-nginz-https.zinfra.io/deeplink.json"),
+    BackendConfig.Predefined("Anta", "https://nginz-https.anta.wire.link/deeplink.json"),
+    BackendConfig.Predefined("Bella", "https://nginz-https.bella.wire.link/deeplink.json"),
+    BackendConfig.Predefined("Chala", "https://nginz-https.chala.wire.link/deeplink.json"),
+    BackendConfig.Predefined("Elna", "https://nginz-https.elna.wire.link/deeplink.json"),
+    BackendConfig.Predefined("Foma", "https://nginz-https.foma.wire.link/deeplink.json"),
+    BackendConfig.Predefined("Imai", "https://nginz-https.imai.wire.link/deeplink.json"),
+    BackendConfig.Predefined("Fulu", "https://nginz-https.fulu.wire.link/deeplink.json"),
+    BackendConfig.Predefined("Mira", "https://nginz-https.mira.wire.link/deeplink.json"),
+    BackendConfig.NoBackend,
+    BackendConfig.Custom,
 )

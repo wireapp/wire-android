@@ -63,6 +63,7 @@ import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerifi
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
@@ -83,6 +84,7 @@ class AuthenticationViewModelFactory @Inject constructor(
     private val defaultServerConfig: Provider<ServerConfig.Links>,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Provider<Boolean>,
     @Named("ssoCodeConfig") private val defaultSSOCodeConfig: Provider<String>,
+    @Named("isDefaultBackendConfigured") private val isDefaultBackendConfigured: Provider<Boolean>,
     private val addAuthenticatedUser: Provider<AddAuthenticatedUserUseCase>,
     private val clientScopeProviderFactory: Provider<ClientScopeProvider.Factory>,
     private val dispatchers: Provider<DispatcherProvider>,
@@ -106,6 +108,7 @@ class AuthenticationViewModelFactory @Inject constructor(
     private val countdownTimer: Provider<CountdownTimer>,
     private val fetchSelfClientsFromRemote: Provider<FetchSelfClientsFromRemoteUseCase>,
     private val deleteClient: Provider<DeleteClientUseCase>,
+    private val getServerConfigUseCase: Provider<GetServerConfigUseCase>,
 ) {
     fun welcomeViewModel(savedStateHandle: SavedStateHandle) = WelcomeViewModel(
         savedStateHandle = savedStateHandle,
@@ -129,6 +132,9 @@ class AuthenticationViewModelFactory @Inject constructor(
         dispatchers = dispatchers(),
         defaultServerConfig = defaultServerConfig(),
         defaultSSOCodeConfig = defaultSSOCodeConfig(),
+        isDefaultBackendConfigured = isDefaultBackendConfigured(),
+        getServerConfigUseCase = lazy { getServerConfigUseCase() },
+        globalDataStore = lazy { globalDataStore() },
     )
 
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle) = LoginEmailViewModel(
@@ -142,6 +148,9 @@ class AuthenticationViewModelFactory @Inject constructor(
         dispatchers = dispatchers(),
         defaultServerConfig = defaultServerConfig(),
         defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault(),
+        isDefaultBackendConfigured = isDefaultBackendConfigured(),
+        getServerConfigUseCase = lazy { getServerConfigUseCase() },
+        globalDataStore = lazy { globalDataStore() },
     )
 
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle) = LoginSSOViewModel(

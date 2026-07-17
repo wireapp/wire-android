@@ -66,6 +66,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
         private fun userDoubleTapToastStatusKey(userId: String): Preferences.Key<Boolean> =
             booleanPreferencesKey("$SHOW_CALLING_DOUBLE_TAP_TOAST$userId")
+
+        private fun backendSupportEmailKey(backendApiUrl: String): Preferences.Key<String> =
+            stringPreferencesKey("backend_support_email_${backendApiUrl.sha256()}")
     }
 
     suspend fun clear() {
@@ -214,4 +217,26 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setPersistentWebSocketEnforcedByMDM(enforced: Boolean) {
         context.dataStore.edit { it[PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM] = enforced }
     }
+
+    suspend fun setBackendSupportEmail(backendApiUrl: String, supportEmail: String?) {
+        if (backendApiUrl.isBlank()) return
+
+        context.dataStore.edit {
+            val key = backendSupportEmailKey(backendApiUrl)
+            val normalizedSupportEmail = supportEmail?.trim().orEmpty()
+            if (normalizedSupportEmail.isBlank()) {
+                it.remove(key)
+            } else {
+                it[key] = normalizedSupportEmail
+            }
+        }
+    }
+
+    suspend fun getBackendSupportEmail(backendApiUrl: String): String? =
+        if (backendApiUrl.isBlank()) {
+            null
+        } else {
+            context.dataStore.data.firstOrNull()?.get(backendSupportEmailKey(backendApiUrl))
+                ?.takeIf { it.isNotBlank() }
+        }
 }

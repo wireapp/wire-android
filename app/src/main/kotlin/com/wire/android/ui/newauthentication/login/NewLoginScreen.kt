@@ -71,6 +71,8 @@ import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.ramcosta.composedestinations.spec.Direction
+import com.wire.android.ui.authentication.BackendConfigSuccessContent
+import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -176,6 +178,9 @@ fun NewLoginScreen(
         onNextClicked = {
             viewModel.onLoginStarted()
         },
+        onBackendConfigLinkEntered = viewModel::onBackendConfigLinkEntered,
+        onBackendConfigSuccessContinue = viewModel::onBackendConfigSuccessContinue,
+        onNoBackendSelected = viewModel::onNoBackendSelected,
         canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
         navigateBack = navigator::navigateBack,
     )
@@ -193,16 +198,27 @@ private fun NewLoginAction.Success.NextStep.toDestination(): Direction = when (t
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
+@Suppress("CyclomaticComplexMethod")
 @Composable
 private fun LoginContent(
     loginEmailSSOState: NewLoginScreenState,
     userIdentifierState: TextFieldState,
     serverConfig: ServerConfig.Links,
-    onNextClicked: () -> Unit,
     canNavigateBack: Boolean,
+    onNextClicked: () -> Unit,
+    onBackendConfigLinkEntered: (String) -> Unit,
+    onBackendConfigSuccessContinue: () -> Unit,
+    onNoBackendSelected: () -> Unit = {},
     navigateBack: () -> Unit,
 ) {
+    val isBackendConfigSetup = loginEmailSSOState.flowState == NewLoginFlowState.MissingBackendConfig ||
+            loginEmailSSOState.flowState == NewLoginFlowState.LoadingBackendConfig ||
+            loginEmailSSOState.flowState == NewLoginFlowState.BackendConfigError
+    val isBackendConfigSuccess = loginEmailSSOState.flowState == NewLoginFlowState.BackendConfigSuccess
+    val showCredentialsSubtitle = !isBackendConfigSetup && !isBackendConfigSuccess
     NewAuthContainer(
+        showBackendSelector = true,
+        onNoBackendSelected = onNoBackendSelected,
         header = {
             NewAuthHeader(
                 title = {
@@ -212,11 +228,17 @@ private fun LoginContent(
                             style = typography().title01,
                             textColor = colorsScheme().onSurface,
                             titleResId = R.string.enterprise_login_on_prem_welcome_title,
-                            modifier = Modifier.padding(bottom = dimensions().spacing24x),
+                            modifier = if (showCredentialsSubtitle) {
+                                Modifier.padding(bottom = dimensions().spacing24x)
+                            } else {
+                                Modifier
+                            },
                         )
-                        NewAuthSubtitle(
-                            title = stringResource(id = R.string.enterprise_login_credentials_title),
-                        )
+                        if (showCredentialsSubtitle) {
+                            NewAuthSubtitle(
+                                title = stringResource(id = R.string.enterprise_login_credentials_title),
+                            )
+                        }
                     } else {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
@@ -227,7 +249,11 @@ private fun LoginContent(
                                 .size(dimensions().spacing120x)
                         )
                         NewAuthSubtitle(
-                            title = stringResource(R.string.enterprise_login_welcome),
+                            title = when {
+                                isBackendConfigSetup -> stringResource(R.string.missing_backend_config_title)
+                                isBackendConfigSuccess -> ""
+                                else -> stringResource(R.string.enterprise_login_welcome)
+                            },
                             modifier = Modifier.padding(top = dimensions().spacing16x)
                         )
                     }
@@ -249,19 +275,33 @@ private fun LoginContent(
                         testTagsAsResourceId = true
                     }
             ) {
-                val error = when (loginEmailSSOState.flowState) {
-                    is NewLoginFlowState.Error.TextFieldError.InvalidValue ->
-                        stringResource(R.string.enterprise_login_error_invalid_user_identifier)
+                if (isBackendConfigSuccess) {
+                    BackendConfigSuccessContent(onContinue = onBackendConfigSuccessContinue)
+                } else if (isBackendConfigSetup) {
+                    MissingBackendConfigContent(
+                        errorText = if (loginEmailSSOState.flowState == NewLoginFlowState.BackendConfigError) {
+                            stringResource(R.string.missing_backend_config_error)
+                        } else {
+                            null
+                        },
+                        isLoading = loginEmailSSOState.flowState == NewLoginFlowState.LoadingBackendConfig,
+                        onConfigurationLinkEntered = onBackendConfigLinkEntered,
+                    )
+                } else {
+                    val error = when (loginEmailSSOState.flowState) {
+                        is NewLoginFlowState.Error.TextFieldError.InvalidValue ->
+                            stringResource(R.string.enterprise_login_error_invalid_user_identifier)
 
-                    else -> null
+                        else -> null
+                    }
+                    EmailOrSSOCodeInput(userIdentifierState, error)
+                    VerticalSpace.x8()
+                    LoginNextButton(
+                        loading = loginEmailSSOState.flowState is NewLoginFlowState.Loading,
+                        enabled = loginEmailSSOState.nextEnabled,
+                        onClick = onNextClicked,
+                    )
                 }
-                EmailOrSSOCodeInput(userIdentifierState, error)
-                VerticalSpace.x8()
-                LoginNextButton(
-                    loading = loginEmailSSOState.flowState is NewLoginFlowState.Loading,
-                    enabled = loginEmailSSOState.nextEnabled,
-                    onClick = onNextClicked,
-                )
             }
         }
     }
@@ -320,6 +360,8 @@ fun PreviewNewLoginScreen() = WireTheme {
                 userIdentifierState = TextFieldState(),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = false),
                 onNextClicked = {},
+                onBackendConfigLinkEntered = {},
+                onBackendConfigSuccessContinue = {},
                 canNavigateBack = false,
                 navigateBack = {},
             )
@@ -337,6 +379,46 @@ fun PreviewNewLoginScreenCustomConfig() = WireTheme {
                 userIdentifierState = TextFieldState(),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
                 onNextClicked = {},
+                onBackendConfigLinkEntered = {},
+                onBackendConfigSuccessContinue = {},
+                canNavigateBack = false,
+                navigateBack = {},
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNewLoginScreenMissingBackendConfig() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            LoginContent(
+                loginEmailSSOState = NewLoginScreenState(flowState = NewLoginFlowState.MissingBackendConfig),
+                userIdentifierState = TextFieldState(),
+                serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = false),
+                onNextClicked = {},
+                onBackendConfigLinkEntered = {},
+                onBackendConfigSuccessContinue = {},
+                canNavigateBack = false,
+                navigateBack = {},
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNewLoginScreenBackendConfigSuccess() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            LoginContent(
+                loginEmailSSOState = NewLoginScreenState(flowState = NewLoginFlowState.BackendConfigSuccess),
+                userIdentifierState = TextFieldState(),
+                serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = false),
+                onNextClicked = {},
+                onBackendConfigLinkEntered = {},
+                onBackendConfigSuccessContinue = {},
                 canNavigateBack = false,
                 navigateBack = {},
             )

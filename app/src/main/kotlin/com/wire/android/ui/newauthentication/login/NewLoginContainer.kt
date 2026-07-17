@@ -63,6 +63,8 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun NewAuthContainer(
     header: @Composable () -> Unit = {},
     contentPadding: Dp = dimensions().spacing24x,
+    showBackendSelector: Boolean = false,
+    onNoBackendSelected: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -70,8 +72,8 @@ fun NewAuthContainer(
     WireScaffold(
         containerColor = Color.Transparent,
         topBar = {
-            if (BuildConfig.PRIVATE_BUILD) {
-                BackendSelectorDropDown()
+            if (BuildConfig.PRIVATE_BUILD && showBackendSelector) {
+                BackendSelectorDropDown(onNoBackendSelected = onNoBackendSelected)
             }
         },
         bottomBar = {

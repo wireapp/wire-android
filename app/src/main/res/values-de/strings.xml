@@ -238,6 +238,7 @@
     <string name="content_description_login_user_identifier_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
     <string name="content_description_login_email_field">Geben Sie Ihre E-Mail-Adresse ein</string>
     <string name="content_description_enterprise_login_email_field">Geben Sie Ihre E-Mail-Adresse oder Ihren SSO-Code ein</string>
+    <string name="content_description_backend_config_camera_button">QR-Code scannen</string>
     <string name="content_description_login_password_field">Geben Sie Ihr Passwort ein</string>
     <string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
     <string name="content_description_whats_new_welcome_item">Willkommen bei der Android-App, Link zur Support-Seite</string>
@@ -334,6 +335,14 @@
     <string name="enterprise_login_verification_code_title">Posteingang prüfen</string>
     <!-- Login -->
     <string name="login_title">Anmelden</string>
+    <string name="missing_backend_config_title">Richten Sie Ihre App ein</string>
+    <string name="missing_backend_config_description">Geben Sie den von Ihrer Verwaltung bereitgestellten Link ein oder scannen Sie den QR-Code.</string>
+    <string name="missing_backend_config_input_label">Konfigurationslink</string>
+    <string name="missing_backend_config_input_placeholder">Link eingeben oder QR-Code scannen</string>
+    <string name="missing_backend_config_button_setup">Einrichten</string>
+    <string name="missing_backend_config_error">Es ist ein Fehler aufgetreten. Überprüfen Sie den Link sowie Ihre Internetverbindung und versuchen Sie es dann erneut.</string>
+    <string name="backend_config_success_title">Ihre App ist eingerichtet</string>
+    <string name="backend_config_success_description">Im nächsten Schritt können Sie sich anmelden</string>
     <string name="login_forgot_password">Passwort vergessen?</string>
     <string name="login_user_identifier_placeholder">max@example.com oder max.müller</string>
     <string name="login_email_placeholder">max@beispiel.com</string>
@@ -1269,7 +1278,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="custom_backend_dialog_body_backend_website">Website-URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Backend-WSURL:</string>
     <string name="custom_backend_error_title">Ein Fehler ist aufgetreten</string>
-    <string name="custom_backend_error_no_internet_connection_body">Die Weiterleitung zu einem lokalen Backend war nicht möglich. Sie scheinen nicht mit dem Internet verbunden zu sein.\n\nStellen Sie eine Internetverbindung her und versuchen Sie es erneut.</string>
+    <string name="custom_backend_error_no_internet_connection_body">Es ist ein Fehler aufgetreten. Überprüfen Sie den Link sowie Ihre Internetverbindung und versuchen Sie es dann erneut.</string>
     <string name="custom_backend_error_no_internet_connection_try_again">Erneut versuchen</string>
     <string name="label_fetching_your_messages">Empfang von neuen Nachrichten</string>
     <string name="label_text_copied">Text in Zwischenablage kopiert</string>

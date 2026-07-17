@@ -31,13 +31,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
@@ -76,14 +74,6 @@ fun ReactionPill(
         MaterialTheme.wireColorScheme.secondaryText
     }
 
-    val onClickDescription = stringResource(
-        if (isOwn) {
-            R.string.content_description_remove_your_reaction
-        } else {
-            R.string.content_description_add_this_reaction
-        }
-    )
-
     CompositionLocalProvider(
         LocalMinimumInteractiveComponentSize provides Dp.Unspecified
     ) {
@@ -108,7 +98,6 @@ fun ReactionPill(
             minClickableSize = DpSize(minDimension, minDimension),
             borderWidth = borderStrokeWidth,
             minSize = DpSize(minDimension, minDimension),
-            onClickDescription = onClickDescription,
             leadingIcon = {
                 Text(
                     emoji,

@@ -86,4 +86,21 @@
         <item quantity="other">+%1$d more</item>
     </plurals>
 
+    <plurals name="meeting_repeating_days">
+        <item quantity="one">Daily</item>
+        <item quantity="other">Every %d days</item>
+    </plurals>
+    <plurals name="meeting_repeating_weeks">
+        <item quantity="one">Weekly</item>
+        <item quantity="other">Every %d weeks</item>
+    </plurals>
+    <plurals name="meeting_repeating_months">
+        <item quantity="one">Monthly</item>
+        <item quantity="other">Every %d months</item>
+    </plurals>
+    <plurals name="meeting_repeating_years">
+        <item quantity="one">Annually</item>
+        <item quantity="other">Every %d years</item>
+    </plurals>
+
 </resources>

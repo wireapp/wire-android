@@ -18,6 +18,7 @@
 package com.wire.android.feature.meetings.ui.options
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,8 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.meetings.R
-import com.wire.android.feature.meetings.model.MeetingItem
-import com.wire.android.feature.meetings.ui.list.CalendarIcon
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
 import com.wire.android.feature.meetings.ui.meetingOptionsMenuListViewModel
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
@@ -41,6 +40,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
@@ -60,9 +60,9 @@ fun MeetingOptionsModalSheetLayout(
     val snackbarHostState = LocalSnackbarHostState.current
     WireModalSheetLayout(
         sheetState = sheetState,
-        sheetContent = { meetingId ->
-            when (val state = viewModel.observeMeetingStateFlow(meetingId).collectAsStateWithLifecycle().value) {
-                is MeetingOptionsMenuState.Meeting -> MeetingOptionsModalContent(meeting = state.meeting).also {
+        sheetContent = { occurrenceId ->
+            when (val state = viewModel.observeMeetingStateFlow(occurrenceId).collectAsStateWithLifecycle().value) {
+                is MeetingOptionsMenuState.Meeting -> MeetingOptionsModalContent(meetingState = state).also {
                     sheetState.updateContent()
                 }
 
@@ -81,8 +81,7 @@ fun MeetingOptionsModalSheetLayout(
 
 @Composable
 private fun MeetingOptionsModalContent(
-    meeting: MeetingItem,
-    onStartMeeting: () -> Unit = {},
+    meetingState: MeetingOptionsMenuState.Meeting,
     onCreateConversation: () -> Unit = {},
     onCopyLink: () -> Unit = {},
     onEditMeeting: () -> Unit = {},
@@ -91,19 +90,22 @@ private fun MeetingOptionsModalContent(
 ) {
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
-            title = meeting.title,
-            leadingIcon = { MeetingLeadingIcon() },
-            includeDivider = true
+            title = meetingState.title,
+            leadingIcon = {
+                MeetingLeadingIcon(
+                    padding = PaddingValues(
+                        top = dimensions().spacing12x,
+                        bottom = dimensions().spacing12x,
+                        start = dimensions().spacing16x,
+                        end = dimensions().spacing4x
+                    )
+                )
+            },
+            includeDivider = true,
+            customVerticalPadding = dimensions().spacing0x
         ),
         menuItems = buildList<@Composable () -> Unit> {
-            add {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.meeting_options_start_meeting),
-                    leading = { CalendarIcon(tint = colorsScheme().onSurface) },
-                    onItemClick = onStartMeeting,
-                )
-            }
-            addIf(meeting.selfRole == MeetingItem.SelfRole.Admin) {
+            addIf(meetingState.createConversationEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_create_conversation),
                     leading = {
@@ -116,7 +118,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onCreateConversation,
                 )
             }
-            addIf(meeting.selfRole == MeetingItem.SelfRole.Admin) {
+            addIf(meetingState.copyLinkEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_copy_link),
                     leading = {
@@ -129,7 +131,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onCopyLink,
                 )
             }
-            addIf(meeting.selfRole == MeetingItem.SelfRole.Admin) {
+            addIf(meetingState.editMeetingEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_edit_meeting),
                     leading = {
@@ -142,7 +144,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onEditMeeting,
                 )
             }
-            add {
+            addIf(meetingState.deleteOption == MeetingOptionsMenuState.Meeting.DeleteOption.ForMe) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_delete_meeting_for_me),
                     leading = {
@@ -156,7 +158,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onDeleteMeetingForMe,
                 )
             }
-            addIf(meeting.selfRole == MeetingItem.SelfRole.Admin) {
+            addIf(meetingState.deleteOption == MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_delete_meeting_for_everyone),
                     leading = {
@@ -183,7 +185,7 @@ private fun <E> MutableList<E>.addIf(condition: Boolean, element: E) {
 fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
     MeetingOptionsModalSheetLayout(
         sheetState = rememberWireModalSheetState(
-            initialValue = WireSheetValue.Expanded(CurrentTimeProvider.Preview.scheduledRepeatingGroupMeeting.meetingId)
+            initialValue = WireSheetValue.Expanded(CurrentTimeProvider.Preview.scheduledRepeatingGroupMeeting.occurrenceId)
         )
     )
 }

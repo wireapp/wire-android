@@ -110,9 +110,9 @@ class NewMeetingViewModelTest {
     fun givenRepeatingInterval_whenIntervalIsUpdated_thenStateIsUpdated() = runTest(dispatcher) {
         val (_, viewModel) = arrangeViewModel()
 
-        viewModel.updateRepeatingInterval(MeetingItem.RepeatingInterval.Weekly)
+        viewModel.updateRepeatingInterval(MeetingItem.RepeatingInterval.Supported.first())
 
-        assertEquals(MeetingItem.RepeatingInterval.Weekly, viewModel.state.repeatingInterval)
+        assertEquals(MeetingItem.RepeatingInterval.Supported.first(), viewModel.state.repeatingInterval)
     }
 
     @Test

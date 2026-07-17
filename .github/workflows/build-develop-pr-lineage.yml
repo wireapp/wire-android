@@ -1,0 +1,101 @@
+name: "Develop Lineage Dry Run"
+
+on:
+  merge_group:
+    types: [ checks_requested ]
+    branches: [ develop ]
+  pull_request:
+    branches:
+      - develop
+    types: [ opened, synchronize ]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  build-lineage-validation:
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Keystore
+        uses: ./.github/actions/setup-keystore
+        with:
+          keystore-type: debug
+        env:
+          ENCODED_KEYSTORE_DEBUG: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
+          ENCODED_KEYSTORE_PRE_RELEASE: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
+          ENCODED_KEYSTORE_INTERNAL_RELEASE: ${{ secrets.ENCODED_KEYSTORE_INTERNAL_RELEASE }}
+          ENCODED_KEYSTORE_PUBLIC_RELEASE: ${{ secrets.ENCODED_KEYSTORE_PUBLIC_RELEASE }}
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Set build environment variables
+        env:
+          SIGNING_KEY_ALIAS_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
+          SIGNING_KEY_PASSWORD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
+          SIGNING_STORE_PASSWORD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
+        run: |
+          echo "::add-mask::${SIGNING_KEY_PASSWORD_DEBUG}"
+          echo "::add-mask::${SIGNING_STORE_PASSWORD_DEBUG}"
+          echo "KEYSTORE_KEY_NAME_DEBUG=${SIGNING_KEY_ALIAS_DEBUG}" >> $GITHUB_ENV
+          echo "KEYPWD_DEBUG=${SIGNING_KEY_PASSWORD_DEBUG}" >> $GITHUB_ENV
+          echo "KEYSTOREPWD_DEBUG=${SIGNING_STORE_PASSWORD_DEBUG}" >> $GITHUB_ENV
+
+      - name: Build DevDebug APK
+        env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+          DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
+        run: ./gradlew app:assembleDevDebug
+
+      - name: Apply lineage signing to DevDebug APK
+        env:
+          APK_DIR: app/build/outputs/apk/dev/debug
+          CURRENT_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_DEBUG_OLD }}
+          CURRENT_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG_OLD }}
+          CURRENT_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG_OLD }}
+          CURRENT_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG_OLD }}
+          OLD_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
+          OLD_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
+          OLD_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
+          OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
+          APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_DEBUG_B64 }}
+        run: |
+          CURRENT_KEYSTORE_PATH="${RUNNER_TEMP}/keystore/debug-lineage-current.keystore"
+          mkdir -p "$(dirname "${CURRENT_KEYSTORE_PATH}")"
+          printf '%s' "${CURRENT_KEYSTORE_B64}" | base64 -d > "${CURRENT_KEYSTORE_PATH}"
+          chmod 600 "${CURRENT_KEYSTORE_PATH}"
+          export CURRENT_KEYSTORE_PATH
+          chmod +x scripts/lineage-sign-apks.sh
+          scripts/lineage-sign-apks.sh
+
+      - name: Upload lineage APK artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: Dev-Debug-lineage-artifacts
+          path: app/build/outputs/apk/dev/debug/
+          retention-days: 7

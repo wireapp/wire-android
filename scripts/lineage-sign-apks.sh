@@ -33,15 +33,15 @@ find_apksigner() {
 }
 
 require_var "APK_DIR"
-require_var "KEYSTORE_FILE_PATH_COMPAT_RELEASE"
-require_var "KEYSTORE_KEY_NAME_COMPAT_RELEASE"
-require_var "KEYSTOREPWD_COMPAT_RELEASE"
-require_var "KEYPWD_COMPAT_RELEASE"
-require_var "ENCODED_KEYSTORE_PUBLIC_RELEASE_OLD"
-require_var "SIGNING_KEY_ALIAS_PUBLIC_RELEASE_OLD"
-require_var "SIGNING_KEY_PASSWORD_PUBLIC_RELEASE_OLD"
-require_var "SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD"
-require_var "APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64"
+require_var "CURRENT_KEYSTORE_PATH"
+require_var "CURRENT_KEY_ALIAS"
+require_var "CURRENT_STORE_PASSWORD"
+require_var "CURRENT_KEY_PASSWORD"
+require_var "OLD_KEYSTORE_B64"
+require_var "OLD_KEY_ALIAS"
+require_var "OLD_KEY_PASSWORD"
+require_var "OLD_STORE_PASSWORD"
+require_var "APK_SIGNING_LINEAGE_B64"
 
 if [ ! -d "$APK_DIR" ]; then
     echo "APK directory does not exist: $APK_DIR" >&2
@@ -52,11 +52,11 @@ APKSIGNER_BIN="$(find_apksigner)"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-OLD_KEYSTORE_PATH="${TMP_DIR}/old-public-release.keystore"
-LINEAGE_PATH="${TMP_DIR}/public-release.lineage"
+OLD_KEYSTORE_PATH="${TMP_DIR}/old-signer.keystore"
+LINEAGE_PATH="${TMP_DIR}/signing.lineage"
 
-printf '%s' "$ENCODED_KEYSTORE_PUBLIC_RELEASE_OLD" | base64 -d > "$OLD_KEYSTORE_PATH"
-printf '%s' "$APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64" | base64 -d > "$LINEAGE_PATH"
+printf '%s' "$OLD_KEYSTORE_B64" | base64 -d > "$OLD_KEYSTORE_PATH"
+printf '%s' "$APK_SIGNING_LINEAGE_B64" | base64 -d > "$LINEAGE_PATH"
 
 chmod 600 "$OLD_KEYSTORE_PATH" "$LINEAGE_PATH"
 
@@ -66,14 +66,14 @@ find "$APK_DIR" -maxdepth 1 -name '*.apk' -type f | sort | while read -r apk_pat
     "$APKSIGNER_BIN" sign \
         --out "$signed_apk" \
         --ks "$OLD_KEYSTORE_PATH" \
-        --ks-key-alias "$SIGNING_KEY_ALIAS_PUBLIC_RELEASE_OLD" \
-        --ks-pass env:SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD \
-        --key-pass env:SIGNING_KEY_PASSWORD_PUBLIC_RELEASE_OLD \
+        --ks-key-alias "$OLD_KEY_ALIAS" \
+        --ks-pass env:OLD_STORE_PASSWORD \
+        --key-pass env:OLD_KEY_PASSWORD \
         --next-signer \
-        --ks "$KEYSTORE_FILE_PATH_COMPAT_RELEASE" \
-        --ks-key-alias "$KEYSTORE_KEY_NAME_COMPAT_RELEASE" \
-        --ks-pass env:KEYSTOREPWD_COMPAT_RELEASE \
-        --key-pass env:KEYPWD_COMPAT_RELEASE \
+        --ks "$CURRENT_KEYSTORE_PATH" \
+        --ks-key-alias "$CURRENT_KEY_ALIAS" \
+        --ks-pass env:CURRENT_STORE_PASSWORD \
+        --key-pass env:CURRENT_KEY_PASSWORD \
         --lineage "$LINEAGE_PATH" \
         --rotation-min-sdk-version 28 \
         "$apk_path"

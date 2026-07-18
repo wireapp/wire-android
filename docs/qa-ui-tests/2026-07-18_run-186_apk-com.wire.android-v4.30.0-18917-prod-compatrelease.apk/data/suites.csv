@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Sat Jul 18 12:26:46 CEST 2026","Sat Jul 18 12:28:15 CEST 2026","88963","","com.wire.android.tests.core.e2eTests.CallingTests","","com.wire.android.tests.core.e2eTests.CallingTests","givenMemberCallsMeInForeground_whenIAccept_thenOneOnOneCallIsEstablished","givenMemberCallsMeInForeground_whenIAccept_thenOneOnOneCallIsEstablished",""

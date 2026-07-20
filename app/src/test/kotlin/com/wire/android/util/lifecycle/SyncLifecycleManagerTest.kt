@@ -30,10 +30,12 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -98,6 +100,51 @@ class SyncLifecycleManagerTest {
         assertEquals(1, arrangement.syncExecutor.waitUntilLiveCount)
     }
 
+    @Test
+    fun givenForegroundSyncIsActive_whenAppReturnsFromBackground_thenShouldStartANewForegroundRequest() = runTest {
+        val (arrangement, syncLifecycleManager) = Arrangement()
+            .withAppInTheForeground()
+            .arrange()
+
+        backgroundScope.launch { syncLifecycleManager.observeAppLifecycle() }
+        runCurrent()
+
+        assertEquals(1, arrangement.syncExecutor.requestCount)
+        assertEquals(1, arrangement.syncExecutor.activeRequestCount)
+
+        arrangement.updateAppVisibility(false)
+        runCurrent()
+        assertEquals(0, arrangement.syncExecutor.activeRequestCount)
+
+        arrangement.updateAppVisibility(true)
+        runCurrent()
+
+        assertEquals(2, arrangement.syncExecutor.requestCount)
+        assertEquals(1, arrangement.syncExecutor.activeRequestCount)
+    }
+
+    @Test
+    fun givenPersistentSyncRequest_whenAppReturnsToForeground_thenShouldAddAnotherSyncRequest() = runTest {
+        val (arrangement, syncLifecycleManager) = Arrangement()
+            .withAppInTheBackground()
+            .arrange()
+
+        backgroundScope.launch {
+            arrangement.syncExecutor.request { awaitCancellation() }
+        }
+        backgroundScope.launch { syncLifecycleManager.observeAppLifecycle() }
+        runCurrent()
+
+        assertEquals(1, arrangement.syncExecutor.requestCount)
+        assertEquals(1, arrangement.syncExecutor.activeRequestCount)
+
+        arrangement.updateAppVisibility(true)
+        runCurrent()
+
+        assertEquals(2, arrangement.syncExecutor.requestCount)
+        assertEquals(2, arrangement.syncExecutor.activeRequestCount)
+    }
+
     private class Arrangement {
 
         @MockK
@@ -113,6 +160,7 @@ class SyncLifecycleManagerTest {
         lateinit var observeValidAccountsUseCase: ObserveSessionsUseCase
 
         var syncExecutor = FakeSyncExecutor()
+        private val appVisibility = MutableStateFlow(false)
 
         private val syncLifecycleManager by lazy {
             SyncLifecycleManager(currentScreenManager, coreLogic)
@@ -122,6 +170,7 @@ class SyncLifecycleManagerTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { coreLogic.getGlobalScope().observeAllValidSessionsFlow } returns observeValidAccountsUseCase
             every { coreLogic.getSessionScope(TestUser.SELF_USER_ID) } returns userSessionScope
+            every { currentScreenManager.isAppVisibleFlow() } returns appVisibility
             coEvery { observeValidAccountsUseCase.invoke() } returns flowOf(
                 GetAllSessionsResult.Success(
                     listOf(
@@ -132,11 +181,15 @@ class SyncLifecycleManagerTest {
         }
 
         fun withAppInTheBackground() = apply {
-            every { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(false)
+            updateAppVisibility(false)
         }
 
         fun withAppInTheForeground() = apply {
-            every { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(true)
+            updateAppVisibility(true)
+        }
+
+        fun updateAppVisibility(isVisible: Boolean) {
+            appVisibility.value = isVisible
         }
 
         fun arrange() = this to syncLifecycleManager.also {

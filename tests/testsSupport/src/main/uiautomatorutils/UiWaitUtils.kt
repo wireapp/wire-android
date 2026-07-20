@@ -67,6 +67,7 @@ object UiWaitUtils {
     val SHORT_TIMEOUT: Duration = 5.seconds
     val MEDIUM_TIMEOUT: Duration = 10.seconds
     val LONG_TIMEOUT: Duration = 15.seconds
+    val VERY_SHORT_TIMEOUT: Duration = 1.seconds
     val VERY_LONG_TIMEOUT: Duration = 30.seconds
     val STABLE_TIMEOUT: Duration = 3.seconds
 

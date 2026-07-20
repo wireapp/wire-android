@@ -25,12 +25,13 @@ import com.wire.android.feature.meetings.model.MeetingItem.SelfRole
 import com.wire.android.feature.meetings.model.MeetingItem.Status.Ended
 import com.wire.android.feature.meetings.model.MeetingItem.Status.Ongoing
 import com.wire.android.feature.meetings.model.MeetingItem.Status.Scheduled
-import com.wire.android.feature.meetings.ui.mock.Meeting
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -70,33 +71,6 @@ class MeetingMapperTest {
         val endTime = currentTime - 10.minutes
         val expected = meetingItem(Ended(startTime = startTime, endTime = endTime))
         val result = meeting(startTime = startTime, endTime = endTime).toMeetingItem(time = currentTime, ongoingCallStatus = ongoingCall)
-        assertEquals(expected, result)
-    }
-
-    @Test
-    fun givenScheduledMeetingItem_whenMappingToMeeting_thenMeetingHasScheduledEndTime() {
-        val startTime = currentTime + 10.minutes
-        val endTime = currentTime + 40.minutes
-        val expected = meeting(startTime = startTime, endTime = endTime)
-        val result = meetingItem(Scheduled(startTime = startTime, endTime = endTime)).toMeeting()
-        assertEquals(expected, result)
-    }
-
-    @Test
-    fun givenOngoingMeetingItem_whenMappingToMeeting_thenMeetingHasScheduledEndTimeAndCallStatus() {
-        val startTime = currentTime - 30.minutes
-        val endTime = currentTime + 30.minutes
-        val expected = meeting(startTime = startTime, endTime = endTime)
-        val result = meetingItem(Ongoing(startTime = startTime, scheduledEndTime = endTime, ongoingCallStatus = ongoingCall)).toMeeting()
-        assertEquals(expected, result)
-    }
-
-    @Test
-    fun givenEndedMeetingItem_whenMappingToMeeting_thenMeetingHasEndedTime() {
-        val startTime = currentTime - 60.minutes
-        val endTime = currentTime - 10.minutes
-        val expected = meeting(startTime = startTime, endTime = endTime)
-        val result = meetingItem(Ended(startTime = startTime, endTime = endTime)).toMeeting()
         assertEquals(expected, result)
     }
 
@@ -143,25 +117,30 @@ class MeetingMapperTest {
         }
     }
 
-    private fun meeting(startTime: Instant, endTime: Instant?) = Meeting(
+    private fun meeting(startTime: Instant, endTime: Instant?) = MeetingOccurrence(
+        occurrenceId = "$MEETING_ID-occurrence",
         meetingId = MEETING_ID,
         conversationId = CONVERSATION_ID,
-        belongingType = BELONGING_TYPE,
+        conversationName = TITLE,
+        conversationType = CONVERSATION_TYPE,
         title = TITLE,
         startTime = startTime,
         endTime = endTime,
-        repeatingInterval = RepeatingInterval.Weekly,
-        selfRole = SelfRole.Admin,
+        occurrenceStartTime = startTime,
+        occurrenceEndTime = endTime,
+        recurrence = MeetingOccurrence.Recurrence(frequency = MeetingOccurrence.Recurrence.Frequency.DAILY, interval = 1L, until = null),
+        selfRole = MeetingOccurrence.SelfRole.Creator,
     )
 
     private fun meetingItem(status: MeetingItem.Status) = MeetingItem(
+        occurrenceId = "$MEETING_ID-occurrence",
         meetingId = MEETING_ID,
         conversationId = CONVERSATION_ID,
         belongingType = BELONGING_TYPE,
-        repeatingInterval = RepeatingInterval.Weekly,
+        repeatingInterval = RepeatingInterval.Supported.first(),
         title = TITLE,
         status = status,
-        selfRole = SelfRole.Admin,
+        selfRole = SelfRole.Creator,
     )
 
     private fun call(
@@ -182,12 +161,13 @@ class MeetingMapperTest {
     )
 
     private companion object {
-        const val MEETING_ID = "meeting-id"
+        val MEETING_ID = MeetingId(value = "meeting-id", domain = "wire.com")
         const val TITLE = "Engineering sync"
         const val ESTABLISHED_TIME = "2026-01-01T11:40:00.000Z"
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val CONVERSATION_ID = ConversationId(value = "conversation-id", domain = "wire.com")
-        val BELONGING_TYPE = BelongingType.Group(name = "Engineering")
+        val BELONGING_TYPE = BelongingType.Group(name = TITLE)
+        val CONVERSATION_TYPE = MeetingOccurrence.ConversationType.Group
         val ongoingCall = OngoingCallStatus(currentCallEstablishedTime = currentTime - 20.minutes, isSelfUserAttending = true)
     }
 }

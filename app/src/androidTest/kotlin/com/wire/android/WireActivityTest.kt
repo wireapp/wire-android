@@ -20,35 +20,21 @@ package com.wire.android
 import android.app.Application
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.work.testing.WorkManagerTestInitHelper
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.extensions.performClickWithNodeWithText
 import com.wire.android.extensions.waitUntilExists
-import com.wire.android.feature.AccountSwitchUseCase
-import com.wire.android.feature.SwitchAccountParam
-import com.wire.android.feature.SwitchAccountResult
-import com.wire.android.ui.CurrentSessionErrorState
-import com.wire.android.ui.GlobalAppState
 import com.wire.android.ui.WireActivity
-import com.wire.android.ui.WireActivityViewModel
 import com.wire.android.util.DataDogLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.common.logger.CoreLogger
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -82,51 +68,6 @@ class WireActivityTest {
         composeTestRule.onNodeWithTag("loginButton").performClick()
 
         composeTestRule.waitUntilExists(R.string.migration_title, timeoutMillis = 10_000)
-    }
-
-    @Test
-    fun givenLoggedOutDialogWithoutNavHost_whenConfirming_thenActivityRecreatesNavigationGraph() {
-        val removedClientTitle = composeTestRule.activity.getString(R.string.removed_client_error_title)
-        val accountSwitch = mockk<AccountSwitchUseCase>()
-        coEvery {
-            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
-        } returns SwitchAccountResult.NoOtherAccountToSwitch
-
-        composeTestRule.runOnIdle {
-            val viewModel = ViewModelProvider(composeTestRule.activity)[WireActivityViewModel::class.java]
-            viewModel.setAccountSwitchForTest(accountSwitch)
-            viewModel.setGlobalAppStateForTest(
-                viewModel.globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
-            )
-        }
-        composeTestRule.waitUntilExists(R.string.removed_client_error_title)
-
-        composeTestRule.activityRule.scenario.recreate()
-        composeTestRule.waitUntilExists(R.string.removed_client_error_title)
-
-        composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.label_ok)).performClick()
-
-        composeTestRule.waitUntil(timeoutMillis = 10_000) {
-            composeTestRule.onAllNodesWithText(removedClientTitle).fetchSemanticsNodes().isEmpty()
-        }
-        composeTestRule.activityRule.scenario.onActivity {
-            assertEquals(Lifecycle.State.RESUMED, it.lifecycle.currentState)
-        }
-        coVerify(exactly = 1) {
-            accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount)
-        }
-    }
-
-    private fun WireActivityViewModel.setAccountSwitchForTest(accountSwitch: AccountSwitchUseCase) {
-        javaClass.getDeclaredField("accountSwitch")
-            .apply { isAccessible = true }
-            .set(this, lazyOf(accountSwitch))
-    }
-
-    private fun WireActivityViewModel.setGlobalAppStateForTest(state: GlobalAppState) {
-        javaClass.getDeclaredMethod("setGlobalAppState", GlobalAppState::class.java)
-            .apply { isAccessible = true }
-            .invoke(this, state)
     }
 
     private fun initializeApplicationLoggingFrameworks() {

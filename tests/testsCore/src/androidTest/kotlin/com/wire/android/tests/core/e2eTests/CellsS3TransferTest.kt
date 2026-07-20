@@ -64,12 +64,16 @@ class CellsS3TransferTest : BaseUiTest() {
             size = SMALL_FILE_SIZE,
         )
 
-        step("Prepare a Cells conversation created by the sender's test-service device") {
-            prepareCellsConversation(conversationName)
+        step("Prepare a Cells-enabled team and the sender's test-service device") {
+            prepareCellsTeam()
         }
 
         step("Login as the receiver in the Android app") {
             loginUser(receiver)
+        }
+
+        step("Create the Cells conversation after the receiver has an MLS client") {
+            createCellsConversation(conversationName)
         }
 
         step("Send the small Cells attachment from the sender's test-service device") {
@@ -105,12 +109,16 @@ class CellsS3TransferTest : BaseUiTest() {
             size = MULTIPART_FILE_SIZE,
         )
 
-        step("Prepare a Cells conversation created by the sender's test-service device") {
-            prepareCellsConversation(conversationName)
+        step("Prepare a Cells-enabled team and the sender's test-service device") {
+            prepareCellsTeam()
         }
 
         step("Login as the receiver in the Android app") {
             loginUser(receiver)
+        }
+
+        step("Create the Cells conversation after the receiver has an MLS client") {
+            createCellsConversation(conversationName)
         }
 
         step("Send a Cells attachment one byte above the multipart threshold from the test-service device") {
@@ -159,7 +167,7 @@ class CellsS3TransferTest : BaseUiTest() {
         }
     }
 
-    private fun prepareCellsConversation(conversationName: String) {
+    private fun prepareCellsTeam() {
         backendSetupHelper.createTeamOwnerByAlias(
             "user1Name",
             TEAM_NAME,
@@ -180,6 +188,9 @@ class CellsS3TransferTest : BaseUiTest() {
         backendSetupHelper.enableCellsFeature("user1Name", TEAM_NAME, backendClient)
         receiver = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         testServiceHelper.addDevice("user1Name", null, TEST_SERVICE_DEVICE)
+    }
+
+    private fun createCellsConversation(conversationName: String) {
         testServiceHelper.userCreatesGroupConversation(
             ownerAlias = "user1Name",
             participantsAliases = "user2Name",

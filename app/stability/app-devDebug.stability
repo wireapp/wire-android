@@ -10239,18 +10239,18 @@ private fun com.wire.android.ui.newauthentication.login.EnterBackendNameDialog(o
     - onDismiss: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, onNextClicked: kotlin.Function0<kotlin.Unit>, onBackendConfigLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>, onBackendConfigSuccessContinue: kotlin.Function0<kotlin.Unit>, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, canNavigateBack: kotlin.Boolean, onNextClicked: kotlin.Function0<kotlin.Unit>, onBackendConfigLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>, onBackendConfigSuccessContinue: kotlin.Function0<kotlin.Unit>, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - loginEmailSSOState: STABLE (class with no mutable properties)
     - userIdentifierState: STABLE (marked @Stable or @Immutable)
     - serverConfig: UNSTABLE (has mutable properties or unstable members)
+    - canNavigateBack: STABLE (primitive type)
     - onNextClicked: STABLE (function type)
     - onBackendConfigLinkEntered: STABLE (function type)
     - onBackendConfigSuccessContinue: STABLE (function type)
     - onNoBackendSelected: STABLE (function type)
-    - canNavigateBack: STABLE (primitive type)
     - navigateBack: STABLE (function type)
 
 @Composable
@@ -10534,6 +10534,15 @@ public fun com.wire.android.ui.registration.selector.CreateAccountSelectorScreen
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+internal fun com.wire.android.ui.rememberWireActivityNavigator(isUserUiBlocked: kotlin.Boolean, finish: kotlin.Function0<kotlin.Unit>, isAllowedToNavigate: kotlin.Function1<com.wire.android.navigation.NavigationCommand, kotlin.Boolean>): com.wire.android.navigation.Navigator
+  skippable: true
+  restartable: true
+  params:
+    - isUserUiBlocked: STABLE (primitive type)
+    - finish: STABLE (function type)
+    - isAllowedToNavigate: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.server.ApiVersioningDialog(title: kotlin.String, text: kotlin.String, actionText: kotlin.String, onDismiss: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function0<kotlin.Unit>, isPreview: kotlin.Boolean): kotlin.Unit

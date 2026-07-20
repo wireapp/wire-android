@@ -15,7 +15,7 @@ jobs:
     runs-on: warp-ubuntu-latest-x64-8x
     strategy:
       matrix:
-        api-level: [ 31 ]
+        api-level: [ 29 ]
 
     steps:
       - name: Checkout
@@ -70,7 +70,9 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: ${{ runner.os }}-avd-${{ matrix.api-level }}-google_apis-x86_64
+          key: ${{ runner.os }}-avd-${{ matrix.api-level }}
+          restore-keys: |
+            ${{ runner.os }}-avd-
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'

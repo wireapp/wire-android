@@ -82,6 +82,7 @@ class ApplockTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
                 clickLoginButton()
                 enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
@@ -219,6 +220,7 @@ class ApplockTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamMemberLoggingEmail(member1?.email ?: "")
                 clickLoginButton()
                 enterTeamMemberLoggingPassword(member1?.password ?: "")
@@ -377,6 +379,7 @@ class ApplockTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
                 clickLoginButton()
                 enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")

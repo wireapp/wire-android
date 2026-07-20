@@ -56,5 +56,7 @@ fun MacrobenchmarkScope.switchBackend(backendConfigUrl: String) {
     context.startActivity(intent)
     device.wait(Until.hasObject(By.text("Proceed")), 10.seconds.inWholeMilliseconds)
     device.findObject(By.text("Proceed"))?.click()
+    device.wait(Until.hasObject(By.res("backendConfigSuccessContinueButton")), 10.seconds.inWholeMilliseconds)
+    device.findObject(By.res("backendConfigSuccessContinueButton"))?.click()
     device.wait(Until.hasObject(By.res("loginButton")), 30.seconds.inWholeMilliseconds)
 }

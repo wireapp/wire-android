@@ -46,8 +46,7 @@ suspend fun BackendClient.createTeamConversation(
     user: ClientUser,
     contacts: List<ClientUser>?,
     conversationName: String?,
-    team: Team,
-    cellsEnabled: Boolean = false,
+    team: Team
 ): String {
     val token = getAuthToken(user)
     val url = URI("conversations".composeCompleteUrl()).toURL()
@@ -71,7 +70,6 @@ suspend fun BackendClient.createTeamConversation(
             }
         )
         put("conversation_role", "wire_member")
-        if (cellsEnabled) put("cells", true)
         conversationName?.let { put("name", it) }
         put(
             "team",

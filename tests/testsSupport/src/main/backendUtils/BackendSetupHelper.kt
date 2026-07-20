@@ -271,8 +271,7 @@ class BackendSetupHelper(
         chatOwnerNameAlias: String,
         chatName: String? = null,
         otherParticipantsNameAlises: String? = null,
-        teamName: String,
-        cellsEnabled: Boolean = false,
+        teamName: String
     ) {
         var participants: List<ClientUser>? = null
         val chatOwner = toClientUser(chatOwnerNameAlias)
@@ -286,7 +285,7 @@ class BackendSetupHelper(
 
         runBlocking {
             val dstTeam = backend.getTeamByName(chatOwner, teamName)
-            backend.createTeamConversation(chatOwner, participants, chatName, dstTeam, cellsEnabled)
+            backend.createTeamConversation(chatOwner, participants, chatName, dstTeam)
         }
     }
 

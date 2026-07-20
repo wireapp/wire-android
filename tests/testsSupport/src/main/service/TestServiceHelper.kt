@@ -296,6 +296,30 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsLocalFileConversation(
+        file: File,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String,
+        mimeType: String,
+        requestTimeout: Duration? = null,
+    ) {
+        require(file.exists()) { "File '${file.absolutePath}' does not exist." }
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, dstConvoName)
+
+        testServiceClient.sendFile(
+            owner = sender,
+            deviceName = deviceName,
+            convoId = conversation.qualifiedID.id,
+            convoDomain = conversation.qualifiedID.domain,
+            timeout = getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            filePath = file.absolutePath,
+            type = mimeType,
+            requestTimeout = requestTimeout,
+        )
+    }
+
     fun contactSendsLocalVideoPersonalMLSConversation(
         context: Context,
         fileName: String,
@@ -425,6 +449,18 @@ class TestServiceHelper(
                 throw RuntimeException("Wait and retry failed")
             }
         }
+    }
+
+    fun userCreatesGroupConversation(
+        ownerAlias: String,
+        participantsAliases: String,
+        chatName: String,
+        deviceName: String,
+        cellsEnabled: Boolean = false,
+    ) {
+        val owner = toClientUser(ownerAlias)
+        val participants = usersManager.splitAliases(participantsAliases).map(::toClientUser)
+        testServiceClient.createConversation(owner, participants, chatName, deviceName, cellsEnabled)
     }
 
     fun isSendReadReceiptEnabled(userNameAlias: String): Boolean {

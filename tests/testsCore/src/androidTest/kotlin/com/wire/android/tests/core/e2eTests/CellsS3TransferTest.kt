@@ -22,9 +22,10 @@ import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
-import createDeterministicFileInDeviceDownloadsFolder
+import createDeterministicFile
 import deleteAppExternalFilesContaining
-import deleteDownloadedFilesContaining
+import java.io.File
+import java.time.Duration as JavaDuration
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -39,8 +40,8 @@ import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class CellsS3TransferTest : BaseUiTest() {
-    private lateinit var sender: ClientUser
     private lateinit var receiver: ClientUser
+    private var sourceFile: File? = null
 
     @Before
     fun setUp() {
@@ -50,7 +51,7 @@ class CellsS3TransferTest : BaseUiTest() {
 
     @After
     fun tearDown() {
-        deleteDownloadedFilesContaining(FILE_PREFIX)
+        sourceFile?.delete()
         deleteAppExternalFilesContaining(UiAutomatorSetup.appPackage, FILE_PREFIX)
     }
 
@@ -58,34 +59,24 @@ class CellsS3TransferTest : BaseUiTest() {
     @Test
     fun givenSmallCellsAttachment_whenReceiverDownloadsIt_thenContentMatchesExactly() {
         val conversationName = "Cells S3 small transfer"
-        val testFile = createDeterministicFileInDeviceDownloadsFolder(
+        val testFile = createTestFile(
             fileName = "$FILE_PREFIX-small ü.bin",
             size = SMALL_FILE_SIZE,
         )
 
-        step("Prepare a Cells-enabled team conversation with sender and receiver") {
+        step("Prepare a Cells conversation created by the sender's test-service device") {
             prepareCellsConversation(conversationName)
         }
 
-        step("Login receiver first, add sender account, and remain on sender account") {
+        step("Login as the receiver in the Android app") {
             loginUser(receiver)
-            openAddAccountFlow()
-            loginUser(sender)
         }
 
-        step("Upload and publish the small attachment from the sender account") {
-            openConversation(conversationName)
-            selectFileFromDownloads(testFile.fileName)
-            pages.conversationViewPage.apply {
-                assertFileWithNameIsVisible(testFile.fileName)
-                clickSendButton(timeout = SMALL_UPLOAD_TIMEOUT)
-                assertFileWithNameIsVisible(testFile.fileName)
-                tapBackButtonToCloseConversationViewPage()
-            }
+        step("Send the small Cells attachment from the sender's test-service device") {
+            sendFileFromTestService(testFile.sourceFile, conversationName)
         }
 
-        step("Switch to receiver and start a genuine remote download from Shared Drive") {
-            switchToAccount(receiver)
+        step("Open Shared Drive as the receiver and start the remote download") {
             openSharedDrive(conversationName)
             waitUntilAppExternalFileIsAbsent(
                 appPackage = UiAutomatorSetup.appPackage,
@@ -109,34 +100,24 @@ class CellsS3TransferTest : BaseUiTest() {
     @Test
     fun givenMultipartCellsAttachment_whenDownloadIsCancelledAndRetried_thenContentMatchesExactly() {
         val conversationName = "Cells S3 multipart transfer"
-        val testFile = createDeterministicFileInDeviceDownloadsFolder(
+        val testFile = createTestFile(
             fileName = "$FILE_PREFIX-multipart.bin",
             size = MULTIPART_FILE_SIZE,
         )
 
-        step("Prepare a Cells-enabled team conversation with sender and receiver") {
+        step("Prepare a Cells conversation created by the sender's test-service device") {
             prepareCellsConversation(conversationName)
         }
 
-        step("Login receiver first, add sender account, and remain on sender account") {
+        step("Login as the receiver in the Android app") {
             loginUser(receiver)
-            openAddAccountFlow()
-            loginUser(sender)
         }
 
-        step("Upload and publish a file one byte above the multipart threshold") {
-            openConversation(conversationName)
-            selectFileFromDownloads(testFile.fileName)
-            pages.conversationViewPage.apply {
-                assertFileWithNameIsVisible(testFile.fileName)
-                clickSendButton(timeout = MULTIPART_UPLOAD_TIMEOUT)
-                assertFileWithNameIsVisible(testFile.fileName)
-                tapBackButtonToCloseConversationViewPage()
-            }
+        step("Send a Cells attachment one byte above the multipart threshold from the test-service device") {
+            sendFileFromTestService(testFile.sourceFile, conversationName)
         }
 
-        step("Switch to receiver and open the conversation Shared Drive") {
-            switchToAccount(receiver)
+        step("Open the conversation Shared Drive as the receiver") {
             openSharedDrive(conversationName)
         }
 
@@ -197,15 +178,29 @@ class CellsS3TransferTest : BaseUiTest() {
             true,
         )
         backendSetupHelper.enableCellsFeature("user1Name", TEAM_NAME, backendClient)
-        backendSetupHelper.userHasGroupConversationInTeam(
-            chatOwnerNameAlias = "user1Name",
+        receiver = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+        testServiceHelper.addDevice("user1Name", null, TEST_SERVICE_DEVICE)
+        testServiceHelper.userCreatesGroupConversation(
+            ownerAlias = "user1Name",
+            participantsAliases = "user2Name",
             chatName = conversationName,
-            otherParticipantsNameAlises = "user2Name",
-            teamName = TEAM_NAME,
+            deviceName = TEST_SERVICE_DEVICE,
             cellsEnabled = true,
         )
-        sender = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
-        receiver = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
+    }
+
+    private fun createTestFile(fileName: String, size: Long) =
+        createDeterministicFile(context.cacheDir, fileName, size).also { sourceFile = it.sourceFile }
+
+    private fun sendFileFromTestService(file: File, conversationName: String) {
+        testServiceHelper.contactSendsLocalFileConversation(
+            file = file,
+            senderAlias = "user1Name",
+            deviceName = TEST_SERVICE_DEVICE,
+            dstConvoName = conversationName,
+            mimeType = "application/octet-stream",
+            requestTimeout = TEST_SERVICE_REQUEST_TIMEOUT,
+        )
     }
 
     private fun loginUser(user: ClientUser) {
@@ -225,38 +220,9 @@ class CellsS3TransferTest : BaseUiTest() {
         }
     }
 
-    private fun openAddAccountFlow() {
-        pages.conversationListPage.clickUserProfileButton()
-        pages.selfUserProfilePage.apply {
-            iSeeUserProfilePage()
-            tapNewAccountButton()
-        }
-    }
-
-    private fun switchToAccount(user: ClientUser) {
-        pages.conversationListPage.clickUserProfileButton()
-        pages.selfUserProfilePage.apply {
-            iSeeUserProfilePage()
-            tapOtherAccountByName(user.name.orEmpty())
-        }
-        pages.conversationListPage.assertConversationListVisible()
-    }
-
     private fun openConversation(conversationName: String) {
         pages.conversationListPage.clickGroupConversation(conversationName, timeout = 2.minutes)
         pages.conversationViewPage.assertGroupConversationInForeground(conversationName)
-    }
-
-    private fun selectFileFromDownloads(fileName: String) {
-        pages.conversationViewPage.apply {
-            iTapFileSharingButton()
-            assertSharingOptionVisible("File")
-            tapSharingOption("File")
-        }
-        pages.documentsUIPage.apply {
-            iSeeFile(fileName)
-            iOpenDisplayedFile(fileName)
-        }
     }
 
     private fun openSharedDrive(conversationName: String) {
@@ -271,12 +237,12 @@ class CellsS3TransferTest : BaseUiTest() {
 
     private companion object {
         const val TEAM_NAME = "Cells S3 E2E"
+        const val TEST_SERVICE_DEVICE = "Device1"
         const val FILE_PREFIX = "cells-s3-e2e"
         const val SMALL_FILE_SIZE = 2L * 1024L * 1024L
         const val MULTIPART_FILE_SIZE = 100L * 1024L * 1024L + 1L
-        val SMALL_UPLOAD_TIMEOUT = 3.minutes
         val SMALL_DOWNLOAD_TIMEOUT = 2.minutes
-        val MULTIPART_UPLOAD_TIMEOUT = 15.minutes
         val MULTIPART_DOWNLOAD_TIMEOUT = 10.minutes
+        val TEST_SERVICE_REQUEST_TIMEOUT: JavaDuration = JavaDuration.ofMinutes(6)
     }
 }

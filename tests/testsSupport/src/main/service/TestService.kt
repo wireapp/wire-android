@@ -437,7 +437,8 @@ class TestService(private val baseUri: String, private val testName: String) {
         convoDomain: String,
         timeout: Duration,
         filePath: String,
-        type: String
+        type: String,
+        requestTimeout: Duration? = null,
     ) = sendFile(
         SendFileParams(
             owner = owner,
@@ -450,16 +451,27 @@ class TestService(private val baseUri: String, private val testName: String) {
             otherHash = false,
             otherAlgorithm = false,
             invalidHash = false
-        )
+        ),
+        requestTimeout,
     )
 
     @Suppress("LongParameterList")
     fun sendFile(
         params: SendFileParams
+    ) = sendFile(params, null)
+
+    private fun sendFile(
+        params: SendFileParams,
+        requestTimeout: Duration?,
     ) {
         val file = File(params.filePath)
         val instanceId = getInstanceId(params.owner, params.deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/sendFile", "POST")
+        requestTimeout?.let {
+            connection.readTimeout = maxOf(READ_TIMEOUT.toLong(), it.toMillis())
+                .coerceAtMost(Int.MAX_VALUE.toLong())
+                .toInt()
+        }
         val requestBody = JSONObject().apply {
             put("conversationId", params.convoId)
             if (params.convoDomain != ZINFRA) {
@@ -1059,7 +1071,8 @@ class TestService(private val baseUri: String, private val testName: String) {
         owner: ClientUser,
         participants: List<ClientUser>,
         chatName: String,
-        deviceName: String
+        deviceName: String,
+        cellsEnabled: Boolean = false,
     ) {
         val instanceId = getInstanceId(owner, deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/conversation", "POST")
@@ -1069,6 +1082,7 @@ class TestService(private val baseUri: String, private val testName: String) {
                 "${user.id}@${BackendClient.loadBackend(user.backendName.orEmpty()).domain}"
             }
             put("userIds", JSONArray(userIds))
+            if (cellsEnabled) put("cellsEnabled", true)
         }
         sendHttpRequest(connection, requestBody)
     }

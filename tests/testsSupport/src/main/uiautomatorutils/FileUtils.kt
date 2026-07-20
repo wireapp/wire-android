@@ -18,10 +18,12 @@ import kotlin.time.Duration
 private const val DOWNLOAD_DIR = "/sdcard/Download"
 
 data class DeviceTestFile(
-    val fileName: String,
+    val sourceFile: File,
     val size: Long,
     val sha256: String,
-)
+) {
+    val fileName: String = sourceFile.name
+}
 
 data class DeviceFileFingerprint(
     val path: String,
@@ -29,17 +31,16 @@ data class DeviceFileFingerprint(
     val sha256: String,
 )
 
-@Suppress("MagicNumber", "NestedBlockDepth")
-fun createDeterministicFileInDeviceDownloadsFolder(fileName: String, size: Long): DeviceTestFile {
+@Suppress("MagicNumber")
+fun createDeterministicFile(directory: File, fileName: String, size: Long): DeviceTestFile {
     require(size >= 0) { "File size must be non-negative." }
-    val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
-    val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-    if (!downloads.exists()) downloads.mkdirs()
+    require(directory.exists() || directory.mkdirs()) { "Could not create directory '${directory.absolutePath}'." }
+    val sourceFile = File(directory, fileName)
 
     val digest = MessageDigest.getInstance("SHA-256")
     val buffer = ByteArray(64 * 1024) { index -> ((index * 31 + 17) % 251).toByte() }
 
-    fun writeContent(output: java.io.OutputStream) {
+    FileOutputStream(sourceFile).use { output ->
         var remaining = size
         while (remaining > 0) {
             val count = minOf(remaining, buffer.size.toLong()).toInt()
@@ -49,35 +50,7 @@ fun createDeterministicFileInDeviceDownloadsFolder(fileName: String, size: Long)
         }
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        resolver.delete(
-            MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-            "${MediaStore.MediaColumns.DISPLAY_NAME} = ?",
-            arrayOf(fileName),
-        )
-        val values = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-            put(MediaStore.MediaColumns.IS_PENDING, 1)
-        }
-        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            ?: throw IOException("Failed to create MediaStore entry for $fileName")
-        try {
-            resolver.openOutputStream(uri)?.use(::writeContent)
-                ?: throw IOException("Failed to open output stream for $uri")
-            values.clear()
-            values.put(MediaStore.MediaColumns.IS_PENDING, 0)
-            resolver.update(uri, values, null, null)
-        } catch (error: Exception) {
-            resolver.delete(uri, null, null)
-            throw error
-        }
-    } else {
-        FileOutputStream(File(downloads, fileName)).use(::writeContent)
-    }
-
-    return DeviceTestFile(fileName, size, digest.digest().toHexString())
+    return DeviceTestFile(sourceFile, size, digest.digest().toHexString())
 }
 
 fun waitUntilAppExternalFileMatches(

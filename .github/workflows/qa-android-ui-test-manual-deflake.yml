@@ -231,7 +231,11 @@ jobs:
         run: bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
 
       - name: Build test APK (assemble once)
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
+        env:
+          TEST_SERVICE_URL: ${{ vars.TEST_SERVICE_URL }}
+        run: |
+          : "${TEST_SERVICE_URL:?Configure the TEST_SERVICE_URL GitHub Actions variable}"
+          bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
 
       - name: Resolve test APK path
         run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-test-apk-path

@@ -18,22 +18,21 @@
 package com.wire.android.feature.cells.util
 
 import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.os.Build
-import androidx.core.content.FileProvider
 import com.wire.android.di.ApplicationContext
+import com.wire.android.util.shareableFileProviderUri
+import com.wire.android.util.startShareIntentWithTrustedWireTarget
+import dev.zacsweers.metro.Inject
 import okio.Path
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
-import dev.zacsweers.metro.Inject
 
 class FileHelper @Inject constructor(
     @ApplicationContext private val context: Context
@@ -117,12 +116,7 @@ class FileHelper @Inject constructor(
                 setDataAndType(assetUri, mimeType)
                 putExtra(Intent.EXTRA_STREAM, assetUri)
             }
-            val chooserIntent = Intent.createChooser(intent, null).apply {
-                excludeOwnShareTargets(intent)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            context.startActivity(chooserIntent)
+            context.startShareIntentWithTrustedWireTarget(intent)
         } catch (e: java.lang.IllegalArgumentException) {
             onError()
         } catch (noActivityFoundException: ActivityNotFoundException) {
@@ -137,11 +131,7 @@ class FileHelper @Inject constructor(
                 setType("text/plain")
                 putExtra(Intent.EXTRA_TEXT, url)
             }
-            val chooserIntent = Intent.createChooser(intent, null).apply {
-                excludeOwnShareTargets(intent)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(chooserIntent)
+            context.startShareIntentWithTrustedWireTarget(intent)
         } catch (e: java.lang.IllegalArgumentException) {
             onError()
         } catch (noActivityFoundException: ActivityNotFoundException) {
@@ -157,26 +147,6 @@ class FileHelper @Inject constructor(
      */
     fun getExternalFilesDir(): File = context.getExternalFilesDir(null) ?: context.filesDir
 
-    private fun Context.getProviderAuthority() = "$packageName.provider"
-
     private fun Context.pathToUri(assetDataPath: Path, assetName: String?): Uri =
-        FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile(), assetName ?: assetDataPath.name)
-
-    private fun Intent.excludeOwnShareTargets(sendIntent: Intent) {
-        val ownShareComponents = context.packageManager.queryIntentActivitiesCompat(sendIntent)
-            .map { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
-            .filter { it.packageName == context.packageName }
-            .toTypedArray()
-        if (ownShareComponents.isNotEmpty()) {
-            putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, ownShareComponents)
-        }
-    }
-
-    private fun PackageManager.queryIntentActivitiesCompat(intent: Intent) =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
-        } else {
-            @Suppress("DEPRECATION")
-            queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-        }
+        shareableFileProviderUri(assetDataPath.toFile(), assetName ?: assetDataPath.name)
 }

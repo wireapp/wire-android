@@ -505,6 +505,37 @@ class TestServiceHelper(
         )
     }
 
+    fun assertMessageReceivedInPersonalMlsConversation(
+        receiverAlias: String,
+        deviceName: String,
+        conversationWithAlias: String,
+        message: String,
+    ) {
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObjPersonal(receiver, conversationWithAlias)
+        val received = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = 1.seconds
+        ) {
+            runCatching {
+                testServiceClient.getMessageIdByText(
+                    owner = receiver,
+                    deviceName = deviceName,
+                    convoId = conversation.qualifiedID.id,
+                    convoDomain = conversation.qualifiedID.domain,
+                    text = message,
+                )
+            }.isSuccess
+        }
+
+        if (!received) {
+            throw AssertionError(
+                "Test-service device '$deviceName' for '$receiverAlias' did not receive '$message' " +
+                    "in its MLS conversation with '$conversationWithAlias'."
+            )
+        }
+    }
+
     fun userSendEphemeralMessageToConversation(
         senderAlias: String,
         msg: String,

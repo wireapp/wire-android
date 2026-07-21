@@ -46,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -162,12 +163,15 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.launchUpdateTheApp
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
@@ -211,6 +215,8 @@ class WireActivity : BaseActivity() {
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
+    private var appLockObservationJob: Job? = null
+    private var isAppLockActivityLaunching = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val startupAt = SystemClock.elapsedRealtime()
@@ -251,6 +257,10 @@ class WireActivity : BaseActivity() {
             traceStartup("activity.initialAppState.resolved:$startDestination", startupAt)
             setComposableContent(startDestination)
             traceStartup("activity.setContent.done", startupAt)
+
+            if (lockCodeTimeManager.value.isAppLocked()) {
+                startAppLockActivity(currentUserId = viewModel.globalAppState.currentUserId)
+            }
 
             traceStartup("activity.splash.hide", startupAt)
             shouldKeepSplashOpen = false
@@ -1092,34 +1102,39 @@ class WireActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         shakeDetector.start()
+        isAppLockActivityLaunching = false
 
-        lifecycleScope.launch {
-            lockCodeTimeManager.value.observeAppLock()
-                // Listen to one flow in a lifecycle-aware manner using flowWithLifecycle
-                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                .first().let {
-                    if (it) {
-                        withContext(Dispatchers.Main) {
-                            startAppLockActivity()
-                        }
-                    }
-                }
+        appLockObservationJob?.cancel()
+        appLockObservationJob = lifecycleScope.launch {
+            observeAppLockUserId(
+                isAppLocked = lockCodeTimeManager.value.observeAppLock(),
+                currentUserId = snapshotFlow { viewModel.globalAppState.currentUserId },
+            ).first().let { currentUserId ->
+                startAppLockActivity(currentUserId = currentUserId)
+            }
         }
     }
 
     override fun onPause() {
+        appLockObservationJob?.cancel()
+        appLockObservationJob = null
         shakeDetector.stop()
         super.onPause()
     }
 
-    private fun startAppLockActivity(setTeamAppLock: Boolean = false) {
-        val currentUserId = viewModel.globalAppState.currentUserId ?: run {
+    private fun startAppLockActivity(
+        setTeamAppLock: Boolean = false,
+        currentUserId: UserId? = viewModel.globalAppState.currentUserId,
+    ) {
+        if (isAppLockActivityLaunching) return
+        val resolvedUserId = currentUserId ?: run {
             appLogger.e("$TAG appLock: missing current user id, skipping app lock activity")
             return
         }
+        isAppLockActivityLaunching = true
         startActivity(
             Intent(this, AppLockActivity::class.java).apply {
-                putExtra(AppLockActivity.EXTRA_USER_ID, currentUserId.toString())
+                putExtra(AppLockActivity.EXTRA_USER_ID, resolvedUserId.toString())
                 if (setTeamAppLock) {
                     putExtra(AppLockActivity.SET_TEAM_APP_LOCK, true)
                 }
@@ -1223,6 +1238,13 @@ class WireActivity : BaseActivity() {
         private const val TAG = "WireActivity"
     }
 }
+
+internal fun observeAppLockUserId(
+    isAppLocked: Flow<Boolean>,
+    currentUserId: Flow<UserId?>,
+): Flow<UserId> = combine(isAppLocked, currentUserId) { isLocked, userId ->
+    userId.takeIf { isLocked }
+}.filterNotNull()
 
 private data class WireActivityScopedViewModels(
     val callFeedbackViewModel: CallFeedbackViewModel,

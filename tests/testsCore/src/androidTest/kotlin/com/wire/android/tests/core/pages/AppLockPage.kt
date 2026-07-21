@@ -22,17 +22,37 @@ import androidx.test.uiautomator.UiDevice
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration.Companion.seconds
 
 data class AppLockPage(private val device: UiDevice) {
     private val appLockPageTitle = UiSelectorParams(text = "Enter passcode to unlock Wire")
     private val passcodeField = UiSelectorParams(resourceId = "password")
     private val unlockButton = UiSelectorParams(text = "Unlock")
     private val wrongPasscodeErrorMessage = UiSelectorParams(text = "Check your passcode and try again")
+    private val biometricPromptTitle = UiSelectorParams(text = "Authenticate with biometrics")
+    private val biometricPromptSubtitle = UiSelectorParams(text = "To unlock Wire")
+    private val usePasscodeButton = UiSelectorParams(text = "Use passcode")
     private val editTextClass = By.clazz("android.widget.EditText")
+
+    fun assertAppLockGateVisible(): AppLockPage {
+        val gate = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(appLockPageTitle, biometricPromptTitle, biometricPromptSubtitle),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        ) ?: throw AssertionError("Neither the biometric prompt nor the app lock passcode page is visible")
+        assertTrue("App lock gate is not visible", !gate.visibleBounds.isEmpty)
+        return this
+    }
 
     fun assertAppLockPageVisible(): AppLockPage {
         val title = UiWaitUtils.waitElement(appLockPageTitle)
         assertTrue("App lock page is not visible", !title.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapUsePasscodeOnBiometricPromptIfVisible(): AppLockPage {
+        if (UiWaitUtils.clickWhenClickable(usePasscodeButton, timeout = 1.seconds)) {
+            device.waitForIdle()
+        }
         return this
     }
 

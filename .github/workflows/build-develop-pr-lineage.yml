@@ -77,6 +77,8 @@ jobs:
           OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
           APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_DEBUG_DRYRUN_B64 }}
         run: |
+          set -uo pipefail
+
           APKSIGNER_BIN="$(command -v apksigner)"
           if [ -z "${APKSIGNER_BIN}" ]; then
             APKSIGNER_BIN="$(find "${ANDROID_HOME}/build-tools" -name apksigner -type f | sort -V | tail -n1)"
@@ -106,39 +108,48 @@ jobs:
           ls -lh "${OLD_KEYSTORE_PATH}" "${CURRENT_KEYSTORE_PATH}" "${LINEAGE_PATH}"
 
           echo "Inspecting old signer alias: ${OLD_KEY_ALIAS}"
+          OLD_LOG="${TMP_DIR}/old-signer.log"
           if ! keytool -list -v \
             -keystore "${OLD_KEYSTORE_PATH}" \
             -alias "${OLD_KEY_ALIAS}" \
             -storepass "${OLD_STORE_PASSWORD}" \
-            "${old_keypass_args[@]}"; then
+            "${old_keypass_args[@]}" > "${OLD_LOG}" 2>&1; then
+            cat "${OLD_LOG}"
             echo "Failed to inspect old signer with alias '${OLD_KEY_ALIAS}'. Available aliases in old keystore:"
             keytool -list \
               -keystore "${OLD_KEYSTORE_PATH}" \
               -storepass "${OLD_STORE_PASSWORD}" || true
             exit 1
           fi
+          cat "${OLD_LOG}"
 
           echo "Inspecting current signer alias: ${CURRENT_KEY_ALIAS}"
+          CURRENT_LOG="${TMP_DIR}/current-signer.log"
           if ! keytool -list -v \
             -keystore "${CURRENT_KEYSTORE_PATH}" \
             -alias "${CURRENT_KEY_ALIAS}" \
             -storepass "${CURRENT_STORE_PASSWORD}" \
-            "${current_keypass_args[@]}"; then
+            "${current_keypass_args[@]}" > "${CURRENT_LOG}" 2>&1; then
+            cat "${CURRENT_LOG}"
             echo "Failed to inspect current signer with alias '${CURRENT_KEY_ALIAS}'. Available aliases in current keystore:"
             keytool -list \
               -keystore "${CURRENT_KEYSTORE_PATH}" \
               -storepass "${CURRENT_STORE_PASSWORD}" || true
             exit 1
           fi
+          cat "${CURRENT_LOG}"
 
           echo "Inspecting lineage contents"
+          LINEAGE_LOG="${TMP_DIR}/lineage.log"
           if ! "${APKSIGNER_BIN}" lineage \
             --in "${LINEAGE_PATH}" \
             --print-certs \
-            --verbose; then
+            --verbose > "${LINEAGE_LOG}" 2>&1; then
+            cat "${LINEAGE_LOG}"
             echo "Failed to inspect lineage file"
             exit 1
           fi
+          cat "${LINEAGE_LOG}"
 
       - name: Build DevDebug APK
         env:

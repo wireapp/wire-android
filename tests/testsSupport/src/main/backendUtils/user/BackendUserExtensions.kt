@@ -31,7 +31,6 @@ import org.json.JSONObject
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
 import user.utils.ClientUser
-import java.net.HttpCookie
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -79,20 +78,16 @@ fun BackendClient.createWirelessUserViaBackend(user: ClientUser): ClientUser {
         requestBody.put("expires_in", user.expiresIn!!.seconds)
     }
 
-    val response = NetworkBackendClient.sendJsonRequest(
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
         url = url,
         method = "POST",
         body = requestBody.toString(),
         headers = mapOf(BackendClient.contentType to BackendClient.applicationJson)
     )
 
-    val connection = url.openConnection() as HttpURLConnection
-    val cookiesHeader = connection.getHeaderField("Set-Cookie")
-    val cookies = HttpCookie.parse(cookiesHeader).toList()
-
-    val json = JSONObject(response)
+    val json = JSONObject(response.body)
     user.id = json.getString("id")
-    val accessCookie = AccessCookie("zuid", cookies)
+    val accessCookie = AccessCookie("zuid", response.cookies)
     user.accessCredentials = AccessCredentials(null, accessCookie)
 
     val activationCode = getActivationCodeForEmail(user.email.orEmpty())

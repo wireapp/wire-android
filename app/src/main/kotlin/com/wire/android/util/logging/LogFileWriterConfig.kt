@@ -18,7 +18,7 @@
 
 package com.wire.android.util.logging
 
-data class LogFileWriterV2Config(
+data class LogFileWriterConfig(
     val flushIntervalMs: Long = DEFAULT_FLUSH_INTERVAL_MS,
     val maxBufferSize: Int = DEFAULT_MAX_BUFFER_SIZE,
     val bufferSizeBytes: Int = DEFAULT_BUFFER_SIZE_BYTES,
@@ -34,6 +34,6 @@ data class LogFileWriterV2Config(
         private const val DEFAULT_FLUSH_TIMEOUT_MS = 5000L // 5 seconds
         private const val DEFAULT_BUFFER_LOCK_TIMEOUT_MS = 3000L // 3 seconds
 
-        fun default() = LogFileWriterV2Config()
+        fun default() = LogFileWriterConfig()
     }
 }

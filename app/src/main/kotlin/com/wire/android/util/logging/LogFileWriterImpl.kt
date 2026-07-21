@@ -51,9 +51,9 @@ import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
 @Suppress("TooGenericExceptionCaught", "TooManyFunctions")
-class LogFileWriterV2Impl(
+class LogFileWriterImpl(
     private val logsDirectory: File,
-    private val config: LogFileWriterV2Config = LogFileWriterV2Config.default()
+    private val config: LogFileWriterConfig = LogFileWriterConfig.default()
 ) : LogFileWriter {
 
     private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
@@ -426,7 +426,7 @@ class LogFileWriterV2Impl(
     }
 
     companion object {
-        private const val LOG_TAG = "LogFileWriterV2"
+        private const val LOG_TAG = "LogFileWriter"
         private const val LOG_FILE_PREFIX = "wire"
         private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
         private const val LOG_COMPRESSED_FILES_MAX_COUNT = 10

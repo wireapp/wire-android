@@ -19,7 +19,6 @@ package com.wire.android.tests.core.criticalFlows
 
 import InbucketClient
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.BackendClient
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
@@ -47,7 +46,6 @@ class PersonalAccountLifeCycle : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        backendClient = BackendClient.loadBackend("STAGING")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")

@@ -41,6 +41,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -60,7 +62,7 @@ fun BrowseChannelsEmptyScreen(modifier: Modifier = Modifier) {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(dimensions().spacing8x))
-            val searchUrl = stringResource(id = R.string.url_create_channel_learn_more)
+            val searchUrl = supportUrlResource(SupportPage.CREATE_CHANNEL)
             Text(
                 text = stringResource(R.string.label_learn_more_about_channels),
                 style = MaterialTheme.wireTypography.body02.copy(

@@ -26,6 +26,8 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.EmailComposer
+import com.wire.android.util.SupportPage
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getProviderAuthority
@@ -130,15 +132,14 @@ suspend fun Context.bugReportLogsSharingIntent(archiveFile: File): Intent {
     val supportEmail = BackendSupportConfig.resolveEmail(this, getString(R.string.send_bug_report_email))
     if (supportEmail == null) {
         BackendSupportConfig.supportPageIntent()?.let { return it }
-        getString(R.string.url_support).takeIf { it.isNotBlank() }?.let {
-            return Intent(Intent.ACTION_VIEW, Uri.parse(it))
-        }
+        return Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(SupportUrlResolver.resolve(resources, SupportPage.SUPPORT))
+        )
     }
 
     val intent = logsSharingIntent(archiveFile).apply {
-        supportEmail?.let {
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(it))
-        }
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(supportEmail))
         putExtra(Intent.EXTRA_SUBJECT, getString(R.string.send_bug_report_subject))
         putExtra(
             Intent.EXTRA_TEXT,

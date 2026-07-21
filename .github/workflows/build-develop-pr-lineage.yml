@@ -75,15 +75,15 @@ jobs:
       - name: Apply lineage signing to DevDebug APK
         env:
           APK_DIR: app/build/outputs/apk/dev/debug
-          CURRENT_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_DEBUG_OLD }}
-          CURRENT_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG_OLD }}
-          CURRENT_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG_OLD }}
-          CURRENT_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG_OLD }}
+          CURRENT_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_DEBUG_DRYRUN }}
+          CURRENT_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG_DRYRUN }}
+          CURRENT_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG_DRYRUN }}
+          CURRENT_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG_DRYRUN }}
           OLD_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
           OLD_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
           OLD_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
           OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
-          APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_DEBUG_B64 }}
+          APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_DEBUG_DRYRUN_B64 }}
         run: |
           CURRENT_KEYSTORE_PATH="${RUNNER_TEMP}/keystore/debug-lineage-current.keystore"
           mkdir -p "$(dirname "${CURRENT_KEYSTORE_PATH}")"

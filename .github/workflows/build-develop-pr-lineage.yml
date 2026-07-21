@@ -72,6 +72,54 @@ jobs:
           DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
         run: ./gradlew app:assembleDevDebug
 
+      - name: Debug lineage materials
+        env:
+          CURRENT_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_DEBUG_DRYRUN }}
+          CURRENT_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG_DRYRUN }}
+          CURRENT_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG_DRYRUN }}
+          CURRENT_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG_DRYRUN }}
+          OLD_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
+          OLD_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
+          OLD_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
+          OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
+          APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_DEBUG_DRYRUN_B64 }}
+        run: |
+          APKSIGNER_BIN="$(command -v apksigner)"
+          if [ -z "${APKSIGNER_BIN}" ]; then
+            APKSIGNER_BIN="$(find "${ANDROID_HOME}/build-tools" -name apksigner -type f | sort -V | tail -n1)"
+          fi
+
+          TMP_DIR="$(mktemp -d)"
+          trap 'rm -rf "$TMP_DIR"' EXIT
+
+          OLD_KEYSTORE_PATH="${TMP_DIR}/old-debug.keystore"
+          CURRENT_KEYSTORE_PATH="${TMP_DIR}/current-debug-dryrun.keystore"
+          LINEAGE_PATH="${TMP_DIR}/debug-dryrun.lineage"
+
+          printf '%s' "${OLD_KEYSTORE_B64}" | base64 -d > "${OLD_KEYSTORE_PATH}"
+          printf '%s' "${CURRENT_KEYSTORE_B64}" | base64 -d > "${CURRENT_KEYSTORE_PATH}"
+          printf '%s' "${APK_SIGNING_LINEAGE_B64}" | base64 -d > "${LINEAGE_PATH}"
+
+          echo "Old signer alias: ${OLD_KEY_ALIAS}"
+          keytool -list -v \
+            -keystore "${OLD_KEYSTORE_PATH}" \
+            -alias "${OLD_KEY_ALIAS}" \
+            -storepass "${OLD_STORE_PASSWORD}" \
+            ${OLD_KEY_PASSWORD:+-keypass "${OLD_KEY_PASSWORD}"}
+
+          echo "Current signer alias: ${CURRENT_KEY_ALIAS}"
+          keytool -list -v \
+            -keystore "${CURRENT_KEYSTORE_PATH}" \
+            -alias "${CURRENT_KEY_ALIAS}" \
+            -storepass "${CURRENT_STORE_PASSWORD}" \
+            ${CURRENT_KEY_PASSWORD:+-keypass "${CURRENT_KEY_PASSWORD}"}
+
+          echo "Lineage contents:"
+          "${APKSIGNER_BIN}" lineage \
+            --in "${LINEAGE_PATH}" \
+            --print-certs \
+            --verbose
+
       - name: Apply lineage signing to DevDebug APK
         env:
           APK_DIR: app/build/outputs/apk/dev/debug

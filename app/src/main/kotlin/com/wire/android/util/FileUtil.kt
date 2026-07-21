@@ -20,21 +20,17 @@
 
 package com.wire.android.util
 
-import android.app.ActivityOptions
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.database.Cursor
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Environment
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Parcelable
@@ -46,7 +42,6 @@ import android.provider.MediaStore.MediaColumns.SIZE
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.webkit.MimeTypeMap
-import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -55,8 +50,6 @@ import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.isAudioMimeType
-import com.wire.kalium.logic.util.buildFileName
-import com.wire.kalium.logic.util.splitFileExtensionAndCopyCounter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -66,7 +59,6 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
-import java.nio.file.Files
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -385,94 +377,6 @@ fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetNa
     }
 }
 
-fun Context.externalShareChooserIntent(
-    sendIntent: Intent,
-    title: CharSequence? = null,
-    excludeOwnComponents: Boolean = true
-): Intent =
-    Intent.createChooser(sendIntent, title).apply {
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (!excludeOwnComponents) return@apply
-        val ownShareComponents = packageManager.queryIntentActivitiesCompat(sendIntent)
-            .map { ComponentName(it.activityInfo.packageName, it.activityInfo.name) }
-            .filter { it.packageName == packageName }
-            .toTypedArray()
-        if (ownShareComponents.isNotEmpty()) {
-            putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, ownShareComponents)
-        }
-    }
-
-fun Context.startShareIntentWithTrustedWireTarget(sendIntent: Intent, title: CharSequence? = null) {
-    val chooserIntent = externalShareChooserIntent(
-        sendIntent = sendIntent,
-        title = title,
-        excludeOwnComponents = !supportsTrustedWireShareCaller()
-    )
-    startActivity(chooserIntent, shareIdentityOptionsBundle())
-}
-
-fun supportsTrustedWireShareCaller(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
-
-private fun shareIdentityOptionsBundle(): Bundle? =
-    if (supportsTrustedWireShareCaller()) {
-        ActivityOptions.makeBasic()
-            .setShareIdentityEnabled(true)
-            .toBundle()
-    } else {
-        null
-    }
-
-fun Context.fileProviderSharedCacheFile(fileName: String): File {
-    val shareDirectory = fileProviderSharedCacheDirectory()
-    deleteStaleFileProviderSharedCacheFiles(shareDirectory)
-    return File(shareDirectory, findFirstUniqueName(shareDirectory, fileName.ifBlank { ATTACHMENT_FILENAME }))
-}
-
-fun Context.shareableFileProviderUri(sourceFile: File, displayName: String? = null): Uri {
-    val shareFile = when {
-        sourceFile.isInDirectory(fileProviderSharedCacheDirectory()) -> sourceFile
-        else -> linkOrCopyToFileProviderSharedCache(sourceFile, displayName ?: sourceFile.name)
-    }
-    return fileProviderUri(shareFile, displayName)
-}
-
-private fun Context.linkOrCopyToFileProviderSharedCache(sourceFile: File, displayName: String): File {
-    val shareFile = fileProviderSharedCacheFile(displayName)
-    runCatching {
-        Files.createLink(shareFile.toPath(), sourceFile.toPath())
-    }.recoverCatching {
-        sourceFile.copyTo(shareFile, overwrite = true)
-    }.getOrThrow()
-    return shareFile
-}
-
-private fun Context.fileProviderSharedCacheDirectory(): File =
-    File(cacheDir, FILE_PROVIDER_SHARED_CACHE_DIRECTORY).apply { mkdirs() }
-
-private fun Context.fileProviderUri(file: File, displayName: String? = null): Uri =
-    FileProvider.getUriForFile(this, getProviderAuthority(), file, displayName ?: file.name)
-
-private fun File.isInDirectory(directory: File): Boolean {
-    val directoryPath = directory.canonicalFile.toPath()
-    return canonicalFile.toPath().startsWith(directoryPath)
-}
-
-private fun deleteStaleFileProviderSharedCacheFiles(directory: File) {
-    val oldestAllowedTimestamp = System.currentTimeMillis() - FILE_PROVIDER_SHARED_CACHE_MAX_AGE_MILLIS
-    directory.listFiles()
-        ?.filter { it.isFile && it.lastModified() < oldestAllowedTimestamp }
-        ?.forEach(File::delete)
-}
-
-private fun PackageManager.queryIntentActivitiesCompat(intent: Intent) =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()))
-    } else {
-        @Suppress("DEPRECATION")
-        queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
-    }
-
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
     Build.VERSION.SDK_INT >= SDK_VERSION -> getParcelableExtra(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
@@ -550,26 +454,6 @@ suspend fun Context.getDependenciesVersion(): Map<String, String?> = withContext
     }
 }
 
-fun Context.getProviderAuthority() = "$packageName.provider"
-
-@VisibleForTesting
-fun findFirstUniqueName(dir: File, desiredName: String): String {
-    var currentName: String = desiredName.sanitizeFilename()
-    while (File(dir, currentName).exists()) {
-        val (nameWithoutCopyCounter, copyCounter, extension) = currentName.splitFileExtensionAndCopyCounter()
-        currentName = buildFileName(nameWithoutCopyCounter, extension, copyCounter + 1).sanitizeFilename()
-    }
-    return currentName
-}
-
-/**
- * Removes disallowed characters and returns valid filename.
- *
- * Uses the same cases as in `isValidFatFilenameChar` and `isValidExtFilenameChar` from [android.os.FileUtils].
- */
-@VisibleForTesting
-fun String.sanitizeFilename(): String = replace(Regex("[\u0000-\u001f\u007f\"*/:<>?\\\\|]"), "_")
-
 fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
     if (isAudioMimeType(mimeType)) {
         val retriever = MediaMetadataRetriever()
@@ -584,8 +468,5 @@ fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
 
 private const val ATTACHMENT_FILENAME = "attachment"
 private const val DATA_COPY_BUFFER_SIZE = 2048
-const val FILE_PROVIDER_SHARED_FILES_ROOT = "shared_files"
-private const val FILE_PROVIDER_SHARED_CACHE_DIRECTORY = "file-provider-shares"
-private const val FILE_PROVIDER_SHARED_CACHE_MAX_AGE_MILLIS = 24 * 60 * 60 * 1000L
 const val SDK_VERSION = 33
 const val SUPPORTED_AUDIO_MIME_TYPE = "audio/wav"

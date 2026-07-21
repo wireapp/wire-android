@@ -50,6 +50,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.EMPTY
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.common.error.CoreFailure
@@ -202,6 +203,7 @@ class NewLoginViewModel(
         serverConfig = ServerConfigProvider.EmptyServerConfig
         canUseBackend = false
         CustomTabsHelper.setBackendWebsiteUrl(null)
+        SupportUrlResolver.setBaseUrl(null)
         updateLoginFlowState(NewLoginFlowState.MissingBackendConfig)
     }
 
@@ -217,6 +219,7 @@ class NewLoginViewModel(
             when (val result = getServerConfigUseCase?.value?.invoke(configUrl)) {
                 is GetServerConfigResult.Success -> {
                     CustomTabsHelper.setBackendWebsiteUrl(result.serverConfigLinks.website)
+                    SupportUrlResolver.setBaseUrl(result.serverConfigLinks.website)
                     globalDataStore?.let {
                         BackendSupportConfig.storeFromServerLinks(it.value, result.serverConfigLinks)
                     }

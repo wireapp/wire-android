@@ -330,7 +330,11 @@ jobs:
 
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
+        env:
+          TEST_SERVICE_URL: ${{ vars.TEST_SERVICE_URL }}
+        run: |
+          : "${TEST_SERVICE_URL:?Configure the TEST_SERVICE_URL GitHub Actions variable}"
+          bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
 
       # Resolve the built androidTest APK path for execution steps.
       - name: Resolve test APK path

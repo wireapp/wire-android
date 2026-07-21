@@ -56,6 +56,7 @@ import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
@@ -147,6 +148,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
+    private val defaultServerConfig: ServerConfig.Links,
     private val automatedLoginManager: AutomatedLoginManager,
     private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
     private val loginTypeSelector: LoginTypeSelector,
@@ -239,9 +241,12 @@ class WireActivityViewModel @Inject constructor(
                     }.getOrNull()
                 }
                 serverLinks?.let(BackendSupportConfig::setCurrentBackend)
-                val websiteUrl = serverLinks?.website ?: managedConfigurationsManager.currentServerConfig?.website
+                val websiteUrl = serverLinks?.website
+                    ?: managedConfigurationsManager.currentServerConfig?.website
+                    ?: defaultServerConfig.website
 
                 CustomTabsHelper.setBackendWebsiteUrl(websiteUrl)
+                SupportUrlResolver.setBaseUrl(websiteUrl)
             }
         }
     }
@@ -685,6 +690,7 @@ class WireActivityViewModel @Inject constructor(
         when (val result = getServerConfigUseCase.value.invoke(url)) {
             is GetServerConfigResult.Success -> result.serverConfigLinks.also {
                 CustomTabsHelper.setBackendWebsiteUrl(it.website)
+                SupportUrlResolver.setBaseUrl(it.website)
                 BackendSupportConfig.storeFromServerLinks(globalDataStore.value, it)
             }
             is GetServerConfigResult.Failure.Generic -> {

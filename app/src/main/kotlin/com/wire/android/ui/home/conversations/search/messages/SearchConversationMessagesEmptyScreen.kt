@@ -39,6 +39,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -46,7 +48,7 @@ fun SearchConversationMessagesEmptyScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val searchUrl = stringResource(R.string.url_learn_about_conversation_search)
+    val searchUrl = supportUrlResource(SupportPage.CONVERSATION_SEARCH)
 
     Box(
         modifier = modifier.fillMaxSize(),

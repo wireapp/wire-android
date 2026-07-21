@@ -343,7 +343,7 @@ class ApplockTest : BaseUiTest() {
     @Test
     fun givenAppLockIsEnabled_whenAppIsColdStarted_thenUnlockGateIsShownBeforeConversationList() {
         val teamName = "AppLockColdStart"
-        val appLockPasscode = "A1a!".repeat(2)
+        val appLockPasscode = "A1a!A1a!"
 
         step("Given there is a team owner on the Staging backend") {
             backendSetupHelper.createTeamOwnerByAlias(
@@ -404,7 +404,10 @@ class ApplockTest : BaseUiTest() {
             }
 
             step("Then the unlock gate is visible before conversation content, attempt ${attempt + 1}") {
-                pages.appLockPage.assertAppLockGateVisible()
+                pages.appLockPage.assertAppLockGateVisibleBefore(
+                    otherScreen = pages.conversationListPage.conversationListHeadingSelector(),
+                    otherScreenName = "Conversation list"
+                )
                 pages.conversationListPage.assertConversationListNotVisible()
             }
 

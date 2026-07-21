@@ -45,4 +45,54 @@ class WireActivityAppLockTest {
 
         assertEquals(expectedUserId, result.await())
     }
+
+    @Test
+    fun givenAppIsNotLockedAndUserIdIsPresent_whenObserving_thenNothingIsEmitted() = runTest {
+        val isAppLocked = MutableStateFlow(false)
+        val currentUserId = MutableStateFlow<UserId?>(UserId("user", "domain"))
+
+        val result = async {
+            observeAppLockUserId(isAppLocked, currentUserId).first()
+        }
+        runCurrent()
+
+        assertFalse(result.isCompleted)
+        result.cancel()
+    }
+
+    @Test
+    fun givenUserIdIsPresent_whenAppBecomesLocked_thenAppLockUserIdIsEmitted() = runTest {
+        val isAppLocked = MutableStateFlow(false)
+        val expectedUserId = UserId("user", "domain")
+        val currentUserId = MutableStateFlow<UserId?>(expectedUserId)
+
+        val result = async {
+            observeAppLockUserId(isAppLocked, currentUserId).first()
+        }
+        runCurrent()
+        assertFalse(result.isCompleted)
+
+        isAppLocked.value = true
+
+        assertEquals(expectedUserId, result.await())
+    }
+
+    @Test
+    fun givenAppGetsUnlockedBeforeUserIdLoads_whenUserIdLoads_thenNothingIsEmitted() = runTest {
+        val isAppLocked = MutableStateFlow(true)
+        val currentUserId = MutableStateFlow<UserId?>(null)
+
+        val result = async {
+            observeAppLockUserId(isAppLocked, currentUserId).first()
+        }
+        runCurrent()
+
+        isAppLocked.value = false
+        runCurrent()
+        currentUserId.value = UserId("user", "domain")
+        runCurrent()
+
+        assertFalse(result.isCompleted)
+        result.cancel()
+    }
 }

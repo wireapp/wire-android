@@ -33,13 +33,30 @@ data class AppLockPage(private val device: UiDevice) {
     private val biometricPromptSubtitle = UiSelectorParams(text = "To unlock Wire")
     private val usePasscodeButton = UiSelectorParams(text = "Use passcode")
     private val editTextClass = By.clazz("android.widget.EditText")
+    private val appLockGateSelectors = listOf(appLockPageTitle, biometricPromptTitle, biometricPromptSubtitle)
 
     fun assertAppLockGateVisible(): AppLockPage {
         val gate = UiWaitUtils.waitAnyVisible(
-            selectors = listOf(appLockPageTitle, biometricPromptTitle, biometricPromptSubtitle),
+            selectors = appLockGateSelectors,
             timeout = UiWaitUtils.VERY_LONG_TIMEOUT
         ) ?: throw AssertionError("Neither the biometric prompt nor the app lock passcode page is visible")
         assertTrue("App lock gate is not visible", !gate.visibleBounds.isEmpty)
+        return this
+    }
+
+    /**
+     * Asserts that the app lock gate is the first screen to become visible, failing when
+     * [otherScreen] appears before it. Polling-based, so a flash shorter than the polling
+     * interval can still go unnoticed.
+     */
+    fun assertAppLockGateVisibleBefore(otherScreen: UiSelectorParams, otherScreenName: String): AppLockPage {
+        val winner = UiWaitUtils.waitFirstVisibleSelector(
+            selectors = appLockGateSelectors + otherScreen,
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        ) ?: throw AssertionError("Neither the app lock gate nor $otherScreenName became visible")
+        if (winner == otherScreen) {
+            throw AssertionError("$otherScreenName became visible before the app lock gate")
+        }
         return this
     }
 

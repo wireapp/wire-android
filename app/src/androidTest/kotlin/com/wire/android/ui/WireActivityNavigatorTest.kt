@@ -21,7 +21,11 @@ package com.wire.android.ui
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import androidx.navigation.createGraph
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 
@@ -62,5 +66,57 @@ class WireActivityNavigatorTest {
             assertNotSame(blockedController, currentController)
             assertNotSame(sessionController, currentController)
         }
+    }
+
+    @Test
+    fun givenNavigatorIsRecreatedWithoutActivityRecreation_whenReadingBackStack_thenStateTracksNewGraph() {
+        val isUserUiBlocked = mutableStateOf(false)
+        lateinit var currentController: NavHostController
+        var currentRoute: String? = null
+
+        composeTestRule.setContent {
+            val navigator = rememberWireActivityNavigator(
+                isUserUiBlocked = isUserUiBlocked.value,
+                finish = {},
+                isAllowedToNavigate = { true },
+            )
+            currentController = navigator.navController
+            currentRoute = rememberWireActivityCurrentBackStackEntryState(navigator)
+                .value
+                ?.destination
+                ?.route
+        }
+
+        composeTestRule.runOnIdle {
+            currentController.graph = currentController.createGraph(startDestination = SESSION_ROUTE) {
+                composable(SESSION_ROUTE) {}
+            }
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.runOnIdle {
+            assertEquals(SESSION_ROUTE, currentRoute)
+            isUserUiBlocked.value = true
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.runOnIdle {
+            assertNull(currentRoute)
+            isUserUiBlocked.value = false
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.runOnIdle {
+            assertNull(currentRoute)
+            currentController.graph = currentController.createGraph(startDestination = AUTH_ROUTE) {
+                composable(AUTH_ROUTE) {}
+            }
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.runOnIdle {
+            assertEquals(AUTH_ROUTE, currentRoute)
+        }
+    }
+
+    private companion object {
+        const val AUTH_ROUTE = "authentication"
+        const val SESSION_ROUTE = "session"
     }
 }

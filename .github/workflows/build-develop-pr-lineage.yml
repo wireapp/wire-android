@@ -79,9 +79,25 @@ jobs:
         run: |
           set -uo pipefail
 
-          APKSIGNER_BIN="$(command -v apksigner)"
+          APKSIGNER_BIN="$(command -v apksigner || true)"
           if [ -z "${APKSIGNER_BIN}" ]; then
-            APKSIGNER_BIN="$(find "${ANDROID_HOME}/build-tools" -name apksigner -type f | sort -V | tail -n1)"
+            for build_tools_dir in \
+              "${ANDROID_HOME:-}/build-tools" \
+              "${ANDROID_SDK_ROOT:-}/build-tools" \
+              "${ANDROID_SDK:-}/build-tools" \
+              "${HOME}/Library/Android/sdk/build-tools"; do
+              if [ -d "${build_tools_dir}" ]; then
+                APKSIGNER_BIN="$(find "${build_tools_dir}" -name apksigner -type f | sort -V | tail -n1)"
+                if [ -n "${APKSIGNER_BIN}" ]; then
+                  break
+                fi
+              fi
+            done
+          fi
+
+          if [ -z "${APKSIGNER_BIN}" ]; then
+            echo "Could not locate apksigner"
+            exit 1
           fi
 
           TMP_DIR="$(mktemp -d)"

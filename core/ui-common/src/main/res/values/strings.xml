@@ -23,9 +23,56 @@
     <string name="content_description_hide_password">Hide password</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
-    <string name="content_description_back_button">Back button</string>
-    <string name="content_description_left_arrow">Go Back</string>
-    <string name="content_description_close_button">Close button</string>
+    <string name="content_description_back_button">Back</string>
+    <string name="content_description_right_arrow">Right arrow</string>
+    <string name="content_description_left_arrow">Go back</string>
+    <string name="label_user_deleted">Deleted</string>
+    <string name="label_user_blocked">Blocked</string>
+    <string name="username_unavailable_label">Name not available</string>
+    <string name="content_description_add_contact">Add contact</string>
+    <string name="content_description_open_link_label">open link</string>
+    <string name="url_support" translatable="false">https://support.wire.com</string>
+    <string name="url_report_misuse" translatable="false">https://support.wire.com/hc/articles/202857164</string>
+    <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
+    <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115</string>
+    <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365</string>
+    <string name="url_file_sharing_restricted_learn_more" translatable="false">https://support.wire.com/hc/articles/4406404582673</string>
+    <string name="url_learn_about_conversation_search" translatable="false">https://support.wire.com/hc/articles/115001426529</string>
+    <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093</string>
+    <string name="url_mls_learn_more" translatable="false">https://support.wire.com/hc/articles/12434725011485</string>
+    <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/articles/212053645</string>
+    <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/articles/360000665277</string>
+    <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/articles/207692235</string>
+    <string name="url_self_client_verification_learn_more" translatable="false">https://support.wire.com/hc/articles/207693005</string>
+    <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581</string>
+    <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
+    <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
+    <string name="url_how_to_add_folders" translatable="false">https://support.wire.com/hc/articles/360002855817</string>
+    <string name="url_create_channel_learn_more" translatable="false">https://support.wire.com/hc/articles/25732551379101</string>
+    <string name="url_change_email" translatable="false">https://support.wire.com/hc/articles/203762940</string>
+    <string name="url_delete_personal_account" translatable="false">https://support.wire.com/hc/articles/207555795</string>
+    <string name="url_system_message_learn_more_about_e2ee" translatable="false">https://support.wire.com/hc/articles/10898523878173</string>
+    <string name="url_e2ee_id_shield" translatable="false">https://support.wire.com/hc/articles/9211300150685</string>
+    <string name="url_how_to_add_apps" translatable="false">https://support.wire.com/hc/articles/360000296158</string>
+    <string name="create_group_with_shared_drive_learn_more_url" translatable="false">https://support.wire.com/hc/articles/32207749480477</string>
+    <string name="url_call_network_quality_learn_more" translatable="false">https://support.wire.com/hc/articles/34087740781213</string>
+    <string name="url_legal_hold_learn_more" translatable="false">https://support.wire.com/hc/articles/360002018278</string>
+    <string name="empty_screen_learn_more_link_conversation" translatable="false">https://support.wire.com/hc/articles/32207745256221</string>
+    <string name="empty_screen_learn_more_link_all_files_screen" translatable="false">https://support.wire.com/hc/articles/32207800433309</string>
+    <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
+    <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
+    <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
+    <string name="connection_request_sent">Connection request sent</string>
+    <string name="connection_request_sent_federation_denied_error">Your backend does not federate with the backend of %1$s. You can not connect with them.</string>
+    <string name="connection_request_sent_error">Connection request could not be sent</string>
+    <string name="connection_request_cancel_error">Connection request could not be canceled</string>
+    <string name="connection_request_canceled">Connection request canceled</string>
+    <string name="connection_request_ignored">You ignored %1$s\'s request</string>
+    <string name="connection_request_accept_error">Connection request could not be accepted</string>
+    <string name="connection_request_accepted">Connection request accepted</string>
+    <string name="connection_request_ignore_error">Connection request could not be ignored</string>
+    <string name="error_unblocking_user">User could not be unblocked</string>
+    <string name="content_description_close_button">Close</string>
     <string name="content_description_close">Close</string>
     <string name="content_description_menu_button">Main navigation</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>

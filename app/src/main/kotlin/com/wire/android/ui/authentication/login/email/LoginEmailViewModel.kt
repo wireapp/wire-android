@@ -46,6 +46,7 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
 import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
@@ -164,6 +165,7 @@ class LoginEmailViewModel @Inject constructor(
             when (val result = getServerConfigUseCase?.value?.invoke(configUrl)) {
                 is GetServerConfigResult.Success -> {
                     CustomTabsHelper.setBackendWebsiteUrl(result.serverConfigLinks.website)
+                    SupportUrlResolver.setBaseUrl(result.serverConfigLinks.website)
                     globalDataStore?.let {
                         BackendSupportConfig.storeFromServerLinks(it.value, result.serverConfigLinks)
                     }

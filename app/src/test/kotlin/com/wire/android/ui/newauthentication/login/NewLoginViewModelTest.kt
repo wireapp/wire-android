@@ -21,6 +21,8 @@ import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.newauthentication.login.ValidateEmailOrSSOCodeUseCase.Result.ValidEmail
 import com.wire.android.util.EMPTY
+import com.wire.android.util.SupportPage
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.android.util.newServerConfig
@@ -51,6 +53,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.ExtendWith
@@ -60,6 +63,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
 class NewLoginViewModelTest {
     private val dispatchers = TestDispatcherProvider()
+
+    @AfterEach
+    fun tearDown() {
+        SupportUrlResolver.setBaseUrl(null)
+    }
 
     @Test
     fun `given onLoginStarted is called, when valid input is SSO, then proceed to SSO flow`() = runTest(dispatchers.main()) {
@@ -842,6 +850,7 @@ class NewLoginViewModelTest {
             val (arrangement, viewModel) = Arrangement()
                 .withUserIdentifierAlreadySet("user@example.com")
                 .arrange()
+            SupportUrlResolver.setBaseUrl("https://previous.example")
 
             viewModel.onNoBackendSelected()
             advanceUntilIdle()
@@ -851,6 +860,7 @@ class NewLoginViewModelTest {
             assertEquals(ServerConfigProvider.EmptyServerConfig, viewModel.serverConfig)
             assertEquals(NewLoginFlowState.MissingBackendConfig, viewModel.state.flowState)
             assertEquals(false, viewModel.state.nextEnabled)
+            assertEquals("/support/search", SupportUrlResolver.resolve("", SupportPage.SEARCH))
             verify(exactly = 0) {
                 arrangement.validateEmailOrSSOCodeUseCase(any())
             }
@@ -893,6 +903,10 @@ class NewLoginViewModelTest {
 
             assertEquals(serverConfig, viewModel.serverConfig)
             assertEquals(NewLoginFlowState.BackendConfigSuccess, viewModel.state.flowState)
+            assertEquals(
+                "${serverConfig.website.trimEnd('/')}/support/search",
+                SupportUrlResolver.resolve("", SupportPage.SEARCH)
+            )
             coVerify(exactly = 1) {
                 arrangement.getServerConfigUseCase(configUrl)
             }

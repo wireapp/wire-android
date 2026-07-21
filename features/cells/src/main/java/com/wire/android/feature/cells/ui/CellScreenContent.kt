@@ -61,12 +61,14 @@ import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog
+import com.wire.android.util.SupportPage
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.supportUrlResource
 import com.wire.kalium.cells.domain.paging.FileListLoadError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -301,14 +303,14 @@ private fun EmptyScreen(
         if (!isFiltering && !isRecycleBin && !isAllFiles) {
             LearnMoreLink(
                 textRes = R.string.empty_screen_learn_more_conversation,
-                urlRes = R.string.empty_screen_learn_more_link_conversation,
+                page = SupportPage.CELLS_CONVERSATION,
             )
         }
 
         if (isAllFiles) {
             LearnMoreLink(
                 textRes = R.string.empty_screen_learn_more,
-                urlRes = R.string.empty_screen_learn_more_link_all_files_screen,
+                page = SupportPage.CELLS_ALL_FILES,
             )
         }
 
@@ -323,12 +325,12 @@ private fun EmptyScreen(
 @Composable
 private fun LearnMoreLink(
     @StringRes textRes: Int,
-    @StringRes urlRes: Int,
+    page: SupportPage,
 ) {
     val context = LocalContext.current.applicationContext
     val onlineEditor = remember(context) { OnlineEditor(context) }
 
-    val url = stringResource(urlRes)
+    val url = supportUrlResource(page)
     Text(
         text = stringResource(textRes),
         style = MaterialTheme.wireTypography.body01,

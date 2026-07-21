@@ -59,11 +59,14 @@ elif resolved_category:
     selector_value = resolved_category
 
 android_device_id = env("ANDROID_DEVICE_ID")
+android_device_group = env("ANDROID_DEVICE_GROUP")
 device_mode = "auto_pool"
 if android_device_id:
     device_mode = "specific_device"
 elif resolved_test_case_id:
     device_mode = "single_testcase_auto"
+elif android_device_group:
+    device_mode = "device_group"
 
 metadata = {
     "schema_version": 1,
@@ -77,6 +80,7 @@ metadata = {
     "source_ref": env("SOURCE_REF"),
     "source_ref_name": env("SOURCE_REF_NAME"),
     "source_sha": env("SOURCE_SHA"),
+    "test_source_sha": env("TEST_SOURCE_SHA") or env("SOURCE_SHA"),
     "flavor": env("FLAVOR_INPUT"),
     "tags": env("TAGS_INPUT"),
     "selector_type": selector_type,
@@ -91,6 +95,7 @@ metadata = {
     "enforce_app_install": env_bool("ENFORCE_APP_INSTALL"),
     "testiny_run_name": env("TESTINY_RUN_NAME"),
     "android_device_id": android_device_id,
+    "android_device_group": android_device_group,
     "device_mode": device_mode,
     "device_count": env_int("DEVICE_COUNT"),
     "rerun_failed_enabled": env_bool("RERUN_FAILED_ENABLED"),

@@ -5,17 +5,13 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 from pathlib import Path
 
-attempt_dir = Path(os.environ["ATTEMPT_RESULTS_DIR"])
-failed_output = Path(os.environ["FAILED_TESTS_FILE"])
-
-if not attempt_dir.is_dir():
-    print(f"ERROR: ATTEMPT_RESULTS_DIR does not exist: {attempt_dir}", file=sys.stderr)
-    sys.exit(1)
-
 FAILED_STATUSES = {"failed", "broken", "unknown"}
+
+
+class ResultExtractionError(ValueError):
+    """Raised when Allure output cannot prove which tests executed."""
 
 
 def test_id_from_labels(data: dict) -> str:
@@ -73,26 +69,68 @@ def result_dirs(base: Path) -> list[Path]:
     return out
 
 
-failed = set()
-executed = set()
+def extract_attempt(attempt_dir: Path) -> tuple[set[str], set[str]]:
+    if not attempt_dir.is_dir():
+        raise ResultExtractionError(f"ATTEMPT_RESULTS_DIR does not exist: {attempt_dir}")
 
-for src_dir in result_dirs(attempt_dir):
-    for result_file in sorted(src_dir.glob("*-result.json")):
-        try:
-            data = json.loads(result_file.read_text(encoding="utf-8"))
-        except Exception:
-            # Ignore unreadable files.
-            continue
-        test_id = resolve_test_id(data)
-        if not test_id:
-            continue
-        executed.add(test_id)
-        status = data.get("status")
-        if isinstance(status, str) and status in FAILED_STATUSES:
-            failed.add(test_id)
+    failed = set()
+    executed = set()
+    invalid_files = []
+    missing_id_files = []
 
-failed_output.parent.mkdir(parents=True, exist_ok=True)
-failed_output.write_text("\n".join(sorted(failed)) + ("\n" if failed else ""), encoding="utf-8")
+    for src_dir in result_dirs(attempt_dir):
+        for result_file in sorted(src_dir.glob("*-result.json")):
+            try:
+                data = json.loads(result_file.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError, json.JSONDecodeError):
+                invalid_files.append(str(result_file))
+                continue
+            if not isinstance(data, dict):
+                invalid_files.append(str(result_file))
+                continue
 
-print(f"executed={len(executed)}")
-print(f"failed={len(failed)}")
+            test_id = resolve_test_id(data)
+            if not test_id:
+                missing_id_files.append(str(result_file))
+                continue
+            executed.add(test_id)
+            status = data.get("status")
+            if isinstance(status, str) and status.strip().lower() in FAILED_STATUSES:
+                failed.add(test_id)
+
+    problems = []
+    if invalid_files:
+        problems.append(f"invalid result files: {len(invalid_files)}")
+    if missing_id_files:
+        problems.append(f"result files without test identity: {len(missing_id_files)}")
+    if problems:
+        raise ResultExtractionError("; ".join(problems))
+    return executed, failed
+
+
+def write_test_ids(output: Path, test_ids: set[str]) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        "\n".join(sorted(test_ids)) + ("\n" if test_ids else ""),
+        encoding="utf-8",
+    )
+
+
+def main() -> None:
+    attempt_dir = Path(os.environ["ATTEMPT_RESULTS_DIR"])
+    failed_output = Path(os.environ["FAILED_TESTS_FILE"])
+    executed_output = Path(os.environ["EXECUTED_TESTS_FILE"])
+
+    try:
+        executed, failed = extract_attempt(attempt_dir)
+    except ResultExtractionError as error:
+        raise SystemExit(f"ERROR: {error}") from error
+
+    write_test_ids(failed_output, failed)
+    write_test_ids(executed_output, executed)
+    print(f"executed={len(executed)}")
+    print(f"failed={len(failed)}")
+
+
+if __name__ == "__main__":
+    main()

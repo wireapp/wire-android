@@ -283,17 +283,10 @@ class SendMessageViewModel(
                         mentions = mentions.map { it.intoMessageMention() },
                         prefetchedLinkPreview = prefetchedLinkPreview,
                     )
-                    val textToSend = message.removeStandalonePreviewUrl(
-                        target = detectLinkPreviewTarget(
-                            text = message,
-                            mentions = mentions.map { it.intoMessageMention() }
-                        ),
-                        hasPreview = linkPreviews.isNotEmpty()
-                    )
 
                     sendTextMessage(
                         conversationId = conversationId,
-                        text = textToSend,
+                        text = message,
                         linkPreviews = linkPreviews,
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
@@ -623,27 +616,6 @@ class SendMessageViewModel(
 
         val generatedPreview = withContext(dispatchers.io()) { generateLinkPreview(text = text, mentions = mentions) }
         return generatedPreview?.let(::listOf) ?: emptyList()
-    }
-
-    @Suppress("ReturnCount")
-    private fun String.removeStandalonePreviewUrl(
-        target: LinkPreviewTarget?,
-        hasPreview: Boolean,
-    ): String {
-        if (!hasPreview || target == null) return this
-
-        val rangeStart = target.position
-        val rangeEnd = rangeStart + target.url.length
-        if (rangeStart < 0 || rangeEnd > length) return this
-
-        val before = substring(0, rangeStart)
-        val after = substring(rangeEnd, length)
-
-        return if (before.isBlank() && after.isBlank()) {
-            (before + after).trim()
-        } else {
-            this
-        }
     }
 
     private fun AssetBundle.uploadParams(

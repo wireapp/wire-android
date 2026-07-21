@@ -22,6 +22,7 @@ import android.content.RestrictionsManager
 import com.wire.android.appLogger
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -40,7 +41,7 @@ interface ManagedConfigurationsManager {
      *
      * @see refreshServerConfig
      */
-    val currentServerConfig: ServerConfig.Links
+    val currentServerConfig: ServerConfig.Links?
 
     /**
      * Current SSO code if provided via managed configurations, empty string otherwise.
@@ -53,10 +54,10 @@ interface ManagedConfigurationsManager {
      * This should be called when the app starts, resumes, or when broadcast receiver triggers.
      *
      * The result indicates whether a valid config was found or if there was an error.
-     * Nevertheless, the config is either updated or defaulted to [ServerConfigProvider.getDefaultServerConfig()].
+     * Nevertheless, the config is either updated or defaulted to [ServerConfigProvider.getDefaultServerConfigOrNull()].
      *
      * @return result of the update attempt, either success with the config,
-     * default [ServerConfigProvider.getDefaultServerConfig()] if no config found or cleared, or failure with reason.
+     * default [ServerConfigProvider.getDefaultServerConfigOrNull()] if no config found or cleared, or failure with reason.
      */
     suspend fun refreshServerConfig(): ServerConfigResult
 
@@ -105,8 +106,8 @@ internal class ManagedConfigurationsManagerImpl(
         MutableStateFlow(runBlocking { globalDataStore.isPersistentWebSocketEnforcedByMDM().first() })
     }
 
-    override val currentServerConfig: ServerConfig.Links
-        get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfig()
+    override val currentServerConfig: ServerConfig.Links?
+        get() = _currentServerConfig.get() ?: serverConfigProvider.getDefaultServerConfigOrNull()
 
     override val currentSSOCodeConfig: String
         get() = _currentSSOCodeConfig.get()
@@ -116,15 +117,16 @@ internal class ManagedConfigurationsManagerImpl(
 
     override suspend fun refreshServerConfig(): ServerConfigResult = withContext(dispatchers.io()) {
         val managedServerConfig = getServerConfig()
-        val serverConfig: ServerConfig.Links = when (managedServerConfig) {
+        val serverConfig: ServerConfig.Links? = when (managedServerConfig) {
             is ServerConfigResult.Empty,
-            is ServerConfigResult.Failure -> serverConfigProvider.getDefaultServerConfig(null)
+            is ServerConfigResult.Failure -> serverConfigProvider.getDefaultServerConfigOrNull(null)
 
-            is ServerConfigResult.Success -> serverConfigProvider.getDefaultServerConfig(
+            is ServerConfigResult.Success -> serverConfigProvider.getDefaultServerConfigOrNull(
                 managedServerConfig.config
             )
         }
         _currentServerConfig.set(serverConfig)
+        serverConfig?.let { BackendSupportConfig.storeFromServerLinks(globalDataStore, it) }
         logger.i("Server config refreshed: $serverConfig")
         managedServerConfig
     }

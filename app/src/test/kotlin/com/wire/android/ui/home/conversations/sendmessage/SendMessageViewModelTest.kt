@@ -156,7 +156,7 @@ class SendMessageViewModelTest {
         coVerify(exactly = 1) {
             arrangement.sendTextMessage(
                 conversationId = conversationId,
-                text = "",
+                text = "https://wire.com",
                 linkPreviews = listOf(preview),
                 mentions = emptyList(),
                 quotedMessageId = null
@@ -195,7 +195,7 @@ class SendMessageViewModelTest {
         coVerify {
             arrangement.sendTextMessage(
                 conversationId = conversationId,
-                text = "",
+                text = "https://wire.com",
                 linkPreviews = listOf(preview),
                 mentions = emptyList(),
                 quotedMessageId = null
@@ -204,7 +204,7 @@ class SendMessageViewModelTest {
     }
 
     @Test
-    fun `given standalone link with preview when sending then raw link is removed from outgoing text`() = runTest {
+    fun `given standalone link with preview when sending then raw link remains in outgoing text`() = runTest {
         val preview = MessageLinkPreview(
             url = "https://wire.com",
             urlOffset = 1,
@@ -232,7 +232,7 @@ class SendMessageViewModelTest {
         coVerify {
             arrangement.sendTextMessage(
                 conversationId = conversationId,
-                text = "",
+                text = " https://wire.com ",
                 linkPreviews = listOf(preview),
                 mentions = emptyList(),
                 quotedMessageId = null

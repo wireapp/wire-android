@@ -8,6 +8,7 @@ set -euo pipefail
 : "${DEVICE_LIST:?DEVICE_LIST missing}"
 : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
 : "${APP_ID:?APP_ID missing}"
+: "${TEST_APP_ID:?TEST_APP_ID missing}"
 : "${TEST_APK_PATH:?TEST_APK_PATH missing}"
 : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
 : "${TEST_SERVICES_APK_PATH:?TEST_SERVICES_APK_PATH missing}"
@@ -151,9 +152,33 @@ declare -a RERUN_INLINE_PARTS=()
 extract_failed_ids() {
   local attempt="$1"
   local failed_output="$2"
+  local executed_output="$3"
   ATTEMPT_RESULTS_DIR="${ALLURE_RESULTS_ROOT}/attempt-${attempt}" \
     FAILED_TESTS_FILE="${failed_output}" \
+    EXECUTED_TESTS_FILE="${executed_output}" \
     python3 scripts/qa_android_ui_tests/extract_failed_tests.py
+}
+
+validate_explicit_attempt_coverage() {
+  local attempt="$1"
+  local executed_file="$2"
+  shift 2
+  local devices=("$@")
+  local expected_file="${STATE_DIR}/attempt-${attempt}-expected.txt"
+  local difference_file="${STATE_DIR}/attempt-${attempt}-coverage-difference.txt"
+
+  : > "${expected_file}"
+  for serial in "${devices[@]}"; do
+    cat "$(rerun_list_file_for_device "${attempt}" "${serial}")" >> "${expected_file}"
+  done
+  sort -u "${expected_file}" -o "${expected_file}"
+
+  comm -3 "${expected_file}" "${executed_file}" > "${difference_file}"
+  if [[ -s "${difference_file}" ]]; then
+    echo "ERROR: Attempt ${attempt} Allure results do not match the explicitly assigned test IDs."
+    echo "Coverage difference: ${difference_file}"
+    return 1
+  fi
 }
 
 build_rerun_inline_parts() {
@@ -413,14 +438,16 @@ run_attempt_on_devices() {
       fi
 
       local instr_list instrumentation
-      # Prefer the custom runner so retry args go through TaggedFilter.
-      # Fall back to the app-targeted instrumentation if needed.
+      # testsCore is a library androidTest APK, so its instrumentation targets
+      # the generated test app rather than the Wire app driven by UI Automator.
+      # Bind to the exact package from the freshly built test APK so a stale or
+      # unrelated TaggedTestRunner cannot receive instrumentation arguments.
       instr_list="$(${adb_cmd} shell pm list instrumentation 2>/dev/null | tr -d '\r' || true)"
-      instrumentation="$(printf '%s\n' "${instr_list}" | grep -m1 'TaggedTestRunner' | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
-      if [[ -z "${instrumentation}" ]]; then
-        instrumentation="$(printf '%s\n' "${instr_list}" | grep -m1 "target=${APP_ID}" | sed -E 's/^instrumentation:([^ ]+).*/\1/' || true)"
-      fi
-      if [[ -z "${instrumentation}" ]]; then
+      if ! instrumentation="$(
+        INSTRUMENTATION_LIST="${instr_list}" \
+          TEST_APP_ID="${TEST_APP_ID}" \
+          python3 scripts/qa_android_ui_tests/resolve_instrumentation.py
+      )"; then
         echo "[${serial}] ERROR: Could not resolve instrumentation. Installed instrumentations:"
         printf '%s\n' "${instr_list}" | sed -u "s/^/[${serial}] /"
         exit 1
@@ -610,9 +637,20 @@ while true; do
   fi
 
   attempt_failed_file="${STATE_DIR}/attempt-${attempt}-failed.txt"
-  extract_failed_ids "${attempt}" "${attempt_failed_file}"
+  attempt_executed_file="${STATE_DIR}/attempt-${attempt}-executed.txt"
+  extract_failed_ids "${attempt}" "${attempt_failed_file}" "${attempt_executed_file}"
+  executed_count="$(wc -l < "${attempt_executed_file}" | tr -d ' ')"
+  if (( executed_count == 0 )); then
+    echo "ERROR: Attempt ${attempt} produced no identifiable executed tests."
+    exit 1
+  fi
+  if ! attempt_uses_selector_mode "${attempt}"; then
+    if ! validate_explicit_attempt_coverage "${attempt}" "${attempt_executed_file}" "${attempt_devices[@]}"; then
+      exit 1
+    fi
+  fi
   failed_count="$(wc -l < "${attempt_failed_file}" | tr -d ' ')"
-  echo "Attempt ${attempt} failed tests: ${failed_count}"
+  echo "Attempt ${attempt} results: executed=${executed_count}, failed=${failed_count}"
 
   if [[ ! -f "${first_failed_file}" ]]; then
     cp "${attempt_failed_file}" "${first_failed_file}"

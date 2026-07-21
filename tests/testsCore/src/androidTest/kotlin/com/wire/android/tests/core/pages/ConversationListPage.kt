@@ -70,6 +70,7 @@ data class ConversationListPage(private val device: UiDevice) {
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
     private val pendingApprovalLabel = UiSelectorParams(description = "pending approval of connection request")
+
     /**
      * Exposes the heading selector for cross-screen assertions, e.g. verifying that another
      * screen becomes visible before the conversation list on cold start.

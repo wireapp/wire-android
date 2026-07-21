@@ -73,7 +73,7 @@ class AvatarPickerViewModel @Inject constructor(
     val infoMessage = _infoMessage.asSharedFlow()
     val defaultAvatarPath: Path
         get() = kaliumFileSystem.selfUserAvatarPath()
-    val temporaryAvatarUri: Uri = avatarImageManager.getShareableTempAvatarUri(defaultAvatarPath)
+    val temporaryAvatarUri: Uri = avatarImageManager.createCameraOutputAvatarUri(defaultAvatarPath)
 
     init {
         loadInitialAvatarState()

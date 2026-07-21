@@ -39,7 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -413,11 +413,13 @@ class WireActivity : BaseActivity() {
             isUserUiBlocked = isUserUiBlocked,
             sessionTransitionReason = sessionTransitionReason,
         )
-        HandleRetainedSessionGraphInvalidation(
-            shouldInvalidate = shouldInvalidateRetainedSessionGraph,
-            lastSessionGraphContext = lastSessionGraphContext,
-            sessionGraphStore = sessionGraphStore,
-        )
+        LaunchedEffect(shouldInvalidateRetainedSessionGraph) {
+            lastSessionGraphContext.value = invalidateRetainedSessionGraphIfNeeded(
+                shouldInvalidate = shouldInvalidateRetainedSessionGraph,
+                lastSessionGraphContext = lastSessionGraphContext.value,
+                sessionGraphStore = sessionGraphStore,
+            )
+        }
         val graphContextWithRetainedImageLoader = graphContext?.copy(
             imageLoaderSessionGraph = resolveWireActivityImageLoaderSessionGraph(
                 activeSessionGraph = graphContext.sessionGraph,
@@ -466,18 +468,15 @@ class WireActivity : BaseActivity() {
         noSessionAuthenticationStartedWithoutSession = noSessionAuthenticationStartedWithoutSession,
     )
 
-    @Composable
-    private fun HandleRetainedSessionGraphInvalidation(
+    private fun invalidateRetainedSessionGraphIfNeeded(
         shouldInvalidate: Boolean,
-        lastSessionGraphContext: MutableState<WireActivityGraphContext?>,
+        lastSessionGraphContext: WireActivityGraphContext?,
         sessionGraphStore: SessionGraphStoreViewModel,
-    ) {
-        LaunchedEffect(shouldInvalidate) {
-            if (shouldInvalidate) {
-                lastSessionGraphContext.value?.sessionGraph?.currentAccount?.let(sessionGraphStore::invalidate)
-                lastSessionGraphContext.value = null
-            }
-        }
+    ): WireActivityGraphContext? {
+        if (!shouldInvalidate) return lastSessionGraphContext
+
+        lastSessionGraphContext?.sessionGraph?.currentAccount?.let(sessionGraphStore::invalidate)
+        return null
     }
 
     private fun isNavigationAllowed(navigationCommand: NavigationCommand): Boolean {
@@ -1317,6 +1316,7 @@ internal class SessionGraphStoreViewModel(
     }
 }
 
+@Stable
 internal class RetainedSessionGraph(
     val graph: AppSessionViewModelGraph,
     override val viewModelStore: ViewModelStore = ViewModelStore(),

@@ -39,7 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +61,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountCodeScreenDestination
@@ -360,7 +361,7 @@ class WireActivity : BaseActivity() {
             finish = this@WireActivity::finish,
             isAllowedToNavigate = ::isNavigationAllowed
         )
-        val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
+        val currentBackStackEntryState = rememberWireActivityCurrentBackStackEntryState(navigator)
         val currentBaseRoute = currentBackStackEntryState.value
             ?.destination
             ?.route
@@ -416,12 +417,8 @@ class WireActivity : BaseActivity() {
             currentBaseRoute != null && canRetainSessionGraphForContent -> lastSessionGraphContext.value
             else -> null
         }
-        val backgroundType by remember {
-            derivedStateOf {
-                currentBackStackEntryState.value?.safeDestination()?.style.let {
-                    (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
-                }
-            }
+        val backgroundType = currentBackStackEntryState.value?.safeDestination()?.style.let {
+            (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
         }
 
         HandleSessionGraphEffects(
@@ -1235,6 +1232,15 @@ internal fun rememberWireActivityNavigator(
         finish = finish,
         isAllowedToNavigate = isAllowedToNavigate,
     )
+}
+
+@Composable
+internal fun rememberWireActivityCurrentBackStackEntryState(
+    navigator: Navigator,
+): State<NavBackStackEntry?> = key(navigator.navController) {
+    // collectAsState retains its previous value while changing flows, so reset its composition
+    // identity with the controller to avoid exposing a route from the discarded navigation graph.
+    navigator.navController.currentBackStackEntryAsState()
 }
 
 private data class WireActivityScopedViewModels(

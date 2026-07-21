@@ -83,7 +83,7 @@ class SupportUrlResolverTest {
 
         val result = SupportUrlResolver.resolve(hardcodedUrl = "", page = SupportPage.SUPPORT)
 
-        assertEquals("https://custom.example/support/support", result)
+        assertEquals("https://custom.example/support", result)
     }
 
     @Test

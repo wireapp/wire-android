@@ -8,6 +8,7 @@ set -euo pipefail
 : "${DEVICE_LIST:?DEVICE_LIST missing}"
 : "${DEVICE_COUNT:?DEVICE_COUNT missing}"
 : "${APP_ID:?APP_ID missing}"
+: "${TEST_APP_ID:?TEST_APP_ID missing}"
 : "${TEST_APK_PATH:?TEST_APK_PATH missing}"
 : "${RUNNER_TEMP:?RUNNER_TEMP not set}"
 : "${TEST_SERVICES_APK_PATH:?TEST_SERVICES_APK_PATH missing}"
@@ -437,13 +438,14 @@ run_attempt_on_devices() {
       fi
 
       local instr_list instrumentation
-      # Resolve only instrumentation that targets the exact app installed for
-      # this run. This prevents a stale or hostile TaggedTestRunner package from
-      # receiving Testiny credentials and other instrumentation arguments.
+      # testsCore is a library androidTest APK, so its instrumentation targets
+      # the generated test app rather than the Wire app driven by UI Automator.
+      # Bind to the exact package from the freshly built test APK so a stale or
+      # unrelated TaggedTestRunner cannot receive instrumentation arguments.
       instr_list="$(${adb_cmd} shell pm list instrumentation 2>/dev/null | tr -d '\r' || true)"
       if ! instrumentation="$(
         INSTRUMENTATION_LIST="${instr_list}" \
-          TARGET_APP_ID="${APP_ID}" \
+          TEST_APP_ID="${TEST_APP_ID}" \
           python3 scripts/qa_android_ui_tests/resolve_instrumentation.py
       )"; then
         echo "[${serial}] ERROR: Could not resolve instrumentation. Installed instrumentations:"

@@ -22,6 +22,12 @@ package com.wire.android.ui.calling.ongoing
 
 import android.view.View
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -472,15 +478,13 @@ private fun OngoingCallContent(
             }
         },
     ) { internalPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(internalPadding)
                 .fillMaxSize()
         ) {
             BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                modifier = Modifier.fillMaxSize()
             ) {
                 LaunchedEffect(this.maxHeight.value) {
                     inCallReactionsState.updateHeight(this@BoxWithConstraints.maxHeight.value)
@@ -571,11 +575,25 @@ private fun OngoingCallContent(
                     }
                 }
             }
-            if (showInCallReactionsPanel && inCallReactionsEnabled) {
+            AnimatedVisibility(
+                visible = showInCallReactionsPanel && inCallReactionsEnabled,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enter = fadeIn(
+                    animationSpec = tween(IN_CALL_REACTIONS_PANEL_ANIMATION_DURATION_MILLIS)
+                ) + slideInVertically(
+                    animationSpec = tween(IN_CALL_REACTIONS_PANEL_ANIMATION_DURATION_MILLIS),
+                    initialOffsetY = { panelHeight -> panelHeight / 4 }
+                ),
+                exit = fadeOut(
+                    animationSpec = tween(IN_CALL_REACTIONS_PANEL_ANIMATION_DURATION_MILLIS)
+                ) + slideOutVertically(
+                    animationSpec = tween(IN_CALL_REACTIONS_PANEL_ANIMATION_DURATION_MILLIS),
+                    targetOffsetY = { panelHeight -> panelHeight / 4 }
+                )
+            ) {
                 InCallReactionsPanel(
                     onReactionClick = onReactionClick,
                     onMoreClick = { emojiPickerState.show(Unit) },
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
             }
             EmojiPickerBottomSheet(
@@ -846,3 +864,5 @@ fun buildPreviewParticipantsList(count: Int = 10) = buildList {
         )
     }
 }.toPersistentList()
+
+private const val IN_CALL_REACTIONS_PANEL_ANIMATION_DURATION_MILLIS = 200

@@ -23,28 +23,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.WireTheme
-
-@Composable
-fun MeetingShowAllFooter(onShowAll: () -> Unit, modifier: Modifier = Modifier) {
-    WireSecondaryButton(
-        text = stringResource(R.string.meeting_button_show_all),
-        onClick = onShowAll,
-        fillMaxWidth = true,
-        minSize = dimensions().buttonSmallMinSize,
-        minClickableSize = dimensions().buttonMinClickableSize,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimensions().spacing16x),
-    )
-}
 
 @Composable
 fun MeetingLoadMoreFooter(modifier: Modifier = Modifier) {
@@ -56,12 +39,6 @@ fun MeetingLoadMoreFooter(modifier: Modifier = Modifier) {
     ) {
         WireCircularProgressIndicator(progressColor = colorsScheme().onSurface, size = dimensions().spacing24x)
     }
-}
-
-@Composable
-@PreviewMultipleThemes
-fun PreviewMeetingShowAllFooter() = WireTheme {
-    MeetingShowAllFooter(onShowAll = {})
 }
 
 @Composable

@@ -321,7 +321,21 @@ resolve_test_apk_path() {
     echo "ERROR: Could not find built androidTest APK under tests/testsCore/build/outputs/apk/androidTest/debug/"
     exit 1
   fi
+
+  local test_apk_metadata_path test_app_id
+  test_apk_metadata_path="$(dirname "${test_apk_path}")/output-metadata.json"
+  if [[ ! -f "${test_apk_metadata_path}" ]]; then
+    echo "ERROR: Could not find test APK metadata at ${test_apk_metadata_path}"
+    exit 1
+  fi
+  test_app_id="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["applicationId"])' "${test_apk_metadata_path}")"
+  if [[ -z "${test_app_id}" ]]; then
+    echo "ERROR: Test APK metadata has an empty applicationId"
+    exit 1
+  fi
+
   echo "TEST_APK_PATH=${test_apk_path}" >> "$GITHUB_ENV"
+  echo "TEST_APP_ID=${test_app_id}" >> "$GITHUB_ENV"
 }
 
 # Resolve newest cached artifacts so Test Services/Orchestrator can be installed without rebuilding.

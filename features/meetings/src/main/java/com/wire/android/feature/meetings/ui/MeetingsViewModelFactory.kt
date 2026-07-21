@@ -21,18 +21,18 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
-import com.wire.android.feature.meetings.ui.usecase.GetMeetingUseCase
-import com.wire.android.feature.meetings.ui.usecase.GetMeetingsPaginatedUseCase
+import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUseCase
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
+import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import dev.zacsweers.metro.Inject
 
 class MeetingsViewModelFactory @Inject constructor(
     private val currentTimeProvider: CurrentTimeProvider,
     private val dispatcher: DispatcherProvider,
-    private val getMeetingsPaginated: GetMeetingsPaginatedUseCase,
-    private val getMeeting: GetMeetingUseCase,
+    private val getMeetingsPaginated: GetPaginatedFlowOfMeetingsUseCase,
+    private val observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase,
     private val observeActiveCalls: ObserveActiveCallsUseCase,
 ) {
     internal fun meetingListViewModel(type: MeetingsTabItem) = MeetingListViewModelImpl(
@@ -43,7 +43,9 @@ class MeetingsViewModelFactory @Inject constructor(
         dispatcher = dispatcher,
     )
 
-    internal fun meetingOptionsMenuViewModel() = MeetingOptionsMenuViewModelImpl(getMeeting = getMeeting)
+    internal fun meetingOptionsMenuViewModel() = MeetingOptionsMenuViewModelImpl(
+        observeMeetingOccurrenceUseCase = observeMeetingOccurrenceUseCase
+    )
 
     internal fun newMeetingViewModel(savedStateHandle: SavedStateHandle) = NewMeetingViewModelImpl(
         savedStateHandle = savedStateHandle,

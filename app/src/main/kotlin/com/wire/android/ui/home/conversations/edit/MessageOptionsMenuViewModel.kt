@@ -29,13 +29,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.Serializable
-import java.util.concurrent.ConcurrentHashMap
+
 @ViewModelScopedPreview
 interface MessageOptionsMenuViewModel {
     fun observeMessageStateFlow(messageId: String): StateFlow<MessageOptionsMenuState> =
@@ -47,11 +47,10 @@ class MessageOptionsMenuViewModelImpl(
     private val args: MessageOptionsMenuArgs,
 ) : MessageOptionsMenuViewModel, ViewModel() {
 
-    private val messageStateFlow: ConcurrentHashMap<String, StateFlow<MessageOptionsMenuState>> = ConcurrentHashMap()
-
-    override fun observeMessageStateFlow(messageId: String): StateFlow<MessageOptionsMenuState> = messageStateFlow.getOrPut(messageId) {
-        flowOf(messageId)
-            .flatMapConcat {
+    private val currentIdFlow = MutableStateFlow<String?>(null)
+    private val stateFlow = currentIdFlow
+        .flatMapLatest { messageId ->
+            messageId?.let {
                 observeMessageForConversation(args.conversationId, messageId)
                     .map {
                         when {
@@ -59,14 +58,19 @@ class MessageOptionsMenuViewModelImpl(
                             else -> MessageOptionsMenuState.NotAvailable
                         }
                     }
-            }
-            .distinctUntilChanged()
-            .onCompletion { messageStateFlow.remove(messageId) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L),
-                initialValue = MessageOptionsMenuState.Loading,
-            )
+                    .onStart { emit(MessageOptionsMenuState.Loading) }
+            } ?: flowOf(MessageOptionsMenuState.Loading)
+        }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L, replayExpirationMillis = 0L),
+            initialValue = MessageOptionsMenuState.Loading,
+        )
+
+    override fun observeMessageStateFlow(messageId: String): StateFlow<MessageOptionsMenuState> {
+        currentIdFlow.value = messageId
+        return stateFlow
     }
 }
 

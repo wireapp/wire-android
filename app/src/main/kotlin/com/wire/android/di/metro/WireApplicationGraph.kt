@@ -39,6 +39,7 @@ import com.wire.android.di.accountScoped.ClientModule
 import com.wire.android.di.accountScoped.ConnectionModule
 import com.wire.android.di.accountScoped.ConversationModule
 import com.wire.android.di.accountScoped.DebugModule
+import com.wire.android.di.accountScoped.MeetingModule
 import com.wire.android.di.accountScoped.MessageModule
 import com.wire.android.di.accountScoped.SearchModule
 import com.wire.android.di.accountScoped.ServicesModule
@@ -101,6 +102,7 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
         ServicesModule::class,
         TeamModule::class,
         UserModule::class,
+        MeetingModule::class,
         WireMetroViewModelBindings::class,
         CellsMetroViewModelBindings::class,
         MeetingsMetroViewModelBindings::class,

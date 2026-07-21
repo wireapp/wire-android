@@ -62,6 +62,8 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.MarkdownTextStyle
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.markdownBold
@@ -108,7 +110,7 @@ fun SystemMessageItem(
             ) {
                 val context = LocalContext.current
                 var expanded: Boolean by remember { mutableStateOf(initiallyExpanded) }
-                val learnMoreLink = learnMoreLinkResId?.let { stringResource(id = it) }
+                val learnMoreLink = learnMorePage?.let { supportUrlResource(it) }
 
                 TextWithLinkSuffix(
                     textStyle = MaterialTheme.wireTypography.body01,
@@ -327,7 +329,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     is SystemMessage.MLSWrongEpochWarning -> buildContent(
         iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
-        learnMoreLinkResId = R.string.url_system_message_learn_more_about_mls
+        learnMorePage = SupportPage.MLS
     ) {
         stringResource(id = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled).toMarkdownAnnotatedString()
     }
@@ -372,10 +374,10 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     is SystemMessage.ConversationProtocolChanged -> buildContent(
         iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
-        learnMoreLinkResId = when (protocol) {
+        learnMorePage = when (protocol) {
             Conversation.Protocol.PROTEUS -> null
-            Conversation.Protocol.MIXED -> R.string.url_system_message_learn_more_about_mls
-            Conversation.Protocol.MLS -> R.string.url_system_message_learn_more_about_mls
+            Conversation.Protocol.MIXED,
+            Conversation.Protocol.MLS -> SupportPage.MLS
         },
         learnMoreTextResId = when (protocol) {
             Conversation.Protocol.PROTEUS -> R.string.label_learn_more
@@ -449,7 +451,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     is SystemMessage.FederationStopped -> buildContent(
         iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
-        learnMoreLinkResId = R.string.url_federation_support,
+        learnMorePage = SupportPage.FEDERATION_SUPPORT,
     ) {
         stringResource(
             id = when {
@@ -463,7 +465,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     is SystemMessage.LegalHold -> buildContent(
         iconResId = R.drawable.ic_legal_hold,
         iconTintColor = MaterialTheme.wireColorScheme.error,
-        learnMoreLinkResId = commonR.string.url_legal_hold_learn_more,
+        learnMorePage = SupportPage.LEGAL_HOLD,
     ) {
         stringResource(
             id = when (this) {
@@ -484,11 +486,11 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
         iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.error,
         expandable = true,
-        learnMoreLinkResId = when (type) {
-            Type.Federation -> R.string.url_message_details_offline_backends_learn_more
-            Type.LegalHold -> commonR.string.url_legal_hold_learn_more
+        learnMorePage = when (type) {
+            Type.Federation -> SupportPage.OFFLINE_BACKENDS
+            Type.LegalHold -> SupportPage.LEGAL_HOLD
             Type.Unknown -> null
-            Type.MissingKeyPackages -> R.string.url_mls_learn_more
+            Type.MissingKeyPackages -> SupportPage.MLS
         }
     ) { expanded ->
         val markdownTextStyle = DefaultMarkdownTextStyle.copy(
@@ -524,7 +526,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
         iconTintColor = MaterialTheme.wireColorScheme.onPositiveVariant,
         backgroundColor = MaterialTheme.wireColorScheme.positiveVariant,
         additionalVerticalPaddings = MaterialTheme.wireDimensions.spacing12x,
-        learnMoreLinkResId = R.string.url_system_message_learn_more_about_e2ee
+        learnMorePage = SupportPage.E2EE
     ) {
         val markdownTextStyle = DefaultMarkdownTextStyle.copy(
             normalColor = MaterialTheme.wireColorScheme.onSurface,
@@ -644,7 +646,7 @@ private fun List<UIText>.limitList(
 @Composable
 private fun buildContent(
     expandable: Boolean = false,
-    @StringRes learnMoreLinkResId: Int? = null,
+    learnMorePage: SupportPage? = null,
     @StringRes learnMoreTextResId: Int = R.string.label_learn_more,
     @DrawableRes iconResId: Int = commonR.drawable.ic_info,
     iconTintColor: Color? = MaterialTheme.wireColorScheme.onBackground,
@@ -654,7 +656,7 @@ private fun buildContent(
     annotatedStringBuilder: @Composable (expanded: Boolean) -> AnnotatedString,
 ) = SystemMessageContent(
     expandable = expandable,
-    learnMoreLinkResId = learnMoreLinkResId,
+    learnMorePage = learnMorePage,
     learnMoreTextResId = learnMoreTextResId,
     iconResId = iconResId,
     iconTintColor = iconTintColor,
@@ -675,7 +677,7 @@ val DefaultMarkdownTextStyle
 @Stable
 data class SystemMessageContent(
     val expandable: Boolean,
-    @get:StringRes val learnMoreLinkResId: Int?,
+    val learnMorePage: SupportPage?,
     @get:StringRes val learnMoreTextResId: Int,
     @get:DrawableRes val iconResId: Int?,
     val iconTintColor: Color?,

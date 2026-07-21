@@ -861,6 +861,27 @@ public fun com.wire.android.ui.analyticsUsageViewModel(): com.wire.android.ui.an
   params:
 
 @Composable
+public fun com.wire.android.ui.authentication.BackendConfigSuccessContent(modifier: androidx.compose.ui.Modifier, onContinue: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - onContinue: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.authentication.MissingBackendConfigContent(modifier: androidx.compose.ui.Modifier, showTitle: kotlin.Boolean, centerText: kotlin.Boolean, verticalArrangement: androidx.compose.foundation.layout.Arrangement.Vertical, errorText: kotlin.String?, isLoading: kotlin.Boolean, onConfigurationLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>?): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - showTitle: STABLE (primitive type)
+    - centerText: STABLE (primitive type)
+    - verticalArrangement: STABLE (marked @Stable or @Immutable)
+    - errorText: STABLE (class with no mutable properties)
+    - isLoading: STABLE (primitive type)
+    - onConfigurationLinkEntered: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.authentication.authenticationViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?): VM of com.wire.android.ui.authentication.authenticationViewModel
   skippable: false
   restartable: true
@@ -10214,10 +10235,11 @@ public fun com.wire.android.ui.miscViewModel(): VM of com.wire.android.ui.miscVi
   params:
 
 @Composable
-internal fun com.wire.android.ui.newauthentication.login.BackendSelectorDropDown(): kotlin.Unit
+internal fun com.wire.android.ui.newauthentication.login.BackendSelectorDropDown(onNoBackendSelected: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - onNoBackendSelected: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.newauthentication.login.EmailOrSSOCodeInput(userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, error: kotlin.String?): kotlin.Unit
@@ -10236,7 +10258,7 @@ private fun com.wire.android.ui.newauthentication.login.EnterBackendNameDialog(o
     - onDismiss: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, onNextClicked: kotlin.Function0<kotlin.Unit>, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, onNextClicked: kotlin.Function0<kotlin.Unit>, onBackendConfigLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>, onBackendConfigSuccessContinue: kotlin.Function0<kotlin.Unit>, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -10244,6 +10266,9 @@ private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailS
     - userIdentifierState: STABLE (marked @Stable or @Immutable)
     - serverConfig: UNSTABLE (has mutable properties or unstable members)
     - onNextClicked: STABLE (function type)
+    - onBackendConfigLinkEntered: STABLE (function type)
+    - onBackendConfigSuccessContinue: STABLE (function type)
+    - onNoBackendSelected: STABLE (function type)
     - canNavigateBack: STABLE (primitive type)
     - navigateBack: STABLE (function type)
 
@@ -10264,12 +10289,14 @@ private fun com.wire.android.ui.newauthentication.login.NavigationBarBackground(
   params:
 
 @Composable
-public fun com.wire.android.ui.newauthentication.login.NewAuthContainer(header: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, contentPadding: androidx.compose.ui.unit.Dp, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.newauthentication.login.NewAuthContainer(header: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, contentPadding: androidx.compose.ui.unit.Dp, showBackendSelector: kotlin.Boolean, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - header: STABLE (composable function type)
     - contentPadding: STABLE (marked @Stable or @Immutable)
+    - showBackendSelector: STABLE (primitive type)
+    - onNoBackendSelected: STABLE (function type)
     - content: STABLE (composable function type)
 
 @Composable

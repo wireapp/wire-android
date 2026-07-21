@@ -73,6 +73,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.ConversationId
@@ -361,7 +363,7 @@ private fun GroupOptionState.AllowAppsOptions(onAllowServicesChanged: (Boolean) 
 @Composable
 private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -> Unit) {
     val context = LocalContext.current
-    val cellsLearnMoreUrl = stringResource(R.string.create_group_with_shared_drive_learn_more_url)
+    val cellsLearnMoreUrl = supportUrlResource(SupportPage.SHARED_DRIVE)
 
     GroupConversationOptionsItem(
         title = stringResource(R.string.enable_wire_cell),

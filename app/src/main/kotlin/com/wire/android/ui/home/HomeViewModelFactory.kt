@@ -75,8 +75,6 @@ class HomeViewModelFactory @Inject constructor(
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
-    private val observeIsWireCellsEnabled: ObserveIsWireCellsEnabledUseCase,
-    private val observeIsAtLeastOneCellAvailable: ObserveIsAtLeastOneCellAvailableUseCase,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,
@@ -119,8 +117,7 @@ class HomeViewModelFactory @Inject constructor(
         observeArchivedUnreadConversationsCount = observeArchivedUnreadConversationsCount,
         observeSelfUser = observeSelf,
         getTeamUrl = getTeamUrl,
-        observeIsWireCellsEnabled = observeIsWireCellsEnabled,
-        observeIsAtLeastOneCellAvailable = observeIsAtLeastOneCellAvailable
+        isWireCellsEnabled = isWireCellsEnabled,
     )
 
     fun featureFlagNotificationViewModel() = FeatureFlagNotificationViewModel(

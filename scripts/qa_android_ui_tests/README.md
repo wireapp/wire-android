@@ -7,6 +7,28 @@ These scripts back the Android UI test workflows:
 
 The workflows call a small set of phase-oriented scripts instead of many tiny one-off files.
 
+## Test Service URL
+
+The test service URL is compiled into the instrumentation APK when it is built.
+CI reads it from the GitHub Actions variable `TEST_SERVICE_URL`. Configure the
+variable with the full URL, including scheme and port, that is reachable from
+the test devices, for example `http://test-service.internal:8080`.
+
+For local runs, set the URL once in the ignored root `local.properties` file:
+
+```properties
+testServiceUrl=http://10.0.2.2:8080
+```
+
+`10.0.2.2` reaches the host machine from the standard Android emulator. For a
+USB-connected physical device, run `adb reverse tcp:8080 tcp:8080` and use
+`http://127.0.0.1:8080`. Alternatively, use the laptop's LAN address when the
+device is on the same network and the Docker port is exposed on that address.
+
+For a one-off local override, pass
+`-PtestServiceUrl=http://10.0.2.2:8080`. `TEST_SERVICE_URL` has the highest
+precedence, followed by the Gradle property and then `local.properties`.
+
 ## Workflow Summary
 
 ### `qa-android-critical-flow-tests.yml`

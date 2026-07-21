@@ -30,6 +30,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
@@ -105,6 +106,7 @@ class SSODeviceBackup : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -120,6 +122,7 @@ class SSODeviceBackup : BaseUiTest() {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email ?: "")
                 enterKeycloakPassword(member1.password ?: "")
+                closeKeyboardIfOpened()
                 tapKeycloakSignIn()
             }
         }
@@ -274,6 +277,7 @@ class SSODeviceBackup : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 

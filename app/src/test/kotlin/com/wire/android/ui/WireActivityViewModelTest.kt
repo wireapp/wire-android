@@ -54,6 +54,8 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.SupportPage
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
@@ -96,6 +98,7 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
@@ -120,6 +123,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -127,6 +131,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class WireActivityViewModelTest {
+
+    @AfterEach
+    fun tearDown() {
+        SupportUrlResolver.setBaseUrl(null)
+    }
 
     @Test
     fun `given Intent is null, when currentSession is present, then initialAppState is LOGGED_IN`() = runTest {
@@ -787,6 +796,64 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given session changes, when resolving support url, then use current session website`() = runTest {
+        val firstSession = AccountInfo.Valid(UserId("user1", "domain1"))
+        val secondSession = AccountInfo.Valid(UserId("user2", "domain2"))
+        val firstServerConfig = newServerConfig(1)
+        val secondServerConfig = newServerConfig(2)
+        val currentSessionFlow = MutableStateFlow(firstSession)
+        Arrangement()
+            .withCurrentSessionFlow(currentSessionFlow.map { CurrentSessionResult.Success(it) })
+            .withServerConfigForUser(firstSession.userId, firstServerConfig)
+            .withServerConfigForUser(secondSession.userId, secondServerConfig)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(
+            "${firstServerConfig.links.website.trimEnd('/')}/support/search",
+            SupportUrlResolver.resolve("", SupportPage.SEARCH)
+        )
+
+        currentSessionFlow.emit(secondSession)
+        advanceUntilIdle()
+
+        assertEquals(
+            "${secondServerConfig.links.website.trimEnd('/')}/support/search",
+            SupportUrlResolver.resolve("", SupportPage.SEARCH)
+        )
+    }
+
+    @Test
+    fun `given no current session, when resolving support url, then use default server website`() = runTest {
+        val defaultServerConfig = newServerConfig(3).links
+        Arrangement()
+            .withNoCurrentSession()
+            .withDefaultServerConfig(defaultServerConfig)
+            .arrange()
+        advanceUntilIdle()
+
+        assertEquals(
+            "${defaultServerConfig.website.trimEnd('/')}/support/search",
+            SupportUrlResolver.resolve("", SupportPage.SEARCH)
+        )
+    }
+
+    @Test
+    fun `given managed server and no current session, when resolving support url, then use managed server website`() = runTest {
+        val managedServerConfig = newServerConfig(4).links
+        Arrangement()
+            .withNoCurrentSession()
+            .withDefaultServerConfig(newServerConfig(3).links)
+            .withManagedServerConfig(managedServerConfig)
+            .arrange()
+        advanceUntilIdle()
+
+        assertEquals(
+            "${managedServerConfig.website.trimEnd('/')}/support/search",
+            SupportUrlResolver.resolve("", SupportPage.SEARCH)
+        )
+    }
+
+    @Test
     fun `given app theme change, when observing it, then update state with theme option`() = runTest {
         val (_, viewModel) = Arrangement()
             .withThemeOption(ThemeOption.DARK)
@@ -1071,6 +1138,7 @@ class WireActivityViewModelTest {
 
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
+        private var defaultServerConfig = newServerConfig(0).links
         val automatedLoginManager = AutomatedLoginManager()
 
         init {
@@ -1106,6 +1174,7 @@ class WireActivityViewModelTest {
             every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
+            every { managedConfigurationsManager.currentServerConfig } returns null
             every { nomadProfilesFeatureConfig.isEnabled() } returns true
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
             coEvery { autoVersionAuthScopeUseCase(any()) } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
@@ -1233,6 +1302,7 @@ class WireActivityViewModelTest {
                 observeSelfUserFactory = observeSelfUserFactory,
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
                 managedConfigurationsManager = managedConfigurationsManager,
+                defaultServerConfig = defaultServerConfig,
                 automatedLoginManager = automatedLoginManager,
                 nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
                 loginTypeSelector = loginTypeSelector,
@@ -1277,6 +1347,19 @@ class WireActivityViewModelTest {
 
         fun verifyTryToSwitchToNextAccount() {
             coVerify(exactly = 1) { switchAccount(SwitchAccountParam.TryToSwitchToNextAccount) }
+        }
+
+        fun withServerConfigForUser(userId: UserId, serverConfig: ServerConfig): Arrangement = apply {
+            coEvery { coreLogic.getSessionScope(userId).users.serverLinks() } returns
+                    SelfServerConfigUseCase.Result.Success(serverConfig)
+        }
+
+        fun withDefaultServerConfig(serverConfig: ServerConfig.Links): Arrangement = apply {
+            defaultServerConfig = serverConfig
+        }
+
+        fun withManagedServerConfig(serverConfig: ServerConfig.Links): Arrangement = apply {
+            every { managedConfigurationsManager.currentServerConfig } returns serverConfig
         }
 
         fun withE2EIRequiredDuringLogin(required: Boolean): Arrangement = apply {

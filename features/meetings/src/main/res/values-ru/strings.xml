@@ -82,4 +82,28 @@
         <item quantity="many">Еще +%1$d</item>
         <item quantity="other">Еще +%1$d</item>
     </plurals>
+    <plurals name="meeting_repeating_days">
+        <item quantity="one">Ежедневно</item>
+        <item quantity="few">Каждые %d дня</item>
+        <item quantity="many">Каждые %d дней</item>
+        <item quantity="other">Каждые %d дня</item>
+    </plurals>
+    <plurals name="meeting_repeating_weeks">
+        <item quantity="one">Еженедельно</item>
+        <item quantity="few">Каждые %d недели</item>
+        <item quantity="many">Каждые %d недель</item>
+        <item quantity="other">Каждые %d недели</item>
+    </plurals>
+    <plurals name="meeting_repeating_months">
+        <item quantity="one">Ежемесячно</item>
+        <item quantity="few">Каждые %d месяца</item>
+        <item quantity="many">Каждые %d месяцев</item>
+        <item quantity="other">Каждые %d месяца</item>
+    </plurals>
+    <plurals name="meeting_repeating_years">
+        <item quantity="one">Ежегодно</item>
+        <item quantity="few">Каждые %@ года</item>
+        <item quantity="many">Каждые %d лет</item>
+        <item quantity="other">Каждые %d года</item>
+    </plurals>
 </resources>

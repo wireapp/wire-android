@@ -220,7 +220,7 @@ class AvatarPickerViewModelTest {
             }
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
             coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockTargetUri
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
+            coEvery { avatarImageManager.createCameraOutputAvatarUri(any()) } returns mockTargetUri
             coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), eq(true), any()) } returns 1L
             coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
@@ -232,7 +232,7 @@ class AvatarPickerViewModelTest {
         fun withFailedInitialAvatarLoad(): Arrangement {
             val avatarAssetId = "avatar-value@avatar-domain"
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Failure(Unknown(RuntimeException("some error")), false)
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
+            coEvery { avatarImageManager.createCameraOutputAvatarUri(any()) } returns mockTargetUri
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 
@@ -240,7 +240,7 @@ class AvatarPickerViewModelTest {
         }
 
         fun withNoInitialAvatar(): Arrangement {
-            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockTargetUri
+            coEvery { avatarImageManager.createCameraOutputAvatarUri(any()) } returns mockTargetUri
             every { userDataStore.avatarAssetId } returns flow { emit(null) }
 
             return this

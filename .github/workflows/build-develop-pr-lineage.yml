@@ -96,6 +96,15 @@ jobs:
           CURRENT_KEYSTORE_PATH="${TMP_DIR}/current-debug-dryrun.keystore"
           LINEAGE_PATH="${TMP_DIR}/debug-dryrun.lineage"
 
+          old_keypass_args=()
+          current_keypass_args=()
+          if [ -n "${OLD_KEY_PASSWORD}" ]; then
+            old_keypass_args=(-keypass "${OLD_KEY_PASSWORD}")
+          fi
+          if [ -n "${CURRENT_KEY_PASSWORD}" ]; then
+            current_keypass_args=(-keypass "${CURRENT_KEY_PASSWORD}")
+          fi
+
           printf '%s' "${OLD_KEYSTORE_B64}" | base64 -d > "${OLD_KEYSTORE_PATH}"
           printf '%s' "${CURRENT_KEYSTORE_B64}" | base64 -d > "${CURRENT_KEYSTORE_PATH}"
           printf '%s' "${APK_SIGNING_LINEAGE_B64}" | base64 -d > "${LINEAGE_PATH}"
@@ -105,14 +114,14 @@ jobs:
             -keystore "${OLD_KEYSTORE_PATH}" \
             -alias "${OLD_KEY_ALIAS}" \
             -storepass "${OLD_STORE_PASSWORD}" \
-            ${OLD_KEY_PASSWORD:+-keypass "${OLD_KEY_PASSWORD}"}
+            "${old_keypass_args[@]}"
 
           echo "Current signer alias: ${CURRENT_KEY_ALIAS}"
           keytool -list -v \
             -keystore "${CURRENT_KEYSTORE_PATH}" \
             -alias "${CURRENT_KEY_ALIAS}" \
             -storepass "${CURRENT_STORE_PASSWORD}" \
-            ${CURRENT_KEY_PASSWORD:+-keypass "${CURRENT_KEY_PASSWORD}"}
+            "${current_keypass_args[@]}"
 
           echo "Lineage contents:"
           "${APKSIGNER_BIN}" lineage \

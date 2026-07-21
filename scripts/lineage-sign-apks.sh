@@ -63,6 +63,11 @@ chmod 600 "$OLD_KEYSTORE_PATH" "$LINEAGE_PATH"
 find "$APK_DIR" -maxdepth 1 -name '*.apk' -type f | sort | while read -r apk_path; do
     signed_apk="${TMP_DIR}/$(basename "$apk_path")"
 
+    echo "Preparing lineage signing for: $apk_path"
+    echo "Old signer alias: $OLD_KEY_ALIAS"
+    echo "Current signer alias: $CURRENT_KEY_ALIAS"
+    echo "Current keystore path: $CURRENT_KEYSTORE_PATH"
+
     "$APKSIGNER_BIN" sign \
         --out "$signed_apk" \
         --ks "$OLD_KEYSTORE_PATH" \

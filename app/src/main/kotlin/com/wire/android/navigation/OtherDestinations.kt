@@ -26,6 +26,8 @@ import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.util.EmailComposer
+import com.wire.android.util.SupportPage
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.sha256
@@ -50,21 +52,33 @@ interface ExternalUriStringResDirection : Direction {
     override val route: String
         get() = "android.resource://${BuildConfig.APPLICATION_ID}/$uriStringRes"
 
-    fun getUri(resources: Resources): Uri = Uri.parse(resources.getString(uriStringRes))
+    fun getUriString(resources: Resources): String = resources.getString(uriStringRes)
+
+    fun getUri(resources: Resources): Uri = Uri.parse(getUriString(resources))
+}
+
+interface ExternalSupportUriStringResDirection : ExternalUriStringResDirection {
+    val supportPage: SupportPage
+
+    override val uriStringRes: Int
+        get() = supportPage.hardcodedUrlRes
+
+    override fun getUriString(resources: Resources): String =
+        SupportUrlResolver.resolve(resources, supportPage)
 }
 
 interface IntentDirection : Direction {
     fun intent(context: Context): Intent
 }
 
-object SupportScreenDestination : ExternalUriStringResDirection {
-    override val uriStringRes: Int
-        get() = R.string.url_support
+object SupportScreenDestination : ExternalSupportUriStringResDirection {
+    override val supportPage: SupportPage
+        get() = SupportPage.SUPPORT
 }
 
-object ReportMisuseScreenDestination : ExternalUriStringResDirection {
-    override val uriStringRes: Int
-        get() = R.string.url_report_misuse
+object ReportMisuseScreenDestination : ExternalSupportUriStringResDirection {
+    override val supportPage: SupportPage
+        get() = SupportPage.REPORT_MISUSE
 }
 
 data object TeamManagementScreenDestination : ExternalDirectionLess
@@ -107,9 +121,9 @@ object GiveFeedbackDestination : IntentDirection {
         get() = "wire-intent:give-feedback"
 }
 
-object WelcomeToNewAndroidAppDestination : ExternalUriStringResDirection {
-    override val uriStringRes: Int
-        get() = R.string.url_welcome_to_new_android
+object WelcomeToNewAndroidAppDestination : ExternalSupportUriStringResDirection {
+    override val supportPage: SupportPage
+        get() = SupportPage.WELCOME_ANDROID
 }
 
 object AndroidReleaseNotesDestination : ExternalUriStringResDirection {

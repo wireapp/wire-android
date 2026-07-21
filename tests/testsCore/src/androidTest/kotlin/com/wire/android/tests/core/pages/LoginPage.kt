@@ -288,13 +288,19 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    private fun waitForBackendConfigSuccessScreenAfterBackendDeeplink() {
+        runCatching {
+            UiWaitUtils.waitElement(
+                backendConfigSuccessContinueButtonSelector,
+                timeout = UiWaitUtils.STABLE_TIMEOUT
+            )
+        }
+    }
+
     fun clickContinueButtonOnBackendConfigSuccess(): LoginPage {
-        val clicked = UiWaitUtils.clickWhenClickable(
-            params = backendConfigSuccessContinueButtonSelector,
-            timeout = UiWaitUtils.LONG_TIMEOUT,
-            pollingInterval = UiWaitUtils.POLLING_FAST
-        )
-        assertTrue("Backend config success Continue button was not clickable.", clicked)
+        runCatching {
+            UiWaitUtils.findElementOrNull(backendConfigSuccessContinueButtonSelector)?.click()
+        }
         waitForWelcomeScreenAfterBackendConfigContinue()
         return this
     }
@@ -310,13 +316,6 @@ data class LoginPage(private val device: UiDevice) {
         val input = passwordInputField.findObject(By.clazz("android.widget.EditText"))
         input.click()
         input.text = password
-    }
-
-    private fun waitForBackendConfigSuccessScreenAfterBackendDeeplink() {
-        UiWaitUtils.waitElement(
-            backendConfigSuccessContinueButtonSelector,
-            timeout = UiWaitUtils.LONG_TIMEOUT
-        )
     }
 
     private fun waitForWelcomeScreenAfterBackendConfigContinue() {

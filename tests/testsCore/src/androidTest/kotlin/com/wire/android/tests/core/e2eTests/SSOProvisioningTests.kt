@@ -29,6 +29,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.STABLE_TIMEOUT
 import user.utils.ClientUser
@@ -117,6 +118,7 @@ class SSOProvisioningTests : BaseUiTest() {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
                 enterKeycloakPassword(member1.password.orEmpty())
+                closeKeyboardIfOpened()
             }
         }
 
@@ -223,6 +225,7 @@ class SSOProvisioningTests : BaseUiTest() {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
                 enterKeycloakPassword(member1.password.orEmpty())
+                closeKeyboardIfOpened()
             }
         }
 

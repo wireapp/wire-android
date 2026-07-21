@@ -65,14 +65,6 @@ jobs:
           echo "KEYPWD_DEBUG=${SIGNING_KEY_PASSWORD_DEBUG}" >> $GITHUB_ENV
           echo "KEYSTOREPWD_DEBUG=${SIGNING_STORE_PASSWORD_DEBUG}" >> $GITHUB_ENV
 
-      - name: Build DevDebug APK
-        env:
-          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
-          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
-          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
-          DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
-        run: ./gradlew app:assembleDevDebug
-
       - name: Debug lineage materials
         env:
           CURRENT_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_DEBUG_DRYRUN }}
@@ -147,6 +139,14 @@ jobs:
             echo "Failed to inspect lineage file"
             exit 1
           fi
+
+      - name: Build DevDebug APK
+        env:
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+          ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+          DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
+        run: ./gradlew app:assembleDevDebug
 
       - name: Apply lineage signing to DevDebug APK
         env:

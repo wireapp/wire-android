@@ -172,7 +172,7 @@ fun GroupConversationDetailsScreen(
     }
 
     val onConversationMediaClick: () -> Unit = {
-        if (groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled) {
+        if (groupOptions.isWireCellEnabled) {
             navigator.navigate(
                 NavigationCommand(
                     ConversationFilesScreenDestination(

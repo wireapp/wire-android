@@ -30,7 +30,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -166,6 +166,11 @@ fun ThemeOptionItem(
     modifier: Modifier = Modifier
 ) {
     val isSelected = themeOption == selectedOption
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.wireColorScheme.background
+    } else {
+        MaterialTheme.wireColorScheme.surface
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -175,11 +180,11 @@ fun ThemeOptionItem(
                 role = Role.RadioButton,
                 onClick = { onItemClicked(themeOption) }
             )
-            .background(color = MaterialTheme.wireColorScheme.surface),
+            .background(color = backgroundColor),
         verticalAlignment = Alignment.CenterVertically
     ) {
         HorizontalSpace.x12()
-        RadioButton(selected = isSelected, onClick = null)
+        WireRadioButton(checked = isSelected)
         HorizontalSpace.x8()
         Text(
             text = when (themeOption) {

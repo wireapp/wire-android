@@ -31,7 +31,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +49,7 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FooterButtons
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.ui.common.SearchBarInput
+import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
@@ -203,9 +203,9 @@ private fun ConversationRow(
             )
         }
 
-        RadioButton(
-            selected = isSelected,
-            onClick = onClick
+        WireRadioButton(
+            checked = isSelected,
+            onButtonChecked = onClick
         )
     }
 }

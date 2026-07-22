@@ -43,4 +43,8 @@ class MeetingModule {
     @Provides
     fun provideObserveMeetingOccurrenceDetailsUseCase(meetingScope: MeetingScope): ObserveMeetingOccurrenceUseCase =
         meetingScope.observeMeetingOccurrence
+
+    @Provides
+    fun provideDeleteMeetingUseCase(meetingScope: MeetingScope): com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase =
+        meetingScope.deleteMeeting
 }

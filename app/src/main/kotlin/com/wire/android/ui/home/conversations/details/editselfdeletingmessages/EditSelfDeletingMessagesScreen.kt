@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +46,7 @@ import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.rememberNavigator
+import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.divider.WireDivider
@@ -161,7 +161,7 @@ fun SelectableSelfDeletingItem(
             .background(color = MaterialTheme.wireColorScheme.surface)
             .padding(all = MaterialTheme.wireDimensions.spacing16x)
     ) {
-        RadioButton(selected = isSelected, onClick = null)
+        WireRadioButton(checked = isSelected)
         HorizontalSpace.x8()
         Text(
             modifier = Modifier.align(Alignment.CenterVertically),

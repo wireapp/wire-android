@@ -39,15 +39,10 @@
     <string name="deleted_meeting_options_closed">Опции были закрыты, поскольку эта встреча больше не доступна.</string>
     <string name="meeting_options_start_meeting">Начать встречу</string>
     <string name="meeting_options_create_conversation">Создать беседу</string>
-    <string name="content_description_create_conversation">Значок создания беседы</string>
     <string name="meeting_options_copy_link">Скопировать ссылку</string>
-    <string name="content_description_copy_link">Значок копирования ссылки</string>
     <string name="meeting_options_edit_meeting">Изменить встречу</string>
-    <string name="content_description_edit_meeting">Значок изменения встречи</string>
     <string name="meeting_options_delete_meeting_for_me">Удалить встречу для меня</string>
-    <string name="content_description_delete_meeting_for_me">Значок удаления встречи для меня</string>
     <string name="meeting_options_delete_meeting_for_everyone">Удалить встречу для всех</string>
-    <string name="content_description_delete_meeting_for_everyone">Значок удаления встречи для всех</string>
     <string name="meetings_empty_title_next">Предстоящих встреч пока нет</string>
     <string name="meetings_empty_title_past">Прошлых встреч пока нет</string>
     <string name="meetings_empty_text_next">"Начните встречу с членами команды, гостями или внешними участниками."</string>

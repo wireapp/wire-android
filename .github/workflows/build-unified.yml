@@ -348,6 +348,23 @@ jobs:
               ;;
           esac
 
+      - name: Apply lineage signing to public APK artifacts
+        if: (matrix.build-type == 'apk' || matrix.build-type == 'both') && matrix.keystore-type == 'public' && vars.ENABLE_APK_SIGNING_LINEAGE == 'true'
+        env:
+          APK_DIR: app/build/outputs/apk/${{ matrix.flavor }}/${{ matrix.variant }}
+          CURRENT_KEYSTORE_PATH: ${{ env.KEYSTORE_FILE_PATH_COMPAT_RELEASE }}
+          CURRENT_KEY_ALIAS: ${{ env.KEYSTORE_KEY_NAME_COMPAT_RELEASE }}
+          CURRENT_STORE_PASSWORD: ${{ env.KEYSTOREPWD_COMPAT_RELEASE }}
+          CURRENT_KEY_PASSWORD: ${{ env.KEYPWD_COMPAT_RELEASE }}
+          OLD_KEYSTORE_B64: ${{ secrets.ENCODED_KEYSTORE_PUBLIC_RELEASE_OLD }}
+          OLD_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS_PUBLIC_RELEASE_OLD }}
+          OLD_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD_PUBLIC_RELEASE_OLD }}
+          OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD }}
+          APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64 }}
+        run: |
+          chmod +x scripts/lineage-sign-apks.sh
+          scripts/lineage-sign-apks.sh
+
       - name: Build AAB
         if: matrix.build-type == 'bundle' || matrix.build-type == 'both'
         env:

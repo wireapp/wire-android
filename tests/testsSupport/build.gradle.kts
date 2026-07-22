@@ -18,7 +18,7 @@ val secretsJson = rootProject.file("secrets.json")
 
 val deviceSecretSections = setOf(
     "CALLINGSERVICE_BASIC_AUTH",
-    "OKTA_API_KEY",
+    "KEYCLOAK_QA_AUTOMATION",
     "SOCKS_PROXY_PASSWORD"
 )
 

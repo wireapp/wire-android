@@ -58,22 +58,22 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.cellAudioPlayerViewModel
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.darkColorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 
 private const val SKIP_MS = 10_000
@@ -136,7 +136,7 @@ internal fun CellAudioPlayerContent(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(color = Color.Black)
+                .background(color = darkColorsScheme().background)
                 .padding(horizontal = dimensions().spacing24x),
         ) {
             Box(
@@ -156,10 +156,9 @@ internal fun CellAudioPlayerContent(
                     Text(
                         text = fileName ?: stringResource(R.string.conversation_files_title),
                         color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center,
                         maxLines = 2,
+                        style = typography().title02,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -203,12 +202,12 @@ internal fun CellAudioPlayerContent(
                         Text(
                             text = state.currentPositionMs.toTimeString(),
                             color = Color.White,
-                            fontSize = 12.sp,
+                            style = typography().subline01,
                         )
                         Text(
                             text = state.durationMs.toTimeString(),
                             color = Color.White,
-                            fontSize = 12.sp,
+                            style = typography().subline01,
                         )
                     }
 
@@ -267,7 +266,7 @@ internal fun CellAudioPlayerContent(
                                     painter = painterResource(iconRes),
                                     contentDescription = null,
                                     tint = Color.Black,
-                                    modifier = Modifier.size(40.dp),
+                                    modifier = Modifier.size(dimensions().spacing40x),
                                 )
                             }
                         }

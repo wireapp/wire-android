@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -32,6 +33,7 @@ import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
 import com.wire.android.feature.meetings.ui.meetingOptionsMenuListViewModel
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
+import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
@@ -56,13 +58,23 @@ fun MeetingOptionsModalSheetLayout(
         else -> meetingOptionsMenuListViewModel()
     }
 ) {
+    val context = LocalContext.current
     val deletedMeetingOptionsClosedMessage = stringResource(R.string.deleted_meeting_options_closed)
     val snackbarHostState = LocalSnackbarHostState.current
     WireModalSheetLayout(
         sheetState = sheetState,
         sheetContent = { occurrenceId ->
             when (val state = viewModel.observeMeetingStateFlow(occurrenceId).collectAsStateWithLifecycle().value) {
-                is MeetingOptionsMenuState.Meeting -> MeetingOptionsModalContent(meetingState = state).also {
+                is MeetingOptionsMenuState.Meeting -> MeetingOptionsModalContent(
+                    meetingState = state,
+                    onDeleteMeetingForEveryone = {
+                        sheetState.hide {
+                            viewModel.deleteMeetingForEveryoneDialogState.show(
+                                DeleteMeetingDialogState(forEveryone = true, meetingId = state.meetingId, meetingTitle = state.title)
+                            )
+                        }
+                    }
+                ).also {
                     sheetState.updateContent()
                 }
 
@@ -77,6 +89,19 @@ fun MeetingOptionsModalSheetLayout(
             }
         }
     )
+
+    DeleteMeetingDialog(
+        dialogState = viewModel.deleteMeetingForEveryoneDialogState,
+        onDelete = { state -> viewModel.deleteMeeting(state.meetingId, state.meetingTitle) }
+    )
+
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is MeetingOptionsMenuViewAction.Message -> sheetState.hide {
+                snackbarHostState.showSnackbar(action.message.uiText.asString(context.resources))
+            }
+        }
+    }
 }
 
 @Composable
@@ -111,7 +136,7 @@ private fun MeetingOptionsModalContent(
                     leading = {
                         Icon(
                             painter = painterResource(UICommonR.drawable.ic_circle_plus),
-                            contentDescription = stringResource(R.string.content_description_create_conversation),
+                            contentDescription = null,
                             tint = colorsScheme().onSurface,
                         )
                     },
@@ -124,7 +149,7 @@ private fun MeetingOptionsModalContent(
                     leading = {
                         Icon(
                             painter = painterResource(UICommonR.drawable.ic_link_indicator),
-                            contentDescription = stringResource(R.string.content_description_copy_link),
+                            contentDescription = null,
                             tint = colorsScheme().onSurface,
                         )
                     },
@@ -137,7 +162,7 @@ private fun MeetingOptionsModalContent(
                     leading = {
                         Icon(
                             painter = painterResource(UICommonR.drawable.ic_edit),
-                            contentDescription = stringResource(R.string.content_description_edit_meeting),
+                            contentDescription = null,
                             tint = colorsScheme().onSurface,
                         )
                     },
@@ -150,7 +175,7 @@ private fun MeetingOptionsModalContent(
                     leading = {
                         Icon(
                             painter = painterResource(UICommonR.drawable.ic_close),
-                            contentDescription = stringResource(R.string.content_description_delete_meeting_for_me),
+                            contentDescription = null,
                             tint = colorsScheme().error,
                         )
                     },
@@ -164,7 +189,7 @@ private fun MeetingOptionsModalContent(
                     leading = {
                         Icon(
                             painter = painterResource(UICommonR.drawable.ic_delete),
-                            contentDescription = stringResource(R.string.content_description_delete_meeting_for_everyone),
+                            contentDescription = null,
                             tint = colorsScheme().error,
                         )
                     },

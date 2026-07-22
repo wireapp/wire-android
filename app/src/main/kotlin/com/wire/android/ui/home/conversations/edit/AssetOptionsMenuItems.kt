@@ -24,7 +24,7 @@ import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.OpenAssetExternallyOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
-import com.wire.android.ui.edit.ShareAssetMenuOption
+import com.wire.android.ui.edit.shareAssetMenuOptions
 
 // menu items with both asset options enabled (like share, download, etc.) and message options enabled (like reply, reaction, etc.)
 @Composable
@@ -33,7 +33,8 @@ fun assetMessageOptionsMenuItems(
     ownReactions: Set<String>,
     onDeleteClick: () -> Unit,
     onDetailsClick: () -> Unit,
-    onShareAsset: () -> Unit,
+    onShareAssetExternally: () -> Unit,
+    onShareAssetViaWire: () -> Unit,
     onDownloadAsset: () -> Unit,
     onReplyClick: () -> Unit,
     onReactionClick: (emoji: String) -> Unit,
@@ -59,7 +60,7 @@ fun assetMessageOptionsMenuItems(
                 add { MessageDetailsMenuOption(onDetailsClick) }
                 add { ReplyMessageOption(onReplyClick) }
                 add { DownloadAssetExternallyOption(onDownloadAsset) }
-                add { ShareAssetMenuOption(onShareAsset) }
+                addAll(shareAssetMenuOptions(onShareAssetExternally, onShareAssetViaWire))
                 if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }
                 add { DeleteItemMenuOption(onDeleteClick) }
             }
@@ -72,7 +73,8 @@ fun assetMessageOptionsMenuItems(
 fun assetOptionsMenuItems(
     isEphemeral: Boolean,
     onDeleteClick: () -> Unit,
-    onShareAsset: () -> Unit,
+    onShareAssetExternally: () -> Unit,
+    onShareAssetViaWire: () -> Unit,
     onDownloadAsset: () -> Unit,
     isOpenable: Boolean = false,
     onOpenAsset: () -> Unit = {},
@@ -80,7 +82,9 @@ fun assetOptionsMenuItems(
 ): List<@Composable () -> Unit> = buildList {
     if (!isUploading) {
         add { DownloadAssetExternallyOption(onDownloadAsset) }
-        if (!isEphemeral) add { ShareAssetMenuOption(onShareAsset) }
+        if (!isEphemeral) {
+            addAll(shareAssetMenuOptions(onShareAssetExternally, onShareAssetViaWire))
+        }
         if (isOpenable) add { OpenAssetExternallyOption(onOpenAsset) }
     }
     add { DeleteItemMenuOption(onDeleteClick) }

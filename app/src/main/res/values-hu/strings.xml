@@ -519,7 +519,6 @@
     <string name="leave_conversation_dialog_description">A továbbiakban nem tud üzeneteket küldeni vagy fogadni ebben a beszélgetésben egyik eszközön sem.</string>
     <string name="leave_conversation_dialog_delete_fully_check">A beszélgetés és annak tartalma törlése nálam és az összes eszközömön</string>
     <string name="delete_conversation_conversation_menu_item">Beszélgetés törlése…</string>
-    <string name="delete_conversation_conversation_dialog_title">Eltávolítja “%s” beszélgetést?</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Legyen “%s” beszélgetés törölve nálam?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Nem fog tudni hozzáférni a beszélgetéshez és annak tartalmához. Nincs lehetőség a visszaállításra.</string>
     <string name="delete_conversation_locally_delete_for_me_label">Törlés nálam</string>

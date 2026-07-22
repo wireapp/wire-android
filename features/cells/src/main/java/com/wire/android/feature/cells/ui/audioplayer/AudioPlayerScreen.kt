@@ -145,24 +145,7 @@ internal fun CellAudioPlayerContent(
                     .weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    EqualizerBars(isPlaying = state.isPlaying)
-
-                    Spacer(modifier = Modifier.height(dimensions().spacing24x))
-
-                    Text(
-                        text = fileName ?: stringResource(R.string.conversation_files_title),
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        style = typography().title02,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+                EqualizerBars(isPlaying = state.isPlaying)
             }
 
             val progress = if (state.durationMs > 0 && !isSeeking) {

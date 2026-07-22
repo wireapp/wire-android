@@ -129,7 +129,10 @@ fun ImportMediaScreen(
     loginTypeSelector: LoginTypeSelector,
     featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = featureFlagNotificationViewModel(),
 ) {
-    val navigateBack = if (navArgs.isInternalShare()) navigator::navigateBack else navigator.finish
+    val navigateBack = when (navArgs.source) {
+        ImportSource.EXTERNAL_SHARE -> navigator.finish
+        ImportSource.INTERNAL_SHARE -> navigator::navigateBack
+    }
 
     when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
         FeatureFlagState.FileSharingState.Loading -> {
@@ -253,21 +256,20 @@ private fun ImportMediaAuthenticatedContent(
 
         val context = LocalContext.current
         with(importMediaViewModel.importMediaState) {
-            LaunchedEffect(navArgs.internalAssetUriList) {
+            LaunchedEffect(navArgs.source, navArgs.internalAssetUriList) {
                 if (!hasImportedContent()) {
-                    if (navArgs.internalAssetUriList.isNotEmpty()) {
-                        importMediaViewModel.handleReceivedDataFromInternalShare(navArgs.internalAssetUriList)
-                    } else {
-                        context.getActivity()
+                    when (navArgs.source) {
+                        ImportSource.EXTERNAL_SHARE -> context.getActivity()
                             ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
+
+                        ImportSource.INTERNAL_SHARE ->
+                            importMediaViewModel.handleReceivedDataFromInternalShare(navArgs.internalAssetUriList)
                     }
                 }
             }
         }
     }
 }
-
-private fun ImportMediaNavArgs.isInternalShare(): Boolean = internalAssetUriList.isNotEmpty()
 
 @Composable
 fun ImportMediaRestrictedContent(

@@ -40,6 +40,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreen
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.newauthentication.login.NewLoginViewModel
 import com.wire.android.ui.sharing.ImportMediaNavArgs
+import com.wire.android.ui.sharing.ImportSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -88,7 +89,7 @@ private fun openConversation(action: OpenConversation, navigator: Navigator) {
 private fun openImportMediaScreen(navigator: Navigator) {
     navigator.navigate(
             NavigationCommand(
-                ImportMediaScreenDestination(ImportMediaNavArgs(arrayListOf())),
+                ImportMediaScreenDestination(ImportMediaNavArgs(source = ImportSource.EXTERNAL_SHARE)),
                 BackStackMode.UPDATE_EXISTED
             )
     )

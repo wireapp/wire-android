@@ -20,5 +20,11 @@ package com.wire.android.ui.sharing
 import android.net.Uri
 
 data class ImportMediaNavArgs(
-    val internalAssetUriList: ArrayList<Uri>
+    val source: ImportSource,
+    val internalAssetUriList: ArrayList<Uri> = arrayListOf()
 )
+
+enum class ImportSource {
+    EXTERNAL_SHARE,
+    INTERNAL_SHARE
+}

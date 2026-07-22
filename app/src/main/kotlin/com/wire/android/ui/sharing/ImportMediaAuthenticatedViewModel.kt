@@ -174,7 +174,7 @@ class ImportMediaAuthenticatedViewModel(
         val providerAuthority = context.getProviderAuthority()
         val importedMediaAssets = uris.mapNotNull { uri ->
             if (uri.isWireInternalShareUri(providerAuthority)) {
-                handleImportedAsset(uri, rejectOwnFileProviderUri = false)
+                handleImportedAsset(uri)
             } else {
                 appLogger.w("$TAG: Ignoring internal share URI outside Wire's share provider root")
                 null
@@ -224,7 +224,7 @@ class ImportMediaAuthenticatedViewModel(
             return
         }
         val importedMediaAssets = uris.mapNotNull {
-            handleImportedAsset(it, rejectOwnFileProviderUri = false)
+            handleImportedAsset(it)
         }
 
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets.toPersistentList())
@@ -251,12 +251,8 @@ class ImportMediaAuthenticatedViewModel(
             }
         }
 
-    private suspend fun handleImportedAsset(uri: Uri, rejectOwnFileProviderUri: Boolean): ImportedMediaAsset? {
-        if (rejectOwnFileProviderUri) {
-            appLogger.w("$TAG: Ignoring shared URI from Wire's own file provider")
-            return null
-        }
-        return withContext(dispatchers.io()) {
+    private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? =
+        withContext(dispatchers.io()) {
             when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
                 is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                     appLogger.w("$TAG: Failed to import asset message: Asset too large")
@@ -271,7 +267,6 @@ class ImportMediaAuthenticatedViewModel(
                 is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
             }
         }
-    }
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)

@@ -20,6 +20,7 @@ package com.wire.android.util
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import okio.Path
 import dev.zacsweers.metro.Inject

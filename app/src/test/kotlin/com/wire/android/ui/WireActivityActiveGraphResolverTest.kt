@@ -380,6 +380,36 @@ class WireActivityActiveGraphResolverTest {
         assertSame(sessionGraph, imageLoaderSessionGraph)
     }
 
+    @Test
+    fun givenSessionErrorBlocksTheUi_whenCheckingSessionGraphInvalidation_thenGraphIsInvalidated() {
+        val shouldInvalidate = shouldInvalidateWireActivitySessionGraph(
+            isUserUiBlocked = true,
+            sessionTransitionReason = null,
+        )
+
+        assertEquals(true, shouldInvalidate)
+    }
+
+    @Test
+    fun givenSelfLogoutIsInProgress_whenCheckingSessionGraphInvalidation_thenGraphIsInvalidated() {
+        val shouldInvalidate = shouldInvalidateWireActivitySessionGraph(
+            isUserUiBlocked = false,
+            sessionTransitionReason = SessionTransitionReason.SELF_LOGOUT,
+        )
+
+        assertEquals(true, shouldInvalidate)
+    }
+
+    @Test
+    fun givenSessionIsActive_whenCheckingSessionGraphInvalidation_thenGraphIsRetained() {
+        val shouldInvalidate = shouldInvalidateWireActivitySessionGraph(
+            isUserUiBlocked = false,
+            sessionTransitionReason = null,
+        )
+
+        assertEquals(false, shouldInvalidate)
+    }
+
     private fun resolveActiveGraph(
         sessionGraph: AppSessionViewModelGraph?,
         effectiveBaseRoute: String,

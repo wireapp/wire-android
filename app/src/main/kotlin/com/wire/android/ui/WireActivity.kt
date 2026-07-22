@@ -39,7 +39,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -56,11 +57,14 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountCodeScreenDestination
@@ -313,7 +317,7 @@ class WireActivity : BaseActivity() {
         sessionGraphStore: SessionGraphStoreViewModel = viewModel(
             factory = viewModelFactory {
                 initializer {
-                    SessionGraphStoreViewModel(appGraph)
+                    SessionGraphStoreViewModel(appGraph::createSessionViewModelGraph)
                 }
             }
         ),
@@ -360,7 +364,7 @@ class WireActivity : BaseActivity() {
             finish = this@WireActivity::finish,
             isAllowedToNavigate = ::isNavigationAllowed
         )
-        val currentBackStackEntryState = navigator.navController.currentBackStackEntryAsState()
+        val currentBackStackEntryState = rememberWireActivityCurrentBackStackEntryState(navigator)
         val currentBaseRoute = currentBackStackEntryState.value
             ?.destination
             ?.route
@@ -371,6 +375,7 @@ class WireActivity : BaseActivity() {
             ?.sessionBackedAuthenticationUserId()
         val isAuthenticationRoute = currentBaseRoute in authenticationGraphRoutes
         val isSessionTransitionInProgress = viewModel.globalAppState.isSessionTransitionInProgress
+        val sessionTransitionReason = viewModel.globalAppState.sessionTransitionReason
         var noSessionAuthenticationStartedWithoutSession by remember { mutableStateOf(false) }
         LaunchedEffect(currentBaseRoute, currentUserId) {
             when {
@@ -404,6 +409,17 @@ class WireActivity : BaseActivity() {
         if (graphContext?.sessionGraph != null) {
             lastSessionGraphContext.value = graphContext
         }
+        val shouldInvalidateRetainedSessionGraph = shouldInvalidateWireActivitySessionGraph(
+            isUserUiBlocked = isUserUiBlocked,
+            sessionTransitionReason = sessionTransitionReason,
+        )
+        LaunchedEffect(shouldInvalidateRetainedSessionGraph) {
+            lastSessionGraphContext.value = invalidateRetainedSessionGraphIfNeeded(
+                shouldInvalidate = shouldInvalidateRetainedSessionGraph,
+                lastSessionGraphContext = lastSessionGraphContext.value,
+                sessionGraphStore = sessionGraphStore,
+            )
+        }
         val graphContextWithRetainedImageLoader = graphContext?.copy(
             imageLoaderSessionGraph = resolveWireActivityImageLoaderSessionGraph(
                 activeSessionGraph = graphContext.sessionGraph,
@@ -416,12 +432,8 @@ class WireActivity : BaseActivity() {
             currentBaseRoute != null && canRetainSessionGraphForContent -> lastSessionGraphContext.value
             else -> null
         }
-        val backgroundType by remember {
-            derivedStateOf {
-                currentBackStackEntryState.value?.safeDestination()?.style.let {
-                    (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
-                }
-            }
+        val backgroundType = currentBackStackEntryState.value?.safeDestination()?.style.let {
+            (it as? BackgroundStyle)?.backgroundType() ?: BackgroundType.Default
         }
 
         HandleSessionGraphEffects(
@@ -455,6 +467,17 @@ class WireActivity : BaseActivity() {
         canUseNewLogin = loginTypeSelector.canUseNewLogin(),
         noSessionAuthenticationStartedWithoutSession = noSessionAuthenticationStartedWithoutSession,
     )
+
+    private fun invalidateRetainedSessionGraphIfNeeded(
+        shouldInvalidate: Boolean,
+        lastSessionGraphContext: WireActivityGraphContext?,
+        sessionGraphStore: SessionGraphStoreViewModel,
+    ): WireActivityGraphContext? {
+        if (!shouldInvalidate) return lastSessionGraphContext
+
+        lastSessionGraphContext?.sessionGraph?.currentAccount?.let(sessionGraphStore::invalidate)
+        return null
+    }
 
     private fun isNavigationAllowed(navigationCommand: NavigationCommand): Boolean {
         if (navigationCommand.destination.baseRoute != NewLoginScreenDestination.baseRoute) return true
@@ -581,7 +604,7 @@ class WireActivity : BaseActivity() {
         val usesAuthenticationGraph = effectiveBaseRoute in authenticationGraphRoutes
         val usesSessionBackedAuthenticationGraph = effectiveBaseRoute in sessionBackedAuthenticationGraphRoutes
         val usesInvalidSessionBackedAuthenticationGraph = usesSessionBackedAuthenticationGraph && currentUserId == null
-        val sessionGraph = remember(
+        val retainedSessionGraph = remember(
             appGraph,
             currentUserId,
             sessionBackedAuthenticationUserId,
@@ -597,6 +620,7 @@ class WireActivity : BaseActivity() {
                 isSessionTransitionInProgress = isSessionTransitionInProgress,
             )
         }
+        val sessionGraph = retainedSessionGraph?.graph
         val graph = resolveActiveGraph(
             WireActivityActiveGraphRequest(
                 authenticationViewModelGraph = authenticationViewModelGraph,
@@ -609,7 +633,7 @@ class WireActivity : BaseActivity() {
                 isSessionTransitionInProgress = isSessionTransitionInProgress,
             )
         )
-        val activityViewModels = sessionGraph?.let {
+        val activityViewModels = retainedSessionGraph?.let {
             wireActivityScopedViewModels(it)
         }
         return graph?.let {
@@ -629,12 +653,12 @@ class WireActivity : BaseActivity() {
         usesNoSessionAuthenticationGraph: Boolean,
         usesInvalidSessionBackedAuthenticationGraph: Boolean,
         isSessionTransitionInProgress: Boolean,
-    ): AppSessionViewModelGraph? = when {
+    ): RetainedSessionGraph? = when {
         usesNoSessionAuthenticationGraph -> null
         usesInvalidSessionBackedAuthenticationGraph -> null
         isSessionTransitionInProgress -> null
-        sessionBackedAuthenticationUserId != null -> graphFor(sessionBackedAuthenticationUserId)
-        currentUserId != null -> graphFor(currentUserId)
+        sessionBackedAuthenticationUserId != null -> retainedGraphFor(sessionBackedAuthenticationUserId)
+        currentUserId != null -> retainedGraphFor(currentUserId)
         else -> null
     }
 
@@ -713,10 +737,12 @@ class WireActivity : BaseActivity() {
     }
 
     @Composable
-    private fun wireActivityScopedViewModels(graph: AppSessionViewModelGraph): WireActivityScopedViewModels {
+    private fun wireActivityScopedViewModels(retainedSessionGraph: RetainedSessionGraph): WireActivityScopedViewModels {
+        val graph = retainedSessionGraph.graph
         val scopeKey = graph.viewModelScopeKey
         return WireActivityScopedViewModels(
             callFeedbackViewModel = viewModel(
+                viewModelStoreOwner = retainedSessionGraph,
                 key = "CallFeedbackViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
@@ -725,6 +751,7 @@ class WireActivity : BaseActivity() {
                 }
             ),
             featureFlagNotificationViewModel = viewModel(
+                viewModelStoreOwner = retainedSessionGraph,
                 key = "FeatureFlagNotificationViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
@@ -733,6 +760,7 @@ class WireActivity : BaseActivity() {
                 }
             ),
             commonTopAppBarViewModel = viewModel(
+                viewModelStoreOwner = retainedSessionGraph,
                 key = "CommonTopAppBarViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
@@ -743,6 +771,7 @@ class WireActivity : BaseActivity() {
                 }
             ),
             legalHoldRequestedViewModel = viewModel(
+                viewModelStoreOwner = retainedSessionGraph,
                 key = "LegalHoldRequestedViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
@@ -751,6 +780,7 @@ class WireActivity : BaseActivity() {
                 }
             ),
             legalHoldDeactivatedViewModel = viewModel(
+                viewModelStoreOwner = retainedSessionGraph,
                 key = "LegalHoldDeactivatedViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
@@ -1237,6 +1267,15 @@ internal fun rememberWireActivityNavigator(
     )
 }
 
+@Composable
+internal fun rememberWireActivityCurrentBackStackEntryState(
+    navigator: Navigator,
+): State<NavBackStackEntry?> = key(navigator.navController) {
+    // collectAsState retains its previous value while changing flows, so reset its composition
+    // identity with the controller to avoid exposing a route from the discarded navigation graph.
+    navigator.navController.currentBackStackEntryAsState()
+}
+
 private data class WireActivityScopedViewModels(
     val callFeedbackViewModel: CallFeedbackViewModel,
     val featureFlagNotificationViewModel: FeatureFlagNotificationViewModel,
@@ -1253,16 +1292,40 @@ private data class WireActivityGraphContext(
     val activityViewModels: WireActivityScopedViewModels?,
 )
 
-private class SessionGraphStoreViewModel(
-    private val appGraph: WireApplicationGraph,
+internal class SessionGraphStoreViewModel(
+    private val createSessionGraph: (UserId) -> AppSessionViewModelGraph,
 ) : ViewModel() {
-    private val sessionGraphs = mutableMapOf<UserId, AppSessionViewModelGraph>()
+    private val sessionGraphs = mutableMapOf<UserId, RetainedSessionGraph>()
 
-    fun graphFor(userId: UserId): AppSessionViewModelGraph =
+    fun retainedGraphFor(userId: UserId): RetainedSessionGraph =
         sessionGraphs.getOrPut(userId) {
             appLogger.i("WireActivity creating lifecycle-retained session graph for $userId")
-            appGraph.createSessionViewModelGraph(userId)
+            RetainedSessionGraph(createSessionGraph(userId))
         }
+
+    fun invalidate(userId: UserId) {
+        sessionGraphs.remove(userId)?.also {
+            appLogger.i("WireActivity clearing lifecycle-retained session graph for $userId")
+            it.clear()
+        }
+    }
+
+    override fun onCleared() {
+        sessionGraphs.values.forEach(RetainedSessionGraph::clear)
+        sessionGraphs.clear()
+    }
+}
+
+@Stable
+internal class RetainedSessionGraph(
+    val graph: AppSessionViewModelGraph,
+    override val viewModelStore: ViewModelStore = ViewModelStore(),
+) : ViewModelStoreOwner {
+
+    fun clear() {
+        viewModelStore.clear()
+        graph.wireSessionImageLoader.shutdown()
+    }
 }
 
 internal data class WireActivityActiveGraphRequest(
@@ -1374,6 +1437,11 @@ internal fun resolveWireActivityImageLoaderSessionGraph(
     activeSessionGraph: AppSessionViewModelGraph?,
     retainedSessionGraph: AppSessionViewModelGraph?,
 ): AppSessionViewModelGraph? = activeSessionGraph ?: retainedSessionGraph
+
+internal fun shouldInvalidateWireActivitySessionGraph(
+    isUserUiBlocked: Boolean,
+    sessionTransitionReason: SessionTransitionReason?,
+): Boolean = isUserUiBlocked || sessionTransitionReason != null
 
 private fun Bundle.sessionBackedAuthenticationUserId(): UserId? {
     val value = getString(SessionBackedAuthenticationNavArgs.USER_ID_VALUE_KEY)

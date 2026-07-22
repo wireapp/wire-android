@@ -22,6 +22,7 @@ import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.Tag
 import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
@@ -334,6 +335,95 @@ class ApplockTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @Category("regression", "RC", "applock", "security")
+    @Tag(key = "feature", value = "appLockColdStart")
+    @Test
+    fun givenAppLockIsEnabled_whenAppIsColdStarted_thenUnlockGateIsShownBeforeConversationList() {
+        val teamName = "AppLockColdStart"
+        val appLockPasscode = "A1a!A1a!"
+
+        step("Given there is a team owner on the Staging backend") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user1Name",
+                teamName,
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+            teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+        }
+
+        step("When I open the staging deep link and log in as the team owner") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+                enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
+                clickLoginButton()
+            }
+        }
+
+        step("And I complete post-login permission and privacy prompts") {
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("And I enable app lock with a passcode") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                UiWaitUtils.waitFor(2.seconds)
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOff()
+                turnOnLockWithPasscodeToggle()
+                assertSetUpAppLockPageVisible()
+                enterPasscode(appLockPasscode)
+                tapSetPasscodeButton()
+                assertLockWithPasswordToggleIsOn()
+                clickBackButtonOnSettingsPage()
+            }
+            pages.conversationListPage.assertConversationListVisible()
+        }
+
+        repeat(COLD_START_REPETITIONS) { attempt ->
+            step("When I force-stop and cold-start Wire, attempt ${attempt + 1}") {
+                UiAutomatorSetup.stopApp()
+                device.executeShellCommand(
+                    "monkey -p $appPackage -c android.intent.category.LAUNCHER 1"
+                )
+            }
+
+            step("Then the unlock gate is visible before conversation content, attempt ${attempt + 1}") {
+                pages.appLockPage.assertAppLockGateVisibleBefore(
+                    otherScreen = pages.conversationListPage.conversationListHeadingSelector(),
+                    otherScreenName = "Conversation list"
+                )
+                pages.conversationListPage.assertConversationListNotVisible()
+            }
+
+            step("When I unlock Wire with the app lock passcode, attempt ${attempt + 1}") {
+                pages.appLockPage.apply {
+                    tapUsePasscodeOnBiometricPromptIfVisible()
+                    assertAppLockPageVisible()
+                    enterPasscode(appLockPasscode)
+                    tapUnlockButtonOnAppLockPage()
+                }
+            }
+
+            step("Then I see the conversation list, attempt ${attempt + 1}") {
+                pages.conversationListPage.assertConversationListVisible()
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8145", "TC-8146")
     @Category("regression", "RC", "applock")
     @Test
@@ -462,5 +552,9 @@ class ApplockTest : BaseUiTest() {
                 assertLockWithPasscodeToggleCannotBeChanged()
             }
         }
+    }
+
+    private companion object {
+        const val COLD_START_REPETITIONS = 3
     }
 }

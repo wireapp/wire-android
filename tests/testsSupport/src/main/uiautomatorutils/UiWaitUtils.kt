@@ -184,6 +184,35 @@ object UiWaitUtils {
     }
 
     /**
+     * Waits until any selector from [selectors] resolves to a visible element and reports which one.
+     *
+     * Selectors are evaluated in list order within each poll, so earlier entries win ties.
+     * Polling-based: a flash shorter than [pollingInterval] can go unnoticed.
+     *
+     * @return the first selector that became visible, or `null` when none becomes visible in time.
+     */
+    fun waitFirstVisibleSelector(
+        selectors: List<UiSelectorParams>,
+        timeout: Duration = DEFAULT_TIMEOUT,
+        pollingInterval: Duration = POLLING_FAST
+    ): UiSelectorParams? {
+        var found: UiSelectorParams? = null
+
+        val isFound = retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = pollingInterval
+        ) {
+            found = selectors.firstOrNull { params ->
+                findElementOrNull(params)
+                    ?.let { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) } == true
+            }
+            found != null
+        }
+
+        return if (isFound) found else null
+    }
+
+    /**
      * Waits for an element to become visible and enabled, then clicks it.
      *
      * Handles transient `StaleObjectException` by retrying until timeout.

@@ -122,9 +122,9 @@ class SSOProvisioningTests : BaseUiTest() {
             }
         }
 
-        step("And I tap login button on Keycloak Page and wait until I am logged in from keycloak page") {
+        step("And I tap login button on Keycloak Page and wait until username setup page is visible") {
             pages.ssoPage.tapKeycloakSignIn()
-            pages.registrationPage.waitUntilLoginFlowIsCompleted()
+            pages.registrationPage.assertEnterYourUserNameInfoText()
         }
 
         step("And I submit my Username user2UniqueUsername on registration page") {

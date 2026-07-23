@@ -127,11 +127,8 @@ class SSODeviceBackup : BaseUiTest() {
             }
         }
 
-        step("And I allow the notification permission prompt after login") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-            }
+        step("And I wait until username setup page is visible") {
+            pages.registrationPage.assertEnterYourUserNameInfoText()
         }
 
         step("And I set Member1 username and confirm profile setup") {

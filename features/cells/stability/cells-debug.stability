@@ -276,12 +276,12 @@ internal fun com.wire.android.feature.cells.ui.FolderIconPreview(cell: com.wire.
     - cell: RUNTIME (requires runtime check)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.LearnMoreLink(textRes: kotlin.Int, urlRes: kotlin.Int): kotlin.Unit
+private fun com.wire.android.feature.cells.ui.LearnMoreLink(textRes: kotlin.Int, page: com.wire.android.util.SupportPage): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - textRes: STABLE (primitive type)
-    - urlRes: STABLE (primitive type)
+    - page: STABLE (class with no mutable properties)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.LoadingIconPreview(progress: kotlin.Float?): kotlin.Unit

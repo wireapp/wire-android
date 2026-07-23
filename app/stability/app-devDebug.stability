@@ -6704,12 +6704,12 @@ private fun com.wire.android.ui.home.conversations.messages.item.buildContent(is
     - isWireCellsEnabled: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.messages.item.buildContent(expandable: kotlin.Boolean, learnMoreLinkResId: kotlin.Int?, learnMoreTextResId: kotlin.Int, iconResId: kotlin.Int, iconTintColor: androidx.compose.ui.graphics.Color?, iconSize: androidx.compose.ui.unit.Dp, additionalVerticalPaddings: androidx.compose.ui.unit.Dp, backgroundColor: androidx.compose.ui.graphics.Color?, annotatedStringBuilder: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \): com.wire.android.ui.home.conversations.messages.item.SystemMessageContent
+private fun com.wire.android.ui.home.conversations.messages.item.buildContent(expandable: kotlin.Boolean, learnMorePage: com.wire.android.util.SupportPage?, learnMoreTextResId: kotlin.Int, iconResId: kotlin.Int, iconTintColor: androidx.compose.ui.graphics.Color?, iconSize: androidx.compose.ui.unit.Dp, additionalVerticalPaddings: androidx.compose.ui.unit.Dp, backgroundColor: androidx.compose.ui.graphics.Color?, annotatedStringBuilder: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \): com.wire.android.ui.home.conversations.messages.item.SystemMessageContent
   skippable: true
   restartable: true
   params:
     - expandable: STABLE (primitive type)
-    - learnMoreLinkResId: STABLE (class with no mutable properties)
+    - learnMorePage: STABLE (class with no mutable properties)
     - learnMoreTextResId: STABLE (primitive type)
     - iconResId: STABLE (primitive type)
     - iconTintColor: STABLE (marked @Stable or @Immutable)
@@ -11662,11 +11662,12 @@ private fun com.wire.android.ui.userprofile.teammigration.step1.LearnMoreWirePla
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanStepScreen(navigator: com.wire.android.navigation.Navigator, teamMigrationViewModel: com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel): kotlin.Unit
+public fun com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanStepScreen(navigator: com.wire.android.navigation.Navigator, navArgs: com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanNavArgs, teamMigrationViewModel: com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
+    - navArgs: STABLE (class with no mutable properties)
     - teamMigrationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable

@@ -61,11 +61,13 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @WirePersonalToTeamMigrationDestination(
     start = true,
+    navArgs = TeamMigrationTeamPlanNavArgs::class,
     style = AuthPopUpNavigationAnimation::class
 )
 @Composable
 fun TeamMigrationTeamPlanStepScreen(
     navigator: Navigator,
+    navArgs: TeamMigrationTeamPlanNavArgs,
     teamMigrationViewModel: TeamMigrationViewModel
 ) {
     TeamMigrationTeamPlanStepScreenContent(
@@ -76,7 +78,10 @@ fun TeamMigrationTeamPlanStepScreen(
     )
 
     LaunchedEffect(Unit) {
-        teamMigrationViewModel.setCurrentStep(TeamMigrationViewModel.TEAM_MIGRATION_TEAM_PLAN_STEP)
+        teamMigrationViewModel.setCurrentStep(
+            step = TeamMigrationViewModel.TEAM_MIGRATION_TEAM_PLAN_STEP,
+            isMigrationDotActive = navArgs.isMigrationDotActive
+        )
     }
 }
 

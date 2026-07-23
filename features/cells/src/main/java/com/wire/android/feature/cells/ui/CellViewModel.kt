@@ -85,6 +85,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class CellViewModel(
@@ -570,7 +571,7 @@ class CellViewModel(
                         sendAction(HideRestoreParentFolderDialog)
                         _navigateToRecycleBinRoot.value = true
                         // delay to allow navigation to complete before refreshing data
-                        delay(RESTORE_DELAY_MS)
+                        delay(RESTORE_DELAY_MS.milliseconds)
                     } else {
                         sendAction(HideRestoreConfirmation)
                     }

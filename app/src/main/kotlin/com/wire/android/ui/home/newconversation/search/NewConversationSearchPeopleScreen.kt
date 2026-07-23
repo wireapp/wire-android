@@ -28,15 +28,16 @@ import com.wire.android.R
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
 import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationTeamPlanStepScreenDestination
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
+import com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanNavArgs
 import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.BotService
@@ -116,7 +117,9 @@ fun NewConversationSearchPeopleScreen(
             },
             onCreateTeam = {
                 showCreateTeamDialog.value = false
-                navigator.navigate(NavigationCommand(PersonalToTeamMigrationGraph))
+                navigator.navigate(
+                    NavigationCommand(TeamMigrationTeamPlanStepScreenDestination(TeamMigrationTeamPlanNavArgs()))
+                )
             }
         )
     }

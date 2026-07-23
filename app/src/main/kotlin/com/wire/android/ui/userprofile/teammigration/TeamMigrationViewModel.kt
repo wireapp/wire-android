@@ -49,8 +49,11 @@ class TeamMigrationViewModel @Inject constructor(
         setTeamUrl()
         observeMigrationDotActive()
     }
-    fun setCurrentStep(step: Int) {
-        sendPersonalTeamCreationFlowStepEvent(step)
+    fun setCurrentStep(step: Int, isMigrationDotActive: Boolean = teamMigrationState.isMigrationDotActive) {
+        if (step == TEAM_MIGRATION_TEAM_PLAN_STEP) {
+            teamMigrationState = teamMigrationState.copy(isMigrationDotActive = isMigrationDotActive)
+        }
+        sendPersonalTeamCreationFlowStepEvent(step, isMigrationDotActive)
     }
     fun migrateFromPersonalToTeamAccount() {
         viewModelScope.launch {
@@ -94,10 +97,13 @@ class TeamMigrationViewModel @Inject constructor(
             }
         }
     }
-    private fun sendPersonalTeamCreationFlowStepEvent(step: Int) {
+    private fun sendPersonalTeamCreationFlowStepEvent(
+        step: Int,
+        isMigrationDotActive: Boolean = teamMigrationState.isMigrationDotActive
+    ) {
         val event = when (step) {
             TEAM_MIGRATION_TEAM_PLAN_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamPlan(
-                isMigrationDotActive = teamMigrationState.isMigrationDotActive
+                isMigrationDotActive = isMigrationDotActive
             )
             TEAM_MIGRATION_TEAM_NAME_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamName
             TEAM_MIGRATION_CONFIRMATION_STEP -> AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowConfirm

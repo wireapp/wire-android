@@ -636,3 +636,33 @@ private fun PreviewCellListItemFolder() {
         )
     }
 }
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewCellListViewOnlyItem() {
+    WireTheme {
+        CellListItem(
+            showViewerOnlyIcon = true,
+            cell = CellNodeUi.File(
+                uuid = "",
+                conversationId = "conversationId",
+                name = "file name",
+                assetType = AttachmentFileType.IMAGE,
+                size = 123214,
+                localPath = null,
+                mimeType = "image/jpg",
+                userName = "Test User",
+                userHandle = "userId",
+                ownerUserId = "userId",
+                conversationName = "Test Conversation",
+                modifiedTime = null,
+                remotePath = null,
+                contentUrl = null,
+                previewUrl = null,
+                isViewerOnly = true,
+            ),
+            onMenuClick = {},
+        )
+    }
+}
+

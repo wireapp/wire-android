@@ -119,8 +119,7 @@ class HomeViewModelFactory @Inject constructor(
         observeArchivedUnreadConversationsCount = observeArchivedUnreadConversationsCount,
         observeSelfUser = observeSelf,
         getTeamUrl = getTeamUrl,
-        observeIsWireCellsEnabled = observeIsWireCellsEnabled,
-        observeIsAtLeastOneCellAvailable = observeIsAtLeastOneCellAvailable,
+        isWireCellsEnabled = isWireCellsEnabled,
     )
 
     fun featureFlagNotificationViewModel() = FeatureFlagNotificationViewModel(

@@ -95,7 +95,7 @@ import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
-import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
+import kotlinx.datetime.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -948,11 +948,11 @@ sealed class NewClientsData(open val clientsInfo: List<NewClientInfo>, open val 
     }
 }
 
-data class NewClientInfo(val date: String, val deviceInfo: UIText) {
+data class NewClientInfo(val date: Instant?, val deviceInfo: UIText) {
     companion object {
         fun fromClient(client: Client): NewClientInfo =
             NewClientInfo(
-                client.registrationTime?.toIsoDateTimeString() ?: "",
+                client.registrationTime,
                 client.displayName()
             )
     }

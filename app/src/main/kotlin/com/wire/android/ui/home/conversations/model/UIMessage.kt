@@ -46,7 +46,6 @@ import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.PersistentList
@@ -669,20 +668,14 @@ enum class MessageSource {
 @Serializable
 data class MessageTime(val instant: Instant) {
     @Transient
-    private val utcISOValue: Lazy<String> = lazy(LazyThreadSafetyMode.PUBLICATION) {
-        instant.toIsoDateTimeString()
-    }
-
-    @Transient
     private val formattedDateValue: Lazy<String> = lazy(LazyThreadSafetyMode.PUBLICATION) {
-        utcISO.uiMessageDateTime() ?: ""
+        instant.uiMessageDateTime()
     }
 
-    val utcISO: String get() = utcISOValue.value
     val formattedDate: String get() = formattedDateValue.value
-    fun getFormattedDateGroup(now: Long): MessageDateTimeGroup? = utcISO.groupedUIMessageDateTime(now = now)
-    fun shouldDisplayDatesDifferenceDivider(previousDate: String): Boolean =
-        utcISO.shouldDisplayDatesDifferenceDivider(previousDate = previousDate)
+    fun getFormattedDateGroup(now: Long): MessageDateTimeGroup = instant.groupedUIMessageDateTime(now = now)
+    fun shouldDisplayDatesDifferenceDivider(previousDate: Instant): Boolean =
+        instant.shouldDisplayDatesDifferenceDivider(previousDate = previousDate)
 }
 
 @Stable

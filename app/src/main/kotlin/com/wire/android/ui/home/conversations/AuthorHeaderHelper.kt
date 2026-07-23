@@ -42,8 +42,8 @@ object AuthorHeaderHelper {
             && messageAbove is UIMessage.Regular
         ) {
             val difference = DateTimeUtil.calculateMillisDifference(
-                messageAbove.header.messageTime.utcISO,
-                currentMessage.header.messageTime.utcISO,
+                messageAbove.header.messageTime.instant,
+                currentMessage.header.messageTime.instant,
             )
             difference > AGGREGATION_TIME_WINDOW
         } else {
@@ -73,8 +73,8 @@ object AuthorHeaderHelper {
             && messageBelow is UIMessage.Regular
         ) {
             val difference = DateTimeUtil.calculateMillisDifference(
-                currentMessage.header.messageTime.utcISO,
-                messageBelow.header.messageTime.utcISO
+                currentMessage.header.messageTime.instant,
+                messageBelow.header.messageTime.instant
             )
             difference < AGGREGATION_TIME_WINDOW
         } else {

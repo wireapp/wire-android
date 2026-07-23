@@ -125,8 +125,7 @@ class MessageComposerViewModelTest {
         val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .arrange()
-        val timestamp = "2024-01-15T10:30:00Z"
-        val expectedInstant = Instant.parse(timestamp)
+        val timestamp = Instant.parse("2024-01-15T10:30:00Z")
 
         // when
         viewModel.updateConversationReadDate(timestamp)
@@ -136,10 +135,10 @@ class MessageComposerViewModelTest {
 
         // then
         coVerify(exactly = 1) {
-            arrangement.markConversationAsReadLocallyUseCase(
-                arrangement.conversationId,
-                expectedInstant
-            )
+                arrangement.markConversationAsReadLocallyUseCase(
+                    arrangement.conversationId,
+                    timestamp
+                )
         }
     }
 
@@ -167,9 +166,8 @@ class MessageComposerViewModelTest {
         val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .arrange()
-        val olderTimestamp = "2024-01-15T10:00:00Z"
-        val newerTimestamp = "2024-01-15T10:30:00Z"
-        val expectedInstant = Instant.parse(newerTimestamp)
+        val olderTimestamp = Instant.parse("2024-01-15T10:00:00Z")
+        val newerTimestamp = Instant.parse("2024-01-15T10:30:00Z")
 
         // when
         viewModel.updateConversationReadDate(olderTimestamp)
@@ -180,10 +178,10 @@ class MessageComposerViewModelTest {
 
         // then
         coVerify(exactly = 1) {
-            arrangement.markConversationAsReadLocallyUseCase(
-                arrangement.conversationId,
-                expectedInstant
-            )
+                arrangement.markConversationAsReadLocallyUseCase(
+                    arrangement.conversationId,
+                    newerTimestamp
+                )
         }
     }
 }

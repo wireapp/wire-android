@@ -3,15 +3,13 @@
 
 from __future__ import annotations
 
+import sys
 import unittest
+from pathlib import Path
 
-from scripts.qa_android_ui_tests.fetch_secrets_json import (
-    BACKEND_FIELDS,
-    PASSWORD_FIELD,
-    allowed_fields_for_title,
-    filter_item_fields,
-    sanitize,
-)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from fetch_secrets_json import BACKEND_FIELDS, PASSWORD_FIELD, allowed_fields_for_title, filter_item_fields, sanitize
 
 
 class FetchSecretsJsonTest(unittest.TestCase):

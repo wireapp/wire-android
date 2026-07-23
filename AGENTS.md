@@ -27,6 +27,9 @@ Wire for Android is a Jetpack Compose messaging application for the Wire platfor
 git submodule update --init --recursive   # First-time init
 git submodule update --remote --merge     # Update to latest
 
+# Discover repo command shortcuts
+make help
+
 # Compile and assemble
 ./gradlew compileApp                      # Compile only
 ./gradlew assembleApp                     # Assemble APK
@@ -35,6 +38,8 @@ git submodule update --remote --merge     # Update to latest
 # Makefile shortcuts
 make assemble/staging-debug               # Assemble staging debug APK
 make install/staging-debug                # Install staging debug APK
+make build-dev                            # Assemble dev debug APK
+make build-prod                           # Assemble prod release APK and AAB
 
 # Testing
 ./gradlew runUnitTests                    # All unit tests
@@ -42,13 +47,36 @@ make install/staging-debug                # Install staging debug APK
 ./gradlew runAcceptanceTests              # UI/acceptance tests (requires connected device or emulator)
 ./gradlew :app:testDevDebugUnitTest       # Single module unit tests (app, dev flavor)
 ./gradlew :<module>:test                  # Any individual module
+make unit-tests                           # Build logic tests + unit coverage
+make ui-tests                             # Acceptance/UI tests
 
 # Code quality
 ./gradlew staticCodeAnalysis              # Run detektAll (must pass before finishing)
+make lint                                 # Android lint
+make style                                # Detekt checks
+make compose-stability                    # Compose stability checks
 
 # Screenshot tests (app module only)
 ./gradlew :app:validateStagingDebugScreenshotTest
+make screenshots-verify
+make screenshots-update
+
+# Release and QA helpers
+make release-notes                        # Prepare Play release notes
+make baseline-profile                     # Generate baseline/startup profiles
+make qa-ui-setup cmd=<command>            # Android UI QA setup router
+make qa-ui-validate cmd=<command>         # Android UI QA validation router
+make qa-ui-report cmd=<command>           # Android UI QA reporting router
+make new-feature name=<module-name>       # Create a new feature module
 ```
+
+Prefer `make` targets for local and CI entrypoints when one exists. Gradle remains the source of truth for build logic; Make targets are thin wrappers around Gradle tasks or purpose-scoped scripts.
+
+Script locations:
+- `scripts/release/` — release-note and release-preparation helpers
+- `scripts/qa/android-ui/` — Android UI test and deflake orchestration
+- `scripts/dev/` — local developer utilities
+- `scripts/signing/` — APK signing helpers
 
 ## App Flavors
 

@@ -4,9 +4,13 @@
 from __future__ import annotations
 
 import json
+import sys
 import unittest
+from pathlib import Path
 
-from scripts.qa_android_ui_tests.resolve_device_group import DeviceGroupError, parse_groups, resolve_group
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from resolve_device_group import DeviceGroupError, parse_groups, resolve_group
 
 
 class ResolveDeviceGroupTest(unittest.TestCase):

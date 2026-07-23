@@ -374,7 +374,7 @@ private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<C
                 }
 
             MutedConversationStatus.AllMuted -> false
-        } || (it is ConversationItem.Group && it.hasOnGoingCall)
+        } || it.hasOnGoingCall
     }
 
     val remainingConversations = this - unreadConversations.toSet()

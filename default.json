@@ -109,6 +109,7 @@
     "google_api_key": "AIzaSyBXtNKuX6GCKv2jDtsFImUaxCRL21DTLEQ",
     "fcm_project_id": "w966768976",
     "report_bug_menu_item_enabled": true,
+    "feedback_menu_item_enabled": true,
     "debug_screen_enabled": true,
     "update_app_url": "https://wire.com/en/download/",
     "default_backend_url_base_api": "https://prod-nginz-https.wire.com",
@@ -118,6 +119,7 @@
     "default_backend_url_blacklist": "https://clientblacklist.wire.com/prod",
     "default_backend_url_website": "https://wire.com",
     "default_backend_title": "wire-production",
+    "default_backend_enabled": true,
     "cert_pinning_config": {
         "sha256/fnBeCwh0imI9t46Onid49IwvsB5vcf7RCvafRRdCyRE=": [
             "**.prod-nginz-https.wire.com",

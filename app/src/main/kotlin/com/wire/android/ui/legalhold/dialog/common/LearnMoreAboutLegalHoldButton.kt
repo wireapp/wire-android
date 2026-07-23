@@ -32,12 +32,14 @@ import com.wire.android.R
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun LearnMoreAboutLegalHoldButton(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(id = R.string.url_legal_hold_learn_more)
+    val learnMoreUrl = supportUrlResource(SupportPage.LEGAL_HOLD)
     Text(
         text = stringResource(R.string.legal_hold_learn_more_button),
         style = MaterialTheme.wireTypography.body02,

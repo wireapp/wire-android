@@ -83,6 +83,8 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.extension.formatAsFingerPrint
@@ -484,7 +486,7 @@ private fun VerificationDescription(
         if (isSelfClient) {
             DescriptionText(
                 text = stringResource(id = R.string.label_self_client_verification_description),
-                leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
+                leanMoreLink = supportUrlResource(SupportPage.CLIENT_VERIFICATION)
             )
         } else {
             DescriptionText(
@@ -492,7 +494,7 @@ private fun VerificationDescription(
                     id = R.string.label_client_verification_description,
                     userName ?: stringResource(id = R.string.unknown_user_name)
                 ),
-                leanMoreLink = stringResource(id = R.string.url_self_client_verification_learn_more)
+                leanMoreLink = supportUrlResource(SupportPage.CLIENT_VERIFICATION)
             )
         }
 
@@ -505,7 +507,7 @@ private fun VerificationDescription(
         if (isSelfClient) {
             DescriptionText(
                 text = stringResource(id = R.string.label_self_fingerprint_description),
-                leanMoreLink = stringResource(id = R.string.url_self_client_fingerprint_learn_more)
+                leanMoreLink = supportUrlResource(SupportPage.CLIENT_FINGERPRINT)
             )
         } else {
             DescriptionText(

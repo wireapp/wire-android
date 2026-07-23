@@ -252,6 +252,7 @@
     <string name="content_description_welcome_screen_close_btn">Close new team creation and login view</string>
     <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
     <string name="content_description_login_email_field">enter your email or username</string>
+    <string name="content_description_backend_config_camera_button">Scan QR code</string>
     <string name="content_description_login_password_field">enter your password</string>
     <string name="content_description_login_sso_code_field">enter your SSO code or Wire email</string>
     <string name="content_description_whats_new_welcome_item">Welcome to Wire\'s New Android App, link to support page</string>
@@ -264,26 +265,8 @@
     <string name="url_maps_location_coordinates_fallback" translatable="false">http://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <!-- Wire Urls - Non translatable -->
     <string name="url_wire_website" translatable="false">https://www.wire.com</string>
-    <string name="url_support" translatable="false">https://support.wire.com</string>
     <string name="url_terms_of_use_legal" translatable="false">https://wire.com/legal</string>
     <string name="url_privacy_policy" translatable="false">https://wire.com/privacy-policy#:~:text=We%20process%20individual%20data%20about,%C2%A7%201%20a)%20GDPR).</string>
-    <string name="url_create_account_learn_more" translatable="false">https://support.wire.com/hc/articles/115004082129</string>
-    <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/articles/207948115</string>
-    <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365</string>
-    <string name="url_file_sharing_restricted_learn_more" translatable="false">https://support.wire.com/hc/articles/4406404582673</string>
-    <string name="url_learn_about_conversation_search" translatable="false">https://support.wire.com/hc/articles/115001426529</string>
-    <string name="url_learn_about_search" translatable="false">https://support.wire.com/hc/articles/203121850</string>
-    <string name="url_legal_hold_learn_more" translatable="false">https://support.wire.com/hc/articles/360002018278</string>
-    <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093</string>
-    <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/articles/212053645</string>
-    <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/articles/360000665277</string>
-    <string name="url_self_client_fingerprint_learn_more" translatable="false">https://support.wire.com/hc/articles/207692235</string>
-    <string name="url_self_client_verification_learn_more" translatable="false">https://support.wire.com/hc/articles/207693005</string>
-    <string name="url_system_message_learn_more_about_mls" translatable="false">https://support.wire.com/hc/articles/12434725011485</string>
-    <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/articles/6655706999581</string>
-    <string name="url_why_verify_conversation" translatable="false">https://support.wire.com/hc/articles/207859815</string>
-    <string name="url_how_to_add_favorites" translatable="false">https://support.wire.com/hc/articles/360002855557</string>
-    <string name="url_how_to_add_folders" translatable="false">https://support.wire.com/hc/articles/360002855817</string>
     <string name="url_wire_plans" translatable="false">https://wire.com/pricing</string>
     <string name="url_team_management_login" translatable="false">https://teams.wire.com/login</string>
     <string name="url_wire_enterprise" translatable="false">https://wire.com/en/enterprise</string>
@@ -360,6 +343,13 @@
     <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
+    <string name="missing_backend_config_title">Set up your app</string>
+    <string name="missing_backend_config_description">To get started, enter the link or scan the QR code provided by your administration.</string>
+    <string name="missing_backend_config_input_label">Configuration link</string>
+    <string name="missing_backend_config_input_placeholder">Enter link or scan QR code</string>
+    <string name="backend_config_setup_button">Set Up</string>
+    <string name="backend_config_success_title">Your app is set up</string>
+    <string name="backend_config_success_description">In the next step, you can log in</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
@@ -1203,7 +1193,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="custom_backend_dialog_body_backend_website">Website URL:</string>
     <string name="custom_backend_dialog_body_backend_websocket">Backend WSURL:</string>
     <string name="custom_backend_error_title">An error occurred</string>
-    <string name="custom_backend_error_no_internet_connection_body">Redirecting to an on-premises backend was not possible, you don’t seem to be connected to the internet.\n\nEstablish an internet connection and try again.</string>
+    <string name="custom_backend_error_no_internet_connection_body">Something went wrong. Check the link and your connection, then try again.</string>
     <string name="custom_backend_error_no_internet_connection_try_again">Try again</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="label_text_copied">Text copied to clipboard</string>

@@ -23,12 +23,14 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
@@ -55,7 +57,10 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.TransitionAnimationType
+import com.wire.android.ui.authentication.BackendConfigSuccessContent
+import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.isConfigured
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
@@ -153,6 +158,8 @@ private fun MainLoginContent(
 
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val isBackendConfigured = loginEmailViewModel.serverConfig.isConfigured()
+    val showBackendConfigSuccess = isBackendConfigured && loginEmailViewModel.isBackendConfigSuccessVisible
     val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
     val pagerState = rememberPagerState(
         initialPage = initialPageIndex,
@@ -164,43 +171,27 @@ private fun MainLoginContent(
 
     WireScaffold(
         topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = scrollState.rememberTopBarElevationState().value,
-                title = stringResource(R.string.login_title),
-                subtitleContent = {
-                    if (loginEmailViewModel.serverConfig.isOnPremises) {
-                        ServerTitle(
-                            serverLinks = loginEmailViewModel.serverConfig,
-                            style = MaterialTheme.wireTypography.body01
-                        )
+            LoginTopBar(
+                scrollState = scrollState,
+                isBackendConfigured = isBackendConfigured,
+                showBackendConfigSuccess = showBackendConfigSuccess,
+                loginEmailViewModel = loginEmailViewModel,
+                pagerState = pagerState,
+                onNavigationPressed = onBackPressed,
+                onTabChange = { tabIndex ->
+                    if (loginEmailViewModel.serverConfig.isProxyEnabled) {
+                        if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
+                            ssoDisabledWithProxyDialogState.show(
+                                ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                                    R.string.sso_not_supported_dialog_description
+                                )
+                            )
+                        }
+                    } else {
+                        scope.launch { pagerState.animateScrollToPage(tabIndex) }
                     }
                 },
-                onNavigationPressed = onBackPressed,
-                navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
-            ) {
-                WireTabRow(
-                    tabs = LoginTabItem.values().toList(),
-                    selectedTabIndex = pagerState.calculateCurrentTab(),
-                    onTabChange = {
-
-                        if (loginEmailViewModel.serverConfig.isProxyEnabled) {
-                            if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
-                                ssoDisabledWithProxyDialogState.show(
-                                    ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                        R.string.sso_not_supported_dialog_description
-                                    )
-                                )
-                            }
-                        } else {
-                            scope.launch { pagerState.animateScrollToPage(it) }
-                        }
-                    },
-                    modifier = Modifier.padding(
-                        start = MaterialTheme.wireDimensions.spacing16x,
-                        end = MaterialTheme.wireDimensions.spacing16x
-                    ),
-                )
-            }
+            )
         },
         modifier = Modifier.fillMaxHeight(),
     ) { internalPadding ->
@@ -208,25 +199,86 @@ private fun MainLoginContent(
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
 
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-            HorizontalPager(
-                state = pagerState,
+        if (showBackendConfigSuccess) {
+            BackendConfigSuccessContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(internalPadding)
-            ) { pageIndex ->
-                when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult)
+                    .padding(MaterialTheme.wireDimensions.spacing16x),
+                onContinue = loginEmailViewModel::dismissBackendConfigSuccess,
+            )
+        } else if (isBackendConfigured) {
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(internalPadding)
+                ) { pageIndex ->
+                    when (LoginTabItem.values()[pageIndex]) {
+                        LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
+                        LoginTabItem.SSO -> LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, ssoLoginResult)
+                    }
+                }
+                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                    LaunchedEffect(Unit) {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                        focusedTabIndex = pagerState.currentPage
+                    }
                 }
             }
-            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                LaunchedEffect(Unit) {
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
-                    focusedTabIndex = pagerState.currentPage
-                }
+        } else {
+            MissingBackendConfigContent(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(internalPadding)
+                    .padding(MaterialTheme.wireDimensions.spacing16x),
+            )
+        }
+    }
+}
+
+@Composable
+private fun LoginTopBar(
+    scrollState: ScrollState,
+    isBackendConfigured: Boolean,
+    showBackendConfigSuccess: Boolean,
+    loginEmailViewModel: LoginEmailViewModel,
+    pagerState: PagerState,
+    onNavigationPressed: () -> Unit,
+    onTabChange: (Int) -> Unit,
+) {
+    WireCenterAlignedTopAppBar(
+        elevation = scrollState.rememberTopBarElevationState().value,
+        title = stringResource(
+            if (isBackendConfigured) {
+                R.string.login_title
+            } else {
+                R.string.missing_backend_config_title
             }
+        ),
+        subtitleContent = {
+            if (isBackendConfigured && loginEmailViewModel.serverConfig.isOnPremises) {
+                ServerTitle(
+                    serverLinks = loginEmailViewModel.serverConfig,
+                    style = MaterialTheme.wireTypography.body01
+                )
+            }
+        },
+        onNavigationPressed = onNavigationPressed,
+        navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
+    ) {
+        if (isBackendConfigured && !showBackendConfigSuccess) {
+            WireTabRow(
+                tabs = LoginTabItem.values().toList(),
+                selectedTabIndex = pagerState.calculateCurrentTab(),
+                onTabChange = onTabChange,
+                modifier = Modifier.padding(
+                    start = MaterialTheme.wireDimensions.spacing16x,
+                    end = MaterialTheme.wireDimensions.spacing16x
+                ),
+            )
         }
     }
 }

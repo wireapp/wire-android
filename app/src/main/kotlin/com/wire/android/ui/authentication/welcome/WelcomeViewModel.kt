@@ -53,6 +53,15 @@ class WelcomeViewModel @Inject constructor(
                 state = state.copy(links = it)
             }
         }
+        viewModelScope.launch {
+            authServerConfigProvider.backendConfigSuccessVisible.collect {
+                state = state.copy(isBackendConfigSuccessVisible = it)
+            }
+        }
+    }
+
+    fun dismissBackendConfigSuccess() {
+        authServerConfigProvider.dismissBackendConfigSuccess()
     }
 
     private fun checkNumberOfSessions() {

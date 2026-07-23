@@ -45,6 +45,8 @@ import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.capitalizeFirstLetter
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
@@ -86,7 +88,7 @@ private fun OtherUserDevicesContent(
     onDeviceClick: (Device) -> Unit
 ) {
     val context = LocalContext.current
-    val supportUrl = stringResource(id = R.string.url_why_verify_conversation)
+    val supportUrl = supportUrlResource(SupportPage.VERIFY_CONVERSATION)
     with(state) {
         LazyColumn(
             state = lazyListState,

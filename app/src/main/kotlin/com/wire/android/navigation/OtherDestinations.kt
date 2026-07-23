@@ -25,6 +25,8 @@ import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.ui.common.R as CommonR
+import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.EmailComposer
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.getDeviceIdString
@@ -32,6 +34,7 @@ import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
+import kotlinx.coroutines.runBlocking
 
 interface ExternalUriDirection : Direction {
     val uri: Uri
@@ -54,7 +57,7 @@ interface IntentDirection : Direction {
 
 object SupportScreenDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int
-        get() = R.string.url_support
+        get() = CommonR.string.url_support
 }
 
 object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {
@@ -96,11 +99,24 @@ object GiveFeedbackDestination : IntentDirection {
 }
 
 object ReportBugDestination : IntentDirection {
+    @Suppress("ReturnCount")
     override fun intent(context: Context): Intent {
+        val supportEmail = runBlocking {
+            BackendSupportConfig.resolveEmail(context, context.getString(R.string.send_bug_report_email))
+        }
+        if (supportEmail == null) {
+            BackendSupportConfig.supportPageIntent()?.let { return it }
+            context.getString(CommonR.string.url_support).takeIf { it.isNotBlank() }?.let {
+                return Intent(Intent.ACTION_VIEW, Uri.parse(it))
+            }
+        }
+
         val dir = LogFileWriter.logsDirectory(context)
         val logsUris = context.getUrisOfFilesInDirectory(dir)
         val intent = context.multipleFileSharingIntent(logsUris)
-        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(context.getString(R.string.send_bug_report_email)))
+        supportEmail?.let {
+            intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(it))
+        }
         intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.send_bug_report_subject))
         intent.putExtra(
             Intent.EXTRA_TEXT,
@@ -119,7 +135,7 @@ object ReportBugDestination : IntentDirection {
 
 object WelcomeToNewAndroidAppDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int
-        get() = R.string.url_welcome_to_new_android
+        get() = CommonR.string.url_welcome_to_new_android
 }
 
 object AndroidReleaseNotesDestination : ExternalUriStringResDirection {

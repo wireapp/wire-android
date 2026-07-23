@@ -70,6 +70,9 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
         private fun userLastMigrationAppVersion(userId: String): Preferences.Key<Int> =
             intPreferencesKey("migration_app_version_$userId")
+
+        private fun backendSupportEmailKey(backendApiUrl: String): Preferences.Key<String> =
+            stringPreferencesKey("backend_support_email_${backendApiUrl.sha256()}")
     }
 
     suspend fun clear() {
@@ -238,4 +241,26 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
     suspend fun setEnterToSend(enabled: Boolean) {
         context.dataStore.edit { it[ENTER_TO_SENT] = enabled }
     }
+
+    suspend fun setBackendSupportEmail(backendApiUrl: String, supportEmail: String?) {
+        if (backendApiUrl.isBlank()) return
+
+        context.dataStore.edit {
+            val key = backendSupportEmailKey(backendApiUrl)
+            val normalizedSupportEmail = supportEmail?.trim().orEmpty()
+            if (normalizedSupportEmail.isBlank()) {
+                it.remove(key)
+            } else {
+                it[key] = normalizedSupportEmail
+            }
+        }
+    }
+
+    suspend fun getBackendSupportEmail(backendApiUrl: String): String? =
+        if (backendApiUrl.isBlank()) {
+            null
+        } else {
+            context.dataStore.data.firstOrNull()?.get(backendSupportEmailKey(backendApiUrl))
+                ?.takeIf { it.isNotBlank() }
+        }
 }

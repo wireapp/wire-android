@@ -45,8 +45,10 @@ import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.ThemeOption
+import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -75,6 +77,7 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
@@ -151,6 +154,7 @@ class WireActivityViewModel @Inject constructor(
         observeScreenshotCensoringConfigState()
         observeAppThemeState()
         observeLogoutState()
+        observeBackendWebsiteUrl()
     }
 
     private suspend fun shouldEnrollToE2ei(): Boolean = observeCurrentValidUserId.first()?.let {
@@ -165,6 +169,25 @@ class WireActivityViewModel @Inject constructor(
                 .collect {
                     globalAppState = globalAppState.copy(themeOption = it)
                 }
+        }
+    }
+
+    private fun observeBackendWebsiteUrl() {
+        viewModelScope.launch(dispatchers.io()) {
+            observeCurrentValidUserId.collect { userId ->
+                val serverLinks = userId?.let {
+                    runCatching {
+                        when (val result = coreLogic.getSessionScope(it).users.serverLinks()) {
+                            is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
+                            is SelfServerConfigUseCase.Result.Failure -> null
+                        }
+                    }.getOrNull()
+                } ?: authServerConfigProvider.get().authServer.value
+                BackendSupportConfig.setCurrentBackend(serverLinks)
+                val websiteUrl = serverLinks.website
+
+                CustomTabsHelper.setBackendWebsiteUrl(websiteUrl)
+            }
         }
     }
 
@@ -348,7 +371,7 @@ class WireActivityViewModel @Inject constructor(
         if (backendDialogState is CustomServerDetailsDialogState) {
             viewModelScope.launch {
                 authServerConfigProvider.get()
-                    .updateAuthServer(backendDialogState.serverLinks)
+                    .updateAuthServerFromBackendConfiguration(backendDialogState.serverLinks)
                 dismissCustomBackendDialog()
                 if (checkNumberOfSessions() >= BuildConfig.MAX_ACCOUNTS) {
                     globalAppState = globalAppState.copy(maxAccountDialog = true)
@@ -422,7 +445,10 @@ class WireActivityViewModel @Inject constructor(
 
     private suspend fun loadServerConfig(url: String): ServerConfig.Links? =
         when (val result = getServerConfigUseCase.get().invoke(url)) {
-            is GetServerConfigResult.Success -> result.serverConfigLinks
+            is GetServerConfigResult.Success -> result.serverConfigLinks.also {
+                CustomTabsHelper.setBackendWebsiteUrl(it.website)
+                BackendSupportConfig.storeFromServerLinks(globalDataStore.get(), it)
+            }
             is GetServerConfigResult.Failure.Generic -> {
                 appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
                 null

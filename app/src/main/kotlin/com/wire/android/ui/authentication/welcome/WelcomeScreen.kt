@@ -73,7 +73,10 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.authentication.BackendConfigSuccessContent
+import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.authentication.ServerTitle
+import com.wire.android.ui.authentication.isConfigured
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
@@ -111,9 +114,11 @@ fun WelcomeScreen(
     viewModel: WelcomeViewModel = hiltViewModel()
 ) {
     WelcomeContent(
-        viewModel.state.isThereActiveSession,
-        viewModel.state.maxAccountsReached,
-        viewModel.state.links,
+        state = viewModel.state,
+        onBackendConfigSuccessContinue = {
+            viewModel.dismissBackendConfigSuccess()
+            navigator.navigate(NavigationCommand(LoginScreenDestination()))
+        },
         navigator::navigateBack,
         navigator::navigate
     )
@@ -122,9 +127,8 @@ fun WelcomeScreen(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun WelcomeContent(
-    isThereActiveSession: Boolean,
-    maxAccountsReached: Boolean,
-    state: ServerConfig.Links,
+    state: WelcomeScreenState,
+    onBackendConfigSuccessContinue: () -> Unit,
     navigateBack: () -> Unit,
     navigate: (NavigationCommand) -> Unit
 ) {
@@ -132,7 +136,7 @@ private fun WelcomeContent(
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     val context = LocalContext.current
     WireScaffold(topBar = {
-        if (isThereActiveSession) {
+        if (state.isThereActiveSession) {
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
                 title = "",
@@ -151,8 +155,32 @@ private fun WelcomeContent(
         ) {
             val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
             MaxAccountsReachedDialog(dialogState = maxAccountsReachedDialogState) { navigateBack() }
-            if (maxAccountsReached) {
+            if (state.maxAccountsReached) {
                 maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
+            }
+
+            if (state.isBackendConfigSuccessVisible) {
+                BackendConfigSuccessContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding)
+                        .weight(1f, true),
+                    onContinue = onBackendConfigSuccessContinue,
+                )
+                return@Column
+            }
+
+            if (!state.links.isConfigured()) {
+                MissingBackendConfigContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding)
+                        .weight(1f, true),
+                    showTitle = true,
+                    centerText = true,
+                    verticalArrangement = Arrangement.Center,
+                )
+                return@Column
             }
 
             Icon(
@@ -161,8 +189,8 @@ private fun WelcomeContent(
                 contentDescription = null
             )
 
-            if (state.isOnPremises) {
-                ServerTitle(serverLinks = state, modifier = Modifier.padding(top = dimensions().spacing16x))
+            if (state.links.isOnPremises) {
+                ServerTitle(serverLinks = state.links, modifier = Modifier.padding(top = dimensions().spacing16x))
             }
 
             WelcomeCarousel(modifier = Modifier.weight(1f, true))
@@ -181,18 +209,18 @@ private fun WelcomeContent(
                 FeatureDisabledWithProxyDialogContent(
                     dialogState = enterpriseDisabledWithProxyDialogState,
                     onActionButtonClicked = {
-                        CustomTabsHelper.launchUrl(context, state.teams)
+                        CustomTabsHelper.launchUrl(context, state.links.teams)
                     }
                 )
                 FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
 
                 if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
                     CreateEnterpriseAccountButton {
-                        if (state.isProxyEnabled()) {
+                        if (state.links.isProxyEnabled()) {
                             enterpriseDisabledWithProxyDialogState.show(
                                 enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
                                     R.string.create_team_not_supported_dialog_description,
-                                    state.teams
+                                    state.links.teams
                                 )
                             )
                         } else {
@@ -206,7 +234,7 @@ private fun WelcomeContent(
                 WelcomeFooter(
                     modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                     onPrivateAccountClick = {
-                        if (state.isProxyEnabled()) {
+                        if (state.links.isProxyEnabled()) {
                             createPersonalAccountDisabledWithProxyDialogState.show(
                                 createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
                                     R.string.create_personal_account_not_supported_dialog_description
@@ -391,11 +419,11 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 fun PreviewWelcomeScreen() {
     WireTheme {
         WelcomeContent(
-            isThereActiveSession = false,
-            maxAccountsReached = false,
-            state = ServerConfig.DEFAULT,
+            state = WelcomeScreenState(ServerConfig.DEFAULT),
+            onBackendConfigSuccessContinue = {},
             navigateBack = {},
-            navigate = {})
+            navigate = {}
+        )
     }
 }
 

@@ -43,6 +43,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 
 @Composable
 fun EmptySearchQueryScreen() {
@@ -63,7 +65,7 @@ fun EmptySearchQueryScreen() {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(dimensions().spacing16x))
-            val aboutSearchUrl = stringResource(id = R.string.url_learn_about_search)
+            val aboutSearchUrl = supportUrlResource(SupportPage.SEARCH)
             Text(
                 text = stringResource(R.string.label_learn_more_searching_user),
                 style = MaterialTheme.wireTypography.body02.copy(

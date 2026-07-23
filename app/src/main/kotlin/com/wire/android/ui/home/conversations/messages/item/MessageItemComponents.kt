@@ -59,6 +59,8 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
@@ -232,7 +234,7 @@ internal fun MessageDecryptionFailure(
     conversationProtocol: Conversation.ProtocolInfo?
 ) {
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
+    val learnMoreUrl = supportUrlResource(SupportPage.DECRYPTION_FAILURE)
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
@@ -334,7 +336,7 @@ internal fun Modifier.customizeMessageBackground(
 
 @Composable
 internal fun OfflineBackendsLearnMoreLink(context: Context = LocalContext.current) {
-    val learnMoreUrl = stringResource(R.string.url_message_details_offline_backends_learn_more)
+    val learnMoreUrl = supportUrlResource(SupportPage.OFFLINE_BACKENDS)
     VerticalSpace.x4()
     Text(
         modifier = Modifier.clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },

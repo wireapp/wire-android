@@ -39,6 +39,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
@@ -77,7 +79,7 @@ fun ConversationsEmptyContent(
             color = MaterialTheme.wireColorScheme.onSurface,
         )
         if (filter == ConversationFilter.Favorites) {
-            val supportUrl = stringResource(id = R.string.url_how_to_add_favorites)
+            val supportUrl = supportUrlResource(SupportPage.ADD_FAVORITES)
             Text(
                 text = stringResource(R.string.favorites_empty_list_how_to_label),
                 style = MaterialTheme.wireTypography.body02.copy(

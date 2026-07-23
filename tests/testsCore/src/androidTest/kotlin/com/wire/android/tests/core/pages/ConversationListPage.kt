@@ -61,6 +61,7 @@ data class ConversationListPage(private val device: UiDevice) {
         UiSelectorParams(textContains = "You will then no longer be able to send or read messages")
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
     private val createNewChannelButton = UiSelectorParams(text = "New Channel")
+    private val wireServiceNotification = UiSelectorParams(textContains = "Wire Alpha service is running")
     private val blockedLabel = UiSelectorParams(text = "Blocked")
     private val blockOption = UiSelectorParams(text = "Block")
     private val unblockOption = UiSelectorParams(text = "Unblock")
@@ -74,11 +75,29 @@ data class ConversationListPage(private val device: UiDevice) {
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
     private val pendingApprovalLabel = UiSelectorParams(description = "pending approval of connection request")
+
+    /**
+     * Exposes the heading selector for cross-screen assertions, e.g. verifying that another
+     * screen becomes visible before the conversation list on cold start.
+     */
+    fun conversationListHeadingSelector(): UiSelectorParams = conversationListHeading
+
     fun assertConversationListVisible(): ConversationListPage {
         val heading = UiWaitUtils.waitElement(conversationListHeading)
         Assert.assertTrue(
             "Conversation list heading is not visible",
             !heading.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun waitUntilWireServiceNotificationDisappears(
+        timeout: Duration = UiWaitUtils.VERY_LONG_TIMEOUT
+    ): ConversationListPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = wireServiceNotification.toBySelector(),
+            timeout = timeout,
+            errorMessage = "Wire service notification is still visible."
         )
         return this
     }
@@ -549,6 +568,12 @@ data class ConversationListPage(private val device: UiDevice) {
         val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
         buttonNoPhoto.click()
     }
+    return this
+}
+
+    fun clickUserProfileButtonNoPhoto(): ConversationListPage {
+        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
+        buttonNoPhoto.click()
     return this
 }
 

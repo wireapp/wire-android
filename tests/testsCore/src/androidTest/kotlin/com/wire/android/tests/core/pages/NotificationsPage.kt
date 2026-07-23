@@ -20,11 +20,14 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert
+import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 class NotificationsPage(private val device: UiDevice) {
+    private val incomingCallNotification = UiSelectorParams(textMatches = ".*(Calling|calling|Incoming call).*")
+
     fun waitUntilNotificationPopUpGone(timeout: Duration = 10.seconds) {
         val replyButton = By.text("Reply")
         val appearedWithinProbeWindow = UiWaitUtils.retryUntilTimeout(
@@ -44,6 +47,39 @@ class NotificationsPage(private val device: UiDevice) {
 
     fun openNotificationCenter(): NotificationsPage {
         Assert.assertTrue("Notification center did not open.", device.openNotification())
+        return this
+    }
+
+    fun iSeeOneOnOneIncomingCallNotification(userName: String): NotificationsPage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = userName),
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT
+        )
+        UiWaitUtils.waitElement(
+            incomingCallNotification,
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT
+        )
+        return this
+    }
+
+    fun iSeeIncomingGroupCallNotification(groupName: String): NotificationsPage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = groupName),
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT
+        )
+        UiWaitUtils.waitElement(
+            incomingCallNotification,
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT
+        )
+        return this
+    }
+
+    fun iOpenCallNotificationToBringCallToForeground(): NotificationsPage {
+        Assert.assertTrue("Notification center did not open.", device.openNotification())
+        UiWaitUtils.waitElement(
+            incomingCallNotification,
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT
+        ).click()
         return this
     }
 

@@ -29,6 +29,7 @@ import backendUtils.team.getTeamMembers
 import backendUtils.user.getPropertyValues
 import backendUtils.user.getUserNameByID
 import backendUtils.user.isDevelopmentApiEnabled
+import com.wire.android.testSupport.BuildConfig
 import com.wire.android.testSupport.R
 import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
@@ -60,7 +61,13 @@ class TestServiceHelper(
     private val noExpirationTimeout = Duration.ZERO
 
     val testServiceClient by lazy {
-        TestService("http://192.168.2.18:8080", "TestService")
+        val baseUri = BuildConfig.TEST_SERVICE_URL.trim().trimEnd('/').also {
+            check(it.isNotEmpty()) {
+                "Test service URL is missing. Set testServiceUrl in local.properties " +
+                    "or TEST_SERVICE_URL in the environment."
+            }
+        }
+        TestService(baseUri, "TestService")
     }
 
     private fun getRawResourceAsFile(context: Context, @RawRes rawResId: Int, fileName: String): File? {

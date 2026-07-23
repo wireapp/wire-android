@@ -100,8 +100,8 @@ fun AllMeetingsScreen(
                 lazyListState = if (tabs.size > 1) lazyListStateProvider[tabs[it]] else lazyListState,
                 type = tabs[it],
                 contentPadding = contentPadding,
-                openMeetingOptions = { meetingId ->
-                    meetingOptionsSheetState.show(meetingId)
+                openMeetingOptions = { occurrenceId ->
+                    meetingOptionsSheetState.show(occurrenceId)
                 },
                 startCall = startCall,
                 joinCall = joinCall,

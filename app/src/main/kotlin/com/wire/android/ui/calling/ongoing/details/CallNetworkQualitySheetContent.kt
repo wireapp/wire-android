@@ -56,6 +56,8 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.android.ui.common.R as commonR
@@ -120,7 +122,7 @@ fun CallNetworkQualitySheetContent(
 @Composable
 private fun LearnMoreItem() {
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(id = R.string.url_call_network_quality_learn_more)
+    val learnMoreUrl = supportUrlResource(SupportPage.CALL_QUALITY)
     MenuBottomSheetItem(
         onItemClick = {
             CustomTabsHelper.launchUrl(context, learnMoreUrl)

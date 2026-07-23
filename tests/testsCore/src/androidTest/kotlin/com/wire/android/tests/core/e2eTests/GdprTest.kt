@@ -56,6 +56,7 @@ class GdprTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterPersonalUserLoggingEmail(registeredUser?.email ?: "")
                 clickLoginButton()
                 enterPersonalUserLoginPassword(registeredUser?.password ?: "")

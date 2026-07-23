@@ -18,7 +18,7 @@ val secretsJson = rootProject.file("secrets.json")
 
 val deviceSecretSections = setOf(
     "CALLINGSERVICE_BASIC_AUTH",
-    "OKTA_API_KEY",
+    "KEYCLOAK_QA_AUTOMATION",
     "SOCKS_PROXY_PASSWORD"
 )
 
@@ -49,6 +49,13 @@ fun escapeForBuildConfig(value: String): String {
         .replace("\r", "")      // Remove carriage returns (optional)
 }
 
+// CI can provide the test service URL through the environment, while local
+// builds can set it once in the ignored local.properties file. A Gradle
+// property remains useful for one-off overrides from the command line.
+val testServiceUrl = providers.environmentVariable("TEST_SERVICE_URL").orNull
+    ?: providers.gradleProperty("testServiceUrl").orNull
+    ?: project.getLocalProperty("testServiceUrl", "")
+
 // If secrets.json exists, parse and load values into env map
 if (secretsJson.exists()) {
     // Parse secrets JSON as a map of item title -> item details
@@ -78,6 +85,12 @@ android {
     namespace = "com.wire.android.testSupport"
 
     defaultConfig {
+        buildConfigField(
+            "String",
+            "TEST_SERVICE_URL",
+            "\"${escapeForBuildConfig(testServiceUrl)}\""
+        )
+
         // Inject environment variables as BuildConfig fields
         env.forEach { (key, value) ->
             buildConfigField("String", key.toString(), "\"${escapeForBuildConfig(value.toString())}\"")

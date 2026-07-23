@@ -32,7 +32,7 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
-import com.wire.android.feature.meetings.ui.usecase.GetMeetingsPaginatedUseCase
+import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUseCase
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
@@ -40,7 +40,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -57,30 +56,23 @@ import kotlinx.datetime.toLocalDateTime
 interface MeetingListViewModel {
     val currentTimeProvider: CurrentTimeProvider
     val meetings: Flow<PagingData<MeetingListItem>> get() = flowOf()
-    val isShowingAll: StateFlow<Boolean> get() = MutableStateFlow(false)
-    fun showAll() {}
 }
 
-class MeetingListViewModelPreview(
-    type: MeetingsTabItem,
-    showingAll: Boolean = type == MeetingsTabItem.PAST,
-) : MeetingListViewModel {
+class MeetingListViewModelPreview(type: MeetingsTabItem) : MeetingListViewModel {
     override val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Preview
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
-    override val isShowingAll: StateFlow<Boolean> = MutableStateFlow(showingAll)
     override val meetings: Flow<PagingData<MeetingListItem>> = MutableStateFlow(
-        meetingMocksProvider.getItems(showingAll, type).toPagingDataWithLoadState(isShowingAll.value).insertHeaders(type)
+        meetingMocksProvider.getItems(type).toPagingDataWithLoadState(false).insertHeaders(type)
     )
 }
 
 class MeetingListViewModelImpl(
     val type: MeetingsTabItem,
     override val currentTimeProvider: CurrentTimeProvider,
-    getMeetingsPaginated: GetMeetingsPaginatedUseCase,
+    getMeetingsPaginated: GetPaginatedFlowOfMeetingsUseCase,
     observeActiveCalls: ObserveActiveCallsUseCase,
     dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
-    override val isShowingAll = MutableStateFlow(type == MeetingsTabItem.PAST) // for PAST always show all, for NEXT start with false
     private val alignedTickerFlow = flow {
         while (currentCoroutineContext().isActive) {
             val currentTime = currentTimeProvider()
@@ -89,9 +81,9 @@ class MeetingListViewModelImpl(
         }
     }
 
-    private val pagingDataFlow = isShowingAll
-        .flatMapLatest { isShowingAll ->
-            getMeetingsPaginated(type = type, showingAll = isShowingAll)
+    private val pagingDataFlow = flowOf(type)
+        .flatMapLatest { type ->
+            getMeetingsPaginated(type = type)
         }
         .flowOn(dispatcher.io())
         .cachedIn(viewModelScope)
@@ -102,15 +94,11 @@ class MeetingListViewModelImpl(
         alignedTickerFlow
     ) { pagingData, activeCalls, currentTime ->
         pagingData
-            .map { rawMeeting ->
-                val activeCall = activeCalls.find { it.conversationId == rawMeeting.conversationId }
-                rawMeeting.toMeetingItem(time = currentTime, ongoingCallStatus = activeCall?.toOngoingCallStatus())
+            .map { item ->
+                val activeCall = activeCalls.find { it.conversationId == item.conversationId }
+                item.toMeetingItem(time = currentTime, ongoingCallStatus = activeCall?.toOngoingCallStatus())
             }
             .insertHeaders(type = type)
-    }
-
-    override fun showAll() {
-        isShowingAll.value = true
     }
 }
 

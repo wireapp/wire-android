@@ -83,6 +83,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DEVELOPER_FEATURES_ENABLED("developer_features_enabled", ConfigType.BOOLEAN),
     DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
     REPORT_BUG_MENU_ITEM_ENABLED("report_bug_menu_item_enabled", ConfigType.BOOLEAN),
+    FEEDBACK_MENU_ITEM_ENABLED("feedback_menu_item_enabled", ConfigType.BOOLEAN),
 
     URL_SUPPORT("url_support", ConfigType.STRING),
     URL_RSS_RELEASE_NOTES("url_rss_release_notes", ConfigType.STRING),
@@ -99,6 +100,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DEFAULT_BACKEND_URL_BLACKLIST("default_backend_url_blacklist", ConfigType.STRING),
     DEFAULT_BACKEND_URL_WEBSITE("default_backend_url_website", ConfigType.STRING),
     DEFAULT_BACKEND_TITLE("default_backend_title", ConfigType.STRING),
+    DEFAULT_BACKEND_ENABLED("default_backend_enabled", ConfigType.BOOLEAN),
 
     CERTIFICATE_PINNING_CONFIG("cert_pinning_config", ConfigType.MapOfStringToListOfStrings),
     // TODO: Add support for default proxy configs

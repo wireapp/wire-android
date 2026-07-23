@@ -61,7 +61,7 @@ abstract class BaseUiTest : KoinTest {
     @get:Rule
     val allureLabelsRule = AllureLabelsRule()
 
-    // Keep cleanup outside @After so failure screenshots are captured before backend cleanup changes the app screen.
+    // RuleChain order: failure screenshots run first, then this rule performs cleanup.
     private val failureScreenshotRule = AllureFailureScreenshotRule()
     private val commonCleanupRule = TestRule { base, _: Description ->
         object : Statement() {
@@ -69,7 +69,7 @@ abstract class BaseUiTest : KoinTest {
                 try {
                     base.evaluate()
                 } finally {
-                    tearDownCommonTestHelpers()
+                    tearDownAfterAllureScreenshot()
                 }
             }
         }
@@ -184,6 +184,11 @@ abstract class BaseUiTest : KoinTest {
         backendSetupHelper = BackendSetupHelper(clientUserManager, testServiceHelper::addDevice)
     }
 
+    private fun tearDownAfterAllureScreenshot() {
+        tearDownCallingManager() // CallingManager cleanup for call tests.
+        tearDownCommonTestHelpers() // Shared backend user/team cleanup.
+    }
+
     private fun tearDownCommonTestHelpers() {
         if (::backendClient.isInitialized && ::clientUserManager.isInitialized) {
             // Shared cleanup for users tracked by ClientUserManager.
@@ -194,6 +199,9 @@ abstract class BaseUiTest : KoinTest {
             )
         }
     }
+
+    // BaseCallUiTest overrides this to clean CallingManager before common backend cleanup runs.
+    protected open fun tearDownCallingManager() = Unit
 
     private companion object {
         const val DEFAULT_BACKEND_NAME = "STAGING"

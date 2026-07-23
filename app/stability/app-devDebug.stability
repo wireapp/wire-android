@@ -855,6 +855,27 @@ public fun com.wire.android.ui.analyticsUsageViewModel(): com.wire.android.ui.an
   params:
 
 @Composable
+public fun com.wire.android.ui.authentication.BackendConfigSuccessContent(modifier: androidx.compose.ui.Modifier, onContinue: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - onContinue: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.authentication.MissingBackendConfigContent(modifier: androidx.compose.ui.Modifier, showTitle: kotlin.Boolean, centerText: kotlin.Boolean, verticalArrangement: androidx.compose.foundation.layout.Arrangement.Vertical, errorText: kotlin.String?, isLoading: kotlin.Boolean, onConfigurationLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>?): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - showTitle: STABLE (primitive type)
+    - centerText: STABLE (primitive type)
+    - verticalArrangement: STABLE (marked @Stable or @Immutable)
+    - errorText: STABLE (class with no mutable properties)
+    - isLoading: STABLE (primitive type)
+    - onConfigurationLinkEntered: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.authentication.authenticationViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, key: kotlin.String?): VM of com.wire.android.ui.authentication.authenticationViewModel
   skippable: false
   restartable: true
@@ -3533,7 +3554,7 @@ public fun com.wire.android.ui.debug.DebugDataOptions(appVersion: kotlin.String,
     - viewModel: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.debug.DebugDataOptionsContent(state: com.wire.android.ui.debug.DebugDataOptionsState, appVersion: kotlin.String, buildVariant: kotlin.String, onCopyText: kotlin.Function1<kotlin.String, kotlin.Unit>, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEnableAsyncNotificationsChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, enrollE2EICertificate: kotlin.Function0<kotlin.Unit>, e2eiCertificateExpirationInputState: androidx.compose.foundation.text.input.TextFieldState, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult, kotlin.Unit>, dismissCertificateDialog: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onResendFCMToken: kotlin.Function0<kotlin.Unit>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, onRepairFaultyRemovalKeys: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.debug.DebugDataOptionsContent(state: com.wire.android.ui.debug.DebugDataOptionsState, appVersion: kotlin.String, buildVariant: kotlin.String, onCopyText: kotlin.Function1<kotlin.String, kotlin.Unit>, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, enrollE2EICertificate: kotlin.Function0<kotlin.Unit>, e2eiCertificateExpirationInputState: androidx.compose.foundation.text.input.TextFieldState, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult, kotlin.Unit>, dismissCertificateDialog: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onResendFCMToken: kotlin.Function0<kotlin.Unit>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, onRepairFaultyRemovalKeys: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3542,7 +3563,6 @@ public fun com.wire.android.ui.debug.DebugDataOptionsContent(state: com.wire.and
     - buildVariant: STABLE (String is immutable)
     - onCopyText: STABLE (function type)
     - onDisableEventProcessingChange: STABLE (function type)
-    - onEnableAsyncNotificationsChange: STABLE (function type)
     - onRestartSlowSyncForRecovery: STABLE (function type)
     - onForceUpdateApiVersions: STABLE (function type)
     - enrollE2EICertificate: STABLE (function type)
@@ -3569,7 +3589,7 @@ public fun com.wire.android.ui.debug.DebugScreen(navigator: com.wire.android.nav
     - exportObfuscatedCopyViewModel: RUNTIME (requires runtime check)
 
 @Composable
-internal fun com.wire.android.ui.debug.DebugToolsOptions(isEventProcessingEnabled: kotlin.Boolean, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onResendFCMToken: kotlin.Function0<kotlin.Unit>, isAsyncNotificationsEnabled: kotlin.Boolean, onEnableAsyncNotificationsChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.debug.DebugToolsOptions(isEventProcessingEnabled: kotlin.Boolean, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onResendFCMToken: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3581,8 +3601,6 @@ internal fun com.wire.android.ui.debug.DebugToolsOptions(isEventProcessingEnable
     - forceCRLExpirationAfterOneMinute: STABLE (primitive type)
     - onForceCRLExpirationAfterOneMinuteChange: STABLE (function type)
     - onResendFCMToken: STABLE (function type)
-    - isAsyncNotificationsEnabled: STABLE (primitive type)
-    - onEnableAsyncNotificationsChange: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.debug.DisableEventProcessingSwitch(isEnabled: kotlin.Boolean, onCheckedChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>?): kotlin.Unit
@@ -3599,14 +3617,6 @@ private fun com.wire.android.ui.debug.E2EICertificateEnrollmentSection(expiratio
   params:
     - expirationInputState: STABLE (marked @Stable or @Immutable)
     - enrollE2EI: STABLE (function type)
-
-@Composable
-private fun com.wire.android.ui.debug.EnableAsyncNotifications(isEnabled: kotlin.Boolean, onCheckedChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>?): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - isEnabled: STABLE (primitive type)
-    - onCheckedChange: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.debug.EnableLoggingSwitch(onCheckedChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>?, modifier: androidx.compose.ui.Modifier, isEnabled: kotlin.Boolean): kotlin.Unit
@@ -3665,7 +3675,7 @@ private fun com.wire.android.ui.debug.MLSOptions(mlsInfoState: com.wire.android.
     - onRepairFaultyRemovalKeys: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.debug.PrivateBuildDebugToolsOptions(isEventProcessingEnabled: kotlin.Boolean, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, isAsyncNotificationsEnabled: kotlin.Boolean, onEnableAsyncNotificationsChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.debug.PrivateBuildDebugToolsOptions(isEventProcessingEnabled: kotlin.Boolean, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3676,8 +3686,6 @@ private fun com.wire.android.ui.debug.PrivateBuildDebugToolsOptions(isEventProce
     - checkCrlRevocationList: STABLE (function type)
     - forceCRLExpirationAfterOneMinute: STABLE (primitive type)
     - onForceCRLExpirationAfterOneMinuteChange: STABLE (function type)
-    - isAsyncNotificationsEnabled: STABLE (primitive type)
-    - onEnableAsyncNotificationsChange: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.debug.ProductionDebugToolsOptions(onResendFCMToken: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -10208,10 +10216,11 @@ public fun com.wire.android.ui.miscViewModel(): VM of com.wire.android.ui.miscVi
   params:
 
 @Composable
-internal fun com.wire.android.ui.newauthentication.login.BackendSelectorDropDown(): kotlin.Unit
+internal fun com.wire.android.ui.newauthentication.login.BackendSelectorDropDown(onNoBackendSelected: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - onNoBackendSelected: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.newauthentication.login.EmailOrSSOCodeInput(userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, error: kotlin.String?): kotlin.Unit
@@ -10230,15 +10239,18 @@ private fun com.wire.android.ui.newauthentication.login.EnterBackendNameDialog(o
     - onDismiss: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, onNextClicked: kotlin.Function0<kotlin.Unit>, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, canNavigateBack: kotlin.Boolean, onNextClicked: kotlin.Function0<kotlin.Unit>, onBackendConfigLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>, onBackendConfigSuccessContinue: kotlin.Function0<kotlin.Unit>, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - loginEmailSSOState: STABLE (class with no mutable properties)
     - userIdentifierState: STABLE (marked @Stable or @Immutable)
     - serverConfig: UNSTABLE (has mutable properties or unstable members)
-    - onNextClicked: STABLE (function type)
     - canNavigateBack: STABLE (primitive type)
+    - onNextClicked: STABLE (function type)
+    - onBackendConfigLinkEntered: STABLE (function type)
+    - onBackendConfigSuccessContinue: STABLE (function type)
+    - onNoBackendSelected: STABLE (function type)
     - navigateBack: STABLE (function type)
 
 @Composable
@@ -10258,12 +10270,14 @@ private fun com.wire.android.ui.newauthentication.login.NavigationBarBackground(
   params:
 
 @Composable
-public fun com.wire.android.ui.newauthentication.login.NewAuthContainer(header: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, contentPadding: androidx.compose.ui.unit.Dp, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.newauthentication.login.NewAuthContainer(header: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, contentPadding: androidx.compose.ui.unit.Dp, showBackendSelector: kotlin.Boolean, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - header: STABLE (composable function type)
     - contentPadding: STABLE (marked @Stable or @Immutable)
+    - showBackendSelector: STABLE (primitive type)
+    - onNoBackendSelected: STABLE (function type)
     - content: STABLE (composable function type)
 
 @Composable
@@ -10520,6 +10534,15 @@ public fun com.wire.android.ui.registration.selector.CreateAccountSelectorScreen
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+internal fun com.wire.android.ui.rememberWireActivityNavigator(isUserUiBlocked: kotlin.Boolean, finish: kotlin.Function0<kotlin.Unit>, isAllowedToNavigate: kotlin.Function1<com.wire.android.navigation.NavigationCommand, kotlin.Boolean>): com.wire.android.navigation.Navigator
+  skippable: true
+  restartable: true
+  params:
+    - isUserUiBlocked: STABLE (primitive type)
+    - finish: STABLE (function type)
+    - isAllowedToNavigate: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.server.ApiVersioningDialog(title: kotlin.String, text: kotlin.String, actionText: kotlin.String, onDismiss: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function0<kotlin.Unit>, isPreview: kotlin.Boolean): kotlin.Unit

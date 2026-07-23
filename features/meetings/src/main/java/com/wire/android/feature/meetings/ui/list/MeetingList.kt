@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -51,7 +50,7 @@ fun MeetingList(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
-    openMeetingOptions: (meetingId: String) -> Unit = {},
+    openMeetingOptions: (occurrenceId: String) -> Unit = {},
     startCall: (conversationId: ConversationId) -> Unit = {},
     joinCall: (conversationId: ConversationId) -> Unit = {},
     returnToCall: (conversationId: ConversationId) -> Unit = {},
@@ -61,7 +60,6 @@ fun MeetingList(
         else -> meetingListViewModel(type)
     }
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItems()
-    val isShowingAll = meetingListViewModel.isShowingAll.collectAsState().value
     val showLoading = lazyPagingItems.loadState.refresh == LoadState.Loading && lazyPagingItems.itemCount == 0
     AnimatedContent(targetState = showLoading to (lazyPagingItems.itemCount == 0)) { (loading, emptyList) ->
         when {
@@ -88,10 +86,15 @@ fun MeetingList(
                             is MeetingHeader.Day -> "separator_day_${it.time.toEpochMilliseconds()}"
                             is MeetingHeader.DayAndHour -> "separator_day_and_hour_${it.time.toEpochMilliseconds()}"
                             is MeetingHeader.Hour -> "separator_hour_${it.time.toEpochMilliseconds()}"
-                            is MeetingItem -> it.meetingId
+                            is MeetingItem -> it.occurrenceId
                         }
                     },
-                    contentType = lazyPagingItems.itemContentType { it::class.simpleName },
+                    contentType = lazyPagingItems.itemContentType {
+                        when (it) {
+                            is MeetingHeader -> "header"
+                            is MeetingItem -> "item"
+                        }
+                    },
                 ) { index ->
                     lazyPagingItems[index]?.let { item ->
                         when (item) {
@@ -112,13 +115,9 @@ fun MeetingList(
                     }
                 }
                 val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
-                when {
-                    !endOfPaginationReached -> item(key = "footer_load_more", contentType = "footer_load_more") {
+                if (!endOfPaginationReached) {
+                    item(key = "footer_load_more", contentType = "footer_load_more") {
                         MeetingLoadMoreFooter()
-                    }
-
-                    !isShowingAll -> item(key = "footer_show_all", contentType = "footer_show_all") {
-                        MeetingShowAllFooter(onShowAll = meetingListViewModel::showAll)
                     }
                 }
             }

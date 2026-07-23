@@ -24,7 +24,10 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.EmailComposer
+import com.wire.android.util.SupportPage
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.getProviderAuthority
@@ -82,7 +85,7 @@ class LogShareLauncher(
     private fun share(
         logsDirectory: File,
         flushLogs: suspend () -> Unit,
-        intent: (File) -> Intent
+        intent: suspend (File) -> Intent
     ) {
         coroutineScope.launch {
             runCatching {
@@ -124,9 +127,19 @@ fun Context.logsSharingIntent(archiveFile: File): Intent {
     }
 }
 
-fun Context.bugReportLogsSharingIntent(archiveFile: File): Intent {
+@Suppress("ReturnCount")
+suspend fun Context.bugReportLogsSharingIntent(archiveFile: File): Intent {
+    val supportEmail = BackendSupportConfig.resolveEmail(this, getString(R.string.send_bug_report_email))
+    if (supportEmail == null) {
+        BackendSupportConfig.supportPageIntent()?.let { return it }
+        return Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(SupportUrlResolver.resolve(resources, SupportPage.SUPPORT))
+        )
+    }
+
     val intent = logsSharingIntent(archiveFile).apply {
-        putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.send_bug_report_email)))
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(supportEmail))
         putExtra(Intent.EXTRA_SUBJECT, getString(R.string.send_bug_report_subject))
         putExtra(
             Intent.EXTRA_TEXT,

@@ -246,6 +246,7 @@
     <string name="content_description_login_user_identifier_field">введите свой email или псевдоним</string>
     <string name="content_description_login_email_field">введите свой email</string>
     <string name="content_description_enterprise_login_email_field">введите свой email или или код SSO</string>
+    <string name="content_description_backend_config_camera_button">Сканировать QR-код</string>
     <string name="content_description_login_password_field">введите свой пароль</string>
     <string name="content_description_login_sso_code_field">введите свой код SSO или Wire email</string>
     <string name="content_description_whats_new_welcome_item">Добро пожаловать в новое приложение Wire для Android, ссылка на страницу поддержки</string>
@@ -1337,7 +1338,7 @@
     <string name="custom_backend_dialog_body_backend_website">URL веб-сайта:</string>
     <string name="custom_backend_dialog_body_backend_websocket">WSURL бэкэнда:</string>
     <string name="custom_backend_error_title">Произошла ошибка</string>
-    <string name="custom_backend_error_no_internet_connection_body">Перенаправление на локальный бэкэнд не удалось, вероятно, вы не подключены к интернету.\n\nПодключитесь к интернету и повторите попытку.</string>
+    <string name="custom_backend_error_no_internet_connection_body">Произошла ошибка. Проверьте ссылку и подключение, а затем попробуйте еще раз.</string>
     <string name="custom_backend_error_no_internet_connection_try_again">Повторить</string>
     <string name="label_fetching_your_messages">Получение новых сообщений</string>
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
@@ -1892,6 +1893,15 @@
     <string name="restriction_keep_websocket_title">Сохранять WebSocket соединение</string>
     <string name="restriction_keep_websocket_description">Принудительное подключение к WebSocket для всех пользователей</string>
     <string name="settings_keep_websocket_enforced_by_organization">Этот параметр управляется вашей организацией.</string>
+    <string name="enterprise_login_error_missing_backend_config">Требуется настройка бэкенда. Перейдите по ссылке для настройки или обратитесь к администратору.</string>
+    <string name="missing_backend_config_title">Настройте приложение</string>
+    <string name="missing_backend_config_description">Чтобы начать, введите ссылку или сосканируйте QR-код, предоставленный вашей администрацией.</string>
+    <string name="missing_backend_config_input_label">Конфигурационная ссылка</string>
+    <string name="missing_backend_config_input_placeholder">Введите ссылку или сосканируйте QR-код</string>
+    <string name="missing_backend_config_button_setup">Настроить</string>
+    <string name="missing_backend_config_error">Произошла ошибка. Проверьте ссылку и подключение, а затем попробуйте еще раз.</string>
+    <string name="backend_config_success_title">Приложение настроено</string>
+    <string name="backend_config_success_description">На следующем шаге вы можете войти</string>
     <!--    channel not available dialog-->
     <string name="channel_not_available_dialog_title">Каналы доступны для членов команды.</string>
     <string name="channel_not_available_dialog_description">Создайте команду и начните взаимодействовать бесплатно!</string>

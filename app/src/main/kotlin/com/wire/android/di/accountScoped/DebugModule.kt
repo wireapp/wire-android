@@ -23,20 +23,18 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
-import com.wire.kalium.logic.feature.debug.DebugScope
 import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
+import com.wire.kalium.logic.feature.debug.DebugScope
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
-import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
-import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
-import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
+import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
+import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
-import com.wire.kalium.logic.feature.debug.ObserveIsConsumableNotificationsEnabledUseCase
+import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
-import com.wire.kalium.logic.feature.debug.StartUsingAsyncNotificationsUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -70,14 +68,6 @@ class DebugModule {
     @Provides
     fun provideObserveDatabaseLoggerState(debugScope: DebugScope): ObserveDatabaseLoggerStateUseCase =
         debugScope.observeDatabaseLoggerState
-
-    @Provides
-    fun provideObserveAsyncNotificationsEnabled(debugScope: DebugScope): ObserveIsConsumableNotificationsEnabledUseCase =
-        debugScope.observeIsConsumableNotificationsEnabled
-
-    @Provides
-    fun provideStartUsingAsyncNotifications(debugScope: DebugScope): StartUsingAsyncNotificationsUseCase =
-        debugScope.startUsingAsyncNotifications
 
     @Provides
     fun provideFeatureConfigUseCase(debugScope: DebugScope): GetFeatureConfigUseCase = debugScope.getFeatureConfig

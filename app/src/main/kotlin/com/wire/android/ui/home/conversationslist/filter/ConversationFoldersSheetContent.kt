@@ -51,6 +51,8 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
 @Composable
@@ -128,7 +130,7 @@ private fun EmptyFolders() {
                 style = typography().body01,
             )
             VerticalSpace.x16()
-            val supportUrl = stringResource(id = R.string.url_how_to_add_folders)
+            val supportUrl = supportUrlResource(SupportPage.ADD_FOLDERS)
             Text(
                 text = stringResource(R.string.folders_empty_list_how_to_add),
                 style = MaterialTheme.wireTypography.body02.copy(

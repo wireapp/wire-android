@@ -20,23 +20,10 @@ package com.wire.android.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import java.net.HttpURLConnection
-import java.net.URL
 
 object BackendSupportConfig {
-
-    private const val CONNECT_TIMEOUT_MILLIS = 5_000
-    private const val READ_TIMEOUT_MILLIS = 5_000
-
-    private val json = Json { ignoreUnknownKeys = true }
 
     @Volatile
     private var currentBackendApiUrl: String? = null
@@ -45,15 +32,14 @@ object BackendSupportConfig {
         currentBackendApiUrl = serverLinks.api.takeIf { it.isNotBlank() }
     }
 
-    suspend fun storeFromConfigUrl(
+    suspend fun storeFromServerLinks(
         globalDataStore: GlobalDataStore,
-        serverLinks: ServerConfig.Links,
-        configUrl: String
+        serverLinks: ServerConfig.Links
     ) {
         setCurrentBackend(serverLinks)
         globalDataStore.setBackendSupportEmail(
             backendApiUrl = serverLinks.api,
-            supportEmail = fetchSupportEmail(configUrl)
+            supportEmail = serverLinks.supportEmail
         )
     }
 
@@ -72,31 +58,4 @@ object BackendSupportConfig {
         SupportUrlResolver.resolveUrl("")?.let {
             Intent(Intent.ACTION_VIEW, Uri.parse(it))
         }
-
-    @Suppress("TooGenericExceptionCaught")
-    private suspend fun fetchSupportEmail(configUrl: String): String? = withContext(Dispatchers.IO) {
-        try {
-            val connection = URL(configUrl).openConnection() as HttpURLConnection
-            connection.connectTimeout = CONNECT_TIMEOUT_MILLIS
-            connection.readTimeout = READ_TIMEOUT_MILLIS
-            try {
-                connection.inputStream.bufferedReader().use { reader ->
-                    json.decodeFromString(SupportConfig.serializer(), reader.readText()).supportEmail
-                        ?.trim()
-                        ?.takeIf { it.isNotBlank() }
-                }
-            } finally {
-                connection.disconnect()
-            }
-        } catch (exception: Exception) {
-            appLogger.w("Failed to read backend support email from config", exception)
-            null
-        }
-    }
-
-    @Serializable
-    private data class SupportConfig(
-        @SerialName("supportEmail")
-        val supportEmail: String? = null
-    )
 }

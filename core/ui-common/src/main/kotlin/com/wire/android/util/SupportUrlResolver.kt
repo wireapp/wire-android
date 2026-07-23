@@ -17,6 +17,10 @@
  */
 package com.wire.android.util
 
+import android.content.res.Resources
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import java.net.URI
 
 object SupportUrlResolver {
@@ -30,6 +34,10 @@ object SupportUrlResolver {
         backendWebsiteUrl = url?.takeIf { it.isNotBlank() }
     }
 
+    fun setBaseUrl(baseUrl: String?) {
+        setBackendWebsiteUrl(baseUrl)
+    }
+
     fun resolveUrl(url: String): String? {
         val trimmedUrl = url.trim()
         return if (trimmedUrl.isBlank()) {
@@ -39,9 +47,45 @@ object SupportUrlResolver {
         }
     }
 
+    fun resolve(
+        hardcodedUrl: String,
+        page: SupportPage
+    ): String = hardcodedUrl.takeIf { it.isNotBlank() } ?: buildDynamicUrl(page)
+
+    fun resolve(
+        resources: Resources,
+        page: SupportPage
+    ): String = resolve(resources.getString(page.hardcodedUrlRes), page)
+
+    fun resolve(
+        resources: Resources,
+        @StringRes hardcodedUrlRes: Int,
+        page: SupportPage
+    ): String = resolve(resources.getString(hardcodedUrlRes), page)
+
+    private fun buildDynamicUrl(page: SupportPage): String {
+        val supportUrl = "${backendWebsiteUrl.orEmpty().trim().trimEnd('/')}/$SUPPORT_PATH"
+        return if (page.path.isEmpty()) supportUrl else "$supportUrl/${page.path}"
+    }
+
     private fun String.isHttpUrl(): Boolean =
         runCatching {
             val uri = URI(this)
             uri.scheme in setOf("http", "https") && !uri.host.isNullOrBlank()
         }.getOrDefault(false)
+}
+
+@Composable
+fun supportUrlResource(
+    page: SupportPage
+): String = SupportUrlResolver.resolve(stringResource(id = page.hardcodedUrlRes), page)
+
+@Composable
+fun supportUrlResource(
+    @StringRes hardcodedUrlRes: Int
+): String {
+    val hardcodedUrl = stringResource(id = hardcodedUrlRes)
+    return SupportPage.fromHardcodedUrlRes(hardcodedUrlRes)
+        ?.let { SupportUrlResolver.resolve(hardcodedUrl, it) }
+        ?: SupportUrlResolver.resolveUrl(hardcodedUrl).orEmpty()
 }

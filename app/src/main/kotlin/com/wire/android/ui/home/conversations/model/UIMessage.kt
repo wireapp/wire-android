@@ -28,6 +28,7 @@ import com.wire.android.mapper.groupedUIMessageDateTime
 import com.wire.android.mapper.shouldDisplayDatesDifferenceDivider
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.R as CommonR
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.markdown.MarkdownConstants
@@ -456,7 +457,7 @@ sealed interface UIMessageContent {
                 domainList.size > 1 -> R.string.label_system_message_federation_conection_removed
                 else -> R.string.label_system_message_federation_removed
             }.toLocalizedStringResource()
-            override val learnMoreResId = R.string.url_federation_support
+            override val learnMoreResId = CommonR.string.url_federation_support
         }
 
         @Serializable
@@ -553,7 +554,7 @@ sealed interface UIMessageContent {
         data object MLSWrongEpochWarning : SystemMessage {
             override val iconResId = R.drawable.ic_info
             override val stringRes = R.string.label_system_message_conversation_mls_wrong_epoch_error_handled.toLocalizedStringResource()
-            override val learnMoreResId = R.string.url_system_message_learn_more_about_mls
+            override val learnMoreResId = CommonR.string.url_system_message_learn_more_about_mls
         }
 
         @Serializable
@@ -569,7 +570,7 @@ sealed interface UIMessageContent {
             override val learnMoreResId = when (protocol) {
                 Conversation.Protocol.PROTEUS -> null
                 Conversation.Protocol.MIXED -> null
-                Conversation.Protocol.MLS -> R.string.url_system_message_learn_more_about_mls
+                Conversation.Protocol.MLS -> CommonR.string.url_system_message_learn_more_about_mls
             }
         }
 
@@ -623,8 +624,8 @@ sealed interface UIMessageContent {
                 else -> R.string.label_system_message_conversation_failed_add_one_member_details
             }.toLocalizedStringResource()
             override val learnMoreResId = when (type) {
-                Type.Federation -> R.string.url_message_details_offline_backends_learn_more
-                Type.LegalHold -> R.string.url_legal_hold_learn_more
+                Type.Federation -> CommonR.string.url_message_details_offline_backends_learn_more
+                Type.LegalHold -> CommonR.string.url_legal_hold_learn_more
                 Type.Unknown -> null
             }
             val usersCount = memberNames.size
@@ -673,7 +674,7 @@ sealed interface UIMessageContent {
 
             @Serializable
             sealed interface Enabled : LegalHold {
-                override val learnMoreResId get() = R.string.url_legal_hold_learn_more
+                override val learnMoreResId get() = CommonR.string.url_legal_hold_learn_more
 
                 @Serializable
                 data object Self : Enabled {

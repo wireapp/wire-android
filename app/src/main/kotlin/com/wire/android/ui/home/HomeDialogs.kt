@@ -30,6 +30,8 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -37,7 +39,7 @@ fun WelcomeNewUserDialog(
     dismissDialog: () -> Unit,
     context: Context = LocalContext.current
 ) {
-    val welcomeToNewAndroidUrl = stringResource(id = R.string.url_welcome_to_new_android)
+    val welcomeToNewAndroidUrl = supportUrlResource(SupportPage.WELCOME_ANDROID)
     WireDialog(
         title = stringResource(id = R.string.welcome_migration_dialog_title),
         text = stringResource(id = R.string.welcome_migration_dialog_content),

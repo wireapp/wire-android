@@ -58,6 +58,8 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
@@ -73,7 +75,7 @@ fun MessageDetailsScreen(
 ) {
     val context = LocalContext.current
 
-    val reactionsLearnMoreUrl = stringResource(id = R.string.url_message_details_reactions_learn_more)
+    val reactionsLearnMoreUrl = supportUrlResource(SupportPage.REACTIONS)
     val onReactionsLearnMore = remember {
         {
             CustomTabsHelper.launchUrl(
@@ -83,7 +85,7 @@ fun MessageDetailsScreen(
         }
     }
 
-    val readReceiptsLearnMoreUrl = stringResource(id = R.string.url_message_details_read_receipts_learn_more)
+    val readReceiptsLearnMoreUrl = supportUrlResource(SupportPage.READ_RECEIPTS)
     val onReadReceiptsLearnMore = remember {
         {
             CustomTabsHelper.launchUrl(

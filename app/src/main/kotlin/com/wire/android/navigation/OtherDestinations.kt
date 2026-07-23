@@ -25,6 +25,7 @@ import androidx.annotation.StringRes
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.ui.common.R as CommonR
 import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.EmailComposer
 import com.wire.android.util.LogFileWriter
@@ -56,7 +57,7 @@ interface IntentDirection : Direction {
 
 object SupportScreenDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int
-        get() = R.string.url_support
+        get() = CommonR.string.url_support
 }
 
 object PrivacyPolicyScreenDestination : ExternalUriStringResDirection {
@@ -105,7 +106,7 @@ object ReportBugDestination : IntentDirection {
         }
         if (supportEmail == null) {
             BackendSupportConfig.supportPageIntent()?.let { return it }
-            context.getString(R.string.url_support).takeIf { it.isNotBlank() }?.let {
+            context.getString(CommonR.string.url_support).takeIf { it.isNotBlank() }?.let {
                 return Intent(Intent.ACTION_VIEW, Uri.parse(it))
             }
         }
@@ -134,7 +135,7 @@ object ReportBugDestination : IntentDirection {
 
 object WelcomeToNewAndroidAppDestination : ExternalUriStringResDirection {
     override val uriStringRes: Int
-        get() = R.string.url_welcome_to_new_android
+        get() = CommonR.string.url_welcome_to_new_android
 }
 
 object AndroidReleaseNotesDestination : ExternalUriStringResDirection {

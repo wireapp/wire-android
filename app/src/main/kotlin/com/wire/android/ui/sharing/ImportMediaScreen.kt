@@ -105,6 +105,8 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.extension.getActivity
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
@@ -402,7 +404,7 @@ fun FileSharingRestrictedContent(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(R.string.url_file_sharing_restricted_learn_more)
+    val learnMoreUrl = supportUrlResource(SupportPage.FILE_SHARING_RESTRICTED)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

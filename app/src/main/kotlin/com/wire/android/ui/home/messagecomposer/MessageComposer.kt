@@ -67,6 +67,8 @@ import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputSta
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
@@ -119,7 +121,7 @@ fun MessageComposer(
             InteractionAvailability.LEGAL_HOLD -> DisabledInteractionMessageComposer(
                 conversationId = conversationId,
                 warningText = warningTextWithStyledArgs(R.string.legal_hold_system_message_interaction_disabled),
-                learnMoreLink = stringResource(id = R.string.url_legal_hold_learn_more),
+                learnMoreLink = supportUrlResource(SupportPage.LEGAL_HOLD),
                 messageListContent = messageListContent
             )
 

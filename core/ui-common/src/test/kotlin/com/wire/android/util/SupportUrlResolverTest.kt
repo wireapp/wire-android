@@ -42,6 +42,24 @@ class SupportUrlResolverTest {
     }
 
     @Test
+    fun `given empty support page url and backend website, when resolving page, then return backend support page url`() {
+        SupportUrlResolver.setBackendWebsiteUrl("https://example.com")
+
+        val result = SupportUrlResolver.resolve("", SupportPage.LEGAL_HOLD)
+
+        assertEquals("https://example.com/support/legal_hold", result)
+    }
+
+    @Test
+    fun `given hardcoded support page url, when resolving page, then keep original url`() {
+        SupportUrlResolver.setBackendWebsiteUrl("https://example.com")
+
+        val result = SupportUrlResolver.resolve("https://wire.com/help", SupportPage.LEGAL_HOLD)
+
+        assertEquals("https://wire.com/help", result)
+    }
+
+    @Test
     fun `given valid url, when resolving url, then keep original url`() {
         SupportUrlResolver.setBackendWebsiteUrl("https://example.com")
 

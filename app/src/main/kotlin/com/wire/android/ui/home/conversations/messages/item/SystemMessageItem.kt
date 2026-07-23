@@ -52,6 +52,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessa
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.LocalizedStringResource
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.markdownBold
@@ -103,7 +104,7 @@ fun SystemMessageItem(
                     errorColor = MaterialTheme.wireColorScheme.error,
                     isErrorString = message.addingFailed,
                 )
-                val learnMoreLink = message.messageContent.learnMoreResId?.let { stringResource(id = it) }
+                val learnMoreLink = message.messageContent.learnMoreResId?.let { supportUrlResource(it) }
 
                 TextWithLinkSuffix(
                     text = annotatedString,

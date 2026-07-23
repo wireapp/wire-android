@@ -315,11 +315,19 @@ public fun com.wire.android.feature.meetings.ui.newMeetingViewModel(viewModelSto
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalContent(meetingState: com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuState.Meeting, onCreateConversation: kotlin.Function0<kotlin.Unit>, onCopyLink: kotlin.Function0<kotlin.Unit>, onEditMeeting: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForMe: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForEveryone: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
+internal fun com.wire.android.feature.meetings.ui.options.DeleteMeetingDialog(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.feature.meetings.ui.options.DeleteMeetingDialogState>, onDelete: kotlin.Function1<com.wire.android.feature.meetings.ui.options.DeleteMeetingDialogState, kotlin.Unit>): kotlin.Unit
+  skippable: false
   restartable: true
   params:
-    - meetingState: STABLE (class with no mutable properties)
+    - dialogState: UNSTABLE (has mutable properties or unstable members)
+    - onDelete: STABLE (function type)
+
+@Composable
+private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalContent(meetingState: com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuState.Meeting, onCreateConversation: kotlin.Function0<kotlin.Unit>, onCopyLink: kotlin.Function0<kotlin.Unit>, onEditMeeting: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForMe: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForEveryone: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - meetingState: UNSTABLE (has mutable properties or unstable members)
     - onCreateConversation: STABLE (function type)
     - onCopyLink: STABLE (function type)
     - onEditMeeting: STABLE (function type)

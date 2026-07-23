@@ -44,6 +44,8 @@ data class LoginPage(private val device: UiDevice) {
     private val newLoginButtonSelector = UiSelectorParams(resourceId = "LoginNextButton")
     private val proceedButtonSelector = UiSelectorParams(text = "Proceed")
     private val proceedButtonGoneSelector = UiSelector().text("Proceed")
+    private val backendConfigSuccessContinueButtonSelector =
+        UiSelectorParams(resourceId = "backendConfigSuccessContinueButton")
     private val confirmButtonSelector = UiSelectorParams(text = "Confirm")
     private val androidResolverWireDevSelector = UiSelectorParams(text = "Wire Dev")
     private val androidResolverJustOnceSelector = UiSelectorParams(text = "Just once")
@@ -282,7 +284,24 @@ data class LoginPage(private val device: UiDevice) {
             throw AssertionError("Staging backend deeplink confirmation was not shown.")
         }
 
-        waitForWelcomeScreenAfterBackendDeeplink()
+        waitForBackendConfigSuccessScreenAfterBackendDeeplink()
+        return this
+    }
+
+    private fun waitForBackendConfigSuccessScreenAfterBackendDeeplink() {
+        runCatching {
+            UiWaitUtils.waitElement(
+                backendConfigSuccessContinueButtonSelector,
+                timeout = UiWaitUtils.STABLE_TIMEOUT
+            )
+        }
+    }
+
+    fun clickContinueButtonOnBackendConfigSuccess(): LoginPage {
+        runCatching {
+            UiWaitUtils.findElementOrNull(backendConfigSuccessContinueButtonSelector)?.click()
+        }
+        waitForWelcomeScreenAfterBackendConfigContinue()
         return this
     }
 
@@ -299,7 +318,7 @@ data class LoginPage(private val device: UiDevice) {
         input.text = password
     }
 
-    private fun waitForWelcomeScreenAfterBackendDeeplink() {
+    private fun waitForWelcomeScreenAfterBackendConfigContinue() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         device.wait(Until.hasObject(By.pkg(UiAutomatorSetup.appPackage).depth(0)), 10_000)
         val welcomeReady = UiWaitUtils.retryUntilTimeout(timeout = UiWaitUtils.LONG_TIMEOUT) {
@@ -313,7 +332,7 @@ data class LoginPage(private val device: UiDevice) {
             proceedGone && welcomeVisible && emailInputVisible
         }
         if (!welcomeReady) {
-            throw AssertionError("Welcome screen was not ready after staging backend deeplink.")
+            throw AssertionError("Welcome screen was not ready after backend config success Continue.")
         }
         UiWaitUtils.waitElement(emailWelcomeSelector, timeout = UiWaitUtils.LONG_TIMEOUT)
         UiWaitUtils.waitElement(emailInputFieldSelector, timeout = UiWaitUtils.LONG_TIMEOUT)

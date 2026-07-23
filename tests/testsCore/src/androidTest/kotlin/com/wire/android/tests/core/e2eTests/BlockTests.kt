@@ -103,6 +103,7 @@ class BlockTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
                 clickLoginButton()
                 enterTeamOwnerLoggingPassword(teamOwner.password ?: "")
@@ -206,6 +207,7 @@ class BlockTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamMemberLoggingEmail(member.email ?: "")
                 clickLoginButton()
                 enterTeamMemberLoggingPassword(member.password ?: "")
@@ -365,6 +367,7 @@ class BlockTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamMemberLoggingEmail(member.email ?: "")
                 clickLoginButton()
                 enterTeamMemberLoggingPassword(member.password ?: "")
@@ -491,6 +494,7 @@ class BlockTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
                 clickLoginButton()
                 enterTeamOwnerLoggingPassword(teamOwner.password ?: "")

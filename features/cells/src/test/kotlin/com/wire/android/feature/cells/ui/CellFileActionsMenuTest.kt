@@ -28,6 +28,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
+@Suppress("LargeClass")
 class CellFileActionsMenuTest {
 
     @Test
@@ -767,6 +768,7 @@ class CellFileActionsMenuTest {
         offlineFilesEnabled = offlineFilesEnabled,
     )
 
+    @Suppress("LongParameterList")
     private fun buildMenu(
         fileNode: CellNodeUi = Companion.fileNode,
         withCollaboraIntegration: Boolean = false,

@@ -132,7 +132,7 @@ class MeetingListViewModelTest {
         )
         val activeCall = call(
             conversationId = meetingWithActiveCall.conversationId,
-            establishedTime = "2026-01-01T11:55:00.000Z"
+            establishedTime = Instant.parse("2026-01-01T11:55:00Z")
         )
         val (_, viewModel) = Arrangement(dispatcher)
             .withCurrentTimeProvider { currentTime }
@@ -201,7 +201,7 @@ class MeetingListViewModelTest {
     private fun call(
         conversationId: ConversationId,
         status: CallStatus = CallStatus.ESTABLISHED,
-        establishedTime: String? = null,
+        establishedTime: Instant? = null,
     ) = Call(
         conversationId = conversationId,
         status = status,

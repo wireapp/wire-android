@@ -145,7 +145,7 @@ class MeetingMapperTest {
 
     private fun call(
         status: CallStatus = CallStatus.ESTABLISHED,
-        establishedTime: String? = ESTABLISHED_TIME
+        establishedTime: Instant? = ESTABLISHED_TIME
     ) = Call(
         conversationId = CONVERSATION_ID,
         status = status,
@@ -163,7 +163,7 @@ class MeetingMapperTest {
     private companion object {
         val MEETING_ID = MeetingId(value = "meeting-id", domain = "wire.com")
         const val TITLE = "Engineering sync"
-        const val ESTABLISHED_TIME = "2026-01-01T11:40:00.000Z"
+        val ESTABLISHED_TIME = Instant.parse("2026-01-01T11:40:00Z")
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val CONVERSATION_ID = ConversationId(value = "conversation-id", domain = "wire.com")
         val BELONGING_TYPE = BelongingType.Group(name = TITLE)

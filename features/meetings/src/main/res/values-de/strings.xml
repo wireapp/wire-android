@@ -64,4 +64,7 @@
     <string name="new_meeting_repeats_input_label">Wiederholt sich</string>
     <string name="content_description_new_meeting_repeating_options">Wiederholungsoption auswählen</string>
     <string name="new_meeting_allow_guests_label">Gäste zulassen</string>
+    <string name="delete_meeting_for_everyone_title">Meeting für alle löschen</string>
+    <string name="delete_meeting_for_everyone_description">Das Meeting wird für Sie und alle anderen gelöscht. Alle Teilnehmer werden darüber informiert.</string>
+    <string name="meeting_deleted_success">“%s” gelöscht</string>
 </resources>

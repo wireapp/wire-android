@@ -60,8 +60,7 @@ jobs:
 
       - name: Prepare release notes
         if: matrix.target.type == 'google-play'
-        run: |
-          bash scripts/prepare-release-notes.sh
+        run: make release-notes/prepare
 
       - name: Deploy to S3
         if: matrix.target.type == 's3'
@@ -83,8 +82,7 @@ jobs:
 
       - name: Format latest release notes
         if: matrix.target.type == 'google-play'
-        run: |
-          python3 scripts/generate_whatsnew_notes.py
+        run: make release-notes/format
 
       - name: Deploy to Google Play
         if: matrix.target.type == 'google-play'

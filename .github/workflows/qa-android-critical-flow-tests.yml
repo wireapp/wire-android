@@ -195,7 +195,7 @@ jobs:
         env:
           IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
           OLD_BUILD_NUMBER: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
-        run: bash scripts/qa_android_ui_tests/validation.sh validate-upgrade-inputs
+        run: make qa-ui-validate cmd=validate-upgrade-inputs
 
       # Validate retry toggle/count before any runner work starts.
       - name: Validate rerun inputs
@@ -203,7 +203,7 @@ jobs:
         env:
           RERUN_FAILED_ENABLED: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount }}
-        run: bash scripts/qa_android_ui_tests/validation.sh validate-rerun-inputs
+        run: make qa-ui-validate cmd=validate-rerun-inputs
 
       # Resolve TAGS into CI selectors and expose them as job outputs.
       - name: Resolve selector from TAGS
@@ -211,7 +211,7 @@ jobs:
         shell: bash
         env:
           TAGS_RAW: ${{ steps.resolve_run_inputs.outputs.TAGS }}
-        run: bash scripts/qa_android_ui_tests/validation.sh resolve-selector-from-tags
+        run: make qa-ui-validate cmd=resolve-selector-from-tags
 
       # Print resolved values for traceability in workflow logs.
       - name: Print resolved values
@@ -223,7 +223,7 @@ jobs:
           RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
           RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
           TESTINY_RUN_NAME: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
-        run: bash scripts/qa_android_ui_tests/validation.sh print-resolved-values
+        run: make qa-ui-validate cmd=print-resolved-values
 
   run-android-ui-tests:
     name: Run Android UI tests
@@ -273,7 +273,7 @@ jobs:
 
       # Verify required CLIs on the runner before setup continues.
       - name: Ensure required tools exist
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh ensure-required-tools
+        run: make qa-ui-setup cmd=ensure-required-tools
 
       # Flavor resolution is runner-driven (from /etc/android-qa/flavors.json), not hardcoded in repo.
       # This bash subcommand exports S3_FOLDER, APP_ID, and PACKAGES_TO_UNINSTALL for downstream steps.
@@ -281,7 +281,7 @@ jobs:
         id: resolve_flavor
         env:
           FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-flavor
+        run: make qa-ui-setup cmd=resolve-flavor
 
       - name: Configure AWS credentials (for S3)
         uses: aws-actions/configure-aws-credentials@517a711dbcd0e402f90c77e7e2f81e849156e31d # v6
@@ -298,7 +298,7 @@ jobs:
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
           OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
           S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh download-apks
+        run: make qa-ui-setup cmd=download-apks
 
       # Select device(s): use input device when provided, otherwise auto-pick.
       - name: Detect target device(s)
@@ -306,18 +306,18 @@ jobs:
           TARGET_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
           TARGET_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh detect-target-devices
+        run: make qa-ui-setup cmd=detect-target-devices
 
       # Clear stale device-side Allure files early so setup failures cannot publish old reports.
       - name: Clear stale Allure results on device(s)
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh clear-allure-results-on-devices
+        run: make qa-ui-setup cmd=clear-allure-results-on-devices
 
       # Install app/test prerequisites on each selected device.
       - name: Install APK(s) on device(s)
         env:
           ENFORCE_APP_INSTALL: ${{ needs.validate-and-resolve-inputs.outputs.resolvedEnforceAppInstall }}
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh install-apks-on-devices
+        run: make qa-ui-setup cmd=install-apks-on-devices
 
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@a5215d3a7f75c1629216c465ea9ab3ab399c4b71 # v4
@@ -326,7 +326,7 @@ jobs:
       - name: Fetch secrets.json (runtime only)
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+        run: make qa-ui-setup cmd=fetch-runtime-secrets
 
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
@@ -334,15 +334,15 @@ jobs:
           TEST_SERVICE_URL: ${{ vars.TEST_SERVICE_URL }}
         run: |
           : "${TEST_SERVICE_URL:?Configure the TEST_SERVICE_URL GitHub Actions variable}"
-          bash scripts/qa_android_ui_tests/execution_setup.sh build-test-apk
+          make qa-ui-setup cmd=build-test-apk
 
       # Resolve the built androidTest APK path for execution steps.
       - name: Resolve test APK path
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-test-apk-path
+        run: make qa-ui-setup cmd=resolve-test-apk-path
 
       # Resolve AndroidX Test Services APKs required for TestStorage/Allure.
       - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
-        run: bash scripts/qa_android_ui_tests/execution_setup.sh resolve-test-services-apks
+        run: make qa-ui-setup cmd=resolve-test-services-apks
 
       # Run attempt 0, pull results immediately, then rerun only the still-failing tests.
       - name: Run UI tests (auto-rerun failed tests)
@@ -366,7 +366,7 @@ jobs:
               DEVICE_COUNT="1" \
               APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
               RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
-              bash scripts/qa_android_ui_tests/run_ui_tests.sh
+              make qa-ui-run
           elif [[ "${IS_UPGRADE}" == "true" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
             # For broad upgrade runs, run the selected normal tests on the new APK first.
             # Then run only the selected upgrade subset afterward, starting from the old APK.
@@ -380,7 +380,7 @@ jobs:
               EXCLUDE_CATEGORY="upgrade" \
               RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-normal" \
               ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/normal" \
-              bash scripts/qa_android_ui_tests/run_ui_tests.sh || normal_status=$?
+              make qa-ui-run || normal_status=$?
 
             echo "Running upgrade tests last with old APK installed before each attempt."
             DEVICE_LIST="${upgrade_device}" \
@@ -390,11 +390,11 @@ jobs:
               APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
               RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
               ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
-              bash scripts/qa_android_ui_tests/run_ui_tests.sh || upgrade_status=$?
+              make qa-ui-run || upgrade_status=$?
 
             RETRY_STATE_DIRS="${RUNNER_TEMP}/retry-state-normal ${RUNNER_TEMP}/retry-state-upgrade" \
               COMBINED_RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-combined" \
-              bash scripts/qa_android_ui_tests/reporting.sh combine-retry-state
+              make qa-ui-report cmd=combine-retry-state
 
             if (( normal_status != 0 )); then
               exit "${normal_status}"
@@ -408,9 +408,9 @@ jobs:
               # scope but skip upgrade-tagged tests instead of executing them
               # in the normal phase.
               EXCLUDE_CATEGORY="upgrade" \
-                bash scripts/qa_android_ui_tests/run_ui_tests.sh
+                make qa-ui-run
             else
-              bash scripts/qa_android_ui_tests/run_ui_tests.sh
+              make qa-ui-run
             fi
           fi
 
@@ -443,7 +443,7 @@ jobs:
           ANDROID_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
-        run: bash scripts/qa_android_ui_tests/reporting.sh prepare-deflake-bundle
+        run: make qa-ui-report cmd=prepare-deflake-bundle
 
       - name: Upload deflake input artifact
         if: always()
@@ -456,14 +456,14 @@ jobs:
       # Remove runtime secrets before report generation and publish steps.
       - name: Remove runtime secrets (before Allure/Pages)
         if: always()
-        run: bash scripts/qa_android_ui_tests/reporting.sh remove-runtime-secrets
+        run: make qa-ui-report cmd=remove-runtime-secrets
 
       # Fallback pull: keep this as a safety net in case per-attempt pull was interrupted.
       - name: Pull Allure results from device(s) (fallback)
         if: always()
         env:
           OUT_DIR: ${{ runner.temp }}/allure-results
-        run: bash scripts/qa_android_ui_tests/reporting.sh pull-allure-results
+        run: make qa-ui-report cmd=pull-allure-results
 
       # Merge all attempts into one final dataset and stamp passed_on_rerun=true where needed.
       - name: Merge Allure results (add device label)
@@ -474,7 +474,7 @@ jobs:
           REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
           NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
           INPUT_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
-        run: bash scripts/qa_android_ui_tests/reporting.sh merge-allure-results
+        run: make qa-ui-report cmd=merge-allure-results
 
       # Generate static Allure HTML from merged results.
       - name: Generate Allure HTML report
@@ -482,7 +482,7 @@ jobs:
         env:
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           REPORT_DIR: ${{ runner.temp }}/allure-report
-        run: bash scripts/qa_android_ui_tests/reporting.sh generate-allure-report
+        run: make qa-ui-report cmd=generate-allure-report
 
       - name: Checkout GitHub Pages branch
         if: always()
@@ -505,14 +505,14 @@ jobs:
           INPUT_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
           APK_NAME: ${{ env.NEW_APK_NAME }}
-        run: bash scripts/qa_android_ui_tests/reporting.sh publish-allure-report
+        run: make qa-ui-report cmd=publish-allure-report
 
       - name: Summarize merged Allure results
         id: summarize_allure_results
         if: always()
         env:
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
-        run: bash scripts/qa_android_ui_tests/reporting.sh summarize-allure-results
+        run: make qa-ui-report cmd=summarize-allure-results
 
       - name: Build Wire notification body
         id: build_wire_notification
@@ -531,7 +531,7 @@ jobs:
           TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
           PASSED_ON_RERUN_COUNT: ${{ env.PASSED_ON_RERUN_COUNT }}
           JOB_STATUS: ${{ job.status }}
-        run: python3 scripts/qa_android_ui_tests/build_wire_notification.py
+        run: python3 scripts/qa/android-ui/build_wire_notification.py
 
       - name: Notify Wire
         if: ${{ success() || failure() }}
@@ -547,4 +547,4 @@ jobs:
           ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
           ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
-        run: bash scripts/qa_android_ui_tests/reporting.sh cleanup-workspace
+        run: make qa-ui-report cmd=cleanup-workspace

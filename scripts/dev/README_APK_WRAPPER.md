@@ -115,29 +115,29 @@ dexdump -h
 
 ```bash
 # Without signing
-./wire_apk_wrapper.sh <path_to_wire_apk>
+bash scripts/dev/wire-apk-wrapper.sh <path_to_wire_apk>
 
 # With signing
-./wire_apk_wrapper.sh --sign --keystore <keystore_path> --key-alias <alias> <path_to_wire_apk>
+bash scripts/dev/wire-apk-wrapper.sh --sign --keystore <keystore_path> --key-alias <alias> <path_to_wire_apk>
 ```
 
 ### Examples
 
 ```bash
 # Process a Wire APK without signing
-./wire_apk_wrapper.sh wire.apk
+bash scripts/dev/wire-apk-wrapper.sh wire.apk
 
 # Process and sign a Wire APK
-./wire_apk_wrapper.sh --sign --keystore my-release-key.jks --key-alias mykey wire.apk
+bash scripts/dev/wire-apk-wrapper.sh --sign --keystore my-release-key.jks --key-alias mykey wire.apk
 
 # Process with signing and provide passwords via command line (less secure)
-./wire_apk_wrapper.sh --sign --keystore my-release-key.jks --key-alias mykey --keystore-password mypass --key-password mypass wire.apk
+bash scripts/dev/wire-apk-wrapper.sh --sign --keystore my-release-key.jks --key-alias mykey --keystore-password mypass --key-password mypass wire.apk
 
 # Process a Wire APK with full path
-./wire_apk_wrapper.sh /path/to/downloads/wire-3.84.apk
+bash scripts/dev/wire-apk-wrapper.sh /path/to/downloads/wire-3.84.apk
 
 # Show help
-./wire_apk_wrapper.sh --help
+bash scripts/dev/wire-apk-wrapper.sh --help
 ```
 
 ### Command Line Options
@@ -220,7 +220,7 @@ keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -valid
 - Verify this is a genuine Wire APK
 
 **Issue**: Permission denied when running script
-- **Solution**: Make sure the script is executable: `chmod +x wire_apk_wrapper.sh`
+- **Solution**: Make sure the script is executable: `chmod +x scripts/dev/wire-apk-wrapper.sh`
 
 **Issue**: `apksigner: command not found`
 - **Solution**: Install Android SDK Build Tools (see installation instructions above)

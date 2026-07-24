@@ -68,7 +68,7 @@ ensure_required_tools() {
 resolve_flavor() {
   # The runner-owned JSON file is the single source of truth for flavor-to-S3
   # and package mapping, so repo changes are not required for runner updates.
-  python3 scripts/qa_android_ui_tests/resolve_flavor.py
+  python3 scripts/qa/android-ui/resolve_flavor.py
   echo "Resolved flavor from runner config: '${FLAVOR_INPUT:-}'"
 }
 
@@ -88,7 +88,7 @@ download_apks() {
   local apk_env_file="${RUNNER_TEMP}/apk_env.txt"
   # select_apks.py is the single owner of build selection rules so the shell
   # step only exports the resolved values and downloads the chosen APK(s).
-  python3 scripts/qa_android_ui_tests/select_apks.py > "${apk_env_file}"
+  python3 scripts/qa/android-ui/select_apks.py > "${apk_env_file}"
 
   local new_s3_key=""
   local old_s3_key=""
@@ -174,7 +174,7 @@ detect_target_devices() {
       DEVICE_GROUP="${target_group}" \
         DEVICE_GROUPS_JSON="${DEVICE_GROUPS_JSON:-}" \
         ONLINE_DEVICE_IDS="${device_lines}" \
-        python3 scripts/qa_android_ui_tests/resolve_device_group.py
+        python3 scripts/qa/android-ui/resolve_device_group.py
     )"
     eligible_device_lines="$(tr ' ' '\n' <<< "${grouped_device_list}")"
     echo "Using configured device group '${target_group}': ${grouped_device_list}"
@@ -291,7 +291,7 @@ fetch_runtime_secrets() {
 
   # Keep secrets outside the repo checkout and symlink them in only for the
   # test run, so cleanup can remove one runtime file without touching source.
-  python3 scripts/qa_android_ui_tests/fetch_secrets_json.py
+  python3 scripts/qa/android-ui/fetch_secrets_json.py
 
   test -s "${secrets_json_path}"
   chmod 600 "${secrets_json_path}"

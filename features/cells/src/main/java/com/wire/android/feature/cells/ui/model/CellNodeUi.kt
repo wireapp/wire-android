@@ -41,6 +41,9 @@ sealed class CellNodeUi {
     /** True when this file has been saved for offline use (persisted in the offline files DB). */
     abstract val isAvailableOffline: Boolean
 
+    /** True when the node belongs to a conversation the self user is only a guest in (read-only access). */
+    abstract val isViewerOnly: Boolean
+
     val isOpenLoading: Boolean get() = openLoadState is OpenLoadState.Loading
     val openLoadProgress: Float? get() = (openLoadState as? OpenLoadState.Loading)?.progress
 
@@ -59,7 +62,7 @@ sealed class CellNodeUi {
         internal override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
-        val isViewerOnly: Boolean = false,
+        override val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
 
     data class File internal constructor(
@@ -85,7 +88,7 @@ sealed class CellNodeUi {
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
         val conversationId: String?,
-        val isViewerOnly: Boolean = false,
+        override val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
 }
 

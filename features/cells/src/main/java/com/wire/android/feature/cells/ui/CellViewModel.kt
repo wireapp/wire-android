@@ -32,6 +32,7 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
@@ -682,7 +683,7 @@ internal enum class CellError(val message: Int) {
 
 data class MenuOptions(
     val node: CellNodeUi,
-    val actions: List<NodeBottomSheetAction>
+    val actions: List<NodeMenuItem>
 )
 
 private fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =

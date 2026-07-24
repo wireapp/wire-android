@@ -36,7 +36,6 @@ import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -130,7 +129,7 @@ class MessageMapperTest {
             time = message3.date,
             status = MessageStatus(
                 flowStatus = MessageFlowStatus.Sent,
-                editStatus = MessageEditStatus.Edited(now.toIsoDateTimeString().uiMessageDateTime()!!),
+                editStatus = MessageEditStatus.Edited(now.uiMessageDateTime()),
                 expirationStatus = ExpirationStatus.NotExpirable
             )
         )
@@ -202,7 +201,7 @@ class MessageMapperTest {
     ) {
         assertEquals(uiMessage?.source, source)
         assertEquals(uiMessage!!.header.membership, membership)
-        assertEquals(uiMessage.header.messageTime.formattedDate, time?.toIsoDateTimeString()?.uiMessageDateTime())
+        assertEquals(uiMessage.header.messageTime.formattedDate, time?.uiMessageDateTime())
         assertEquals(uiMessage.header.messageStatus.flowStatus, status.flowStatus)
         assertEquals(uiMessage.header.messageStatus.isDeleted, status.isDeleted)
         assertEquals(uiMessage.header.messageStatus.editStatus, status.editStatus)
@@ -230,7 +229,7 @@ class MessageMapperTest {
                 MessageBody(UIText.DynamicString("some message text"))
             )
             every { isoFormatter.fromInstantToTimeFormatter(any()) } answers {
-                firstArg<Instant>().toIsoDateTimeString().uiMessageDateTime() ?: ""
+                firstArg<Instant>().uiMessageDateTime()
             }
         }
 

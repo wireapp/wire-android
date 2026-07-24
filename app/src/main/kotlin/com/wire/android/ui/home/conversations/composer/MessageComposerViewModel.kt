@@ -208,8 +208,7 @@ class MessageComposerViewModel(
         }
     }
 
-    fun updateConversationReadDate(utcISO: String) {
-        val instant = Instant.parse(utcISO)
+    fun updateConversationReadDate(instant: Instant) {
         lastReadInstant = instant
         viewModelScope.launch(NonCancellable) {
             updateConversationReadDate(conversationId, instant)

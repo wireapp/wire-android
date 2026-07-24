@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
@@ -73,7 +74,7 @@ import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Named
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class CellsViewModelFactory @Inject constructor(
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
@@ -226,6 +227,14 @@ class CellsViewModelFactory @Inject constructor(
         context: Context,
         savedStateHandle: SavedStateHandle
     ) = VideoPlayerViewModel(
+        context = context,
+        savedStateHandle = savedStateHandle,
+    )
+
+    internal fun cellAudioPlayerViewModel(
+        context: Context,
+        savedStateHandle: SavedStateHandle
+    ) = AudioPlayerViewModel(
         context = context,
         savedStateHandle = savedStateHandle,
     )

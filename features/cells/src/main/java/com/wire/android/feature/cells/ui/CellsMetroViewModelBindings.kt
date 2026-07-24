@@ -21,6 +21,7 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel

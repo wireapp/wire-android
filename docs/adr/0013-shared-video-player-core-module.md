@@ -1,4 +1,4 @@
-# 12. Shared in-app video player as a core module
+# 13. Shared in-app video player as a core module
 
 Date: 2026-07-16
 

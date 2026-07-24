@@ -29,6 +29,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.STABLE_TIMEOUT
 import user.utils.ClientUser
@@ -98,6 +99,7 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -116,12 +118,13 @@ class SSOProvisioningTests : BaseUiTest() {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
                 enterKeycloakPassword(member1.password.orEmpty())
+                closeKeyboardIfOpened()
             }
         }
 
-        step("And I tap login button on Keycloak Page and wait until I am logged in from keycloak page") {
+        step("And I tap login button on Keycloak Page and wait until username setup page is visible") {
             pages.ssoPage.tapKeycloakSignIn()
-            pages.registrationPage.waitUntilLoginFlowIsCompleted()
+            pages.registrationPage.assertEnterYourUserNameInfoText()
         }
 
         step("And I submit my Username user2UniqueUsername on registration page") {
@@ -203,6 +206,7 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -221,6 +225,7 @@ class SSOProvisioningTests : BaseUiTest() {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
                 enterKeycloakPassword(member1.password.orEmpty())
+                closeKeyboardIfOpened()
             }
         }
 

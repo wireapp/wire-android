@@ -103,6 +103,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     var userProfileState by mutableStateOf(SelfUserProfileState(userId = selfUserId, isAvatarLoading = true))
         private set
+    private var wasMigrationDotActiveWhenProfileOpened = false
     private lateinit var establishedCallsList: StateFlow<List<Call>>
     init {
         viewModelScope.launch {
@@ -137,10 +138,12 @@ class SelfUserProfileViewModel @Inject constructor(
     private fun markCreateTeamNoticeAsRead() {
         viewModelScope.launch {
             if (getSelfTeamId() == null && !dataStore.isCreateTeamNoticeRead().first()) {
+                wasMigrationDotActiveWhenProfileOpened = true
                 dataStore.setIsCreateTeamNoticeRead(true)
             }
         }
     }
+    fun wasMigrationDotActiveWhenProfileOpened(): Boolean = wasMigrationDotActiveWhenProfileOpened
     fun isUserInCall(): Boolean = establishedCallsList.value.isNotEmpty()
     fun reloadNewPickedAvatar(avatarAssetId: String) {
         updateUserAvatar(avatarAssetId = avatarAssetId.toQualifiedID(qualifiedIdMapper))

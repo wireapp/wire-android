@@ -6714,12 +6714,12 @@ private fun com.wire.android.ui.home.conversations.messages.item.buildContent(is
     - isWireCellsEnabled: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.messages.item.buildContent(expandable: kotlin.Boolean, learnMoreLinkResId: kotlin.Int?, learnMoreTextResId: kotlin.Int, iconResId: kotlin.Int, iconTintColor: androidx.compose.ui.graphics.Color?, iconSize: androidx.compose.ui.unit.Dp, additionalVerticalPaddings: androidx.compose.ui.unit.Dp, backgroundColor: androidx.compose.ui.graphics.Color?, annotatedStringBuilder: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \): com.wire.android.ui.home.conversations.messages.item.SystemMessageContent
+private fun com.wire.android.ui.home.conversations.messages.item.buildContent(expandable: kotlin.Boolean, learnMorePage: com.wire.android.util.SupportPage?, learnMoreTextResId: kotlin.Int, iconResId: kotlin.Int, iconTintColor: androidx.compose.ui.graphics.Color?, iconSize: androidx.compose.ui.unit.Dp, additionalVerticalPaddings: androidx.compose.ui.unit.Dp, backgroundColor: androidx.compose.ui.graphics.Color?, annotatedStringBuilder: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \): com.wire.android.ui.home.conversations.messages.item.SystemMessageContent
   skippable: true
   restartable: true
   params:
     - expandable: STABLE (primitive type)
-    - learnMoreLinkResId: STABLE (class with no mutable properties)
+    - learnMorePage: STABLE (class with no mutable properties)
     - learnMoreTextResId: STABLE (primitive type)
     - iconResId: STABLE (primitive type)
     - iconTintColor: STABLE (marked @Stable or @Immutable)
@@ -10258,18 +10258,18 @@ private fun com.wire.android.ui.newauthentication.login.EnterBackendNameDialog(o
     - onDismiss: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, onNextClicked: kotlin.Function0<kotlin.Unit>, onBackendConfigLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>, onBackendConfigSuccessContinue: kotlin.Function0<kotlin.Unit>, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, canNavigateBack: kotlin.Boolean, onNextClicked: kotlin.Function0<kotlin.Unit>, onBackendConfigLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>, onBackendConfigSuccessContinue: kotlin.Function0<kotlin.Unit>, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - loginEmailSSOState: STABLE (class with no mutable properties)
     - userIdentifierState: STABLE (marked @Stable or @Immutable)
     - serverConfig: UNSTABLE (has mutable properties or unstable members)
+    - canNavigateBack: STABLE (primitive type)
     - onNextClicked: STABLE (function type)
     - onBackendConfigLinkEntered: STABLE (function type)
     - onBackendConfigSuccessContinue: STABLE (function type)
     - onNoBackendSelected: STABLE (function type)
-    - canNavigateBack: STABLE (primitive type)
     - navigateBack: STABLE (function type)
 
 @Composable
@@ -10553,6 +10553,15 @@ public fun com.wire.android.ui.registration.selector.CreateAccountSelectorScreen
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+internal fun com.wire.android.ui.rememberWireActivityNavigator(isUserUiBlocked: kotlin.Boolean, finish: kotlin.Function0<kotlin.Unit>, isAllowedToNavigate: kotlin.Function1<com.wire.android.navigation.NavigationCommand, kotlin.Boolean>): com.wire.android.navigation.Navigator
+  skippable: true
+  restartable: true
+  params:
+    - isUserUiBlocked: STABLE (primitive type)
+    - finish: STABLE (function type)
+    - isAllowedToNavigate: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.server.ApiVersioningDialog(title: kotlin.String, text: kotlin.String, actionText: kotlin.String, onDismiss: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function0<kotlin.Unit>, isPreview: kotlin.Boolean): kotlin.Unit
@@ -11672,11 +11681,12 @@ private fun com.wire.android.ui.userprofile.teammigration.step1.LearnMoreWirePla
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanStepScreen(navigator: com.wire.android.navigation.Navigator, teamMigrationViewModel: com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel): kotlin.Unit
+public fun com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanStepScreen(navigator: com.wire.android.navigation.Navigator, navArgs: com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanNavArgs, teamMigrationViewModel: com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - navigator: STABLE (marked @Stable or @Immutable)
+    - navArgs: STABLE (class with no mutable properties)
     - teamMigrationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable

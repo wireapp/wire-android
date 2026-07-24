@@ -1,8 +1,7 @@
 import os, re, pathlib
 
-# Find project root by locating the script directory and going up one level
 SCRIPT_DIR = pathlib.Path(__file__).parent.resolve()
-WORKSPACE = os.environ.get('GITHUB_WORKSPACE') or str(SCRIPT_DIR.parent)
+WORKSPACE = os.environ.get('GITHUB_WORKSPACE') or str(SCRIPT_DIR.parents[1])
 OUTDIR = os.path.join(WORKSPACE, 'build/whatsnew')
 RELEASE_NOTES_DIR = os.path.join(WORKSPACE, 'app/src/main/play/release-notes')
 SEMVER_PATTERN = re.compile(r'^\d+\.\d+\.\d+\.txt$')

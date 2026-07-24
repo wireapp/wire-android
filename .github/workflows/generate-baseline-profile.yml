@@ -61,7 +61,7 @@ jobs:
         uses: 1password/install-cli-action@a5215d3a7f75c1629216c465ea9ab3ab399c4b71 # v4
 
       - name: Fetch runtime secrets
-        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" bash scripts/qa_android_ui_tests/execution_setup.sh fetch-runtime-secrets
+        run: OP_SERVICE_ACCOUNT_TOKEN="${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}" make qa-ui-setup cmd=fetch-runtime-secrets
 
       # Baseline profile generation doesn't need production signing.
       # The test APK is installed via adb and never distributed.
@@ -83,12 +83,7 @@ jobs:
 
       - name: Generate baseline + startup profile
         run: |
-          ./gradlew :app:generateProdCompatreleaseBaselineProfile \
-            -Pandroid.testInstrumentationRunnerArguments.class=com.wire.benchmark.BaselineGenerator \
-            -Pandroid.testInstrumentationRunnerArguments.BACKEND_NAME="STAGING" \
-            -Pandroid.testInstrumentationRunnerArguments.TARGET_PACKAGE="$TARGET_PACKAGE" \
-            --no-daemon \
-            --no-configuration-cache
+          make baseline-profile
 
           mkdir -p app/src/main
           cp app/src/prodCompatrelease/generated/baselineProfiles/baseline-prof.txt app/src/main/baseline-prof.txt

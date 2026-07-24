@@ -20,15 +20,18 @@ package com.wire.android.tests.core.pages
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
+import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.multi.qrcode.QRCodeMultiReader
 import java.io.File
+import java.util.regex.Pattern
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration
@@ -65,6 +68,20 @@ data class CallingPage(private val device: UiDevice) {
     private val showInCallReactionsButton = UiSelectorParams(description = "Show in call reactions panel")
 
     private val hideInCallReactionsButton = UiSelectorParams(description = "Hide in call reactions panel")
+
+    private val openCallingDetailsButton = UiSelectorParams(description = "Open calling details")
+
+    private val encryptedCallBanner = UiSelectorParams(text = "Calls are always end-to-end encrypted")
+
+    private val networkQualityDetailsButton = UiSelectorParams(description = "View details")
+
+    private val networkQualityBackButton = UiSelectorParams(description = "Close details")
+
+    private val turnOffOtherVideosTitle = UiSelectorParams(text = "Turn off other videos")
+    private val turnOffOtherVideosText = UiSelector().text("Turn off other videos")
+    private val clickableToggle = UiSelector().className("android.view.View").clickable(true)
+
+    private val networkQualityLearnMore = UiSelectorParams(text = "Learn more about the quality details")
 
     private val participantCameraOnIcon = UiSelectorParams(description = "Camera on")
 
@@ -261,6 +278,110 @@ data class CallingPage(private val device: UiDevice) {
         return this
     }
 
+    fun iOpenCallDetails(): CallingPage {
+        UiWaitUtils.waitElement(openCallingDetailsButton).click()
+        return this
+    }
+
+    fun iSeeCallDetails(): CallingPage {
+        UiWaitUtils.waitElement(encryptedCallBanner)
+        UiWaitUtils.waitElement(networkQualityDetailsButton)
+        UiWaitUtils.waitElement(turnOffOtherVideosTitle)
+        return this
+    }
+
+    fun iOpenNetworkQualityDetails(): CallingPage {
+        UiWaitUtils.waitElement(networkQualityDetailsButton).click()
+        return this
+    }
+
+    fun iSeeNetworkQualityDetails(): CallingPage {
+        UiWaitUtils.waitElement(networkQualityBackButton)
+        val networkQualityStateFound = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            currentStateDescriptions().any { stateDescription ->
+                stateDescription == "Network quality: Good" ||
+                        stateDescription == "Network quality: Fair" ||
+                        stateDescription == "Network quality: Poor" ||
+                        stateDescription == "Network quality: No internet"
+            }
+        }
+
+        if (!networkQualityStateFound) {
+            throw AssertionError("Network quality state is not visible. Found: ${currentStateDescriptions()}")
+        }
+
+        return this
+    }
+
+    fun iSeeNetworkQualityMetrics(): CallingPage {
+        listOf("Peer", "Connection", "Packet loss", "Ping", "Jitter").forEach { metricName ->
+            val metricFound = UiWaitUtils.retryUntilTimeout(
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+                pollingInterval = UiWaitUtils.POLLING_DEFAULT
+            ) {
+                currentStateDescriptions().any { stateDescription ->
+                    stateDescription.startsWith("$metricName:") &&
+                            stateDescription.substringAfter(":").trim().isNotEmpty()
+                }
+            }
+
+            if (!metricFound) {
+                throw AssertionError("Network quality metric '$metricName' is not visible. Found: ${currentStateDescriptions()}")
+            }
+        }
+        return this
+    }
+
+    // Network quality values are exposed through accessibility stateDescription, not regular text.
+    // stateDescription is available from Android R, so older API levels return no values here.
+    private fun currentStateDescriptions(): List<String> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return emptyList()
+        }
+
+        return device.findObjects(By.clazz(Pattern.compile(".*")))
+            .mapNotNull { uiObject ->
+                runCatching {
+                    uiObject.accessibilityNodeInfo.stateDescription?.toString()
+                }.getOrNull()
+            }
+            .filter { it.isNotBlank() }
+    }
+
+    fun iSeeNetworkQualityLearnMoreButton(): CallingPage {
+        UiWaitUtils.waitElement(networkQualityLearnMore)
+        return this
+    }
+
+    fun iTapBackButtonOnNetworkQualityDetails(): CallingPage {
+        UiWaitUtils.waitElement(networkQualityBackButton).click()
+        return this
+    }
+
+    fun iTapLearnMoreAboutQualityDetails(): CallingPage {
+        UiWaitUtils.waitElement(networkQualityLearnMore).click()
+        return this
+    }
+
+    fun iTurnOffOtherParticipantVideoField(): CallingPage {
+        UiWaitUtils.waitElement(turnOffOtherVideosTitle)
+        val label = device.findObject(turnOffOtherVideosText)
+        val toggle = label.getFromParent(clickableToggle)
+        if (!toggle.exists() || toggle.visibleBounds.isEmpty) {
+            throw AssertionError("Turn off other videos toggle is not visible")
+        }
+        toggle.click()
+        return this
+    }
+
+    fun iCloseCallDetailsByTappingCallArea(): CallingPage {
+        device.click(device.displayWidth / 2, device.displayHeight / 3)
+        return this
+    }
+
     private fun iSeeParticipantStatusIcon(
         userName: String,
         statusDescription: String,
@@ -351,13 +472,16 @@ data class CallingPage(private val device: UiDevice) {
 
     fun iDoNotSeeUserInCallTile(userName: String): CallingPage {
         UiWaitUtils.waitUntilGoneOrThrow(
-            selector = By.hasChild(By.res("User avatar"))
-                .hasDescendant(By.text(" $userName")),
+            selector = userAvatarTileSelector(userName),
             timeout = UiWaitUtils.MEDIUM_TIMEOUT,
             errorMessage = "User '$userName' is still visible in call tile"
         )
         return this
     }
+
+    private fun userAvatarTileSelector(userName: String) =
+        By.hasChild(By.res("User avatar"))
+            .hasDescendant(By.text(" $userName"))
 
     fun iSeeQrCodeContaining(expectedValue: String): CallingPage {
         val decoded = mutableSetOf<String>()
@@ -381,6 +505,29 @@ data class CallingPage(private val device: UiDevice) {
         iDoubleTapToMaximizeCallTile(userName)
         iSeeQrCodeContaining(expectedValue)
         return iDoubleTapToMinimizeCallTile(userName)
+    }
+
+    fun iDoNotSeeQrCodeContaining(userName: String, expectedValue: String): CallingPage {
+        iDoubleTapToMaximizeCallTile(userName)
+        iDoNotSeeQrCodeContaining(expectedValue)
+        return iDoubleTapToMinimizeCallTile(userName)
+    }
+
+    private fun iDoNotSeeQrCodeContaining(expectedValue: String): CallingPage {
+        val decoded = mutableSetOf<String>()
+        val qrCodeGone = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = 1.seconds
+        ) {
+            decoded.clear()
+            decoded.addAll(readQrCodesFromScreenshot())
+            !decoded.contains(expectedValue)
+        }
+
+        if (!qrCodeGone) {
+            throw AssertionError("QR code '$expectedValue' is still visible in the video grid. Found: $decoded")
+        }
+        return this
     }
 
     private fun readQrCodesFromScreenshot(): List<String> {

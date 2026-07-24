@@ -105,20 +105,20 @@ prepare_deflake_bundle() {
     return
   fi
 
-  python3 scripts/qa_android_ui_tests/prepare_deflake_bundle.py
+  python3 scripts/qa/android-ui/prepare_deflake_bundle.py
 }
 
 merge_allure_results() {
   # One merged dataset lets the final report reflect the latest outcome per
   # logical test instead of showing each rerun attempt as a separate result.
-  python3 scripts/qa_android_ui_tests/merge_allure_results.py
+  python3 scripts/qa/android-ui/merge_allure_results.py
 }
 
 summarize_allure_results() {
   : "${MERGED_DIR:?MERGED_DIR not set}"
   : "${GITHUB_OUTPUT:?GITHUB_OUTPUT not set}"
 
-  python3 scripts/qa_android_ui_tests/summarize_allure_results.py
+  python3 scripts/qa/android-ui/summarize_allure_results.py
 }
 
 generate_allure_report() {

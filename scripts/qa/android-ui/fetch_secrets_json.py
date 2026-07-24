@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Fetch the minimum 1Password fields required by Android E2E tests."""
 
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -13,7 +15,7 @@ out_path = os.environ.get("SECRETS_JSON_PATH") or "secrets.json"
 
 DEVICE_SECRET_SECTIONS = {
     "CALLINGSERVICE_BASIC_AUTH",
-    "OKTA_API_KEY",
+    "KEYCLOAK_QA_AUTOMATION",
     "SOCKS_PROXY_PASSWORD",
 }
 HOST_SECRET_SECTIONS = {"TESTINY_API_KEY_ANDROID"}

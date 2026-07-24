@@ -30,6 +30,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
@@ -105,6 +106,7 @@ class SSODeviceBackup : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -120,15 +122,13 @@ class SSODeviceBackup : BaseUiTest() {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email ?: "")
                 enterKeycloakPassword(member1.password ?: "")
+                closeKeyboardIfOpened()
                 tapKeycloakSignIn()
             }
         }
 
-        step("And I allow the notification permission prompt after login") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-            }
+        step("And I wait until username setup page is visible") {
+            pages.registrationPage.assertEnterYourUserNameInfoText()
         }
 
         step("And I set Member1 username and confirm profile setup") {
@@ -274,6 +274,7 @@ class SSODeviceBackup : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 

@@ -3,12 +3,13 @@
 
 from __future__ import annotations
 
+import sys
 import unittest
+from pathlib import Path
 
-from scripts.qa_android_ui_tests.resolve_instrumentation import (
-    InstrumentationResolutionError,
-    resolve_instrumentation,
-)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from resolve_instrumentation import InstrumentationResolutionError, resolve_instrumentation
 
 
 class ResolveInstrumentationTest(unittest.TestCase):

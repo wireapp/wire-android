@@ -26,6 +26,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  event-file:
+    name: Upload event file
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload event file
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Event File
+          path: ${{ github.event_path }}
+          retention-days: 7
+
   workflow-security:
     name: Workflow security analysis
     runs-on: ubuntu-latest
@@ -89,8 +100,7 @@ jobs:
       - name: Run Linter
         env:
           GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
-        run: |
-          ./gradlew lint --no-daemon --no-configuration-cache -Pskip.aboutlibraries=true
+        run: make lint
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.
@@ -125,8 +135,7 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
       - name: Run Detekt
-        run: |
-          ./gradlew detektAll
+        run: make style
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.
@@ -163,8 +172,7 @@ jobs:
       - name: Run Compose stability check
         env:
           GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
-        run: |
-          ./gradlew compileApp :app:devDebugStabilityCheck debugStabilityCheck --no-daemon --no-configuration-cache -Pskip.aboutlibraries=true
+        run: make compose-stability
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.
@@ -362,8 +370,7 @@ jobs:
           OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD }}
           APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64 }}
         run: |
-          chmod +x scripts/lineage-sign-apks.sh
-          scripts/lineage-sign-apks.sh
+          make signing-lineage
 
       - name: Build AAB
         if: matrix.build-type == 'bundle' || matrix.build-type == 'both'

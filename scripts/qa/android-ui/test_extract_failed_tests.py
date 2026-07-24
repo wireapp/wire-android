@@ -4,14 +4,14 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.qa_android_ui_tests.extract_failed_tests import (
-    ResultExtractionError,
-    extract_attempt,
-)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from extract_failed_tests import ResultExtractionError, extract_attempt
 
 
 class ExtractFailedTestsTest(unittest.TestCase):

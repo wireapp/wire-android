@@ -3,12 +3,13 @@
 
 from __future__ import annotations
 
+import sys
 import unittest
+from pathlib import Path
 
-from scripts.qa_android_ui_tests.allure_sanitization import (
-    REDACTED_FAILURE_MESSAGE,
-    sanitize_allure_payload,
-)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from allure_sanitization import REDACTED_FAILURE_MESSAGE, sanitize_allure_payload
 
 
 class AllureSanitizationTest(unittest.TestCase):

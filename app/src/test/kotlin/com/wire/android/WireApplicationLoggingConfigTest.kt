@@ -18,9 +18,17 @@
 
 package com.wire.android
 
+import com.wire.android.util.logging.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.io.IOException
 
 class WireApplicationLoggingConfigTest {
 
@@ -46,5 +54,20 @@ class WireApplicationLoggingConfigTest {
 
         assertEquals(KaliumLogLevel.VERBOSE, config.logLevel)
         assertEquals(2, config.initialLogWriterList.size)
+    }
+
+    @Test
+    fun givenLogFlushFails_whenFlushingAfterLowMemory_thenFailureIsReportedWithoutStopping() = runTest {
+        val logFileWriter = mockk<LogFileWriter>(relaxUnitFun = true)
+        val reportFailure = mockk<(Exception) -> Unit>(relaxed = true)
+        val failure = IOException("flush failed")
+        coEvery { logFileWriter.forceFlush() } throws failure
+        every { reportFailure(failure) } returns Unit
+
+        WireApplication.flushLogsAfterLowMemory(logFileWriter, reportFailure)
+
+        coVerify(exactly = 1) { logFileWriter.forceFlush() }
+        coVerify(exactly = 0) { logFileWriter.stop() }
+        verify(exactly = 1) { reportFailure(failure) }
     }
 }

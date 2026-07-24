@@ -26,6 +26,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  event-file:
+    name: Upload event file
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload event file
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Event File
+          path: ${{ github.event_path }}
+          retention-days: 7
+
   workflow-security:
     name: Workflow security analysis
     runs-on: ubuntu-latest

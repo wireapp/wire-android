@@ -91,7 +91,7 @@ jobs:
           serviceAccountJson: service_account.json
           packageName: ${{ matrix.target.package-name }}
           releaseFiles: ${{ inputs.artifacts-path }}bundle/${{ steps.lowercase.outputs.build-flavour }}${{ inputs.build-variant }}/*.aab
-          track: ${{ matrix.target.track }}
+          tracks: ${{ matrix.target.track }}
           status: ${{ matrix.target.status || 'completed' }}
           whatsNewDirectory: build/whatsnew
           userFraction: ${{ matrix.target.user-fraction }}

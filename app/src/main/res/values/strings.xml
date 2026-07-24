@@ -794,6 +794,8 @@
     <string name="label_message_details">Message Details</string>
     <string name="label_copy">Copy text</string>
     <string name="label_share">Share</string>
+    <string name="label_share_via_wire">Forward</string>
+    <string name="label_share_externally">Share externally</string>
     <string name="label_edit">Edit text</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
@@ -1342,6 +1344,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Share Logs</string>
     <string name="label_share_logs_failed">Could not prepare logs for sharing</string>
+    <string name="label_share_logs_via_wire">Share in Wire</string>
+    <string name="label_share_logs_externally">Share externally</string>
     <string name="label_delete_logs">Delete All Logs</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
@@ -1462,6 +1466,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="start_manual_migration">Start</string>
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="public_share_ignored_wire_internal_files">This share was ignored because it contains internal Wire files.</string>
     <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>

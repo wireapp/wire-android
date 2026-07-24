@@ -50,6 +50,8 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.sharing.sharingUris
+import com.wire.android.ui.sharing.shouldRejectSharingIntent
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
@@ -110,6 +112,8 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.InputStreamReader
 import dev.zacsweers.metro.Inject
@@ -413,7 +417,11 @@ class WireActivityViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    fun handleDeepLink(intent: Intent?) {
+    fun handleDeepLink(
+        intent: Intent?,
+        providerAuthority: String? = null,
+        hasTrustedWireShareCaller: Boolean = false
+    ) {
         viewModelScope.launch(dispatchers.io()) {
             when (val result = deepLinkProcessor.value.invoke(intent?.data, intent?.action)) {
                 DeepLinkResult.AuthorizationNeeded -> sendAction(OnAuthorizationNeeded)
@@ -442,13 +450,38 @@ class WireActivityViewModel @Inject constructor(
                 is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
                 is DeepLinkResult.OpenOtherUserProfile -> onOpenUserProfileDeepLink(result)
 
-                DeepLinkResult.SharingIntent -> sendAction(OnShowImportMediaScreen)
+                DeepLinkResult.SharingIntent -> {
+                    val shouldRejectSharingIntent = providerAuthority != null &&
+                        intent?.shouldRejectSharingIntent(providerAuthority, hasTrustedWireShareCaller) == true
+                    if (shouldRejectSharingIntent) {
+                        logRejectedSharingIntent(intent, providerAuthority, hasTrustedWireShareCaller)
+                        sendAction(ShowToast(R.string.public_share_ignored_wire_internal_files))
+                        return@launch
+                    }
+                    sendAction(OnShowImportMediaScreen)
+                }
                 DeepLinkResult.Unknown -> {
                     sendAction(OnUnknownDeepLink)
                     appLogger.e("unknown deeplink result $result")
                 }
             }
         }
+    }
+
+    private fun logRejectedSharingIntent(
+        intent: Intent?,
+        providerAuthority: String?,
+        hasTrustedWireShareCaller: Boolean
+    ) {
+        val logMap = mapOf(
+            "event" to "public_share_rejected",
+            "reason" to "wire_file_provider_uri",
+            "action" to intent?.action.orEmpty(),
+            "providerAuthority" to providerAuthority.orEmpty(),
+            "hasTrustedWireShareCaller" to hasTrustedWireShareCaller.toString(),
+            "uriCount" to (intent?.sharingUris()?.size ?: 0).toString()
+        )
+        appLogger.w("Rejected public share intent: ${Json.encodeToString(logMap)}")
     }
 
     // Returns whether an intent was handled, or if there was nothing to do

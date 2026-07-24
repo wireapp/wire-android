@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.sharing
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.paging.PagingData
 import app.cash.turbine.test
@@ -26,19 +28,27 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestConversationItem
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toPath
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -70,7 +80,329 @@ class ImportMediaAuthenticatedViewModelTest {
         }
     }
 
+    @Test
+    fun `given content uri from Wire file provider, when checking provider uri, then match it`() {
+        val uri = testUri(authority = "com.wire.android.provider")
+
+        assertTrue(uri.isWireFileProviderUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given uppercase content scheme from Wire file provider, when checking provider uri, then match it`() {
+        val uri = testUri(scheme = "CONTENT", authority = "com.wire.android.provider")
+
+        assertTrue(uri.isWireFileProviderUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given file uri with Wire authority, when checking provider uri, then reject it`() {
+        val uri = testUri(scheme = "file", authority = "com.wire.android.provider")
+
+        assertFalse(uri.isWireFileProviderUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given uri from provider with Wire authority prefix, when checking provider uri, then reject it`() {
+        val uri = testUri(authority = "com.wire.android.provider.evil")
+
+        assertFalse(uri.isWireFileProviderUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given uri from another content provider, when checking provider uri, then reject it`() {
+        val uri = testUri(authority = "com.android.providers.media.documents")
+
+        assertFalse(uri.isWireFileProviderUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given Wire provider uri from trusted Wire caller, when checking public share rejection, then allow it`() {
+        val uri = testUri(authority = "com.wire.android.provider")
+
+        assertFalse(
+            uri.shouldRejectWireFileProviderShare(
+                providerAuthority = "com.wire.android.provider",
+                hasTrustedWireCaller = true
+            )
+        )
+    }
+
+    @Test
+    fun `given Wire provider uri without trusted Wire caller, when checking public share rejection, then reject it`() {
+        val uri = testUri(authority = "com.wire.android.provider")
+
+        assertTrue(
+            uri.shouldRejectWireFileProviderShare(
+                providerAuthority = "com.wire.android.provider",
+                hasTrustedWireCaller = false
+            )
+        )
+    }
+
+    @Test
+    fun `given external provider uri without trusted Wire caller, when checking public share rejection, then allow it`() {
+        val uri = testUri(authority = "com.android.providers.media.documents")
+
+        assertFalse(
+            uri.shouldRejectWireFileProviderShare(
+                providerAuthority = "com.wire.android.provider",
+                hasTrustedWireCaller = false
+            )
+        )
+    }
+
+    @Test
+    fun `given untrusted public share with Wire provider uri, when handling sharing uris, then reject whole intent`() =
+        runTest(dispatcherProvider.main()) {
+            val wireUri = testUri(authority = "com.wire.android.provider")
+            val externalUri = testUri(authority = "com.android.providers.media.documents")
+            val (arrangement, viewModel) = Arrangement()
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle("external-file.zip")))
+                .arrange()
+
+            viewModel.handleReceivedUrisFromSharingIntent(
+                providerAuthority = "com.wire.android.provider",
+                hasTrustedWireCaller = false,
+                uris = listOf(wireUri, externalUri)
+            )
+
+            assertTrue(viewModel.importMediaState.importedAssets.isEmpty())
+            coVerify(exactly = 0) {
+                arrangement.handleUriAssetUseCase.invoke(any(), any())
+            }
+        }
+
+    @Test
+    fun `given trusted public share with Wire provider uri, when handling sharing uris, then import it`() =
+        runTest(dispatcherProvider.main()) {
+            val wireUri = testUri(authority = "com.wire.android.provider")
+            val assetBundle = assetBundle("wire-file.zip")
+            val (arrangement, viewModel) = Arrangement()
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle))
+                .arrange()
+
+            viewModel.handleReceivedUrisFromSharingIntent(
+                providerAuthority = "com.wire.android.provider",
+                hasTrustedWireCaller = true,
+                uris = listOf(wireUri)
+            )
+
+            assertEquals(assetBundle, viewModel.importMediaState.importedAssets.single().assetBundle)
+            coVerify(exactly = 1) {
+                arrangement.handleUriAssetUseCase.invoke(wireUri, saveToDeviceIfInvalid = false)
+            }
+        }
+
+    @Test
+    fun `given trusted public share with mixed Wire and external provider uris, when handling sharing uris, then import all`() =
+        runTest(dispatcherProvider.main()) {
+            val wireUri = testUri(authority = "com.wire.android.provider")
+            val externalUri = testUri(authority = "com.android.providers.media.documents")
+            val wireAssetBundle = assetBundle("wire-file.zip")
+            val externalAssetBundle = assetBundle("external-file.zip")
+            val (arrangement, viewModel) = Arrangement()
+                .withHandleUriAsset(wireUri, HandleUriAssetUseCase.Result.Success(wireAssetBundle))
+                .withHandleUriAsset(externalUri, HandleUriAssetUseCase.Result.Success(externalAssetBundle))
+                .arrange()
+
+            viewModel.handleReceivedUrisFromSharingIntent(
+                providerAuthority = "com.wire.android.provider",
+                hasTrustedWireCaller = true,
+                uris = listOf(wireUri, externalUri)
+            )
+
+            assertEquals(
+                listOf(wireAssetBundle, externalAssetBundle),
+                viewModel.importMediaState.importedAssets.map { it.assetBundle }
+            )
+            coVerify(exactly = 1) {
+                arrangement.handleUriAssetUseCase.invoke(wireUri, saveToDeviceIfInvalid = false)
+            }
+            coVerify(exactly = 1) {
+                arrangement.handleUriAssetUseCase.invoke(externalUri, saveToDeviceIfInvalid = false)
+            }
+        }
+
+    @Test
+    fun `given untrusted public share with only external provider uris, when handling sharing uris, then import all`() =
+        runTest(dispatcherProvider.main()) {
+            val firstExternalUri = testUri(authority = "com.android.providers.media.documents")
+            val secondExternalUri = testUri(authority = "com.google.android.apps.photos.contentprovider")
+            val firstAssetBundle = assetBundle("first-external-file.zip")
+            val secondAssetBundle = assetBundle("second-external-file.zip")
+            val (arrangement, viewModel) = Arrangement()
+                .withHandleUriAsset(firstExternalUri, HandleUriAssetUseCase.Result.Success(firstAssetBundle))
+                .withHandleUriAsset(secondExternalUri, HandleUriAssetUseCase.Result.Success(secondAssetBundle))
+                .arrange()
+
+            viewModel.handleReceivedUrisFromSharingIntent(
+                providerAuthority = "com.wire.android.provider",
+                hasTrustedWireCaller = false,
+                uris = listOf(firstExternalUri, secondExternalUri)
+            )
+
+            assertEquals(
+                listOf(firstAssetBundle, secondAssetBundle),
+                viewModel.importMediaState.importedAssets.map { it.assetBundle }
+            )
+            coVerify(exactly = 1) {
+                arrangement.handleUriAssetUseCase.invoke(firstExternalUri, saveToDeviceIfInvalid = false)
+            }
+            coVerify(exactly = 1) {
+                arrangement.handleUriAssetUseCase.invoke(secondExternalUri, saveToDeviceIfInvalid = false)
+            }
+        }
+
+    @Test
+    fun `given Wire provider uri under shared files, when checking internal share uri, then allow it`() {
+        val uri = testUri(pathSegments = listOf("shared_files", "wire-logs.zip"))
+
+        assertTrue(uri.isWireInternalShareUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given uri from another provider under shared files, when checking internal share uri, then reject it`() {
+        val uri = testUri(
+            authority = "com.android.providers.media.documents",
+            pathSegments = listOf("shared_files", "wire-logs.zip")
+        )
+
+        assertFalse(uri.isWireInternalShareUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given Wire provider uri outside shared files, when checking internal share uri, then reject it`() {
+        val uri = testUri(pathSegments = listOf("cached_files", "private-file.zip"))
+
+        assertFalse(uri.isWireInternalShareUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given Wire provider uri with shared files prefix confusion, when checking internal share uri, then reject it`() {
+        val uri = testUri(pathSegments = listOf("shared_files_evil", "private-file.zip"))
+
+        assertFalse(uri.isWireInternalShareUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given Wire provider uri with only shared files root, when checking internal share uri, then reject it`() {
+        val uri = testUri(pathSegments = listOf("shared_files"))
+
+        assertFalse(uri.isWireInternalShareUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given Wire provider uri with traversal segment, when checking internal share uri, then reject it`() {
+        val uri = testUri(pathSegments = listOf("shared_files", "..", "cached_files", "private-file.zip"))
+
+        assertFalse(uri.isWireInternalShareUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given internal Wire file provider uri, when handling internal share, then import it`() = runTest(dispatcherProvider.main()) {
+        val uri = testUri(pathSegments = listOf("shared_files", "wire-logs.zip"))
+        val assetBundle = AssetBundle(
+            key = "key",
+            mimeType = "application/zip",
+            dataPath = "/tmp/wire-logs.zip".toPath(),
+            dataSize = 100L,
+            fileName = "wire-logs.zip",
+            assetType = AttachmentType.GENERIC_FILE
+        )
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle))
+            .arrange()
+
+        viewModel.handleReceivedDataFromInternalShare(listOf(uri))
+
+        assertEquals(assetBundle, viewModel.importMediaState.importedAssets.single().assetBundle)
+        coVerify(exactly = 1) {
+            arrangement.handleUriAssetUseCase.invoke(uri, saveToDeviceIfInvalid = false)
+        }
+    }
+
+    @Test
+    fun `given mixed internal share uris, when handling internal share, then import only allowed Wire shared files`() =
+        runTest(dispatcherProvider.main()) {
+            val validUri = testUri(pathSegments = listOf("shared_files", "wire-logs.zip"))
+            val wrongRootUri = testUri(pathSegments = listOf("cached_files", "private-file.zip"))
+            val wrongProviderUri = testUri(
+                authority = "com.android.providers.media.documents",
+                pathSegments = listOf("shared_files", "wire-logs.zip")
+            )
+            val assetBundle = assetBundle(fileName = "wire-logs.zip")
+            val (arrangement, viewModel) = Arrangement()
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle))
+                .arrange()
+
+            viewModel.handleReceivedDataFromInternalShare(listOf(validUri, wrongRootUri, wrongProviderUri))
+
+            assertEquals(listOf(assetBundle), viewModel.importMediaState.importedAssets.map { it.assetBundle })
+            coVerify(exactly = 1) {
+                arrangement.handleUriAssetUseCase.invoke(validUri, saveToDeviceIfInvalid = false)
+            }
+            coVerify(exactly = 0) {
+                arrangement.handleUriAssetUseCase.invoke(wrongRootUri, any())
+            }
+            coVerify(exactly = 0) {
+                arrangement.handleUriAssetUseCase.invoke(wrongProviderUri, any())
+            }
+        }
+
+    @Test
+    fun `given internal Wire provider uri outside shared files, when handling internal share, then reject it`() =
+        runTest(dispatcherProvider.main()) {
+            val uri = testUri(pathSegments = listOf("cached_files", "private-file.zip"))
+            val (arrangement, viewModel) = Arrangement().arrange()
+
+            viewModel.handleReceivedDataFromInternalShare(listOf(uri))
+
+            assertTrue(viewModel.importMediaState.importedAssets.isEmpty())
+            coVerify(exactly = 0) {
+                arrangement.handleUriAssetUseCase.invoke(any(), any())
+            }
+        }
+
+    @Test
+    fun `given internal uri from another provider, when handling internal share, then reject it`() =
+        runTest(dispatcherProvider.main()) {
+            val uri = testUri(
+                authority = "com.android.providers.media.documents",
+                pathSegments = listOf("shared_files", "wire-logs.zip")
+            )
+            val (arrangement, viewModel) = Arrangement().arrange()
+
+            viewModel.handleReceivedDataFromInternalShare(listOf(uri))
+
+            assertTrue(viewModel.importMediaState.importedAssets.isEmpty())
+            coVerify(exactly = 0) {
+                arrangement.handleUriAssetUseCase.invoke(any(), any())
+            }
+        }
+
+    private fun testUri(
+        scheme: String = "content",
+        authority: String = "com.wire.android.provider",
+        pathSegments: List<String> = emptyList()
+    ): Uri = mockk {
+        every { this@mockk.scheme } returns scheme
+        every { this@mockk.authority } returns authority
+        every { this@mockk.pathSegments } returns pathSegments
+    }
+
+    private fun assetBundle(fileName: String) = AssetBundle(
+        key = "key",
+        mimeType = "application/zip",
+        dataPath = "/tmp/$fileName".toPath(),
+        dataSize = 100L,
+        fileName = fileName,
+        assetType = AttachmentType.GENERIC_FILE
+    )
+
     inner class Arrangement {
+        val context = mockk<Context> {
+            every { packageName } returns "com.wire.android"
+        }
 
         @MockK
         lateinit var getSelfUser: ObserveSelfUserUseCase
@@ -100,7 +432,16 @@ class ImportMediaAuthenticatedViewModelTest {
             mockUri()
         }
 
+        fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
+            coEvery { handleUriAssetUseCase.invoke(any(), any()) } returns result
+        }
+
+        fun withHandleUriAsset(uri: Uri, result: HandleUriAssetUseCase.Result) = apply {
+            coEvery { handleUriAssetUseCase.invoke(uri, any()) } returns result
+        }
+
         fun arrange() = this to ImportMediaAuthenticatedViewModel(
+            context = context,
             getSelf = getSelfUser,
             getConversationsPaginated = getConversationsPaginated,
             handleUriAsset = handleUriAssetUseCase,

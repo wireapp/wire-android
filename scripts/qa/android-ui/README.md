@@ -152,7 +152,7 @@ is the enforcement boundary that a modified branch workflow cannot remove.
 Flavor resolution is runner-driven, not hardcoded in the repo.
 
 - Source of truth: `/etc/android-qa/flavors.json` on the self-hosted runner
-- Executed via: `bash scripts/qa_android_ui_tests/execution_setup.sh resolve-flavor`
+- Executed via: `bash scripts/qa/android-ui/execution_setup.sh resolve-flavor`
 - Exports for later workflow steps:
   - `S3_FOLDER`
   - `APP_ID`

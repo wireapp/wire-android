@@ -57,7 +57,7 @@ jobs:
           git push origin screenshot-tests
 
       - name: Verify Screenshot Tests
-        run: ./gradlew validateAlphaDebugScreenshotTest
+        run: make screenshots-verify
         continue-on-error: true # Ensure this task doesn't fail the build
 
       - name: Copy test results to simplified directory
@@ -82,7 +82,7 @@ jobs:
           git clean -fd        
 
       - name: Update Screenshot Reference Images
-        run: ./gradlew updateAlphaDebugScreenshotTest
+        run: make screenshots-update
 
       - name: Create New Branch
         id: create_branch

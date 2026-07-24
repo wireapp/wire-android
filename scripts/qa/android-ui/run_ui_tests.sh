@@ -156,7 +156,7 @@ extract_failed_ids() {
   ATTEMPT_RESULTS_DIR="${ALLURE_RESULTS_ROOT}/attempt-${attempt}" \
     FAILED_TESTS_FILE="${failed_output}" \
     EXECUTED_TESTS_FILE="${executed_output}" \
-    python3 scripts/qa_android_ui_tests/extract_failed_tests.py
+    python3 scripts/qa/android-ui/extract_failed_tests.py
 }
 
 validate_explicit_attempt_coverage() {
@@ -446,7 +446,7 @@ run_attempt_on_devices() {
       if ! instrumentation="$(
         INSTRUMENTATION_LIST="${instr_list}" \
           TEST_APP_ID="${TEST_APP_ID}" \
-          python3 scripts/qa_android_ui_tests/resolve_instrumentation.py
+          python3 scripts/qa/android-ui/resolve_instrumentation.py
       )"; then
         echo "[${serial}] ERROR: Could not resolve instrumentation. Installed instrumentations:"
         printf '%s\n' "${instr_list}" | sed -u "s/^/[${serial}] /"

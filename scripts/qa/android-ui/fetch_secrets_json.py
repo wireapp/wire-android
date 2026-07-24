@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Fetch the minimum 1Password fields required by Android E2E tests."""
 
+from __future__ import annotations
+
 import json
 import os
 import re

@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui.model
 
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.AUDIO
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
@@ -150,5 +151,5 @@ internal fun CellNodeUi.File.withSessionState(
 )
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
-internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
+internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
 internal fun CellNodeUi.isEditSupported() = (this as? CellNodeUi.File)?.isEditSupported == true

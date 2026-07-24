@@ -3,12 +3,13 @@
 
 from __future__ import annotations
 
+import sys
 import unittest
+from pathlib import Path
 
-from scripts.qa_android_ui_tests.validate_source_run import (
-    SourceRunValidationError,
-    validate_run_metadata,
-)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from validate_source_run import SourceRunValidationError, validate_run_metadata
 
 
 class ValidateSourceRunTest(unittest.TestCase):

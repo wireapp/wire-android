@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -55,17 +56,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.cellAudioPlayerViewModel
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.darkColorsScheme
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -73,8 +72,10 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import kotlin.time.Duration.Companion.milliseconds
 
-private const val SKIP_MS = 10_000
+private const val SKIP_S = 12
+private val SKIP_MS = SKIP_S.milliseconds.inWholeMilliseconds.toInt()
 
 @WireCellsDestination(
     style = PopUpNavigationAnimation::class,
@@ -134,7 +135,7 @@ internal fun CellAudioPlayerContent(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(color = darkColorsScheme().background)
+                .background(color = colorsScheme().background)
                 .padding(horizontal = dimensions().spacing24x),
         ) {
             Box(
@@ -167,9 +168,9 @@ internal fun CellAudioPlayerContent(
                             isSeeking = false
                         },
                         colors = SliderDefaults.colors(
-                            thumbColor = Color.White,
-                            activeTrackColor = Color.White,
-                            inactiveTrackColor = Color.White.copy(alpha = 0.25f),
+                            thumbColor = colorsScheme().inverseSurface,
+                            activeTrackColor = colorsScheme().inverseSurface,
+                            inactiveTrackColor = colorsScheme().surfaceContainerHighest,
                         ),
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -182,12 +183,12 @@ internal fun CellAudioPlayerContent(
                     ) {
                         Text(
                             text = state.currentPositionMs.toTimeString(),
-                            color = Color.White,
+                            color = colorsScheme().inverseSurface,
                             style = typography().subline01,
                         )
                         Text(
                             text = state.durationMs.toTimeString(),
-                            color = Color.White,
+                            color = colorsScheme().inverseSurface,
                             style = typography().subline01,
                         )
                     }
@@ -204,12 +205,20 @@ internal fun CellAudioPlayerContent(
                                 onSeek((state.currentPositionMs - SKIP_MS).coerceAtLeast(0))
                             }
                         ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_cell_skip_back),
-                                contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.75f),
-                                modifier = Modifier.size(dimensions().spacing32x),
-                            )
+                            Column {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_skip_back),
+                                    contentDescription = null,
+                                    tint = colorsScheme().inverseSurface,
+                                    modifier = Modifier.size(dimensions().spacing16x),
+                                )
+
+                                Text(
+                                    text = SKIP_S.toString(),
+                                    color = colorsScheme().inverseSurface,
+                                    style = typography().subline01,
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.width(dimensions().spacing24x))
@@ -225,28 +234,23 @@ internal fun CellAudioPlayerContent(
 
                         Box(
                             modifier = Modifier
-                                .size(dimensions().spacing72x)
+                                .size(dimensions().spacing64x)
                                 .scale(buttonScale)
-                                .clip(CircleShape)
-                                .background(Color.White)
-                                .then(
-                                    if (state.isPrepared) {
-                                        Modifier.padding(0.dp)
-                                    } else {
-                                        Modifier
-                                    }
-                                ),
+                                .clip(CircleShape),
                             contentAlignment = Alignment.Center,
                         ) {
-                            val iconRes = if (state.isPlaying) R.drawable.ic_cell_pause else R.drawable.ic_cell_play
+                            val iconRes = if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play
                             IconButton(
                                 onClick = { if (state.isPrepared) onTogglePlayPause() },
                                 modifier = Modifier.fillMaxSize(),
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    containerColor = colorsScheme().inverseSurface,
+                                )
                             ) {
                                 Icon(
                                     painter = painterResource(iconRes),
                                     contentDescription = null,
-                                    tint = Color.Black,
+                                    tint = colorsScheme().inverseOnSurface,
                                     modifier = Modifier.size(dimensions().spacing40x),
                                 )
                             }
@@ -259,12 +263,19 @@ internal fun CellAudioPlayerContent(
                                 onSeek((state.currentPositionMs + SKIP_MS).coerceAtMost(state.durationMs))
                             }
                         ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_cell_skip_forward),
-                                contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.75f),
-                                modifier = Modifier.size(dimensions().spacing32x),
-                            )
+                            Column {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_skip_forward),
+                                    contentDescription = null,
+                                    tint = colorsScheme().inverseSurface,
+                                    modifier = Modifier.size(dimensions().spacing16x),
+                                )
+                                Text(
+                                    text = SKIP_S.toString(),
+                                    color = colorsScheme().inverseSurface,
+                                    style = typography().subline01,
+                                )
+                            }
                         }
                     }
                 Spacer(modifier = Modifier.height(dimensions().spacing32x))
@@ -294,9 +305,9 @@ private fun EqualizerBars(isPlaying: Boolean) {
         )
     }
 
-    val maxBarHeightPx = dimensions().spacing32x
+    val maxBarHeightPx = dimensions().spacing24x
     Row(
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.height(maxBarHeightPx),
     ) {
@@ -307,7 +318,7 @@ private fun EqualizerBars(isPlaying: Boolean) {
                     .width(dimensions().spacing6x)
                     .height(maxBarHeightPx * fraction)
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(dimensions().spacing3x))
-                    .background(Color.White)
+                    .background(colorsScheme().inverseSurface)
             )
         }
     }
@@ -326,7 +337,7 @@ private fun Int.toTimeString(): String {
 fun PreviewCellAudioPlayerScreen() {
     WireTheme {
         CellAudioPlayerContent(
-            state = AudioPlaybackState(),
+            state = AudioPlaybackState(isPlaying = true, isPrepared = true, currentPositionMs = 30000, durationMs = 120000),
             fileName = "awesome_track.mp3",
             onTogglePlayPause = {},
             onSeek = {},

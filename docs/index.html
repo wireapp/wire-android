@@ -504,7 +504,7 @@ style J fill:#BBDEFB
 </ul>
 <p>This manual process increased the risk of deploying with incorrect or missing release notes, and made it difficult to catch validation errors early in the CI/CD pipeline.</p>
 <h2>Decision</h2>
-<p>We introduced an automated release notes preparation script (<code>scripts/prepare-release-notes.sh</code>) that is integrated into our CI/CD workflows. The script:</p>
+<p>We introduced an automated release notes preparation script (<code>scripts/release/prepare-release-notes.sh</code>) that is integrated into our CI/CD workflows. The script:</p>
 <ol>
 <li><strong>Extracts the current version</strong> from <code>AndroidCoordinates.kt</code> to determine which release notes to use</li>
 <li><strong>Validates version-specific files exist</strong> - fails the build if <code>app/src/main/play/release-notes/{lang}/{version}.txt</code> files are missing</li>
@@ -677,6 +677,55 @@ style J fill:#BBDEFB
 <ul>
 <li><code>UiWaitUtils</code> becomes the main synchronization entrypoint and must be kept well documented</li>
 <li>helper behavior changes can affect many tests at once, so updates require targeted regression checks</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse12">12. Centralized Make Command Surface for Repo Automation</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse12" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>12. Centralized Make Command Surface for Repo Automation</h1>
+<p>Date: 2026-07-23</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>Automation in the Android repository was spread across GitHub Actions workflow steps, root-level shell scripts, Python helpers, Gradle tasks, and a small <code>Makefile</code>. This made it harder to discover the correct command for local use, harder to keep CI and local workflows aligned, and easier for new scripts to accumulate without clear ownership.</p>
+<p>The project already depends on a Unix-like build environment for Android development and CI, so <code>make</code> is available without introducing another developer tool dependency.</p>
+<h2>Decision</h2>
+<p>We will use the root <code>Makefile</code> as the stable command surface for repository automation. The root <code>Makefile</code> imports purpose-specific fragments under <code>make/</code>, while implementation scripts live in purpose-based directories:</p>
+<ul>
+<li><code>scripts/release/</code> for release-note and release-preparation helpers</li>
+<li><code>scripts/qa/android-ui/</code> for Android UI test and deflake orchestration</li>
+<li><code>scripts/dev/</code> for local developer utilities</li>
+<li><code>scripts/signing/</code> for APK signing helpers</li>
+</ul>
+<p>Gradle remains the owner of build logic. Make targets should call Gradle or scripts rather than reimplementing substantial logic inline.</p>
+<p>CI workflows should call <code>make</code> targets for repo-owned commands when a target exists. Workflows should continue to own runner setup, checkout, caching, artifact upload, cloud credentials, deployment actions, and other platform orchestration.</p>
+<h2>Consequences</h2>
+<p><strong>Positive:</strong></p>
+<ul>
+<li>Developers and CI share a clearer command vocabulary.</li>
+<li>Existing shell and Python helpers are grouped by purpose instead of accumulating at the root of <code>scripts/</code>.</li>
+<li>Workflow files contain fewer direct Gradle and script invocations.</li>
+<li>New automation has an obvious place to live and an obvious command surface to expose.</li>
+<li>No new developer dependency is introduced.</li>
+</ul>
+<p><strong>Considerations:</strong></p>
+<ul>
+<li>Make targets must stay thin. Large shell blocks in Makefiles would recreate the same scripting problem in a different file.</li>
+<li>When adding a new script, contributors should place it in the appropriate purpose directory and expose it through <code>make</code> only when it is a useful local or CI entrypoint.</li>
+<li>CI-only platform setup should remain in GitHub Actions workflows or composite actions.</li>
+<li>Build-native behavior should still become Gradle tasks when it belongs to the build graph.</li>
 </ul>
 </div>
                 </div>

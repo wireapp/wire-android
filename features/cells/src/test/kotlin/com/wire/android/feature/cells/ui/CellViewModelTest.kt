@@ -69,6 +69,7 @@ import okio.Path.Companion.toPath
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -130,6 +131,18 @@ class CellViewModelTest {
         assertEquals(items.size, 2)
 
         coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given search screen args when files flow subscribed then nodes flow is empty`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        val items = flowOf(pagingData).asSnapshot()
+        assertTrue(items.isEmpty())
     }
 
     @Test

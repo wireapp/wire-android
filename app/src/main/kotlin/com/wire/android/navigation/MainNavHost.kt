@@ -119,14 +119,14 @@ fun MainNavHost(
                         )
                     }
 
-                    // 👇 To reuse CellViewModel from the parent screen on SearchScreen
                     destination(SearchScreenDestination) {
                         val cellViewModelOwner = remember(navBackStackEntry) {
                             val previousEntry = navController.previousBackStackEntry
                             when (previousEntry?.safeRoute()?.baseRoute) {
                                 ConversationFilesScreenDestination.baseRoute,
                                 ConversationFilesWithSlideInTransitionScreenDestination.baseRoute -> previousEntry
-                                else -> navBackStackEntry
+
+                                else -> previousEntry ?: navBackStackEntry
                             }
                         }
                         dependency(cellViewModel(cellViewModelOwner))

@@ -81,6 +81,8 @@
     <string name="cancel_download_label">Cancel download</string>
     <string name="make_available_offline_label">Make available offline</string>
     <string name="remove_offline_access_label">Remove offline access</string>
+    <string name="viewer_access_label">Viewer access</string>
+    <string name="viewer_access_disabled_content_description">%1$s, disabled in viewer access</string>
     <string name="offline_file_saved_message">File saved for offline use</string>
     <string name="offline_banner_message">You\'re offline and can see only saved files</string>
     <string name="file_open_snackbar_message">\"%1$s\" ready to open</string>

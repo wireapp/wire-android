@@ -92,7 +92,7 @@ class HomeViewModelFactory @Inject constructor(
     private val isUserAllowedToCreateChannels: ObserveChannelsCreationPermissionUseCase,
     private val getSelfUser: GetSelfUserUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
-    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
+    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 ) {
     fun homeViewModel(savedStateHandle: SavedStateHandle) = HomeViewModel(
         savedStateHandle = savedStateHandle,

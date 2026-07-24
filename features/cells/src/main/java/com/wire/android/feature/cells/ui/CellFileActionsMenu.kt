@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.isEditSupported
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
@@ -38,16 +39,16 @@ class CellFileActionsMenu @Inject constructor(
         isSearching: Boolean,
         isCollaboraEnabled: Boolean,
         isOnline: Boolean = true,
-    ): List<NodeBottomSheetAction> {
+    ): List<NodeMenuItem> {
         if (offlineFilesEnabled && !isOnline) {
             return buildList {
                 val canOpenOffline = cellNode is CellNodeUi.Folder ||
                         (cellNode is CellNodeUi.File && cellNode.localFileAvailable())
                 if (canOpenOffline) {
-                    add(NodeBottomSheetAction.OPEN)
+                    add(NodeMenuItem(NodeBottomSheetAction.OPEN))
                 }
                 if (cellNode is CellNodeUi.File && cellNode.isAvailableOffline) {
-                    add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
+                    add(NodeMenuItem(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
                 }
             }
         }
@@ -55,11 +56,11 @@ class CellFileActionsMenu @Inject constructor(
             isRecycleBin -> recycleBinActions()
 
             isAllFiles || isSearching -> {
-                commonActions(cellNode)
+                commonActions(cellNode, isConversationFiles = false)
             }
 
             isConversationFiles -> {
-                val common = commonActions(cellNode)
+                val common = commonActions(cellNode, isConversationFiles = true)
                 val isTerminal = cellNode is CellNodeUi.File &&
                         (cellNode.isOpenLoading || cellNode.downloadProgress != null)
                 if (isTerminal) {
@@ -76,54 +77,84 @@ class CellFileActionsMenu @Inject constructor(
         }
     }
 
-    private fun recycleBinActions(): List<NodeBottomSheetAction> = listOf(
-        NodeBottomSheetAction.RESTORE,
-        NodeBottomSheetAction.DELETE_PERMANENTLY,
+    private fun recycleBinActions(): List<NodeMenuItem> = listOf(
+        NodeMenuItem(NodeBottomSheetAction.RESTORE),
+        NodeMenuItem(NodeBottomSheetAction.DELETE_PERMANENTLY),
     )
 
     private fun commonActions(
         cellNode: CellNodeUi,
-    ): List<NodeBottomSheetAction> = buildList {
+        isConversationFiles: Boolean,
+    ): List<NodeMenuItem> = buildList {
 
         if (cellNode is CellNodeUi.File) {
 
             when {
                 cellNode.isOpenLoading -> {
-                    add(NodeBottomSheetAction.CANCEL_LOADING)
+                    add(NodeMenuItem(NodeBottomSheetAction.CANCEL_LOADING))
                     return@buildList
                 }
 
                 cellNode.downloadProgress != null -> {
-                    add(NodeBottomSheetAction.CANCEL_DOWNLOAD)
+                    add(NodeMenuItem(NodeBottomSheetAction.CANCEL_DOWNLOAD))
                     return@buildList
                 }
 
                 else -> {
 
-                    add(NodeBottomSheetAction.OPEN)
+                    add(NodeMenuItem(NodeBottomSheetAction.OPEN))
 
                     if (cellNode.localFileAvailable()) {
-                        add(NodeBottomSheetAction.SHARE)
+                        addRestrictedForViewerOnly(NodeBottomSheetAction.SHARE, cellNode.isViewerOnly, isConversationFiles)
+                    }
+
+                    // "Share via link" is shown alongside "Share" in All files / search.
+                    // In conversation files it is provided by conversationActions instead.
+                    if (!isConversationFiles) {
+                        addRestrictedForViewerOnly(NodeBottomSheetAction.PUBLIC_LINK, cellNode.isViewerOnly, isConversationFiles)
                     }
 
                     if (offlineFilesEnabled) {
                         if (cellNode.isAvailableOffline) {
-                            add(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS)
+                            add(NodeMenuItem(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
                         } else if (featureFlags.collaboraIntegration && !cellNode.isEditSupported()) {
-                            add(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
+                            addRestrictedForViewerOnly(
+                                NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
+                                cellNode.isViewerOnly,
+                                isConversationFiles,
+                            )
                         }
                     }
                 }
             }
         } else {
-            add(NodeBottomSheetAction.OPEN)
+            add(NodeMenuItem(NodeBottomSheetAction.OPEN))
+        }
+    }
+
+    /**
+     * Adds an action that viewer-only (guest) users are not allowed to perform.
+     * For viewer-only files it is removed from the bottom sheet in conversation files and shown
+     * grayed out (disabled) everywhere else; for regular files it is added normally.
+     */
+    private fun MutableList<NodeMenuItem>.addRestrictedForViewerOnly(
+        action: NodeBottomSheetAction,
+        isViewerOnly: Boolean,
+        isConversationFiles: Boolean,
+    ) {
+        val hideAction = isConversationFiles && isViewerOnly
+        if (!hideAction) {
+            add(NodeMenuItem(action, enabled = !isViewerOnly))
         }
     }
 
     private fun conversationActions(
         cellNode: CellNodeUi,
         isCollaboraEnabled: Boolean,
-    ): List<NodeBottomSheetAction> = buildList {
+    ): List<NodeMenuItem> = buildList {
+
+        // Viewer-only nodes (files and folders) are read-only: none of the conversation management actions apply.
+        if (cellNode.isViewerOnly) return@buildList
 
         val canEdit = cellNode is CellNodeUi.File &&
                 isCollaboraEnabled &&
@@ -131,7 +162,7 @@ class CellFileActionsMenu @Inject constructor(
                 cellNode.isEditSupported()
 
         if (canEdit) {
-            add(NodeBottomSheetAction.EDIT)
+            add(NodeMenuItem(NodeBottomSheetAction.EDIT))
         }
 
         if (
@@ -139,16 +170,16 @@ class CellFileActionsMenu @Inject constructor(
             featureFlags.collaboraIntegration &&
             cellNode.isEditSupported()
         ) {
-            add(NodeBottomSheetAction.VERSION_HISTORY)
+            add(NodeMenuItem(NodeBottomSheetAction.VERSION_HISTORY))
         }
 
         addAll(
             listOf(
-                NodeBottomSheetAction.ADD_REMOVE_TAGS,
-                NodeBottomSheetAction.PUBLIC_LINK,
-                NodeBottomSheetAction.MOVE,
-                NodeBottomSheetAction.RENAME,
-                NodeBottomSheetAction.DELETE,
+                NodeMenuItem(NodeBottomSheetAction.ADD_REMOVE_TAGS),
+                NodeMenuItem(NodeBottomSheetAction.PUBLIC_LINK),
+                NodeMenuItem(NodeBottomSheetAction.MOVE),
+                NodeMenuItem(NodeBottomSheetAction.RENAME),
+                NodeMenuItem(NodeBottomSheetAction.DELETE),
             ),
         )
     }

@@ -110,7 +110,7 @@ public fun com.wire.android.feature.cells.ui.AllFilesScreen(navigator: com.wire.
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.CellFilesScreen(cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, onItemClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, showConversationName: kotlin.Boolean, onItemMenuClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.CellFilesScreen(cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, onItemClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, showConversationName: kotlin.Boolean, showViewerOnlyIcon: kotlin.Boolean, onItemMenuClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -122,15 +122,17 @@ internal fun com.wire.android.feature.cells.ui.CellFilesScreen(cellNodes: androi
     - isPullToRefreshEnabled: STABLE (primitive type)
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - showConversationName: STABLE (primitive type)
+    - showViewerOnlyIcon: STABLE (primitive type)
     - onItemMenuClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.CellItemIcon(cell: com.wire.android.feature.cells.ui.model.CellNodeUi, showReadyState: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.feature.cells.ui.CellItemIcon(cell: com.wire.android.feature.cells.ui.model.CellNodeUi, showReadyState: kotlin.Boolean, showViewerOnlyIcon: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - cell: RUNTIME (requires runtime check)
     - showReadyState: STABLE (primitive type)
+    - showViewerOnlyIcon: STABLE (primitive type)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.CellItemSubtitle(cell: com.wire.android.feature.cells.ui.model.CellNodeUi, showReadyState: kotlin.Boolean, showConversationName: kotlin.Boolean): kotlin.Unit
@@ -142,7 +144,7 @@ private fun com.wire.android.feature.cells.ui.CellItemSubtitle(cell: com.wire.an
     - showConversationName: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.CellListItem(cell: com.wire.android.feature.cells.ui.model.CellNodeUi, onMenuClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, showConversationName: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.CellListItem(cell: com.wire.android.feature.cells.ui.model.CellNodeUi, onMenuClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, showConversationName: kotlin.Boolean, showViewerOnlyIcon: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -150,6 +152,7 @@ internal fun com.wire.android.feature.cells.ui.CellListItem(cell: com.wire.andro
     - onMenuClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - showConversationName: STABLE (primitive type)
+    - showViewerOnlyIcon: STABLE (primitive type)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showImageViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showVideoViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showAudioPlayer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?): kotlin.Unit
@@ -184,7 +187,7 @@ internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: ko
     - fileReadyFlow: RUNTIME (requires runtime check)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.ContentList(cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, lazyListState: androidx.compose.foundation.lazy.LazyListState, onItemClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, onItemMenuClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, showConversationName: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.feature.cells.ui.ContentList(cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, lazyListState: androidx.compose.foundation.lazy.LazyListState, onItemClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, onItemMenuClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, showConversationName: kotlin.Boolean, showViewerOnlyIcon: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -194,6 +197,7 @@ private fun com.wire.android.feature.cells.ui.ContentList(cellNodes: androidx.pa
     - onItemMenuClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - showConversationName: STABLE (primitive type)
+    - showViewerOnlyIcon: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.feature.cells.ui.ConversationFilesScreen(navigator: com.wire.android.navigation.WireNavigator, animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, viewModel: com.wire.android.feature.cells.ui.CellViewModel): kotlin.Unit
@@ -264,11 +268,12 @@ private fun com.wire.android.feature.cells.ui.ErrorFooter(onRetry: kotlin.Functi
     - onRetry: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.FileIconPreview(cell: com.wire.android.feature.cells.ui.model.CellNodeUi.File): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.FileIconPreview(cell: com.wire.android.feature.cells.ui.model.CellNodeUi.File, showViewerOnlyIcon: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - cell: RUNTIME (requires runtime check)
+    - showViewerOnlyIcon: STABLE (primitive type)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.FolderIconPreview(cell: com.wire.android.feature.cells.ui.model.CellNodeUi.Folder): kotlin.Unit
@@ -305,6 +310,14 @@ internal fun com.wire.android.feature.cells.ui.ReadyIconPreview(): kotlin.Unit
   skippable: true
   restartable: true
   params:
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.ViewerOnlyIcon(offsetX: androidx.compose.ui.unit.Dp, offsetY: androidx.compose.ui.unit.Dp): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - offsetX: STABLE (marked @Stable or @Immutable)
+    - offsetY: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.feature.cells.ui.addRemoveTagsViewModel(): com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel

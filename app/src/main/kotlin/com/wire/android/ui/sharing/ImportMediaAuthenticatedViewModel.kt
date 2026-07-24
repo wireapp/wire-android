@@ -17,22 +17,25 @@
  */
 package com.wire.android.ui.sharing
 
+import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Parcelable
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.ShareCompat
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationContext
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -43,14 +46,14 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.util.EMPTY
+import com.wire.android.util.FILE_PROVIDER_SHARED_FILES_ROOT
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.parcelableArrayList
+import com.wire.android.util.getProviderAuthority
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -69,6 +72,7 @@ import kotlinx.coroutines.withContext
 @OptIn(FlowPreview::class)
 @Suppress("LongParameterList", "TooManyFunctions")
 class ImportMediaAuthenticatedViewModel(
+    @ApplicationContext private val context: Context,
     private val getSelf: ObserveSelfUserUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val handleUriAsset: HandleUriAssetUseCase,
@@ -151,15 +155,38 @@ class ImportMediaAuthenticatedViewModel(
         if (incomingIntent.streamCount == 0) {
             handleSharedText(incomingIntent.text.toString())
         } else {
+            val providerAuthority = activity.getProviderAuthority()
+            val hasTrustedWireCaller = activity.hasTrustedWireShareCaller()
             if (incomingIntent.isSingleShare) {
                 // ACTION_SEND
-                handleSingleIntent(incomingIntent)
+                handleSingleIntent(providerAuthority, hasTrustedWireCaller, incomingIntent)
             } else {
                 // ACTION_SEND_MULTIPLE
-                handleMultipleActionIntent(activity)
+                handleMultipleActionIntent(activity, providerAuthority, hasTrustedWireCaller)
             }
         }
         importMediaState = importMediaState.copy(isImporting = false)
+    }
+
+    suspend fun handleReceivedDataFromInternalShare(uris: List<Uri>) {
+        appLogger.i("Received data from internal share ${uris.size}")
+        importMediaState = importMediaState.copy(isImporting = true)
+        val providerAuthority = context.getProviderAuthority()
+        val importedMediaAssets = uris.mapNotNull { uri ->
+            if (uri.isWireInternalShareUri(providerAuthority)) {
+                handleImportedAsset(uri)
+            } else {
+                appLogger.w("$TAG: Ignoring internal share URI outside Wire's share provider root")
+                null
+            }
+        }
+        importMediaState = importMediaState.copy(
+            importedAssets = importedMediaAssets.toPersistentList(),
+            isImporting = false
+        )
+        importedMediaAssets.firstOrNull { it.assetSizeExceeded != null }?.let {
+            onSnackbarMessage(SendMessagesSnackbarMessages.MaxAssetSizeExceeded(it.assetSizeExceeded!!))
+        }
     }
 
     private fun handleSharedText(text: String) {
@@ -167,26 +194,38 @@ class ImportMediaAuthenticatedViewModel(
         importMediaState = importMediaState.copy(importedText = text)
     }
 
-    private suspend fun handleSingleIntent(incomingIntent: ShareCompat.IntentReader) {
+    private suspend fun handleSingleIntent(
+        providerAuthority: String,
+        hasTrustedWireCaller: Boolean,
+        incomingIntent: ShareCompat.IntentReader
+    ) {
         incomingIntent.stream?.let { uri ->
             appLogger.d("$TAG: handleSingleIntent")
-            handleImportedAsset(uri)?.let { importedAsset ->
-                if (importedAsset.assetSizeExceeded != null) {
-                    onSnackbarMessage(
-                        SendMessagesSnackbarMessages.MaxAssetSizeExceeded(importedAsset.assetSizeExceeded)
-                    )
-                }
-                importMediaState = importMediaState.copy(importedAssets = persistentListOf(importedAsset))
-            }
+            handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, listOf(uri))
         }
     }
 
-    private suspend fun handleMultipleActionIntent(activity: AppCompatActivity) {
+    private suspend fun handleMultipleActionIntent(
+        activity: AppCompatActivity,
+        providerAuthority: String,
+        hasTrustedWireCaller: Boolean
+    ) {
         appLogger.d("$TAG: handleMultipleActionIntent")
-        val importedMediaAssets = activity.intent.parcelableArrayList<Parcelable>(Intent.EXTRA_STREAM)?.mapNotNull {
-            val fileUri = it.toString().toUri()
-            handleImportedAsset(fileUri)
-        } ?: listOf()
+        handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, activity.intent.sharingUris())
+    }
+
+    internal suspend fun handleReceivedUrisFromSharingIntent(
+        providerAuthority: String,
+        hasTrustedWireCaller: Boolean,
+        uris: List<Uri>
+    ) {
+        if (uris.shouldRejectSharingIntent(providerAuthority, hasTrustedWireCaller)) {
+            appLogger.w("$TAG: Rejecting share intent containing URI from Wire's own file provider")
+            return
+        }
+        val importedMediaAssets = uris.mapNotNull {
+            handleImportedAsset(it)
+        }
 
         importMediaState = importMediaState.copy(importedAssets = importedMediaAssets.toPersistentList())
 
@@ -212,21 +251,22 @@ class ImportMediaAuthenticatedViewModel(
             }
         }
 
-    private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? = withContext(dispatchers.io()) {
-        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
-            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
-                appLogger.w("$TAG: Failed to import asset message: Asset too large")
-                ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
-            }
+    private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? =
+        withContext(dispatchers.io()) {
+            when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
+                is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
+                    appLogger.w("$TAG: Failed to import asset message: Asset too large")
+                    ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
+                }
 
-            HandleUriAssetUseCase.Result.Failure.Unknown -> {
-                appLogger.e("$TAG: Failed to import asset message: Unknown error")
-                null
-            }
+                HandleUriAssetUseCase.Result.Failure.Unknown -> {
+                    appLogger.e("$TAG: Failed to import asset message: Unknown error")
+                    null
+                }
 
-            is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
+                is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
+            }
         }
-    }
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
@@ -236,3 +276,43 @@ class ImportMediaAuthenticatedViewModel(
         private const val TAG = "[ImportMediaAuthenticatedViewModel]"
     }
 }
+
+internal fun Uri.isWireFileProviderUri(providerAuthority: String): Boolean =
+    scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true) && authority == providerAuthority
+
+internal fun Uri.shouldRejectWireFileProviderShare(providerAuthority: String, hasTrustedWireCaller: Boolean): Boolean =
+    isWireFileProviderUri(providerAuthority) && !hasTrustedWireCaller
+
+internal fun List<Uri>.shouldRejectSharingIntent(providerAuthority: String, hasTrustedWireCaller: Boolean): Boolean =
+    any { uri -> uri.shouldRejectWireFileProviderShare(providerAuthority, hasTrustedWireCaller) }
+
+internal fun Intent.sharingUris(): List<Uri> =
+    when (action) {
+        Intent.ACTION_SEND -> (extras?.get(Intent.EXTRA_STREAM) as? Uri)?.let(::listOf) ?: emptyList()
+        Intent.ACTION_SEND_MULTIPLE -> {
+            @Suppress("UNCHECKED_CAST")
+            (extras?.get(Intent.EXTRA_STREAM) as? List<*>)?.filterIsInstance<Uri>() ?: emptyList()
+        }
+        else -> emptyList()
+    }
+
+internal fun Intent.shouldRejectSharingIntent(providerAuthority: String, hasTrustedWireCaller: Boolean): Boolean =
+    sharingUris().shouldRejectSharingIntent(providerAuthority, hasTrustedWireCaller)
+
+internal fun Uri.isWireInternalShareUri(providerAuthority: String): Boolean =
+    isWireFileProviderUri(providerAuthority) &&
+        pathSegments.let { segments ->
+            segments.size > 1 &&
+                segments.firstOrNull() == FILE_PROVIDER_SHARED_FILES_ROOT &&
+                segments.none { it == ".." }
+        }
+
+internal fun AppCompatActivity.hasTrustedWireShareCaller(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+        getTrustedShareCallerPackageName() == packageName
+
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+private fun AppCompatActivity.getTrustedShareCallerPackageName(): String? =
+    runCatching {
+        caller?.getPackage() ?: initialCaller.getPackage()
+    }.getOrNull()

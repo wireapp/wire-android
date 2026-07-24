@@ -186,7 +186,7 @@ class MultipartAttachmentsViewModelTest {
 
         val callback = mockk<OpenImageCallback>(relaxed = true)
 
-        viewModel.onClick(testAttachmentUi, callback)
+        viewModel.onClick(testAttachmentUi, callback, {})
 
         coVerify(exactly = 1) { callback.invoke(testAttachmentUi.uuid) }
     }
@@ -202,7 +202,8 @@ class MultipartAttachmentsViewModelTest {
             attachment = testAttachmentUi.copy(
                 transferStatus = AssetTransferStatus.NOT_FOUND,
             ),
-            openInImageViewer = callback
+            openInImageViewer = callback,
+            openInVideoPlayer = { }
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
@@ -221,7 +222,8 @@ class MultipartAttachmentsViewModelTest {
                 mimeType = "application/pdf",
                 transferStatus = AssetTransferStatus.NOT_FOUND,
             ),
-            openInImageViewer = callback
+            openInImageViewer = callback,
+            openInVideoPlayer = { }
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
@@ -240,7 +242,8 @@ class MultipartAttachmentsViewModelTest {
                 mimeType = "application/pdf",
                 localPath = "local/path",
             ),
-            openInImageViewer = callback
+            openInImageViewer = callback,
+            openInVideoPlayer = { }
         )
 
         coVerify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
@@ -258,7 +261,8 @@ class MultipartAttachmentsViewModelTest {
                 mimeType = "application/pdf",
                 contentUrl = "content/url",
             ),
-            openInImageViewer = callback
+            openInImageViewer = callback,
+            openInVideoPlayer = { }
         )
 
         coVerify(exactly = 1) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }

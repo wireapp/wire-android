@@ -731,6 +731,92 @@ style J fill:#BBDEFB
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-pending">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse13">13. Shared in-app video player as a core module</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-hourglass-half"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse13" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>13. Shared in-app video player as a core module</h1>
+<p>Date: 2026-07-16</p>
+<h2>Status</h2>
+<p>Proposed</p>
+<h2>Context</h2>
+<p>The in-app video player (<code>VideoPlayerScreen</code>, <code>VideoPlayerViewModel</code>, <code>VideoPlaybackState</code>,
+<code>VideoViewerNavArgs</code>) currently lives in <code>features:cells</code> and is reachable only from the cells file
+browser. It is a self-contained, reusable UI component: it takes a local path / content URL and plays
+it via ExoPlayer — it holds no domain logic of its own (assets, download and offline handling already
+live in Kalium and in the calling features).</p>
+<p>We now want to play videos <strong>in-app when a user taps a video message in a chat</strong>. Today the chat
+(which lives in the <code>app</code> module, <code>ui/home/conversations/…</code>) hands videos off to an external app via
+an <code>ACTION_VIEW</code> intent. Reusing the existing player would give a consistent, in-app experience.</p>
+<p>The player therefore needs to be consumed by two places: <code>features:cells</code> and <code>app</code> (chat). The
+project's dependency law is <code>kalium → core → features → app</code>, with the additional rule that features
+must not depend on other features — shared logic goes into <code>core:*</code> or Kalium. That rules out the two
+shortcuts:</p>
+<ul>
+<li>Keeping it in <code>features:cells</code> and calling it from chat couples the entire &quot;Wire Cells file storage
+and collaboration&quot; feature to chat, and the screen is bound to the cells navigation graph via
+<code>@WireCellsDestination</code>.</li>
+<li>Creating a <code>features:video-player</code> module is illegal to consume from <code>features:cells</code> (feature →
+feature dependencies are forbidden).</li>
+</ul>
+<p>Because the player is shared UI infrastructure used by multiple layers above <code>core</code>, its correct home
+is a <code>core</code> module.</p>
+<h2>Decision</h2>
+<p>Extract the video player into a new <strong><code>core:media-player</code></strong> module and consume it from both
+<code>features:cells</code> and <code>app</code>.</p>
+<p>A new dedicated core module is preferred over folding it into the existing <code>core:media</code> module so that
+the heavy media dependencies (<code>media3-exoplayer</code>, <code>media3-ui</code>, <code>coil3-video</code>) stay scoped to modules
+that actually play video, rather than leaking to everything that already depends on <code>core:media</code>
+(currently only <code>PingRinger</code>). The new module can later become the home for the other in-app media
+viewers (image viewer, media gallery) if we choose to consolidate them.</p>
+<p>The two pieces that are currently cells-specific will be generalized during the move:</p>
+<ul>
+<li><strong>Navigation:</strong> replace <code>@WireCellsDestination</code> with a single shared destination registered through
+<code>core:navigation</code>, so the player is navigable from any feature/app graph rather than only the cells
+graph.</li>
+<li><strong>Dependency injection:</strong> move the Metro wiring out of <code>CellsViewModelFactory</code> so <code>core:media-player</code>
+provides its own <code>VideoPlayerViewModel</code>.</li>
+</ul>
+<p>The work is sequenced extract-then-reuse, so the risky refactor is validated against the existing
+caller before chat depends on it:</p>
+<ol>
+<li>Create <code>core:media-player</code> and move the player files into it, generalizing navigation and DI. No
+user-facing behavior change.</li>
+<li>Migrate <code>features:cells</code> to navigate to the shared destination and delete its copy of the player.
+This proves parity with the existing flow.</li>
+<li>Wire chat in <code>app</code>: on tapping a video message, navigate to the shared destination (passing the
+already-resolved local path / content URL) instead of firing the external <code>ACTION_VIEW</code> intent.</li>
+</ol>
+<h2>Consequences</h2>
+<ul>
+<li>A new module <code>core:media-player</code> is added; it is auto-discovered by <code>settings.gradle.kts</code> and built
+with the <code>wire-android-library</code> convention plugin (copied from an existing core module, not from
+<code>features/template</code>). It may depend on <code>core:ui-common</code>, <code>core:navigation</code>, and <code>core:di</code> — all
+core → core, one-directional, no cycle.</li>
+<li><code>features:cells</code> and <code>app</code> both depend on <code>core:media-player</code>; the <code>kalium → core → features → app</code>
+direction is preserved and no cross-feature dependency is introduced.</li>
+<li>The video player becomes reusable from anywhere, and chat gains an in-app video experience instead
+of delegating to an external app.</li>
+<li>The player's navigation destination is no longer part of the cells graph; callers navigate to the
+shared destination. Any deep links or existing navigation to the cells-scoped destination must be
+updated as part of Phase 2.</li>
+<li>The media3/Coil-video dependencies move to (and are scoped by) the new module.</li>
+<li>Follow-up opportunity (out of scope here): the cells in-app image viewer (<code>CellImageViewerScreen</code>)
+and the app <code>MediaGalleryScreen</code> overlap; <code>core:media-player</code> is a natural future home for a unified
+media viewer, to be handled as a separate ADR/change.</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

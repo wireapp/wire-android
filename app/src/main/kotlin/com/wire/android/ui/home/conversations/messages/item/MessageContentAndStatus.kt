@@ -72,6 +72,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     messageStyle: MessageStyle,
     onAssetClicked: (String) -> Unit,
     onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
+    onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
@@ -119,6 +120,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onAssetClick = onAssetClickable,
                 onImageClick = onImageClickable,
                 onMultipartImageClick = onMultipartImageClickable,
+                onMultipartVideoClick = onVideoClicked,
                 onOpenProfile = onProfileClicked,
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
@@ -167,6 +169,7 @@ private fun MessageContent(
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onMultipartImageClick: (String) -> Unit,
+    onMultipartVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
@@ -451,7 +454,8 @@ private fun MessageContent(
                     conversationId = message.conversationId,
                     attachments = messageContent.attachments,
                     messageStyle = messageStyle,
-                    onImageAttachmentClick = onMultipartImageClick
+                    onImageAttachmentClick = onMultipartImageClick,
+                    onVideoAttachmentClick = onMultipartVideoClick,
                 )
             }
 

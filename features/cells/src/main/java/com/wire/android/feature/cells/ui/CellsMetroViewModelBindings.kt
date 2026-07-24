@@ -36,7 +36,6 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
-import com.wire.android.feature.cells.ui.videoplayer.VideoPlayerViewModel
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
@@ -117,19 +116,6 @@ object CellsMetroViewModelBindings {
     @ViewModelAssistedFactoryKey(CellImageViewerViewModel::class)
     fun imageViewerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
         savedStateViewModel { factory.cellImageViewerViewModel(it.createSavedStateHandle()) }
-
-    @Provides
-    @IntoMap
-    @ViewModelAssistedFactoryKey(VideoPlayerViewModel::class)
-    fun videoViewerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel {
-            factory.cellVideoViewerViewModel(
-                context = checkNotNull(it[APPLICATION_KEY]) {
-                    "No Application was provided via CreationExtras"
-                },
-                savedStateHandle = it.createSavedStateHandle(),
-            )
-        }
 
     @Provides
     @IntoMap

@@ -17,6 +17,8 @@ help:
 	@printf "  lint                        Run Android lint\n"
 	@printf "  style                       Run detekt checks\n"
 	@printf "  unit-tests                  Run build logic tests and unit coverage\n"
+	@printf "  unit-tests/build-logic      Run buildSrc and build-logic tests\n"
+	@printf "  unit-tests/source           Run source unit tests with coverage\n"
 	@printf "  ui-tests                    Run acceptance/UI tests\n"
 	@printf "  build-dev                   Assemble dev debug APK\n"
 	@printf "  build-prod-apk              Assemble prod release APK\n"

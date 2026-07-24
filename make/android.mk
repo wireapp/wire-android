@@ -6,7 +6,8 @@ WORK_PROFILE = $(shell adb shell pm list users | grep "Managed Profile")
 WORK_PROFILE_ID = $(shell echo "$(WORK_PROFILE)" | awk -F'[:{}]' '{print $$2}')
 
 .PHONY: assemble/staging-debug install/staging-debug emm/install/staging-debug
-.PHONY: lint style unit-tests ui-tests build-dev build-prod-apk build-prod-bundle build-prod
+.PHONY: lint style unit-tests unit-tests/build-logic unit-tests/source ui-tests
+.PHONY: build-dev build-prod-apk build-prod-bundle build-prod
 .PHONY: compose-stability screenshots-verify screenshots-update baseline-profile
 
 assemble/staging-debug:
@@ -27,9 +28,13 @@ lint:
 style:
 	$(GRADLE) detektAll
 
-unit-tests:
+unit-tests: unit-tests/build-logic unit-tests/source
+
+unit-tests/build-logic:
 	$(GRADLE) -p buildSrc test
 	$(GRADLE) -p build-logic :plugins:test
+
+unit-tests/source:
 	$(GRADLE) testCoverage
 
 ui-tests:

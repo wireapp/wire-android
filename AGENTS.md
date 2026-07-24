@@ -48,6 +48,8 @@ make build-prod                           # Assemble prod release APK and AAB
 ./gradlew :app:testDevDebugUnitTest       # Single module unit tests (app, dev flavor)
 ./gradlew :<module>:test                  # Any individual module
 make unit-tests                           # Build logic tests + unit coverage
+make unit-tests/build-logic               # buildSrc + build-logic tests only
+make unit-tests/source                    # Source unit tests + Kover coverage only
 make ui-tests                             # Acceptance/UI tests
 
 # Code quality

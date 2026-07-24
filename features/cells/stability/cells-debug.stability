@@ -11,6 +11,12 @@ public fun com.ramcosta.composedestinations.generated.cells.destinations.AddRemo
   params:
 
 @Composable
+public fun com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination.Content(): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination.Content(): kotlin.Unit
   skippable: true
   restartable: true
@@ -146,7 +152,7 @@ internal fun com.wire.android.feature.cells.ui.CellListItem(cell: com.wire.andro
     - showConversationName: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showImageViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showVideoPlayer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showImageViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showVideoViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showAudioPlayer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -173,7 +179,8 @@ internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: ko
     - retryEditNodeError: STABLE (function type)
     - showVersionHistoryScreen: STABLE (function type)
     - showImageViewer: STABLE (function type)
-    - showVideoPlayer: STABLE (function type)
+    - showVideoViewer: STABLE (function type)
+    - showAudioPlayer: STABLE (function type)
     - fileReadyFlow: RUNTIME (requires runtime check)
 
 @Composable
@@ -301,6 +308,41 @@ internal fun com.wire.android.feature.cells.ui.ReadyIconPreview(): kotlin.Unit
 
 @Composable
 public fun com.wire.android.feature.cells.ui.addRemoveTagsViewModel(): com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerContent(state: com.wire.android.feature.cells.ui.audioplayer.AudioPlaybackState, fileName: kotlin.String?, onTogglePlayPause: kotlin.Function0<kotlin.Unit>, onSeek: kotlin.Function1<kotlin.Int, kotlin.Unit>, onStop: kotlin.Function0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (class with no mutable properties)
+    - fileName: STABLE (class with no mutable properties)
+    - onTogglePlayPause: STABLE (function type)
+    - onSeek: STABLE (function type)
+    - onStop: STABLE (function type)
+    - onNavigateBack: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerScreen(navigator: com.wire.android.navigation.WireNavigator, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - navigator: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.audioplayer.EqualizerBars(isPlaying: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - isPlaying: STABLE (primitive type)
+
+@Composable
+public fun com.wire.android.feature.cells.ui.cellAudioPlayerViewModel(): com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
   skippable: true
   restartable: true
   params:

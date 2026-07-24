@@ -44,8 +44,9 @@ import com.wire.kalium.common.functional.onSuccess
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import okio.sink
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -110,7 +111,8 @@ class VersionHistoryViewModel(
         val yesterday = today.minusDays(1)
 
         val grouped = this.groupBy { item ->
-            Instant.ofEpochSecond(item.modifiedTime?.toLong() ?: 0L)
+            (item.modifiedTime ?: Instant.fromEpochSeconds(0))
+                .toJavaInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
         }
@@ -137,9 +139,7 @@ class VersionHistoryViewModel(
 
                 val uiItems = items.mapIndexed { itemIndex, apiItem ->
 
-                    val formattedTime = apiItem.modifiedTime?.toLong()?.let {
-                        kotlinx.datetime.Instant.fromEpochSeconds(it).cellFileTime()
-                    } ?: ""
+                    val formattedTime = apiItem.modifiedTime?.cellFileTime() ?: ""
 
                     CellVersion(
                         versionId = apiItem.id,

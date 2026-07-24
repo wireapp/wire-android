@@ -44,8 +44,11 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@3f131e8634966bd73d06cc69884922b02e6faf92 # v6
 
-      - name: Run unit tests
-        run: make unit-tests
+      - name: Test Build Logic
+        run: make unit-tests/build-logic
+
+      - name: Test with coverage
+        run: make unit-tests/source
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

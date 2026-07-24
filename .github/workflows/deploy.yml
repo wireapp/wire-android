@@ -60,7 +60,7 @@ jobs:
 
       - name: Prepare release notes
         if: matrix.target.type == 'google-play'
-        run: make release-notes
+        run: make release-notes/prepare
 
       - name: Deploy to S3
         if: matrix.target.type == 's3'
@@ -79,6 +79,10 @@ jobs:
           SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
         run: |
           printf '%s' "${SERVICE_ACCOUNT_JSON}" > service_account.json
+
+      - name: Format latest release notes
+        if: matrix.target.type == 'google-play'
+        run: make release-notes/format
 
       - name: Deploy to Google Play
         if: matrix.target.type == 'google-play'

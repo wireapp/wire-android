@@ -15,14 +15,14 @@ from fetch_secrets_json import BACKEND_FIELDS, PASSWORD_FIELD, allowed_fields_fo
 class FetchSecretsJsonTest(unittest.TestCase):
     def test_selects_only_known_device_and_host_sections(self) -> None:
         self.assertEqual(BACKEND_FIELDS, allowed_fields_for_title("BackendConnection staging"))
-        self.assertEqual(PASSWORD_FIELD, allowed_fields_for_title("Okta API Key"))
+        self.assertEqual(PASSWORD_FIELD, allowed_fields_for_title("KEYCLOAK_QA_AUTOMATION"))
         self.assertEqual(PASSWORD_FIELD, allowed_fields_for_title("TESTINY_API_KEY_ANDROID"))
         self.assertIsNone(allowed_fields_for_title("Unrelated production credential"))
 
     def test_filters_unneeded_fields_from_selected_item(self) -> None:
         item = {
             "id": "item-id",
-            "title": "Okta API Key",
+            "title": "TESTINY_API_KEY_ANDROID",
             "fields": [
                 {"label": "password", "type": "CONCEALED", "value": "required"},
                 {"label": "notesPlain", "type": "STRING", "value": "must-not-be-copied"},

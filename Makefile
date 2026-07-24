@@ -29,5 +29,7 @@ help:
 	@printf "  screenshots-update          Update screenshot references\n"
 	@printf "  baseline-profile            Generate baseline and startup profiles\n"
 	@printf "  release-notes               Prepare Play release notes\n"
+	@printf "  release-notes/prepare       Prepare raw Play release notes\n"
+	@printf "  release-notes/format        Format latest Play release notes\n"
 	@printf "  qa-deflake                  Run Android UI deflake entrypoint\n"
 	@printf "  new-feature name=foo        Create a feature module\n"

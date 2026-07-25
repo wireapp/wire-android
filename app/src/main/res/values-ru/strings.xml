@@ -1344,6 +1344,7 @@
     <string name="label_text_copied">Текст скопирован в буфер обмена</string>
     <string name="label_logs_option_title">Журналы</string>
     <string name="label_share_logs">Поделиться журналами</string>
+    <string name="label_share_logs_failed">Не удалось подготовить логи для отправки</string>
     <string name="label_delete_logs">Удалить все журналы</string>
     <string name="label_restart_slowsync_for_recovery">Перезапустить медленную синхронизацию</string>
     <string name="restart_slowsync_for_recovery_button">Перезапуск</string>

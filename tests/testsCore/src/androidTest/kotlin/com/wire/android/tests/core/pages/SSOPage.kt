@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration
@@ -48,6 +49,18 @@ data class SSOPage(private val device: UiDevice) {
     fun tapKeycloakSignIn(): SSOPage {
         val signInBtn = UiWaitUtils.waitElement(keycloakSignInButton)
         signInBtn.click()
+        return this
+    }
+
+    fun assertKeycloakErrorVisible(expectedMessage: String): SSOPage {
+        val error = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = expectedMessage),
+            timeout = 15.seconds
+        )
+        assertTrue(
+            "Expected Keycloak error '$expectedMessage' to be visible",
+            !error.visibleBounds.isEmpty
+        )
         return this
     }
 

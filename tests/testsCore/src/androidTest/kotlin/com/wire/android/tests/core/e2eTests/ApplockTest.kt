@@ -337,6 +337,7 @@ class ApplockTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-11587")
     @Category("regression", "RC", "applock", "security")
     @Tag(key = "feature", value = "appLockColdStart")
     @Test

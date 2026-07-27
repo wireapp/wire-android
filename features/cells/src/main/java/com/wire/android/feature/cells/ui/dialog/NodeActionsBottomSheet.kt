@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
@@ -40,12 +41,14 @@ import com.wire.android.feature.cells.ui.FileIconPreview
 import com.wire.android.feature.cells.ui.MenuOptions
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.typography
@@ -108,19 +111,36 @@ private fun SheetContent(
                 )
             }
 
-            Text(
-                text = menuOptions.node.name ?: "",
-                style = typography().title02,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Column {
+                Text(
+                    text = menuOptions.node.name ?: "",
+                    style = typography().title02,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (menuOptions.node.isViewerOnly) {
+                    Text(
+                        text = stringResource(R.string.viewer_access_label),
+                        style = typography().label04,
+                        color = colorsScheme().secondaryText,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         }
         WireDivider(modifier = Modifier.fillMaxWidth())
 
-        menuOptions.actions.forEach { action ->
+        menuOptions.actions.forEach { menuItem ->
             BottomSheetMenuItem(
-                modifier = Modifier.clickable { onAction(action) },
-                action = action
+                modifier = if (menuItem.enabled) {
+                    Modifier.clickable { onAction(menuItem.action) }
+                } else {
+                    Modifier
+                },
+                action = menuItem.action,
+                enabled = menuItem.enabled,
             )
             WireDivider(modifier = Modifier.fillMaxWidth())
         }
@@ -146,13 +166,15 @@ private fun PreviewFileActionsBottomSheet() {
                     userHandle = "userHandle",
                     ownerUserId = "userId",
                     conversationName = null,
-                    modifiedTime = null
+                    modifiedTime = null,
+                    isViewerOnly = true,
                 ),
                 actions = listOf(
-                    NodeBottomSheetAction.SHARE,
-                    NodeBottomSheetAction.PUBLIC_LINK,
-                    NodeBottomSheetAction.MOVE,
-                    NodeBottomSheetAction.DELETE,
+                    NodeMenuItem(NodeBottomSheetAction.SHARE),
+                    NodeMenuItem(NodeBottomSheetAction.PUBLIC_LINK),
+                    NodeMenuItem(NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE, enabled = false),
+                    NodeMenuItem(NodeBottomSheetAction.MOVE),
+                    NodeMenuItem(NodeBottomSheetAction.DELETE),
                 )
             ),
             onAction = {},

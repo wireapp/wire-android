@@ -117,6 +117,7 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
+                closeKeyboardIfOpened()
                 enterKeycloakPassword(member1.password.orEmpty())
                 closeKeyboardIfOpened()
             }
@@ -224,6 +225,7 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
+                closeKeyboardIfOpened()
                 enterKeycloakPassword(member1.password.orEmpty())
                 closeKeyboardIfOpened()
             }

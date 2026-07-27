@@ -69,12 +69,21 @@ data class SSOPage(private val device: UiDevice) {
         return this
     }
 
-    private fun inputFieldBelow(label: UiSelectorParams, fieldName: String): UiObject2 {
-        val labelElement = UiWaitUtils.waitElement(label, timeout = 15.seconds)
+    private fun inputFieldBelow(
+        label: UiSelectorParams,
+        fieldName: String
+    ): UiObject2 {
+        val labelBounds = UiWaitUtils.waitElement(label, timeout = 15.seconds).visibleBounds
+
         return device.findObjects(By.clazz("android.widget.EditText"))
-            .firstOrNull { editText ->
+            .asSequence()
+            .filter { editText ->
                 !editText.visibleBounds.isEmpty &&
-                    editText.visibleBounds.top >= labelElement.visibleBounds.bottom
+                    editText.isEnabled &&
+                    editText.visibleBounds.top >= labelBounds.bottom
+            }
+            .minByOrNull { editText ->
+                editText.visibleBounds.top - labelBounds.bottom
             }
             ?: throw AssertionError("$fieldName was not visible.")
     }

@@ -111,6 +111,7 @@ class SSOTests : BaseUiTest() {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
+                closeKeyboardIfOpened()
                 enterKeycloakPassword(member1.password.orEmpty())
                 closeKeyboardIfOpened()
             }
@@ -218,6 +219,7 @@ class SSOTests : BaseUiTest() {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail("smoketester+invalid@wire.com")
+                closeKeyboardIfOpened()
                 enterKeycloakPassword("thisIsAnInvalidPassword")
                 closeKeyboardIfOpened()
                 tapKeycloakSignIn()
@@ -227,6 +229,5 @@ class SSOTests : BaseUiTest() {
         step("Then I see an error message telling me that I am unable to sign in on Keycloak Page") {
             pages.ssoPage.assertKeycloakErrorVisible("Invalid username or password")
         }
-    }
-
+}
 }

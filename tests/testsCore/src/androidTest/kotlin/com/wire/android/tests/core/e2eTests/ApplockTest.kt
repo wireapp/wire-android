@@ -361,6 +361,7 @@ class ApplockTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
                 clickLoginButton()
                 enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")

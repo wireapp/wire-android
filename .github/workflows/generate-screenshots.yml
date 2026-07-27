@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -29,7 +29,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - uses: WarpBuilds/cache@6ab98e7fdd65255995acec1de229a0bf2a40fe37 # v1
+      - uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
         with:
           path: |
             ~/.gradle/caches
@@ -57,7 +57,7 @@ jobs:
           git push origin screenshot-tests
 
       - name: Verify Screenshot Tests
-        run: ./gradlew validateAlphaDebugScreenshotTest
+        run: make screenshots-verify
         continue-on-error: true # Ensure this task doesn't fail the build
 
       - name: Copy test results to simplified directory
@@ -82,7 +82,7 @@ jobs:
           git clean -fd        
 
       - name: Update Screenshot Reference Images
-        run: ./gradlew updateAlphaDebugScreenshotTest
+        run: make screenshots-update
 
       - name: Create New Branch
         id: create_branch

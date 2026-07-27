@@ -18,7 +18,7 @@ This manual process increased the risk of deploying with incorrect or missing re
 
 ## Decision
 
-We introduced an automated release notes preparation script (`scripts/prepare-release-notes.sh`) that is integrated into our CI/CD workflows. The script:
+We introduced an automated release notes preparation script (`scripts/release/prepare-release-notes.sh`) that is integrated into our CI/CD workflows. The script:
 
 1. **Extracts the current version** from `AndroidCoordinates.kt` to determine which release notes to use
 2. **Validates version-specific files exist** - fails the build if `app/src/main/play/release-notes/{lang}/{version}.txt` files are missing

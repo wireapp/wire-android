@@ -16,6 +16,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-cells")
     implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
+    implementation(project(":core:media-player"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.browser)
@@ -33,11 +34,7 @@ dependencies {
 
     implementation(libs.coil.core)
     implementation(libs.coil.gif)
-    implementation(libs.coil.video)
     implementation(libs.coil.compose)
-
-    implementation(libs.media3.exoplayer)
-    implementation(libs.media3.ui)
 
     implementation(libs.ktx.dateTime)
 

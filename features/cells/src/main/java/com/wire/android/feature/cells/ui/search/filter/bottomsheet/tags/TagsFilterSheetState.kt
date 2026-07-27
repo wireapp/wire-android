@@ -46,10 +46,7 @@ class TagsFilterSheetState(
                 it.name.contains(q, ignoreCase = true)
             }
         }
-        return base.sortedWith(
-            compareByDescending<FilterTagUi> { it.selected }
-                .thenBy { it.name.lowercase() }
-        )
+        return base.sortedBy { it.name.lowercase() }
     }
 
     fun toggle(id: String) {

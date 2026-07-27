@@ -20,11 +20,15 @@ package com.wire.android.feature.cells.ui
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
+@Suppress("LargeClass")
 class CellFileActionsMenuTest {
 
     @Test
@@ -42,6 +46,7 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                 ),
                 items
             )
@@ -107,6 +112,7 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                 ),
                 items
             )
@@ -461,6 +467,7 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                     NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
                 ),
                 items
@@ -577,6 +584,7 @@ class CellFileActionsMenuTest {
                 listOf(
                     NodeBottomSheetAction.OPEN,
                     NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.PUBLIC_LINK,
                 ),
                 items
             )
@@ -652,6 +660,104 @@ class CellFileActionsMenuTest {
             )
         }
 
+    @Test
+    fun `GIVEN AllFiles context AND viewer-only file WHEN building menu THEN restricted actions are present but disabled`() =
+        runTest {
+            // WHEN
+            val items = buildMenuItems(
+                fileNode = fileNode.copy(isEditSupported = false, isViewerOnly = true),
+                withCollaboraIntegration = true,
+                isAllFiles = true,
+            )
+
+            // THEN - viewer-only file keeps Open enabled, and shows the restricted actions grayed out
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
+                ),
+                items.map { it.action }
+            )
+            assertTrue(items.first { it.action == NodeBottomSheetAction.OPEN }.enabled)
+            assertFalse(items.first { it.action == NodeBottomSheetAction.SHARE }.enabled)
+            assertFalse(items.first { it.action == NodeBottomSheetAction.PUBLIC_LINK }.enabled)
+            assertFalse(items.first { it.action == NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE }.enabled)
+        }
+
+    @Test
+    fun `GIVEN AllFiles context AND non viewer-only file WHEN building menu THEN restricted actions are enabled`() =
+        runTest {
+            // WHEN
+            val items = buildMenuItems(
+                fileNode = fileNode.copy(isEditSupported = false, isViewerOnly = false),
+                withCollaboraIntegration = true,
+                isAllFiles = true,
+            )
+
+            // THEN
+            assertTrue(items.first { it.action == NodeBottomSheetAction.SHARE }.enabled)
+            assertTrue(items.first { it.action == NodeBottomSheetAction.PUBLIC_LINK }.enabled)
+            assertTrue(items.first { it.action == NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE }.enabled)
+        }
+
+    @Test
+    fun `GIVEN ConversationFiles context AND viewer-only file WHEN building menu THEN only Open remains`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isEditSupported = false, isViewerOnly = true),
+                withCollaboraIntegration = true,
+                isConversationFiles = true,
+            )
+
+            // THEN - all sharing / management actions are removed, only Open remains
+            assertEquals(
+                listOf(NodeBottomSheetAction.OPEN),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN ConversationFiles context AND viewer-only folder WHEN building menu THEN only Open remains`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = folderNode.copy(isViewerOnly = true),
+                isConversationFiles = true,
+            )
+
+            // THEN - management actions are removed for viewer-only folders too
+            assertEquals(
+                listOf(NodeBottomSheetAction.OPEN),
+                items
+            )
+        }
+
+    @Test
+    fun `GIVEN ConversationFiles context AND non viewer-only folder WHEN building menu THEN management actions remain`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = folderNode.copy(isViewerOnly = false),
+                isConversationFiles = true,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.ADD_REMOVE_TAGS,
+                    NodeBottomSheetAction.PUBLIC_LINK,
+                    NodeBottomSheetAction.MOVE,
+                    NodeBottomSheetAction.RENAME,
+                    NodeBottomSheetAction.DELETE,
+                ),
+                items
+            )
+        }
+
     private fun actionsMenu(
         withCollaboraIntegration: Boolean = false,
         offlineFilesEnabled: Boolean = true,
@@ -674,6 +780,30 @@ class CellFileActionsMenuTest {
         isCollaboraEnabled: Boolean = false,
         isOnline: Boolean = true,
     ): List<NodeBottomSheetAction> =
+        buildMenuItems(
+            fileNode = fileNode,
+            withCollaboraIntegration = withCollaboraIntegration,
+            offlineFilesEnabled = offlineFilesEnabled,
+            isRecycleBin = isRecycleBin,
+            isConversationFiles = isConversationFiles,
+            isAllFiles = isAllFiles,
+            isSearching = isSearching,
+            isCollaboraEnabled = isCollaboraEnabled,
+            isOnline = isOnline,
+        ).map { it.action }
+
+    @Suppress("LongParameterList")
+    private fun buildMenuItems(
+        fileNode: CellNodeUi = Companion.fileNode,
+        withCollaboraIntegration: Boolean = false,
+        offlineFilesEnabled: Boolean = true,
+        isRecycleBin: Boolean = false,
+        isConversationFiles: Boolean = false,
+        isAllFiles: Boolean = false,
+        isSearching: Boolean = false,
+        isCollaboraEnabled: Boolean = false,
+        isOnline: Boolean = true,
+    ): List<NodeMenuItem> =
         CellFileActionsMenu(
             featureFlags = KaliumConfigs(
                 collaboraIntegration = withCollaboraIntegration,

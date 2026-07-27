@@ -31,14 +31,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
-import uiautomatorutils.UiWaitUtils.STABLE_TIMEOUT
 import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
-class SSOProvisioningTests : BaseUiTest() {
+class SSOTests : BaseUiTest() {
     private lateinit var keycloakApiClient: KeycloakApiClient
-    private lateinit var teamOwner: ClientUser
     private lateinit var member1: ClientUser
 
     @Before
@@ -55,25 +53,21 @@ class SSOProvisioningTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4550")
-    @Category("regression", "RC", "settings", "SSO")
+    @TestCaseId("TC-4547")
+    @Category("regression", "RC", "login", "SSO")
     @Test
-    fun givenSsoUserLogsInWithKeycloak_whenOpeningAccountDetails_thenResetPasswordButtonIsNotVisible() {
+    fun givenSsoUserLogsInWithKeycloak_whenCompletingTheSsoFlow_thenUserReachesConversationList() {
         var ssoCode = ""
 
-        step("Given There is a team owner user1Name with SSO team ResetPassword configured for keycloak") {
+        step("Given There is a team owner user1Name with SSO team SSO configured for keycloak") {
             runBlocking {
                 SSOServiceHelper.createKeycloakSsoTeamOwner(
                     context,
                     "user1Name",
-                    "ResetPassword",
+                    "SSO",
                     keycloakApiClient
                 )
             }
-        }
-
-        step("And User TeamOwner is available") {
-            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
         step("And User user1Name adds user user2Name to keycloak") {
@@ -147,46 +141,32 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.registrationPage.clickDeclineShareDataAlert()
         }
 
-        step("When I open Account Details from conversation list menu") {
-            pages.conversationListPage.apply {
-                clickConversationsMenuEntry()
-                clickSettingsButtonOnMenuEntry()
-            }
-            pages.settingsPage.tapAccountDetailsButton()
-        }
-
-        step("Then I do not see reset password button") {
-            pages.settingsPage.apply {
-                assertResetPasswordButtonIsNotDisplayed()
-            }
+        step("Then I reach the conversation list") {
+            pages.conversationListPage.assertConversationListVisible()
         }
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4551")
-    @Category("regression", "RC", "settings", "SSO")
+    @TestCaseId("TC-4548")
+    @Category("regression", "RC", "login", "SSO")
     @Test
-    fun givenScimManagedSsoUserLogsInWithKeycloak_whenOpeningAccountDetails_thenProfileNameCannotBeChanged() {
+    fun givenSsoUserEntersInvalidCodeAndCredentials_whenTryingToSignIn_thenTheRelevantErrorsAreShown() {
         var ssoCode = ""
 
-        step("Given There is a team owner user1Name with SSO team ChangeUserName configured for keycloak") {
+        step("Given There is a team owner user1Name with SSO team SSO configured for keycloak") {
             runBlocking {
                 SSOServiceHelper.createKeycloakSsoTeamOwner(
                     context,
                     "user1Name",
-                    "ChangeUserName",
+                    "SSO",
                     keycloakApiClient
                 )
             }
         }
 
-        step("And User TeamOwner is available") {
-            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
-        }
-
-        step("And User user1Name adds user user2Name to keycloak and SCIM") {
+        step("And User user1Name adds user user2Name to keycloak") {
             runBlocking {
-                SSOServiceHelper.addKeycloakSsoUsersWithScim(
+                SSOServiceHelper.addKeycloakSsoUsers(
                     "user1Name",
                     "user2Name",
                     keycloakApiClient
@@ -211,9 +191,23 @@ class SSOProvisioningTests : BaseUiTest() {
             }
         }
 
-        step("When I type the default SSO code on Login Tab") {
+        step("When I type an invalid SSO code on Login Tab and tap next button to login") {
+            pages.loginPage.apply {
+                enterSSOCodeOnSSOLoginTab("wire-74b782bd-3bb0-4247-8aaf")
+                clickLoginButton()
+            }
+        }
+
+        step("Then I see an error message underneath the SSO code input field") {
+            pages.loginPage.assertSsoValidationErrorVisible("Please enter a valid email or SSO code")
+        }
+
+        step("And I clear the SSO Code input field and type the default SSO code on Login Tab") {
             ssoCode = SSOServiceHelper.getSsoCode()
-            pages.loginPage.enterSSOCodeOnSSOLoginTab(ssoCode)
+            pages.loginPage.apply {
+                clearUserIdentifierInput()
+                enterSSOCodeOnSSOLoginTab(ssoCode)
+            }
         }
 
         step("And I tap next button to login and tap use without an account button if visible") {
@@ -221,52 +215,19 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.chromePage.dismissFirstRunIfVisible()
         }
 
-        step("And I sign in with my credentials on Keycloak Page") {
+        step("When I sign in with invalid credentials on Keycloak Page") {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
-                enterKeycloakEmail(member1.email.orEmpty())
+                enterKeycloakEmail("smoketester+invalid@wire.com")
                 closeKeyboardIfOpened()
-                enterKeycloakPassword(member1.password.orEmpty())
+                enterKeycloakPassword("thisIsAnInvalidPassword")
                 closeKeyboardIfOpened()
+                tapKeycloakSignIn()
             }
         }
 
-        step("And I tap login button on Keycloak Page and wait until I am logged in from keycloak page") {
-            pages.ssoPage.tapKeycloakSignIn()
-            pages.registrationPage.waitUntilLoginFlowIsCompleted()
+        step("Then I see an error message telling me that I am unable to sign in on Keycloak Page") {
+            pages.ssoPage.assertKeycloakErrorVisible("Invalid username or password")
         }
-
-        step("And I wait until I am fully logged in") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-            }
-        }
-
-        step("And I decline share data alert") {
-            UiWaitUtils.waitFor(1.seconds)
-            pages.registrationPage.clickDeclineShareDataAlert()
-        }
-
-        UiWaitUtils.waitFor(STABLE_TIMEOUT) // wait for websocket notification to disappear
-
-        step("And I open Account Details from conversation list menu") {
-            pages.conversationListPage.apply {
-                clickConversationsMenuEntry()
-                clickSettingsButtonOnMenuEntry()
-            }
-            pages.settingsPage.tapAccountDetailsButton()
-        }
-
-        step("When I see my profile name user2Name is displayed and tap on it in Account Details") {
-            pages.settingsPage.apply {
-                verifyDisplayedProfileName(member1.name.orEmpty())
-                tapDisplayedProfileName(member1.name.orEmpty())
-            }
-        }
-
-        step("Then I do not see edit profile name page") {
-            pages.settingsPage.assertEditProfileNamePageIsNotDisplayed()
-        }
-    }
+}
 }

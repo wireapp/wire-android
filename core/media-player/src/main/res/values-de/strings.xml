@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="media_player_title">Video</string>
+    <string name="media_player_enter_fullscreen">Vollbild öffnen</string>
+    <string name="media_player_exit_fullscreen">Vollbild beenden</string>
+    <string name="media_player_mute">Stummschalten</string>
+    <string name="media_player_unmute">Benachrichtigen</string>
+</resources>

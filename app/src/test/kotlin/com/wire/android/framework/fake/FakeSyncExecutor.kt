@@ -27,6 +27,9 @@ open class FakeSyncExecutor : SyncExecutor() {
 
     var waitUntilLiveCount = 0
     var requestCount = 0
+    var activeRequestCount = 0
+        private set
+
     open fun onWaitUntilLiveOrFailure(): SyncRequestResult = SyncRequestResult.Success.also { waitUntilLiveCount++ }
     open fun onWaitUntilOrFailure(syncState: SyncState): SyncRequestResult = SyncRequestResult.Success
     open fun onKeepSyncAlwaysOn() {}
@@ -39,7 +42,12 @@ open class FakeSyncExecutor : SyncExecutor() {
 
     override suspend fun <T> request(executorAction: suspend SyncRequest.() -> T): T {
         onRequest()
-        return FakeSyncRequest().executorAction()
+        activeRequestCount++
+        return try {
+            FakeSyncRequest().executorAction()
+        } finally {
+            activeRequestCount--
+        }
     }
 
     inner class FakeSyncRequest : SyncRequest {

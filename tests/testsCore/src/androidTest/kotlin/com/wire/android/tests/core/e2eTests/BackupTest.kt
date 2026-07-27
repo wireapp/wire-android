@@ -100,6 +100,7 @@ class BackupTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterUserIdentifier(teamOwner?.email.orEmpty())
                 clickLoginButton()
                 enterUserPassword(teamOwner?.password.orEmpty())
@@ -204,6 +205,7 @@ class BackupTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterUserIdentifier(teamOwner?.email.orEmpty())
                 clickLoginButton()
                 enterUserPassword(teamOwner?.password.orEmpty())
@@ -327,6 +329,7 @@ class BackupTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterUserIdentifier(teamOwner?.email.orEmpty())
                 clickLoginButton()
                 enterUserPassword(teamOwner?.password.orEmpty())
@@ -436,6 +439,7 @@ class BackupTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterUserIdentifier(teamOwner?.email.orEmpty())
                 clickLoginButton()
                 enterUserPassword(teamOwner?.password.orEmpty())
@@ -578,6 +582,7 @@ class BackupTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterUserIdentifier(teamOwner?.email.orEmpty())
                 clickLoginButton()
                 enterUserPassword(teamOwner?.password.orEmpty())
@@ -693,6 +698,7 @@ class BackupTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterUserIdentifier(teamOwner?.email.orEmpty())
                 clickLoginButton()
                 enterUserPassword(teamOwner?.password.orEmpty())

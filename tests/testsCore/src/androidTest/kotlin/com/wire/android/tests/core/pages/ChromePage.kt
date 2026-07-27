@@ -27,6 +27,7 @@ data class ChromePage(private val device: UiDevice) {
 
     private val useWithoutAccountLocator = UiSelectorParams(text = "Use without an account")
     private val noThanksLocator = UiSelectorParams(text = "No thanks")
+    private val networkQualityArticleTitle = UiSelectorParams(textContains = "Check network quality")
 
     fun clickUseWithoutAccount(): ChromePage {
         UiWaitUtils.waitElement(useWithoutAccountLocator).click()
@@ -44,6 +45,17 @@ data class ChromePage(private val device: UiDevice) {
         runCatching {
             UiWaitUtils.waitElement(noThanksLocator, timeout = 2.seconds).click()
         }
+        return this
+    }
+
+    fun assertNetworkQualitySupportArticleVisible(): ChromePage {
+        dismissFirstRunIfVisible()
+        dismissNotificationsPromptIfVisible()
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = networkQualityArticleTitle,
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            errorMessage = "Network quality support article is not visible in browser."
+        )
         return this
     }
 

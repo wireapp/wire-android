@@ -73,13 +73,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.ConcurrentHashMap
 
 @ViewModelScopedPreview
 interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsMenuViewAction> {
@@ -130,7 +129,6 @@ class ConversationOptionsMenuViewModelImpl(
     private val dispatchers: DispatcherProvider,
 ) : ConversationOptionsMenuViewModel, ActionsViewModel<ConversationOptionsMenuViewAction>() {
     private val nonCancellableIOContext = NonCancellable + dispatchers.io()
-    private val conversationStateFlow: ConcurrentHashMap<ConversationId, StateFlow<ConversationOptionsMenuState>> = ConcurrentHashMap()
     override val leaveGroupDialogState: VisibilityState<LeaveGroupDialogState> by mutableStateOf(VisibilityState())
     override val leaveGroupOptionsDialogState: VisibilityState<LeaveGroupOptionsDialogState> by mutableStateOf(VisibilityState())
     override val deleteGroupDialogState: VisibilityState<DeleteGroupDialogState> by mutableStateOf(VisibilityState())
@@ -139,15 +137,14 @@ class ConversationOptionsMenuViewModelImpl(
     override val unblockUserDialogState: VisibilityState<UnblockUserDialogState> by mutableStateOf(VisibilityState())
     override val clearContentDialogState: VisibilityState<DialogState> by mutableStateOf(VisibilityState())
     override val archiveConversationDialogState: VisibilityState<DialogState> by mutableStateOf(VisibilityState())
-
-    override fun observeConversationStateFlow(conversationId: ConversationId): StateFlow<ConversationOptionsMenuState> =
-        conversationStateFlow.getOrPut(conversationId) {
-            flowOf(conversationId)
-                .flatMapConcat {
-                    combine(
-                        observeSelfUser(),
-                        observeConversationDetails(conversationId),
-                    ) { selfUser, conversationDetailResult ->
+    private val currentIdFlow = MutableStateFlow<ConversationId?>(null)
+    private val stateFlow = currentIdFlow
+        .flatMapLatest { conversationId ->
+            conversationId?.let {
+                combine(
+                    observeSelfUser(),
+                    observeConversationDetails(conversationId),
+                    { selfUser, conversationDetailResult ->
                         when (conversationDetailResult) {
                             is ObserveConversationDetailsUseCase.Result.Success ->
                                 conversationDetailResult.conversationDetails
@@ -157,15 +154,20 @@ class ConversationOptionsMenuViewModelImpl(
                             is ObserveConversationDetailsUseCase.Result.Failure -> ConversationOptionsMenuState.NotAvailable
                         }
                     }
-                }
-                .distinctUntilChanged()
-                .onCompletion { conversationStateFlow.remove(conversationId) }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L),
-                    initialValue = ConversationOptionsMenuState.Loading,
-                )
+                ).onStart { emit(ConversationOptionsMenuState.Loading) }
+            } ?: flowOf(ConversationOptionsMenuState.Loading)
         }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L, replayExpirationMillis = 0L),
+            initialValue = ConversationOptionsMenuState.Loading,
+        )
+
+    override fun observeConversationStateFlow(conversationId: ConversationId): StateFlow<ConversationOptionsMenuState> {
+        currentIdFlow.value = conversationId
+        return stateFlow
+    }
 
     override fun changeFavoriteState(conversationId: ConversationId, conversationName: String, addToFavorite: Boolean) {
         viewModelScope.launch {
@@ -266,6 +268,7 @@ class ConversationOptionsMenuViewModelImpl(
                             )
                         )
                     }
+
                     is CheckConversationLeaveConditionsUseCase.Result.Error -> {
                         onMessage(HomeSnackBarMessage.LeaveConversationError)
                     }
@@ -293,6 +296,7 @@ class ConversationOptionsMenuViewModelImpl(
                         when (val cause = result.cause) {
                             is AdminlessConversationFailure ->
                                 sendAction(ConversationOptionsMenuViewAction.PromoteAdmin(conversationId, cause.eligibleMembers))
+
                             else -> onMessage(HomeSnackBarMessage.LeaveConversationError)
                         }
                     }

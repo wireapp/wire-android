@@ -61,12 +61,12 @@ interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
     val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>>
 
-    // Flow (not SharedFlow) so each error event is delivered to exactly one collector.
-    // Multiple MultipartAttachmentsView composables share the same ViewModel instance
-    // (keyed by conversationId), so using SharedFlow would broadcast to all of them.
     val openAttachmentErrorEvent: Flow<Unit>
-    fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit)
-    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
+    fun onClick(
+        attachment: MultipartAttachmentUi,
+        openInImageViewer: (String) -> Unit,
+        openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+    )    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
         val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
         return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
     }
@@ -128,8 +128,11 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override val offlineAttachmentIds: StateFlow<Set<String>> = MutableStateFlow(emptySet<String>())
     override val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>> = MutableStateFlow(emptyMap())
     override val openAttachmentErrorEvent: Flow<Unit> = Channel<Unit>().receiveAsFlow()
-    override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {}
-    override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
+    override fun onClick(
+        attachment: MultipartAttachmentUi,
+        openInImageViewer: (String) -> Unit,
+        openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+    ) {}    override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
@@ -147,14 +150,9 @@ class MultipartAttachmentsViewModelImpl(
     observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
-    // Channel instead of SharedFlow: each error is delivered to exactly one collector,
-    // preventing duplicate toasts when multiple message cards share this ViewModel.
     private val _openAttachmentErrorEvent = Channel<Unit>(Channel.BUFFERED)
     override val openAttachmentErrorEvent: Flow<Unit> = _openAttachmentErrorEvent.receiveAsFlow()
 
-    // Map shared OpenLoadState (from cells) to MultipartAttachmentOpenLoadState.
-    // Because CellFileLocalPathCache is @Singleton, state is shared with CellViewModel:
-    // downloading from the Cells browser immediately reflects in conversation messages too.
     override val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>> =
         sharedPathCache.openLoadStates
             .map { states -> states.mapValues { (_, state) -> state.toMultipartState() } }
@@ -172,7 +170,11 @@ class MultipartAttachmentsViewModelImpl(
         loadWireCellConfig()
     }
 
-    override fun onClick(attachment: MultipartAttachmentUi, openInImageViewer: (String) -> Unit) {
+    override fun onClick(
+        attachment: MultipartAttachmentUi,
+        openInImageViewer: (String) -> Unit,
+        openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+        ) {
         // Always use the authoritative shared-cache state — the `attachment` snapshot may be stale
         // if recomposition hasn't fired yet when the user taps.
         val currentLoadState = sharedPathCache.openLoadStates.value[attachment.uuid]
@@ -194,6 +196,9 @@ class MultipartAttachmentsViewModelImpl(
             attachment.fileNotFound() -> {
                 refreshHelper.refresh(attachment.uuid)
             }
+
+            attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
+                openInVideoPlayer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -289,6 +294,8 @@ private fun MessageAttachment.mimeType() =
     }
 
 private fun MultipartAttachmentUi.isImage() = AttachmentFileType.fromMimeType(mimeType) == IMAGE
+
+private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
 
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {

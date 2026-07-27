@@ -67,6 +67,7 @@ internal fun CellFilesScreen(
     isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
     showConversationName: Boolean = true,
+    showViewerOnlyIcon: Boolean = false,
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     if (isPullToRefreshEnabled) {
@@ -81,6 +82,7 @@ internal fun CellFilesScreen(
                 onItemClick = onItemClick,
                 onItemMenuClick = onItemMenuClick,
                 showConversationName = showConversationName,
+                showViewerOnlyIcon = showViewerOnlyIcon,
             )
         }
     } else {
@@ -91,6 +93,7 @@ internal fun CellFilesScreen(
             onItemClick = onItemClick,
             onItemMenuClick = onItemMenuClick,
             showConversationName = showConversationName,
+            showViewerOnlyIcon = showViewerOnlyIcon,
         )
     }
 }
@@ -103,6 +106,7 @@ private fun ContentList(
     onItemMenuClick: (CellNodeUi) -> Unit,
     modifier: Modifier = Modifier,
     showConversationName: Boolean = true,
+    showViewerOnlyIcon: Boolean = false,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -123,6 +127,7 @@ private fun ContentList(
                         .clickable { onItemClick(item) },
                     cell = item,
                     showConversationName = showConversationName,
+                    showViewerOnlyIcon = showViewerOnlyIcon,
                     onMenuClick = { onItemMenuClick(item) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())

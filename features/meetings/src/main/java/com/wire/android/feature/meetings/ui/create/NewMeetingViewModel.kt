@@ -59,7 +59,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun resetSelectedContacts() {}
     fun updateStartTime(startTime: Instant) {}
     fun updateEndTime(endTime: Instant) {}
-    fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval) {}
+    fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval?) {}
     fun createMeeting() {}
 
     companion object {
@@ -126,7 +126,7 @@ class NewMeetingViewModelImpl(
         validateStartAndEndTime()
     }
 
-    override fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval) {
+    override fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval?) {
         state = state.copy(repeatingInterval = interval)
     }
 
@@ -197,7 +197,7 @@ data class NewMeetingState(
     val startTimeError: TimeError? = null,
     val endTime: Instant,
     val endTimeError: TimeError? = null,
-    val repeatingInterval: MeetingItem.RepeatingInterval = MeetingItem.RepeatingInterval.Never,
+    val repeatingInterval: MeetingItem.RepeatingInterval? = null,
 ) {
     @Stable
     sealed interface TitleError {

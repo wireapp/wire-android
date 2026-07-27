@@ -83,6 +83,7 @@ class GroupMessaging : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
             pages.loginPage.apply {
                 enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")

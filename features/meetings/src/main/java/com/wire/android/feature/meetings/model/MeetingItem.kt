@@ -17,38 +17,43 @@
  */
 package com.wire.android.feature.meetings.model
 
-import android.os.Parcelable
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.feature.meetings.R
 import com.wire.android.model.UserAvatarData
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence.Recurrence.Frequency
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.datetime.Instant
-import kotlinx.parcelize.Parcelize
 import kotlin.time.Duration
 
 sealed interface MeetingListItem
 
 @Stable
 data class MeetingItem(
-    val meetingId: String,
+    val occurrenceId: String,
+    val meetingId: MeetingId,
     val conversationId: ConversationId,
     val belongingType: BelongingType,
-    val repeatingInterval: RepeatingInterval,
+    val repeatingInterval: RepeatingInterval?,
     val title: String,
     val status: Status,
     val selfRole: SelfRole,
 ) : MeetingListItem {
     @Stable
-    @Parcelize
-    enum class RepeatingInterval(@StringRes val nameResId: Int) : Parcelable {
-        Never(R.string.meeting_repeating_never),
-        Daily(R.string.meeting_repeating_daily),
-        Weekly(R.string.meeting_repeating_weekly),
-        BiWeekly(R.string.meeting_repeating_biweekly),
-        Monthly(R.string.meeting_repeating_monthly),
-        Annually(R.string.meeting_repeating_annually)
+    data class RepeatingInterval(val frequency: Frequency, val interval: Int) {
+        val label: UIText = when (frequency) {
+            Frequency.DAILY -> UIText.PluralResource(R.plurals.meeting_repeating_days, interval, interval)
+            Frequency.WEEKLY -> UIText.PluralResource(R.plurals.meeting_repeating_weeks, interval, interval)
+        }
+
+        companion object {
+            val Supported: ImmutableList<RepeatingInterval> = MeetingOccurrence.Recurrence.SUPPORTED_RECURRENCES
+                .map { (frequency, interval) -> RepeatingInterval(frequency, interval.toInt()) }.toPersistentList()
+        }
     }
 
     @Stable
@@ -89,7 +94,7 @@ data class MeetingItem(
     )
 
     @Stable
-    enum class SelfRole { Admin, Member }
+    enum class SelfRole { Creator, Member }
 }
 
 private const val GROUPLESS_AVATARS_LIMIT = 5

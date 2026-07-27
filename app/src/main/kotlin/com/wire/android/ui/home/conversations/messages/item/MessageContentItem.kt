@@ -95,6 +95,7 @@ fun MessageContentItem(
                     messageStyle = messageStyle,
                     onAssetClicked = clickActions.onAssetClicked,
                     onImageClicked = clickActions.onImageClicked,
+                    onVideoClicked = clickActions.onVideoClicked,
                     searchQuery = searchQuery,
                     accent = accent,
                     onProfileClicked = clickActions.onProfileClicked,

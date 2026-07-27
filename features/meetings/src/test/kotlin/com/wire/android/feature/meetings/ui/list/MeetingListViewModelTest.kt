@@ -24,20 +24,20 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
-import com.wire.android.feature.meetings.ui.mock.Meeting
-import com.wire.android.feature.meetings.ui.usecase.GetMeetingsPaginatedUseCase
+import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUseCase
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import io.mockk.MockKAnnotations
-import io.mockk.clearMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -50,8 +50,8 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.milliseconds
@@ -77,7 +77,7 @@ class MeetingListViewModelTest {
         val meetingStartTime = Instant.parse("2026-01-01T12:01:00Z")
         val (_, viewModel) = Arrangement(dispatcher)
             .withCurrentTimeProvider { currentTime + testScheduler.currentTime.milliseconds }
-            .withGetMeetingsPaginated(showingAll = false, meetings = listOf(meeting(startTime = meetingStartTime)))
+            .withGetMeetingsPaginated(meetings = listOf(meeting(startTime = meetingStartTime)))
             .arrange()
 
         viewModel.meetings.test {
@@ -100,7 +100,7 @@ class MeetingListViewModelTest {
         val meetingStartTime = Instant.parse("2026-01-01T12:01:00Z")
         val (_, viewModel) = Arrangement(dispatcher)
             .withCurrentTimeProvider { currentTime + testScheduler.currentTime.milliseconds }
-            .withGetMeetingsPaginated(showingAll = false, meetings = listOf(meeting(startTime = meetingStartTime)))
+            .withGetMeetingsPaginated(meetings = listOf(meeting(startTime = meetingStartTime)))
             .arrange()
 
         viewModel.meetings.test {
@@ -117,48 +117,16 @@ class MeetingListViewModelTest {
         }
     }
 
-    @Suppress("UnusedFlow")
-    @Test
-    fun givenIsShowingAllChanges_whenMeetingsAreCollected_thenMeetingsAreRefreshedWithProperParameters() = runTest(dispatcher) {
-        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val initialMeeting = meeting(meetingId = "initial-meeting", startTime = currentTime + 1.minutes)
-        val allMeeting = meeting(meetingId = "all-meeting", startTime = currentTime + 2.minutes)
-        val (arrangement, viewModel) = Arrangement(dispatcher)
-            .withCurrentTimeProvider { currentTime }
-            .withGetMeetingsPaginated(showingAll = false, meetings = listOf(initialMeeting))
-            .withGetMeetingsPaginated(showingAll = true, meetings = listOf(allMeeting))
-            .arrange()
-
-        viewModel.meetings.test {
-            val first = awaitItem().items()
-            assertEquals(false, viewModel.isShowingAll.value)
-            assertEquals(initialMeeting.meetingId, first.meetingItem().meetingId)
-            verify(exactly = 1) { arrangement.getMeetingsPaginated(showingAll = false, type = arrangement.type) }
-            verify(exactly = 0) { arrangement.getMeetingsPaginated(showingAll = true, type = arrangement.type) }
-
-            clearMocks(arrangement.getMeetingsPaginated, answers = false, recordedCalls = true)
-            viewModel.showAll()
-            runCurrent()
-            val second = awaitItem().items()
-            assertEquals(true, viewModel.isShowingAll.value)
-            assertEquals(allMeeting.meetingId, second.meetingItem().meetingId)
-            verify(exactly = 0) { arrangement.getMeetingsPaginated(showingAll = false, type = arrangement.type) }
-            verify(exactly = 1) { arrangement.getMeetingsPaginated(showingAll = true, type = arrangement.type) }
-
-            cancelAndConsumeRemainingEvents()
-        }
-    }
-
     @Test
     fun givenSomeMeetingsHaveActiveCalls_whenMeetingsAreCollected_thenMatchingMeetingsContainOngoingCallStatus() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val meetingWithActiveCall = meeting(
-            meetingId = "active-meeting",
+            meetingId = MeetingId("active-meeting", "domain"),
             conversationId = ConversationId("conversation-with-call", "domain"),
             startTime = currentTime - 10.minutes
         )
         val meetingWithoutActiveCall = meeting(
-            meetingId = "inactive-meeting",
+            meetingId = MeetingId("inactive-meeting", "domain"),
             conversationId = ConversationId("conversation-without-call", "domain"),
             startTime = currentTime - 5.minutes
         )
@@ -168,7 +136,7 @@ class MeetingListViewModelTest {
         )
         val (_, viewModel) = Arrangement(dispatcher)
             .withCurrentTimeProvider { currentTime }
-            .withGetMeetingsPaginated(showingAll = false, meetings = listOf(meetingWithActiveCall, meetingWithoutActiveCall))
+            .withGetMeetingsPaginated(meetings = listOf(meetingWithActiveCall, meetingWithoutActiveCall))
             .withObserveActiveCalls(listOf(activeCall))
             .arrange()
 
@@ -191,12 +159,12 @@ class MeetingListViewModelTest {
     fun givenNoActiveCalls_whenMeetingsAreCollected_thenMeetingsDoNotContainOngoingCallStatus() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val meetings = listOf(
-            meeting(meetingId = "first-meeting", startTime = currentTime - 10.minutes),
-            meeting(meetingId = "second-meeting", startTime = currentTime - 5.minutes)
+            meeting(meetingId = MeetingId("first-meeting", "domain"), startTime = currentTime - 10.minutes),
+            meeting(meetingId = MeetingId("second-meeting", "domain"), startTime = currentTime - 5.minutes)
         )
         val (_, viewModel) = Arrangement(dispatcher)
             .withCurrentTimeProvider { currentTime }
-            .withGetMeetingsPaginated(showingAll = false, meetings = meetings)
+            .withGetMeetingsPaginated(meetings = meetings)
             .withObserveActiveCalls(emptyList())
             .arrange()
 
@@ -213,18 +181,22 @@ class MeetingListViewModelTest {
     private fun MeetingItem.ongoingStatus() = status as MeetingItem.Status.Ongoing
     private suspend fun PagingData<MeetingListItem>.items(): List<MeetingListItem> = flowOf(this).asSnapshot()
     private fun meeting(
-        meetingId: String = "meeting-id",
+        meetingId: MeetingId = MeetingId("meeting-id", "domain"),
         startTime: Instant,
         conversationId: ConversationId = ConversationId("conversation-id", "domain"),
-    ) = Meeting(
+    ) = MeetingOccurrence(
+        occurrenceId = "$meetingId-occurrence",
         meetingId = meetingId,
         conversationId = conversationId,
-        belongingType = MeetingItem.BelongingType.Group("group"),
+        conversationName = "Meeting",
+        conversationType = MeetingOccurrence.ConversationType.Group,
         title = "Meeting",
         startTime = startTime,
         endTime = startTime + 30.minutes,
-        repeatingInterval = MeetingItem.RepeatingInterval.Never,
-        selfRole = MeetingItem.SelfRole.Admin,
+        occurrenceStartTime = startTime,
+        occurrenceEndTime = startTime + 30.minutes,
+        recurrence = null,
+        selfRole = MeetingOccurrence.SelfRole.Creator,
     )
     private fun call(
         conversationId: ConversationId,
@@ -251,7 +223,7 @@ class MeetingListViewModelTest {
         }
 
         @MockK
-        lateinit var getMeetingsPaginated: GetMeetingsPaginatedUseCase
+        lateinit var getMeetingsPaginated: GetPaginatedFlowOfMeetingsUseCase
 
         @MockK
         lateinit var observeActiveCalls: ObserveActiveCallsUseCase
@@ -263,8 +235,8 @@ class MeetingListViewModelTest {
         fun withCurrentTimeProvider(currentTime: () -> Instant) = apply {
             currentTimeProvider = CurrentTimeProvider(currentTime)
         }
-        fun withGetMeetingsPaginated(showingAll: Boolean, meetings: List<Meeting>) = apply {
-            every { getMeetingsPaginated(showingAll = showingAll, type = type) } returns flowOf(
+        fun withGetMeetingsPaginated(meetings: List<MeetingOccurrence>) = apply {
+            coEvery { getMeetingsPaginated(type = type) } returns flowOf(
                 PagingData.from(meetings)
             )
         }

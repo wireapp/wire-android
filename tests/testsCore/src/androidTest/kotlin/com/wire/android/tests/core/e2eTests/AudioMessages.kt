@@ -99,6 +99,7 @@ class AudioMessages : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -231,6 +232,7 @@ class AudioMessages : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -371,6 +373,7 @@ class AudioMessages : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 

@@ -113,6 +113,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
             pages.loginPage.apply {
                 enterPersonalUserLoggingEmail(connectionReceiverFromReceiveTeam.email ?: "")

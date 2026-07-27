@@ -39,7 +39,7 @@ class OktaApiClient {
     private val CONNECT_TIMEOUT = 3.seconds
     private val READ_TIMEOUT = 4.minutes
     private val BASE_URI = "https://dev-500508-admin.oktapreview.com"
-    private val apiKey: String by lazy { BuildConfig.OKTA_API_KEY_PASSWORD }
+    private val apiKey: String by lazy { BuildConfig.KEYCLOAK_QA_AUTOMATION_PASSWORD }
 
     private var applicationId: String? = null
     private val userIds = LinkedHashSet<String>()

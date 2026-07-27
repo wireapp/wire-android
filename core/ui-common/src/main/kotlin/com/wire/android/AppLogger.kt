@@ -54,8 +54,9 @@ object AppJsonStyledLogger {
         level: KaliumLogLevel,
         error: Throwable? = null,
         leadingMessage: String,
-        jsonStringKeyValues: Map<String, Any?>
-    ) = with(appLogger) {
+        jsonStringKeyValues: Map<String, Any?>,
+        logger: KaliumLogger = appLogger,
+    ) = with(logger) {
         val logJson = jsonStringKeyValues.toJsonElement()
         val sanitizedLeadingMessage = if (leadingMessage.endsWith(":")) leadingMessage else "$leadingMessage:"
         val logMessage = "$sanitizedLeadingMessage $logJson"

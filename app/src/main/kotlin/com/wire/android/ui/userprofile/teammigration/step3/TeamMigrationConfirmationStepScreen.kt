@@ -57,6 +57,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationState
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
+import com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanNavArgs
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContainer
@@ -90,7 +91,14 @@ fun TeamMigrationConfirmationStepScreen(
         teamMigrationState = state,
         onFailureHandled = teamMigrationViewModel::failureHandled,
         goBackToFirstStep = {
-            navigator.navigate(NavigationCommand(TeamMigrationTeamPlanStepScreenDestination, BackStackMode.UPDATE_EXISTED))
+            navigator.navigate(
+                NavigationCommand(
+                    TeamMigrationTeamPlanStepScreenDestination(
+                        TeamMigrationTeamPlanNavArgs(state.isMigrationDotActive)
+                    ),
+                    BackStackMode.UPDATE_EXISTED
+                )
+            )
         }
     )
 

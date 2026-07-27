@@ -67,7 +67,9 @@ object UiWaitUtils {
     val SHORT_TIMEOUT: Duration = 5.seconds
     val MEDIUM_TIMEOUT: Duration = 10.seconds
     val LONG_TIMEOUT: Duration = 15.seconds
+    val VERY_SHORT_TIMEOUT: Duration = 1.seconds
     val VERY_LONG_TIMEOUT: Duration = 30.seconds
+    val STABLE_TIMEOUT: Duration = 3.seconds
 
     private fun buildSelector(params: UiSelectorParams): BySelector {
         var selector: BySelector? = when {
@@ -175,6 +177,35 @@ object UiWaitUtils {
                 .asSequence()
                 .mapNotNull(::findElementOrNull)
                 .firstOrNull { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) }
+            found != null
+        }
+
+        return if (isFound) found else null
+    }
+
+    /**
+     * Waits until any selector from [selectors] resolves to a visible element and reports which one.
+     *
+     * Selectors are evaluated in list order within each poll, so earlier entries win ties.
+     * Polling-based: a flash shorter than [pollingInterval] can go unnoticed.
+     *
+     * @return the first selector that became visible, or `null` when none becomes visible in time.
+     */
+    fun waitFirstVisibleSelector(
+        selectors: List<UiSelectorParams>,
+        timeout: Duration = DEFAULT_TIMEOUT,
+        pollingInterval: Duration = POLLING_FAST
+    ): UiSelectorParams? {
+        var found: UiSelectorParams? = null
+
+        val isFound = retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = pollingInterval
+        ) {
+            found = selectors.firstOrNull { params ->
+                findElementOrNull(params)
+                    ?.let { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) } == true
+            }
             found != null
         }
 

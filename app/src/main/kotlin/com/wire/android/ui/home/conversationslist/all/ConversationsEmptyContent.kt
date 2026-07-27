@@ -42,6 +42,8 @@ import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
@@ -67,7 +69,7 @@ private fun EmptyContentFooter(currentFilter: ConversationFilter, navigator: Nav
     val context = LocalContext.current
     when (currentFilter) {
         ConversationFilter.Favorites -> {
-            val supportUrl = stringResource(id = R.string.url_how_to_add_favorites)
+            val supportUrl = supportUrlResource(SupportPage.ADD_FAVORITES)
             Text(
                 text = stringResource(R.string.favorites_empty_list_how_to_label),
                 style = MaterialTheme.wireTypography.body02.copy(
@@ -81,7 +83,7 @@ private fun EmptyContentFooter(currentFilter: ConversationFilter, navigator: Nav
         }
 
         ConversationFilter.Channels -> {
-            val supportUrl = stringResource(id = R.string.url_support) // todo. change to url for channels
+            val supportUrl = supportUrlResource(SupportPage.SUPPORT) // todo. change to url for channels
             Text(
                 text = stringResource(R.string.channels_empty_list_learn_more),
                 style = MaterialTheme.wireTypography.body02.copy(

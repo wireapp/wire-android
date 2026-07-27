@@ -50,6 +50,8 @@ data class SettingsPage(private val device: UiDevice) {
     private val appLockPassCode = UiSelectorParams(text = "Set a passcode")
 
     private val accountDetails = UiSelectorParams(text = "Account Details")
+    private val profileNamePageHeading = UiSelectorParams(text = "Your profile name")
+    private val editProfileNameInput = UiSelectorParams(className = "android.widget.EditText")
     private val toggle = UiSelector().className("android.view.View")
     private val clickableToggle = UiSelector().className("android.view.View").clickable(true)
     private val toggleOnText = UiSelector().text("ON")
@@ -316,6 +318,11 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapDisplayedProfileName(profileName: String): SettingsPage {
+        UiWaitUtils.waitElement(displayedProfileName(profileName)).click()
+        return this
+    }
+
     fun verifyDisplayedUserName(expectedUserName: String): SettingsPage {
         try {
             UiWaitUtils.waitElement(displayedUserName(expectedUserName))
@@ -358,6 +365,20 @@ data class SettingsPage(private val device: UiDevice) {
     fun assertResetPasswordButtonIsDisplayed(): SettingsPage {
         val resetPasswordButton = UiWaitUtils.waitElement(resetPasswordButton)
         Assert.assertTrue("Reset password button is not visible", !resetPasswordButton.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertResetPasswordButtonIsNotDisplayed(): SettingsPage {
+        val button = UiWaitUtils.findElementOrNull(resetPasswordButton)
+        Assert.assertTrue("Reset password button is visible", button == null || button.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertEditProfileNamePageIsNotDisplayed(): SettingsPage {
+        val heading = UiWaitUtils.findElementOrNull(profileNamePageHeading)
+        val editBox = UiWaitUtils.findElementOrNull(editProfileNameInput)
+        Assert.assertTrue("Profile name heading is visible", heading == null || heading.visibleBounds.isEmpty)
+        Assert.assertTrue("Profile name edit box is visible", editBox == null || editBox.visibleBounds.isEmpty)
         return this
     }
 

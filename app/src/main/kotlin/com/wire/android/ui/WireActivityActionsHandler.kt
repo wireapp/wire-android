@@ -200,7 +200,10 @@ private fun onCustomBackendLogin(
     action: OnCustomBackendLogin
 ) {
     val destination = when (action.useNewLogin) {
-        true -> NewLoginScreenDestination(loginPasswordPath = LoginPasswordPath(action.serverLinks))
+        true -> NewLoginScreenDestination(
+            loginPasswordPath = LoginPasswordPath(action.serverLinks),
+            showBackendConfigSuccess = true
+        )
         false -> WelcomeScreenDestination(customServerConfig = action.serverLinks)
     }
 

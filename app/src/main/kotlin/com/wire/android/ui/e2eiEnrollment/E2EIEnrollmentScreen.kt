@@ -62,6 +62,8 @@ import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 
@@ -187,7 +189,7 @@ private fun E2EIEnrollmentScreenContent(
             }
             TextWithLearnMore(
                 textAnnotatedString = text,
-                learnMoreLink = stringResource(R.string.url_e2ee_id_shield),
+                learnMoreLink = supportUrlResource(SupportPage.E2EE_IDENTITY),
                 modifier = Modifier.padding(
                     top = MaterialTheme.wireDimensions.dialogTextsSpacing,
                     bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,

@@ -205,6 +205,7 @@ dependencies {
     implementationWithCoverage(projects.core.uiCommon)
     implementationWithCoverage(projects.core.di)
     implementationWithCoverage(projects.core.media)
+    implementationWithCoverage(projects.core.mediaPlayer)
     implementationWithCoverage(projects.core.notification)
     implementationWithCoverage(projects.core.search)
     implementationWithCoverage(projects.features.cells)

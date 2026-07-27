@@ -42,7 +42,9 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.SupportPage
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.supportUrlResource
 import com.wire.android.search.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -51,7 +53,7 @@ fun EmptySearchQueryScreen(
     text: String = stringResource(R.string.label_search_people_instruction),
     learnMoreTextToLink: Pair<String, String> = Pair(
         stringResource(R.string.label_learn_more_searching_user),
-        stringResource(R.string.url_learn_about_search)
+        supportUrlResource(SupportPage.SEARCH)
     )
 ) {
     val context = LocalContext.current

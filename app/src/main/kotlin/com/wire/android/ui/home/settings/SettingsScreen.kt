@@ -187,7 +187,9 @@ fun SettingsScreenContent(
                     if (BuildConfig.DEBUG_SCREEN_ENABLED) {
                         add(SettingsItem.DebugSettings)
                     }
-                    add(SettingsItem.GiveFeedback)
+                    if (BuildConfig.FEEDBACK_MENU_ITEM_ENABLED) {
+                        add(SettingsItem.GiveFeedback)
+                    }
                     add(SettingsItem.ReportBug)
                     add(SettingsItem.AboutApp)
                 },

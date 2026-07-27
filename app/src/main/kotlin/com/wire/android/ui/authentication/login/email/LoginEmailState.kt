@@ -23,5 +23,13 @@ data class LoginEmailState(
     val userIdentifierEnabled: Boolean = true,
     val loginEnabled: Boolean = false,
     val flowState: LoginState = LoginState.Default,
+    val backendConfigState: BackendConfigState = BackendConfigState.Missing,
     val showInvalidCredentialsError: Boolean = false,
-)
+) {
+    enum class BackendConfigState {
+        Missing,
+        Loading,
+        Error,
+        Success,
+    }
+}

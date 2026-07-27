@@ -97,6 +97,7 @@ class ClearContentTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -301,6 +302,7 @@ class ClearContentTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -478,6 +480,7 @@ class ClearContentTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 
@@ -641,6 +644,7 @@ class ClearContentTests : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
         }
 

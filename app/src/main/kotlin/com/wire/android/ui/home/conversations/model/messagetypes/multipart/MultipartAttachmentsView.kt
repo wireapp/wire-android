@@ -61,6 +61,7 @@ fun MultipartAttachmentsView(
     attachments: List<MessageAttachment>,
     messageStyle: MessageStyle,
     onImageAttachmentClick: (String) -> Unit,
+    onVideoAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
@@ -105,6 +106,9 @@ fun MultipartAttachmentsView(
                     viewModel.onClick(
                         attachment = uiModel,
                         openInImageViewer = onImageAttachmentClick,
+                        openInVideoPlayer = { att ->
+                            onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
+                        },
                     )
                 },
             )
@@ -136,6 +140,9 @@ fun MultipartAttachmentsView(
                                 viewModel.onClick(
                                     attachment = it,
                                     openInImageViewer = onImageAttachmentClick,
+                                    openInVideoPlayer = { att ->
+                                        onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
+                                    },
                                 )
                             },
                         )
@@ -148,6 +155,9 @@ fun MultipartAttachmentsView(
                                 viewModel.onClick(
                                     attachment = it,
                                     openInImageViewer = onImageAttachmentClick,
+                                    openInVideoPlayer = { att ->
+                                        onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
+                                    },
                                 )
                             },
                         )

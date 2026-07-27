@@ -95,6 +95,7 @@ import com.ramcosta.composedestinations.generated.app.destinations.MessageDetail
 import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.VideoPlayerScreenDestination
 import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
 import com.ramcosta.composedestinations.result.NavResult.Canceled
 import com.ramcosta.composedestinations.result.NavResult.Value
@@ -512,6 +513,17 @@ fun ConversationScreen(
                 updateImageOnFullscreenMode(message)
             }
         },
+        onVideoClick = { localPath, contentUrl, fileName ->
+            navigator.navigate(
+                NavigationCommand(
+                    VideoPlayerScreenDestination(
+                        localPath = localPath,
+                        contentUrl = contentUrl,
+                        fileName = fileName,
+                    )
+                )
+            )
+        },
         onStartCall = {
             conversationCallViewModel.startCallIfPossible(conversationInfoViewModel.conversationInfoViewState.conversationType)
         },
@@ -827,6 +839,7 @@ private fun ConversationScreen(
     onDeleteMessage: (String, Boolean) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
+    onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -937,6 +950,7 @@ private fun ConversationScreen(
                         onAudioRecorded = onAudioRecorded,
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
+                        onVideoClick = onVideoClick,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
@@ -1025,6 +1039,7 @@ private fun ConversationScreenContent(
     onAudioRecorded: (UriAsset) -> Unit,
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
+    onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
@@ -1081,6 +1096,7 @@ private fun ConversationScreenContent(
                     onReactionClicked = onReactionClicked,
                     onAssetClicked = onAssetItemClicked,
                     onImageClicked = onImageFullScreenMode,
+                    onVideoClicked = onVideoClick,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
                     onResetSessionClicked = onResetSessionClicked,
@@ -1837,6 +1853,7 @@ fun PreviewConversationScreen() = WireTheme {
         onDeleteMessage = { _, _ -> },
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _, _ -> },
+        onVideoClick = { _, _, _ -> },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

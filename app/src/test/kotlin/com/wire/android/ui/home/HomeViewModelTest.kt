@@ -35,11 +35,14 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -141,6 +144,28 @@ class HomeViewModelTest {
         }
     }
 
+    @Test
+    fun `given self user is not persisted yet, when observing create team indicator, then wait before checking migration eligibility`() =
+        runTest {
+            // given
+            val selfUserFlow = MutableSharedFlow<SelfUser>()
+            val (arrangement, viewModel) = Arrangement()
+                .withSelfUser(selfUserFlow)
+                .withCanMigrateFromPersonalToTeamReturning(false)
+                .arrange()
+
+            // then
+            coVerify(exactly = 0) { arrangement.canMigrateFromPersonalToTeam() }
+
+            // when
+            selfUserFlow.emit(TestUser.SELF_USER)
+            advanceUntilIdle()
+
+            // then
+            coVerify(exactly = 1) { arrangement.canMigrateFromPersonalToTeam() }
+            assertEquals(false, viewModel.homeState.shouldShowCreateTeamUnreadIndicator)
+        }
+
     internal class Arrangement {
 
         @MockK
@@ -191,7 +216,7 @@ class HomeViewModelTest {
             coEvery { observeSelfUser.invoke() } returns result
         }
 
-        private fun withCanMigrateFromPersonalToTeamReturning(result: Boolean) = apply {
+        fun withCanMigrateFromPersonalToTeamReturning(result: Boolean) = apply {
             coEvery { canMigrateFromPersonalToTeam.invoke() } returns result
             coEvery { dataStore.isCreateTeamNoticeRead() } returns flowOf(false)
         }

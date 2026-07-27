@@ -60,8 +60,9 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
-import com.ramcosta.composedestinations.generated.app.navgraphs.PersonalToTeamMigrationGraph
+import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationTeamPlanStepScreenDestination
 import com.wire.android.ui.common.VisibilityState
+import com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanNavArgs
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
@@ -172,7 +173,13 @@ fun SelfUserProfileScreen(
             )
         },
         onCreateAccount = {
-            navigator.navigate(NavigationCommand(PersonalToTeamMigrationGraph))
+            navigator.navigate(
+                NavigationCommand(
+                    TeamMigrationTeamPlanStepScreenDestination(
+                        TeamMigrationTeamPlanNavArgs(viewModelSelf.wasMigrationDotActiveWhenProfileOpened())
+                    )
+                )
+            )
         },
         onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },
         isUserInCall = viewModelSelf::isUserInCall,

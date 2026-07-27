@@ -66,6 +66,7 @@ class MultiAccountSessionScope : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterUserIdentifier(secondaryUser?.email.orEmpty())
                 clickLoginButton()
                 enterUserPassword(secondaryUser?.password.orEmpty())
@@ -284,6 +285,7 @@ class MultiAccountSessionScope : BaseUiTest() {
             if (configureStagingBackend) {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
             enterUserIdentifier(user?.email.orEmpty())
             clickLoginButton()
@@ -328,6 +330,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         pages.loginPage.apply {
             clickStagingDeepLink()
             clickProceedButtonOnDeeplinkOverlay()
+            clickContinueButtonOnBackendConfigSuccess()
             enterUserIdentifier(secondaryUser?.email.orEmpty())
             clickLoginButton()
             enterUserPassword(secondaryUser?.password.orEmpty())

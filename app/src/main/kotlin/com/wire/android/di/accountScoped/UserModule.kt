@@ -241,9 +241,6 @@ class UserModule {
         userScope.getUserMlsClientIdentities
 
     @Provides
-    fun provideObserveCellsConfigUseCase(userScope: UserScope): ObserveIsWireCellsEnabledUseCase = userScope.observeIsWireCellsEnabled
-
-    @Provides
     fun provideIsPersonalToTeamAccountSupportedByBackendUseCase(userScope: UserScope): CanMigrateFromPersonalToTeamUseCase =
         userScope.isPersonalToTeamAccountSupportedByBackend
 
@@ -252,6 +249,9 @@ class UserModule {
 
     @Provides
     fun provideCellsConfigUseCase(userScope: UserScope): IsWireCellsEnabledUseCase = userScope.isWireCellsEnabled
+
+    @Provides
+    fun provideObserveCellsConfigUseCase(userScope: UserScope): ObserveIsWireCellsEnabledUseCase = userScope.observeIsWireCellsEnabled
 
     @Provides
     fun provideIsWireCellsEnabledForConversationUseCase(userScope: UserScope): IsWireCellsEnabledForConversationUseCase =

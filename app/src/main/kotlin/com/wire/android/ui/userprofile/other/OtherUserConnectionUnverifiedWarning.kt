@@ -43,6 +43,8 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
@@ -52,7 +54,7 @@ fun OtherUserConnectionUnverifiedWarning(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val reportMisuseUrl = stringResource(R.string.url_report_misuse)
+    val reportMisuseUrl = supportUrlResource(SupportPage.REPORT_MISUSE)
     val reportMisuseLabel = stringResource(R.string.report_misuse_screen_title)
     val reportMisuseLinkText = remember(reportMisuseLabel) {
         buildAnnotatedString {

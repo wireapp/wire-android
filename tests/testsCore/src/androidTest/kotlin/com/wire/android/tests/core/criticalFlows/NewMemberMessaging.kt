@@ -87,6 +87,7 @@ class NewMemberMessaging : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
             }
             pages.loginPage.apply {
                 enterTeamMemberLoggingEmail(member1?.email ?: "")

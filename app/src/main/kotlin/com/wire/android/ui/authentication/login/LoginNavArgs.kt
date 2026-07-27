@@ -27,6 +27,7 @@ data class LoginNavArgs(
     val ssoLoginResult: DeepLinkResult.SSOLogin? = null,
     val loginPasswordPath: LoginPasswordPath? = null,
     val ssoCodeAutoLogin: SSOCodeAutoLogin? = null,
+    val showBackendConfigSuccess: Boolean = false,
 )
 
 @Serializable

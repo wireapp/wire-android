@@ -16,9 +16,6 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
-    <string name="empty_screen_learn_more_link_conversation" translatable="false">https://support.wire.com/hc/articles/32207745256221</string>
-    <string name="empty_screen_learn_more_link_all_files_screen" translatable="false">https://support.wire.com/hc/articles/32207800433309</string>
-
     <string name="retry">Retry</string>
     <string name="file_list_load_error_title">Error</string>
     <string name="file_list_load_error">The list of files couldn\'t be loaded. Please try again.</string>
@@ -84,6 +81,8 @@
     <string name="cancel_download_label">Cancel download</string>
     <string name="make_available_offline_label">Make available offline</string>
     <string name="remove_offline_access_label">Remove offline access</string>
+    <string name="viewer_access_label">Viewer access</string>
+    <string name="viewer_access_disabled_content_description">%1$s, disabled in viewer access</string>
     <string name="offline_file_saved_message">File saved for offline use</string>
     <string name="offline_banner_message">You\'re offline and can see only saved files</string>
     <string name="file_open_snackbar_message">\"%1$s\" ready to open</string>

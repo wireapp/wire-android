@@ -82,6 +82,8 @@
     <string name="cancel_download_label">Отменить загрузку</string>
     <string name="make_available_offline_label">Сделать доступным оффлайн</string>
     <string name="remove_offline_access_label">Удалить оффлайн доступ</string>
+    <string name="viewer_access_label">Доступ для просмотра</string>
+    <string name="viewer_access_disabled_content_description">%1$s, отключено в доступе для просмотра</string>
     <string name="offline_file_saved_message">Файл сохранен для использования оффлайн</string>
     <string name="offline_banner_message">Вы не в сети и можете видеть только сохраненные файлы</string>
     <string name="file_open_snackbar_message">\"%1$s\" готов к открытию</string>

@@ -63,6 +63,26 @@ class TeamMigrationViewModelTest {
         }
 
     @Test
+    fun `given migration dot is visible, when opening team plan, then send an active migration dot event`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .arrange()
+
+            viewModel.setCurrentStep(
+                step = TeamMigrationViewModel.TEAM_MIGRATION_TEAM_PLAN_STEP,
+                isMigrationDotActive = true
+            )
+
+            verify(exactly = 1) {
+                arrangement.anonymousAnalyticsManager.sendEvent(
+                    AnalyticsEvent.PersonalTeamMigration.PersonalTeamCreationFlowTeamPlan(
+                        isMigrationDotActive = true
+                    )
+                )
+            }
+        }
+
+    @Test
     fun `given team name, when migrateFromPersonalToTeamAccount return success, then call use case and set state to completed`() =
         runTest {
             val (arrangement, viewModel) = Arrangement()

@@ -86,7 +86,9 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.EMPTY
+import com.wire.android.util.SupportPage
 import com.wire.android.util.isHostValidForAnalytics
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
@@ -426,7 +428,7 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
 private fun EmailErrorDetailText(error: CreateAccountDataDetailViewState.DetailsError) {
     val learnMoreTag = "learn_more"
     val context = LocalContext.current
-    val learnMoreUrl = stringResource(id = R.string.url_create_account_learn_more)
+    val learnMoreUrl = supportUrlResource(SupportPage.CREATE_ACCOUNT)
     val learnMoreText = stringResource(id = R.string.label_learn_more)
     val annotatedText = buildAnnotatedString {
         append(

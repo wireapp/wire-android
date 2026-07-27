@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.DpSize
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingItem.BelongingType
-import com.wire.android.feature.meetings.model.MeetingItem.RepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem.Status
 import com.wire.android.feature.meetings.ui.mock.endedPrivateChannelMeeting
 import com.wire.android.feature.meetings.ui.mock.grouplessOngoingMeeting
@@ -93,7 +92,7 @@ import com.wire.android.ui.common.R as commonR
 fun MeetingItem(
     meeting: MeetingItem,
     modifier: Modifier = Modifier,
-    openMeetingOptions: (meetingId: String) -> Unit = {},
+    openMeetingOptions: (occurrenceId: String) -> Unit = {},
     startCall: (conversationId: ConversationId) -> Unit = {},
     joinCall: (conversationId: ConversationId) -> Unit = {},
     returnToCall: (conversationId: ConversationId) -> Unit = {},
@@ -137,7 +136,7 @@ fun MeetingItem(
         },
         actions = {
             MeetingMoreButton {
-                openMeetingOptions(meeting.meetingId)
+                openMeetingOptions(meeting.occurrenceId)
             }
         },
         divider = { MeetingItemDivider() },
@@ -192,12 +191,14 @@ internal fun CalendarIcon(tint: Color, modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun MeetingLeadingIcon() {
+internal fun MeetingLeadingIcon(
+    padding: PaddingValues = PaddingValues(all = dimensions().avatarClickablePadding)
+) {
     val (cornerRadius, borderWidth) = dimensions().groupAvatarCornerRadius to dimensions().avatarBorderWidth
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .padding(dimensions().avatarClickablePadding)
+            .padding(padding)
             .size(dimensions().avatarDefaultSize)
             .background(color = colorsScheme().surface, shape = RoundedCornerShape(cornerRadius + borderWidth))
             .border(color = colorsScheme().outline, width = borderWidth, shape = RoundedCornerShape(cornerRadius + borderWidth))
@@ -220,14 +221,14 @@ private fun MeetingOngoingDurationTimeSublineText(startedTime: Instant) {
 }
 
 @Composable
-private fun RepeatingIntervalInfoLabel(repeatingInterval: RepeatingInterval) {
-    if (repeatingInterval != RepeatingInterval.Never) {
-        WireItemLabel(text = stringResource(repeatingInterval.nameResId), textStyle = typography().label01)
+private fun RepeatingIntervalInfoLabel(repeatingInterval: MeetingItem.RepeatingInterval?) {
+    if (repeatingInterval != null) {
+        WireItemLabel(text = repeatingInterval.label.asString(), textStyle = typography().label01)
     }
 }
 
 @Composable
-private fun MeetingTimeInfoRow(status: Status, repeatingInterval: RepeatingInterval) {
+private fun MeetingTimeInfoRow(status: Status, repeatingInterval: MeetingItem.RepeatingInterval?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing3x)

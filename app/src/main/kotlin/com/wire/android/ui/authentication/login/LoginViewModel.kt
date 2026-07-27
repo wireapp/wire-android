@@ -19,6 +19,9 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.kalium.common.error.CoreFailure
@@ -38,10 +41,17 @@ open class LoginViewModel(
     val userDataStoreProvider: UserDataStoreProvider,
     val coreLogic: CoreLogic,
     private val loginExtension: LoginViewModelExtension,
-    defaultServerConfig: ServerConfig.Links
+    defaultServerConfig: ServerConfig.Links,
+    isDefaultBackendConfigured: Boolean = true,
 ) : ViewModel() {
 
-    val serverConfig: ServerConfig.Links = loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig
+    var serverConfig: ServerConfig.Links by mutableStateOf(loginNavArgs.loginPasswordPath?.customServerConfig ?: defaultServerConfig)
+        protected set
+    var isBackendConfigured: Boolean by mutableStateOf(
+        isDefaultBackendConfigured ||
+                loginNavArgs.loginPasswordPath?.customServerConfig?.api?.isNotBlank() == true
+    )
+        protected set
 
     suspend fun registerClient(
         userId: UserId,

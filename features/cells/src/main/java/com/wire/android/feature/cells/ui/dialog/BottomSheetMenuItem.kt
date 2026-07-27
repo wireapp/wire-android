@@ -30,6 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -39,12 +42,28 @@ import com.wire.android.ui.common.typography
 fun BottomSheetMenuItem(
     action: NodeBottomSheetAction,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
+    val contentColor = when {
+        !enabled -> colorsScheme().onSecondaryButtonDisabled
+        action.isHighlighted -> colorsScheme().error
+        else -> colorsScheme().onSurface
+    }
+
+    val description = stringResource(action.title)
+    val disabledDescription = stringResource(R.string.viewer_access_disabled_content_description, stringResource(action.title))
     Row(
         modifier = modifier
             .padding(horizontal = dimensions().spacing16x)
             .height(dimensions().spacing48x)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .then(
+                if (enabled) {
+                    Modifier.clearAndSetSemantics { contentDescription = description }
+                } else {
+                    Modifier.clearAndSetSemantics { contentDescription = disabledDescription }
+                }
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
     ) {
@@ -52,14 +71,12 @@ fun BottomSheetMenuItem(
         Image(
             painter = painterResource(action.icon),
             contentDescription = null,
-            colorFilter = ColorFilter.tint(
-                color = if (action.isHighlighted) colorsScheme().error else colorsScheme().onSurface
-            )
+            colorFilter = ColorFilter.tint(color = contentColor)
         )
         Text(
             text = stringResource(action.title),
             style = typography().body01,
-            color = if (action.isHighlighted) colorsScheme().error else typography().body01.color
+            color = contentColor
         )
     }
 }

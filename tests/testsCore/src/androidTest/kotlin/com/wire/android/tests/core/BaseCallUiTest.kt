@@ -20,6 +20,7 @@ package com.wire.android.tests.core
 import android.Manifest
 import call.CallHelper
 import call.CallingManager
+import kotlinx.coroutines.runBlocking
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForForegroundApp
 
 /**
@@ -42,5 +43,15 @@ abstract class BaseCallUiTest : BaseUiTest() {
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.CAMERA
         )
+    }
+
+    override fun tearDownCallingManager() {
+        runCatching {
+            if (::callingManager.isInitialized) {
+                runBlocking {
+                    callingManager.cleanup()
+                }
+            }
+        }
     }
 }

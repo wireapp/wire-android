@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
@@ -31,7 +32,6 @@ import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
-import com.wire.android.feature.cells.ui.videoplayer.VideoPlayerViewModel
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -73,7 +73,7 @@ import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Named
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class CellsViewModelFactory @Inject constructor(
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
@@ -222,10 +222,10 @@ class CellsViewModelFactory @Inject constructor(
         savedStateHandle = savedStateHandle,
     )
 
-    internal fun cellVideoViewerViewModel(
+    internal fun cellAudioPlayerViewModel(
         context: Context,
         savedStateHandle: SavedStateHandle
-    ) = VideoPlayerViewModel(
+    ) = AudioPlayerViewModel(
         context = context,
         savedStateHandle = savedStateHandle,
     )

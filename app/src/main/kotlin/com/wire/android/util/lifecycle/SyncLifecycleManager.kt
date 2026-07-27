@@ -22,6 +22,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
+import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.obfuscateDomain
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
@@ -70,17 +71,31 @@ class SyncLifecycleManager @Inject constructor(
             }
             .distinctUntilChanged()
             .collectLatest { (accounts, isAppVisible) ->
+                logger.logAppSyncTelemetry(
+                    event = AppSyncTelemetryEvent.APP_SYNC_VISIBILITY_CHANGED,
+                    data = mapOf(
+                        "visible" to isAppVisible,
+                        "sessionCount" to accounts.size,
+                    )
+                )
                 if (!isAppVisible) {
-                    logger.i("Not running foreground sync request for users, as App is not visible.")
                     return@collectLatest
                 }
                 coroutineScope {
                     accounts.forEach { accountInfo ->
                         val userId = accountInfo.userId
                         launch {
-                            logger.i("!!!!! Starting foreground sync request for user ${userId.value.obfuscateId()}.")
-                            coreLogic.getSessionScope(userId).syncExecutor.request {
-                                awaitCancellation()
+                            val requestData = mapOf(
+                                "trigger" to AppSyncTelemetryTrigger.APP_FOREGROUND.name,
+                                "userId" to userId.toTelemetryString(),
+                            )
+                            logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
+                            try {
+                                coreLogic.getSessionScope(userId).syncExecutor.request {
+                                    awaitCancellation()
+                                }
+                            } finally {
+                                logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_RELEASED, requestData)
                             }
                         }
                     }
@@ -95,22 +110,41 @@ class SyncLifecycleManager @Inject constructor(
      * If there are more ongoing sync requests, this will
      */
     suspend fun syncTemporarily(userId: UserId, stayAliveExtraDuration: Duration = 0.seconds) {
-        logger.d(
-            "Handling connection policy for push notification of " +
-                    "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}"
+        val requestData = mapOf(
+            "trigger" to AppSyncTelemetryTrigger.PUSH_NOTIFICATION.name,
+            "userId" to userId.toTelemetryString(),
+            "stayAliveInMillis" to stayAliveExtraDuration.inWholeMilliseconds,
         )
-        coreLogic.getSessionScope(userId).run {
-            logger.d("Starting Sync request")
-            syncExecutor.request {
-                logger.d("Waiting until live")
-                when (waitUntilLiveOrFailure()) {
-                    is SyncRequestResult.Failure ->
-                        logger.w("Failed waiting until live")
+        logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
+        try {
+            coreLogic.getSessionScope(userId).run {
+                syncExecutor.request {
+                    logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_WAIT_STARTED, requestData)
+                    when (val result = waitUntilLiveOrFailure()) {
+                        is SyncRequestResult.Failure -> logger.logAppSyncTelemetry(
+                            event = AppSyncTelemetryEvent.APP_SYNC_WAIT_COMPLETED,
+                            data = requestData + mapOf(
+                                "outcome" to AppSyncTelemetryOutcome.FAILURE.name,
+                                "failureType" to result.error::class.simpleName,
+                            ),
+                            level = KaliumLogLevel.WARN,
+                        )
 
-                    is SyncRequestResult.Success ->
-                        delay(stayAliveExtraDuration)
+                        is SyncRequestResult.Success -> {
+                            logger.logAppSyncTelemetry(
+                                event = AppSyncTelemetryEvent.APP_SYNC_WAIT_COMPLETED,
+                                data = requestData + ("outcome" to AppSyncTelemetryOutcome.SUCCESS.name),
+                            )
+                            delay(stayAliveExtraDuration)
+                        }
+                    }
                 }
             }
+        } finally {
+            logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_RELEASED, requestData)
         }
     }
+
+    private fun UserId.toTelemetryString(): String =
+        "${value.obfuscateId()}@${domain.obfuscateDomain()}"
 }

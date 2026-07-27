@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration
@@ -51,17 +52,38 @@ data class SSOPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertKeycloakErrorVisible(expectedMessage: String): SSOPage {
+        val error = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = expectedMessage),
+            timeout = 15.seconds
+        )
+        assertTrue(
+            "Expected Keycloak error '$expectedMessage' to be visible",
+            !error.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun waitUntilKeycloakPageLoaded(timeout: Duration = 20.seconds): SSOPage {
         UiWaitUtils.waitElement(keycloakUsernameLabel, timeout = timeout)
         return this
     }
 
-    private fun inputFieldBelow(label: UiSelectorParams, fieldName: String): UiObject2 {
-        val labelElement = UiWaitUtils.waitElement(label, timeout = 15.seconds)
+    private fun inputFieldBelow(
+        label: UiSelectorParams,
+        fieldName: String
+    ): UiObject2 {
+        val labelBounds = UiWaitUtils.waitElement(label, timeout = 15.seconds).visibleBounds
+
         return device.findObjects(By.clazz("android.widget.EditText"))
-            .firstOrNull { editText ->
+            .asSequence()
+            .filter { editText ->
                 !editText.visibleBounds.isEmpty &&
-                    editText.visibleBounds.top >= labelElement.visibleBounds.bottom
+                    editText.isEnabled &&
+                    editText.visibleBounds.top >= labelBounds.bottom
+            }
+            .minByOrNull { editText ->
+                editText.visibleBounds.top - labelBounds.bottom
             }
             ?: throw AssertionError("$fieldName was not visible.")
     }

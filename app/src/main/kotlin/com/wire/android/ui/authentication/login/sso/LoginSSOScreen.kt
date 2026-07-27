@@ -103,7 +103,9 @@ fun LoginSSOScreen(
         },
         onLoginButtonClick = loginSSOViewModel::login,
         onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
-        onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm
+        onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm,
+        onSsoIdentityChangeDismissed = loginSSOViewModel::onSsoIdentityChangeDismissed,
+        onSsoIdentityChangeConfirmed = loginSSOViewModel::onSsoIdentityChangeConfirmed,
     )
 
     LaunchedEffect(loginSSOViewModel) {
@@ -128,6 +130,8 @@ private fun LoginSSOContent(
     onLoginButtonClick: () -> Unit,
     onCustomServerDialogDismiss: () -> Unit,
     onCustomServerDialogConfirm: () -> Unit,
+    onSsoIdentityChangeDismissed: () -> Unit,
+    onSsoIdentityChangeConfirmed: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -165,6 +169,13 @@ private fun LoginSSOContent(
             serverLinks = loginSSOState.customServerDialogState.serverLinks,
             onDismiss = onCustomServerDialogDismiss,
             onConfirm = onCustomServerDialogConfirm
+        )
+    }
+
+    if (loginSSOState.showSsoIdentityChangedDialog) {
+        SsoIdentityChangedDialog(
+            onDismiss = onSsoIdentityChangeDismissed,
+            onConfirm = onSsoIdentityChangeConfirmed,
         )
     }
 }
@@ -220,5 +231,7 @@ fun PreviewLoginSSOScreen() = WireTheme {
         onLoginButtonClick = { },
         onCustomServerDialogDismiss = { },
         onCustomServerDialogConfirm = { },
+        onSsoIdentityChangeDismissed = { },
+        onSsoIdentityChangeConfirmed = { },
     )
 }

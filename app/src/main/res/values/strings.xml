@@ -377,6 +377,9 @@
     <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
+    <string name="sso_identity_changed_dialog_title">Identity provider changed</string>
+    <string name="sso_identity_changed_dialog_message">This account was used with a different identity provider. Continuing will delete all conversations from this device.\nTo keep your data, select Cancel, then log in with your previous identity provider.</string>
+    <string name="sso_identity_changed_dialog_confirm">Delete data and continue</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>

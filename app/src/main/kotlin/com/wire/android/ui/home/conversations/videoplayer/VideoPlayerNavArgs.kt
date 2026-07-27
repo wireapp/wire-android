@@ -15,14 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.videoplayer
+package com.wire.android.ui.home.conversations.videoplayer
 
-data class VideoPlaybackState(
-    val isPlaying: Boolean = false,
-    val isStarted: Boolean = false,
-    val isCompleted: Boolean = false,
-    val isBuffering: Boolean = false,
-    val isMuted: Boolean = false,
-    val currentPositionMs: Int = 0,
-    val durationMs: Int = 0,
+data class VideoPlayerNavArgs(
+    val localPath: String? = null,
+    val contentUrl: String? = null,
+    val fileName: String? = null,
 )

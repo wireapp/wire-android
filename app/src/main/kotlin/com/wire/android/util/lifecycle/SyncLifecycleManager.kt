@@ -135,31 +135,33 @@ class SyncLifecycleManager @Inject constructor(
             "stayAliveInMillis" to stayAliveExtraDuration.inWholeMilliseconds,
         )
         logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
-        coreLogic.getSessionScope(userId).run {
-            syncExecutor.request {
-                logger.d("Waiting until live")
-                val syncRequestResult = if (waitForNextSyncState) {
-                    waitUntilNextLiveOrFailure()
-                } else {
-                    waitUntilLiveOrFailure()
-                }
-                when (syncRequestResult) {
-                    is SyncRequestResult.Failure -> logger.logAppSyncTelemetry(
+        try {
+            coreLogic.getSessionScope(userId).run {
+                syncExecutor.request {
+                    logger.d("Waiting until live")
+                    val syncRequestResult = if (waitForNextSyncState) {
+                        waitUntilNextLiveOrFailure()
+                    } else {
+                        waitUntilLiveOrFailure()
+                    }
+                    when (syncRequestResult) {
+                        is SyncRequestResult.Failure -> logger.logAppSyncTelemetry(
                             event = AppSyncTelemetryEvent.APP_SYNC_WAIT_COMPLETED,
                             data = requestData + mapOf(
                                 "outcome" to AppSyncTelemetryOutcome.FAILURE.name,
-                                "failureType" to result.error::class.simpleName,
+                                "failureType" to syncRequestResult.error::class.simpleName,
                             ),
                             level = KaliumLogLevel.WARN,
                         )
 
-                    is SyncRequestResult.Success -> {
-                        logger.logAppSyncTelemetry(
-                            event = AppSyncTelemetryEvent.APP_SYNC_WAIT_COMPLETED,
-                            data = requestData + ("outcome" to AppSyncTelemetryOutcome.SUCCESS.name),
-                        )
-                        actionWhenLive()
-                        delay(stayAliveExtraDuration)
+                        is SyncRequestResult.Success -> {
+                            logger.logAppSyncTelemetry(
+                                event = AppSyncTelemetryEvent.APP_SYNC_WAIT_COMPLETED,
+                                data = requestData + ("outcome" to AppSyncTelemetryOutcome.SUCCESS.name),
+                            )
+                            actionWhenLive()
+                            delay(stayAliveExtraDuration)
+                        }
                     }
                 }
             }

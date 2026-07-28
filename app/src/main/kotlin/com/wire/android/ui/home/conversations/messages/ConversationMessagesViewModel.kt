@@ -433,7 +433,7 @@ class ConversationMessagesViewModel(
         }
     }
 
-    fun shareAssetViaWire(messageId: String, onAssetReady: (Path, String) -> Unit) {
+    fun prepareAssetForWireShare(messageId: String, onAssetReady: (Path, String) -> Unit) {
         viewModelScope.launch {
             assetDataPath(conversationId, messageId)?.run {
                 onAssetReady(first, second)

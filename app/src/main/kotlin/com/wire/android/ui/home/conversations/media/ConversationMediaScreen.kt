@@ -132,7 +132,7 @@ fun ConversationMediaScreen(
         },
         shareAssetExternally = { conversationMessagesViewModel.shareAsset(context, it) },
         shareAssetViaWire = { messageId ->
-            conversationMessagesViewModel.shareAssetViaWire(messageId) { path, assetName ->
+            conversationMessagesViewModel.prepareAssetForWireShare(messageId) { path, assetName ->
                 navigator.navigate(
                     NavigationCommand(
                         ImportMediaScreenDestination(

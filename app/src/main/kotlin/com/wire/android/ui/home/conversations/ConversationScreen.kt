@@ -541,7 +541,7 @@ fun ConversationScreen(
         conversationMessages = conversationMessagesViewModel.infoMessage,
         shareAssetExternally = conversationMessagesViewModel::shareAsset,
         shareAssetViaWire = { messageId ->
-            conversationMessagesViewModel.shareAssetViaWire(messageId) { path, assetName ->
+            conversationMessagesViewModel.prepareAssetForWireShare(messageId) { path, assetName ->
                 navigator.navigate(
                     NavigationCommand(
                         ImportMediaScreenDestination(

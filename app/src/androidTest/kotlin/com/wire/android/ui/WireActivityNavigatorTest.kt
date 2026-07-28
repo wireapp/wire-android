@@ -81,7 +81,7 @@ class WireActivityNavigatorTest {
                 isAllowedToNavigate = { true },
             )
             currentController = navigator.navController
-            currentRoute = rememberWireActivityCurrentBackStackEntryState(navigator)
+            currentRoute = wireActivityCurrentBackStackEntryAsState(navigator)
                 .value
                 ?.destination
                 ?.route

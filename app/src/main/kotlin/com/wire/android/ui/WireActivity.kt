@@ -397,7 +397,7 @@ class WireActivity : BaseActivity() {
             finish = this@WireActivity::finish,
             isAllowedToNavigate = ::isNavigationAllowed
         )
-        val currentBackStackEntryState = rememberWireActivityCurrentBackStackEntryState(navigator)
+        val currentBackStackEntryState = wireActivityCurrentBackStackEntryAsState(navigator)
         val currentBaseRoute = currentBackStackEntryState.value
             ?.destination
             ?.route
@@ -1307,7 +1307,7 @@ internal fun observeAppLockUserId(
 }.filterNotNull()
 
 @Composable
-internal fun rememberWireActivityCurrentBackStackEntryState(
+internal fun wireActivityCurrentBackStackEntryAsState(
     navigator: Navigator,
 ): State<NavBackStackEntry?> = key(navigator.navController) {
     // collectAsState retains its previous value while changing flows, so reset its composition

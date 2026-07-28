@@ -69,6 +69,7 @@ import com.wire.android.feature.cells.ui.cellAudioPlayerViewModel
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.common.darkColorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -136,7 +137,7 @@ internal fun CellAudioPlayerContent(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(color = Color.Black)
+                .background(color = darkColorsScheme().onBackground)
                 .padding(horizontal = dimensions().spacing24x),
         ) {
             Box(

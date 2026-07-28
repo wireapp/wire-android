@@ -123,7 +123,7 @@ fun AudioMessage(
 }
 
 @Composable
-private fun AudioMessageLayout(
+fun AudioMessageLayout(
     extension: String,
     size: Long,
     messageStyle: MessageStyle,

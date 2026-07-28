@@ -40,12 +40,14 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
 
 @Composable
 fun AssetPreview(
     item: MultipartAttachmentUi,
+    conversationId: ConversationId,
     messageStyle: MessageStyle,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -78,6 +80,7 @@ fun AssetPreview(
                 item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
                 item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle)
                 item.assetType == AttachmentFileType.PDF && !showWithPreview -> PdfAssetPreview(item, messageStyle)
+                item.assetType == AttachmentFileType.AUDIO -> CellAudioAssetPreview(item, conversationId, messageStyle)
                 item.isEditSupported -> EditableAssetPreview(item, messageStyle)
                 else -> FileAssetPreview(item, messageStyle)
             }

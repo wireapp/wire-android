@@ -22,9 +22,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.AUDIO
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
+import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
@@ -132,6 +134,7 @@ class MultipartAttachmentsViewModelImpl(
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
+    private val audioMessagePlayer: ConversationAudioMessagePlayer,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
@@ -158,9 +161,21 @@ class MultipartAttachmentsViewModelImpl(
                 refreshHelper.refresh(attachment.uuid)
             }
 
+            attachment.isAudio() && attachment.localFileAvailable() -> playAudioAttachment(attachment)
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
             else -> downloadAsset(attachment)
+        }
+    }
+
+    private fun playAudioAttachment(attachment: MultipartAttachmentUi) {
+        val localPath = attachment.localPath?.toPath() ?: error("No local path")
+        viewModelScope.launch {
+            audioMessagePlayer.playAudioFromPath(
+                conversationId = conversationId,
+                attachmentId = attachment.uuid,
+                localPath = localPath
+            )
         }
     }
 
@@ -249,6 +264,7 @@ private fun MessageAttachment.mimeType() =
     }
 
 private fun MultipartAttachmentUi.isImage() = AttachmentFileType.fromMimeType(mimeType) == IMAGE
+private fun MultipartAttachmentUi.isAudio() = AttachmentFileType.fromMimeType(mimeType) == AUDIO
 
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {

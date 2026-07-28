@@ -84,6 +84,7 @@ fun MultipartAttachmentsView(
                         }
                     },
                 item = it,
+                conversationId = conversationId,
                 messageStyle = messageStyle,
                 onClick = {
                     viewModel.onClick(
@@ -126,6 +127,7 @@ fun MultipartAttachmentsView(
                     is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files ->
                         AttachmentsList(
                             attachments = group.attachments,
+                            conversationId = conversationId,
                             messageStyle = messageStyle,
                             onClick = {
                                 viewModel.onClick(
@@ -143,6 +145,7 @@ fun MultipartAttachmentsView(
 @Composable
 private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
+    conversationId: ConversationId,
     messageStyle: MessageStyle,
     onClick: (MultipartAttachmentUi) -> Unit,
     modifier: Modifier = Modifier,
@@ -153,6 +156,7 @@ private fun AttachmentsList(
         attachments.forEach {
             AssetPreview(
                 item = it,
+                conversationId = conversationId,
                 messageStyle = messageStyle,
                 showWithPreview = true,
                 onClick = { onClick(it) },

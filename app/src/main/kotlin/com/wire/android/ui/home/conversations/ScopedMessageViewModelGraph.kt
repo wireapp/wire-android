@@ -29,6 +29,9 @@ import com.wire.android.di.wireManualMetroViewModelScoped
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModel
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
+import com.wire.android.media.audiomessage.CellAudioMessageArgs
+import com.wire.android.media.audiomessage.CellAudioMessageViewModel
+import com.wire.android.media.audiomessage.CellAudioMessageViewModelImpl
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuArgs
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModel
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModelImpl
@@ -57,6 +60,7 @@ internal interface ScopedMessageManualViewModelFactory : ManualViewModelAssisted
     fun isFileSharingEnabledViewModel(): IsFileSharingEnabledViewModelImpl
     fun recordAudioViewModel(): RecordAudioViewModel
     fun audioMessageViewModel(args: AudioMessageArgs): AudioMessageViewModelImpl
+    fun cellAudioMessageViewModel(args: CellAudioMessageArgs, wavesMask: List<Int>?): CellAudioMessageViewModelImpl
 }
 
 @Composable
@@ -190,4 +194,13 @@ fun audioMessageViewModel(
         scopedMessageViewModel<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(args) { _, scopedArgs ->
             audioMessageViewModel(scopedArgs)
         }
+    }
+
+@Composable
+fun cellAudioMessageViewModel(
+    args: CellAudioMessageArgs,
+    wavesMask: List<Int>?,
+): CellAudioMessageViewModel =
+    scopedMessageViewModel<CellAudioMessageViewModelImpl, CellAudioMessageViewModel, CellAudioMessageArgs>(args) { _, scopedArgs ->
+        cellAudioMessageViewModel(scopedArgs, wavesMask)
     }

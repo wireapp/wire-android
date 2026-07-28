@@ -146,6 +146,8 @@ import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelImpl
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
+import com.wire.android.media.audiomessage.CellAudioMessageArgs
+import com.wire.android.media.audiomessage.CellAudioMessageViewModelImpl
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuArgs
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModelImpl
@@ -314,6 +316,9 @@ object WireMetroViewModelBindings {
 
             override fun audioMessageViewModel(args: AudioMessageArgs): AudioMessageViewModelImpl =
                 factory.audioMessageViewModel(args)
+
+            override fun cellAudioMessageViewModel(args: CellAudioMessageArgs, wavesMask: List<Int>?): CellAudioMessageViewModelImpl =
+                factory.cellAudioMessageViewModel(args, wavesMask)
         }
 
     @Provides

@@ -126,6 +126,46 @@ class ConversationMessagesViewModelTest {
         }
 
     @Test
+    fun `given Wire Cell is Enabled and audio asset, when opening asset, then audio player is invoked instead of external app`() =
+        runTest {
+            val message = TestMessage.ASSET_MESSAGE.copy(
+                content = MessageContent.Asset(GENERIC_ASSET_CONTENT.copy(mimeType = "audio/mp4"))
+            )
+            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
+                .withGetMessageByIdReturning(message)
+                .withWireCellEnabled()
+                .arrange()
+
+            viewModel.openOrFetchAsset(message.id)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.conversationAudioMessagePlayer.playAudio(any(), any()) }
+            verify(exactly = 0) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
+        }
+
+    @Test
+    fun `given Wire Cell is Enabled and non-audio asset, when opening asset, then external app is invoked instead of audio player`() =
+        runTest {
+            val message = TestMessage.ASSET_MESSAGE.copy(
+                content = MessageContent.Asset(GENERIC_ASSET_CONTENT.copy(mimeType = "application/zip"))
+            )
+            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
+                .withGetMessageByIdReturning(message)
+                .withWireCellEnabled()
+                .arrange()
+
+            viewModel.openOrFetchAsset(message.id)
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { arrangement.conversationAudioMessagePlayer.playAudio(any(), any()) }
+            verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
+        }
+
+    @Test
     fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() = runTest {
         // Given
         val messageId = "mocked-msg-id"

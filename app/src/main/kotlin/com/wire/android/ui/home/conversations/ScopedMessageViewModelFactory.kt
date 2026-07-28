@@ -23,6 +23,8 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
+import com.wire.android.media.audiomessage.CellAudioMessageArgs
+import com.wire.android.media.audiomessage.CellAudioMessageViewModelImpl
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuArgs
@@ -134,5 +136,12 @@ class ScopedMessageViewModelFactory @Inject constructor(
             audioMessagePlayer = audioMessagePlayer,
             observeMessageById = observeMessageById,
             args = args,
+        )
+
+    fun cellAudioMessageViewModel(args: CellAudioMessageArgs, wavesMask: List<Int>?) =
+        CellAudioMessageViewModelImpl(
+            audioMessagePlayer = audioMessagePlayer,
+            args = args,
+            wavesMask = wavesMask,
         )
 }

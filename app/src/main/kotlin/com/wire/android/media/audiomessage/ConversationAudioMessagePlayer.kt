@@ -247,6 +247,62 @@ class ConversationAudioMessagePlayer
         }
     }
 
+    suspend fun playAudioFromPath(
+        conversationId: ConversationId,
+        attachmentId: String,
+        localPath: okio.Path
+    ) {
+        val isRequestedAudioCurrentlyPlaying = currentAudioMessageId == MessageIdWrapper(conversationId, attachmentId)
+        if (isRequestedAudioCurrentlyPlaying) {
+            resumeOrPause(conversationId, attachmentId)
+        } else {
+            stopCurrentAudioMessage()
+            playAudioMessageFromLocalPath(
+                conversationId = conversationId,
+                messageId = attachmentId,
+                localPath = localPath,
+                position = previouslyResumedPosition(conversationId, attachmentId)
+            )
+        }
+    }
+
+    private suspend fun playAudioMessageFromLocalPath(
+        conversationId: ConversationId,
+        messageId: String,
+        localPath: okio.Path,
+        position: Int? = null
+    ) {
+        currentAudioMessageId = MessageIdWrapper(conversationId, messageId)
+
+        audioMessageStateUpdate.emit(
+            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.SuccessfulFetching)
+        )
+
+        val isFetchedAudioCurrentlyQueuedToPlay = MessageIdWrapper(conversationId, messageId) == currentAudioMessageId
+
+        if (isFetchedAudioCurrentlyQueuedToPlay) {
+            audioMediaPlayer.setDataSource(context, Uri.parse(localPath.toString()))
+            audioMediaPlayer.prepare()
+
+            if (position != null) audioMediaPlayer.seekTo(position)
+
+            audioFocusHelper.request()
+            audioMediaPlayer.start()
+
+            setSpeed(_audioSpeed.value)
+
+            audioMessageStateUpdate.emit(
+                AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Playing)
+            )
+
+            servicesManager.value.startPlayingAudioMessageService()
+
+            audioMessageStateUpdate.emit(
+                AudioMediaPlayerStateUpdate.TotalTimeUpdate(conversationId, messageId, audioMediaPlayer.duration)
+            )
+        }
+    }
+
     suspend fun setSpeed(speed: AudioSpeed) {
         val currentParams = audioMediaPlayer.playbackParams
         audioMediaPlayer.playbackParams = currentParams.setSpeed(speed.value)

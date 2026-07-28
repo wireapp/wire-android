@@ -362,6 +362,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
         kaliumFileSystem = kaliumFileSystem,
         featureFlags = featureFlags,
         getWireCellsConfig = getWireCellsConfig,
-        observeOfflineFilesByConversation = observeOfflineFilesByConversation
+        observeOfflineFilesByConversation = observeOfflineFilesByConversation,
+        audioMessagePlayer = audioMessagePlayer,
     )
 }

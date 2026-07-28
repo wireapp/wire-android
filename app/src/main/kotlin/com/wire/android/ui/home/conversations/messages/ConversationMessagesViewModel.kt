@@ -270,7 +270,7 @@ class ConversationMessagesViewModel(
         }
     }
 
-    private suspend fun handleSelectedSearchedMessageHighlighting() {
+    private fun handleSelectedSearchedMessageHighlighting() {
         viewModelScope.launch {
             delay(3.seconds)
             conversationViewState = conversationViewState.copy(
@@ -301,7 +301,11 @@ class ConversationMessagesViewModel(
     fun openOrFetchAsset(messageId: String) = viewModelScope.launch(dispatchers.io()) {
         if (isCellEnabledForConversation) {
             assetDataPath(conversationId, messageId)?.let { (path, assetName) ->
-                onOpenFileWithExternalApp(path, assetName)
+                if (isAudioAsset(messageId)) {
+                    audioMessagePlayer.playAudio(conversationId, messageId)
+                } else {
+                    onOpenFileWithExternalApp(path, assetName)
+                }
             } ?: run {
                 attemptDownloadOfAsset(messageId)
             }
@@ -310,6 +314,13 @@ class ConversationMessagesViewModel(
                 showOnAssetDownloadedDialog(bundle, messageId)
             }
         }
+    }
+
+    private suspend fun isAudioAsset(messageId: String): Boolean {
+        val result = getMessageByIdUseCase(conversationId, messageId)
+        if (result !is GetMessageByIdUseCase.Result.Success) return false
+        val content = (result.message.content as? MessageContent.Asset) ?: return false
+        return AttachmentType.fromMimeTypeString(content.value.mimeType) == AttachmentType.AUDIO
     }
 
     fun downloadAssetExternally(messageId: String) = viewModelScope.launch(dispatchers.io()) {

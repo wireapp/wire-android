@@ -361,7 +361,20 @@ class MediaGalleryViewModelTest {
             .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = "cell-asset-id")
             .withConversationDetails(mockedConversationDetails())
             .withViewerAccessOnly()
-            .arrange()
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = null,
+                    assetPath = "asset/path",
+                    contentUrl = "content/url",
+                    previewUrl = "preview/url",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+                )
+            ).arrange()
 
         viewModel.onOptionsClick()
 

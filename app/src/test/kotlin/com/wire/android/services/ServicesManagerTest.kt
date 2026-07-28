@@ -249,6 +249,36 @@ class ServicesManagerTest {
             }
         }
 
+    @Test
+    fun `given pending messages foreground service not started when starting then starts service`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val (arrangement, servicesManager) = Arrangement()
+                .withPendingMessagesServiceStarted(false)
+                .arrange()
+
+            // when
+            servicesManager.startPendingMessagesForegroundService()
+
+            // then
+            verify(exactly = 1) { arrangement.context.startService(arrangement.pendingMessagesForegroundServiceIntent) }
+        }
+
+    @Test
+    fun `given pending messages foreground service already started when starting then forwards start intent`() =
+        runTest(dispatcherProvider.main()) {
+            // given
+            val (arrangement, servicesManager) = Arrangement()
+                .withPendingMessagesServiceStarted(true)
+                .arrange()
+
+            // when
+            servicesManager.startPendingMessagesForegroundService()
+
+            // then
+            verify(exactly = 1) { arrangement.context.startService(arrangement.pendingMessagesForegroundServiceIntent) }
+        }
+
     private inner class Arrangement {
 
         @MockK(relaxed = true)
@@ -263,12 +293,17 @@ class ServicesManagerTest {
         @MockK
         lateinit var ongoingCallServiceIntentWithStopArgument: Intent
 
+        @MockK
+        lateinit var pendingMessagesForegroundServiceIntent: Intent
+
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkObject(CallService.Companion)
+            mockkObject(PendingMessagesForegroundService.Companion)
             every { CallService.Companion.serviceState } returns serviceStateFlow
             callServiceIntentForAction(CallService.Action.Start.Default, callServiceIntent)
             callServiceIntentForAction(CallService.Action.Stop, ongoingCallServiceIntentWithStopArgument)
+            every { PendingMessagesForegroundService.Companion.newIntent(context) } returns pendingMessagesForegroundServiceIntent
         }
 
         fun clearRecordedCallsForContext() {
@@ -288,6 +323,10 @@ class ServicesManagerTest {
 
         fun callServiceIntentForAction(action: CallService.Action, intent: Intent) = apply {
             every { CallService.Companion.newIntent(context, action) } returns intent
+        }
+
+        fun withPendingMessagesServiceStarted(isStarted: Boolean) = apply {
+            every { PendingMessagesForegroundService.Companion.isServiceStarted } returns isStarted
         }
 
         fun arrange() = this to servicesManager

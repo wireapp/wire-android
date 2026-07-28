@@ -122,6 +122,11 @@ class WireSessionImageLoader(
         return painter
     }
 
+    /** Cancels pending image requests and releases resources tied to this user session. */
+    fun shutdown() {
+        coilImageLoader.shutdown()
+    }
+
     class Factory(
         val context: Context,
         private val getAvatarAsset: GetAvatarAssetUseCase,

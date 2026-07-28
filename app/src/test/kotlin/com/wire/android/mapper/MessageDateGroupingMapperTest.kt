@@ -17,6 +17,7 @@
  */
 package com.wire.android.mapper
 
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -29,13 +30,14 @@ class MessageDateGroupingMapperTest {
 
     @Test
     fun `return MessageDateTime_Now when a valid date is calling groupedUIMessageDateTime`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(getDummyCalendar().timeInMillis)
+        val result = Instant.parse("2024-01-20T07:00:00.000Z")
+            .groupedUIMessageDateTime(getDummyCalendar().timeInMillis)
         assertEquals(MessageDateTimeGroup.Now, result)
     }
 
     @Test
     fun `return MessageDateTime_Within30Minutes when a valid date within 10 minutes is calling groupedUIMessageDateTime`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+        val result = Instant.parse("2024-01-20T07:00:00.000Z").groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.MINUTE, 10)
             }.timeInMillis
@@ -45,7 +47,7 @@ class MessageDateGroupingMapperTest {
 
     @Test
     fun `return MessageDateTime_Today when a valid date over 30 minutes is calling groupedUIMessageDateTime`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+        val result = Instant.parse("2024-01-20T07:00:00.000Z").groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.MINUTE, 31)
             }.timeInMillis
@@ -62,7 +64,7 @@ class MessageDateGroupingMapperTest {
 
     @Test
     fun `return MessageDateTime_Yesterday when a valid date over 1 day is calling groupedUIMessageDateTime`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+        val result = Instant.parse("2024-01-20T07:00:00.000Z").groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 1)
             }.timeInMillis
@@ -76,7 +78,7 @@ class MessageDateGroupingMapperTest {
 
     @Test
     fun `return MessageDateTime_WithinWeek when a valid date within 7 days 1 day is calling groupedUIMessageDateTime`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+        val result = Instant.parse("2024-01-20T07:00:00.000Z").groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 3)
             }.timeInMillis
@@ -90,7 +92,7 @@ class MessageDateGroupingMapperTest {
 
     @Test
     fun `return MessageDateTime_NotWithinWeekButSameYear when date over 7 days and same year is calling groupedUIMessageDateTime`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+        val result = Instant.parse("2024-01-20T07:00:00.000Z").groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 add(Calendar.DATE, 10)
             }.timeInMillis
@@ -103,7 +105,7 @@ class MessageDateGroupingMapperTest {
 
     @Test
     fun `return MessageDateTime_Other given valid date, when a valid date and different year is calling groupedUIMessageDateTime`() {
-        val result = "2024-01-20T07:00:00.000Z".groupedUIMessageDateTime(
+        val result = Instant.parse("2024-01-20T07:00:00.000Z").groupedUIMessageDateTime(
             getDummyCalendar().apply {
                 set(Calendar.YEAR, 2025)
             }.timeInMillis
@@ -116,16 +118,16 @@ class MessageDateGroupingMapperTest {
 
     @Test
     fun `given messages on different calendar days within less than 24h then should display divider`() {
-        val shouldDisplayDivider = "2024-01-20T23:50:00.000Z"
-            .shouldDisplayDatesDifferenceDivider("2024-01-21T00:10:00.000Z")
+        val shouldDisplayDivider = Instant.parse("2024-01-20T23:50:00.000Z")
+            .shouldDisplayDatesDifferenceDivider(Instant.parse("2024-01-21T00:10:00.000Z"))
 
         assertEquals(true, shouldDisplayDivider)
     }
 
     @Test
     fun `given messages on same calendar day then should not display divider`() {
-        val shouldDisplayDivider = "2024-01-20T07:00:00.000Z"
-            .shouldDisplayDatesDifferenceDivider("2024-01-20T21:00:00.000Z")
+        val shouldDisplayDivider = Instant.parse("2024-01-20T07:00:00.000Z")
+            .shouldDisplayDatesDifferenceDivider(Instant.parse("2024-01-20T21:00:00.000Z"))
 
         assertEquals(false, shouldDisplayDivider)
     }

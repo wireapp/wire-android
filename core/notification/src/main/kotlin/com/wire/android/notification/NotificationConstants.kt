@@ -45,6 +45,8 @@ object NotificationConstants {
 
     const val MESSAGE_SYNC_CHANNEL_ID = "com.wire.android.message_synchronization"
     const val MESSAGE_SYNC_CHANNEL_NAME = "Message synchronization"
+    const val DATABASE_MAINTENANCE_CHANNEL_ID = "com.wire.android.database_maintenance"
+    const val DATABASE_MAINTENANCE_CHANNEL_NAME = "Database maintenance"
 
     const val OTHER_CHANNEL_ID = "com.wire.android.other"
     const val OTHER_CHANNEL_NAME = "Other essential actions"

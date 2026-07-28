@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.startup.StartupState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
@@ -41,6 +42,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -68,13 +70,16 @@ class GlobalObserversManager @Inject constructor(
     fun observe() {
         scope.launch { setUpNotifications() }
         scope.launch {
-            coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
-                coroutineScope {
-                    it.forEach {
-                        launch { coreLogic.getSessionScope(it.first.id).calls.endCallOnConversationChange() }
+            coreLogic.getGlobalScope().observeValidAccounts()
+                .distinctUntilChanged()
+                .flatMapLatest { accounts -> accounts.withReadySessions { it.first.id } }
+                .collectLatest {
+                    coroutineScope {
+                        it.forEach {
+                            launch { coreLogic.getSessionScope(it.first.id).calls.endCallOnConversationChange() }
+                        }
                     }
                 }
-            }
         }
         scope.handleLogouts()
         scope.handleDeleteEphemeralMessageEndDate()
@@ -109,19 +114,20 @@ class GlobalObserversManager @Inject constructor(
                     .map { it to persistentStatusesMap.getValue(it.id) }
             }
             .distinctUntilChanged()
-            .collectLatest {
+            .flatMapLatest { users -> users.withReadySessions { it.first.id } }
+            .collectLatest { readyUsers ->
                 // create notification channels for all valid users
-                appLogger.i("GlobalObserversManager: creating notification channels for users: ${it.map { it.first.id }}")
-                notificationChannelsManager.createUserNotificationChannels(it.map { it.first })
+                appLogger.i("GlobalObserversManager: creating notification channels for users: ${readyUsers.map { it.first.id }}")
+                notificationChannelsManager.createUserNotificationChannels(readyUsers.map { it.first })
 
-                if (it.isEmpty()) {
+                if (readyUsers.isEmpty()) {
                     appLogger.i("GlobalObserversManager: no valid users, stopping observing notifications")
                     notificationManager.clearWhenNoUsers()
                     return@collectLatest
                 }
 
                 // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
-                it.filter { (_, isPersistentWebSocketEnabled) -> !isPersistentWebSocketEnabled }
+                readyUsers.filter { (_, isPersistentWebSocketEnabled) -> !isPersistentWebSocketEnabled }
                     .map { (selfUser, _) -> selfUser.id }
                     .run {
                         notificationManager.observeNotificationsAndCallsWhileRunning(this, scope)
@@ -155,6 +161,11 @@ class GlobalObserversManager @Inject constructor(
                             .distinctUntilChanged()
                             .filter { it is CurrentSessionResult.Success && it.accountInfo.isValid() }
                             .map { (it as CurrentSessionResult.Success).accountInfo.userId }
+                            .flatMapLatest { userId ->
+                                coreLogic.startup.session(userId).state
+                                    .filterIsInstance<StartupState.Ready>()
+                                    .map { userId }
+                            }
                     } else {
                         emptyFlow()
                     }
@@ -162,4 +173,17 @@ class GlobalObserversManager @Inject constructor(
                 .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
         }
     }
+
+    private fun <T> List<T>.    withReadySessions(userId: (T) -> UserId) =
+        fold(flowOf(emptyList<T>())) { readyItems, item ->
+            readyItems.combine(
+                coreLogic.startup.session(userId(item)).state
+            ) { currentReadyItems, state ->
+                if (state is StartupState.Ready) {
+                    currentReadyItems + item
+                } else {
+                    currentReadyItems
+                }
+            }
+        }
 }

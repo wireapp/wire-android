@@ -56,9 +56,11 @@ import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.startup.StartupState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -192,7 +194,9 @@ class WireApplication : BaseApp() {
             ::Pair
         ).collect { (isAppVisible, validSessions) ->
             validSessions.forEach {
-                coreLogic.value.getSessionScope(it.userId).calls.setBackground(!isAppVisible)
+                coreLogic.value.startup.session(it.userId).readyOrNull()
+                    ?.calls
+                    ?.setBackground(!isAppVisible)
             }
         }
     }
@@ -201,7 +205,12 @@ class WireApplication : BaseApp() {
         coreLogic.value.getGlobalScope().session.currentSessionFlow().filterIsInstance(CurrentSessionResult.Success::class)
             .filter { session -> session.accountInfo.isValid() }
             .flatMapLatest { session ->
-                coreLogic.value.getSessionScope(session.accountInfo.userId).calls.observeRecentlyEndedCallMetadata()
+                val startup = coreLogic.value.startup.session(session.accountInfo.userId)
+                startup.state
+                    .filterIsInstance<StartupState.Ready>()
+                    .flatMapLatest {
+                        startup.readyOrNull()?.calls?.observeRecentlyEndedCallMetadata() ?: emptyFlow()
+                    }
             }
             .collect { metadata ->
                 analyticsManager.value.sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
@@ -212,8 +221,13 @@ class WireApplication : BaseApp() {
         coreLogic.value.getGlobalScope().session.currentSessionFlow()
             .filterIsInstance<CurrentSessionResult.Success>()
             .map { it.accountInfo.userId }
-            .flatMapLatest {
-                coreLogic.value.getSessionScope(it).messages.observeAssetUploadState()
+            .flatMapLatest { userId ->
+                val startup = coreLogic.value.startup.session(userId)
+                startup.state
+                    .filterIsInstance<StartupState.Ready>()
+                    .flatMapLatest {
+                        startup.readyOrNull()?.messages?.observeAssetUploadState() ?: emptyFlow()
+                    }
             }
             .collect { uploadInProgress ->
                 if (uploadInProgress) {

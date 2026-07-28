@@ -168,10 +168,13 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
@@ -210,6 +213,20 @@ class WireActivity : BaseActivity() {
         }
     }
 
+    private val sessionStartupViewModel: SessionStartupViewModel by viewModels {
+        viewModelFactory {
+            initializer {
+                SessionStartupViewModel(
+                    startup = wireApplicationGraph.coreLogic.startup,
+                    resolveCurrentSession = {
+                        wireApplicationGraph.coreLogic.getGlobalScope().session.currentSession()
+                    },
+                    dispatchers = wireApplicationGraph.dispatcherProvider,
+                )
+            }
+        }
+    }
+
     private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
     private lateinit var shakeDetector: ShakeDetector
 
@@ -234,56 +251,17 @@ class WireActivity : BaseActivity() {
         setupOrientationForDevice()
         shakeDetector = ShakeDetector(this)
 
+        setContent {
+            SessionStartupScreen(sessionStartupViewModel)
+        }
+        shouldKeepSplashOpen = false
+
         lifecycleScope.launch {
-            traceStartup("activity.startupCoroutine.begin", startupAt)
-
-            traceStartup("activity.observePersistentConnectionStatus.start", startupAt)
-            viewModel.observePersistentConnectionStatus()
-
-            traceStartup("activity.initialAppState.start", startupAt)
-            val initialAppState = viewModel.initialAppState()
-            val startDestination = when (initialAppState) {
-                InitialAppState.NotLoggedIn -> when (loginTypeSelector.canUseNewLogin()) {
-                    true -> NewWelcomeEmptyStartScreenDestination()
-                    false -> WelcomeScreenDestination()
-                }
-
-                is InitialAppState.EnrollE2EI -> E2EIEnrollmentScreenDestination(
-                    SessionBackedAuthenticationNavArgs.from(initialAppState.userId)
-                )
-
-                InitialAppState.LoggedIn -> HomeScreenDestination()
-            }
-            traceStartup("activity.initialAppState.resolved:$startDestination", startupAt)
-            setComposableContent(startDestination)
-            traceStartup("activity.setContent.done", startupAt)
-
-            // When the app is locked, get the app lock screen up before the splash screen is
-            // dismissed so that protected content never flashes. Waiting for the current user id
-            // is finite here because a locked app implies a logged-in session; when not logged in
-            // there is nothing to protect. Locks that happen after startup are handled by the
-            // lifecycle observer below.
-            if (initialAppState != InitialAppState.NotLoggedIn && lockCodeTimeManager.value.isAppLocked()) {
-                observeAppLockUserId(
-                    isAppLocked = lockCodeTimeManager.value.observeAppLock(),
-                    currentUserId = snapshotFlow { viewModel.globalAppState.currentUserId },
-                ).first().let { currentUserId ->
-                    startAppLockActivity(currentUserId = currentUserId)
-                }
-                traceStartup("activity.appLock.launched", startupAt)
-            }
-
-            traceStartup("activity.splash.hide", startupAt)
-            shouldKeepSplashOpen = false
-            traceStartup("activity.splash.dismissed", startupAt)
-            (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
-            traceStartup("activity.deferredLogging.triggered", startupAt)
-
-            handleNewIntent(intent, savedInstanceState)
-            traceStartup("activity.initialIntent.dispatched", startupAt)
+            completeStartupAfterSessionIsReady(savedInstanceState, startupAt)
         }
 
         lifecycleScope.launch {
+            sessionStartupViewModel.state.filterIsInstance<SessionStartupUiState.Ready>().first()
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 isAppLockActivityLaunching = false
                 observeAppLockUserId(
@@ -296,15 +274,82 @@ class WireActivity : BaseActivity() {
         }
     }
 
+    private suspend fun completeStartupAfterSessionIsReady(
+        savedInstanceState: Bundle?,
+        startupAt: Long,
+    ) {
+        traceStartup("activity.startupCoroutine.begin", startupAt)
+
+        when (
+            sessionStartupViewModel.state
+                .filter {
+                    it is SessionStartupUiState.Ready || it is SessionStartupUiState.Failed
+                }
+                .first()
+        ) {
+            is SessionStartupUiState.Failed -> {
+                traceStartup("activity.sessionStartup.failed", startupAt)
+                (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
+                return
+            }
+
+            is SessionStartupUiState.Ready -> traceStartup("activity.sessionStartup.ready", startupAt)
+            else -> error("Session startup emitted a non-terminal state")
+        }
+
+        traceStartup("activity.observePersistentConnectionStatus.start", startupAt)
+        viewModel.observePersistentConnectionStatus()
+
+        traceStartup("activity.initialAppState.start", startupAt)
+        val initialAppState = viewModel.initialAppState()
+        val startDestination = when (initialAppState) {
+            InitialAppState.NotLoggedIn -> when (loginTypeSelector.canUseNewLogin()) {
+                true -> NewWelcomeEmptyStartScreenDestination()
+                false -> WelcomeScreenDestination()
+            }
+
+            is InitialAppState.EnrollE2EI -> E2EIEnrollmentScreenDestination(
+                SessionBackedAuthenticationNavArgs.from(initialAppState.userId)
+            )
+
+            InitialAppState.LoggedIn -> HomeScreenDestination()
+        }
+        traceStartup("activity.initialAppState.resolved:$startDestination", startupAt)
+
+        // When the app is locked, get the app lock screen up before the startup surface is
+        // replaced so that protected content never flashes.
+        if (initialAppState != InitialAppState.NotLoggedIn && lockCodeTimeManager.value.isAppLocked()) {
+            observeAppLockUserId(
+                isAppLocked = lockCodeTimeManager.value.observeAppLock(),
+                currentUserId = snapshotFlow { viewModel.globalAppState.currentUserId },
+            ).first().let { currentUserId ->
+                startAppLockActivity(currentUserId = currentUserId)
+            }
+            traceStartup("activity.appLock.launched", startupAt)
+        }
+
+        setComposableContent(startDestination)
+        traceStartup("activity.setContent.done", startupAt)
+
+        (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
+        traceStartup("activity.deferredLogging.triggered", startupAt)
+
+        handleNewIntent(intent, savedInstanceState)
+        traceStartup("activity.initialIntent.dispatched", startupAt)
+    }
+
     override fun onStart() {
         super.onStart()
         dynamicReceiversManager.registerAll()
         if (BuildConfig.EMM_SUPPORT_ENABLED) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                managedConfigurationsManager.refreshServerConfig()
-                managedConfigurationsManager.refreshSSOCodeConfig()
+            lifecycleScope.launch {
+                sessionStartupViewModel.state.filterIsInstance<SessionStartupUiState.Ready>().first()
+                withContext(Dispatchers.IO) {
+                    managedConfigurationsManager.refreshServerConfig()
+                    managedConfigurationsManager.refreshSSOCodeConfig()
+                }
+                viewModel.applyPersistentWebSocketConfigFromMDM()
             }
-            viewModel.applyPersistentWebSocketConfigFromMDM()
         }
     }
 

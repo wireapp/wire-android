@@ -40,6 +40,9 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUse
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.startup.KaliumStartup
+import com.wire.kalium.logic.startup.StartupHandle
+import com.wire.kalium.logic.startup.StartupState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -221,6 +224,25 @@ class GlobalObserversManagerTest {
             assertEquals(1, cancelledObservers.get())
         }
 
+    @Test
+    fun `given session startup is not ready, when observing accounts, then session scope is not opened`() =
+        runTestWithCancellation {
+            val (arrangement, manager) = Arrangement()
+                .withValidAccounts(listOf(TestUser.SELF_USER to null))
+                .withSessionStartupState(StartupState.NotStarted)
+                .arrange()
+
+            manager.observe()
+            runCurrent()
+
+            verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+
+            arrangement.withSessionStartupState(StartupState.Ready)
+            runCurrent()
+
+            verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(TestUser.SELF_USER.id) }
+        }
+
     private class Arrangement {
 
         @MockK
@@ -253,6 +275,14 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var messageScope: MessageScope
 
+        @MockK
+        lateinit var kaliumStartup: KaliumStartup
+
+        @MockK
+        lateinit var sessionStartupHandle: StartupHandle<UserSessionScope>
+
+        private val sessionStartupState = MutableStateFlow<StartupState>(StartupState.Ready)
+
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),
@@ -271,6 +301,9 @@ class GlobalObserversManagerTest {
             // Default empty values
             mockUri()
             every { notificationChannelsManager.createUserNotificationChannels(any()) } returns Unit
+            every { coreLogic.startup } returns kaliumStartup
+            every { kaliumStartup.session(any()) } returns sessionStartupHandle
+            every { sessionStartupHandle.state } returns sessionStartupState
             every { coreLogic.getGlobalScope().logoutCallbackManager } returns logoutCallbackManager
             every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every { callsScope.endCallOnConversationChange } returns endCallOnConversationChangeUseCase
@@ -303,6 +336,10 @@ class GlobalObserversManagerTest {
 
         fun withAppVisibleFlow(isVisible: Boolean) = apply {
             coEvery { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(isVisible)
+        }
+
+        fun withSessionStartupState(state: StartupState) = apply {
+            sessionStartupState.value = state
         }
 
         fun arrange() = this to manager

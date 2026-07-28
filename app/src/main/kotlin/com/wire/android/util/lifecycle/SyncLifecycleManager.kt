@@ -28,6 +28,8 @@ import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.startup.StartupResult
+import com.wire.kalium.logic.startup.StartupState
 import com.wire.kalium.logic.sync.SyncRequestResult
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
@@ -35,6 +37,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
@@ -85,13 +89,16 @@ class SyncLifecycleManager @Inject constructor(
                     accounts.forEach { accountInfo ->
                         val userId = accountInfo.userId
                         launch {
+                            val startup = coreLogic.startup.session(userId)
+                            startup.state.filterIsInstance<StartupState.Ready>().first()
+                            val sessionScope = startup.readyOrNull() ?: return@launch
                             val requestData = mapOf(
                                 "trigger" to AppSyncTelemetryTrigger.APP_FOREGROUND.name,
                                 "userId" to userId.toTelemetryString(),
                             )
                             logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
                             try {
-                                coreLogic.getSessionScope(userId).syncExecutor.request {
+                                sessionScope.syncExecutor.request {
                                     awaitCancellation()
                                 }
                             } finally {
@@ -117,7 +124,11 @@ class SyncLifecycleManager @Inject constructor(
         )
         logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
         try {
-            coreLogic.getSessionScope(userId).run {
+            val sessionScope = when (val startup = coreLogic.startup.session(userId).open()) {
+                is StartupResult.Success -> startup.value
+                is StartupResult.Failure -> return
+            }
+            sessionScope.run {
                 syncExecutor.request {
                     logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_WAIT_STARTED, requestData)
                     when (val result = waitUntilLiveOrFailure()) {

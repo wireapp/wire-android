@@ -133,6 +133,27 @@ class WireNotificationManagerTest {
         }
 
     @Test
+    fun givenNotificationSyncFails_whenFetchAndShowNotificationsOnceCalled_thenFailureIsPropagated() =
+        runTest(dispatcherProvider.main()) {
+            val expected = IllegalStateException("sync failed")
+            val (arrangement, manager) = Arrangement()
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withMessageNotifications(emptyList())
+                .arrange()
+            coEvery { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) } throws expected
+
+            var actual: Throwable? = null
+            try {
+                manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
+            } catch (throwable: Throwable) {
+                actual = throwable
+            }
+
+            assertEquals(expected::class, actual?.let { it::class })
+            assertEquals(expected.message, actual?.message)
+        }
+
+    @Test
     fun givenNotAuthenticatedUser_whenObserveCalled_thenNothingHappens() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val (arrangement, manager) = Arrangement()

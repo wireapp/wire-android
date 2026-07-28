@@ -202,6 +202,21 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
+    fun createDatabaseMaintenanceChannel() {
+        val notificationChannel = NotificationChannelCompat
+            .Builder(
+                NotificationConstants.DATABASE_MAINTENANCE_CHANNEL_ID,
+                NotificationManagerCompat.IMPORTANCE_LOW,
+            )
+            .setName(NotificationConstants.DATABASE_MAINTENANCE_CHANNEL_NAME)
+            .setVibrationEnabled(false)
+            .setSound(null, null)
+            .setShowBadge(false)
+            .build()
+
+        notificationManagerCompat.createNotificationChannel(notificationChannel)
+    }
+
     /**
      * Tricky bug: No documentation whatsoever, but these values affect how the system cancels or not the vibration of the notification
      * on different Android OS levels, probably channel creation related.

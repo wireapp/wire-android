@@ -51,7 +51,13 @@ class WireWorkerFactory @Inject constructor(
                     .createWorker(appContext, workerClassName, workerParameters)
 
             NotificationFetchWorker::class.java.canonicalName ->
-                NotificationFetchWorker(appContext, workerParameters, wireNotificationManager, notificationChannelsManager)
+                NotificationFetchWorker(
+                    appContext,
+                    workerParameters,
+                    wireNotificationManager,
+                    notificationChannelsManager,
+                    coreLogic,
+                )
 
             PersistentWebsocketCheckWorker::class.java.canonicalName ->
                 PersistentWebsocketCheckWorker(

@@ -121,7 +121,7 @@ fun SettingUpWireScreenContent(
             }
 
             Box(modifier = Modifier.animateContentSize()) {
-                if (type is SettingUpWireScreenType.Failure) {
+                if (type is SettingUpWireScreenType.Failure && type.buttonTextResId != null) {
                     Surface(
                         shadowElevation = MaterialTheme.wireDimensions.topBarShadowElevation,
                         color = MaterialTheme.wireColorScheme.background,
@@ -144,7 +144,7 @@ fun SettingUpWireScreenContent(
 sealed class SettingUpWireScreenType {
     object Progress : SettingUpWireScreenType()
     data class Failure(
-        @StringRes val buttonTextResId: Int = R.string.label_retry,
+        @StringRes val buttonTextResId: Int? = R.string.label_retry,
         val onButtonClick: () -> Unit = {}
     ) : SettingUpWireScreenType()
 }

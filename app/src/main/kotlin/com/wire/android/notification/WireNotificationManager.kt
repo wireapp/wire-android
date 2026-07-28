@@ -43,9 +43,11 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,7 +92,7 @@ class WireNotificationManager @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
-    private val fetchOnceJobs = hashMapOf<UserId, Job>()
+    private val fetchOnceJobs = hashMapOf<UserId, Deferred<Unit>>()
     private var observingWhileRunningJobs = ObservingJobs()
     private var observingPersistentlyJobs = ObservingJobs()
 
@@ -149,10 +151,10 @@ class WireNotificationManager @Inject constructor(
 
         // Join the jobs for the user, waiting for its completion
         syncAndNotificationJobForUser?.start()
-        syncAndNotificationJobForUser?.join()
+        syncAndNotificationJobForUser?.await()
     }
 
-    private suspend fun fetchAndShowMessageNotificationsJob(userId: UserId): Job? =
+    private suspend fun fetchAndShowMessageNotificationsJob(userId: UserId): Deferred<Unit>? =
         fetchOnceMutex.withLock {
             // Use the lock to create a new coroutine if needed
             val currentJobForUser = fetchOnceJobs[userId]
@@ -169,7 +171,7 @@ class WireNotificationManager @Inject constructor(
             } else {
                 // Create a new job for this user
                 appLogger.d("$TAG Starting to processing notifications for user=${userId.toLogString()}")
-                val newJob = scope.launch(start = CoroutineStart.LAZY) {
+                val newJob = scope.async(start = CoroutineStart.LAZY) {
                     triggerSyncForUserIfAuthenticated(userId)
                 }
                 fetchOnceJobs[userId] = newJob
@@ -185,16 +187,18 @@ class WireNotificationManager @Inject constructor(
 
         val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
 
-        if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
-            appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
-            retrySync(userId, stayAliveDuration)
-        } else {
-            appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
-            syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+        try {
+            if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
+                appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
+                retrySync(userId, stayAliveDuration)
+            } else {
+                appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
+                syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+            }
+        } finally {
+            observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
+            observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
         }
-
-        observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
-        observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
     }
 
     /**

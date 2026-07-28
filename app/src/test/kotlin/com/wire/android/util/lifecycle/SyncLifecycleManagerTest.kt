@@ -26,6 +26,10 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
+import com.wire.kalium.logic.startup.KaliumStartup
+import com.wire.kalium.logic.startup.StartupHandle
+import com.wire.kalium.logic.startup.StartupResult
+import com.wire.kalium.logic.startup.StartupState
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -157,6 +161,12 @@ class SyncLifecycleManagerTest {
         lateinit var userSessionScope: UserSessionScope
 
         @MockK
+        lateinit var kaliumStartup: KaliumStartup
+
+        @MockK
+        lateinit var sessionStartup: StartupHandle<UserSessionScope>
+
+        @MockK
         lateinit var observeValidAccountsUseCase: ObserveSessionsUseCase
 
         var syncExecutor = FakeSyncExecutor()
@@ -170,6 +180,11 @@ class SyncLifecycleManagerTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { coreLogic.getGlobalScope().observeAllValidSessionsFlow } returns observeValidAccountsUseCase
             every { coreLogic.getSessionScope(TestUser.SELF_USER_ID) } returns userSessionScope
+            every { coreLogic.startup } returns kaliumStartup
+            every { kaliumStartup.session(TestUser.SELF_USER_ID) } returns sessionStartup
+            every { sessionStartup.state } returns MutableStateFlow(StartupState.Ready)
+            every { sessionStartup.readyOrNull() } returns userSessionScope
+            coEvery { sessionStartup.open() } returns StartupResult.Success(userSessionScope)
             every { currentScreenManager.isAppVisibleFlow() } returns appVisibility
             coEvery { observeValidAccountsUseCase.invoke() } returns flowOf(
                 GetAllSessionsResult.Success(

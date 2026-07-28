@@ -79,6 +79,28 @@
     </issue>
 
     <issue
+        id="SlotReused"
+        message="Slots should be invoked in at most once place to meet lifecycle expectations. Slots should not be invoked in multiple places in source code, where the invoking location changes based on some condition. This will preserve the slot&apos;s internal state when the invoking location changes. See https://slackhq.github.io/compose-lints/rules/#do-not-invoke-slots-in-more-than-once-place for more information."
+        errorLine1="    messageListContent: @Composable () -> Unit,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/MessageComposer.kt"
+            line="87"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="SlotReused"
+        message="Slots should be invoked in at most once place to meet lifecycle expectations. Slots should not be invoked in multiple places in source code, where the invoking location changes based on some condition. This will preserve the slot&apos;s internal state when the invoking location changes. See https://slackhq.github.io/compose-lints/rules/#do-not-invoke-slots-in-more-than-once-place for more information."
+        errorLine1="    startContent: @Composable () -> Unit = {}"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt"
+            line="125"
+            column="5"/>
+    </issue>
+
+    <issue
         id="ComposeModifierMissing"
         message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
         errorLine1="fun AppSettingsScreen() {"

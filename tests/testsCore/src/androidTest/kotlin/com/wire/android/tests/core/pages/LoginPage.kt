@@ -147,6 +147,13 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun clearUserIdentifierInput(): LoginPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.findObject(emailInputField).click()
+        device.findObject(emailInputField).setText("")
+        return this
+    }
+
     fun enterTeamOwnerLoggingPassword(password: String): LoginPage {
         enterPassword(password)
         return this
@@ -302,6 +309,15 @@ data class LoginPage(private val device: UiDevice) {
             UiWaitUtils.findElementOrNull(backendConfigSuccessContinueButtonSelector)?.click()
         }
         waitForWelcomeScreenAfterBackendConfigContinue()
+        return this
+    }
+
+    fun assertSsoValidationErrorVisible(expectedMessage: String): LoginPage {
+        val error = UiWaitUtils.waitElement(UiSelectorParams(text = expectedMessage))
+        assertTrue(
+            "Expected SSO validation error '$expectedMessage' to be visible",
+            !error.visibleBounds.isEmpty
+        )
         return this
     }
 

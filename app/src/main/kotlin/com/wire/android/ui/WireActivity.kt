@@ -508,7 +508,7 @@ class WireActivity : BaseActivity() {
     ): WireActivityGraphContext? {
         if (!shouldInvalidate) return lastSessionGraphContext
 
-        lastSessionGraphContext?.sessionGraph?.currentAccount?.let(sessionGraphStore::invalidate)
+        sessionGraphStore.invalidateActive()
         return null
     }
 
@@ -1335,23 +1335,34 @@ internal class SessionGraphStoreViewModel(
     private val createSessionGraph: (UserId) -> AppSessionViewModelGraph,
 ) : ViewModel() {
     private val sessionGraphs = mutableMapOf<UserId, RetainedSessionGraph>()
+    private var activeUserId: UserId? = null
 
-    fun retainedGraphFor(userId: UserId): RetainedSessionGraph =
-        sessionGraphs.getOrPut(userId) {
+    fun retainedGraphFor(userId: UserId): RetainedSessionGraph {
+        activeUserId = userId
+        return sessionGraphs.getOrPut(userId) {
             appLogger.i("WireActivity creating lifecycle-retained session graph for $userId")
             RetainedSessionGraph(createSessionGraph(userId))
         }
+    }
+
+    fun invalidateActive() {
+        activeUserId?.let(::invalidate)
+    }
 
     fun invalidate(userId: UserId) {
         sessionGraphs.remove(userId)?.also {
             appLogger.i("WireActivity clearing lifecycle-retained session graph for $userId")
             it.clear()
         }
+        if (activeUserId == userId) {
+            activeUserId = null
+        }
     }
 
     override fun onCleared() {
         sessionGraphs.values.forEach(RetainedSessionGraph::clear)
         sessionGraphs.clear()
+        activeUserId = null
     }
 }
 

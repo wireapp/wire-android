@@ -1,4 +1,4 @@
-# 14. Explicit Kalium startup and user-visible database migrations
+# 14. Android integration for explicit Kalium user database preparation
 
 Date: 2026-07-27
 
@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-Kalium currently opens databases as a side effect of constructing scopes:
+Kalium currently opens user databases as a side effect of constructing scopes:
 
 - Constructing `CoreLogic` creates the global database builder.
 - Calling `getSessionScope(userId)` synchronously constructs a `UserSessionScope`.
@@ -27,8 +27,15 @@ session-scoped Metro graph. An expensive migration can therefore begin before th
 present useful status, and the thread that first asks for the scope is blocked until the database is
 ready.
 
-We need to support schema migrations and post-schema data migrations that can take long enough to
-block use of an account. The solution must:
+[Kalium ADR 10](../../kalium/docs/adr/0010-explicit-user-database-migration-lifecycle.md) owns the
+shared lifecycle and correctness rules for user database preparation. It distinguishes required
+schema migrations, which must finish before a session is exposed, from deferred data migrations,
+which may run only while old and new code can safely coexist.
+
+This ADR defines how Wire for Android consumes that preparation boundary. It does not define
+Kalium's exported API names, result types, transaction behavior, or migration framework.
+
+The Android integration must:
 
 - keep all database opening and migration work off the main thread;
 - expose readiness, migration progress, and failure without exposing persistence implementation
@@ -54,109 +61,39 @@ priority while important work continues. The project already uses this pattern f
 
 ## Decision
 
-### 1. Make Kalium database startup explicit
+### 1. Consume Kalium's preparation boundary
 
-Kalium will expose a startup coordinator with a stable handle for each user session. The global
-database is deliberately out of scope: it is small, has no long-running migrations, and stays on
-the existing synchronous startup path.
+Android will consume the app-facing session-preparation operation and observable state defined by
+Kalium ADR 10. The global database remains outside this gate because it is small and stays on its
+existing opening path.
 
-```kotlin
-public interface KaliumStartup {
-    public fun session(userId: UserId): StartupHandle<UserSessionScope>
-}
+Android relies on these Kalium-owned semantics:
 
-public interface StartupHandle<T> {
-    public val state: StateFlow<StartupState>
+- preparation runs on Kalium's I/O dispatcher;
+- concurrent callers for the same user await one in-process preparation operation;
+- cancelling one Android waiter does not cancel preparation that another entrypoint still needs;
+- no `UserSessionScope` or DAO is exposed before opening, required schema migration, and verification
+  succeed;
+- failures use stable, sanitized categories that distinguish retryable from permanent outcomes;
+- synchronous session access becomes ready-only after consumers migrate to preparation.
 
-    /**
-     * Opens the database and runs all blocking migrations.
-     *
-     * The operation is idempotent and single-flight. Concurrent callers await the same work.
-     */
-    public suspend fun open(): StartupResult<T>
+The exact API names and exported types remain a Kalium implementation decision. Android maps the
+technical state to app-owned presentation state and localized strings.
 
-    /**
-     * Explicitly retries a failed startup when the failure is classified as retryable.
-     */
-    public suspend fun retry(): StartupResult<T>
+In this ADR, `Ready` and `Failed` name Android presentation outcomes. They do not prescribe Kalium's
+exported type or case names.
 
-    /**
-     * Returns a ready scope without doing disk work, or null when startup is not complete.
-     */
-    public fun readyOrNull(): T?
-}
+Deferred data migrations do not participate in this blocking startup gate, migration screen, or
+foreground-notification policy. Android may schedule them separately after Kalium defines a concrete
+shared deferred-migration API.
 
-public sealed interface StartupState {
-    public data object NotStarted : StartupState
-    public data object Opening : StartupState
-    public data class Migrating(val progress: MigrationProgress) : StartupState
-    public data object Ready : StartupState
-    public data class Failed(val failure: StartupFailure) : StartupState
-}
+Required schema migration progress is indeterminate unless Kalium can report trustworthy completed
+and total units. Android must never derive a percentage from elapsed time, schema versions, or an
+assumed row count.
 
-public data class MigrationProgress(
-    val stage: Stage,
-    val completedUnits: Long? = null,
-    val totalUnits: Long? = null,
-) {
-    public enum class Stage {
-        Preparing,
-        UpdatingSchema,
-        MigratingData,
-        Finalizing,
-    }
-}
+### 2. Gate session-scoped Android components on readiness
 
-public sealed interface StartupResult<out T> {
-    public data class Success<T>(val value: T) : StartupResult<T>
-    public data class Failure(val failure: StartupFailure) : StartupResult<Nothing>
-}
-```
-
-The exact public names may change during implementation, but the following semantics are required:
-
-- `open()` performs database work on Kalium's IO dispatcher.
-- Each handle is single-flight. Multiple callers cannot run the same migration concurrently.
-- Cancelling an awaiting UI coroutine does not cancel an in-progress SQLite migration. The migration
-  is owned by an application-level supervisor and the caller only stops awaiting its result.
-- A scope is cached and exposed only after all user-blocking schema and data migration steps finish.
-- `Failed` contains a stable, sanitized failure category suitable for retry decisions and telemetry,
-  not raw SQL, passphrases, paths, or database contents.
-- Retrying is explicit and only allowed when the migration implementation says it is safe.
-- Startup state does not contain Android strings. Android maps the technical stage to localized UI.
-
-The existing synchronous `getSessionScope(userId)` API will be deprecated in favor of the startup
-handle. During the compatibility period it must become ready-only and fail fast when the session has
-not been prepared. It must no longer open a database or run a migration as a hidden side effect.
-
-### 2. Report schema and data migration state
-
-An internal migration reporter will be passed through the persistence construction path to both
-Android open-helper implementations:
-
-- the unencrypted `SqliteCallback`;
-- the SQLCipher `SupportOpenHelperFactory`.
-
-The reporter emits `UpdatingSchema` before delegating to the SQLDelight upgrade callback and emits
-the next state only after that callback returns successfully.
-
-One large SQL statement has no trustworthy fractional progress. Such work will use indeterminate
-progress rather than an invented percentage.
-
-Expensive post-schema transformations should be implemented as resumable data-migration steps:
-
-- split work into bounded chunks where practical;
-- persist a durable migration step/checkpoint;
-- make each step idempotent or transactional;
-- emit real completed and total units only when they are known;
-- finish all user-blocking steps before publishing `Ready`.
-
-Schema upgrades continue to rely on SQLite transaction guarantees. Post-schema steps must be able to
-resume safely after process death.
-
-### 3. Gate session-scoped Android components on readiness
-
-Android will add an app-scoped startup coordinator/view model that maps Kalium startup state into
+Android will add an app-scoped startup coordinator/view model that maps Kalium preparation state into
 Android presentation state.
 
 `WireActivity` will install Compose content before resolving the complete initial app state. The
@@ -168,41 +105,42 @@ Startup order will be:
 1. Render the app-scoped startup surface.
 2. Read the current account from the existing global scope.
 3. If there is no current account, render the authentication graph.
-4. If there is a current account, open that user's session handle.
+4. If there is a current account, invoke Kalium's session-preparation operation for that user.
 5. Resolve session-dependent startup decisions, such as E2EI enrollment.
 6. Create the session-scoped Metro graph and render the normal destination only after `Ready`.
-7. Start user-session observers only after the corresponding handle is ready.
+7. Start user-session observers only after the corresponding preparation is ready.
 
 The Android splash screen will remain only until the first Compose frame is available. A potentially
 long migration will use a real Compose screen rather than holding the static system splash screen.
 
 Application observers, services, workers, notification fetches, and FCM-triggered work must use the
-same startup handles. They may await an already-running migration, but they must not independently
-open a database. FCM-triggered notification-fetch work for a migrating user remains queued until the
-session becomes ready.
+same Kalium preparation boundary. They may await an already-running operation, but they must not
+independently open a database. FCM-triggered notification-fetch work for a user being prepared
+remains queued until the session becomes ready.
 
 #### FCM cold-start behavior
 
 An FCM data push can be the first entrypoint into a stopped Wire process. In that case, startup will
 follow this sequence:
 
-1. `WireFirebaseMessagingService` creates the application graph and a cheap `CoreLogic`/startup
-   coordinator. Opening the small global database is allowed.
+1. `WireFirebaseMessagingService` creates the application graph and obtains Kalium's cheap
+   session-preparation entrypoint. Opening the small global database is allowed.
 2. `onMessageReceived()` validates only the push envelope, enqueues the existing unique
    `NotificationFetchWorker` for the supplied user, and returns within the short FCM callback window.
 3. `NotificationFetchWorker` reads the small global database to resolve the pushed user's qualified
    ID.
-4. After confirming that the pushed user has a valid session, the worker calls
-   `startup.session(userId).open()`.
+4. After confirming that the pushed user has a valid session, the worker invokes Kalium's
+   session-preparation operation.
 5. If the worker is the first caller, it starts the migration. If the activity or another consumer
    already started it, the worker awaits the same single-flight operation.
 6. Only after `Ready` does the worker connect/synchronize, read pending events, and build message or
    call notifications.
 
-The WorkManager request is the durable record that notification work is pending; the in-memory
-startup handle is not the durable record. If the process is stopped during migration, WorkManager
-can run the request again and the idempotent/checkpointed migration resumes before notifications are
-fetched.
+The WorkManager request is the durable record that notification work is pending; in-memory
+preparation state is not that durable record. If the process is stopped during a required migration,
+WorkManager can run the request again. Kalium re-inspects the durable schema version and safely
+retries from the last committed version before notifications are fetched. WorkManager state is never
+proof that database preparation completed.
 
 The existing per-user unique-work policy coalesces multiple pushes received while the migration is
 running. This is safe because the eventual synchronization processes all pending events; a separate
@@ -221,16 +159,18 @@ The worker must not report `Result.success()` merely because an exception interr
 `onNewToken()` is unaffected because it only uses the small global storage path.
 
 For multiple accounts, only the current account is proactively prepared by the activity. Other
-accounts are prepared on demand by their entrypoint. Per-user database opening is serialized so
-large migrations do not run concurrently across accounts. If an FCM worker already started another
-account's migration, the current account waits for that database operation rather than competing for
-I/O.
+accounts are prepared on demand by their entrypoint. Android gives visible current-account startup
+scheduling priority: queued background work for other accounts must not start new preparation while
+the current account is waiting. An operation that already started is not cancelled or preempted.
+Kalium guarantees single-flight preparation per user; this ADR does not require process-wide
+serialization across different user databases. Any cross-account I/O concurrency limit must be
+based on measurements and preserve visible current-account priority.
 
-### 4. Delay migration UI to avoid flashes
+### 3. Delay migration UI to avoid flashes
 
-Kalium emits migration state immediately so that coordination, logs, tests, and background consumers
-remain accurate. Delayed visibility is an Android presentation concern and does not delay the
-migration itself.
+Kalium emits preparation state immediately so that coordination, logs, tests, and background
+consumers remain accurate. Delayed visibility is an Android presentation concern and does not delay
+preparation itself.
 
 Android will use a centralized presentation policy with monotonic time:
 
@@ -270,7 +210,7 @@ uses an indeterminate indicator with generic localized copy such as "Updating Wi
 that the app should remain open. Schema version numbers, table names, account identifiers, and raw
 errors are never displayed.
 
-### 5. Use a local foreground notification, not FCM
+### 4. Use a local foreground notification, not FCM
 
 Short migrations do not post a notification.
 
@@ -292,7 +232,7 @@ notification. Android 12 and newer can apply the delayed foreground promotion po
 
 The foreground execution adapter may use a long-running `CoroutineWorker`, following the existing
 `InitialSyncWorker` pattern, provided the worker and the activity share the same single-flight
-Kalium startup handle. If Android platform restrictions make a direct foreground service more
+Kalium preparation operation. If Android platform restrictions make a direct foreground service more
 appropriate for immediate user-initiated startup work, that choice can be made in implementation
 without changing the Kalium contract.
 
@@ -332,19 +272,18 @@ Relevant Android guidance:
 - [Notification runtime permission](https://developer.android.com/develop/ui/compose/notifications/notification-permission)
 - [Receive messages in Android apps](https://firebase.google.com/docs/cloud-messaging/android/receive-messages)
 
-### 6. Verify startup and migration behavior
+### 5. Verify startup and migration behavior
 
-Kalium tests will cover:
+Kalium ADR 10 requires tests that cover:
 
-- no-migration opening: `NotStarted -> Opening -> Ready`;
-- schema migration: `NotStarted -> Opening -> Migrating -> Ready`;
-- a post-schema data migration with real progress;
+- opening without a migration;
+- required schema migration and verification before readiness;
 - failure and safe retry;
-- concurrent `open()` calls invoking the database factory and migration exactly once;
+- concurrent preparation calls invoking the database factory and migration exactly once;
 - cancellation of one waiter without cancellation of the shared migration;
 - no scope exposure before `Ready`;
-- checkpoint resume after simulated process interruption;
-- isolation between per-user handles.
+- restart from the last committed schema version after simulated process interruption;
+- isolation between per-user preparation operations.
 
 Android tests will use injected durations and test dispatchers to cover:
 
@@ -378,29 +317,32 @@ regression test using representative large datasets.
   processing.
 - Central startup consumers no longer create session-scoped objects against a partially migrated
   database; remaining synchronous compatibility call sites are migrated incrementally.
-- Current-account startup is prioritized without forcing all account databases to migrate in
-  parallel.
+- Visible current-account startup is prioritized when Android schedules new preparation work.
 - The notification works without Firebase and consistently across all flavors.
-- Migration implementations gain a clear path toward checkpointed, restartable data transformations.
+- Interrupted required migrations recover from Kalium's durable schema-version source of truth.
 
 ### Trade-offs
 
 - User storage and session-scope creation must be refactored so per-user database opening is
   suspendable.
 - Existing synchronous `getSessionScope()` call sites must migrate to explicit readiness handling.
-- Application observers and workers need lifecycle changes so they await startup handles.
+- Application observers and workers need lifecycle changes so they await session preparation.
 - A minimum visible duration can intentionally add up to 500 ms after a migration has completed, but
   only after the blocking screen was already shown.
 - Foreground execution and notification behavior must be kept aligned with evolving Android
   restrictions and tested on supported API levels.
-- Chunked post-schema migrations require durable checkpoints and more migration-specific tests.
+- Deferred data migrations require a separate Kalium contract and Android scheduling policy when a
+  concrete use case is introduced.
 
 ### Follow-up implementation sequence
 
-1. Add Kalium per-session startup handles and single-flight state machines.
-2. Add migration reporting to encrypted and unencrypted database callbacks.
-3. Add the app-scoped startup coordinator and delayed presentation policy.
-4. Gate session Metro graph construction and user-session observers on `Ready`.
-5. Migrate services, workers, and FCM-triggered notification work to startup handles.
-6. Add the low-importance database-maintenance channel and foreground execution adapter.
-7. Deprecate and remove database-opening behavior from synchronous session-scope access.
+1. Implement and adopt Kalium's session-preparation boundary according to Kalium ADR 10.
+2. Add the app-scoped startup coordinator and delayed presentation policy.
+3. Gate session Metro graph construction and user-session observers on readiness.
+4. Migrate services, workers, and FCM-triggered notification work to the preparation boundary.
+5. Add the low-importance database-maintenance channel and foreground execution adapter.
+6. Remove database-opening behavior from synchronous session-scope access after consumer migration.
+
+## References
+
+- [Kalium ADR 10: Explicit lifecycle for long-running user database migrations](../../kalium/docs/adr/0010-explicit-user-database-migration-lifecycle.md)

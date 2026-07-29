@@ -716,7 +716,7 @@ class ChannelTest : BaseUiTest() {
 
         step("And I tap Remove Conversation button in remove conversation confirmation modal") {
             pages.groupConversationDetailsPage.apply {
-                tapRemoveGroupButton()
+                tapDeleteGroupButton()
             }
         }
 

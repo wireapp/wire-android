@@ -76,6 +76,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.datetime.Instant
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import java.text.NumberFormat
 
@@ -386,7 +387,7 @@ fun NewClientDialog(
         val devicesList = data.clientsInfo.map {
             stringResource(
                 R.string.new_device_dialog_message_defice_info,
-                it.date.deviceDateTimeFormat() ?: "",
+                it.date?.deviceDateTimeFormat().orEmpty(),
                 it.deviceInfo.asString()
             )
         }.joinToString("")
@@ -641,7 +642,10 @@ fun PreviewGuestCallWasEndedBecauseOfVerificationDegradedDialog() {
 fun PreviewNewClientDialog() {
     WireTheme {
         NewClientDialog(
-            NewClientsData.CurrentUser(listOf(NewClientInfo("date", UIText.DynamicString("name"))), UserId("id", "domain")),
+            NewClientsData.CurrentUser(
+                listOf(NewClientInfo(Instant.parse("2024-01-01T12:00:00.000Z"), UIText.DynamicString("name"))),
+                UserId("id", "domain")
+            ),
             {},
             {},
             {}

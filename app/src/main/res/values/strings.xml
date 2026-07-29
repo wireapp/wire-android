@@ -644,7 +644,7 @@
     <string name="promote_admin_error_failed_to_promote">Failed to promote user to admin</string>
     <string name="promote_admin_error_failed_to_leave">Failed to leave conversation</string>
     <string name="delete_conversation_conversation_menu_item">Delete Conversation…</string>
-    <string name="delete_conversation_conversation_dialog_title">Remove “%s”?</string>
+    <string name="delete_conversation_conversation_dialog_title">Delete “%s”?</string>
     <string name="delete_conversation_conversation_dialog_description">This will delete the group and all content for all participants on all devices. There is no option to restore the content. All participants will be notified.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Delete “%s” conversation for me?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">You won’t be able to access the conversation and its content. There is no option to restore it.</string>
@@ -1904,4 +1904,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
     <string name="label_system_message_admin_role_assigned">You were promoted to group admin</string>
     <string name="more_information_about_this_server">More information about this backend</string>
+
+    <!-- Pending messages service notification -->
+    <string name="pending_messages_notification_waiting">Waiting for connection</string>
+    <string name="pending_messages_notification_sending">Sending messages</string>
+
 </resources>

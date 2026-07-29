@@ -190,7 +190,6 @@ import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.normalizeLink
 import com.wire.android.util.openDownloadFolder
-import com.wire.android.util.serverDate
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
@@ -212,7 +211,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import java.util.Date
 import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
 import androidx.compose.ui.platform.LocalLocale
@@ -857,7 +855,7 @@ private fun ConversationScreen(
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
-    onUpdateConversationReadDate: (String) -> Unit,
+    onUpdateConversationReadDate: (Instant) -> Unit,
     onDropDownClick: () -> Unit,
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
@@ -1058,7 +1056,7 @@ private fun ConversationScreenContent(
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
-    onUpdateConversationReadDate: (String) -> Unit,
+    onUpdateConversationReadDate: (Instant) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
@@ -1203,7 +1201,7 @@ fun MessageList(
     lastUnreadMessageInstant: Instant?,
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    onUpdateConversationReadDate: (String) -> Unit,
+    onUpdateConversationReadDate: (Instant) -> Unit,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSwipedToReact: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
@@ -1361,19 +1359,17 @@ fun MessageList(
                     if (index > 0) {
                         val previousMessage = lazyPagingMessages[index - 1] ?: message
                         val shouldDisplayDateTimeDivider = message.header.messageTime.shouldDisplayDatesDifferenceDivider(
-                            previousDate = previousMessage.header.messageTime.utcISO
+                            previousDate = previousMessage.header.messageTime.instant
                         )
 
                         if (shouldDisplayDateTimeDivider) {
                             val previousGroup = previousMessage.header.messageTime.getFormattedDateGroup(now = currentTime)
-                            previousMessage.header.messageTime.utcISO.serverDate()?.let { serverDate ->
-                                MessageGroupDateTime(
-                                    messageDateTime = serverDate,
-                                    messageDateTimeGroup = previousGroup,
-                                    now = currentTime,
-                                    isBubbleUiEnabled = isBubbleUiEnabled
-                                )
-                            }
+                            MessageGroupDateTime(
+                                messageDateTime = previousMessage.header.messageTime.instant,
+                                messageDateTimeGroup = previousGroup,
+                                now = currentTime,
+                                isBubbleUiEnabled = isBubbleUiEnabled
+                            )
                         }
                     }
 
@@ -1407,14 +1403,12 @@ fun MessageList(
                     val isTheLastItem = (index + 1) == lazyPagingMessages.itemCount
                     if (isTheOnlyItem || isTheLastItem) {
                         val currentGroup = message.header.messageTime.getFormattedDateGroup(now = currentTime)
-                        message.header.messageTime.utcISO.serverDate()?.let { serverDate ->
-                            MessageGroupDateTime(
-                                messageDateTime = serverDate,
-                                messageDateTimeGroup = currentGroup,
-                                now = currentTime,
-                                isBubbleUiEnabled = isBubbleUiEnabled
-                            )
-                        }
+                        MessageGroupDateTime(
+                            messageDateTime = message.header.messageTime.instant,
+                            messageDateTimeGroup = currentGroup,
+                            now = currentTime,
+                            isBubbleUiEnabled = isBubbleUiEnabled
+                        )
                     }
                 }
                 // reverse layout, so prepend needs to be added after all messages to be displayed at the top of the list
@@ -1559,11 +1553,11 @@ private fun BoxScope.ScrollDateOverlay(
                 if (message != null) break
             }
             message ?: return@derivedStateOf null
-            val messageDate = message.header.messageTime.utcISO.serverDate() ?: return@derivedStateOf null
+            val messageDate = message.header.messageTime.instant
 
             DateUtils.formatDateTime(
                 context,
-                messageDate.time,
+                messageDate.toEpochMilliseconds(),
                 DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE
             )
         }
@@ -1622,16 +1616,17 @@ private fun LazyPagingItems<UIMessage>.peekVisibleWindowItems(
 @Composable
 private fun MessageGroupDateTime(
     now: Long,
-    messageDateTime: Date,
-    messageDateTimeGroup: MessageDateTimeGroup?,
+    messageDateTime: Instant,
+    messageDateTimeGroup: MessageDateTimeGroup,
     isBubbleUiEnabled: Boolean
 ) {
     val context = LocalContext.current
+    val messageDateTimeInMillis = messageDateTime.toEpochMilliseconds()
 
     val timeString = when (messageDateTimeGroup) {
         is MessageDateTimeGroup.Now -> context.resources.getString(R.string.message_datetime_now)
         is MessageDateTimeGroup.Within30Minutes -> DateUtils.getRelativeTimeSpanString(
-            messageDateTime.time,
+            messageDateTimeInMillis,
             now,
             DateUtils.MINUTE_IN_MILLIS
         ).toString()
@@ -1641,7 +1636,7 @@ private fun MessageGroupDateTime(
                 MessageDateTimeGroup.Daily.Type.Today,
                 MessageDateTimeGroup.Daily.Type.Yesterday ->
                     DateUtils.getRelativeTimeSpanString(
-                        messageDateTime.time,
+                        messageDateTimeInMillis,
                         now,
                         DateUtils.DAY_IN_MILLIS,
                         0
@@ -1649,25 +1644,23 @@ private fun MessageGroupDateTime(
 
                 MessageDateTimeGroup.Daily.Type.WithinWeek -> DateUtils.formatDateTime(
                     context,
-                    messageDateTime.time,
+                    messageDateTimeInMillis,
                     DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE
                 )
 
                 MessageDateTimeGroup.Daily.Type.NotWithinWeekButSameYear -> DateUtils.formatDateTime(
                     context,
-                    messageDateTime.time,
+                    messageDateTimeInMillis,
                     DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE
                 )
 
                 MessageDateTimeGroup.Daily.Type.Other -> DateUtils.formatDateTime(
                     context,
-                    messageDateTime.time,
+                    messageDateTimeInMillis,
                     DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR
                 )
             }
         }
-
-        null -> ""
     }
 
     if (isBubbleUiEnabled) {
@@ -1715,14 +1708,14 @@ private fun MessageGroupDateTime(
 private fun updateLastReadMessage(
     lastVisibleMessage: UIMessage,
     lastUnreadMessageInstant: Instant?,
-    onUpdateConversationReadDate: (String) -> Unit
+    onUpdateConversationReadDate: (Instant) -> Unit
 ) {
-    val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.header.messageTime.utcISO)
+    val lastVisibleMessageInstant = lastVisibleMessage.header.messageTime.instant
 
     // TODO: This IF condition should be in the UseCase
     //       If there are no unread messages, then use distant future and don't update read date
     if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
-        onUpdateConversationReadDate(lastVisibleMessage.header.messageTime.utcISO)
+        onUpdateConversationReadDate(lastVisibleMessageInstant)
     }
 }
 

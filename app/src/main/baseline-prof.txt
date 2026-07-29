@@ -36602,7 +36602,6 @@ Lcom/wire/kalium/logic/sync/GlobalWorkScheduler;
 Lcom/wire/kalium/logic/sync/GlobalWorkSchedulerImpl;
 SPLcom/wire/kalium/logic/sync/GlobalWorkSchedulerImpl;-><init>(Landroid/content/Context;Lcom/wire/kalium/logic/GlobalKaliumScope;)V
 SPLcom/wire/kalium/logic/sync/GlobalWorkSchedulerImpl;->schedulePeriodicApiVersionUpdate()V
-Lcom/wire/kalium/logic/sync/PendingMessagesSenderWorker;
 Lcom/wire/kalium/logic/sync/WorkSchedulerImplKt;
 SPLcom/wire/kalium/logic/sync/WorkSchedulerImplKt;-><clinit>()V
 SPLcom/wire/kalium/logic/sync/WorkSchedulerImplKt;->buildConnectedPeriodicWorkRequest$default(Lkotlin/reflect/KClass;Lcom/wire/kalium/logic/data/id/QualifiedID;ZILjava/lang/Object;)Landroidx/work/PeriodicWorkRequest;

@@ -17,28 +17,28 @@
  */
 @file:Suppress("MatchingDeclarationName")
 
-package com.wire.android.mediaplayer
+package com.wire.android.audioplayer
 
 import androidx.compose.runtime.Composable
 import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface MediaPlayerManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun videoPlayerViewModel(
+interface AudioPlayerManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun audioPlayerViewModel(
         localPath: String?,
         contentUrl: String?,
         fileName: String?,
-    ): VideoPlayerViewModel
+    ): AudioPlayerViewModel
 }
 
 @Composable
-fun videoPlayerViewModel(
+fun audioPlayerViewModel(
     localPath: String?,
     contentUrl: String?,
     fileName: String?,
-): VideoPlayerViewModel =
-    sessionKeyedAssistedMetroViewModel<VideoPlayerViewModel, MediaPlayerManualViewModelFactory>(
-        key = "video_player_${localPath ?: contentUrl}"
+): AudioPlayerViewModel =
+    sessionKeyedAssistedMetroViewModel<AudioPlayerViewModel, AudioPlayerManualViewModelFactory>(
+        key = "audio_player_${localPath ?: contentUrl}"
     ) {
-        videoPlayerViewModel(localPath, contentUrl, fileName)
+        audioPlayerViewModel(localPath, contentUrl, fileName)
     }

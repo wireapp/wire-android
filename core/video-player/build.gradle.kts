@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.wire.android.mediaplayer"
+    namespace = "com.wire.android.videoplayer"
 }
 
 dependencies {

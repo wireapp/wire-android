@@ -47,7 +47,8 @@ import com.wire.android.di.accountScoped.TeamModule
 import com.wire.android.di.accountScoped.UserModule
 import com.wire.android.feature.cells.ui.CellsMetroViewModelBindings
 import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
-import com.wire.android.mediaplayer.MediaPlayerMetroViewModelBindings
+import com.wire.android.audioplayer.AudioPlayerMetroViewModelBindings
+import com.wire.android.videoplayer.VideoPlayerMetroViewModelBindings
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
 import com.wire.android.notification.broadcastreceivers.NomadLogoutReceiver
@@ -108,7 +109,8 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
         MeetingsMetroViewModelBindings::class,
         CoreUICommonMetroViewModelBindings::class,
         SearchMetroViewModelBindings::class,
-        MediaPlayerMetroViewModelBindings::class,
+        VideoPlayerMetroViewModelBindings::class,
+        AudioPlayerMetroViewModelBindings::class,
     ]
 )
 @Suppress("TooManyFunctions")

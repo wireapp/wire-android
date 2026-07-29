@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.audioplayer
+package com.wire.android.audioplayer
 
 data class AudioPlaybackState(
     val isPlaying: Boolean = false,

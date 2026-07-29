@@ -18,14 +18,14 @@
 package com.wire.android.feature.cells.ui.videoplayer
 
 import androidx.compose.runtime.Composable
-import com.wire.android.mediaplayer.VideoPlayer
+import com.wire.android.videoplayer.VideoPlayer
 import com.wire.android.navigation.WireNavigator
 import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 
 /**
  * Cells navigation entry point for the shared [VideoPlayer]. Reads the destination's [VideoViewerNavArgs]
- * and delegates rendering + playback to the reusable player in `core:media-player`.
+ * and delegates rendering + playback to the reusable player in `core:video-player`.
  */
 @WireCellsDestination(
     style = PopUpNavigationAnimation::class,

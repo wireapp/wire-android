@@ -17,9 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
@@ -219,14 +217,6 @@ class CellsViewModelFactory @Inject constructor(
     )
 
     internal fun cellImageViewerViewModel(savedStateHandle: SavedStateHandle) = CellImageViewerViewModel(
-        savedStateHandle = savedStateHandle,
-    )
-
-    internal fun cellAudioPlayerViewModel(
-        context: Context,
-        savedStateHandle: SavedStateHandle
-    ) = AudioPlayerViewModel(
-        context = context,
         savedStateHandle = savedStateHandle,
     )
 }

@@ -15,23 +15,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.mediaplayer
+@file:Suppress("MatchingDeclarationName")
 
-import android.content.Context
-import com.wire.android.di.ApplicationContext
-import dev.zacsweers.metro.Inject
+package com.wire.android.videoplayer
 
-class MediaPlayerViewModelFactory @Inject constructor(
-    @ApplicationContext private val context: Context,
-) {
+import androidx.compose.runtime.Composable
+import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+
+interface VideoPlayerManualViewModelFactory : ManualViewModelAssistedFactory {
     fun videoPlayerViewModel(
         localPath: String?,
         contentUrl: String?,
         fileName: String?,
-    ) = VideoPlayerViewModel(
-        context = context,
-        localPath = localPath,
-        contentUrl = contentUrl,
-        fileName = fileName,
-    )
+    ): VideoPlayerViewModel
 }
+
+@Composable
+fun videoPlayerViewModel(
+    localPath: String?,
+    contentUrl: String?,
+    fileName: String?,
+): VideoPlayerViewModel =
+    sessionKeyedAssistedMetroViewModel<VideoPlayerViewModel, VideoPlayerManualViewModelFactory>(
+        key = "video_player_${localPath ?: contentUrl}"
+    ) {
+        videoPlayerViewModel(localPath, contentUrl, fileName)
+    }

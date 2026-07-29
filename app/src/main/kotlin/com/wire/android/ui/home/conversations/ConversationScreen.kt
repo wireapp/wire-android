@@ -216,6 +216,7 @@ import java.util.Date
 import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
 import androidx.compose.ui.platform.LocalLocale
+import com.ramcosta.composedestinations.generated.app.destinations.AudioPlayerScreenDestination
 
 /**
  * The maximum number of messages the user can scroll while still
@@ -517,6 +518,17 @@ fun ConversationScreen(
             navigator.navigate(
                 NavigationCommand(
                     VideoPlayerScreenDestination(
+                        localPath = localPath,
+                        contentUrl = contentUrl,
+                        fileName = fileName,
+                    )
+                )
+            )
+        },
+        onAudioClick = { localPath, contentUrl, fileName ->
+            navigator.navigate(
+                NavigationCommand(
+                    AudioPlayerScreenDestination(
                         localPath = localPath,
                         contentUrl = contentUrl,
                         fileName = fileName,
@@ -840,6 +852,7 @@ private fun ConversationScreen(
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -951,6 +964,7 @@ private fun ConversationScreen(
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onVideoClick = onVideoClick,
+                        onAudioClick = onAudioClick,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
@@ -1040,6 +1054,7 @@ private fun ConversationScreenContent(
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
@@ -1097,6 +1112,7 @@ private fun ConversationScreenContent(
                     onAssetClicked = onAssetItemClicked,
                     onImageClicked = onImageFullScreenMode,
                     onVideoClicked = onVideoClick,
+                    onAudioClicked = onAudioClick,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
                     onResetSessionClicked = onResetSessionClicked,
@@ -1854,6 +1870,7 @@ fun PreviewConversationScreen() = WireTheme {
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _, _ -> },
         onVideoClick = { _, _, _ -> },
+        onAudioClick = { _, _, _ -> },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

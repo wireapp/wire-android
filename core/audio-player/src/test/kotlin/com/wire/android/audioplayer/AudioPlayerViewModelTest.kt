@@ -15,46 +15,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.audioplayer
+package com.wire.android.audioplayer
 
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
 class AudioPlayerViewModelTest {
+
+    private val dispatcher = UnconfinedTestDispatcher()
+
+    @BeforeEach
+    fun setUp() {
+        Dispatchers.setMain(dispatcher)
+    }
 
     @AfterEach
     fun tearDown() {
+        Dispatchers.resetMain()
         unmockkAll()
     }
 
     @Test
     fun givenLocalPath_whenInitialized_thenDataSourceIsSetWithFileUriAndPrepared() = runTest {
         val (arrangement, _) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
 
         verify { Uri.fromFile(any()) }
@@ -65,7 +71,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenContentUrl_whenInitialized_thenDataSourceIsSetWithParsedUri() = runTest {
         val (arrangement, _) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(contentUrl = "https://wire.com/audio.mp3"))
+            .withSource(contentUrl = "https://wire.com/audio.mp3")
             .arrange()
 
         verify { Uri.parse("https://wire.com/audio.mp3") }
@@ -76,7 +82,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenNoSource_whenInitialized_thenDataSourceIsNotSet() = runTest {
         Arrangement()
-            .withNavArgs(AudioPlayerNavArgs())
+            .withSource()
             .arrange()
 
         verify(exactly = 0) { anyConstructed<MediaPlayer>().setDataSource(any<Context>(), any<Uri>()) }
@@ -86,7 +92,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenSetDataSourceThrows_whenInitialized_thenExceptionIsHandledSilently() = runTest {
         val (_, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .withSetDataSourceThrowing()
             .arrange()
 
@@ -94,14 +100,12 @@ class AudioPlayerViewModelTest {
     }
 
     @Test
-    fun givenNavArgs_whenInitialized_thenExposedAsProperties() = runTest {
+    fun givenArgs_whenInitialized_thenExposedAsProperties() = runTest {
         val (_, viewModel) = Arrangement()
-            .withNavArgs(
-                AudioPlayerNavArgs(
-                    localPath = "/tmp/audio.mp3",
-                    contentUrl = "https://wire.com/audio.mp3",
-                    fileName = "audio.mp3",
-                )
+            .withSource(
+                localPath = "/tmp/audio.mp3",
+                contentUrl = "https://wire.com/audio.mp3",
+                fileName = "audio.mp3",
             )
             .arrange()
 
@@ -113,7 +117,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenPlayerPrepares_whenOnPrepared_thenStateHasDurationAndIsPrepared() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .withDuration(5000)
             .arrange()
 
@@ -126,7 +130,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenNotPrepared_whenPlay_thenNothingHappens() = runTest {
         val (_, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
 
         viewModel.play()
@@ -138,7 +142,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenPrepared_whenPlay_thenStartsAndUpdatesStateAndPollsPosition() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .withCurrentPosition(42)
             .arrange()
         arrangement.triggerPrepared()
@@ -156,7 +160,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenNotPlaying_whenPause_thenNothingHappens() = runTest {
         val (_, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
 
         viewModel.pause()
@@ -167,7 +171,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenPlaying_whenPause_thenPausesAndUpdatesState() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
         arrangement.triggerPrepared()
         viewModel.play()
@@ -181,7 +185,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenNotPlaying_whenTogglePlayPause_thenStartsPlaying() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
         arrangement.triggerPrepared()
 
@@ -196,7 +200,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenPlaying_whenTogglePlayPause_thenPauses() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
         arrangement.triggerPrepared()
         viewModel.play()
@@ -210,7 +214,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenCompleted_whenTogglePlayPause_thenSeeksToStartAndPlays() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
         arrangement.triggerPrepared()
         arrangement.triggerCompletion()
@@ -226,10 +230,11 @@ class AudioPlayerViewModelTest {
     }
 
     @Test
-    fun whenSeekTo_thenMediaPlayerSeeksAndStateUpdated() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+    fun givenPrepared_whenSeekTo_thenMediaPlayerSeeksAndStateUpdated() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
+        arrangement.triggerPrepared()
 
         viewModel.seekTo(1234)
 
@@ -238,9 +243,21 @@ class AudioPlayerViewModelTest {
     }
 
     @Test
+    fun givenNotPrepared_whenSeekTo_thenNothingHappens() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSource(localPath = "/tmp/audio.mp3")
+            .arrange()
+
+        viewModel.seekTo(1234)
+
+        verify(exactly = 0) { anyConstructed<MediaPlayer>().seekTo(any<Int>()) }
+        assertEquals(0, viewModel.state.value.currentPositionMs)
+    }
+
+    @Test
     fun givenPlaying_whenCompletionFires_thenStateIsCompletedAndNotPlaying() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
         arrangement.triggerPrepared()
         viewModel.play()
@@ -254,7 +271,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun whenCleared_thenPlayerIsStoppedAndReleased() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .arrange()
 
         arrangement.clear(viewModel)
@@ -266,7 +283,7 @@ class AudioPlayerViewModelTest {
     @Test
     fun givenStopThrows_whenCleared_thenReleaseIsStillCalled() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
+            .withSource(localPath = "/tmp/audio.mp3")
             .withStopThrowing()
             .arrange()
 
@@ -278,7 +295,6 @@ class AudioPlayerViewModelTest {
     private class Arrangement {
 
         val context = mockk<Context>(relaxed = true)
-        val savedStateHandle = mockk<SavedStateHandle>(relaxed = true)
         val fileUri = mockk<Uri>()
         val contentUri = mockk<Uri>()
 
@@ -286,11 +302,11 @@ class AudioPlayerViewModelTest {
         private val preparedListenerSlot = slot<MediaPlayer.OnPreparedListener>()
         private val completionListenerSlot = slot<MediaPlayer.OnCompletionListener>()
 
-        private var navArgs = AudioPlayerNavArgs(localPath = "/tmp/audio.mp3")
+        private var localPath: String? = "/tmp/audio.mp3"
+        private var contentUrl: String? = null
+        private var fileName: String? = null
 
         init {
-            mockkObject(CellAudioPlayerScreenDestination)
-
             mockkStatic(Uri::class)
             every { Uri.fromFile(any()) } returns fileUri
             every { Uri.parse(any()) } returns contentUri
@@ -308,7 +324,15 @@ class AudioPlayerViewModelTest {
             every { anyConstructed<MediaPlayer>().currentPosition } returns 0
         }
 
-        fun withNavArgs(args: AudioPlayerNavArgs) = apply { navArgs = args }
+        fun withSource(
+            localPath: String? = null,
+            contentUrl: String? = null,
+            fileName: String? = null,
+        ) = apply {
+            this.localPath = localPath
+            this.contentUrl = contentUrl
+            this.fileName = fileName
+        }
 
         fun withDuration(durationMs: Int) = apply {
             every { preparedMp.duration } returns durationMs
@@ -340,9 +364,12 @@ class AudioPlayerViewModelTest {
             method.invoke(viewModel)
         }
 
-        fun arrange(): Pair<Arrangement, AudioPlayerViewModel> {
-            every { CellAudioPlayerScreenDestination.argsFrom(savedStateHandle) } returns navArgs
-            return this to AudioPlayerViewModel(context, savedStateHandle)
-        }
+        fun arrange(): Pair<Arrangement, AudioPlayerViewModel> =
+            this to AudioPlayerViewModel(
+                context = context,
+                localPath = localPath,
+                contentUrl = contentUrl,
+                fileName = fileName,
+            )
     }
 }

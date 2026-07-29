@@ -15,17 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.audioplayer
+package com.wire.android.audioplayer
 
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import java.io.File
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,15 +32,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+/**
+ * Playback ViewModel for the reusable [AudioPlayer]. Plays either a local file ([localPath]) or a
+ * remote [contentUrl]. The arguments are passed in through assisted injection
+ * (see [AudioPlayerViewModelFactory]) so any module can host the audio player screen.
+ */
 class AudioPlayerViewModel(
-    @ApplicationContext context: Context,
-    savedStateHandle: SavedStateHandle,
+    context: Context,
+    val localPath: String?,
+    val contentUrl: String?,
+    val fileName: String?,
 ) : ViewModel() {
-
-    private val navArgs = CellAudioPlayerScreenDestination.argsFrom(savedStateHandle)
-    val localPath: String? = navArgs.localPath
-    val contentUrl: String? = navArgs.contentUrl
-    val fileName: String? = navArgs.fileName
 
     private val _state = MutableStateFlow(AudioPlaybackState())
     val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()
@@ -98,6 +97,7 @@ class AudioPlayerViewModel(
     }
 
     fun seekTo(positionMs: Int) {
+        if (!_state.value.isPrepared) return
         mediaPlayer.seekTo(positionMs)
         _state.update { it.copy(currentPositionMs = positionMs) }
     }

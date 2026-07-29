@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.mediaplayer
+package com.wire.android.videoplayer
 
 import android.content.Context
 import android.net.Uri
@@ -33,11 +33,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Plays a single video from either a local file ([localPath]) or a remote URL ([contentUrl]).
  *
- * The screen arguments are passed in through assisted injection (see [MediaPlayerViewModelFactory])
+ * The screen arguments are passed in through assisted injection (see [VideoPlayerViewModelFactory])
  * rather than read from a navigation destination, so the player can be reused from any module.
  */
 class VideoPlayerViewModel(
@@ -137,7 +138,7 @@ class VideoPlayerViewModel(
                         durationMs = player.duration.coerceAtLeast(0).toInt(),
                     )
                 }
-                delay(POSITION_POLL_MS)
+                delay(POSITION_POLL_MS.milliseconds)
             }
         }
     }

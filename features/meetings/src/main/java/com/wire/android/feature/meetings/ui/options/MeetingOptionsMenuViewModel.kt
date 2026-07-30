@@ -84,7 +84,8 @@ class MeetingOptionsMenuViewModelImpl(
                                 it.occurrenceStartTime < Clock.System.now() -> MeetingOptionsMenuState.Meeting.DeleteOption.None
                                 else -> when (it.selfRole) {
                                     MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
-                                    MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.ForMe
+                                    // for now, we don't show delete option for members as "delete for me" is not yet implemented
+                                    MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.None
                                 }
                             },
                         )

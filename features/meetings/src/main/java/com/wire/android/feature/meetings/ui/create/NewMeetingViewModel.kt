@@ -68,7 +68,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun dismissCreationError() {}
 
     companion object {
-        const val MEETING_NAME_MAX_COUNT = 64
+        const val MEETING_NAME_MAX_COUNT = 128
     }
 }
 
@@ -139,8 +139,8 @@ class NewMeetingViewModelImpl(
     private fun validateTitle(): Boolean {
         state = state.copy(
             titleError = when {
-                titleTextState.text.isEmpty() -> NewMeetingState.TitleError.TitleEmptyError
-                titleTextState.text.length > MEETING_NAME_MAX_COUNT -> NewMeetingState.TitleError.TitleExceedsLimitError
+                titleTextState.text.trim().isEmpty() -> NewMeetingState.TitleError.TitleEmptyError
+                titleTextState.text.trim().length > MEETING_NAME_MAX_COUNT -> NewMeetingState.TitleError.TitleExceedsLimitError
                 else -> null
             }
         ).withContinueButtonState()
@@ -163,7 +163,7 @@ class NewMeetingViewModelImpl(
     }
 
     private fun NewMeetingState.withContinueButtonState(): NewMeetingState = copy(
-        continueButtonEnabled = titleTextState.text.isNotEmpty() &&
+        continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
                 titleError == null &&
                 startTimeError == null &&
                 endTimeError == null
@@ -184,7 +184,7 @@ class NewMeetingViewModelImpl(
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
                 val creationResult = createNewMeeting(
                     CreateMeeting(
-                        title = titleTextState.text.toString(),
+                        title = titleTextState.text.trim().toString(),
                         startTime = state.startTime,
                         endTime = state.endTime,
                         recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },

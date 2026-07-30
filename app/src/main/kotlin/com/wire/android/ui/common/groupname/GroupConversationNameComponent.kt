@@ -256,6 +256,15 @@ private fun computeGroupMetadataState(isChannelsAllowed: Boolean, error: GroupMe
                 }
                 WireTextFieldState.Error(stringResource(id = errorMessage))
             }
+
+            GroupMetadataState.NewGroupError.TextFieldError.GroupNameLeadingTrailingSpacesError -> {
+                val errorMessage = if (isChannelsAllowed) {
+                    R.string.channel_name_leading_trailing_spaces_error
+                } else {
+                    R.string.regular_group_name_leading_trailing_spaces_error
+                }
+                WireTextFieldState.Error(stringResource(id = errorMessage))
+            }
         }
     } else {
         WireTextFieldState.Default

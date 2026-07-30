@@ -71,6 +71,6 @@ class ChangeDisplayNameViewModel @Inject constructor(
         }
     }
     companion object {
-        const val NAME_MAX_COUNT = 64
+        const val NAME_MAX_COUNT = 128
     }
 }

@@ -141,6 +141,25 @@ class NewConversationViewModelTest {
     }
 
     @Test
+    fun `given group name has leading and trailing spaces, when creating group, then create group uses trimmed name`() = runTest {
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = false)
+            .arrange()
+
+        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(" Group name ")
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        coVerify {
+            arrangement.createRegularGroup(
+                "Group name",
+                any(),
+                any()
+            )
+        }
+    }
+
+    @Test
     fun `given self is team member and guests are enabled, when creating group, then the group is created with the correct values`() =
         runTest {
             val (arrangement, viewModel) = NewConversationViewModelArrangement()

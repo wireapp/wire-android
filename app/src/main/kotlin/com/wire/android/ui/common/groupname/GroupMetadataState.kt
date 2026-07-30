@@ -52,6 +52,7 @@ data class GroupMetadataState(
         sealed interface TextFieldError : NewGroupError {
             data object GroupNameEmptyError : TextFieldError
             data object GroupNameExceedLimitError : TextFieldError
+            data object GroupNameLeadingTrailingSpacesError : TextFieldError
         }
     }
 }

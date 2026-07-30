@@ -45,7 +45,7 @@ class NetworkQualityTests : BaseCallUiTest() {
     }
 
     @TestCaseId("TC-9705", "TC-9706", "TC-9708")
-    @Category("regression", "networkQuality", "RC")
+    @Category("regression", "networkQuality", "RC", "TEMP")
     @Test
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     fun givenIAmInOneOnOneCall_whenIOpenNetworkQuality_thenNetworkQualityDetailsAreVisible() {
@@ -156,7 +156,7 @@ class NetworkQualityTests : BaseCallUiTest() {
     }
 
     @TestCaseId("TC-9718")
-    @Category("regression", "networkQuality", "RC")
+    @Category("regression", "networkQuality", "RC", "TEMP")
     @Test
     fun givenNetworkQualityDetailsAreOpen_whenIOpenLearnMore_thenSupportArticleIsShown() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -218,7 +218,7 @@ class NetworkQualityTests : BaseCallUiTest() {
     }
 
     @TestCaseId("TC-9720")
-    @Category("regression", "networkQuality", "RC")
+    @Category("regression", "networkQuality", "RC", "TEMP")
     @Test
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     fun givenOneOnOneVideoCall_whenITurnOffOtherVideos_thenMemberVideoIsDisabled() {

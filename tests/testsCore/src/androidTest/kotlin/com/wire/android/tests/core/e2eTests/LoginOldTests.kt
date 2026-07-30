@@ -322,7 +322,7 @@ class LoginOldTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-8711")
-    @Category("regression", "RC", "loginOld", "SSO")
+    @Category("regression", "RC", "loginOld", "SSO", "TEMP")
     @Test
     fun givenKeycloakSsoUser_whenLoggingInWithSsoCodeUsingOldFlow_thenLoginIsSuccessful() {
         step("Given There is a team owner \"user1Name\" with SSO team \"SSO\" configured for keycloak") {

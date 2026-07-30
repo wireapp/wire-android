@@ -357,7 +357,7 @@ class LoginTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-8713", "TC-8712")
-    @Category("regression", "RC", "login")
+    @Category("regression", "RC", "login", "SSO", "TEMP")
     @Test
     fun givenKeycloakSsoUser_whenLoggingInWithSsoCode_thenLoginIsSuccessful() {
         step("Given There is a team owner \"user1Name\" with SSO team \"SSO\" configured for keycloak") {

@@ -19,6 +19,7 @@
 
 package com.wire.android.ui.home.conversations.messages.item
 
+import android.text.format.DateFormat
 import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
@@ -63,6 +64,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.SupportPage
+import com.wire.android.util.formatMonthDayShortTime
 import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.MarkdownTextStyle
 import com.wire.android.util.ui.UIText
@@ -608,6 +610,26 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
                 appendLine()
                 append(footer.toMarkdownAnnotatedString(markdownTextStyle))
             }
+        }
+    }
+
+    is SystemMessage.AdminlessDeleteReminder -> buildContent(
+        iconResId = commonR.drawable.ic_info,
+        iconTintColor = MaterialTheme.wireColorScheme.error,
+        learnMorePage = SupportPage.ADMINLESS_GROUP_DELETE,
+    ) {
+        val is24Hour = DateFormat.is24HourFormat(LocalContext.current)
+        val markdownTextStyle = DefaultMarkdownTextStyle.copy(
+            normalColor = MaterialTheme.wireColorScheme.error,
+            boldColor = MaterialTheme.wireColorScheme.error
+        )
+        buildAnnotatedString {
+            append(
+                stringResource(
+                    id = R.string.label_system_message_adminless_delete_reminder,
+                    formatArgs = arrayOf(deletionScheduledFor.formatMonthDayShortTime(is24Hour))
+                ).toMarkdownAnnotatedString(markdownTextStyle)
+            )
         }
     }
 }

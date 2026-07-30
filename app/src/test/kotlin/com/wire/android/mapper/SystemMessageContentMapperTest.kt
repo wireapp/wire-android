@@ -44,6 +44,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Locale
+import kotlinx.datetime.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -73,6 +74,18 @@ class SystemMessageContentMapperTest {
 
         // Then
         assertTrue(uiContent is SystemMessage.ConversationMessageTimerDeactivated)
+    }
+
+    @Test
+    fun givenAdminlessDeleteReminder_whenMappingToSystemMessage_thenScheduledDeletionIsPreserved() = runTest {
+        val (_, mapper) = Arrangement().arrange()
+        val scheduledDeletion = Instant.parse("2026-04-23T12:00:00Z")
+        val content = MessageContent.AdminlessDeleteReminder(scheduledDeletion)
+
+        val uiContent = mapper.mapMessage(TestMessage.SYSTEM_MESSAGE.copy(content = content), emptyList())
+
+        assertIs<SystemMessage.AdminlessDeleteReminder>(uiContent!!)
+        assertEquals(scheduledDeletion, uiContent.deletionScheduledFor)
     }
 
     @Test

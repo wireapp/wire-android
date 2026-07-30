@@ -29,6 +29,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import kotlinx.datetime.Instant
 
 @PreviewMultipleThemes
 @Composable
@@ -481,6 +482,20 @@ fun PreviewSystemMessageConversationMessageAppsAccessEnabled() {
                     author = UIText.DynamicString("Barbara"),
                     isAuthorSelfUser = true,
                     isAccessEnabled = true
+                )
+            )
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewSystemMessageAdminlessDeleteReminder() {
+    WireTheme {
+        SystemMessageItem(
+            message = mockMessageWithKnock.copy(
+                messageContent = UIMessageContent.SystemMessage.AdminlessDeleteReminder(
+                    deletionScheduledFor = Instant.parse("2026-04-23T12:00:00Z")
                 )
             )
         )

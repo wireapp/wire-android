@@ -135,6 +135,18 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given search screen args when files flow subscribed then nodes flow is empty`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        val items = flowOf(pagingData).asSnapshot()
+        assertTrue(items.isEmpty())
+    }
+
+    @Test
     fun `given viewer only node when files loaded then ui model is marked viewer only`() = runTest {
         val (_, viewModel) = Arrangement()
             .withLoadedFiles(listOf(testFiles[0].copy(isViewerOnly = true)))

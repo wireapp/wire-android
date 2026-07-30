@@ -79,6 +79,8 @@
     <string name="delete_meeting_for_everyone_description">The meeting will be deleted for you and everybody else. All participants will be notified.</string>
     <string name="meeting_deleted_success">“%s” deleted</string>
     <string name="meeting_deleted_failure">There was an error while deleting meeting “%s”</string>
+    <string name="meeting_join_failure_title">Could not join meeting</string>
+    <string name="meeting_join_failure_description">Something went wrong while joining the meeting. Please try again.</string>
 
     <plurals name="new_meeting_participants_input_more_suffix">
         <item quantity="one">+%1$d more</item>

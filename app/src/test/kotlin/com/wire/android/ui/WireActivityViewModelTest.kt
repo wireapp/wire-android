@@ -1088,6 +1088,26 @@ class WireActivityViewModelTest {
         }
 
     @Test
+    fun `given untrusted sharing intent with work-profile Wire provider uri, when handling deep link, then show ignored toast`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withDeepLinkResult(DeepLinkResult.SharingIntent)
+                .arrange()
+            val intent = sharingIntent(sharingUri("10@$WIRE_PROVIDER_AUTHORITY"))
+
+            viewModel.actions.test {
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = WIRE_PROVIDER_AUTHORITY,
+                    hasTrustedWireShareCaller = false
+                )
+                advanceUntilIdle()
+                assertEquals(ShowToast(R.string.public_share_ignored_wire_internal_files), expectMostRecentItem())
+                expectNoEvents()
+            }
+        }
+
+    @Test
     fun `given trusted sharing intent with mixed Wire and external provider uris, when handling deep link, then import media screen is shown`() =
         runTest {
             val (_, viewModel) = Arrangement()

@@ -48,6 +48,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -90,6 +91,13 @@ class ImportMediaAuthenticatedViewModelTest {
     @Test
     fun `given uppercase content scheme from Wire file provider, when checking provider uri, then match it`() {
         val uri = testUri(scheme = "CONTENT", authority = "com.wire.android.provider")
+
+        assertTrue(uri.isWireFileProviderUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given user-qualified content uri from Wire file provider, when checking provider uri, then match it`() {
+        val uri = testUri(authority = "10@com.wire.android.provider")
 
         assertTrue(uri.isWireFileProviderUri("com.wire.android.provider"))
     }
@@ -152,6 +160,58 @@ class ImportMediaAuthenticatedViewModelTest {
     }
 
     @Test
+    fun `given readable work-profile Wire uri, when checking caller access, then preserve and check original uri`() {
+        val workProfileUri = testUri(authority = "10@com.wire.android.provider")
+        var checkedUri: Uri? = null
+
+        val result = listOf(workProfileUri).areWireFileProviderUrisReadableBy("com.wire.android.provider") { uri ->
+            checkedUri = uri
+            true
+        }
+
+        assertTrue(result)
+        assertSame(workProfileUri, checkedUri)
+    }
+
+    @Test
+    fun `given one unreadable Wire uri, when checking caller access, then reject all Wire uris`() {
+        val readableUri = testUri(authority = "10@com.wire.android.provider")
+        val unreadableUri = testUri(authority = "0@com.wire.android.provider")
+
+        val result = listOf(readableUri, unreadableUri)
+            .areWireFileProviderUrisReadableBy("com.wire.android.provider") { uri ->
+                uri === readableUri
+            }
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun `given caller permission check fails, when checking caller access, then reject Wire uris`() {
+        val wireUri = testUri(authority = "10@com.wire.android.provider")
+
+        val result = listOf(wireUri).areWireFileProviderUrisReadableBy("com.wire.android.provider") {
+            throw SecurityException("Caller access is unavailable")
+        }
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun `given only external provider uris, when checking Wire caller access, then do not invoke permission check`() {
+        val externalUri = testUri(authority = "com.android.providers.media.documents")
+        var permissionChecked = false
+
+        val result = listOf(externalUri).areWireFileProviderUrisReadableBy("com.wire.android.provider") {
+            permissionChecked = true
+            true
+        }
+
+        assertFalse(result)
+        assertFalse(permissionChecked)
+    }
+
+    @Test
     fun `given untrusted public share with Wire provider uri, when handling sharing uris, then reject whole intent`() =
         runTest(dispatcherProvider.main()) {
             val wireUri = testUri(authority = "com.wire.android.provider")
@@ -173,9 +233,9 @@ class ImportMediaAuthenticatedViewModelTest {
         }
 
     @Test
-    fun `given trusted public share with Wire provider uri, when handling sharing uris, then import it`() =
+    fun `given readable work-profile Wire uri, when handling sharing uris, then import original uri`() =
         runTest(dispatcherProvider.main()) {
-            val wireUri = testUri(authority = "com.wire.android.provider")
+            val wireUri = testUri(authority = "10@com.wire.android.provider")
             val assetBundle = assetBundle("wire-file.zip")
             val (arrangement, viewModel) = Arrangement()
                 .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle))
@@ -258,6 +318,16 @@ class ImportMediaAuthenticatedViewModelTest {
         val uri = testUri(pathSegments = listOf("shared_files", "wire-logs.zip"))
 
         assertTrue(uri.isWireInternalShareUri("com.wire.android.provider"))
+    }
+
+    @Test
+    fun `given user-qualified Wire provider uri, when checking internal share uri, then reject it`() {
+        val uri = testUri(
+            authority = "10@com.wire.android.provider",
+            pathSegments = listOf("shared_files", "wire-logs.zip")
+        )
+
+        assertFalse(uri.isWireInternalShareUri("com.wire.android.provider"))
     }
 
     @Test

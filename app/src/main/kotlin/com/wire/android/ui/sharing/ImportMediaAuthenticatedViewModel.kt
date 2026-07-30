@@ -20,6 +20,7 @@ package com.wire.android.ui.sharing
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -156,14 +157,13 @@ class ImportMediaAuthenticatedViewModel(
             handleSharedText(incomingIntent.text.toString())
         } else {
             val providerAuthority = activity.getProviderAuthority()
-            val hasTrustedWireCaller = activity.hasTrustedWireShareCaller()
-            if (incomingIntent.isSingleShare) {
-                // ACTION_SEND
-                handleSingleIntent(providerAuthority, hasTrustedWireCaller, incomingIntent)
+            val sharedUris = if (incomingIntent.isSingleShare) {
+                incomingIntent.stream?.let(::listOf).orEmpty()
             } else {
-                // ACTION_SEND_MULTIPLE
-                handleMultipleActionIntent(activity, providerAuthority, hasTrustedWireCaller)
+                activity.intent.sharingUris()
             }
+            val hasTrustedWireCaller = activity.hasTrustedWireShareCaller(providerAuthority, sharedUris)
+            handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, sharedUris)
         }
         importMediaState = importMediaState.copy(isImporting = false)
     }
@@ -192,26 +192,6 @@ class ImportMediaAuthenticatedViewModel(
     private fun handleSharedText(text: String) {
         appLogger.d("$TAG: handleSharedText")
         importMediaState = importMediaState.copy(importedText = text)
-    }
-
-    private suspend fun handleSingleIntent(
-        providerAuthority: String,
-        hasTrustedWireCaller: Boolean,
-        incomingIntent: ShareCompat.IntentReader
-    ) {
-        incomingIntent.stream?.let { uri ->
-            appLogger.d("$TAG: handleSingleIntent")
-            handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, listOf(uri))
-        }
-    }
-
-    private suspend fun handleMultipleActionIntent(
-        activity: AppCompatActivity,
-        providerAuthority: String,
-        hasTrustedWireCaller: Boolean
-    ) {
-        appLogger.d("$TAG: handleMultipleActionIntent")
-        handleReceivedUrisFromSharingIntent(providerAuthority, hasTrustedWireCaller, activity.intent.sharingUris())
     }
 
     internal suspend fun handleReceivedUrisFromSharingIntent(
@@ -278,7 +258,8 @@ class ImportMediaAuthenticatedViewModel(
 }
 
 internal fun Uri.isWireFileProviderUri(providerAuthority: String): Boolean =
-    scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true) && authority == providerAuthority
+    scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true) &&
+        authority?.substringAfterLast('@') == providerAuthority
 
 internal fun Uri.shouldRejectWireFileProviderShare(providerAuthority: String, hasTrustedWireCaller: Boolean): Boolean =
     isWireFileProviderUri(providerAuthority) && !hasTrustedWireCaller
@@ -301,18 +282,36 @@ internal fun Intent.shouldRejectSharingIntent(providerAuthority: String, hasTrus
 
 internal fun Uri.isWireInternalShareUri(providerAuthority: String): Boolean =
     isWireFileProviderUri(providerAuthority) &&
+        authority == providerAuthority &&
         pathSegments.let { segments ->
             segments.size > 1 &&
                 segments.firstOrNull() == FILE_PROVIDER_SHARED_FILES_ROOT &&
                 segments.none { it == ".." }
         }
 
-internal fun AppCompatActivity.hasTrustedWireShareCaller(): Boolean =
+internal fun List<Uri>.areWireFileProviderUrisReadableBy(
+    providerAuthority: String,
+    canReadUri: (Uri) -> Boolean
+): Boolean =
+    filter { it.isWireFileProviderUri(providerAuthority) }
+        .takeIf { it.isNotEmpty() }
+        ?.all { uri -> runCatching { canReadUri(uri) }.getOrDefault(false) }
+        ?: false
+
+internal fun AppCompatActivity.hasTrustedWireShareCaller(
+    providerAuthority: String,
+    uris: List<Uri>
+): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
-        getTrustedShareCallerPackageName() == packageName
+        uris.areWireFileProviderUrisReadableBy(providerAuthority) { uri ->
+            canCallerReadSharedUri(uri)
+        }
 
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-private fun AppCompatActivity.getTrustedShareCallerPackageName(): String? =
+private fun AppCompatActivity.canCallerReadSharedUri(uri: Uri): Boolean =
     runCatching {
-        caller?.getPackage() ?: initialCaller.getPackage()
-    }.getOrNull()
+        (caller ?: initialCaller).checkContentUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        ) == PackageManager.PERMISSION_GRANTED
+    }.getOrDefault(false)

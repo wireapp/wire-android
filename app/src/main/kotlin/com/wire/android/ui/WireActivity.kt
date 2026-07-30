@@ -154,13 +154,14 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
+import com.wire.android.ui.sharing.hasTrustedWireShareCaller
+import com.wire.android.ui.sharing.sharingUris
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.LocalSelfUserProfileLogoutAction
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
-import com.wire.android.ui.sharing.hasTrustedWireShareCaller
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.ShakeDetector
 import com.wire.android.util.SwitchAccountObserver
@@ -217,7 +218,14 @@ class WireActivity : BaseActivity() {
         }
     }
 
-    private val newIntents = Channel<Pair<Intent, Bundle?>>(Channel.UNLIMITED) // keep new intents until subscribed but do not replay them
+    private data class QueuedIntent(
+        val intent: Intent,
+        val savedInstanceState: Bundle?,
+        val hasTrustedWireShareCaller: Boolean
+    )
+
+    // Keep new intents until subscribed but do not replay them.
+    private val newIntents = Channel<QueuedIntent>(Channel.UNLIMITED)
     private lateinit var shakeDetector: ShakeDetector
 
     // This flag is used to keep the splash screen open until the first screen is drawn.
@@ -235,7 +243,7 @@ class WireActivity : BaseActivity() {
         wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
-        traceStartup("activity.onCreate.afterSuper", startupAt)
+        val initialQueuedIntent = captureInitialIntent(startupAt, savedInstanceState)
 
         enableEdgeToEdge()
         setupOrientationForDevice()
@@ -286,7 +294,7 @@ class WireActivity : BaseActivity() {
             (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
             traceStartup("activity.deferredLogging.triggered", startupAt)
 
-            handleNewIntent(intent, savedInstanceState)
+            handleNewIntent(initialQueuedIntent)
             traceStartup("activity.initialIntent.dispatched", startupAt)
         }
 
@@ -332,7 +340,7 @@ class WireActivity : BaseActivity() {
         } else {
             setIntent(intent)
         }
-        handleNewIntent(intent)
+        handleNewIntent(queuedIntent(intent))
     }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -340,8 +348,25 @@ class WireActivity : BaseActivity() {
         setIntent(intent, getCurrentCaller())
     }
 
-    private fun handleNewIntent(intent: Intent, savedInstanceState: Bundle? = null) = lifecycleScope.launch {
-        newIntents.send(intent to savedInstanceState)
+    private fun queuedIntent(intent: Intent, savedInstanceState: Bundle? = null): QueuedIntent {
+        val providerAuthority = getProviderAuthority()
+        return QueuedIntent(
+            intent = intent,
+            savedInstanceState = savedInstanceState,
+            hasTrustedWireShareCaller = hasTrustedWireShareCaller(
+                providerAuthority = providerAuthority,
+                uris = intent.sharingUris()
+            )
+        )
+    }
+
+    private fun captureInitialIntent(startupAt: Long, savedInstanceState: Bundle?): QueuedIntent {
+        traceStartup("activity.onCreate.afterSuper", startupAt)
+        return queuedIntent(intent, savedInstanceState)
+    }
+
+    private fun handleNewIntent(queuedIntent: QueuedIntent) = lifecycleScope.launch {
+        newIntents.send(queuedIntent)
     }
 
     private fun setComposableContent(startDestination: Direction) {
@@ -860,9 +885,14 @@ class WireActivity : BaseActivity() {
                 newIntents
                     .receiveAsFlow()
                     .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                    .collectLatest { (intent, savedInstanceState) ->
+                    .collectLatest { queuedIntent ->
                         currentKeyboardController?.hide()
-                        handleDeepLinkOrIntent(currentNavigator, intent, savedInstanceState)
+                        handleDeepLinkOrIntent(
+                            navigator = currentNavigator,
+                            intent = queuedIntent.intent,
+                            savedInstanceState = queuedIntent.savedInstanceState,
+                            hasTrustedWireShareCaller = queuedIntent.hasTrustedWireShareCaller
+                        )
                     }
             }
         }
@@ -1235,7 +1265,8 @@ class WireActivity : BaseActivity() {
     private suspend fun handleDeepLinkOrIntent(
         navigator: Navigator,
         intent: Intent?,
-        savedInstanceState: Bundle? = null
+        savedInstanceState: Bundle? = null,
+        hasTrustedWireShareCaller: Boolean = false
     ) {
         val navigate: (NavigationCommand) -> Unit = {
             runOnUiThread {
@@ -1258,10 +1289,11 @@ class WireActivity : BaseActivity() {
         } else {
             val handled = viewModel.handleIntentsThatAreNotDeepLinks(intent)
             if (!handled) {
+                val providerAuthority = getProviderAuthority()
                 viewModel.handleDeepLink(
                     intent = intent,
-                    providerAuthority = getProviderAuthority(),
-                    hasTrustedWireShareCaller = hasTrustedWireShareCaller()
+                    providerAuthority = providerAuthority,
+                    hasTrustedWireShareCaller = hasTrustedWireShareCaller
                 )
                 intent.putExtra(HANDLED_DEEPLINK_FLAG, true)
             }

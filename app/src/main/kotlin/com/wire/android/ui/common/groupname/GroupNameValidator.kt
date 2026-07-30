@@ -43,14 +43,6 @@ object GroupNameValidator {
                 )
             }
 
-            cleanText != newText -> {
-                currentGroupState.copy(
-                    animatedGroupNameError = true,
-                    continueEnabled = false,
-                    error = GroupMetadataState.NewGroupError.TextFieldError.GroupNameLeadingTrailingSpacesError
-                )
-            }
-
             cleanText == currentGroupState.originalGroupName -> {
                 currentGroupState.copy(
                     animatedGroupNameError = false,

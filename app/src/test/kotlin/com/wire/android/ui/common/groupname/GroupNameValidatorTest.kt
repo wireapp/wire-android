@@ -19,30 +19,24 @@
 package com.wire.android.ui.common.groupname
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class GroupNameValidatorTest {
 
     @Test
-    fun `given group name has leading spaces, when validating, then continue is disabled`() {
+    fun `given group name has leading spaces, when validating, then continue is enabled`() {
         val state = GroupNameValidator.onGroupNameChange(" group name", GroupMetadataState())
 
-        assertFalse(state.continueEnabled)
-        assertEquals(
-            GroupMetadataState.NewGroupError.TextFieldError.GroupNameLeadingTrailingSpacesError,
-            state.error
-        )
+        assertTrue(state.continueEnabled)
+        assertEquals(GroupMetadataState.NewGroupError.None, state.error)
     }
 
     @Test
-    fun `given group name has trailing spaces, when validating, then continue is disabled`() {
+    fun `given group name has trailing spaces, when validating, then continue is enabled`() {
         val state = GroupNameValidator.onGroupNameChange("group name ", GroupMetadataState())
 
-        assertFalse(state.continueEnabled)
-        assertEquals(
-            GroupMetadataState.NewGroupError.TextFieldError.GroupNameLeadingTrailingSpacesError,
-            state.error
-        )
+        assertTrue(state.continueEnabled)
+        assertEquals(GroupMetadataState.NewGroupError.None, state.error)
     }
 }

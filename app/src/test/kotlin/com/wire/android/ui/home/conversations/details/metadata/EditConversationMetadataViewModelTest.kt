@@ -23,6 +23,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
@@ -42,7 +43,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
 class EditConversationMetadataViewModelTest {
 
     @Test

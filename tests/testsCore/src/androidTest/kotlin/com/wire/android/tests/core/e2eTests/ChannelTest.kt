@@ -263,13 +263,13 @@ class ChannelTest : BaseUiTest() {
 
         step("And I see remove conversation confirmation modal for TestChannel") {
             pages.conversationListPage.apply {
-                assertRemoveConversationConfirmationModalVisible("TestChannel")
+                assertDeleteConversationConfirmationModalVisible("TestChannel")
             }
         }
 
         step("And I tap Remove Conversation button in remove conversation confirmation modal") {
             pages.conversationListPage.apply {
-                tapRemoveConversationButton()
+                tapDeleteConversationButtonOnModal()
             }
         }
 
@@ -1531,7 +1531,7 @@ class ChannelTest : BaseUiTest() {
             pages.conversationListPage.apply {
                 longPressConversation("DeleteMe")
                 tapDeleteConversationButtonInConversationActions()
-                tapRemoveConversationButton()
+                tapDeleteConversationButtonOnModal()
                 waitUntilToastIsDisplayed("“DeleteMe” removed")
             }
         }

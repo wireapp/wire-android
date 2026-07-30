@@ -66,6 +66,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.mediaGalleryViewModel
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.sharing.ImportMediaNavArgs
+import com.wire.android.ui.sharing.ImportSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.fileShareUri
 import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
@@ -146,7 +147,10 @@ fun MediaGalleryScreen(
             is MediaGalleryAction.ShareViaWire -> navigator.navigate(
                 NavigationCommand(
                     ImportMediaScreenDestination(
-                        ImportMediaNavArgs(arrayListOf(context.fileShareUri(action.path, action.assetName)))
+                        ImportMediaNavArgs(
+                            source = ImportSource.INTERNAL_SHARE,
+                            internalAssetUriList = arrayListOf(context.fileShareUri(action.path, action.assetName))
+                        )
                     )
                 )
             )

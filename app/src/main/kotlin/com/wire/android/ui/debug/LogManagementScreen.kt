@@ -34,6 +34,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.sharing.ImportMediaNavArgs
+import com.wire.android.ui.sharing.ImportSource
 
 @WireRootDestination
 @Composable
@@ -71,7 +72,12 @@ fun LogManagementScreen(
                     contentState.shareLogsViaWire(viewModel::flushLogs) { uri ->
                         navigator.navigate(
                             NavigationCommand(
-                                ImportMediaScreenDestination(ImportMediaNavArgs(arrayListOf(uri)))
+                                ImportMediaScreenDestination(
+                                    ImportMediaNavArgs(
+                                        source = ImportSource.INTERNAL_SHARE,
+                                        internalAssetUriList = arrayListOf(uri)
+                                    )
+                                )
                             )
                         )
                     }

@@ -29,7 +29,7 @@ fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_share_file,
+                id = R.drawable.ic_share,
                 contentDescription = stringResource(R.string.content_description_share_the_file),
             )
         },
@@ -56,7 +56,7 @@ fun ShareAssetViaWireMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_share_file,
+                id = R.drawable.ic_forward,
                 contentDescription = stringResource(R.string.content_description_share_the_file),
             )
         },
@@ -70,11 +70,11 @@ fun ShareAssetExternallyMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_share_file,
+                id = R.drawable.ic_share,
                 contentDescription = stringResource(R.string.content_description_share_the_file),
             )
         },
-        title = stringResource(R.string.label_share_externally),
+        title = stringResource(R.string.label_share),
         onItemClick = onShareAsset
     )
 }

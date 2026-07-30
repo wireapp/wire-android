@@ -74,6 +74,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.sharing.ImportMediaNavArgs
+import com.wire.android.ui.sharing.ImportSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.fileShareUri
@@ -136,7 +137,10 @@ fun ConversationMediaScreen(
                 navigator.navigate(
                     NavigationCommand(
                         ImportMediaScreenDestination(
-                            ImportMediaNavArgs(arrayListOf(context.fileShareUri(path, assetName)))
+                            ImportMediaNavArgs(
+                                source = ImportSource.INTERNAL_SHARE,
+                                internalAssetUriList = arrayListOf(context.fileShareUri(path, assetName))
+                            )
                         )
                     )
                 )

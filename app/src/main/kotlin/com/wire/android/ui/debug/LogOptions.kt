@@ -92,7 +92,7 @@ fun LogOptions(
         if (isLoggingEnabled) {
             SettingsItem(
                 text = stringResource(R.string.label_share_logs),
-                trailingIcon = R.drawable.ic_entypo_share,
+                trailingIcon = R.drawable.ic_share,
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = onShareLogsClick
@@ -150,7 +150,7 @@ private fun ShareLogsInWireOption(onClick: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_share_file,
+                id = R.drawable.ic_forward,
                 contentDescription = stringResource(R.string.content_description_share_the_file),
             )
         },
@@ -164,11 +164,11 @@ private fun ShareLogsExternallyOption(onClick: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_entypo_share,
+                id = R.drawable.ic_share,
                 contentDescription = stringResource(R.string.content_description_share_the_file),
             )
         },
-        title = stringResource(R.string.label_share_logs_externally),
+        title = stringResource(R.string.label_share),
         onItemClick = onClick
     )
 }

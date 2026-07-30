@@ -196,6 +196,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.android.ui.sharing.ImportMediaNavArgs
+import com.wire.android.ui.sharing.ImportSource
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
@@ -582,7 +583,10 @@ fun ConversationScreen(
                 navigator.navigate(
                     NavigationCommand(
                         ImportMediaScreenDestination(
-                            ImportMediaNavArgs(arrayListOf(context.fileShareUri(path, assetName)))
+                            ImportMediaNavArgs(
+                                source = ImportSource.INTERNAL_SHARE,
+                                internalAssetUriList = arrayListOf(context.fileShareUri(path, assetName))
+                            )
                         ),
                         BackStackMode.UPDATE_EXISTED
                     )

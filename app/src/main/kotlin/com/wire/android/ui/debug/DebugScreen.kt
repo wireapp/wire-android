@@ -58,6 +58,7 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStateHolder
 import com.wire.android.ui.sharing.ImportMediaNavArgs
+import com.wire.android.ui.sharing.ImportSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.logging.LogShareLauncher
@@ -100,7 +101,12 @@ fun DebugScreen(
         onShareLogsViaWire = { uri ->
             navigator.navigate(
                 NavigationCommand(
-                    ImportMediaScreenDestination(ImportMediaNavArgs(arrayListOf(uri)))
+                    ImportMediaScreenDestination(
+                        ImportMediaNavArgs(
+                            source = ImportSource.INTERNAL_SHARE,
+                            internalAssetUriList = arrayListOf(uri)
+                        )
+                    )
                 )
             )
         },

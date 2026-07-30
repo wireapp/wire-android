@@ -180,7 +180,7 @@ class NewMeetingViewModelImpl(
 
                 NewMeetingType.Schedule -> validateStartAndEndTime()
             }
-            if (titleValid && startAndEndTimeValid) {
+            if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
                 val creationResult = createNewMeeting(
                     CreateMeeting(

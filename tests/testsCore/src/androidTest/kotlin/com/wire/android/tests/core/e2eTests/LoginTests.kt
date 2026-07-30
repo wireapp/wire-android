@@ -305,7 +305,7 @@ class LoginTests : BaseUiTest() {
     @TestCaseId("TC-8691")
     @Category("regression", "RC", "login")
     @Test
-    fun givenPersonalUserOnAntaBackend_whenLoggingInUsingDeeplink_thenLoginIsSuccessful() {
+    fun givenPersonalUserOnFederatedBackend_whenLoggingInUsingDeeplink_thenLoginIsSuccessful() {
         step("Given There is a personal user user1Name on anta backend and User user1Name is me") {
             initCommonTestHelpers("anta")
             clientUserManager.createPersonalUsersByAliases(listOf("user1Name"), backendClient)

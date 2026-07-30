@@ -37,6 +37,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.Stream
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AccountSwitchUseCaseTest {
@@ -86,9 +89,12 @@ class AccountSwitchUseCaseTest {
             }
         }
 
-    @Test
-    fun givenCurrentSessionIsInvalid_whenSwitchingToAccount_thenUpdateCurrentSessionAndDeleteTheOldOne() = testScope.runTest {
-        val currentAccount = ACCOUNT_INVALID_3
+    @ParameterizedTest
+    @MethodSource("terminalLogoutReasons")
+    fun givenCurrentSessionIsInvalid_whenSwitchingToAccount_thenUpdateCurrentSessionAndDeleteTheOldOne(
+        logoutReason: LogoutReason
+    ) = testScope.runTest {
+        val currentAccount = AccountInfo.Invalid(ACCOUNT_INVALID_3.userId, logoutReason)
         val switchTo = ACCOUNT_VALID_2
 
         val expectedResult = SwitchAccountResult.SwitchedToAnotherAccount
@@ -151,6 +157,16 @@ class AccountSwitchUseCaseTest {
         val ACCOUNT_VALID_2 = AccountInfo.Valid(UserId("userId_valid_2", "domain_valid_2"))
         val ACCOUNT_INVALID_3 =
             AccountInfo.Invalid(UserId("userId_invalid_3", "domain_invalid_3"), LogoutReason.SELF_SOFT_LOGOUT)
+
+        @JvmStatic
+        fun terminalLogoutReasons(): Stream<LogoutReason> = Stream.of(
+            LogoutReason.SELF_SOFT_LOGOUT,
+            LogoutReason.SELF_HARD_LOGOUT,
+            LogoutReason.MIGRATION_TO_CC_FAILED,
+            LogoutReason.DELETED_ACCOUNT,
+            LogoutReason.REMOVED_CLIENT,
+            LogoutReason.SESSION_EXPIRED,
+        )
     }
 
     private class Arrangement(val testScope: TestScope) {

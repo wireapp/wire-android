@@ -48,7 +48,7 @@ class TeamCreationTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4558", "TC-4562")
-    @Category("regression", "RC", "teamCreation")
+    @Category("regression", "RC", "teamCreation", "TEMP")
     @Test
     fun givenIWantToBeAbleToCreateATeam_whenICompleteTeamCreation_thenTeamIsCreatedAndTeamOwnerSuccessfullyLogsIn() {
         lateinit var userInfo: ClientUser
@@ -204,7 +204,7 @@ class TeamCreationTest : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4559")
-    @Category("regression", "RC", "teamCreation")
+    @Category("regression", "RC", "teamCreation", "TEMP")
     @Test
     fun givenIWantToRegisterWithAnInvalidEmail_whenISubmitTheEmail_thenISeeAnError() {
         lateinit var userInfo: ClientUser
@@ -283,7 +283,7 @@ class TeamCreationTest : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4561")
-    @Category("regression", "RC", "teamCreation")
+    @Category("regression", "RC", "teamCreation", "TEMP")
     @Test
     fun givenIWantToRegisterWithUnmatchedPasswords_whenISubmitTheForm_thenISeeAnError() {
         lateinit var userInfo: ClientUser
@@ -359,7 +359,7 @@ class TeamCreationTest : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4560")
-    @Category("regression", "RC", "teamCreation")
+    @Category("regression", "RC", "teamCreation", "TEMP")
     @Test
     fun givenIWantToRegisterWithAnInvalidPassword_whenISubmitTheForm_thenISeeAnError() {
         lateinit var userInfo: ClientUser
@@ -437,7 +437,7 @@ class TeamCreationTest : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4563")
-    @Category("regression", "RC", "teamCreation")
+    @Category("regression", "RC", "teamCreation", "TEMP")
     @Test
     fun givenIAmRegisteringATeam_whenIEnterAWrongVerificationCode_thenISeeAnError() {
         lateinit var userInfo: ClientUser

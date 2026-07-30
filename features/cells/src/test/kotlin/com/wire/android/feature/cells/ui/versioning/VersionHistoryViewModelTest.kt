@@ -50,6 +50,8 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -57,7 +59,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.OutputStream
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -119,8 +120,8 @@ class VersionHistoryViewModelTest {
         assertEquals("Today, $todayFormattedDate", actualTodayText)
         assertEquals(1, groupedVersions[0].versions.size)
         assertEquals("User A", groupedVersions[0].versions[0].modifiedBy)
-        val expectedTime = Instant
-            .ofEpochSecond(versionNode.modifiedTime!!.toLong())
+        val expectedTime = versionNode.modifiedTime!!
+            .toJavaInstant()
             .atZone(ZoneId.systemDefault())
             .toLocalTime()
             .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
@@ -497,7 +498,7 @@ class VersionHistoryViewModelTest {
             editorUrls = null,
             filePreviews = null,
             isHead = false,
-            modifiedTime = today.atTime(10, 30).toEpochSecond(ZoneOffset.UTC).toString(),
+            modifiedTime = Instant.fromEpochSeconds(today.atTime(10, 30).toEpochSecond(ZoneOffset.UTC)),
             ownerName = "User A",
             ownerUuid = "uuid",
             getUrl = PreSignedUrl("expiration", "url"),
@@ -509,19 +510,19 @@ class VersionHistoryViewModelTest {
             versionNode.copy(
                 id = "v2",
                 ownerName = "User B",
-                modifiedTime = yesterday.atTime(14, 0).toEpochSecond(ZoneOffset.UTC).toString(),
+                modifiedTime = Instant.fromEpochSeconds(yesterday.atTime(14, 0).toEpochSecond(ZoneOffset.UTC)),
                 size = "2048"
             ),
             versionNode.copy(
                 id = "v3",
                 ownerName = "User A",
-                modifiedTime = yesterday.atTime(9, 15).toEpochSecond(ZoneOffset.UTC).toString(),
+                modifiedTime = Instant.fromEpochSeconds(yesterday.atTime(9, 15).toEpochSecond(ZoneOffset.UTC)),
                 size = "5000000"
             ),
             versionNode.copy(
                 id = "v4",
                 ownerName = "User C",
-                modifiedTime = twoDaysAgo.atStartOfDay().toEpochSecond(ZoneOffset.UTC).toString(),
+                modifiedTime = Instant.fromEpochSeconds(twoDaysAgo.atStartOfDay().toEpochSecond(ZoneOffset.UTC)),
                 size = "123"
             ),
         )

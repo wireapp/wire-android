@@ -47,7 +47,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10985", "TC-10986", "TC-10992")
-    @Category("channels", "regression", "RC")
+    @Category("channels", "regression", "RC", "TEMP")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammateAndDeletingCreatedChannel_thenChannelConversationIsCreatedAndDeleted() {
         step("There is TeamOwner with team ChannelCreation on Staging backend") {
@@ -286,7 +286,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10988", "TC-10989", "TC-10990")
-    @Category("channels", "regression", "RC")
+    @Category("channels", "regression", "RC", "TEMP")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenLeavingChannel_thenChannelHistoryRemainsVisibleAndNewMessagesAreNotVisible() {
         step("There is TeamOwner with team LeaveChannel on Staging backend") {
@@ -533,7 +533,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10993", "TC-10994", "TC-10996")
-    @Category("channels", "regression", "RC")
+    @Category("channels", "regression", "RC", "TEMP")
     @Test
     fun givenChannelConversationDeleted_whenSendingAndReceivingMessages_thenMessagesAreSentAndReceivedSuccessfully() {
         step("There is TeamOwner with team DeleteChannel on Staging backend") {
@@ -716,7 +716,7 @@ class ChannelTest : BaseUiTest() {
 
         step("And I tap Remove Conversation button in remove conversation confirmation modal") {
             pages.groupConversationDetailsPage.apply {
-                tapRemoveGroupButton()
+                tapDeleteGroupButton()
             }
         }
 
@@ -796,7 +796,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10991", "TC-10995", "TC-10998")
-    @Category("channels", "regression", "RC")
+    @Category("channels", "regression", "RC", "TEMP")
     @Test
     fun givenChannelConversationMembersAreRemovedAndAdded_whenViewingParticipantList_thenParticipantListIsUpdatedCorrectly() {
         step("Given there is TeamOwner with team UpdateParticipantList on Staging backend") {
@@ -1010,7 +1010,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-11000")
-    @Category("channels", "regression", "RC")
+    @Category("channels", "regression", "RC", "TEMP")
     @Test
     fun givenExternalUserInTeam_whenAttemptingToCreateChannelConversation_thenChannelConversationCannotBeCreated() {
         step("There is TeamOwner with team CreateChannel on Staging backend") {
@@ -1100,7 +1100,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10987")
-    @Category("channels", "regression", "RC")
+    @Category("channels", "regression", "RC", "TEMP")
     @Test
     fun givenUserIsNotCreatorOfChannelConversation_whenViewingChannelConversationOptions_thenDeleteConversationButtonIsNotVisible() {
         step("There is TeamOwner with team DeleteChannel on Staging backend") {
@@ -1318,7 +1318,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10997")
-    @Category("channels", "regression", "RC")
+    @Category("channels", "regression", "RC", "TEMP")
     @Test
     fun givenAnotherChannelConversationIsDeletedByAnotherUser_whenSendingAndReceivingMessagesInRemainingChannel_thenMessagesAreSentAndReceivedSuccessfully() {
         step("Given there is TeamOwner with team GroupDeletion on Staging backend") {

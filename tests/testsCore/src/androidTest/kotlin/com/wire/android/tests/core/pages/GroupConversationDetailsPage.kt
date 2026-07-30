@@ -38,7 +38,7 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
 
-    private val removeGroupButton = UiSelectorParams(text = "Remove")
+    private val deleteGroupButton = UiSelectorParams(text = "Delete")
 
     private val clearContentButton = UiSelectorParams(textContains = "Clear Content")
 
@@ -132,8 +132,8 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         return this
     }
 
-    fun tapRemoveGroupButton() {
-        UiWaitUtils.waitElement(removeGroupButton).click()
+    fun tapDeleteGroupButton() {
+        UiWaitUtils.waitElement(deleteGroupButton).click()
     }
 
     fun tapOnParticipantsTab() {

@@ -40,6 +40,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -60,6 +61,7 @@ class MediaGalleryViewModel(
     private val deleteMessage: DeleteMessageUseCase,
     private val getAttachment: GetMessageAttachmentUseCase,
     private val getCellNode: GetCellFileUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
 ) : ActionsViewModel<MediaGalleryAction>() {
 
     private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
@@ -80,6 +82,13 @@ class MediaGalleryViewModel(
     init {
         getConversationTitle()
         setupImageAsset()
+        getViewerAccess()
+    }
+
+    private fun getViewerAccess() = viewModelScope.launch {
+        mediaGalleryViewState = mediaGalleryViewState.copy(
+            viewerAccess = !isSelfUserViewerOnConversation(conversationId)
+        )
     }
 
     private fun setupImageAsset() = viewModelScope.launch {
@@ -258,7 +267,9 @@ class MediaGalleryViewModel(
                     add(MediaGalleryMenuItem.REACT)
                     add(MediaGalleryMenuItem.SHOW_DETAILS)
                     add(MediaGalleryMenuItem.REPLY)
-                    add(MediaGalleryMenuItem.SHARE_PUBLIC_LINK)
+                    if (!mediaGalleryViewState.viewerAccess) {
+                        add(MediaGalleryMenuItem.SHARE_PUBLIC_LINK)
+                    }
                 }
 
                 mediaGalleryNavArgs.isEphemeral -> {

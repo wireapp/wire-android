@@ -190,7 +190,7 @@ class GroupMessaging : BaseUiTest() {
             pages.groupConversationDetailsPage.apply {
                 tapShowMoreOptionsButton()
                 tapDeleteConversationButton()
-                tapRemoveGroupButton()
+                tapDeleteGroupButton()
             }
         }
 

@@ -352,7 +352,9 @@ class CellViewModel(
                 "${currentNodeUuid()}/recycle_bin/${cellNode.name}"
             }
 
-            isConversationFiles() -> "${currentNodeUuid()}/${cellNode.name}"
+            // Use the folder's full remote path so results opened from a (recursive) search
+            // resolve correctly at any depth. Fall back to the current folder + name when it is missing.
+            isConversationFiles() -> cellNode.remotePath ?: "${currentNodeUuid()}/${cellNode.name}"
             else -> cellNode.remotePath
         } ?: run {
             sendAction(ShowError(CellError.OTHER_ERROR))

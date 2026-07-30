@@ -182,6 +182,29 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given conversation context when a nested folder is clicked then OpenFolder uses its full remote path`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        val nestedFolder = Node.Folder(
+            uuid = "folderUuid",
+            name = "subSubFolder",
+            remotePath = "conversationId/parent/sub/subSubFolder",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(nestedFolder))
+
+            val action = awaitItem()
+            assertTrue(action is OpenFolder)
+            assertEquals("conversationId/parent/sub/subSubFolder", (action as OpenFolder).path)
+        }
+    }
+
+    @Test
     fun `given in-app image viewer disabled when image file clicked and local file is present then external app is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()

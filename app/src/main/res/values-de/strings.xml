@@ -1194,7 +1194,7 @@
     <string name="settings_myaccount_display_name_title">Ihr Profilname</string>
     <string name="settings_myaccount_display_name_description">Ihr Profilname wird in Unterhaltungen, Anrufen und bei der Benutzersuche angezeigt. Er ist in Wire nicht eindeutig.</string>
     <string name="settings_myaccount_display_name_error">Bitte geben Sie Ihren Profilnamen ein</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Mindestens ein und höchstens 128 Zeichen</string>
     <string name="settings_myaccount_display_name_updated">Ihr Profilname wurde geändert</string>
     <string name="settings_myaccount_handle_updated">Ihr Benutzername wurde geändert</string>
     <string name="settings_myaccount_user_color_title">Profilfarbe</string>

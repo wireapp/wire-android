@@ -176,7 +176,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4258", "TC-4268")
-    @Category("regression", "calling", "RC", "smoke", "smokeSchwarz",)
+    @Category("regression", "calling", "RC", "smoke", "smokeSchwarz", "TEMP")
     @Test
     fun givenMemberCallsMeInForeground_whenIAccept_thenOneOnOneCallIsEstablished() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()

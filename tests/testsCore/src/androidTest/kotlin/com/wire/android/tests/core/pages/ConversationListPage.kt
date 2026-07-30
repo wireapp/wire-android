@@ -39,6 +39,7 @@ data class ConversationListPage(private val device: UiDevice) {
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
     )
+    private val welcomeMessage = UiSelectorParams(textContains = "Welcome")
     private val mainMenuButton = UiSelectorParams(description = "Main navigation")
     private val settingsButton = UiSelectorParams(text = "Settings")
 
@@ -87,6 +88,24 @@ data class ConversationListPage(private val device: UiDevice) {
         Assert.assertTrue(
             "Conversation list heading is not visible",
             !heading.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertWelcomeMessageVisible(): ConversationListPage {
+        val message = UiWaitUtils.waitElement(welcomeMessage)
+        Assert.assertTrue(
+            "Welcome message is not visible",
+            !message.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertIntroductionMessageVisible(expectedMessage: String): ConversationListPage {
+        val message = UiWaitUtils.waitElement(UiSelectorParams(text = expectedMessage))
+        Assert.assertTrue(
+            "Introduction message '$expectedMessage' is not visible",
+            !message.visibleBounds.isEmpty
         )
         return this
     }

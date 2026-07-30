@@ -77,8 +77,8 @@ class MeetingOptionsMenuViewModelImpl(
                 observeMeetingOccurrenceUseCase.invoke(occurrenceId).map {
                     when {
                         it != null -> MeetingOptionsMenuState.Meeting(
-                            meetingId = it.meetingId,
-                            title = it.title,
+                            meetingId = it.meeting.meetingId,
+                            title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
                             deleteOption = when {
                                 it.occurrenceStartTime < Clock.System.now() -> MeetingOptionsMenuState.Meeting.DeleteOption.None

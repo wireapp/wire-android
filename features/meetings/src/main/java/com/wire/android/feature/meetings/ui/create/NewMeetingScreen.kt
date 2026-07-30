@@ -20,10 +20,12 @@ package com.wire.android.feature.meetings.ui.create
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -51,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -140,6 +143,13 @@ fun NewMeetingScreen(
         onRepeatingIntervalChanged = newMeetingViewModel::updateRepeatingInterval,
     )
 
+    if (newMeetingViewModel.state.creationError != null) {
+        NewMeetingErrorDialog(
+            type = newMeetingViewModel.type,
+            onDismiss = newMeetingViewModel::dismissCreationError
+        )
+    }
+
     HandleActions(newMeetingViewModel.actions) { action ->
         when (action) {
             is NewMeetingViewActions.Success -> navigator.navigateBack()
@@ -187,6 +197,7 @@ fun NewMeetingContent(
                 TitleInput(
                     titleState = titleState,
                     titleError = state.titleError,
+                    readOnly = state.isSubmitting,
                 )
                 if (type == NewMeetingType.Schedule) {
                     VerticalSpace.x24()
@@ -219,6 +230,15 @@ fun NewMeetingContent(
                     onClick = onParticipantsClicked,
                 )
             }
+            if (state.isSubmitting) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures { /* consume the touch while submitting data */ }
+                        },
+                )
+            }
         },
         bottomBar = {
             Surface(
@@ -236,6 +256,7 @@ fun NewMeetingContent(
                         )
                     },
                     state = if (state.continueButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
+                    loading = state.isSubmitting,
                     onClick = onCreateClicked,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -250,6 +271,7 @@ fun NewMeetingContent(
 private fun TitleInput(
     titleState: TextFieldState,
     titleError: NewMeetingState.TitleError?,
+    readOnly: Boolean,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -259,8 +281,10 @@ private fun TitleInput(
             state = when (titleError) {
                 is NewMeetingState.TitleError.TitleEmptyError ->
                     WireTextFieldState.Error(stringResource(R.string.new_meeting_title_name_error_empty))
+
                 is NewMeetingState.TitleError.TitleExceedsLimitError ->
                     WireTextFieldState.Error(stringResource(R.string.new_meeting_title_name_error_exceeded_limit))
+
                 else -> WireTextFieldState.Default
             },
             placeholderText = stringResource(R.string.new_meeting_title_input_placeholder),
@@ -270,6 +294,7 @@ private fun TitleInput(
             onKeyboardAction = { keyboardController?.hide() },
             testTag = "titleInput",
             inputTransformation = InputTransformation.maxLengthWithCallback(MEETING_NAME_MAX_COUNT, animate),
+            readOnly = readOnly,
             trailingIcon = {
                 Box(
                     modifier = Modifier

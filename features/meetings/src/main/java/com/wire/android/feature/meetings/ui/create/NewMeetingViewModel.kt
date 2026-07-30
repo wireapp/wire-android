@@ -33,6 +33,10 @@ import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.meeting.CreateMeeting
+import com.wire.kalium.logic.data.meeting.Meeting
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
@@ -61,6 +65,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun updateEndTime(endTime: Instant) {}
     fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval?) {}
     fun createMeeting() {}
+    fun dismissCreationError() {}
 
     companion object {
         const val MEETING_NAME_MAX_COUNT = 64
@@ -78,6 +83,7 @@ class NewMeetingViewModelPreview(
 class NewMeetingViewModelImpl(
     savedStateHandle: SavedStateHandle,
     override val currentTimeProvider: CurrentTimeProvider,
+    private val createNewMeeting: CreateNewMeetingUseCase,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
     val navArgs: NewMeetingNavArgs = savedStateHandle.navArgs()
     override val type: NewMeetingType = navArgs.type
@@ -164,12 +170,38 @@ class NewMeetingViewModelImpl(
     )
 
     override fun createMeeting() {
-        val titleValid = validateTitle()
-        val startAndEndTimeValid = validateStartAndEndTime()
-        if (titleValid && startAndEndTimeValid) {
-            // TODO implement meeting creation
-            sendAction(NewMeetingViewActions.Success)
+        viewModelScope.launch {
+            val titleValid = validateTitle()
+            val startAndEndTimeValid = when (type) {
+                NewMeetingType.MeetNow -> {
+                    state = state.copy(startTime = currentTimeProvider(), endTime = currentTimeProvider().plus(1.hours))
+                    true // for "meet now", we set the start time to the current time and end time to +1 hour, so it's already valid
+                }
+
+                NewMeetingType.Schedule -> validateStartAndEndTime()
+            }
+            if (titleValid && startAndEndTimeValid) {
+                state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+                val creationResult = createNewMeeting(
+                    CreateMeeting(
+                        title = titleTextState.text.toString(),
+                        startTime = state.startTime,
+                        endTime = state.endTime,
+                        recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
+                        otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
+                    )
+                )
+                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                when (creationResult) {
+                    is CreateNewMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
+                    is CreateNewMeetingUseCase.Result.Failure -> state = state.copy(creationError = NewMeetingState.CreationError.Other)
+                }
+            }
         }
+    }
+
+    override fun dismissCreationError() {
+        state = state.copy(creationError = null)
     }
 }
 
@@ -198,6 +230,8 @@ data class NewMeetingState(
     val endTime: Instant,
     val endTimeError: TimeError? = null,
     val repeatingInterval: MeetingItem.RepeatingInterval? = null,
+    val creationError: CreationError? = null,
+    val isSubmitting: Boolean = false,
 ) {
     @Stable
     sealed interface TitleError {
@@ -209,6 +243,10 @@ data class NewMeetingState(
         data object StartTimeInPastError : TimeError
         data object EndTimeInPastError : TimeError
         data object EndTimeBeforeStartTimeError : TimeError
+    }
+
+    sealed interface CreationError {
+        data object Other : CreationError // TODO Add more specific error types in the future
     }
 
     companion object {

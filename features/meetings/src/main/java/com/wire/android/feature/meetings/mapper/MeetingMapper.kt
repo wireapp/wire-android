@@ -24,7 +24,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
-import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.minutes
@@ -79,9 +78,7 @@ fun Call.toOngoingCallStatus() = when (status) {
     CallStatus.ESTABLISHED,
     CallStatus.INCOMING,
     CallStatus.STILL_ONGOING -> MeetingItem.OngoingCallStatus(
-        currentCallEstablishedTime = establishedTime?.let {
-            Instant.fromEpochMilliseconds(DateTimeUtil.fromIsoDateTimeStringToEpochMillis(it))
-        },
+        currentCallEstablishedTime = establishedTime,
         isSelfUserAttending = status in listOf(CallStatus.STARTED, CallStatus.ANSWERED, CallStatus.ESTABLISHED),
     )
 

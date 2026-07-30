@@ -130,22 +130,31 @@ class MeetingsCallViewModelTest {
     inner class Arrangement {
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
         @MockK
         lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
+
         @MockK
         lateinit var answerCall: AnswerCallUseCase
+
         @MockK
         lateinit var endCall: EndCallUseCase
+
         @MockK
         lateinit var observeSyncState: ObserveSyncStateUseCase
+
         @MockK
         lateinit var isConferenceCallingEnabled: IsEligibleToStartCallUseCase
+
         @MockK
         lateinit var setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase
+
         @MockK
         lateinit var observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase
+
         @MockK
         lateinit var observeSelfUser: ObserveSelfUserUseCase
+
         @MockK
         lateinit var ensureMeetingIsMLSEstablished: EnsureMeetingIsMLSEstablishedUseCase
 

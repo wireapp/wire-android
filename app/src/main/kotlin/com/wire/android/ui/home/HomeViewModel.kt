@@ -96,6 +96,10 @@ class HomeViewModel(
 
     private fun observeCreateTeamIndicator() {
         viewModelScope.launch {
+            // On a fresh login the session graph can be created before the initial sync persists the self user.
+            // Reading the migration eligibility before that would cache a missing team ID for the whole session.
+            selfUserFlow.first()
+
             if (!canMigrateFromPersonalToTeam()) {
                 homeState = homeState.copy(
                     shouldShowCreateTeamUnreadIndicator = false

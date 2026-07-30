@@ -47,7 +47,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11259")
-    @Category("regression", "RC", "multiAccountSessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
     @Test
     fun givenLoggedInAccount_whenSecondAccountHitsTooManyDevicesAndLoginIsCancelled_thenPreviousSessionIsRestored() {
         step("Prepare staging users and make the second account reach the client limit") {
@@ -86,7 +86,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11260")
-    @Category("regression", "RC", "multiAccountSessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
     @Test
     fun givenTwoLoggedInAccounts_whenSwitchingFromProfile_thenConversationListUsesSelectedSession() {
         step("Prepare staging users") {
@@ -122,11 +122,12 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11261")
-    @Category("regression", "RC", "multiAccountSessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
     @Test
-    fun givenSingleLoggedInAccount_whenCurrentClientIsRemovedRemotely_thenLoginScreenOpens() {
+    fun givenSingleLoggedInAccount_whenCurrentClientIsRemovedAndUserLogsInAgain_thenMlsSessionIsRestored() {
         step("Prepare staging users") {
             prepareTeamUsers(teamName = "SessionScopeMetroRemovedSingle")
+            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("Login the first account") {
@@ -144,10 +145,45 @@ class MultiAccountSessionScope : BaseUiTest() {
             }
             pages.registrationPage.assertAuthEntryVisible()
         }
+
+        step("Log the removed user in again without restarting the app") {
+            loginUser(primaryUser, configureStagingBackend = false)
+        }
+
+        step("Open the existing MLS conversation from the recreated session") {
+            pages.conversationListPage.tapConversationNameInConversationList(secondaryUser?.name.orEmpty())
+        }
+
+        step("Receive an MLS message after the new client joins by external commit") {
+            testServiceHelper.userSendMessageToPersonalMlsConversation(
+                "user2Name",
+                POST_RELOGIN_MLS_MESSAGE,
+                "Device1",
+                "user1Name"
+            )
+            pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation(POST_RELOGIN_MLS_MESSAGE)
+        }
+
+        step("Send an MLS message from the recreated session") {
+            pages.conversationViewPage.apply {
+                typeMessageInInputField(POST_RELOGIN_REPLY)
+                clickSendButton()
+                assertSentMessageIsVisibleInCurrentConversation(POST_RELOGIN_REPLY)
+            }
+        }
+
+        step("Verify the test-service device receives and decrypts the MLS reply") {
+            testServiceHelper.assertMessageReceivedInPersonalMlsConversation(
+                receiverAlias = "user2Name",
+                deviceName = "Device1",
+                conversationWithAlias = "user1Name",
+                message = POST_RELOGIN_REPLY,
+            )
+        }
     }
 
     @TestCaseId("TC-11262")
-    @Category("regression", "RC", "multiAccountSessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
     @Test
     fun givenTwoLoggedInAccounts_whenCurrentClientIsRemovedRemotely_thenNextSessionIsRestored() {
         step("Prepare staging users") {
@@ -177,7 +213,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11263")
-    @Category("regression", "RC", "multiAccountSessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
     @Test
     fun givenTwoLoggedInAccounts_whenLoggingOutCurrentAccount_thenNextSessionIsRestored() {
         step("Prepare staging users") {
@@ -209,7 +245,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11264")
-    @Category("regression", "RC", "multiAccountSessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
     @Test
     fun givenNoLoggedInAccount_whenLoginHitsTooManyDevicesAndIsCancelled_thenLoginScreenOpens() {
         step("Prepare staging user with the client limit reached") {
@@ -232,7 +268,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11265")
-    @Category("regression", "RC", "multiAccountSessionScope")
+    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
     @Test
     fun givenNoLoggedInAccount_whenRemovingDeviceFromTooManyDevices_thenLoginCompletes() {
         step("Prepare staging user with the client limit reached") {
@@ -341,6 +377,8 @@ class MultiAccountSessionScope : BaseUiTest() {
 
     private companion object {
         const val EXISTING_CLIENTS_LIMIT = 7
+        const val POST_RELOGIN_MLS_MESSAGE = "MLS after client re-registration"
+        const val POST_RELOGIN_REPLY = "MLS reply after client re-registration"
         val POST_REMOVE_DEVICE_LOGIN_TIMEOUT = 120.seconds
     }
 }

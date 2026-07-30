@@ -121,6 +121,7 @@ class SSODeviceBackup : BaseUiTest() {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email ?: "")
+                closeKeyboardIfOpened()
                 enterKeycloakPassword(member1.password ?: "")
                 closeKeyboardIfOpened()
                 tapKeycloakSignIn()

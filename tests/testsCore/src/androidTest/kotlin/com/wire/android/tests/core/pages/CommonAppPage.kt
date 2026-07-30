@@ -18,13 +18,16 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
 data class CommonAppPage(private val device: UiDevice) {
     private val teamSettingsChangedAlert = UiSelectorParams(textContains = "Team Settings Changed")
+    private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
     private val okButton = UiSelectorParams(text = "OK")
+    private val closeWebPageButton = UiSelectorParams(description = "Close tab")
 
     private fun teamSettingsChangedAlertSubtext(text: String) = UiSelectorParams(textContains = text)
 
@@ -43,6 +46,45 @@ data class CommonAppPage(private val device: UiDevice) {
     fun tapOkButtonOnAlert(): CommonAppPage {
         UiWaitUtils.waitElement(okButton).click()
         device.waitForIdle()
+        return this
+    }
+
+    fun assertRemovedDeviceDialogVisible(): CommonAppPage {
+        val dialog = UiWaitUtils.waitElement(removedDeviceDialogTitle)
+        assertTrue("Removed Device dialog is not visible", !dialog.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertRemovedDeviceDialogSubtextVisible(expectedSubtext: String): CommonAppPage {
+        val subtext = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = expectedSubtext),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Removed Device dialog subtext is not visible", !subtext.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun confirmRemovedDeviceDialog(): CommonAppPage = tapOkButtonOnAlert()
+
+    fun assertWireAppIsNotInForeground(): CommonAppPage {
+        val wireAppIsNotInForeground = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.SHORT_WAIT,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            device.currentPackageName != UiAutomatorSetup.appPackage
+        }
+        assertTrue(
+            "Wire app is still in foreground: ${device.currentPackageName}",
+            wireAppIsNotInForeground
+        )
+        return this
+    }
+
+    fun closeWebPage(): CommonAppPage {
+        UiWaitUtils.waitElement(
+            closeWebPageButton,
+            timeout = UiWaitUtils.SHORT_WAIT
+        ).click()
         return this
     }
 }

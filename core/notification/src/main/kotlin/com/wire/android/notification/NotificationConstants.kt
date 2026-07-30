@@ -46,6 +46,9 @@ object NotificationConstants {
     const val MESSAGE_SYNC_CHANNEL_ID = "com.wire.android.message_synchronization"
     const val MESSAGE_SYNC_CHANNEL_NAME = "Message synchronization"
 
+    const val PENDING_MESSAGES_SYNC_CHANNEL_ID = "com.wire.android.pending_messages_synchronization"
+    const val PENDING_MESSAGES_SYNC_CHANNEL_NAME = "Pending messages synchronization"
+
     const val OTHER_CHANNEL_ID = "com.wire.android.other"
     const val OTHER_CHANNEL_NAME = "Other essential actions"
 
@@ -97,4 +100,5 @@ enum class NotificationIds {
     PERSISTENT_CHECK_NOTIFICATION_ID,
     PLAYING_AUDIO_MESSAGE_ID,
     UPLOADING_DATA_NOTIFICATION_ID,
+    PENDING_MESSAGES_SYNC_NOTIFICATION_ID,
 }

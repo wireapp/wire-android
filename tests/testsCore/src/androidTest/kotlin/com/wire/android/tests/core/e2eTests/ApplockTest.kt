@@ -337,6 +337,7 @@ class ApplockTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-11587")
     @Category("regression", "RC", "applock", "security")
     @Tag(key = "feature", value = "appLockColdStart")
     @Test
@@ -360,6 +361,7 @@ class ApplockTest : BaseUiTest() {
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
                 clickLoginButton()
                 enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")

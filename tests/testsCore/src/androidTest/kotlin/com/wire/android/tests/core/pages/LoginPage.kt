@@ -42,6 +42,14 @@ data class LoginPage(private val device: UiDevice) {
     private val loginButtonSelector = UiSelectorParams(resourceId = "loginButton")
     private val newLoginPasswordInputFieldSelector = UiSelectorParams(resourceId = "passwordField")
     private val newLoginButtonSelector = UiSelectorParams(resourceId = "LoginNextButton")
+    private val forgotPasswordLinkSelector = UiSelectorParams(text = "Forgot password?")
+    private val showPasswordButtonSelector = UiSelectorParams(description = "Show password")
+    private val hidePasswordButtonSelector = UiSelectorParams(description = "Hide password")
+    private val ssoLoginTabSelector = UiSelectorParams(text = "SSO LOGIN")
+    private val oldLoginSsoCodeLabelSelector = UiSelectorParams(textContains = "SSO CODE")
+    private val oldLoginSsoButtonSelector = UiSelectorParams(text = "Login")
+    private val invalidInformationAlertSelector = UiSelectorParams(text = "Invalid information")
+    private val incorrectCredentialsAlertOkButtonSelector = UiSelectorParams(text = "OK")
     private val proceedButtonSelector = UiSelectorParams(text = "Proceed")
     private val proceedButtonGoneSelector = UiSelector().text("Proceed")
     private val backendConfigSuccessContinueButtonSelector =
@@ -66,6 +74,10 @@ data class LoginPage(private val device: UiDevice) {
         device.findObject(emailInputField).setText(email)
 
         return this
+    }
+
+    fun enterPersonalUserLoggingUsername(username: String): LoginPage {
+        return enterPersonalUserLoggingEmail(username)
     }
 
     fun enterUserIdentifier(email: String): LoginPage {
@@ -147,6 +159,21 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun clearUserIdentifierInput(): LoginPage {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        device.findObject(emailInputField).click()
+        device.findObject(emailInputField).setText("")
+        return this
+    }
+
+    fun clearLoginPasswordInput(): LoginPage {
+        val passwordContainer = waitForLoginPasswordInput(UiWaitUtils.SHORT_WAIT)
+        val passwordInput = passwordContainer.findObject(By.clazz("android.widget.EditText")) ?: passwordContainer
+        passwordInput.click()
+        passwordInput.text = ""
+        return this
+    }
+
     fun enterTeamOwnerLoggingPassword(password: String): LoginPage {
         enterPassword(password)
         return this
@@ -166,20 +193,100 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun clickStagingDeepLinkForOldLoginFlow(backendName: String = DEFAULT_BACKEND_NAME): LoginPage {
+        val backendClient = BackendClient.loadBackend(backendName)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val deepLinkUrl = "wire://access/?config=${backendClient.deeplink}&login-type=old"
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(deepLinkUrl)
+            setPackage(UiAutomatorSetup.appPackage)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        context.startActivity(intent)
+        return this
+    }
+
+    fun assertOldLoginWelcomePageVisible(): LoginPage {
+        val loginButton = UiWaitUtils.waitElement(
+            loginButtonSelector,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Old login Welcome Page is not visible", !loginButton.visibleBounds.isEmpty)
+        return this
+    }
+
     fun assertLoggingPageVisible(): LoginPage {
         val loginPage = UiWaitUtils.waitElement(loginButtonSelector)
         assertTrue("Login page is not visible", !loginPage.visibleBounds.isEmpty)
         return this
     }
 
-    fun assertIdentifierInputVisible(timeout: Duration = 30.seconds): LoginPage {
-        UiWaitUtils.waitAnyVisible(
-            selectors = listOf(
-                UiSelectorParams(resourceId = "userIdentifierInput"),
-                UiSelectorParams(resourceId = "emailField")
-            ),
-            timeout = timeout
-        ) ?: throw AssertionError("Login email/user identifier input was not visible.")
+    fun assertUserLoginScreenVisible(timeout: Duration = 5.seconds): LoginPage {
+        val passwordInput = waitForLoginPasswordInput(timeout)
+        assertTrue("Login password input is not visible", !passwordInput.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertLoginPasswordVisible(expectedPassword: String, timeout: Duration = 5.seconds): LoginPage {
+        UiWaitUtils.waitElement(hidePasswordButtonSelector, timeout = timeout)
+        val actualPassword = waitForLoginPasswordInput(timeout).text.orEmpty()
+        assertTrue(
+            "Login password is not visible in cleartext",
+            actualPassword.contains(expectedPassword)
+        )
+        return this
+    }
+
+    fun assertLoginPasswordHidden(timeout: Duration = 5.seconds): LoginPage {
+        val showPasswordButton = UiWaitUtils.waitElement(showPasswordButtonSelector, timeout = timeout)
+        assertTrue(
+            "Login password visibility toggle did not return to hidden state",
+            !showPasswordButton.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun tapForgotPasswordLink(): LoginPage {
+        UiWaitUtils.waitElement(
+            forgotPasswordLinkSelector,
+            timeout = UiWaitUtils.SHORT_WAIT
+        ).click()
+        return this
+    }
+
+    fun assertInvalidUserIdentifierErrorVisible(expectedMessage: String): LoginPage {
+        val error = UiWaitUtils.waitElement(
+            UiSelectorParams(text = expectedMessage),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Invalid user identifier error is not visible", !error.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertInvalidInformationAlertVisible(): LoginPage {
+        val alert = UiWaitUtils.waitElement(
+            invalidInformationAlertSelector,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Invalid information alert is not visible", !alert.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertIncorrectCredentialsErrorVisible(expectedMessage: String): LoginPage {
+        val error = UiWaitUtils.waitElement(
+            UiSelectorParams(text = expectedMessage),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Incorrect credentials error is not visible", !error.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickOkButtonOnIncorrectCredentialsAlertIfVisible(): LoginPage {
+        UiWaitUtils.clickWhenClickable(
+            incorrectCredentialsAlertOkButtonSelector,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
         return this
     }
 
@@ -199,6 +306,36 @@ data class LoginPage(private val device: UiDevice) {
         if (!clicked) {
             throw AssertionError("Login button not found or not clickable.\n${loginScreenDiagnostics()}")
         }
+        return this
+    }
+
+    fun clickSsoLoginTab(): LoginPage {
+        val clicked = UiWaitUtils.clickWhenClickable(
+            ssoLoginTabSelector,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("SSO login tab was not clickable", clicked)
+        return this
+    }
+
+    fun enterSSOCodeOnOldLoginInputField(ssoCode: String): LoginPage {
+        val ssoCodeLabel = UiWaitUtils.waitElement(
+            oldLoginSsoCodeLabelSelector,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        val input = ssoCodeLabel.parent.findObject(By.clazz("android.widget.EditText"))
+            ?: throw AssertionError("SSO code input on old login flow was not visible.")
+        input.click()
+        input.text = ssoCode
+        return this
+    }
+
+    fun clickOldSsoLoginButton(): LoginPage {
+        val clicked = UiWaitUtils.clickWhenClickable(
+            oldLoginSsoButtonSelector,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Login button on old SSO login tab was not clickable", clicked)
         return this
     }
 
@@ -305,6 +442,15 @@ data class LoginPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertSsoValidationErrorVisible(expectedMessage: String): LoginPage {
+        val error = UiWaitUtils.waitElement(UiSelectorParams(text = expectedMessage))
+        assertTrue(
+            "Expected SSO validation error '$expectedMessage' to be visible",
+            !error.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun clickConfirmButtonOnUsernameSetupPage(): LoginPage {
         val confirmButton = UiWaitUtils.waitElement(confirmButtonSelector)
         confirmButton.click()
@@ -317,6 +463,13 @@ data class LoginPage(private val device: UiDevice) {
         input.click()
         input.text = password
     }
+
+    private fun waitForLoginPasswordInput(timeout: Duration) =
+        UiWaitUtils.waitAnyVisible(
+            selectors = listOf(passwordInputFieldSelector, newLoginPasswordInputFieldSelector),
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) ?: throw AssertionError("Login password input was not visible.")
 
     private fun waitForWelcomeScreenAfterBackendConfigContinue() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())

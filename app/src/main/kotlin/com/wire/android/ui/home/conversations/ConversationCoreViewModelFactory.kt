@@ -313,6 +313,7 @@ class ConversationCoreViewModelFactory @Inject constructor(
         deleteMessage = deleteMessage,
         getAttachment = getAttachment,
         getCellNode = getCellNode,
+        isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
     )
 
     fun locationPickerViewModel() = LocationPickerViewModel(

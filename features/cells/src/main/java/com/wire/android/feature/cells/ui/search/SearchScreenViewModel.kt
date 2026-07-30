@@ -65,6 +65,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
 
@@ -112,7 +113,7 @@ class SearchScreenViewModel(
     private val queryFlow = MutableStateFlow("")
 
     private val debouncedQueryFlow: Flow<String> = queryFlow
-        .debounce(SEARCH_DEBOUNCE_MILLIS)
+        .debounce(SEARCH_DEBOUNCE_MILLIS.milliseconds)
         .distinctUntilChanged()
 
     private val searchParamsFlow: Flow<SearchParams> =
@@ -166,7 +167,9 @@ class SearchScreenViewModel(
                     sortingSpec = SortingSpec(
                         criteria = params.sortingCriteria.toKaliumCriteria(),
                         descending = params.sortingCriteria.isDescending
-                    )
+                    ),
+                    // only when searching; filtering and sorting should be non-recursive
+                    isRecursive = params.query.isNotEmpty()
                 ).map { pagingData: PagingData<Node> ->
                     pagingData.map { node: Node ->
                         when (node) {

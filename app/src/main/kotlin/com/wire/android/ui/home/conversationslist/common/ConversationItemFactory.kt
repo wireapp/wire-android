@@ -192,7 +192,7 @@ private fun GeneralConversationItem(
                     modifier = modifier.padding(start = dimensions().spacing8x),
                     titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             if (isSelectable) {
                                 WireRadioButton(checked = isChecked, onButtonChecked = {
                                     selectOnRadioGroup()
@@ -252,7 +252,7 @@ private fun GeneralConversationItem(
                     modifier = modifier.padding(start = dimensions().spacing8x),
                     titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             if (isSelectable) {
                                 WireRadioButton(checked = isChecked, onButtonChecked = {
                                     selectOnRadioGroup()

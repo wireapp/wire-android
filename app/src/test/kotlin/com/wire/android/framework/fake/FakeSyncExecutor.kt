@@ -26,11 +26,13 @@ import com.wire.kalium.util.DelicateKaliumApi
 open class FakeSyncExecutor : SyncExecutor() {
 
     var waitUntilLiveCount = 0
+    var waitUntilNextLiveCount = 0
     var requestCount = 0
     var activeRequestCount = 0
         private set
 
     open fun onWaitUntilLiveOrFailure(): SyncRequestResult = SyncRequestResult.Success.also { waitUntilLiveCount++ }
+    open fun onWaitUntilNextLiveOrFailure(): SyncRequestResult = SyncRequestResult.Success.also { waitUntilNextLiveCount++ }
     open fun onWaitUntilOrFailure(syncState: SyncState): SyncRequestResult = SyncRequestResult.Success
     open fun onKeepSyncAlwaysOn() {}
 
@@ -56,6 +58,8 @@ open class FakeSyncExecutor : SyncExecutor() {
         ): SyncRequestResult = onWaitUntilOrFailure(syncState)
 
         override suspend fun waitUntilLiveOrFailure(): SyncRequestResult = onWaitUntilLiveOrFailure()
+
+        override suspend fun waitUntilNextLiveOrFailure(): SyncRequestResult = onWaitUntilNextLiveOrFailure()
 
         @DelicateKaliumApi(message = "By calling this, Sync will run indefinitely.")
         override fun keepSyncAlwaysOn() {

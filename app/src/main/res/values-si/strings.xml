@@ -1566,4 +1566,5 @@
     <string name="failed_attachment_retry_upload">උඩුගත කිරීම නැවත උත්සාහ කරන්න</string>
     <string name="failed_attachment_remove">ඉවත් කරන්න</string>
     <!-- Apps-->
+    <!-- Pending messages service notification -->
 </resources>

@@ -1497,4 +1497,5 @@ registrado. Tente novamente.</string>
     <string name="channel_not_available_dialog_description">Crie uma equipe e comece a colaborar gratuitamente!</string>
     <string name="channel_not_available_dialog_create_team_button">Criar Equipe Wire</string>
     <!-- Apps-->
+    <!-- Pending messages service notification -->
 </resources>

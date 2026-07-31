@@ -972,4 +972,5 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s ha habilitado las **aplicaciones** para esta conversación</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ha deshabilitado las **aplicaciones** para esta conversación</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Las aplicaciones añadidas tienen acceso al contenido de esta conversación.</string>
+    <!-- Pending messages service notification -->
 </resources>

@@ -32,6 +32,7 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
+import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
@@ -351,7 +352,9 @@ class CellViewModel(
                 "${currentNodeUuid()}/recycle_bin/${cellNode.name}"
             }
 
-            isConversationFiles() -> "${currentNodeUuid()}/${cellNode.name}"
+            // Use the folder's full remote path so results opened from a (recursive) search
+            // resolve correctly at any depth. Fall back to the current folder + name when it is missing.
+            isConversationFiles() -> cellNode.remotePath ?: "${currentNodeUuid()}/${cellNode.name}"
             else -> cellNode.remotePath
         } ?: run {
             sendAction(ShowError(CellError.OTHER_ERROR))
@@ -378,6 +381,7 @@ class CellViewModel(
         cancelOpenDownload(uuid)
     }
 
+    @Suppress("ReturnCount")
     private fun openFileContentUrl(file: CellNodeUi.File) {
         when (file.assetType) {
             AttachmentFileType.IMAGE -> {
@@ -386,12 +390,14 @@ class CellViewModel(
                     return
                 }
             }
-
             AttachmentFileType.VIDEO -> {
-                sendAction(OpenVideoPlayer(file))
+                sendAction(OpenVideoViewer(file))
                 return
             }
-
+            AttachmentFileType.AUDIO -> {
+                sendAction(OpenAudioPlayer(file))
+                return
+            }
             else -> Unit
         }
         file.contentUrl?.let { url ->
@@ -405,6 +411,7 @@ class CellViewModel(
         }
     }
 
+    @Suppress("ReturnCount")
     private fun openLocalFile(file: CellNodeUi.File) {
         when (file.assetType) {
             AttachmentFileType.IMAGE -> {
@@ -413,12 +420,14 @@ class CellViewModel(
                     return
                 }
             }
-
             AttachmentFileType.VIDEO -> {
-                sendAction(OpenVideoPlayer(file))
+                sendAction(OpenVideoViewer(file))
                 return
             }
-
+            AttachmentFileType.AUDIO -> {
+                sendAction(OpenAudioPlayer(file))
+                return
+            }
             else -> Unit
         }
         file.localPath?.let { path ->
@@ -671,7 +680,8 @@ internal data class OpenFolder(val path: String, val title: String, val parentFo
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
 internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
-internal data class OpenVideoPlayer(val file: CellNodeUi.File) : CellViewAction
+internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
+internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
 
 internal enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),
@@ -682,7 +692,7 @@ internal enum class CellError(val message: Int) {
 
 data class MenuOptions(
     val node: CellNodeUi,
-    val actions: List<NodeBottomSheetAction>
+    val actions: List<NodeMenuItem>
 )
 
 private fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =

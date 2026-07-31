@@ -56,7 +56,7 @@ class SSOProvisioningTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4550")
-    @Category("regression", "RC", "settings", "SSO")
+    @Category("regression", "RC", "settings", "SSO", "TEMP")
     @Test
     fun givenSsoUserLogsInWithKeycloak_whenOpeningAccountDetails_thenResetPasswordButtonIsNotVisible() {
         var ssoCode = ""
@@ -117,14 +117,15 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
+                closeKeyboardIfOpened()
                 enterKeycloakPassword(member1.password.orEmpty())
                 closeKeyboardIfOpened()
             }
         }
 
-        step("And I tap login button on Keycloak Page and wait until I am logged in from keycloak page") {
+        step("And I tap login button on Keycloak Page and wait until username setup page is visible") {
             pages.ssoPage.tapKeycloakSignIn()
-            pages.registrationPage.waitUntilLoginFlowIsCompleted()
+            pages.registrationPage.assertEnterYourUserNameInfoText()
         }
 
         step("And I submit my Username user2UniqueUsername on registration page") {
@@ -163,7 +164,7 @@ class SSOProvisioningTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4551")
-    @Category("regression", "RC", "settings", "SSO")
+    @Category("regression", "RC", "settings", "SSO", "TEMP")
     @Test
     fun givenScimManagedSsoUserLogsInWithKeycloak_whenOpeningAccountDetails_thenProfileNameCannotBeChanged() {
         var ssoCode = ""
@@ -224,6 +225,7 @@ class SSOProvisioningTests : BaseUiTest() {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email.orEmpty())
+                closeKeyboardIfOpened()
                 enterKeycloakPassword(member1.password.orEmpty())
                 closeKeyboardIfOpened()
             }

@@ -150,6 +150,7 @@ class SelfUserProfileViewModelArrangement {
 
         every { userDataStoreProvider.getOrCreate(TestUser.SELF_USER.id) } returns userDataStore
         coEvery { getSelfTeamId.invoke() } returns TestUser.SELF_USER.teamId
+        coEvery { userDataStore.isCreateTeamNoticeRead() } returns flowOf(false)
         coEvery { observeSelfUserWithTeam.invoke() } returns flowOf(TestUser.SELF_USER to TestTeam.TEAM)
         coEvery { syncSelfTeamInfo.invoke() } returns TestTeam.TEAM
         coEvery { observeValidAccounts.invoke() } returns flowOf(listOf(TestUser.SELF_USER to TestTeam.TEAM))

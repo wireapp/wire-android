@@ -40,3 +40,12 @@ enum class NodeBottomSheetAction(
     MAKE_AVAILABLE_OFFLINE(R.string.make_available_offline_label, R.drawable.ic_arrow_down_circle),
     REMOVE_OFFLINE_ACCESS(R.string.remove_offline_access_label, R.drawable.ic_cross_in_circle, true),
 }
+
+/**
+ * A [NodeBottomSheetAction] together with its [enabled] state.
+ * A disabled item is shown grayed out and is not clickable.
+ */
+data class NodeMenuItem(
+    val action: NodeBottomSheetAction,
+    val enabled: Boolean = true,
+)

@@ -10,7 +10,8 @@
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true
+            "enforce_configuration_signature": true,
+            "link_preview_enabled": true
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",

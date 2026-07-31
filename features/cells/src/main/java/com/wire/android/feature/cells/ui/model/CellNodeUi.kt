@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui.model
 
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.AUDIO
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
@@ -41,6 +42,9 @@ sealed class CellNodeUi {
     /** True when this file has been saved for offline use (persisted in the offline files DB). */
     abstract val isAvailableOffline: Boolean
 
+    /** True when the node belongs to a conversation the self user is only a guest in (read-only access). */
+    abstract val isViewerOnly: Boolean
+
     val isOpenLoading: Boolean get() = openLoadState is OpenLoadState.Loading
     val openLoadProgress: Float? get() = (openLoadState as? OpenLoadState.Loading)?.progress
 
@@ -59,6 +63,7 @@ sealed class CellNodeUi {
         internal override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
+        override val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
 
     data class File internal constructor(
@@ -84,6 +89,7 @@ sealed class CellNodeUi {
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
         val conversationId: String?,
+        override val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
 }
 
@@ -114,6 +120,7 @@ internal fun Node.File.toUiModel(
     openLoadState = openLoadState,
     downloadProgress = downloadProgress,
     isAvailableOffline = isAvailableOffline,
+    isViewerOnly = isViewerOnly,
 )
 
 internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
@@ -128,6 +135,7 @@ internal fun Node.Folder.toUiModel() = CellNodeUi.Folder(
     size = size,
     tags = tags,
     publicLinkId = publicLinkId,
+    isViewerOnly = isViewerOnly,
 )
 
 internal fun CellNodeUi.File.withSessionState(
@@ -139,8 +147,9 @@ internal fun CellNodeUi.File.withSessionState(
     localPath = (openLoadState as? OpenLoadState.Ready)?.localPath?.toString() ?: localPath,
     downloadProgress = downloadProgress,
     isAvailableOffline = isAvailableOffline,
+    isViewerOnly = isViewerOnly,
 )
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
-internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
+internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
 internal fun CellNodeUi.isEditSupported() = (this as? CellNodeUi.File)?.isEditSupported == true

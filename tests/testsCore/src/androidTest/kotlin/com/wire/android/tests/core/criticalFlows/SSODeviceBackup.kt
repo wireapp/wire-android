@@ -121,17 +121,15 @@ class SSODeviceBackup : BaseUiTest() {
             pages.ssoPage.apply {
                 waitUntilKeycloakPageLoaded()
                 enterKeycloakEmail(member1.email ?: "")
+                closeKeyboardIfOpened()
                 enterKeycloakPassword(member1.password ?: "")
                 closeKeyboardIfOpened()
                 tapKeycloakSignIn()
             }
         }
 
-        step("And I allow the notification permission prompt after login") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-            }
+        step("And I wait until username setup page is visible") {
+            pages.registrationPage.assertEnterYourUserNameInfoText()
         }
 
         step("And I set Member1 username and confirm profile setup") {

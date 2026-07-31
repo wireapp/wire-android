@@ -46,12 +46,19 @@
     <string name="meetings_empty_text_next">"Beginnen Sie ein Meeting mit Team-Mitgliedern, Gästen oder Externen."</string>
     <string name="meetings_empty_text_past">Vorherige Meetings werden hier aufgelistet.</string>
     <string name="new_meeting_title">Neues Meeting</string>
+    <string name="new_meeting_participants_title">Teilnehmer auswählen</string>
     <string name="new_meeting_now">Meeting starten</string>
     <string name="new_meeting_schedule">Meeting planen</string>
     <string name="new_meeting_action_start">Meeting starten</string>
     <string name="new_meeting_action_schedule">Planen</string>
     <string name="new_meeting_title_input_label">Titel</string>
     <string name="new_meeting_title_input_placeholder">Meeting-Titel eingeben</string>
+    <string name="new_meeting_participants_input_label">Teilnehmer</string>
+    <string name="new_meeting_participants_input_placeholder">Teilnehmer auswählen</string>
+    <string name="content_description_new_meeting_back_icon">Ansicht neues Meeting schließen</string>
+    <string name="content_description_new_meeting_participants_back_icon">Teilnehmer auswählen Ansicht schließen</string>
+    <string name="new_meeting_title_name_error_empty">Meeting-Namen eingeben</string>
+    <string name="new_meeting_title_name_error_exceeded_limit">Meeting-Name höchstens 64 Zeichen</string>
     <string name="new_meeting_starts_input_label">Beginnt</string>
     <string name="new_meeting_start_date_input_placeholder">Startdatum auswählen</string>
     <string name="new_meeting_start_time_input_placeholder">Startzeit auswählen</string>
@@ -64,4 +71,28 @@
     <string name="new_meeting_repeats_input_label">Wiederholt sich</string>
     <string name="content_description_new_meeting_repeating_options">Wiederholungsoption auswählen</string>
     <string name="new_meeting_allow_guests_label">Gäste zulassen</string>
+    <string name="meeting_audio_permission_dialog_description">Um an einem Meeting teilzunehmen, erlauben Sie Wire in den Geräteeinstellungen den Zugriff auf Ihr Mikrofon.</string>
+    <string name="delete_meeting_for_everyone_title">Meeting für alle löschen</string>
+    <string name="delete_meeting_for_everyone_description">Das Meeting wird für Sie und alle anderen gelöscht. Alle Teilnehmer werden darüber informiert.</string>
+    <string name="meeting_deleted_success">“%s” gelöscht</string>
+    <plurals name="new_meeting_participants_input_more_suffix">
+        <item quantity="one">+%1$d mehr</item>
+        <item quantity="other">+%1$d weitere</item>
+    </plurals>
+    <plurals name="meeting_repeating_days">
+        <item quantity="one">Täglich</item>
+        <item quantity="other">Alle %d Tage</item>
+    </plurals>
+    <plurals name="meeting_repeating_weeks">
+        <item quantity="one">Wöchentlich</item>
+        <item quantity="other">Alle %d Wochen</item>
+    </plurals>
+    <plurals name="meeting_repeating_months">
+        <item quantity="one">Monatlich</item>
+        <item quantity="other">Alle %d Monate</item>
+    </plurals>
+    <plurals name="meeting_repeating_years">
+        <item quantity="one">Jährlich</item>
+        <item quantity="other">Alle %d Jahre</item>
+    </plurals>
 </resources>

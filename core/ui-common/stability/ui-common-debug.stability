@@ -2715,6 +2715,13 @@ public fun com.wire.android.util.rememberCurrentTimeProvider(): com.wire.android
   params:
 
 @Composable
+public fun com.wire.android.util.supportUrlResource(page: com.wire.android.util.SupportPage): kotlin.String
+  skippable: true
+  restartable: true
+  params:
+    - page: STABLE (class with no mutable properties)
+
+@Composable
 public fun com.wire.android.util.ui.LinkText(linkTextData: kotlin.collections.List<com.wire.android.util.ui.LinkTextData>, modifier: androidx.compose.ui.Modifier, textColor: androidx.compose.ui.graphics.Color): kotlin.Unit
   skippable: false
   restartable: true

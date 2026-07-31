@@ -47,6 +47,7 @@ import com.wire.android.di.accountScoped.TeamModule
 import com.wire.android.di.accountScoped.UserModule
 import com.wire.android.feature.cells.ui.CellsMetroViewModelBindings
 import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
+import com.wire.android.mediaplayer.MediaPlayerMetroViewModelBindings
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
 import com.wire.android.notification.broadcastreceivers.NomadLogoutReceiver
@@ -55,6 +56,7 @@ import com.wire.android.notification.broadcastreceivers.PlayPauseAudioMessageRec
 import com.wire.android.notification.broadcastreceivers.StopAudioMessageReceiver
 import com.wire.android.search.SearchMetroViewModelBindings
 import com.wire.android.services.CallService
+import com.wire.android.services.PendingMessagesForegroundService
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.services.PlayingAudioMessageService
 import com.wire.android.ui.AppLockActivity
@@ -107,6 +109,7 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
         MeetingsMetroViewModelBindings::class,
         CoreUICommonMetroViewModelBindings::class,
         SearchMetroViewModelBindings::class,
+        MediaPlayerMetroViewModelBindings::class,
     ]
 )
 @Suppress("TooManyFunctions")
@@ -127,6 +130,7 @@ interface WireApplicationGraph : ViewModelGraph {
     fun inject(activity: CallActivity)
     fun inject(activity: OngoingCallActivity)
     fun inject(service: PersistentWebSocketService)
+    fun inject(service: PendingMessagesForegroundService)
     fun inject(service: CallService)
     fun inject(service: PlayingAudioMessageService)
     fun inject(receiver: StartServiceReceiver)

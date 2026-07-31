@@ -27,6 +27,7 @@ import com.ramcosta.composedestinations.generated.cells.destinations.Conversatio
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
@@ -69,6 +70,7 @@ import okio.Path.Companion.toPath
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -133,6 +135,42 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given search screen args when files flow subscribed then nodes flow is empty`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        val items = flowOf(pagingData).asSnapshot()
+        assertTrue(items.isEmpty())
+    }
+
+    @Test
+    fun `given viewer only node when files loaded then ui model is marked viewer only`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadedFiles(listOf(testFiles[0].copy(isViewerOnly = true)))
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
+            assertTrue(filterIsInstance<CellNodeUi.File>().all { it.isViewerOnly })
+        }
+    }
+
+    @Test
+    fun `given non viewer only node when files loaded then ui model is not viewer only`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadedFiles(listOf(testFiles[0].copy(isViewerOnly = false)))
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
+            assertTrue(filterIsInstance<CellNodeUi.File>().none { it.isViewerOnly })
+        }
+    }
+
+    @Test
     fun `given search screen args when conversation files args are missing then conversation id is used`() = runTest {
         val conversationId = "conversationId"
         val (_, viewModel) = Arrangement()
@@ -141,6 +179,29 @@ class CellViewModelTest {
             .arrange()
 
         assertEquals(conversationId, viewModel.currentNodeUuid())
+    }
+
+    @Test
+    fun `given conversation context when a nested folder is clicked then OpenFolder uses its full remote path`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        val nestedFolder = Node.Folder(
+            uuid = "folderUuid",
+            name = "subSubFolder",
+            remotePath = "conversationId/parent/sub/subSubFolder",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(nestedFolder))
+
+            val action = awaitItem()
+            assertTrue(action is OpenFolder)
+            assertEquals("conversationId/parent/sub/subSubFolder", (action as OpenFolder).path)
+        }
     }
 
     @Test
@@ -449,10 +510,10 @@ class CellViewModelTest {
             )
         }
 
-        fun withLoadSuccess() = apply {
+        fun withLoadedFiles(files: List<Node.File>) = apply {
             coEvery { getCellFilesPagedUseCase(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
-                    data = testFiles,
+                    data = files,
                     sourceLoadStates = LoadStates(
                         prepend = LoadState.NotLoading(true),
                         append = LoadState.NotLoading(true),
@@ -461,6 +522,8 @@ class CellViewModelTest {
                 )
             )
         }
+
+        fun withLoadSuccess() = withLoadedFiles(testFiles)
 
         fun withDownloadSuccess() = apply {
             coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()

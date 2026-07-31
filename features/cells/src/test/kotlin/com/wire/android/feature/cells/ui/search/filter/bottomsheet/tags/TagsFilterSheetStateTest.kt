@@ -186,14 +186,16 @@ class TagsFilterSheetStateTest {
     }
 
     @Test
-    fun `given filtered tags, then selected tags appear first`() {
+    fun `given selected tag, then filteredTags keeps alphabetical order regardless of selection`() {
         val state = TagsFilterSheetState(testTags)
         state.toggle("3") // Select "Personal"
 
         val filtered = state.filteredTags("")
 
-        assertEquals("Personal", filtered.first().name)
-        assertTrue(filtered.first().selected)
+        assertEquals("Archived", filtered[0].name)
+        assertEquals("Important", filtered[1].name)
+        assertEquals("Personal", filtered[2].name)
+        assertEquals("Work", filtered[3].name)
     }
 
     @Test
@@ -213,7 +215,7 @@ class TagsFilterSheetStateTest {
     }
 
     @Test
-    fun `given mixed selected and unselected tags, then sorted by selected first then alphabetically`() {
+    fun `given mixed selected and unselected tags, then sorted alphabetically regardless of selection`() {
         val tags = listOf(
             FilterTagUi(id = "1", name = "Zebra", selected = false),
             FilterTagUi(id = "2", name = "Apple", selected = false),
@@ -224,9 +226,9 @@ class TagsFilterSheetStateTest {
 
         val filtered = state.filteredTags("")
 
-        assertEquals("Banana", filtered[0].name)
-        assertEquals("Mango", filtered[1].name)
-        assertEquals("Apple", filtered[2].name)
+        assertEquals("Apple", filtered[0].name)
+        assertEquals("Banana", filtered[1].name)
+        assertEquals("Mango", filtered[2].name)
         assertEquals("Zebra", filtered[3].name)
     }
 }

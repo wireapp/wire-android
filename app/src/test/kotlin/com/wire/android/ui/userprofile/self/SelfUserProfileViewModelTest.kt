@@ -19,8 +19,11 @@ package com.wire.android.ui.userprofile.self
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import io.mockk.coEvery
+import io.mockk.coVerify
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -31,6 +34,22 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class SelfUserProfileViewModelTest {
+
+    @Test
+    fun `given create team notice is active, when opening profile, then remember it and mark it as read`() = runTest {
+        val (arrangement, viewModel) = SelfUserProfileViewModelArrangement()
+            .also { arrangement ->
+                coEvery { arrangement.getSelfTeamId() } returns null
+                coEvery { arrangement.userDataStore.isCreateTeamNoticeRead() } returns flowOf(false)
+            }
+            .withLegalHoldStatus(LegalHoldStateForSelfUser.Disabled)
+            .arrange()
+
+        assertEquals(true, viewModel.wasMigrationDotActiveWhenProfileOpened())
+        coVerify(exactly = 1) {
+            arrangement.userDataStore.setIsCreateTeamNoticeRead(true)
+        }
+    }
 
     @Test
     fun `given legal hold request pending, then isUnderLegalHold is pending`() = runTest {

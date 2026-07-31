@@ -76,6 +76,10 @@
     <string name="content_description_join_meeting_label">присоединиться к встрече</string>
     <string name="content_description_attending_meeting_label">вернуться к встрече</string>
     <string name="meeting_audio_permission_dialog_description">Чтобы присоединиться к встрече, разрешите приложению Wire доступ к микрофону в настройках вашего устройства.</string>
+    <string name="delete_meeting_for_everyone_title">Удалить встречу для всех</string>
+    <string name="delete_meeting_for_everyone_description">Встреча будет удалена для вас и всех остальных. Все участники будут уведомлены.</string>
+    <string name="meeting_deleted_success">“%s” удалена</string>
+    <string name="meeting_deleted_failure">При удалении встречи “%s” произошла ошибка</string>
     <plurals name="new_meeting_participants_input_more_suffix">
         <item quantity="one">Еще +%1$d</item>
         <item quantity="few">Еще +%1$d</item>

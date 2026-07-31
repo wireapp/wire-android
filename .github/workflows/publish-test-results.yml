@@ -31,7 +31,7 @@ jobs:
 
         steps:
             - name: Checkout
-              uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
             - name: Download and Extract Artifacts
               uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
@@ -45,7 +45,7 @@ jobs:
                   commit: ${{ github.event.workflow_run.head_sha }}
                   event_file: artifacts/Event File/event.json
                   event_name: ${{ github.event.workflow_run.event }}
-                  files: "artifacts/test-results/**/*.xml"
+                  files: "artifacts/test-results*/**/*.xml"
 
             - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2
 
@@ -65,7 +65,7 @@ jobs:
 
             - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
               with:
-                  node-version: 18
+                  node-version: 24
             - name: Install datadog-ci
               run: npm install -g @datadog/datadog-ci
             - name: "Upload results"

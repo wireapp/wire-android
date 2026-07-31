@@ -613,7 +613,7 @@
     <string name="promote_admin_search_placeholder">Name oder E-Mail-Adresse eingeben</string>
     <string name="promote_admin_button">Als Admin ernennen und Gruppe verlassen</string>
     <string name="delete_conversation_conversation_menu_item">Unterhaltung löschen…</string>
-    <string name="delete_conversation_conversation_dialog_title">\"%s\" entfernen?</string>
+    <string name="delete_conversation_conversation_dialog_title">\"%s\" löschen?</string>
     <string name="delete_conversation_conversation_dialog_description">Dies wird die Gruppe und alle Inhalte für alle Teilnehmer auf allen Geräten löschen. Es gibt keine Möglichkeit, den Inhalt wiederherzustellen. Alle Teilnehmer werden darüber benachrichtigt.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Unterhaltung \"%s\" für mich löschen?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Sie können dann nicht mehr auf die Unterhaltung und ihren Inhalt zugreifen. Es gibt keine Möglichkeit, sie wiederherzustellen.</string>
@@ -1810,4 +1810,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
     <string name="label_system_message_admin_role_assigned">Sie wurden zum Gruppen-Admin ernannt</string>
     <string name="more_information_about_this_server">Mehr Informationen über dieses Backend</string>
+    <!-- Pending messages service notification -->
+    <string name="pending_messages_notification_waiting">Auf Verbindung warten</string>
+    <string name="pending_messages_notification_sending">Nachrichten werden gesendet</string>
 </resources>

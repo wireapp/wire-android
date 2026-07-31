@@ -95,7 +95,7 @@ class MeetingListViewModelImpl(
     ) { pagingData, activeCalls, currentTime ->
         pagingData
             .map { item ->
-                val activeCall = activeCalls.find { it.conversationId == item.conversationId }
+                val activeCall = activeCalls.find { it.conversationId == item.meeting.conversationId }
                 item.toMeetingItem(time = currentTime, ongoingCallStatus = activeCall?.toOngoingCallStatus())
             }
             .insertHeaders(type = type)

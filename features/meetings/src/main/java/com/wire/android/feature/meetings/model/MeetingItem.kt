@@ -23,8 +23,8 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
-import com.wire.kalium.logic.data.meeting.MeetingOccurrence
-import com.wire.kalium.logic.data.meeting.MeetingOccurrence.Recurrence.Frequency
+import com.wire.kalium.logic.data.meeting.Meeting
+import com.wire.kalium.logic.data.meeting.Meeting.Recurrence.Frequency
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.datetime.Instant
@@ -51,7 +51,7 @@ data class MeetingItem(
         }
 
         companion object {
-            val Supported: ImmutableList<RepeatingInterval> = MeetingOccurrence.Recurrence.SUPPORTED_RECURRENCES
+            val Supported: ImmutableList<RepeatingInterval> = Meeting.Recurrence.SUPPORTED_RECURRENCES
                 .map { (frequency, interval) -> RepeatingInterval(frequency, interval.toInt()) }.toPersistentList()
         }
     }

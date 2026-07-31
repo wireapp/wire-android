@@ -28,8 +28,14 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.model.Contact
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.meeting.CreateMeeting
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -212,9 +218,88 @@ class NewMeetingViewModelTest {
     }
 
     @Test
-    fun givenValidData_whenCreateMeetingIsCalled_thenSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenMeetNowTypeWithValidData_whenCreateMeetingIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+        val (arrangement, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+
+        enterTitle(viewModel, "  Quick sync  ")
+
+        viewModel.actions.test {
+            viewModel.createMeeting()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.createNewMeeting(
+                    CreateMeeting(
+                        title = "Quick sync",
+                        startTime = currentTime,
+                        endTime = currentTime + 1.hours,
+                        recurrence = null,
+                        otherParticipants = emptyList()
+                    )
+                )
+            }
+            assertEquals(currentTime, viewModel.state.startTime)
+            assertEquals(currentTime + 1.hours, viewModel.state.endTime)
+            assertFalse(viewModel.state.isSubmitting)
+            assertNull(viewModel.state.creationError)
+            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenScheduleTypeWithValidData_whenCreateMeetingIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        val startTime = currentTime + 2.hours
+        val endTime = currentTime + 3.hours
+        val contact = contact("contact-1")
+        val repeatingInterval = MeetingItem.RepeatingInterval.Supported.first()
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+        )
+
+        enterTitle(viewModel, "  Weekly sync  ")
+        viewModel.updateStartTime(startTime)
+        viewModel.updateEndTime(endTime)
+        viewModel.updateSelectedContact(selected = true, contact = contact)
+        viewModel.confirmSelectedContacts()
+        viewModel.updateRepeatingInterval(repeatingInterval)
+
+        viewModel.actions.test {
+            viewModel.createMeeting()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.createNewMeeting(
+                    CreateMeeting(
+                        title = "Weekly sync",
+                        startTime = startTime,
+                        endTime = endTime,
+                        recurrence = Meeting.Recurrence(
+                            frequency = repeatingInterval.frequency,
+                            interval = repeatingInterval.interval.toLong(),
+                            until = null
+                        ),
+                        otherParticipants = listOf(UserId(contact.id, contact.domain))
+                    )
+                )
+            }
+            assertFalse(viewModel.state.isSubmitting)
+            assertNull(viewModel.state.creationError)
+            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenCreationFails_whenCreateMeetingIsCalled_thenCreationErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Failure)
+        )
 
         enterTitle(viewModel, "Weekly sync")
 
@@ -222,20 +307,48 @@ class NewMeetingViewModelTest {
             viewModel.createMeeting()
             advanceUntilIdle()
 
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            coVerify(exactly = 1) { arrangement.createNewMeeting(any()) }
+            expectNoEvents()
+            assertFalse(viewModel.state.isSubmitting)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertEquals(NewMeetingState.CreationError.Other, viewModel.state.creationError)
         }
     }
 
     @Test
     fun givenInvalidTitle_whenCreateMeetingIsCalled_thenTitleErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
+        val (arrangement, viewModel) = arrangeViewModel()
 
         viewModel.actions.test {
             viewModel.createMeeting()
             advanceUntilIdle()
 
+            coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
             expectNoEvents()
             assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.state.titleError)
+            assertFalse(viewModel.state.continueButtonEnabled)
+        }
+    }
+
+    @Test
+    fun givenScheduleTypeWithInvalidTimes_whenCreateMeetingIsCalled_thenTimeErrorIsShownAndMeetingIsNotCreated() = runTest(dispatcher) {
+        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+        )
+
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.updateStartTime(currentTime - 1.hours)
+
+        viewModel.actions.test {
+            viewModel.createMeeting()
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+            expectNoEvents()
+            assertEquals(NewMeetingState.TimeError.StartTimeInPastError, viewModel.state.startTimeError)
             assertFalse(viewModel.state.continueButtonEnabled)
         }
     }
@@ -267,6 +380,9 @@ class NewMeetingViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
+        @MockK
+        lateinit var createNewMeeting: CreateNewMeetingUseCase
+
         private var newMeetingType: NewMeetingType = NewMeetingType.MeetNow
 
         init {
@@ -274,6 +390,7 @@ class NewMeetingViewModelTest {
             every {
                 savedStateHandle.navArgs<NewMeetingNavArgs>()
             } answers { NewMeetingNavArgs(type = newMeetingType) }
+            coEvery { createNewMeeting(any()) } returns CreateNewMeetingUseCase.Result.Success
         }
 
         fun withNewMeetingType(type: NewMeetingType) = apply {
@@ -282,10 +399,14 @@ class NewMeetingViewModelTest {
         fun withCurrentTimeProvider(currentTime: () -> Instant) = apply {
             currentTimeProvider = CurrentTimeProvider(currentTime)
         }
+        fun withCreateMeetingResult(result: CreateNewMeetingUseCase.Result) = apply {
+            coEvery { createNewMeeting(any()) } returns result
+        }
 
         fun arrange() = this to NewMeetingViewModelImpl(
             savedStateHandle = savedStateHandle,
             currentTimeProvider = currentTimeProvider,
+            createNewMeeting = createNewMeeting,
         )
     }
 }

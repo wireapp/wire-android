@@ -742,6 +742,7 @@ private fun ConversationScreenContent(
                         playingAudioMessage = conversationMessagesViewState.playingAudioMessage,
                         assetStatuses = conversationMessagesViewState.assetStatuses,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                        adminlessGroupDeletionTimestamp = conversationMessagesViewState.adminlessGroupDeletionTimestamp,
                         unreadEventCount = conversationMessagesViewState.firstUnreadEventIndex,
                         conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,

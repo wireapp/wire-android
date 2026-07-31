@@ -656,11 +656,6 @@ sealed interface UIMessageContent {
             val isAuthorSelfUser: Boolean = false,
             val isAccessEnabled: Boolean
         ) : SystemMessage
-
-        @Serializable
-        data class AdminlessDeleteReminder(
-            val deletionScheduledFor: Instant
-        ) : SystemMessage
     }
 }
 

@@ -20,6 +20,7 @@
 package com.wire.android.ui.home.conversations.messages.preview
 
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem
 import com.wire.android.ui.home.conversations.messages.item.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
 import com.wire.android.ui.home.conversations.mock.mockUsersUITexts
@@ -490,14 +491,10 @@ fun PreviewSystemMessageConversationMessageAppsAccessEnabled() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewSystemMessageAdminlessDeleteReminder() {
+fun PreviewAdminlessGroupDeleteReminder() {
     WireTheme {
-        SystemMessageItem(
-            message = mockMessageWithKnock.copy(
-                messageContent = UIMessageContent.SystemMessage.AdminlessDeleteReminder(
-                    deletionScheduledFor = Instant.parse("2026-04-23T12:00:00Z")
-                )
-            )
+        AdminlessGroupDeleteReminderItem(
+            deletionScheduledFor = Instant.parse("2026-04-23T12:00:00Z")
         )
     }
 }

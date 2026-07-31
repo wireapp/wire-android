@@ -625,6 +625,7 @@
     <string name="promote_admin_error_failed_to_promote">Не удалось назначить пользователя администратором</string>
     <string name="promote_admin_error_failed_to_leave">Не удалось покинуть беседу</string>
     <string name="delete_conversation_conversation_menu_item">Удалить беседу…</string>
+    <string name="delete_conversation_conversation_dialog_title">Удалить “%s”?</string>
     <string name="delete_conversation_conversation_dialog_description">Это приведет к удалению группы и всего содержимого для всех участников на всех устройствах. Восстановить контент будет невозможно. Все участники будут оповещены.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Удалить беседу «%s» у меня?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Вы не сможете получить доступ к беседе и ее содержимому. Восстановить ее невозможно.</string>
@@ -1932,4 +1933,7 @@
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
     <string name="label_system_message_admin_role_assigned">Вы были назначены администратором группы</string>
     <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
+    <!-- Pending messages service notification -->
+    <string name="pending_messages_notification_waiting">Ожидание подключения</string>
+    <string name="pending_messages_notification_sending">Отправка сообщений</string>
 </resources>

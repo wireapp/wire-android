@@ -351,6 +351,9 @@
     <string name="login_error_user_already_logged_in_message">Sie sind bereits mit diesen Daten auf diesem Gerät angemeldet.</string>
     <string name="login_sso_error_invalid_cookie_title">Ungültiger Cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">Die Sitzung ist ungültig oder abgelaufen! Bitte versuchen Sie erneut, sich anzumelden.</string>
+    <string name="sso_identity_changed_dialog_title">Identitätsanbieter geändert</string>
+    <string name="sso_identity_changed_dialog_message">Dieses Benutzerkonto wurde mit einem anderen Identitätsanbieter verwendet. Wenn Sie fortfahren, werden alle Unterhaltungen von diesem Gerät gelöscht.\nUm Ihre Daten zu behalten, wählen Sie „Abbrechen“ und melden Sie sich anschließend mit Ihrem bisherigen Identitätsanbieter an.</string>
+    <string name="sso_identity_changed_dialog_confirm">Daten löschen und fortfahren</string>
     <string name="login_password_placeholder">Passwort</string>
     <string name="login_password_label">PASSWORT</string>
     <string name="login_tab_email">E-MAIL-ADRESSE</string>

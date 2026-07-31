@@ -359,6 +359,9 @@
     <string name="login_error_user_already_logged_in_message">Вы уже авторизованы с этими учетными данными на данном устройстве.</string>
     <string name="login_sso_error_invalid_cookie_title">Неверный cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">Сессия недействительна или истекла! Пожалуйста, попробуйте авторизоваться еще раз.</string>
+    <string name="sso_identity_changed_dialog_title">Провайдер идентификации изменен</string>
+    <string name="sso_identity_changed_dialog_message">Этот аккаунт использовался с другим провайдером услуг аутентификации. Если вы продолжите, все беседы с этого устройства будут удалены.\nЧтобы сохранить свои данные, нажмите Отмена, а затем авторизуйтесь с помощью прежнего провайдера услуг аутентификации.</string>
+    <string name="sso_identity_changed_dialog_confirm">Удалить данные и продолжить</string>
     <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">ПАРОЛЬ</string>
     <string name="login_tab_email">EMAIL</string>

@@ -258,7 +258,7 @@ class NewConversationViewModel(
         viewModelScope.launch {
             groupOptionsState = groupOptionsState.copy(isLoading = true)
             val result = createChannel(
-                name = newGroupNameTextState.text.toString(),
+                name = newGroupNameTextState.text.toString().trim(),
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = CreateConversationParam().copy(
                     protocol = newGroupState.groupProtocol,
@@ -282,7 +282,7 @@ class NewConversationViewModel(
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createRegularGroup(
-                name = newGroupNameTextState.text.toString(),
+                name = newGroupNameTextState.text.toString().trim(),
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = CreateConversationParam().copy(
                     protocol = CreateConversationParam.Protocol.PROTEUS,
@@ -300,7 +300,7 @@ class NewConversationViewModel(
         viewModelScope.launch {
             groupOptionsState = groupOptionsState.copy(isLoading = true)
             val result = createRegularGroup(
-                name = newGroupNameTextState.text.toString(),
+                name = newGroupNameTextState.text.toString().trim(),
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = CreateConversationParam().copy(

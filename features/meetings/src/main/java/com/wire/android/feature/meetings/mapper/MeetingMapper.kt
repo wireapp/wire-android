@@ -32,15 +32,27 @@ private val BUFFER_TIME = 5.minutes
 
 fun MeetingOccurrence.toMeetingItem(time: Instant, ongoingCallStatus: MeetingItem.OngoingCallStatus?): MeetingItem = MeetingItem(
     occurrenceId = occurrenceId,
-    meetingId = meetingId,
-    conversationId = conversationId,
+    meetingId = meeting.meetingId,
+    conversationId = meeting.conversationId,
     belongingType = toBelongingType(),
-    repeatingInterval = recurrence?.let { MeetingItem.RepeatingInterval(it.frequency, it.interval.toInt()) },
-    title = title,
+    repeatingInterval = meeting.recurrence?.let { MeetingItem.RepeatingInterval(it.frequency, it.interval.toInt()) },
+    title = meeting.title,
     status = when {
-        startTime > time && endTime != null -> Status.Scheduled(startTime = startTime, endTime = endTime!!)
-        startTime < time && endTime != null && endTime!! + BUFFER_TIME < time -> Status.Ended(startTime = startTime, endTime = endTime!!)
-        else -> Status.Ongoing(startTime = startTime, scheduledEndTime = endTime, ongoingCallStatus = ongoingCallStatus)
+        occurrenceStartTime > time -> Status.Scheduled(
+            startTime = occurrenceStartTime,
+            endTime = occurrenceEndTime
+        )
+
+        occurrenceStartTime < time && occurrenceEndTime + BUFFER_TIME < time -> Status.Ended(
+            startTime = occurrenceStartTime,
+            endTime = occurrenceEndTime
+        )
+
+        else -> Status.Ongoing(
+            startTime = occurrenceStartTime,
+            scheduledEndTime = occurrenceEndTime,
+            ongoingCallStatus = ongoingCallStatus
+        )
     },
     selfRole = selfRole.toItemSelfRole()
 )

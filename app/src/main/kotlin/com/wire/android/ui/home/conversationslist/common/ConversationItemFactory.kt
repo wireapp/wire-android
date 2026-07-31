@@ -192,7 +192,7 @@ private fun GeneralConversationItem(
                     modifier = modifier.padding(start = dimensions().spacing8x),
                     titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             if (isSelectable) {
                                 WireRadioButton(checked = isChecked, onButtonChecked = {
                                     selectOnRadioGroup()
@@ -252,7 +252,7 @@ private fun GeneralConversationItem(
                     modifier = modifier.padding(start = dimensions().spacing8x),
                     titleStartPadding = dimensions().spacing0x,
                     leadingIcon = {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             if (isSelectable) {
                                 WireRadioButton(checked = isChecked, onButtonChecked = {
                                     selectOnRadioGroup()
@@ -273,7 +273,12 @@ private fun GeneralConversationItem(
                     clickable = onConversationItemClick,
                     actions = {
                         if (!isSelectable) {
-                            if (playingAudio != null) {
+                            if (hasOnGoingCall) {
+                                JoinButton(
+                                    buttonClick = onJoinCallClick,
+                                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+                                )
+                            } else if (playingAudio != null) {
                                 AudioControlButtons(
                                     playingAudio = playingAudio,
                                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,

@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.meetings.ui.create
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -177,7 +178,9 @@ fun NewMeetingContent(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(type.title),
-                onNavigationPressed = onBackPressed,
+                onNavigationPressed = {
+                    if (!state.isSubmitting) onBackPressed()
+                },
                 navigationIconType = NavigationIconType.Back(
                     contentDescription = R.string.content_description_new_meeting_back_icon
                 ),
@@ -265,6 +268,7 @@ fun NewMeetingContent(
             }
         }
     )
+    BackHandler(state.isSubmitting) { /* block until submitted */ }
 }
 
 @Composable

@@ -1,0 +1,1 @@
+[{"values":["SM-G990B - 15 (device-1), SM-A536B - 14 (device-2)"],"name":"devices"},{"values":["4.32.0-22633"],"name":"apk"},{"values":["209"],"name":"run"},{"values":["2026-07-31"],"name":"date"},{"values":["TEMP"],"name":"input_tags"},{"values":["3"],"name":"failed_first_attempt"},{"values":["1"],"name":"passed_on_rerun"},{"values":["2"],"name":"failed_after_retries"}]

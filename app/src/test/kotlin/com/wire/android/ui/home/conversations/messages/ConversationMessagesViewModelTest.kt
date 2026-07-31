@@ -54,10 +54,12 @@ import com.wire.kalium.network.NetworkState
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator
@@ -70,6 +72,26 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class ConversationMessagesViewModelTest {
+
+    @Test
+    fun givenAdminlessDeletionTimestampChanges_whenObservingConversation_thenStateIsUpdated() = runTest {
+        val deletionTimestamps = MutableStateFlow<Instant?>(null)
+        val scheduledDeletion = Instant.parse("2026-08-30T12:00:00Z")
+        val (_, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withAdminlessGroupDeletionTimestampFlow(deletionTimestamps)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(null, viewModel.conversationViewState.adminlessGroupDeletionTimestamp)
+
+        deletionTimestamps.value = scheduledDeletion
+        advanceUntilIdle()
+        assertEquals(scheduledDeletion, viewModel.conversationViewState.adminlessGroupDeletionTimestamp)
+
+        deletionTimestamps.value = null
+        advanceUntilIdle()
+        assertEquals(null, viewModel.conversationViewState.adminlessGroupDeletionTimestamp)
+    }
 
     @Test
     fun `given an message ID, when downloading or fetching into internal storage, then should get message details by ID`() = runTest {

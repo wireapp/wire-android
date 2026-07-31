@@ -72,6 +72,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import okio.Path
 
@@ -186,6 +187,18 @@ class ConversationMessagesViewModelArrangement {
 
     fun withSuccessfulViewModelInit() = apply {
         coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns flowOf()
+    }
+
+    fun withAdminlessGroupDeletionTimestampFlow(timestamps: Flow<Instant?>) = apply {
+        coEvery { observeConversationDetails(any()) } returns timestamps.map { timestamp ->
+            ObserveConversationDetailsUseCase.Result.Success(
+                ConversationDetails.Group.Regular(
+                    conversation = conversationStub.copy(adminlessGroupDeletionTimestamp = timestamp),
+                    isSelfUserMember = true,
+                    selfRole = Conversation.Member.Role.Member,
+                )
+            )
+        }
     }
 
     fun withSuccessfulOpenAssetMessage(

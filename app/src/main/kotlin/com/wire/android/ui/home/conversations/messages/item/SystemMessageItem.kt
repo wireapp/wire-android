@@ -84,7 +84,41 @@ fun SystemMessageItem(
     failureInteractionAvailable: Boolean = true,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
-) = with(message.messageContent.buildContent(isWireCellsEnabled)) {
+) {
+    SystemMessageContentItem(
+        content = message.messageContent.buildContent(isWireCellsEnabled),
+        message = message,
+        modifier = modifier,
+        initiallyExpanded = initiallyExpanded,
+        failureInteractionAvailable = failureInteractionAvailable,
+        onFailedMessageRetryClicked = onFailedMessageRetryClicked,
+        onFailedMessageCancelClicked = onFailedMessageCancelClicked,
+    )
+}
+
+@Composable
+fun AdminlessGroupDeleteReminderItem(
+    deletionScheduledFor: kotlinx.datetime.Instant,
+    modifier: Modifier = Modifier,
+    is24HourFormat: Boolean? = null,
+) {
+    SystemMessageContentItem(
+        content = adminlessGroupDeleteReminderContent(deletionScheduledFor, is24HourFormat),
+        modifier = modifier,
+    )
+}
+
+@Suppress("LongParameterList")
+@Composable
+private fun SystemMessageContentItem(
+    content: SystemMessageContent,
+    modifier: Modifier = Modifier,
+    message: UIMessage.System? = null,
+    initiallyExpanded: Boolean = false,
+    failureInteractionAvailable: Boolean = true,
+    onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
+    onFailedMessageCancelClicked: (String) -> Unit = {},
+) = with(content) {
     val textStyle = MaterialTheme.wireTypography.body01
     val lineHeightDp: Dp = with(LocalDensity.current) { textStyle.lineHeight.toDp() }
     MessageItemTemplate(
@@ -138,7 +172,7 @@ fun SystemMessageItem(
                         contentPadding = PaddingValues(horizontal = dimensions().spacing12x, vertical = dimensions().spacing8x),
                     )
                 }
-                if (message.sendingFailed) {
+                if (message?.sendingFailed == true) {
                     MessageSendFailureWarning(
                         messageStatus = message.header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
                         isInteractionAvailable = failureInteractionAvailable,
@@ -613,12 +647,18 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
         }
     }
 
-    is SystemMessage.AdminlessDeleteReminder -> buildContent(
+}
+
+@Composable
+private fun adminlessGroupDeleteReminderContent(
+    deletionScheduledFor: kotlinx.datetime.Instant,
+    is24HourFormat: Boolean?,
+) = buildContent(
         iconResId = commonR.drawable.ic_info,
         iconTintColor = MaterialTheme.wireColorScheme.error,
         learnMorePage = SupportPage.ADMINLESS_GROUP_DELETE,
     ) {
-        val is24Hour = DateFormat.is24HourFormat(LocalContext.current)
+        val is24Hour = is24HourFormat ?: DateFormat.is24HourFormat(LocalContext.current)
         val markdownTextStyle = DefaultMarkdownTextStyle.copy(
             normalColor = MaterialTheme.wireColorScheme.error,
             boldColor = MaterialTheme.wireColorScheme.error
@@ -632,7 +672,6 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
             )
         }
     }
-}
 
 private fun AnnotatedString.Builder.appendVerticalSpace() = withStyle(ParagraphStyle()) { append(" ") }
 

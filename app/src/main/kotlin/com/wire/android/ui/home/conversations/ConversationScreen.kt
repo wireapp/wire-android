@@ -159,6 +159,7 @@ import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBack
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
+import com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
@@ -935,6 +936,7 @@ private fun ConversationScreen(
                         playingAudioMessage = conversationMessagesViewState.playingAudioMessage,
                         assetStatuses = conversationMessagesViewState.assetStatuses,
                         lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                        adminlessGroupDeletionTimestamp = conversationMessagesViewState.adminlessGroupDeletionTimestamp,
                         unreadEventCount = conversationMessagesViewState.firstUnreadEventIndex,
                         conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,
@@ -1023,6 +1025,7 @@ private fun ConversationScreenContent(
     conversationId: ConversationId,
     bottomSheetVisible: Boolean,
     lastUnreadMessageInstant: Instant?,
+    adminlessGroupDeletionTimestamp: Instant?,
     unreadEventCount: Int,
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
@@ -1085,6 +1088,7 @@ private fun ConversationScreenContent(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
+                adminlessGroupDeletionTimestamp = adminlessGroupDeletionTimestamp,
                 playingAudioMessage = playingAudioMessage,
                 assetStatuses = assetStatuses,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
@@ -1183,6 +1187,7 @@ fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
+    adminlessGroupDeletionTimestamp: Instant?,
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (Instant) -> Unit,
@@ -1315,6 +1320,14 @@ fun MessageList(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
+                if (adminlessGroupDeletionTimestamp != null && lazyPagingMessages.itemCount == 0) {
+                    item(
+                        key = "adminless_group_delete_reminder",
+                        contentType = "adminless_group_delete_reminder",
+                    ) {
+                        AdminlessGroupDeleteReminderItem(adminlessGroupDeletionTimestamp)
+                    }
+                }
                 items(
                     count = lazyPagingMessages.itemCount,
                     key = lazyPagingMessages.itemKey { it.header.messageId },
@@ -1366,6 +1379,12 @@ fun MessageList(
                         } else {
                             SwipeableMessageConfiguration.NotSwipeable
                         }
+                    }
+
+                    // Multiple children in a reverse-layout item are placed in reverse order,
+                    // so emitting the reminder first displays it below the newest message.
+                    if (index == 0 && adminlessGroupDeletionTimestamp != null) {
+                        AdminlessGroupDeleteReminderItem(adminlessGroupDeletionTimestamp)
                     }
 
                     MessageContainerItem(

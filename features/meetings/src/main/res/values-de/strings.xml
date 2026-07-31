@@ -75,6 +75,10 @@
     <string name="delete_meeting_for_everyone_title">Meeting für alle löschen</string>
     <string name="delete_meeting_for_everyone_description">Das Meeting wird für Sie und alle anderen gelöscht. Alle Teilnehmer werden darüber informiert.</string>
     <string name="meeting_deleted_success">“%s” gelöscht</string>
+    <string name="new_meeting_now_failure_title">Meeting konnte nicht gestartet werden</string>
+    <string name="new_meeting_now_failure_description">Beim Starten des Meetings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
+    <string name="new_meeting_schedule_failure_title">Meeting konnte nicht geplant werden</string>
+    <string name="new_meeting_schedule_failure_description">Beim Planen des Meetings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
     <plurals name="new_meeting_participants_input_more_suffix">
         <item quantity="one">+%1$d mehr</item>
         <item quantity="other">+%1$d weitere</item>

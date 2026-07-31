@@ -1,0 +1,16 @@
+Neu
+- Link-Vorschauen in Nachrichten erstellen und anzeigen
+- Drive
+    - Bilder direkt in Drive anzeigen
+    - Videos in der App abspielen
+    - Dateien offline verfügbar machen
+
+Verbessert
+- Synchronisierung bei Wiederherstellung der Verbindung
+- MLS: Willkommensmeldungen und schnellere Einrichtung
+- Reaktionen im Anruf
+- Anrufe werden angezeigt, wenn der Status auf „Abwesend“ gesetzt wurde
+
+Behoben
+- Problem beim Wechseln zwischen Konten und bei der Navigation
+- Problem bei SSO-Anmeldung

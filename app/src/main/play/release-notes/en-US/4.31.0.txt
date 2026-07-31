@@ -1,0 +1,16 @@
+New
+- Create and show link previews in messages with a privacy setting
+- Drive
+    - View images directly inside Drive
+    - Play videos in the app
+    - Make files available offline
+
+Improvements
+- Syncing when connectivity returns
+- MLS welcome states and faster setup
+- In-call reactions
+- Calls are shown when status was set to away
+
+Fixes
+- Issue with account switching and navigation
+- Issue with SSO login

@@ -23,6 +23,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
@@ -35,7 +36,7 @@ fun MeetingOccurrence.toMeetingItem(time: Instant, ongoingCallStatus: MeetingIte
     meetingId = meeting.meetingId,
     conversationId = meeting.conversationId,
     belongingType = toBelongingType(),
-    repeatingInterval = meeting.recurrence?.let { MeetingItem.RepeatingInterval(it.frequency, it.interval.toInt()) },
+    repeatingInterval = meeting.recurrence?.toRepeatingInterval(),
     title = meeting.title,
     status = when {
         occurrenceStartTime > time -> Status.Scheduled(
@@ -56,6 +57,8 @@ fun MeetingOccurrence.toMeetingItem(time: Instant, ongoingCallStatus: MeetingIte
     },
     selfRole = selfRole.toItemSelfRole()
 )
+
+fun Meeting.Recurrence.toRepeatingInterval(): MeetingItem.RepeatingInterval = MeetingItem.RepeatingInterval(frequency, interval.toInt())
 
 fun MeetingOccurrence.SelfRole.toItemSelfRole(): MeetingItem.SelfRole = when (this) {
     MeetingOccurrence.SelfRole.Creator -> MeetingItem.SelfRole.Creator

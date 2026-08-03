@@ -21,6 +21,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -87,6 +88,7 @@ import com.wire.android.ui.common.datetime.WireDatePickerDialog
 import com.wire.android.ui.common.datetime.WireTimePickerDialog
 import com.wire.android.ui.common.datetime.asTimePickerResult
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -107,6 +109,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableList
@@ -138,7 +141,7 @@ fun NewMeetingScreen(
         onParticipantsClicked = {
             navigator.navigate(NavigationCommand(NewMeetingParticipantsScreenDestination))
         },
-        onCreateClicked = newMeetingViewModel::createMeeting,
+        onCreateClicked = newMeetingViewModel::submit,
         onStartTimeChanged = newMeetingViewModel::updateStartTime,
         onEndTimeChanged = newMeetingViewModel::updateEndTime,
         onRepeatingIntervalChanged = newMeetingViewModel::updateRepeatingInterval,
@@ -202,7 +205,7 @@ fun NewMeetingContent(
                     titleError = state.titleError,
                     readOnly = state.isSubmitting,
                 )
-                if (type == NewMeetingType.Schedule) {
+                if (type != NewMeetingType.MeetNow) {
                     VerticalSpace.x24()
                     TimeInput(
                         time = state.startTime,
@@ -233,14 +236,28 @@ fun NewMeetingContent(
                     onClick = onParticipantsClicked,
                 )
             }
-            if (state.isSubmitting) {
+            if (state.isSubmitting || state.isDataLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .pointerInput(Unit) {
-                            detectTapGestures { /* consume the touch while submitting data */ }
+                            detectTapGestures { /* consume the touch while submitting or loading data */ }
                         },
                 )
+            }
+            AnimatedVisibility(state.isDataLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(colorsScheme().background),
+                    contentAlignment = Alignment.Center
+                ) {
+                    WireCircularProgressIndicator(
+                        size = dimensions().spacing32x,
+                        strokeWidth = dimensions().spacing4x,
+                        progressColor = MaterialTheme.wireColorScheme.onBackground,
+                    )
+                }
             }
         },
         bottomBar = {
@@ -572,6 +589,7 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
             confirmedContacts = buildContacts(names.size),
             continueButtonEnabled = true,
+            isDataLoading = false,
         ),
     )
 }
@@ -586,6 +604,22 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()),
             endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()).plus(1.hours),
             repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
+            isDataLoading = false,
+        ),
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNewMeetingScreen_Edit() = WireTheme {
+    NewMeetingContent(
+        titleState = rememberTextFieldState(),
+        type = NewMeetingType.Edit(MeetingId("meetingId", "domain")),
+        state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
+            startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()),
+            endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()).plus(1.hours),
+            repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
+            isDataLoading = false,
         ),
     )
 }

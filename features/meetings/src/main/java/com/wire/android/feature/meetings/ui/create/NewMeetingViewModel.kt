@@ -18,6 +18,7 @@
 package com.wire.android.feature.meetings.ui.create
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.meetings.navArgs
+import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.Companion.initialState
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
@@ -35,13 +38,18 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.data.meeting.CreateMeeting
 import com.wire.kalium.logic.data.meeting.Meeting
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
+import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -64,7 +72,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun updateStartTime(startTime: Instant) {}
     fun updateEndTime(endTime: Instant) {}
     fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval?) {}
-    fun createMeeting() {}
+    fun submit() {}
     fun dismissCreationError() {}
 
     companion object {
@@ -84,6 +92,10 @@ class NewMeetingViewModelImpl(
     savedStateHandle: SavedStateHandle,
     override val currentTimeProvider: CurrentTimeProvider,
     private val createNewMeeting: CreateNewMeetingUseCase,
+    private val updateMeeting: UpdateMeetingUseCase,
+    private val getNextMeetingOccurrence: GetNextMeetingOccurrenceUseCase,
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val contactMapper: ContactMapper,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
     val navArgs: NewMeetingNavArgs = savedStateHandle.navArgs()
     override val type: NewMeetingType = navArgs.type
@@ -92,6 +104,33 @@ class NewMeetingViewModelImpl(
         private set
 
     init {
+        observeTitleChanges()
+        getNextMeetingOccurrenceData()
+    }
+
+    private fun getNextMeetingOccurrenceData() {
+        viewModelScope.launch {
+            val meetingType = navArgs.type
+            if (meetingType is NewMeetingType.Edit) {
+                getNextMeetingOccurrence(meetingType.id, currentTimeProvider())?.let { nextMeetingOccurrence ->
+                    val otherContacts = observeConversationMembers(nextMeetingOccurrence.meeting.conversationId).firstOrNull()?.let {
+                        it.map { it.user }.filterIsInstance<OtherUser>().map { contactMapper.fromOtherUser(it) }.toPersistentSet()
+                    } ?: persistentSetOf()
+                    titleTextState.setTextAndPlaceCursorAtEnd(nextMeetingOccurrence.meeting.title)
+                    state = state.copy(
+                        startTime = nextMeetingOccurrence.occurrenceStartTime,
+                        endTime = nextMeetingOccurrence.occurrenceEndTime,
+                        repeatingInterval = nextMeetingOccurrence.meeting.recurrence?.toRepeatingInterval(),
+                        selectedContacts = otherContacts,
+                        confirmedContacts = otherContacts,
+                    )
+                }
+            }
+            state = state.copy(isDataLoading = false)
+        }
+    }
+
+    private fun observeTitleChanges() {
         viewModelScope.launch {
             titleTextState.textAsFlow()
                 .drop(1) // drop initial value to avoid showing error on start
@@ -169,7 +208,7 @@ class NewMeetingViewModelImpl(
                 endTimeError == null
     )
 
-    override fun createMeeting() {
+    override fun submit() {
         viewModelScope.launch {
             val titleValid = validateTitle()
             val startAndEndTimeValid = when (type) {
@@ -178,23 +217,39 @@ class NewMeetingViewModelImpl(
                     true // for "meet now", we set the start time to the current time and end time to +1 hour, so it's already valid
                 }
 
-                NewMeetingType.Schedule -> validateStartAndEndTime()
+                NewMeetingType.Schedule, is NewMeetingType.Edit -> validateStartAndEndTime()
             }
-            if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
+            if (titleValid && startAndEndTimeValid) {
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
-                val creationResult = createNewMeeting(
-                    CreateMeeting(
-                        title = titleTextState.text.trim().toString(),
-                        startTime = state.startTime,
-                        endTime = state.endTime,
-                        recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
-                        otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
+                val creationResult = when (type) {
+                    NewMeetingType.MeetNow, NewMeetingType.Schedule -> createNewMeeting(
+                        createMeeting = CreateMeeting(
+                            title = titleTextState.text.trim().toString(),
+                            startTime = state.startTime,
+                            endTime = state.endTime,
+                            recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
+                            otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
+                        )
                     )
-                )
+
+                    is NewMeetingType.Edit -> updateMeeting(
+                        meetingId = type.id,
+                        meeting = CreateMeeting(
+                            title = titleTextState.text.trim().toString(),
+                            startTime = state.startTime,
+                            endTime = state.endTime,
+                            recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
+                            otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
+                        )
+                    )
+                }
                 state = state.copy(isSubmitting = false, continueButtonEnabled = true)
                 when (creationResult) {
-                    is CreateNewMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
-                    is CreateNewMeetingUseCase.Result.Failure -> state = state.copy(creationError = NewMeetingState.CreationError.Other)
+                    is CreateNewMeetingUseCase.Result.Success,
+                    is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
+
+                    is CreateNewMeetingUseCase.Result.Failure,
+                    is UpdateMeetingUseCase.Result.Failure -> state = state.copy(creationError = NewMeetingState.CreationError.Other)
                 }
             }
         }
@@ -209,14 +264,14 @@ internal fun getNextFullHour(now: Instant, timeZone: TimeZone = TimeZone.current
     val futureHour = now.plus(1, DateTimeUnit.HOUR, timeZone)
     val localFuture = futureHour.toLocalDateTime(timeZone)
     return LocalDateTime(
-            year = localFuture.year,
-            monthNumber = localFuture.monthNumber,
-            dayOfMonth = localFuture.dayOfMonth,
-            hour = localFuture.hour,
-            minute = 0,
-            second = 0,
-            nanosecond = 0
-        ).toInstant(timeZone)
+        year = localFuture.year,
+        monthNumber = localFuture.monthNumber,
+        dayOfMonth = localFuture.dayOfMonth,
+        hour = localFuture.hour,
+        minute = 0,
+        second = 0,
+        nanosecond = 0
+    ).toInstant(timeZone)
 }
 
 @Stable
@@ -232,6 +287,7 @@ data class NewMeetingState(
     val repeatingInterval: MeetingItem.RepeatingInterval? = null,
     val creationError: CreationError? = null,
     val isSubmitting: Boolean = false,
+    val isDataLoading: Boolean = false,
 ) {
     @Stable
     sealed interface TitleError {
@@ -252,7 +308,7 @@ data class NewMeetingState(
     companion object {
         fun initialState(currentTimeProvider: CurrentTimeProvider): NewMeetingState {
             val startTime = getNextFullHour(currentTimeProvider())
-            return NewMeetingState(startTime = startTime, endTime = startTime.plus(1.hours))
+            return NewMeetingState(startTime = startTime, endTime = startTime.plus(1.hours), isDataLoading = true)
         }
     }
 }

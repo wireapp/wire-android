@@ -47,12 +47,14 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.android.ui.common.R as UICommonR
 
 @Composable
 @SuppressLint("ComposeModifierMissing")
 fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
+    editMeeting: (MeetingId) -> Unit = {},
     viewModel: MeetingOptionsMenuViewModel = when {
         LocalInspectionMode.current -> MeetingOptionsMenuViewModelPreview(CurrentTimeProvider.Preview)
         else -> meetingOptionsMenuListViewModel()
@@ -73,7 +75,12 @@ fun MeetingOptionsModalSheetLayout(
                                 DeleteMeetingDialogState(forEveryone = true, meetingId = state.meetingId, meetingTitle = state.title)
                             )
                         }
-                    }
+                    },
+                    onEditMeeting = {
+                        sheetState.hide {
+                            editMeeting(state.meetingId)
+                        }
+                    },
                 ).also {
                     sheetState.updateContent()
                 }

@@ -68,8 +68,12 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenFutureMeeting_andSelfUserIsCreator_whenObserving_thenDeleteForEveryoneIsAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Creator, occurrenceStartTime = Clock.System.now() + 1.hours)
+    fun givenFutureMeeting_andSelfUserIsCreator_whenObserving_thenEditAndDeleteForEveryoneIsAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Creator,
+            occurrenceStartTime = Clock.System.now() + 1.hours,
+            occurrenceEndTime = Clock.System.now() + 2.hours,
+        )
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
             .arrange()
@@ -80,14 +84,19 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone, it.deleteOption)
+                assertEquals(true, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenDeleteIsNotAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Member, occurrenceStartTime = Clock.System.now() + 1.hours)
+    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Member,
+            occurrenceStartTime = Clock.System.now() + 1.hours,
+            occurrenceEndTime = Clock.System.now() + 2.hours
+        )
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
             .arrange()
@@ -98,14 +107,19 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenPastMeeting_whenObserving_thenDeleteIsNotAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Creator, occurrenceStartTime = Clock.System.now() - 1.hours)
+    fun givenPastMeeting_andSelfUserIsCreator_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Creator,
+            occurrenceStartTime = Clock.System.now() - 2.hours,
+            occurrenceEndTime = Clock.System.now() - 1.hours,
+        )
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
             .arrange()
@@ -116,6 +130,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
         }
@@ -170,6 +185,7 @@ class MeetingOptionsMenuViewModelTest {
     private fun meeting(
         selfRole: MeetingOccurrence.SelfRole,
         occurrenceStartTime: Instant,
+        occurrenceEndTime: Instant = occurrenceStartTime + 30.minutes
     ) = MeetingOccurrence(
         meeting = Meeting(
             meetingId = MEETING_ID,
@@ -177,14 +193,14 @@ class MeetingOptionsMenuViewModelTest {
             creatorId = UserId("creator-id", "domain"),
             title = MEETING_TITLE,
             startTime = occurrenceStartTime,
-            endTime = occurrenceStartTime + 30.minutes,
+            endTime = occurrenceEndTime,
             recurrence = null,
         ),
         occurrenceId = OCCURRENCE_ID,
         conversationName = "Meeting conversation",
         conversationType = MeetingOccurrence.ConversationType.Group,
         occurrenceStartTime = occurrenceStartTime,
-        occurrenceEndTime = occurrenceStartTime + 30.minutes,
+        occurrenceEndTime = occurrenceEndTime,
         selfRole = selfRole,
     )
 

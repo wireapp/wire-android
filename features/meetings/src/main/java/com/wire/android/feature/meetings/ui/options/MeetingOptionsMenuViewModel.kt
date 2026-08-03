@@ -75,13 +75,15 @@ class MeetingOptionsMenuViewModelImpl(
         flowOf(occurrenceId)
             .flatMapConcat { occurrenceId ->
                 observeMeetingOccurrenceUseCase.invoke(occurrenceId).map {
-                    when {
-                        it != null -> MeetingOptionsMenuState.Meeting(
+                    it?.let {
+                        val isEnded = it.occurrenceEndTime > Clock.System.now()
+                        MeetingOptionsMenuState.Meeting(
                             meetingId = it.meeting.meetingId,
                             title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
+                            editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && isEnded,
                             deleteOption = when {
-                                it.occurrenceStartTime < Clock.System.now() -> MeetingOptionsMenuState.Meeting.DeleteOption.None
+                                isEnded -> MeetingOptionsMenuState.Meeting.DeleteOption.None
                                 else -> when (it.selfRole) {
                                     MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
                                     // for now, we don't show delete option for members as "delete for me" is not yet implemented
@@ -89,9 +91,7 @@ class MeetingOptionsMenuViewModelImpl(
                                 }
                             },
                         )
-
-                        else -> MeetingOptionsMenuState.NotAvailable
-                    }
+                    } ?: MeetingOptionsMenuState.NotAvailable
                 }
             }
             .distinctUntilChanged()

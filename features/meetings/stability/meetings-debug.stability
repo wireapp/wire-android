@@ -55,6 +55,14 @@ public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: 
     - onRepeatingIntervalChanged: STABLE (function type)
 
 @Composable
+public fun com.wire.android.feature.meetings.ui.create.NewMeetingErrorDialog(type: com.wire.android.feature.meetings.ui.create.NewMeetingType, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - type: STABLE (class with no mutable properties)
+    - onDismiss: STABLE (function type)
+
+@Composable
 public fun com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsScreen(navigator: com.wire.android.feature.meetings.navigation.MeetingNavigator, newMeetingViewModel: com.wire.android.feature.meetings.ui.create.NewMeetingViewModel): kotlin.Unit
   skippable: false
   restartable: true
@@ -111,12 +119,13 @@ private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlinx.
     - timePlaceholder: STABLE (String is immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.create.TitleInput(titleState: androidx.compose.foundation.text.input.TextFieldState, titleError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TitleError?): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.TitleInput(titleState: androidx.compose.foundation.text.input.TextFieldState, titleError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TitleError?, readOnly: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - titleState: STABLE (marked @Stable or @Immutable)
     - titleError: STABLE (marked @Stable or @Immutable)
+    - readOnly: STABLE (primitive type)
 
 @Composable
 internal fun com.wire.android.feature.meetings.ui.list.CalendarIcon(tint: androidx.compose.ui.graphics.Color, modifier: androidx.compose.ui.Modifier): kotlin.Unit

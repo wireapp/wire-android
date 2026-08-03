@@ -44,7 +44,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import java.util.concurrent.ConcurrentHashMap
 
 interface MeetingOptionsMenuViewModel : ActionsManager<MeetingOptionsMenuViewAction> {
@@ -65,6 +64,7 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
 }
 
 class MeetingOptionsMenuViewModelImpl(
+    private val currentTimeProvider: CurrentTimeProvider,
     private val observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase,
     private val deleteMeetingUseCase: DeleteMeetingUseCase,
 ) : MeetingOptionsMenuViewModel, ActionsViewModel<MeetingOptionsMenuViewAction>() {
@@ -76,14 +76,14 @@ class MeetingOptionsMenuViewModelImpl(
             .flatMapConcat { occurrenceId ->
                 observeMeetingOccurrenceUseCase.invoke(occurrenceId).map {
                     it?.let {
-                        val isEnded = it.occurrenceEndTime > Clock.System.now()
+                        val hasEnded = it.occurrenceEndTime < currentTimeProvider()
                         MeetingOptionsMenuState.Meeting(
                             meetingId = it.meeting.meetingId,
                             title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
-                            editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && isEnded,
+                            editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && !hasEnded,
                             deleteOption = when {
-                                isEnded -> MeetingOptionsMenuState.Meeting.DeleteOption.None
+                                hasEnded -> MeetingOptionsMenuState.Meeting.DeleteOption.None
                                 else -> when (it.selfRole) {
                                     MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
                                     // for now, we don't show delete option for members as "delete for me" is not yet implemented

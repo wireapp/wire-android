@@ -57,6 +57,7 @@ class MeetingsViewModelFactory @Inject constructor(
     )
 
     internal fun meetingOptionsMenuViewModel() = MeetingOptionsMenuViewModelImpl(
+        currentTimeProvider = currentTimeProvider,
         observeMeetingOccurrenceUseCase = observeMeetingOccurrence,
         deleteMeetingUseCase = deleteMeetingUseCase,
     )

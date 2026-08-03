@@ -519,7 +519,6 @@
     <string name="leave_conversation_dialog_description">A továbbiakban nem tud üzeneteket küldeni vagy fogadni ebben a beszélgetésben egyik eszközön sem.</string>
     <string name="leave_conversation_dialog_delete_fully_check">A beszélgetés és annak tartalma törlése nálam és az összes eszközömön</string>
     <string name="delete_conversation_conversation_menu_item">Beszélgetés törlése…</string>
-    <string name="delete_conversation_conversation_dialog_title">Eltávolítja “%s” beszélgetést?</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Legyen “%s” beszélgetés törölve nálam?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Nem fog tudni hozzáférni a beszélgetéshez és annak tartalmához. Nincs lehetőség a visszaállításra.</string>
     <string name="delete_conversation_locally_delete_for_me_label">Törlés nálam</string>
@@ -1013,7 +1012,7 @@
     <string name="settings_myaccount_display_name_title">Profilneve</string>
     <string name="settings_myaccount_display_name_description">Mások a profilnevét – amit a Wire-ben nem csak egy személy viselhet – látják beszélgetésekben, hívásokban és a felhasználókeresőben.</string>
     <string name="settings_myaccount_display_name_error">Adja meg profilnevét</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Legalább 1, legfeljebb 64 karakter</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Legalább 1, legfeljebb 128 karakter</string>
     <string name="settings_myaccount_display_name_updated">Profilneve megváltozott</string>
     <string name="settings_myaccount_handle_updated">Profilneve megváltozott</string>
     <!--Privacy Settings -->
@@ -1556,4 +1555,5 @@ Kérjük, próbálja meg újra.</string>
     <string name="channel_not_available_dialog_create_team_button">Wire csapat létrehozása</string>
     <string name="custimization_options_header_title">Beállítások</string>
     <!-- Apps-->
+    <!-- Pending messages service notification -->
 </resources>

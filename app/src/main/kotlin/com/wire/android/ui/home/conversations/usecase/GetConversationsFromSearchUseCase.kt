@@ -124,9 +124,6 @@ class GetConversationsFromSearchUseCase @Inject constructor(
         initialJoinableCallsByConversationId: Map<ConversationId, Call>,
         joinableCallsFlow: Flow<Map<ConversationId, Call>>
     ): Flow<PagingData<ConversationItem>> {
-        val includeJoinableCalls = queryConfig.conversationFilter != ConversationFilter.OneOnOne
-        val initialCalls = if (includeJoinableCalls) initialJoinableCallsByConversationId else emptyMap()
-        val callsFlow = if (includeJoinableCalls) joinableCallsFlow else flowOf(emptyMap())
         return useCase(
             queryConfig = queryConfig,
             pagingConfig = pagingConfig,
@@ -134,8 +131,8 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             strictMlsFilter = useStrictMlsFilter
         ).mapToConversationItems(
             selfUserTeamId = selfUserTeamId,
-            initialJoinableCallsByConversationId = initialCalls,
-            joinableCallsFlow = callsFlow
+            initialJoinableCallsByConversationId = initialJoinableCallsByConversationId,
+            joinableCallsFlow = joinableCallsFlow
         )
     }
 
@@ -163,13 +160,14 @@ class GetConversationsFromSearchUseCase @Inject constructor(
             }
             try {
                 this@mapToConversationItems.collect { pagingData ->
+                    val joinableCallsByConversationId = latestJoinableCallsByConversationId.get()
                     emit(
                         pagingData.map {
                             it.toConversationItem(
                                 userTypeMapper = userTypeMapper,
                                 uiTextResolver = uiTextResolver,
                                 selfUserTeamId = selfUserTeamId,
-                                joinableCallsByConversationId = latestJoinableCallsByConversationId.get()
+                                joinableCallsByConversationId = joinableCallsByConversationId
                             )
                         }
                     )

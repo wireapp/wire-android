@@ -77,14 +77,15 @@ class MeetingOptionsMenuViewModelImpl(
                 observeMeetingOccurrenceUseCase.invoke(occurrenceId).map {
                     when {
                         it != null -> MeetingOptionsMenuState.Meeting(
-                            meetingId = it.meetingId,
-                            title = it.title,
+                            meetingId = it.meeting.meetingId,
+                            title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
                             deleteOption = when {
                                 it.occurrenceStartTime < Clock.System.now() -> MeetingOptionsMenuState.Meeting.DeleteOption.None
                                 else -> when (it.selfRole) {
                                     MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
-                                    MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.ForMe
+                                    // for now, we don't show delete option for members as "delete for me" is not yet implemented
+                                    MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.None
                                 }
                             },
                         )

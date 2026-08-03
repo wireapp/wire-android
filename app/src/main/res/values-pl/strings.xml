@@ -647,7 +647,7 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="settings_myaccount_display_name_title">Twoja nazwa profilu</string>
     <string name="settings_myaccount_display_name_description">Ludzie widz&#261; Twoj&#261; nazw&#281; profilu w rozmowach, po&#322;&#261;czeniach i wyszukiwaniu u&#380;ytkownik&#243;w. Nie jest ona unikalna w Wire.</string>
     <string name="settings_myaccount_display_name_error">Prosz&#281; wprowadzi&#263; nazw&#281; profilu</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Wymagane jest od 1 do 64 znak&#243;w</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Wymagane jest od 1 do 128 znak&#243;w</string>
     <string name="settings_myaccount_display_name_updated">Nazwa profilu zosta&#322;a zmieniona</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Wysy&#322;aj potwierdzenia odczytania</string>
@@ -787,4 +787,5 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <!-- Apps-->
+    <!-- Pending messages service notification -->
 </resources>

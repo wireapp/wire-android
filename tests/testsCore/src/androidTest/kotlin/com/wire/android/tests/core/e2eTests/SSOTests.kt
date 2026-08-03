@@ -54,7 +54,7 @@ class SSOTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4547")
-    @Category("regression", "RC", "login", "SSO")
+    @Category("regression", "RC", "login", "SSO", "TEMP")
     @Test
     fun givenSsoUserLogsInWithKeycloak_whenCompletingTheSsoFlow_thenUserReachesConversationList() {
         var ssoCode = ""
@@ -148,7 +148,7 @@ class SSOTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4548")
-    @Category("regression", "RC", "login", "SSO")
+    @Category("regression", "RC", "login", "SSO", "TEMP")
     @Test
     fun givenSsoUserEntersInvalidCodeAndCredentials_whenTryingToSignIn_thenTheRelevantErrorsAreShown() {
         var ssoCode = ""

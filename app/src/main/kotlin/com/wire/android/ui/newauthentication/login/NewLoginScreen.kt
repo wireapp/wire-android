@@ -69,6 +69,7 @@ import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.authentication.login.sso.SsoIdentityChangedDialog
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.ui.authentication.BackendConfigSuccessContent
@@ -170,6 +171,12 @@ fun NewLoginScreen(
     }
     (viewModel.state.flowState as? NewLoginFlowState.Error.DialogError)?.let { dialogErrorState ->
         LoginErrorDialog(dialogErrorState.toLoginDialogErrorData(), viewModel::onDismissDialog)
+    }
+    if (viewModel.state.flowState == NewLoginFlowState.SsoIdentityChanged) {
+        SsoIdentityChangedDialog(
+            onDismiss = viewModel::onSsoIdentityChangeDismissed,
+            onConfirm = viewModel::onSsoIdentityChangeConfirmed,
+        )
     }
     LoginContent(
         loginEmailSSOState = viewModel.state,

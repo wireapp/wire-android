@@ -377,6 +377,9 @@
     <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
+    <string name="sso_identity_changed_dialog_title">Identity provider changed</string>
+    <string name="sso_identity_changed_dialog_message">This account was used with a different identity provider. Continuing will delete all conversations from this device.\nTo keep your data, select Cancel, then log in with your previous identity provider.</string>
+    <string name="sso_identity_changed_dialog_confirm">Delete data and continue</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
@@ -644,7 +647,7 @@
     <string name="promote_admin_error_failed_to_promote">Failed to promote user to admin</string>
     <string name="promote_admin_error_failed_to_leave">Failed to leave conversation</string>
     <string name="delete_conversation_conversation_menu_item">Delete Conversation…</string>
-    <string name="delete_conversation_conversation_dialog_title">Remove “%s”?</string>
+    <string name="delete_conversation_conversation_dialog_title">Delete “%s”?</string>
     <string name="delete_conversation_conversation_dialog_description">This will delete the group and all content for all participants on all devices. There is no option to restore the content. All participants will be notified.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Delete “%s” conversation for me?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">You won’t be able to access the conversation and its content. There is no option to restore it.</string>
@@ -1232,7 +1235,7 @@
     <string name="settings_myaccount_display_name_title">Your profile name</string>
     <string name="settings_myaccount_display_name_description">People see your profile name in conversations, calls, and user search. It is not unique in Wire.</string>
     <string name="settings_myaccount_display_name_error">Please enter your profile name</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 128 characters</string>
     <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
     <string name="settings_myaccount_handle_updated">Your username changed</string>
     <string name="settings_myaccount_user_color_title">User Color</string>
@@ -1904,4 +1907,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
     <string name="label_system_message_admin_role_assigned">You were promoted to group admin</string>
     <string name="more_information_about_this_server">More information about this backend</string>
+
+    <!-- Pending messages service notification -->
+    <string name="pending_messages_notification_waiting">Waiting for connection</string>
+    <string name="pending_messages_notification_sending">Sending messages</string>
+
 </resources>

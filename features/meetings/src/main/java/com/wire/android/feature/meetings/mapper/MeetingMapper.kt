@@ -24,7 +24,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
-import com.wire.kalium.util.DateTimeUtil
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.minutes
@@ -33,15 +32,27 @@ private val BUFFER_TIME = 5.minutes
 
 fun MeetingOccurrence.toMeetingItem(time: Instant, ongoingCallStatus: MeetingItem.OngoingCallStatus?): MeetingItem = MeetingItem(
     occurrenceId = occurrenceId,
-    meetingId = meetingId,
-    conversationId = conversationId,
+    meetingId = meeting.meetingId,
+    conversationId = meeting.conversationId,
     belongingType = toBelongingType(),
-    repeatingInterval = recurrence?.let { MeetingItem.RepeatingInterval(it.frequency, it.interval.toInt()) },
-    title = title,
+    repeatingInterval = meeting.recurrence?.let { MeetingItem.RepeatingInterval(it.frequency, it.interval.toInt()) },
+    title = meeting.title,
     status = when {
-        startTime > time && endTime != null -> Status.Scheduled(startTime = startTime, endTime = endTime!!)
-        startTime < time && endTime != null && endTime!! + BUFFER_TIME < time -> Status.Ended(startTime = startTime, endTime = endTime!!)
-        else -> Status.Ongoing(startTime = startTime, scheduledEndTime = endTime, ongoingCallStatus = ongoingCallStatus)
+        occurrenceStartTime > time -> Status.Scheduled(
+            startTime = occurrenceStartTime,
+            endTime = occurrenceEndTime
+        )
+
+        occurrenceStartTime < time && occurrenceEndTime + BUFFER_TIME < time -> Status.Ended(
+            startTime = occurrenceStartTime,
+            endTime = occurrenceEndTime
+        )
+
+        else -> Status.Ongoing(
+            startTime = occurrenceStartTime,
+            scheduledEndTime = occurrenceEndTime,
+            ongoingCallStatus = ongoingCallStatus
+        )
     },
     selfRole = selfRole.toItemSelfRole()
 )
@@ -79,9 +90,7 @@ fun Call.toOngoingCallStatus() = when (status) {
     CallStatus.ESTABLISHED,
     CallStatus.INCOMING,
     CallStatus.STILL_ONGOING -> MeetingItem.OngoingCallStatus(
-        currentCallEstablishedTime = establishedTime?.let {
-            Instant.fromEpochMilliseconds(DateTimeUtil.fromIsoDateTimeStringToEpochMillis(it))
-        },
+        currentCallEstablishedTime = establishedTime,
         isSelfUserAttending = status in listOf(CallStatus.STARTED, CallStatus.ANSWERED, CallStatus.ESTABLISHED),
     )
 

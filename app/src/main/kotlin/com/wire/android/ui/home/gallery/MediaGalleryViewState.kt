@@ -24,6 +24,7 @@ data class MediaGalleryViewState(
     val imageAsset: MediaGalleryImage? = null,
     val screenTitle: String? = null,
     val menuItems: List<MediaGalleryMenuItem> = emptyList(),
+    val viewerAccess: Boolean = false,
 )
 
 sealed interface MediaGalleryImage {

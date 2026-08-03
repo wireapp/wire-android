@@ -512,7 +512,6 @@
     <string name="leave_conversation_dialog_description">එවිට ඔබට තවදුරටත් කිසිදු උපාංගයකින් මෙම සංවාදයේ පණිවිඩ යැවීමට හෝ කියවීමට නොහැකි වනු ඇත.</string>
     <string name="leave_conversation_dialog_delete_fully_check">මගේ සියලු උපාංගවල සංවාදය සහ එහි අන්තර්ගතය මා වෙනුවෙන් මකන්න.</string>
     <string name="delete_conversation_conversation_menu_item">සංවාදය මකන්න…</string>
-    <string name="delete_conversation_conversation_dialog_title">“%s” ඉවත් කරන්නද?</string>
     <string name="delete_conversation_locally_conversation_dialog_title">මට \"%s\" සංවාදය මකන්නද?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">ඔබට සංවාදයට සහ එහි අන්තර්ගතයට ප්‍රවේශ වීමට නොහැකි වනු ඇත. එය ප්‍රතිසාධනය කිරීමට විකල්පයක් නොමැත.</string>
     <string name="delete_conversation_locally_delete_for_me_label">මා වෙනුවෙන් මකන්න</string>
@@ -1027,7 +1026,7 @@
     <string name="settings_myaccount_display_name_title">ඔබගේ පැතිකඩ නාමය</string>
     <string name="settings_myaccount_display_name_description">සංවාද, ඇමතුම් සහ පරිශ්‍රීලක සෙවුම තුළ අන් අය ඔබගේ පැතිකඩ නාමය දකියි. එය වයර් සඳහා අනන්‍ය නොවේ.</string>
     <string name="settings_myaccount_display_name_error">ඔබගේ පැතිකඩ නාමය යොදන්න</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">අවම සහ උපරිම අකුරු 1-64 කි</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">අවම සහ උපරිම අකුරු 1-128 කි</string>
     <string name="settings_myaccount_display_name_updated">පැතිකඩ නාමය වෙනස් විය</string>
     <string name="settings_myaccount_handle_updated">පරිශ්‍රීලක නාමය වෙනස් විය</string>
     <!--Privacy Settings -->
@@ -1567,4 +1566,5 @@
     <string name="failed_attachment_retry_upload">උඩුගත කිරීම නැවත උත්සාහ කරන්න</string>
     <string name="failed_attachment_remove">ඉවත් කරන්න</string>
     <!-- Apps-->
+    <!-- Pending messages service notification -->
 </resources>

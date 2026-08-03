@@ -30,6 +30,7 @@ sealed class NewLoginFlowState {
     data object LoadingBackendConfig : NewLoginFlowState()
     data object BackendConfigError : NewLoginFlowState()
     data object BackendConfigSuccess : NewLoginFlowState()
+    data object SsoIdentityChanged : NewLoginFlowState()
     data class CustomConfigDialog(val serverLinks: ServerConfig.Links) : NewLoginFlowState()
     sealed class Error : NewLoginFlowState() {
         sealed class TextFieldError : Error() {

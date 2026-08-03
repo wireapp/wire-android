@@ -359,6 +359,9 @@
     <string name="login_error_user_already_logged_in_message">Вы уже авторизованы с этими учетными данными на данном устройстве.</string>
     <string name="login_sso_error_invalid_cookie_title">Неверный cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">Сессия недействительна или истекла! Пожалуйста, попробуйте авторизоваться еще раз.</string>
+    <string name="sso_identity_changed_dialog_title">Провайдер идентификации изменен</string>
+    <string name="sso_identity_changed_dialog_message">Этот аккаунт использовался с другим провайдером услуг аутентификации. Если вы продолжите, все беседы с этого устройства будут удалены.\nЧтобы сохранить свои данные, нажмите Отмена, а затем авторизуйтесь с помощью прежнего провайдера услуг аутентификации.</string>
+    <string name="sso_identity_changed_dialog_confirm">Удалить данные и продолжить</string>
     <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">ПАРОЛЬ</string>
     <string name="login_tab_email">EMAIL</string>
@@ -1254,7 +1257,7 @@
     <string name="settings_myaccount_display_name_title">Имя вашего профиля</string>
     <string name="settings_myaccount_display_name_description">Пользователи видят имя вашего профиля в беседах, звонках и при поиске. Оно не является уникальным в Wire.</string>
     <string name="settings_myaccount_display_name_error">Введите имя вашего профиля</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и максимум 64 символа</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и максимум 128 символа</string>
     <string name="settings_myaccount_display_name_updated">Имя вашего профиля изменено</string>
     <string name="settings_myaccount_handle_updated">Ваш псевдоним изменен</string>
     <string name="settings_myaccount_user_color_title">Пользовательский цвет</string>
@@ -1933,4 +1936,7 @@
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
     <string name="label_system_message_admin_role_assigned">Вы были назначены администратором группы</string>
     <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
+    <!-- Pending messages service notification -->
+    <string name="pending_messages_notification_waiting">Ожидание подключения</string>
+    <string name="pending_messages_notification_sending">Отправка сообщений</string>
 </resources>

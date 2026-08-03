@@ -135,6 +135,18 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given search screen args when files flow subscribed then nodes flow is empty`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        val items = flowOf(pagingData).asSnapshot()
+        assertTrue(items.isEmpty())
+    }
+
+    @Test
     fun `given viewer only node when files loaded then ui model is marked viewer only`() = runTest {
         val (_, viewModel) = Arrangement()
             .withLoadedFiles(listOf(testFiles[0].copy(isViewerOnly = true)))
@@ -167,6 +179,29 @@ class CellViewModelTest {
             .arrange()
 
         assertEquals(conversationId, viewModel.currentNodeUuid())
+    }
+
+    @Test
+    fun `given conversation context when a nested folder is clicked then OpenFolder uses its full remote path`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        val nestedFolder = Node.Folder(
+            uuid = "folderUuid",
+            name = "subSubFolder",
+            remotePath = "conversationId/parent/sub/subSubFolder",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(nestedFolder))
+
+            val action = awaitItem()
+            assertTrue(action is OpenFolder)
+            assertEquals("conversationId/parent/sub/subSubFolder", (action as OpenFolder).path)
+        }
     }
 
     @Test

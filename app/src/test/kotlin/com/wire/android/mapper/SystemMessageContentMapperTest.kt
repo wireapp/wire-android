@@ -33,7 +33,6 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -130,8 +129,7 @@ class SystemMessageContentMapperTest {
         )
 
         val expectedFormattedDate = CONVERSATION_CREATED_MESSAGE.date
-            .toIsoDateTimeString()
-            .formatFullDateShortTime()!!
+            .formatFullDateShortTime()
             .uppercase(
                 Locale.getDefault()
             )

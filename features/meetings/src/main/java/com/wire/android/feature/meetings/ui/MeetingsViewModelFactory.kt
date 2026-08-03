@@ -25,6 +25,7 @@ import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUs
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
+import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import dev.zacsweers.metro.Inject
@@ -33,9 +34,10 @@ class MeetingsViewModelFactory @Inject constructor(
     private val currentTimeProvider: CurrentTimeProvider,
     private val dispatcher: DispatcherProvider,
     private val getMeetingsPaginated: GetPaginatedFlowOfMeetingsUseCase,
-    private val observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase,
+    private val observeMeetingOccurrence: ObserveMeetingOccurrenceUseCase,
     private val observeActiveCalls: ObserveActiveCallsUseCase,
     private val deleteMeetingUseCase: DeleteMeetingUseCase,
+    private val createNewMeeting: CreateNewMeetingUseCase,
 ) {
     internal fun meetingListViewModel(type: MeetingsTabItem) = MeetingListViewModelImpl(
         type = type,
@@ -46,12 +48,13 @@ class MeetingsViewModelFactory @Inject constructor(
     )
 
     internal fun meetingOptionsMenuViewModel() = MeetingOptionsMenuViewModelImpl(
-        observeMeetingOccurrenceUseCase = observeMeetingOccurrenceUseCase,
+        observeMeetingOccurrenceUseCase = observeMeetingOccurrence,
         deleteMeetingUseCase = deleteMeetingUseCase,
     )
 
     internal fun newMeetingViewModel(savedStateHandle: SavedStateHandle) = NewMeetingViewModelImpl(
         savedStateHandle = savedStateHandle,
-        currentTimeProvider = currentTimeProvider
+        currentTimeProvider = currentTimeProvider,
+        createNewMeeting = createNewMeeting
     )
 }

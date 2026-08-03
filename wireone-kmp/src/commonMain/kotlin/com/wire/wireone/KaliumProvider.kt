@@ -737,6 +737,7 @@ private fun AuthenticationResult.Failure.toErrorLine(): String = when (this) {
 private fun AddAuthenticatedUserUseCase.Result.Failure.toErrorLine(): String = when (this) {
     AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> "Nomad single-user restriction blocked session storage."
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> "User already exists with incompatible session."
+    AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> "Stored SSO identity differs from the authenticated identity."
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> "Session store failed: $genericFailure"
 }
 

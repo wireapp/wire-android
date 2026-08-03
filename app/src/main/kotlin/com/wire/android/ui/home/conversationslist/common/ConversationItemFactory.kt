@@ -273,7 +273,12 @@ private fun GeneralConversationItem(
                     clickable = onConversationItemClick,
                     actions = {
                         if (!isSelectable) {
-                            if (playingAudio != null) {
+                            if (hasOnGoingCall) {
+                                JoinButton(
+                                    buttonClick = onJoinCallClick,
+                                    onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+                                )
+                            } else if (playingAudio != null) {
                                 AudioControlButtons(
                                     playingAudio = playingAudio,
                                     onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,

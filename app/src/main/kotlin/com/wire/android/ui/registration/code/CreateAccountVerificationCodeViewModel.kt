@@ -276,6 +276,9 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
         AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists ->
             CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
 
+        AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged ->
+            CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
+
         AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation ->
             CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
     }

@@ -24,7 +24,9 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import io.mockk.MockKAnnotations
@@ -84,7 +86,7 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenDeleteForMeIsAvailable() = runTest(dispatcher) {
+    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenDeleteIsNotAvailable() = runTest(dispatcher) {
         val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Member, occurrenceStartTime = Clock.System.now() + 1.hours)
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
@@ -95,9 +97,8 @@ class MeetingOptionsMenuViewModelTest {
             runCurrent()
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
-                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
+                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
             }
-            cancelAndConsumeRemainingEvents()
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -170,17 +171,20 @@ class MeetingOptionsMenuViewModelTest {
         selfRole: MeetingOccurrence.SelfRole,
         occurrenceStartTime: Instant,
     ) = MeetingOccurrence(
+        meeting = Meeting(
+            meetingId = MEETING_ID,
+            conversationId = CONVERSATION_ID,
+            creatorId = UserId("creator-id", "domain"),
+            title = MEETING_TITLE,
+            startTime = occurrenceStartTime,
+            endTime = occurrenceStartTime + 30.minutes,
+            recurrence = null,
+        ),
         occurrenceId = OCCURRENCE_ID,
-        meetingId = MEETING_ID,
-        conversationId = CONVERSATION_ID,
         conversationName = "Meeting conversation",
         conversationType = MeetingOccurrence.ConversationType.Group,
-        title = MEETING_TITLE,
-        startTime = occurrenceStartTime,
-        endTime = occurrenceStartTime + 30.minutes,
         occurrenceStartTime = occurrenceStartTime,
         occurrenceEndTime = occurrenceStartTime + 30.minutes,
-        recurrence = null,
         selfRole = selfRole,
     )
 

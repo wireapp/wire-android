@@ -96,7 +96,7 @@ class EditConversationMetadataViewModel(
     fun saveNewGroupName() {
         viewModelScope.launch {
             withContext(dispatcher.io()) {
-                renameConversation(conversationId, editConversationNameTextState.text.toString())
+                renameConversation(conversationId, editConversationNameTextState.text.toString().trim())
             }.let { renamingResult ->
                 editConversationState = editConversationState.copy(
                     completed = when (renamingResult) {

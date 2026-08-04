@@ -99,18 +99,10 @@ object GiveFeedbackDestination : IntentDirection {
 }
 
 object ReportBugDestination : IntentDirection {
-    @Suppress("ReturnCount")
-    override fun intent(context: Context): Intent {
-        val supportEmail = runBlocking {
-            BackendSupportConfig.resolveEmail(context, context.getString(R.string.send_bug_report_email))
-        }
-        if (supportEmail == null) {
-            BackendSupportConfig.supportPageIntent()?.let { return it }
-            context.getString(CommonR.string.url_support).takeIf { it.isNotBlank() }?.let {
-                return Intent(Intent.ACTION_VIEW, Uri.parse(it))
-            }
-        }
+    suspend fun resolveSupportEmail(context: Context): String? =
+        BackendSupportConfig.resolveEmail(context, context.getString(R.string.send_bug_report_email))
 
+    fun intent(context: Context, supportEmail: String?): Intent {
         val dir = LogFileWriter.logsDirectory(context)
         val logsUris = context.getUrisOfFilesInDirectory(dir)
         val intent = context.multipleFileSharingIntent(logsUris)
@@ -128,6 +120,11 @@ object ReportBugDestination : IntentDirection {
         intent.type = "message/rfc822"
         return Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email))
     }
+
+    override fun intent(context: Context): Intent = intent(
+        context = context,
+        supportEmail = runBlocking { resolveSupportEmail(context) }
+    )
 
     override val route: String
         get() = "wire-intent:report-bug"

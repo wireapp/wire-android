@@ -1266,6 +1266,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="send_feedback_choose_email">\"Select email provider:\"</string>
     <string name="send_bug_report_subject">Bug Report</string>
     <string name="send_bug_report_email" translatable="false" >wire-newandroid@wearezeta.zendesk.com</string>
+    <string name="report_bug_missing_support_email_dialog_message">No support email address is configured. Tap OK to share the report manually without a recipient.</string>
 
     <string name="backup_dialog_create_backup_save">Save File</string>
     <string name="backup_dialog_create_backup_share">Share File</string>

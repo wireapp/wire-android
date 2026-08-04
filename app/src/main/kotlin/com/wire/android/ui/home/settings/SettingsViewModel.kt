@@ -24,11 +24,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
@@ -44,6 +47,9 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
     var state by mutableStateOf(SettingsState())
         private set
+
+    private val _reportBugClickAction = MutableSharedFlow<ReportBugClickAction>()
+    internal val reportBugClickAction = _reportBugClickAction.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -69,6 +75,17 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun onReportBugClicked(staticSupportEmail: String) {
+        viewModelScope.launch {
+            val supportEmail = BackendSupportConfig.resolveEmail(globalDataStore, staticSupportEmail)
+            _reportBugClickAction.emit(
+                supportEmail?.takeIf(String::isNotBlank)
+                    ?.let(ReportBugClickAction::Share)
+                    ?: ReportBugClickAction.ConfirmSharingWithoutRecipient
+            )
+        }
+    }
+
     private suspend fun fetchSelfUser() {
         viewModelScope.launch {
             val self =
@@ -79,4 +96,9 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
+}
+
+internal sealed interface ReportBugClickAction {
+    data class Share(val supportEmail: String) : ReportBugClickAction
+    data object ConfirmSharingWithoutRecipient : ReportBugClickAction
 }

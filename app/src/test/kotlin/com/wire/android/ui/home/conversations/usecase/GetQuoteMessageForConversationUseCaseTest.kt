@@ -37,8 +37,8 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -275,7 +275,7 @@ class GetQuoteMessageForConversationUseCaseTest {
     private companion object {
         val CONVERSATION_ID = ConversationId("conversation-id", "domain")
         val USER_ID = QualifiedID("user-id", "domain")
-        val CLIENT_ID = PlainId("client-id")
+        val CLIENT_ID = ClientId("client-id")
         const val QUOTED_MESSAGE_ID = "quoted-message-id"
     }
 }

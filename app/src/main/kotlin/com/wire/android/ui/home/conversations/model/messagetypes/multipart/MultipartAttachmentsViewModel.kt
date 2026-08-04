@@ -156,6 +156,7 @@ class MultipartAttachmentsViewModelImpl(
         loadWireCellConfig()
     }
 
+    @Suppress("CyclomaticComplexMethod")
     override fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,

@@ -231,7 +231,7 @@ class NewMeetingViewModelTest {
     }
 
     @Test
-    fun givenMeetNowTypeWithValidData_whenSubmitIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenMeetNowTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
@@ -242,7 +242,7 @@ class NewMeetingViewModelTest {
         enterTitle(viewModel, "  Quick sync  ")
 
         viewModel.actions.test {
-            viewModel.submit()
+            viewModel.submitCreation()
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
@@ -259,14 +259,14 @@ class NewMeetingViewModelTest {
             assertEquals(currentTime, viewModel.state.startTime)
             assertEquals(currentTime + 1.hours, viewModel.state.endTime)
             assertFalse(viewModel.state.isSubmitting)
-            assertNull(viewModel.state.creationError)
+            assertNull(viewModel.state.submitError)
             assertEquals(NewMeetingViewActions.Success, awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenScheduleTypeWithValidData_whenSubmitIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val createMeeting = CREATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val (arrangement, viewModel) = arrangeViewModel(
@@ -283,18 +283,18 @@ class NewMeetingViewModelTest {
         viewModel.updateRepeatingInterval(createMeeting.recurrence?.toRepeatingInterval())
 
         viewModel.actions.test {
-            viewModel.submit()
+            viewModel.submitCreation()
             advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
-            assertNull(viewModel.state.creationError)
+            assertNull(viewModel.state.submitError)
             assertEquals(NewMeetingViewActions.Success, awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenCreationFails_whenSubmitIsCalled_thenErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
+    fun givenCreationFails_whenSubmitCreationIsCalled_thenErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.MeetNow)
@@ -304,19 +304,19 @@ class NewMeetingViewModelTest {
         enterTitle(viewModel, "Weekly sync")
 
         viewModel.actions.test {
-            viewModel.submit()
+            viewModel.submitCreation()
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.createNewMeeting(any()) }
             expectNoEvents()
             assertFalse(viewModel.state.isSubmitting)
             assertEquals(true, viewModel.state.continueButtonEnabled)
-            assertEquals(NewMeetingState.CreationError.Other, viewModel.state.creationError)
+            assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
         }
     }
 
     @Test
-    fun givenEditTypeWithValidData_whenSubmitIsCalled_thenMeetingIsEditedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenEditTypeWithValidData_whenSubmitUpdateIsCalled_thenMeetingIsEditedAndSuccessActionIsSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val contact = contact("contact-1")
         val createMeeting = CREATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
@@ -346,18 +346,18 @@ class NewMeetingViewModelTest {
         viewModel.updateRepeatingInterval(createMeeting.recurrence?.toRepeatingInterval())
 
         viewModel.actions.test {
-            viewModel.submit()
+            viewModel.submitUpdate()
             advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
-            assertNull(viewModel.state.creationError)
+            assertNull(viewModel.state.submitError)
             assertEquals(NewMeetingViewActions.Success, awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenEditionFails_whenSubmitIsCalled_thenErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
+    fun givenEditionFails_whenSubmitUpdateIsCalled_thenErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
         val nextOccurrence = MEETING_OCCURRENCE.copy(
@@ -379,23 +379,23 @@ class NewMeetingViewModelTest {
         enterTitle(viewModel, "Weekly sync")
 
         viewModel.actions.test {
-            viewModel.submit()
+            viewModel.submitUpdate()
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, any()) }
             expectNoEvents()
             assertFalse(viewModel.state.isSubmitting)
             assertEquals(true, viewModel.state.continueButtonEnabled)
-            assertEquals(NewMeetingState.CreationError.Other, viewModel.state.creationError)
+            assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
         }
     }
 
     @Test
-    fun givenInvalidTitle_whenSubmitIsCalled_thenTitleErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
+    fun givenInvalidTitle_whenSubmitCreationIsCalled_thenTitleErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
         val (arrangement, viewModel) = arrangeViewModel()
 
         viewModel.actions.test {
-            viewModel.submit()
+            viewModel.submitCreation()
             advanceUntilIdle()
 
             coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
@@ -419,7 +419,7 @@ class NewMeetingViewModelTest {
         viewModel.updateStartTime(currentTime - 1.hours)
 
         viewModel.actions.test {
-            viewModel.submit()
+            viewModel.submitCreation()
             advanceUntilIdle()
 
             coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
@@ -457,7 +457,7 @@ class NewMeetingViewModelTest {
         assertEquals(nextOccurrence.occurrenceEndTime, viewModel.state.endTime)
         assertEquals(nextOccurrence.meeting.recurrence?.frequency, viewModel.state.repeatingInterval?.frequency)
         assertEquals(nextOccurrence.meeting.recurrence?.interval?.toInt(), viewModel.state.repeatingInterval?.interval)
-        assertFalse(viewModel.state.isDataLoading)
+        assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
     }
 
     @Suppress("UnusedFlow")
@@ -487,7 +487,7 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 1) { arrangement.observeConversationMembers(MEETING_OCCURRENCE.meeting.conversationId) }
             assertEquals(setOf(firstContact, secondContact), viewModel.state.selectedContacts.toSet())
             assertEquals(setOf(firstContact, secondContact), viewModel.state.confirmedContacts.toSet())
-            assertFalse(viewModel.state.isDataLoading)
+            assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
         }
 
     @Test
@@ -506,7 +506,22 @@ class NewMeetingViewModelTest {
         assertEquals("", viewModel.titleTextState.text.toString())
         assertEquals(currentTime + 1.hours, viewModel.state.startTime)
         assertEquals(currentTime + 2.hours, viewModel.state.endTime)
-        assertFalse(viewModel.state.isDataLoading)
+        assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+    }
+
+    @Test
+    fun givenEditTypeAndNextOccurrenceLoadFails_whenViewModelIsCreated_thenInitialLoadingStateIsError() = runTest(dispatcher) {
+        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(editType)
+                .withCurrentTimeProvider { currentTime }
+                .withNextMeetingOccurrenceFailure()
+        )
+
+        coVerify(exactly = 1) { arrangement.getNextMeetingOccurrence(editType.id, currentTime) }
+        assertEquals(NewMeetingState.InitialLoadingState.Error, viewModel.state.initialLoading)
     }
 
     private fun TestScope.arrangeViewModel(
@@ -580,6 +595,10 @@ class NewMeetingViewModelTest {
 
         fun withNextMeetingOccurrence(nextMeetingOccurrence: MeetingOccurrence?) = apply {
             coEvery { getNextMeetingOccurrence(any(), any()) } returns nextMeetingOccurrence
+        }
+
+        fun withNextMeetingOccurrenceFailure() = apply {
+            coEvery { getNextMeetingOccurrence(any(), any()) } throws IllegalStateException("Failed to load meeting occurrence")
         }
 
         fun withConversationMembers(conversationId: ConversationId, members: List<MemberDetails>) = apply {

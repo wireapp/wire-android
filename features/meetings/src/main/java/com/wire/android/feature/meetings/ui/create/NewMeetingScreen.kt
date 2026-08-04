@@ -78,6 +78,9 @@ import com.wire.android.navigation.annotation.features.meetings.WireNewMeetingDe
 import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
@@ -141,17 +144,21 @@ fun NewMeetingScreen(
         onParticipantsClicked = {
             navigator.navigate(NavigationCommand(NewMeetingParticipantsScreenDestination))
         },
-        onCreateClicked = newMeetingViewModel::submit,
+        onCreateClicked = newMeetingViewModel::submitCreation,
+        onUpdateClicked = newMeetingViewModel::submitUpdate,
         onStartTimeChanged = newMeetingViewModel::updateStartTime,
         onEndTimeChanged = newMeetingViewModel::updateEndTime,
         onRepeatingIntervalChanged = newMeetingViewModel::updateRepeatingInterval,
     )
 
-    if (newMeetingViewModel.state.creationError != null) {
+    if (newMeetingViewModel.state.submitError != null) {
         NewMeetingErrorDialog(
             type = newMeetingViewModel.type,
             onDismiss = newMeetingViewModel::dismissCreationError
         )
+    }
+    if (newMeetingViewModel.state.initialLoading == NewMeetingState.InitialLoadingState.Error) {
+        FailedToLoadEditMeetingDataError(navigateBack = navigator::navigateBack)
     }
 
     HandleActions(newMeetingViewModel.actions) { action ->
@@ -170,6 +177,7 @@ fun NewMeetingContent(
     onBackPressed: () -> Unit = {},
     onParticipantsClicked: () -> Unit = {},
     onCreateClicked: () -> Unit = {},
+    onUpdateClicked: () -> Unit = {},
     onStartTimeChanged: (startTime: Instant) -> Unit = {},
     onEndTimeChanged: (endTime: Instant) -> Unit = {},
     onRepeatingIntervalChanged: (interval: MeetingItem.RepeatingInterval?) -> Unit = {},
@@ -236,7 +244,7 @@ fun NewMeetingContent(
                     onClick = onParticipantsClicked,
                 )
             }
-            if (state.isSubmitting || state.isDataLoading) {
+            if (state.isSubmitting || state.initialLoading != NewMeetingState.InitialLoadingState.Loaded) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -245,7 +253,7 @@ fun NewMeetingContent(
                         },
                 )
             }
-            AnimatedVisibility(state.isDataLoading) {
+            AnimatedVisibility(state.initialLoading != NewMeetingState.InitialLoadingState.Loaded) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -277,7 +285,10 @@ fun NewMeetingContent(
                     },
                     state = if (state.continueButtonEnabled) WireButtonState.Default else WireButtonState.Disabled,
                     loading = state.isSubmitting,
-                    onClick = onCreateClicked,
+                    onClick = when (type) {
+                        is NewMeetingType.Edit -> onUpdateClicked
+                        NewMeetingType.MeetNow, NewMeetingType.Schedule -> onCreateClicked
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(dimensions().spacing16x),
@@ -580,6 +591,21 @@ private fun RepeatingIntervalDropDown(
     }
 }
 
+@Composable
+private fun FailedToLoadEditMeetingDataError(navigateBack: () -> Unit) {
+    WireDialog(
+        title = stringResource(R.string.new_meeting_edit_init_failure_title),
+        text = stringResource(R.string.new_meeting_edit_init_failure_description),
+        onDismiss = navigateBack,
+        buttonsHorizontalAlignment = false,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = navigateBack,
+            text = stringResource(commonR.string.label_ok),
+            type = WireDialogButtonType.Primary,
+        ),
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
@@ -589,7 +615,7 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
             confirmedContacts = buildContacts(names.size),
             continueButtonEnabled = true,
-            isDataLoading = false,
+            initialLoading = NewMeetingState.InitialLoadingState.Loaded,
         ),
     )
 }
@@ -604,7 +630,7 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()),
             endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()).plus(1.hours),
             repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
-            isDataLoading = false,
+            initialLoading = NewMeetingState.InitialLoadingState.Loaded,
         ),
     )
 }
@@ -619,7 +645,7 @@ fun PreviewNewMeetingScreen_Edit() = WireTheme {
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()),
             endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()).plus(1.hours),
             repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
-            isDataLoading = false,
+            initialLoading = NewMeetingState.InitialLoadingState.Loaded,
         ),
     )
 }

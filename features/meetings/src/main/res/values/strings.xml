@@ -87,6 +87,8 @@
     <string name="new_meeting_schedule_failure_description">Something went wrong while scheduling the meeting. Please try again.</string>
     <string name="new_meeting_edit_failure_title">Could not update meeting</string>
     <string name="new_meeting_edit_failure_description">Something went wrong while updating the meeting. Please try again.</string>
+    <string name="new_meeting_edit_init_failure_title">Could not load meeting</string>
+    <string name="new_meeting_edit_init_failure_description">Something went wrong while loading the meeting for update. Please try again.</string>
 
     <plurals name="new_meeting_participants_input_more_suffix">
         <item quantity="one">+%1$d more</item>

@@ -31,6 +31,8 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
+import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
@@ -413,6 +415,56 @@ class CellViewModelTest {
         }
     }
 
+    @Test
+    fun `GIVEN AllFiles context WHEN setSortBy called with Name THEN sortingCriteria changes to ByName AtoZ`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        assertEquals(SortingCriteria.ByDate.NewestFirst, viewModel.sortingCriteria.value)
+
+        viewModel.setSortBy(SortBy.Name)
+
+        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.sortingCriteria.value)
+    }
+
+    @Test
+    fun `GIVEN AllFiles context WHEN setSorting called THEN sortingCriteria updates`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        viewModel.setSorting(SortingCriteria.ByName.ZtoA)
+
+        assertEquals(SortingCriteria.ByName.ZtoA, viewModel.sortingCriteria.value)
+    }
+
+    @Test
+    fun `GIVEN same sortBy WHEN setSortBy called with same criteria THEN sortingCriteria unchanged`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val initial = viewModel.sortingCriteria.value
+        viewModel.setSortBy(SortBy.Modified)
+
+        assertEquals(initial, viewModel.sortingCriteria.value)
+    }
+
+    @Test
+    fun `GIVEN conversation context WHEN setSortBy called with Size THEN sortingCriteria changes to BySize SmallestFirst`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withConversationId("conversationId")
+            .arrange()
+
+        assertEquals(SortingCriteria.FoldersFirst, viewModel.sortingCriteria.value)
+
+        viewModel.setSortBy(SortBy.Size)
+
+        assertEquals(SortingCriteria.BySize.SmallestFirst, viewModel.sortingCriteria.value)
+    }
+
     private class Arrangement(
         private var conversationId: String? = null,
         private var inAppImageViewerEnabled: Boolean = false,
@@ -550,6 +602,9 @@ class CellViewModelTest {
 
         fun withConversationId(conversationId: String) = apply {
             this.conversationId = conversationId
+            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
+                conversationId = conversationId
+            )
             every { savedStateHandle.get<String>(any()) } returns conversationId
             every { savedStateHandle.get<String>("conversationId") } returns conversationId
         }

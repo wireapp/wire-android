@@ -78,7 +78,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun dismissCreationError() {}
 
     companion object {
-        const val MEETING_NAME_MAX_COUNT = 128
+        const val MEETING_NAME_MAX_COUNT = 64
     }
 }
 

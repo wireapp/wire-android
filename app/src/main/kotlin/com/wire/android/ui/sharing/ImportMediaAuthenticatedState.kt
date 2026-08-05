@@ -37,7 +37,5 @@ data class ImportMediaAuthenticatedState(
     val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
 ) {
     @Stable
-    fun isImportingData() {
-        importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
-    }
+    fun hasImportedContent(): Boolean = importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
 }

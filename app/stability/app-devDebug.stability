@@ -3658,7 +3658,7 @@ public fun com.wire.android.ui.debug.LogManagementScreen(navigator: com.wire.and
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun com.wire.android.ui.debug.LogOptions(isLoggingEnabled: kotlin.Boolean, onLoggingEnabledChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, isDBLoggerEnabled: kotlin.Boolean, onDBLoggerEnabledChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDeleteLogs: kotlin.Function0<kotlin.Unit>, onShareLogs: kotlin.Function0<kotlin.Unit>, isPrivateBuild: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.debug.LogOptions(isLoggingEnabled: kotlin.Boolean, onLoggingEnabledChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, isDBLoggerEnabled: kotlin.Boolean, onDBLoggerEnabledChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDeleteLogs: kotlin.Function0<kotlin.Unit>, onShareLogsExternally: kotlin.Function0<kotlin.Unit>, onShareLogsViaWire: kotlin.Function0<kotlin.Unit>, isPrivateBuild: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3667,7 +3667,8 @@ public fun com.wire.android.ui.debug.LogOptions(isLoggingEnabled: kotlin.Boolean
     - isDBLoggerEnabled: STABLE (primitive type)
     - onDBLoggerEnabledChange: STABLE (function type)
     - onDeleteLogs: STABLE (function type)
-    - onShareLogs: STABLE (function type)
+    - onShareLogsExternally: STABLE (function type)
+    - onShareLogsViaWire: STABLE (function type)
     - isPrivateBuild: STABLE (primitive type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -3715,6 +3716,20 @@ private fun com.wire.android.ui.debug.RestartSlowSyncButton(onClick: kotlin.Func
     - onClick: STABLE (function type)
 
 @Composable
+private fun com.wire.android.ui.debug.ShareLogsExternallyOption(onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onClick: STABLE (function type)
+
+@Composable
+private fun com.wire.android.ui.debug.ShareLogsInWireOption(onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onClick: STABLE (function type)
+
+@Composable
 private fun com.wire.android.ui.debug.UserDataBaseProfileSwitch(isEnabled: kotlin.Boolean, onCheckedChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -3723,7 +3738,7 @@ private fun com.wire.android.ui.debug.UserDataBaseProfileSwitch(isEnabled: kotli
     - onCheckedChange: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.debug.UserDebugContent(state: com.wire.android.ui.debug.UserDebugState, onNavigationPressed: kotlin.Function0<kotlin.Unit>, onLoggingEnabledChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDatabaseLoggerEnabledChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDeleteLogs: kotlin.Function0<kotlin.Unit>, onFlushLogs: kotlin.Function0<kotlinx.coroutines.Deferred<kotlin.Unit>>, debugDataOptionsContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<com.wire.android.ui.debug.DebugContentState, kotlin.Unit>, dangerOptionsContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.debug.UserDebugContent(state: com.wire.android.ui.debug.UserDebugState, onNavigationPressed: kotlin.Function0<kotlin.Unit>, onLoggingEnabledChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDatabaseLoggerEnabledChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDeleteLogs: kotlin.Function0<kotlin.Unit>, onFlushLogs: kotlin.Function0<kotlinx.coroutines.Deferred<kotlin.Unit>>, onShareLogsViaWire: kotlin.Function1<android.net.Uri, kotlin.Unit>, debugDataOptionsContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<com.wire.android.ui.debug.DebugContentState, kotlin.Unit>, dangerOptionsContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3733,6 +3748,7 @@ internal fun com.wire.android.ui.debug.UserDebugContent(state: com.wire.android.
     - onDatabaseLoggerEnabledChanged: STABLE (function type)
     - onDeleteLogs: STABLE (function type)
     - onFlushLogs: STABLE (function type)
+    - onShareLogsViaWire: STABLE (function type)
     - debugDataOptionsContent: STABLE (composable function type)
     - dangerOptionsContent: STABLE (composable function type)
 
@@ -4030,7 +4046,21 @@ public fun com.wire.android.ui.edit.ReplyMessageOption(onReplyItemClick: kotlin.
     - onReplyItemClick: STABLE (function type)
 
 @Composable
+public fun com.wire.android.ui.edit.ShareAssetExternallyMenuOption(onShareAsset: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onShareAsset: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.edit.ShareAssetMenuOption(onShareAsset: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onShareAsset: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.edit.ShareAssetViaWireMenuOption(onShareAsset: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -4537,7 +4567,7 @@ public fun com.wire.android.ui.home.conversations.ConversationScreen(navigator: 
     - messageAttachmentsViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.ConversationScreen(bannerMessage: com.wire.android.util.ui.UIText?, messageComposerViewState: com.wire.android.ui.home.conversations.MessageComposerViewState, conversationCallViewState: com.wire.android.ui.home.conversations.call.ConversationCallViewState, conversationInfoViewState: com.wire.android.ui.home.conversations.info.ConversationInfoViewState, conversationMessagesViewState: com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState, attachments: kotlin.collections.List<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi>, bottomSheetVisible: kotlin.Boolean, onOpenProfile: kotlin.Function1<@[ParameterName(name = \, onMessageDetailsClick: kotlin.Function2<@[ParameterName(name = \, onSendMessage: kotlin.Function1<com.wire.android.ui.home.messagecomposer.model.MessageBundle, kotlin.Unit>, onPingOptionClicked: kotlin.Function0<kotlin.Unit>, onImagesPicked: kotlin.Function2<kotlin.collections.List<android.net.Uri>, kotlin.Boolean, kotlin.Unit>, onAttachmentPicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onDeleteMessage: kotlin.Function2<kotlin.String, kotlin.Boolean, kotlin.Unit>, onAssetItemClicked: kotlin.Function1<kotlin.String, kotlin.Unit>, onImageFullScreenMode: kotlin.Function3<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Boolean, kotlin.String?, kotlin.Unit>, onVideoClick: kotlin.Function3<@[ParameterName(name = \, onStartCall: kotlin.Function0<kotlin.Unit>, onJoinCall: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function2<@[ParameterName(name = \, onResetSessionClick: kotlin.Function2<@[ParameterName(name = \, onUpdateConversationReadDate: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, onDropDownClick: kotlin.Function0<kotlin.Unit>, onBackButtonClick: kotlin.Function0<kotlin.Unit>, composerMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, conversationMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, shareAsset: kotlin.Function2<android.content.Context, @[ParameterName(name = \, onDownloadAssetClick: kotlin.Function1<@[ParameterName(name = \, onOpenAssetClick: kotlin.Function1<@[ParameterName(name = \, onNavigateToReplyOriginalMessage: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, onSelfDeletingMessageRead: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, onNewSelfDeletingMessagesStatus: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, onFailedMessageRetryClicked: kotlin.Function2<kotlin.String, com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onClearMentionSearchResult: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \, conversationScreenState: com.wire.android.ui.home.conversations.ConversationScreenState, messageComposerStateHolder: com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder, onLinkClick: kotlin.Function1<kotlin.String, kotlin.Unit>, openDrawingCanvas: kotlin.Function0<kotlin.Unit>, onAttachmentClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, onAttachmentMenuClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, currentTimeInMillisFlow: kotlinx.coroutines.flow.Flow<kotlin.Long>, onReachedOldestMessage: kotlin.Function0<kotlin.Unit>, isFetchingOlderMessages: kotlin.Boolean, hasMoreRemoteMessages: kotlin.Boolean, isWireCellsEnabled: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.home.conversations.ConversationScreen(bannerMessage: com.wire.android.util.ui.UIText?, messageComposerViewState: com.wire.android.ui.home.conversations.MessageComposerViewState, conversationCallViewState: com.wire.android.ui.home.conversations.call.ConversationCallViewState, conversationInfoViewState: com.wire.android.ui.home.conversations.info.ConversationInfoViewState, conversationMessagesViewState: com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState, attachments: kotlin.collections.List<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi>, bottomSheetVisible: kotlin.Boolean, onOpenProfile: kotlin.Function1<@[ParameterName(name = \, onMessageDetailsClick: kotlin.Function2<@[ParameterName(name = \, onSendMessage: kotlin.Function1<com.wire.android.ui.home.messagecomposer.model.MessageBundle, kotlin.Unit>, onPingOptionClicked: kotlin.Function0<kotlin.Unit>, onImagesPicked: kotlin.Function2<kotlin.collections.List<android.net.Uri>, kotlin.Boolean, kotlin.Unit>, onAttachmentPicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onDeleteMessage: kotlin.Function2<kotlin.String, kotlin.Boolean, kotlin.Unit>, onAssetItemClicked: kotlin.Function1<kotlin.String, kotlin.Unit>, onImageFullScreenMode: kotlin.Function3<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Boolean, kotlin.String?, kotlin.Unit>, onVideoClick: kotlin.Function3<@[ParameterName(name = \, onStartCall: kotlin.Function0<kotlin.Unit>, onJoinCall: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function2<@[ParameterName(name = \, onResetSessionClick: kotlin.Function2<@[ParameterName(name = \, onUpdateConversationReadDate: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, onDropDownClick: kotlin.Function0<kotlin.Unit>, onBackButtonClick: kotlin.Function0<kotlin.Unit>, composerMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, conversationMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, shareAssetExternally: kotlin.Function2<android.content.Context, @[ParameterName(name = \, shareAssetViaWire: kotlin.Function1<@[ParameterName(name = \, onDownloadAssetClick: kotlin.Function1<@[ParameterName(name = \, onOpenAssetClick: kotlin.Function1<@[ParameterName(name = \, onNavigateToReplyOriginalMessage: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, onSelfDeletingMessageRead: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, onNewSelfDeletingMessagesStatus: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, onFailedMessageRetryClicked: kotlin.Function2<kotlin.String, com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onClearMentionSearchResult: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \, conversationScreenState: com.wire.android.ui.home.conversations.ConversationScreenState, messageComposerStateHolder: com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder, onLinkClick: kotlin.Function1<kotlin.String, kotlin.Unit>, openDrawingCanvas: kotlin.Function0<kotlin.Unit>, onAttachmentClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, onAttachmentMenuClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, currentTimeInMillisFlow: kotlinx.coroutines.flow.Flow<kotlin.Long>, onReachedOldestMessage: kotlin.Function0<kotlin.Unit>, isFetchingOlderMessages: kotlin.Boolean, hasMoreRemoteMessages: kotlin.Boolean, isWireCellsEnabled: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -4568,7 +4598,8 @@ private fun com.wire.android.ui.home.conversations.ConversationScreen(bannerMess
     - onBackButtonClick: STABLE (function type)
     - composerMessages: RUNTIME (requires runtime check)
     - conversationMessages: RUNTIME (requires runtime check)
-    - shareAsset: STABLE (function type)
+    - shareAssetExternally: STABLE (function type)
+    - shareAssetViaWire: STABLE (function type)
     - onDownloadAssetClick: STABLE (function type)
     - onOpenAssetClick: STABLE (function type)
     - onNavigateToReplyOriginalMessage: STABLE (function type)
@@ -5589,7 +5620,7 @@ public fun com.wire.android.ui.home.conversations.details.updatechannelaccess.Ch
     - updateChannelAccessViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.edit.MessageOptionsModalContent(message: com.wire.android.ui.home.conversations.model.UIMessage.Regular, sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.String>, isNetworkAvailable: kotlin.Boolean, onCopyClick: kotlin.Function1<@[ParameterName(name = \, onDeleteClick: kotlin.Function2<@[ParameterName(name = \, onReactionClick: kotlin.Function2<@[ParameterName(name = \, onDetailsClick: kotlin.Function2<@[ParameterName(name = \, onReplyClick: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onEditClick: kotlin.Function4<@[ParameterName(name = \, onShareAssetClick: kotlin.Function1<@[ParameterName(name = \, onDownloadAssetClick: kotlin.Function1<@[ParameterName(name = \, onOpenAssetClick: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+private fun com.wire.android.ui.home.conversations.edit.MessageOptionsModalContent(message: com.wire.android.ui.home.conversations.model.UIMessage.Regular, sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.String>, isNetworkAvailable: kotlin.Boolean, onCopyClick: kotlin.Function1<@[ParameterName(name = \, onDeleteClick: kotlin.Function2<@[ParameterName(name = \, onReactionClick: kotlin.Function2<@[ParameterName(name = \, onDetailsClick: kotlin.Function2<@[ParameterName(name = \, onReplyClick: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onEditClick: kotlin.Function4<@[ParameterName(name = \, onShareAssetExternallyClick: kotlin.Function1<@[ParameterName(name = \, onShareAssetViaWireClick: kotlin.Function1<@[ParameterName(name = \, onDownloadAssetClick: kotlin.Function1<@[ParameterName(name = \, onOpenAssetClick: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -5602,12 +5633,13 @@ private fun com.wire.android.ui.home.conversations.edit.MessageOptionsModalConte
     - onDetailsClick: STABLE (function type)
     - onReplyClick: STABLE (function type)
     - onEditClick: STABLE (function type)
-    - onShareAssetClick: STABLE (function type)
+    - onShareAssetExternallyClick: STABLE (function type)
+    - onShareAssetViaWireClick: STABLE (function type)
     - onDownloadAssetClick: STABLE (function type)
     - onOpenAssetClick: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayout(conversationId: com.wire.kalium.logic.data.id.QualifiedID, sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.String>, isNetworkAvailable: kotlin.Boolean, onCopyClick: kotlin.Function1<@[ParameterName(name = \, onDeleteClick: kotlin.Function2<@[ParameterName(name = \, onReactionClick: kotlin.Function2<@[ParameterName(name = \, onDetailsClick: kotlin.Function2<@[ParameterName(name = \, onReplyClick: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onEditClick: kotlin.Function4<@[ParameterName(name = \, onShareAssetClick: kotlin.Function1<@[ParameterName(name = \, onDownloadAssetClick: kotlin.Function1<@[ParameterName(name = \, onOpenAssetClick: kotlin.Function1<@[ParameterName(name = \, viewModel: com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModel): kotlin.Unit
+public fun com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayout(conversationId: com.wire.kalium.logic.data.id.QualifiedID, sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.String>, isNetworkAvailable: kotlin.Boolean, onCopyClick: kotlin.Function1<@[ParameterName(name = \, onDeleteClick: kotlin.Function2<@[ParameterName(name = \, onReactionClick: kotlin.Function2<@[ParameterName(name = \, onDetailsClick: kotlin.Function2<@[ParameterName(name = \, onReplyClick: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onEditClick: kotlin.Function4<@[ParameterName(name = \, onShareAssetExternallyClick: kotlin.Function1<@[ParameterName(name = \, onShareAssetViaWireClick: kotlin.Function1<@[ParameterName(name = \, onDownloadAssetClick: kotlin.Function1<@[ParameterName(name = \, onOpenAssetClick: kotlin.Function1<@[ParameterName(name = \, viewModel: com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -5620,13 +5652,14 @@ public fun com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetL
     - onDetailsClick: STABLE (function type)
     - onReplyClick: STABLE (function type)
     - onEditClick: STABLE (function type)
-    - onShareAssetClick: STABLE (function type)
+    - onShareAssetExternallyClick: STABLE (function type)
+    - onShareAssetViaWireClick: STABLE (function type)
     - onDownloadAssetClick: STABLE (function type)
     - onOpenAssetClick: STABLE (function type)
     - viewModel: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.edit.assetMessageOptionsMenuItems(isEphemeral: kotlin.Boolean, ownReactions: kotlin.collections.Set<kotlin.String>, onDeleteClick: kotlin.Function0<kotlin.Unit>, onDetailsClick: kotlin.Function0<kotlin.Unit>, onShareAsset: kotlin.Function0<kotlin.Unit>, onDownloadAsset: kotlin.Function0<kotlin.Unit>, onReplyClick: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function1<@[ParameterName(name = \, isOpenable: kotlin.Boolean, onOpenAsset: kotlin.Function0<kotlin.Unit>, isUploading: kotlin.Boolean): kotlin.collections.List<@[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>>
+public fun com.wire.android.ui.home.conversations.edit.assetMessageOptionsMenuItems(isEphemeral: kotlin.Boolean, ownReactions: kotlin.collections.Set<kotlin.String>, onDeleteClick: kotlin.Function0<kotlin.Unit>, onDetailsClick: kotlin.Function0<kotlin.Unit>, onShareAssetExternally: kotlin.Function0<kotlin.Unit>, onShareAssetViaWire: kotlin.Function0<kotlin.Unit>, onDownloadAsset: kotlin.Function0<kotlin.Unit>, onReplyClick: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function1<@[ParameterName(name = \, isOpenable: kotlin.Boolean, onOpenAsset: kotlin.Function0<kotlin.Unit>, isUploading: kotlin.Boolean): kotlin.collections.List<@[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>>
   skippable: false
   restartable: true
   params:
@@ -5634,7 +5667,8 @@ public fun com.wire.android.ui.home.conversations.edit.assetMessageOptionsMenuIt
     - ownReactions: RUNTIME (requires runtime check)
     - onDeleteClick: STABLE (function type)
     - onDetailsClick: STABLE (function type)
-    - onShareAsset: STABLE (function type)
+    - onShareAssetExternally: STABLE (function type)
+    - onShareAssetViaWire: STABLE (function type)
     - onDownloadAsset: STABLE (function type)
     - onReplyClick: STABLE (function type)
     - onReactionClick: STABLE (function type)
@@ -5643,20 +5677,21 @@ public fun com.wire.android.ui.home.conversations.edit.assetMessageOptionsMenuIt
     - isUploading: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems(isEphemeral: kotlin.Boolean, onDeleteClick: kotlin.Function0<kotlin.Unit>, onShareAsset: kotlin.Function0<kotlin.Unit>, onDownloadAsset: kotlin.Function0<kotlin.Unit>, isOpenable: kotlin.Boolean, onOpenAsset: kotlin.Function0<kotlin.Unit>, isUploading: kotlin.Boolean): kotlin.collections.List<@[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>>
+public fun com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems(isEphemeral: kotlin.Boolean, onDeleteClick: kotlin.Function0<kotlin.Unit>, onShareAssetExternally: kotlin.Function0<kotlin.Unit>, onShareAssetViaWire: kotlin.Function0<kotlin.Unit>, onDownloadAsset: kotlin.Function0<kotlin.Unit>, isOpenable: kotlin.Boolean, onOpenAsset: kotlin.Function0<kotlin.Unit>, isUploading: kotlin.Boolean): kotlin.collections.List<@[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>>
   skippable: true
   restartable: true
   params:
     - isEphemeral: STABLE (primitive type)
     - onDeleteClick: STABLE (function type)
-    - onShareAsset: STABLE (function type)
+    - onShareAssetExternally: STABLE (function type)
+    - onShareAssetViaWire: STABLE (function type)
     - onDownloadAsset: STABLE (function type)
     - isOpenable: STABLE (primitive type)
     - onOpenAsset: STABLE (function type)
     - isUploading: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.edit.messageOptionsMenuItems(isAssetMessage: kotlin.Boolean, isEphemeral: kotlin.Boolean, isUploading: kotlin.Boolean, isOpenable: kotlin.Boolean, isComposite: kotlin.Boolean, isEditable: kotlin.Boolean, isCopyable: kotlin.Boolean, ownReactions: kotlin.collections.Set<kotlin.String>, onCopyClick: kotlin.Function0<kotlin.Unit>, onDeleteClick: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function1<@[ParameterName(name = \, onDetailsClick: kotlin.Function0<kotlin.Unit>, onReplyClick: kotlin.Function0<kotlin.Unit>, onEditClick: kotlin.Function0<kotlin.Unit>, onShareAssetClick: kotlin.Function0<kotlin.Unit>, onDownloadAssetClick: kotlin.Function0<kotlin.Unit>, onOpenAssetClick: kotlin.Function0<kotlin.Unit>): kotlin.collections.List<@[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>>
+public fun com.wire.android.ui.home.conversations.edit.messageOptionsMenuItems(isAssetMessage: kotlin.Boolean, isEphemeral: kotlin.Boolean, isUploading: kotlin.Boolean, isOpenable: kotlin.Boolean, isComposite: kotlin.Boolean, isEditable: kotlin.Boolean, isCopyable: kotlin.Boolean, ownReactions: kotlin.collections.Set<kotlin.String>, onCopyClick: kotlin.Function0<kotlin.Unit>, onDeleteClick: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function1<@[ParameterName(name = \, onDetailsClick: kotlin.Function0<kotlin.Unit>, onReplyClick: kotlin.Function0<kotlin.Unit>, onEditClick: kotlin.Function0<kotlin.Unit>, onShareAssetExternallyClick: kotlin.Function0<kotlin.Unit>, onShareAssetViaWireClick: kotlin.Function0<kotlin.Unit>, onDownloadAssetClick: kotlin.Function0<kotlin.Unit>, onOpenAssetClick: kotlin.Function0<kotlin.Unit>): kotlin.collections.List<@[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>>
   skippable: false
   restartable: true
   params:
@@ -5674,7 +5709,8 @@ public fun com.wire.android.ui.home.conversations.edit.messageOptionsMenuItems(i
     - onDetailsClick: STABLE (function type)
     - onReplyClick: STABLE (function type)
     - onEditClick: STABLE (function type)
-    - onShareAssetClick: STABLE (function type)
+    - onShareAssetExternallyClick: STABLE (function type)
+    - onShareAssetViaWireClick: STABLE (function type)
     - onDownloadAssetClick: STABLE (function type)
     - onOpenAssetClick: STABLE (function type)
 
@@ -5820,13 +5856,14 @@ private fun com.wire.android.ui.home.conversations.media.AssetMessagesListConten
     - onItemLongClicked: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.media.AssetOptionsModalSheetLayout(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<com.wire.android.ui.home.conversations.media.AssetOptionsData>, deleteAsset: kotlin.Function2<@[ParameterName(name = \, shareAsset: kotlin.Function1<@[ParameterName(name = \, downloadAsset: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+private fun com.wire.android.ui.home.conversations.media.AssetOptionsModalSheetLayout(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<com.wire.android.ui.home.conversations.media.AssetOptionsData>, deleteAsset: kotlin.Function2<@[ParameterName(name = \, shareAssetExternally: kotlin.Function1<@[ParameterName(name = \, shareAssetViaWire: kotlin.Function1<@[ParameterName(name = \, downloadAsset: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - sheetState: UNSTABLE (has mutable properties or unstable members)
     - deleteAsset: STABLE (function type)
-    - shareAsset: STABLE (function type)
+    - shareAssetExternally: STABLE (function type)
+    - shareAssetViaWire: STABLE (function type)
     - downloadAsset: STABLE (function type)
 
 @Composable
@@ -10874,12 +10911,14 @@ private fun com.wire.android.ui.sharing.ImportAssetsCarrousel(importedItemsList:
     - onRemoveAsset: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.sharing.ImportMediaAuthenticatedContent(navigator: com.wire.android.navigation.Navigator, isRestrictedInTeam: kotlin.Boolean, checkAssetRestrictionsViewModel: com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel, importMediaViewModel: com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel): kotlin.Unit
+private fun com.wire.android.ui.sharing.ImportMediaAuthenticatedContent(navArgs: com.wire.android.ui.sharing.ImportMediaNavArgs, navigator: com.wire.android.navigation.Navigator, isRestrictedInTeam: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>, checkAssetRestrictionsViewModel: com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel, importMediaViewModel: com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
+    - navArgs: UNSTABLE (has mutable properties or unstable members)
     - navigator: STABLE (marked @Stable or @Immutable)
     - isRestrictedInTeam: STABLE (primitive type)
+    - navigateBack: STABLE (function type)
     - checkAssetRestrictionsViewModel: UNSTABLE (has mutable properties or unstable members)
     - importMediaViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -10947,10 +10986,11 @@ public fun com.wire.android.ui.sharing.ImportMediaRestrictedContent(importMediaA
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.sharing.ImportMediaScreen(navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, featureFlagNotificationViewModel: com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel): kotlin.Unit
+public fun com.wire.android.ui.sharing.ImportMediaScreen(navArgs: com.wire.android.ui.sharing.ImportMediaNavArgs, navigator: com.wire.android.navigation.Navigator, loginTypeSelector: com.wire.android.navigation.LoginTypeSelector, featureFlagNotificationViewModel: com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
+    - navArgs: UNSTABLE (has mutable properties or unstable members)
     - navigator: STABLE (marked @Stable or @Immutable)
     - loginTypeSelector: RUNTIME (requires runtime check)
     - featureFlagNotificationViewModel: UNSTABLE (has mutable properties or unstable members)

@@ -27,6 +27,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -67,6 +68,10 @@ import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -132,6 +137,9 @@ fun ConversationFilesScreen(
         onRefresh = viewModel::onPullToRefresh,
         retryEditNodeError = viewModel::editNode,
         fileReadyFlow = viewModel.fileReadyFlow,
+        sortingCriteria = viewModel.sortingCriteria.collectAsState().value,
+        onSortByClicked = viewModel::setSortBy,
+        onSortOrderClicked = viewModel::setSorting,
     )
 
     LaunchedEffect(Unit) {
@@ -162,6 +170,9 @@ internal fun ConversationFilesScreenContent(
     isOnline: Boolean = true,
     breadcrumbs: Array<String>? = emptyArray(),
     fileReadyFlow: Flow<CellNodeUi.File> = emptyFlow(),
+    sortingCriteria: SortingCriteria = SortingCriteria.FoldersFirst,
+    onSortByClicked: (SortBy) -> Unit = {},
+    onSortOrderClicked: (SortingCriteria) -> Unit = {},
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
@@ -174,6 +185,11 @@ internal fun ConversationFilesScreenContent(
         pagingListItems.isError() -> false
         isRecycleBin -> false
         else -> true
+    }
+
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(sortingCriteria) {
+        lazyListState.animateScrollToItem(0)
     }
 
     CellsNewActionBottomSheet(
@@ -264,6 +280,14 @@ internal fun ConversationFilesScreenContent(
                                 }
                             },
                         )
+                        if (!isRecycleBin) {
+                            SortRowWithMenu(
+                                sortingCriteria = sortingCriteria,
+                                screenType = DriveSearchScreenType.SHARED_DRIVE,
+                                onSortByClicked = onSortByClicked,
+                                onOrderClicked = onSortOrderClicked,
+                            )
+                        }
                     } else {
                         OfflineBanner()
                     }
@@ -300,6 +324,7 @@ internal fun ConversationFilesScreenContent(
         ) { innerPadding ->
             CellScreenContent(
                 modifier = Modifier.padding(innerPadding),
+                lazyListState = lazyListState,
                 actionsFlow = actions,
                 pagingListItems = pagingListItems,
                 sendIntent = sendIntent,

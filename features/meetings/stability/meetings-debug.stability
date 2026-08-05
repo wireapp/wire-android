@@ -17,7 +17,7 @@ public fun com.ramcosta.composedestinations.generated.meetings.destinations.NewM
   params:
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, tabs: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.meetings.ui.MeetingsTabItem>, initialTab: com.wire.android.feature.meetings.ui.MeetingsTabItem, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, tabs: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.meetings.ui.MeetingsTabItem>, initialTab: com.wire.android.feature.meetings.ui.MeetingsTabItem, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \, editMeeting: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -28,6 +28,7 @@ public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState:
     - startCall: STABLE (function type)
     - joinCall: STABLE (function type)
     - returnToCall: STABLE (function type)
+    - editMeeting: STABLE (function type)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.Unit>, onMeetNowClick: kotlin.Function0<kotlin.Unit>, onScheduleClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -344,10 +345,11 @@ private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalCont
     - onDeleteMeetingForEveryone: STABLE (function type)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalSheetLayout(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.String>, viewModel: com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalSheetLayout(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.String>, editMeeting: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, viewModel: com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - sheetState: UNSTABLE (has mutable properties or unstable members)
+    - editMeeting: STABLE (function type)
     - viewModel: RUNTIME (requires runtime check)
 

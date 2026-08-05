@@ -48,6 +48,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.rememberLazyListStateProvider
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
@@ -62,6 +63,7 @@ fun AllMeetingsScreen(
     startCall: (conversationId: ConversationId) -> Unit = {},
     joinCall: (conversationId: ConversationId) -> Unit = {},
     returnToCall: (conversationId: ConversationId) -> Unit = {},
+    editMeeting: (meetingId: MeetingId) -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -109,7 +111,7 @@ fun AllMeetingsScreen(
             )
         }
 
-        MeetingOptionsModalSheetLayout(sheetState = meetingOptionsSheetState)
+        MeetingOptionsModalSheetLayout(sheetState = meetingOptionsSheetState, editMeeting = editMeeting)
     }
 }
 

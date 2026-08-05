@@ -22,14 +22,19 @@ import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
 import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUseCase
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase
+import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
 import dev.zacsweers.metro.Inject
 
+@Suppress("LongParameterList")
 class MeetingsViewModelFactory @Inject constructor(
     private val currentTimeProvider: CurrentTimeProvider,
     private val dispatcher: DispatcherProvider,
@@ -38,6 +43,10 @@ class MeetingsViewModelFactory @Inject constructor(
     private val observeActiveCalls: ObserveActiveCallsUseCase,
     private val deleteMeetingUseCase: DeleteMeetingUseCase,
     private val createNewMeeting: CreateNewMeetingUseCase,
+    private val updateMeeting: UpdateMeetingUseCase,
+    private val getNextMeetingOccurrence: GetNextMeetingOccurrenceUseCase,
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val contactMapper: ContactMapper,
 ) {
     internal fun meetingListViewModel(type: MeetingsTabItem) = MeetingListViewModelImpl(
         type = type,
@@ -48,6 +57,7 @@ class MeetingsViewModelFactory @Inject constructor(
     )
 
     internal fun meetingOptionsMenuViewModel() = MeetingOptionsMenuViewModelImpl(
+        currentTimeProvider = currentTimeProvider,
         observeMeetingOccurrenceUseCase = observeMeetingOccurrence,
         deleteMeetingUseCase = deleteMeetingUseCase,
     )
@@ -55,6 +65,10 @@ class MeetingsViewModelFactory @Inject constructor(
     internal fun newMeetingViewModel(savedStateHandle: SavedStateHandle) = NewMeetingViewModelImpl(
         savedStateHandle = savedStateHandle,
         currentTimeProvider = currentTimeProvider,
-        createNewMeeting = createNewMeeting
+        createNewMeeting = createNewMeeting,
+        updateMeeting = updateMeeting,
+        getNextMeetingOccurrence = getNextMeetingOccurrence,
+        observeConversationMembers = observeConversationMembers,
+        contactMapper = contactMapper,
     )
 }

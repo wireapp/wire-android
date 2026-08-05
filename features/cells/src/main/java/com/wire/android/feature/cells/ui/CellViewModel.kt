@@ -39,6 +39,8 @@ import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
+import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
+import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.feature.cells.util.FileHelper
@@ -156,13 +158,14 @@ class CellViewModel(
 
     // AllFiles context (no conversationId, not recycle bin) defaults to newest-first;
     // ConversationFiles and RecycleBin default to folders-first.
-    private val _defaultSortingCriteria = MutableStateFlow(
-        if (navArgs.conversationId == null && !(navArgs.isRecycleBin ?: false)) {
-            SortingCriteria.ByDate.NewestFirst
-        } else {
-            SortingCriteria.FoldersFirst
-        }
-    )
+    val defaultSortingCriteria: SortingCriteria = if (navArgs.conversationId == null && !(navArgs.isRecycleBin ?: false)) {
+        SortingCriteria.ByDate.NewestFirst
+    } else {
+        SortingCriteria.FoldersFirst
+    }
+
+    private val _sortingCriteria = MutableStateFlow(defaultSortingCriteria)
+    val sortingCriteria: StateFlow<SortingCriteria> = _sortingCriteria.asStateFlow()
 
     val isOnline: StateFlow<Boolean> = networkStateObserver.observeNetworkState()
         .map { it is NetworkState.ConnectedWithInternet }
@@ -196,7 +199,7 @@ class CellViewModel(
         }
 
         refreshTrigger.flatMapLatest {
-            _defaultSortingCriteria.flatMapLatest { sortingCriteria ->
+            _sortingCriteria.flatMapLatest { sortingCriteria ->
                 combine(
                     getCellFilesPaged(
                         conversationId = navArgs.conversationId,
@@ -379,6 +382,16 @@ class CellViewModel(
 
     internal fun cancelDownload(uuid: String) {
         cancelOpenDownload(uuid)
+    }
+
+    fun setSortBy(by: SortBy) {
+        _sortingCriteria.update { current ->
+            if (current.by == by) current else defaultCriteriaFor(by)
+        }
+    }
+
+    fun setSorting(criteria: SortingCriteria) {
+        _sortingCriteria.value = criteria
     }
 
     @Suppress("ReturnCount")

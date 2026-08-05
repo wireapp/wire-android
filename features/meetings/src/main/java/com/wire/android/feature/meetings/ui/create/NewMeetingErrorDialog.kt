@@ -36,6 +36,7 @@ fun NewMeetingErrorDialog(
     val (titleResId, descriptionResId) = when (type) {
         NewMeetingType.MeetNow -> R.string.new_meeting_now_failure_title to R.string.new_meeting_now_failure_description
         NewMeetingType.Schedule -> R.string.new_meeting_schedule_failure_title to R.string.new_meeting_schedule_failure_description
+        is NewMeetingType.Edit -> R.string.new_meeting_edit_failure_title to R.string.new_meeting_edit_failure_description
     }
     WireDialog(
         title = stringResource(titleResId),

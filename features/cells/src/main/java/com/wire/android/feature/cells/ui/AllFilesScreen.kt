@@ -20,8 +20,10 @@ package com.wire.android.feature.cells.ui
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -38,6 +40,7 @@ import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -59,6 +62,12 @@ fun AllFilesScreen(
     val isOnlineState by viewModel.isOnline.collectAsState()
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
     val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
+    val sortingCriteria by viewModel.sortingCriteria.collectAsState()
+
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(sortingCriteria) {
+        lazyListState.animateScrollToItem(0)
+    }
 
     WireScaffold(
         modifier = modifier,
@@ -66,21 +75,29 @@ fun AllFilesScreen(
             Column {
                 AnimatedContent(isOnline) {
                     if (it) {
-                        SearchTopBar(
-                            modifier = Modifier,
-                            isSearchActive = false,
-                            searchBarHint = stringResource(R.string.search_label),
-                            searchQueryTextState = rememberTextFieldState(),
-                            onTap = {
-                                navigator.navigate(
-                                    NavigationCommand(
-                                        SearchScreenDestination(
-                                            screenType = DriveSearchScreenType.DRIVE,
+                        Column {
+                            SearchTopBar(
+                                modifier = Modifier,
+                                isSearchActive = false,
+                                searchBarHint = stringResource(R.string.search_label),
+                                searchQueryTextState = rememberTextFieldState(),
+                                onTap = {
+                                    navigator.navigate(
+                                        NavigationCommand(
+                                            SearchScreenDestination(
+                                                screenType = DriveSearchScreenType.DRIVE,
+                                            )
                                         )
                                     )
-                                )
-                            },
-                        )
+                                },
+                            )
+                            SortRowWithMenu(
+                                sortingCriteria = sortingCriteria,
+                                screenType = DriveSearchScreenType.DRIVE,
+                                onSortByClicked = { viewModel.setSortBy(it) },
+                                onOrderClicked = { viewModel.setSorting(it) },
+                            )
+                        }
                     } else {
                         OfflineBanner()
                     }
@@ -90,6 +107,7 @@ fun AllFilesScreen(
     ) { innerPadding ->
         CellScreenContent(
             modifier = Modifier.padding(innerPadding),
+            lazyListState = lazyListState,
             actionsFlow = viewModel.actions,
             pagingListItems = pagingListItems,
             sendIntent = { viewModel.sendIntent(it) },

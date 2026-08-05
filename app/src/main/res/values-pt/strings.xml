@@ -958,7 +958,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="settings_myaccount_display_name_title">Seu nome de perfil</string>
     <string name="settings_myaccount_display_name_description">Pessoas veem seu nome nas conversas, chamadas, e busca.</string>
     <string name="settings_myaccount_display_name_error">Por favor digite seu nome de perfil</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Mínimo de 1 e máximo de 128 caracteres</string>
     <string name="settings_myaccount_display_name_updated">Seu nome de perfil foi atualizado</string>
     <string name="settings_myaccount_handle_updated">Seu nome de usuário mudou</string>
     <!--Privacy Settings -->

@@ -57,14 +57,76 @@ runs:
         echo "enabled=${enabled}" >> "$GITHUB_OUTPUT"
         echo "read_only=${read_only}" >> "$GITHUB_OUTPUT"
 
+    - name: Detect WarpBuild runner
+      id: cache_backend
+      shell: bash
+      run: |
+        if [[ -n "${WARPBUILD_RUNNER_VERIFICATION_TOKEN-}" ]]; then
+          echo "warp=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "warp=false" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Set up Gradle
       uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
       with:
-        # Enhanced caching uses GitHub's ref-scoped cache while keeping rolling,
-        # cross-commit Gradle state for the long-lived develop branch.
-        cache-provider: enhanced
-        cache-disabled: ${{ steps.cache_policy.outputs.enabled != 'true' }}
+        # Warp runners use WarpCache below. Other runners retain the MIT-licensed
+        # basic provider backed by GitHub's ref-scoped Actions cache.
+        cache-provider: basic
+        cache-disabled: ${{ steps.cache_policy.outputs.enabled != 'true' || steps.cache_backend.outputs.warp == 'true' }}
         cache-read-only: ${{ steps.cache_policy.outputs.read_only == 'true' }}
+
+    - name: Restore and save Warp Gradle state
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only != 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      with:
+        path: |
+          ~/.gradle/caches/*/generated-gradle-jars
+          ~/.gradle/caches/*/kotlin-dsl
+          ~/.gradle/caches/*/scripts
+          ~/.gradle/caches/modules-2
+          ~/.gradle/caches/transforms-*
+          ~/.gradle/caches/jars-*
+          ~/.gradle/wrapper
+        key: warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}
+        restore-keys: |
+          warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Restore read-only Warp Gradle state
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only == 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      uses: WarpBuilds/cache/restore@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      with:
+        path: |
+          ~/.gradle/caches/*/generated-gradle-jars
+          ~/.gradle/caches/*/kotlin-dsl
+          ~/.gradle/caches/*/scripts
+          ~/.gradle/caches/modules-2
+          ~/.gradle/caches/transforms-*
+          ~/.gradle/caches/jars-*
+          ~/.gradle/wrapper
+        key: warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}
+        restore-keys: |
+          warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Restore and save Warp Gradle task outputs
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only != 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      with:
+        path: ~/.gradle/caches/build-cache-*
+        key: warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-${{ github.sha }}
+        restore-keys: |
+          warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-
+          warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-
+
+    - name: Restore read-only Warp Gradle task outputs
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only == 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      uses: WarpBuilds/cache/restore@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      with:
+        path: ~/.gradle/caches/build-cache-*
+        key: warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-${{ github.sha }}
+        restore-keys: |
+          warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-
+          warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-
 
     - name: Enable Gradle build cache
       if: ${{ steps.cache_policy.outputs.enabled == 'true' }}

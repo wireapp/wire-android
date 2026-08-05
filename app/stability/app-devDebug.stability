@@ -8071,6 +8071,13 @@ public fun com.wire.android.ui.home.meetings.MeetingsScreen(homeStateHolder: com
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
+private fun com.wire.android.ui.home.meetings.NotEstablishedDialog(dialogState: com.wire.android.ui.common.visbility.VisibilityState<kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - dialogState: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
 public fun com.wire.android.ui.home.messagecomposer.ActiveMessageComposerInput(conversationId: com.wire.kalium.logic.data.id.QualifiedID, messageComposition: com.wire.android.ui.home.messagecomposer.model.MessageComposition, messageTextState: androidx.compose.foundation.text.input.TextFieldState, isTextExpanded: kotlin.Boolean, inputType: com.wire.android.ui.home.messagecomposer.state.InputType, focusRequester: androidx.compose.ui.focus.FocusRequester, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, canSendMessage: kotlin.Boolean, onSendButtonClicked: kotlin.Function0<kotlin.Unit>, onEditButtonClicked: kotlin.Function0<kotlin.Unit>, onChangeSelfDeletionClicked: kotlin.Function1<@[ParameterName(name = \, onToggleInputSize: kotlin.Function0<kotlin.Unit>, onCancelReply: kotlin.Function0<kotlin.Unit>, onCancelEdit: kotlin.Function0<kotlin.Unit>, onFocused: kotlin.Function0<kotlin.Unit>, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, showOptions: kotlin.Boolean, optionsSelected: kotlin.Boolean, onPlusClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true

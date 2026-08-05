@@ -77,6 +77,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -140,6 +141,7 @@ class CallingViewModelFactory @Inject constructor(
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase,
     private val observeSelf: ObserveSelfUserUseCase,
+    private val ensureMeetingIsMLSEstablished: EnsureMeetingIsMLSEstablishedUseCase,
 ) {
     fun callActivityViewModel() = CallActivityViewModel(
         dispatchers = dispatchers,
@@ -244,6 +246,7 @@ class CallingViewModelFactory @Inject constructor(
         setUserInformedAboutVerification = setUserInformedAboutVerification,
         observeDegradedConversationNotified = observeDegradedConversationNotified,
         observeSelf = observeSelf,
+        ensureMeetingIsMLSEstablished = ensureMeetingIsMLSEstablished,
     )
 
     fun conversationListCallViewModel() = ConversationListCallViewModelImpl(

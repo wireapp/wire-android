@@ -37,8 +37,8 @@ import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.CurrentTimeProvider
-import com.wire.kalium.logic.data.meeting.CreateMeeting
 import com.wire.kalium.logic.data.meeting.Meeting
+import com.wire.kalium.logic.data.meeting.UpsertMeeting
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -235,7 +235,7 @@ class NewMeetingViewModelImpl(
             if (titleValid && startAndEndTimeValid) {
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
                 val creationResult = createNewMeeting(
-                    createMeeting = CreateMeeting(
+                    createMeeting = UpsertMeeting(
                         title = titleTextState.text.trim().toString(),
                         startTime = state.startTime,
                         endTime = state.endTime,
@@ -261,7 +261,7 @@ class NewMeetingViewModelImpl(
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
                 val updateResult = updateMeeting(
                     meetingId = meetingType.id,
-                    meeting = CreateMeeting(
+                    updateMeeting = UpsertMeeting(
                         title = titleTextState.text.trim().toString(),
                         startTime = state.startTime,
                         endTime = state.endTime,

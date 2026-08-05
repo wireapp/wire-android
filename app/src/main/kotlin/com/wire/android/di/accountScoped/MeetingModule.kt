@@ -23,6 +23,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
+import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.GetPaginatedMeetingOccurrencesUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingScope
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
@@ -51,10 +52,18 @@ class MeetingModule {
         meetingScope.deleteMeeting
 
     @Provides
-    fun ensureMeetingIsMLSEstablishedUseCase(meetingScope: MeetingScope): EnsureMeetingIsMLSEstablishedUseCase =
-        meetingScope.ensureMeetingIsMLSEstablished
-
-    @Provides
     fun provideCreateNewMeetingUseCase(meetingScope: MeetingScope): CreateNewMeetingUseCase =
         meetingScope.createNewMeeting
+
+    @Provides
+    fun provideUpdateMeetingUseCase(meetingScope: MeetingScope): com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase =
+        meetingScope.updateMeeting
+
+    @Provides
+    fun provideGetNextMeetingOccurrenceUseCase(meetingScope: MeetingScope): GetNextMeetingOccurrenceUseCase =
+        meetingScope.getNextMeetingOccurrence
+
+    @Provides
+    fun ensureMeetingIsMLSEstablishedUseCase(meetingScope: MeetingScope): EnsureMeetingIsMLSEstablishedUseCase =
+        meetingScope.ensureMeetingIsMLSEstablished
 }

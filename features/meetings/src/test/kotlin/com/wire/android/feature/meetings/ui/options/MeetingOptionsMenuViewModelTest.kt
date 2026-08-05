@@ -20,6 +20,7 @@ package com.wire.android.feature.meetings.ui.options
 import app.cash.turbine.test
 import com.wire.android.feature.meetings.R
 import com.wire.android.model.asSnackBarMessage
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
@@ -42,7 +43,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -68,8 +68,12 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenFutureMeeting_andSelfUserIsCreator_whenObserving_thenDeleteForEveryoneIsAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Creator, occurrenceStartTime = Clock.System.now() + 1.hours)
+    fun givenFutureMeeting_andSelfUserIsCreator_whenObserving_thenEditAndDeleteForEveryoneIsAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Creator,
+            occurrenceStartTime = CURRENT_TIME + 1.hours,
+            occurrenceEndTime = CURRENT_TIME + 2.hours,
+        )
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
             .arrange()
@@ -80,14 +84,19 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone, it.deleteOption)
+                assertEquals(true, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenDeleteIsNotAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Member, occurrenceStartTime = Clock.System.now() + 1.hours)
+    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Member,
+            occurrenceStartTime = CURRENT_TIME + 1.hours,
+            occurrenceEndTime = CURRENT_TIME + 2.hours
+        )
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
             .arrange()
@@ -98,14 +107,19 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenPastMeeting_whenObserving_thenDeleteIsNotAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Creator, occurrenceStartTime = Clock.System.now() - 1.hours)
+    fun givenPastMeeting_andSelfUserIsCreator_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Creator,
+            occurrenceStartTime = CURRENT_TIME - 2.hours,
+            occurrenceEndTime = CURRENT_TIME - 1.hours,
+        )
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
             .arrange()
@@ -116,6 +130,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
         }
@@ -170,6 +185,7 @@ class MeetingOptionsMenuViewModelTest {
     private fun meeting(
         selfRole: MeetingOccurrence.SelfRole,
         occurrenceStartTime: Instant,
+        occurrenceEndTime: Instant = occurrenceStartTime + 30.minutes
     ) = MeetingOccurrence(
         meeting = Meeting(
             meetingId = MEETING_ID,
@@ -177,14 +193,14 @@ class MeetingOptionsMenuViewModelTest {
             creatorId = UserId("creator-id", "domain"),
             title = MEETING_TITLE,
             startTime = occurrenceStartTime,
-            endTime = occurrenceStartTime + 30.minutes,
+            endTime = occurrenceEndTime,
             recurrence = null,
         ),
         occurrenceId = OCCURRENCE_ID,
         conversationName = "Meeting conversation",
         conversationType = MeetingOccurrence.ConversationType.Group,
         occurrenceStartTime = occurrenceStartTime,
-        occurrenceEndTime = occurrenceStartTime + 30.minutes,
+        occurrenceEndTime = occurrenceEndTime,
         selfRole = selfRole,
     )
 
@@ -194,6 +210,8 @@ class MeetingOptionsMenuViewModelTest {
 
         @MockK
         lateinit var deleteMeetingUseCase: DeleteMeetingUseCase
+
+        val currentTimeProvider = CurrentTimeProvider { CURRENT_TIME }
 
         init {
             MockKAnnotations.init(this)
@@ -207,6 +225,7 @@ class MeetingOptionsMenuViewModelTest {
             coEvery { deleteMeetingUseCase.invoke(MEETING_ID) } returns result
         }
         fun arrange() = this to MeetingOptionsMenuViewModelImpl(
+            currentTimeProvider = currentTimeProvider,
             observeMeetingOccurrenceUseCase = observeMeetingOccurrenceUseCase,
             deleteMeetingUseCase = deleteMeetingUseCase,
         )
@@ -215,6 +234,7 @@ class MeetingOptionsMenuViewModelTest {
     private companion object {
         const val OCCURRENCE_ID = "occurrence-id"
         const val MEETING_TITLE = "Weekly sync"
+        val CURRENT_TIME = Instant.parse("2026-08-01T12:00:00Z")
         val MEETING_ID = MeetingId("meeting-id", "domain")
         val CONVERSATION_ID = ConversationId("conversation-id", "domain")
     }

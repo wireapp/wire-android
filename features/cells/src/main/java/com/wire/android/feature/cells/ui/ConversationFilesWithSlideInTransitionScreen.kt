@@ -74,5 +74,8 @@ fun ConversationFilesWithSlideInTransitionScreen(
         onRefresh = viewModel::onPullToRefresh,
         retryEditNodeError = viewModel::editNode,
         fileReadyFlow = viewModel.fileReadyFlow,
+        sortingCriteria = viewModel.sortingCriteria.collectAsState().value,
+        onSortByClicked = viewModel::setSortBy,
+        onSortOrderClicked = viewModel::setSorting,
     )
 }

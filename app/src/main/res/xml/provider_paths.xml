@@ -19,8 +19,21 @@
 
 <paths>
     <cache-path
-            name="cached_files"
-            path="." />
-    <files-path name="files" path="." />
-    <external-path name="external_files" path="."/>
+        name="shared_files"
+        path="file-provider-shares/" />
+    <external-path
+        name="external_downloads"
+        path="Download/" />
+    <external-path
+        name="external_pictures"
+        path="Pictures/" />
+    <external-path
+        name="external_movies"
+        path="Movies/" />
+    <external-path
+        name="external_music"
+        path="Music/" />
+    <external-path
+        name="external_documents"
+        path="Documents/" />
 </paths>

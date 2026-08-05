@@ -41,7 +41,7 @@ jobs:
         with:
           ref: ${{ env.BASE_BRANCH }}
           clean: true
-          fetch-depth: 0
+          fetch-depth: 1 # Keep the large Kalium submodule checkout shallow
           submodules: recursive
 
       - name: Set up Java 21

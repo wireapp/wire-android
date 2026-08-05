@@ -35,9 +35,9 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
-import com.wire.kalium.logic.data.meeting.CreateMeeting
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
+import com.wire.kalium.logic.data.meeting.UpsertMeeting
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
@@ -247,7 +247,7 @@ class NewMeetingViewModelTest {
 
             coVerify(exactly = 1) {
                 arrangement.createNewMeeting(
-                    CreateMeeting(
+                    UpsertMeeting(
                         title = "Quick sync",
                         startTime = currentTime,
                         endTime = currentTime + 1.hours,
@@ -268,7 +268,7 @@ class NewMeetingViewModelTest {
     @Test
     fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val createMeeting = CREATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
+        val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
@@ -319,7 +319,7 @@ class NewMeetingViewModelTest {
     fun givenEditTypeWithValidData_whenSubmitUpdateIsCalled_thenMeetingIsEditedAndSuccessActionIsSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val contact = contact("contact-1")
-        val createMeeting = CREATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
+        val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
         val nextOccurrence = MEETING_OCCURRENCE.copy(
             meeting = MEETING_OCCURRENCE.meeting.copy(
@@ -638,7 +638,7 @@ class NewMeetingViewModelTest {
         occurrenceEndTime = Instant.parse("2026-01-02T10:00:00Z"),
     )
     private val CONTACT = contact("contact-1")
-    private val CREATE_MEETING = CreateMeeting(
+    private val UPSERT_MEETING = UpsertMeeting(
         title = "Weekly sync",
         startTime = Instant.parse("2026-01-01T09:00:00Z"),
         endTime = Instant.parse("2026-01-01T10:00:00Z"),

@@ -17,8 +17,10 @@
  */
 package com.wire.android.ui
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.ApplicationContext
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.analytics.AnalyticsConfiguration
@@ -51,6 +53,7 @@ import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList")
 class MiscViewModelFactory @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val analyticsEnabled: AnalyticsConfiguration,
     private val selfServerConfig: Lazy<SelfServerConfigUseCase>,
     private val observeSyncState: ObserveSyncStateUseCase,
@@ -110,6 +113,7 @@ class MiscViewModelFactory @Inject constructor(
     )
 
     fun importMediaAuthenticatedViewModel() = ImportMediaAuthenticatedViewModel(
+        context = context,
         getSelf = getSelf,
         getConversationsPaginated = getConversationsPaginated,
         handleUriAsset = handleUriAsset,

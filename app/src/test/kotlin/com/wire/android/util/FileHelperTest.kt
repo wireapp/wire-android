@@ -28,11 +28,13 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
 import kotlinx.coroutines.test.runTest
+import okio.Path
 import okio.Path.Companion.toOkioPath
 import org.junit.Rule
 import org.junit.Test
@@ -98,10 +100,10 @@ class FileHelperTest {
     @Test
     fun `given Android greater than 9, when saving file to downloads folder, then use correct order of executions`() = runTest {
         // given
-        val arrangement = Arrangement()
-            .withUriMimeType("text/plain")
-            .arrange()
         val downloadedFilePath = tempDir.newFile("filename.txt").toOkioPath()
+        val arrangement = Arrangement()
+            .withUriMimeType(downloadedFilePath, "text/plain")
+            .arrange()
         // when
         saveFileToDownloadsFolder("name", downloadedFilePath, 100L, arrangement.context)
         // then
@@ -118,10 +120,10 @@ class FileHelperTest {
     @Test
     fun `given Android 9, when saving file to downloads folder, then use correct order of executions`() = runTest {
         // given
-        val arrangement = Arrangement()
-            .withUriMimeType("text/plain")
-            .arrange()
         val downloadedFilePath = tempDir.newFile("filename.txt").toOkioPath()
+        val arrangement = Arrangement()
+            .withUriMimeType(downloadedFilePath, "text/plain")
+            .arrange()
         // when
         saveFileToDownloadsFolder("name", downloadedFilePath, 100L, arrangement.context)
         // then
@@ -138,10 +140,10 @@ class FileHelperTest {
     @Test
     fun `given Android 9 and null mimeType, when saving file to downloads folder, then use mimeType indicating all types`() = runTest {
         // given
-        val arrangement = Arrangement()
-            .withUriMimeType(null)
-            .arrange()
         val downloadedFilePath = tempDir.newFile("filename.txt").toOkioPath()
+        val arrangement = Arrangement()
+            .withUriMimeType(downloadedFilePath, null)
+            .arrange()
         // when
         saveFileToDownloadsFolder("name", downloadedFilePath, 100L, arrangement.context)
         // then
@@ -168,6 +170,7 @@ class FileHelperTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic(Environment::class)
             mockkStatic(FileProvider::class)
+            mockkStatic(Uri::class)
             mockkStatic("com.wire.android.util.FileUtilKt")
             coEvery { context.packageName } returns "com.wire"
             coEvery { context.contentResolver } returns contentResolver
@@ -177,11 +180,11 @@ class FileHelperTest {
             coEvery { contentResolver.insert(any(), any()) } returns uri
             coEvery { downloadManager.addCompletedDownload(any(), any(), any(), any(), any(), any(), any()) } returns 1L
             coEvery { contentResolver.copyFile(any(), any()) } returns Unit
-            withUriMimeType(null)
         }
 
-        fun withUriMimeType(mimeType: String?) = apply {
-            coEvery { uri.getMimeType(context) } returns mimeType
+        fun withUriMimeType(downloadedDataPath: Path, mimeType: String?) = apply {
+            every { Uri.parse(downloadedDataPath.toString()) } returns uri
+            every { uri.getMimeType(context) } returns mimeType
         }
 
         fun arrange() = this

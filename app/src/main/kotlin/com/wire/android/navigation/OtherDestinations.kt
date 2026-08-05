@@ -28,6 +28,7 @@ import com.wire.android.R
 import com.wire.android.util.EmailComposer
 import com.wire.android.util.SupportPage
 import com.wire.android.util.SupportUrlResolver
+import com.wire.android.util.externalShareChooserIntent
 import com.wire.android.util.getDeviceIdString
 import com.wire.android.util.getGitBuildId
 import com.wire.android.util.sha256
@@ -114,7 +115,7 @@ object GiveFeedbackDestination : IntentDirection {
             )
         )
         intent.selector = Intent(Intent.ACTION_SENDTO).setData(Uri.parse("mailto:"))
-        return Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email))
+        return context.externalShareChooserIntent(intent, context.getString(R.string.send_feedback_choose_email))
     }
 
     override val route: String

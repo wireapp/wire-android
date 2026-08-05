@@ -610,7 +610,7 @@
     <string name="disable_guest_dialog_title">Отключить доступ гостей?</string>
     <string name="disable_guest_dialog_text">Текущие гости будут удалены из беседы. Новые гости допущены не будут.</string>
     <string name="disable_services_dialog_title">Отключить доступ приложениям?</string>
-    <string name="disable_services_dialog_text">Все приложения будут удалены из разговора. Новые приложения допущены не будут.</string>
+    <string name="disable_services_dialog_text">Все приложения будут удалены из беседы. Новые приложения допущены не будут.</string>
     <string name="leave_conversation_menu_item">Покинуть беседу…</string>
     <string name="leave_conversation_dialog_title">Покинуть “%s”?</string>
     <string name="cannot_leave_conversation_dialog_title">Невозможно покинуть \"%s\".</string>
@@ -1257,7 +1257,7 @@
     <string name="settings_myaccount_display_name_title">Имя вашего профиля</string>
     <string name="settings_myaccount_display_name_description">Пользователи видят имя вашего профиля в беседах, звонках и при поиске. Оно не является уникальным в Wire.</string>
     <string name="settings_myaccount_display_name_error">Введите имя вашего профиля</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и максимум 128 символа</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и не более 128 символов</string>
     <string name="settings_myaccount_display_name_updated">Имя вашего профиля изменено</string>
     <string name="settings_myaccount_handle_updated">Ваш псевдоним изменен</string>
     <string name="settings_myaccount_user_color_title">Пользовательский цвет</string>
@@ -1701,7 +1701,7 @@
     <string name="end_to_end_identity_enrollment_error_dialog_text">Пожалуйста, попробуйте еще раз или свяжитесь с администратором вашей команды.</string>
     <string name="end_to_end_identity_ceritifcate">Сведения о сертификате</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">Сертификат сквозной идентификации отозван</string>
-    <string name="end_to_end_identity_certificate_revoked_dialog_description">Для снижения рисков безопасности следует осуществить выход. После авторизации получите новый сертификат и сбросьте пароль.\n\nЕсли вы продолжите использование этого устройства, ваши разговоры больше не будут являться верифицированными.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Для снижения рисков безопасности следует осуществить выход. После авторизации получите новый сертификат и сбросьте пароль.\n\nЕсли вы продолжите использование этого устройства, ваши беседы больше не будут являться верифицированными.</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Выйти</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Продолжить использование этого устройства</string>
     <!-- Record Audio -->

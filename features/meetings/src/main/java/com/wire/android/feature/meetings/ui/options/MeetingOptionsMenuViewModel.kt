@@ -44,7 +44,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import java.util.concurrent.ConcurrentHashMap
 
 interface MeetingOptionsMenuViewModel : ActionsManager<MeetingOptionsMenuViewAction> {
@@ -65,6 +64,7 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
 }
 
 class MeetingOptionsMenuViewModelImpl(
+    private val currentTimeProvider: CurrentTimeProvider,
     private val observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase,
     private val deleteMeetingUseCase: DeleteMeetingUseCase,
 ) : MeetingOptionsMenuViewModel, ActionsViewModel<MeetingOptionsMenuViewAction>() {
@@ -75,13 +75,15 @@ class MeetingOptionsMenuViewModelImpl(
         flowOf(occurrenceId)
             .flatMapConcat { occurrenceId ->
                 observeMeetingOccurrenceUseCase.invoke(occurrenceId).map {
-                    when {
-                        it != null -> MeetingOptionsMenuState.Meeting(
+                    it?.let {
+                        val hasEnded = it.occurrenceEndTime < currentTimeProvider()
+                        MeetingOptionsMenuState.Meeting(
                             meetingId = it.meeting.meetingId,
                             title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
+                            editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && !hasEnded,
                             deleteOption = when {
-                                it.occurrenceStartTime < Clock.System.now() -> MeetingOptionsMenuState.Meeting.DeleteOption.None
+                                hasEnded -> MeetingOptionsMenuState.Meeting.DeleteOption.None
                                 else -> when (it.selfRole) {
                                     MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
                                     // for now, we don't show delete option for members as "delete for me" is not yet implemented
@@ -89,9 +91,7 @@ class MeetingOptionsMenuViewModelImpl(
                                 }
                             },
                         )
-
-                        else -> MeetingOptionsMenuState.NotAvailable
-                    }
+                    } ?: MeetingOptionsMenuState.NotAvailable
                 }
             }
             .distinctUntilChanged()

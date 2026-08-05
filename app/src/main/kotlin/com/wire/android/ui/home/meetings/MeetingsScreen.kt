@@ -64,6 +64,9 @@ fun MeetingsScreen(
                 )
             )
         },
+        editMeeting = { meetingId ->
+            homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.Edit(meetingId))))
+        },
     )
 
     viewModel.callManager.actions.HandleActions()

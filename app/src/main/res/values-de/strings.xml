@@ -1177,6 +1177,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <!--    report bug-->
     <string name="send_feedback_choose_email">\"E-Mail-Anbieter auswählen:\"</string>
     <string name="send_bug_report_subject">Fehlerbericht</string>
+    <string name="report_bug_missing_support_email_dialog_message">Keine Support-E-Mail-Adresse ist konfiguriert. Tippen Sie auf „OK“, um den Bericht manuell ohne Empfänger zu teilen.</string>
     <string name="backup_dialog_create_backup_save">Datei speichern</string>
     <string name="backup_dialog_create_backup_share">Datei teilen</string>
     <string name="backup_dialog_restore_incompatible_version_error_title">Inkompatibles Backup</string>

@@ -44,11 +44,15 @@ object BackendSupportConfig {
     }
 
     suspend fun resolveEmail(context: Context, staticSupportEmail: String): String? {
+        return resolveEmail(GlobalDataStore(context.applicationContext), staticSupportEmail)
+    }
+
+    suspend fun resolveEmail(globalDataStore: GlobalDataStore, staticSupportEmail: String): String? {
         val staticEmail = staticSupportEmail.trim()
         return when {
             staticEmail.isNotBlank() -> staticEmail
             currentBackendApiUrl != null -> currentBackendApiUrl?.let {
-                GlobalDataStore(context.applicationContext).getBackendSupportEmail(it)
+                globalDataStore.getBackendSupportEmail(it)
             }
             else -> null
         }

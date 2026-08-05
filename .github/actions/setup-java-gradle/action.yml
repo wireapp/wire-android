@@ -70,11 +70,10 @@ runs:
     - name: Set up Gradle
       uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
       with:
-        # Warp runners use WarpCache below. Other runners retain the MIT-licensed
-        # basic provider backed by GitHub's ref-scoped Actions cache.
+        # Gradle caching is handled exclusively by WarpCache on Warp runners.
+        # Selecting the basic provider keeps the proprietary provider unloaded.
         cache-provider: basic
-        cache-disabled: ${{ steps.cache_policy.outputs.enabled != 'true' || steps.cache_backend.outputs.warp == 'true' }}
-        cache-read-only: ${{ steps.cache_policy.outputs.read_only == 'true' }}
+        cache-disabled: true
 
     - name: Restore and save Warp Gradle state
       if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only != 'true' && steps.cache_backend.outputs.warp == 'true' }}
@@ -129,7 +128,7 @@ runs:
           warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-
 
     - name: Enable Gradle build cache
-      if: ${{ steps.cache_policy.outputs.enabled == 'true' }}
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_backend.outputs.warp == 'true' }}
       shell: bash
       run: | # zizmor: ignore[github-env] line breaks are rejected before the trusted value is preserved.
         if [[ "${GRADLE_OPTS-}" == *$'\n'* || "${GRADLE_OPTS-}" == *$'\r'* ]]; then

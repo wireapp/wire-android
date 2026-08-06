@@ -22,13 +22,55 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.util.supportsTrustedWireShareCaller
 
 @Composable
 fun ShareAssetMenuOption(onShareAsset: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_share_file,
+                id = R.drawable.ic_share,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(R.string.label_share),
+        onItemClick = onShareAsset
+    )
+}
+
+fun shareAssetMenuOptions(
+    onShareAssetExternally: () -> Unit,
+    onShareAssetViaWire: () -> Unit
+): List<@Composable () -> Unit> =
+    if (supportsTrustedWireShareCaller()) {
+        listOf({ ShareAssetMenuOption(onShareAssetExternally) })
+    } else {
+        listOf(
+            { ShareAssetViaWireMenuOption(onShareAssetViaWire) },
+            { ShareAssetExternallyMenuOption(onShareAssetExternally) }
+        )
+    }
+
+@Composable
+fun ShareAssetViaWireMenuOption(onShareAsset: () -> Unit) {
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = R.drawable.ic_forward,
+                contentDescription = stringResource(R.string.content_description_share_the_file),
+            )
+        },
+        title = stringResource(R.string.label_share_via_wire),
+        onItemClick = onShareAsset
+    )
+}
+
+@Composable
+fun ShareAssetExternallyMenuOption(onShareAsset: () -> Unit) {
+    MenuBottomSheetItem(
+        leading = {
+            MenuItemIcon(
+                id = R.drawable.ic_share,
                 contentDescription = stringResource(R.string.content_description_share_the_file),
             )
         },

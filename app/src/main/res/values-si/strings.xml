@@ -1026,7 +1026,6 @@
     <string name="settings_myaccount_display_name_title">ඔබගේ පැතිකඩ නාමය</string>
     <string name="settings_myaccount_display_name_description">සංවාද, ඇමතුම් සහ පරිශ්‍රීලක සෙවුම තුළ අන් අය ඔබගේ පැතිකඩ නාමය දකියි. එය වයර් සඳහා අනන්‍ය නොවේ.</string>
     <string name="settings_myaccount_display_name_error">ඔබගේ පැතිකඩ නාමය යොදන්න</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">අවම සහ උපරිම අකුරු 1-128 කි</string>
     <string name="settings_myaccount_display_name_updated">පැතිකඩ නාමය වෙනස් විය</string>
     <string name="settings_myaccount_handle_updated">පරිශ්‍රීලක නාමය වෙනස් විය</string>
     <!--Privacy Settings -->

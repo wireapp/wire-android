@@ -203,6 +203,13 @@ public fun com.wire.android.ui.common.ProtocolLabel(protocolName: kotlin.String,
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+private fun com.wire.android.ui.common.RadioButtonInnerDot(color: androidx.compose.ui.graphics.Color): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - color: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.wire.android.ui.common.SearchBarInput(placeholderText: kotlin.String, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, textState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, inputModifier: androidx.compose.ui.Modifier, clearButtonModifier: androidx.compose.ui.Modifier, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, textStyle: androidx.compose.ui.text.TextStyle, textFieldState: com.wire.android.ui.common.textfield.WireTextFieldState, isLoading: kotlin.Boolean, inputEnabled: kotlin.Boolean, semanticDescription: kotlin.String?, onTap: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
   skippable: true
   restartable: true
@@ -454,6 +461,32 @@ public fun com.wire.android.ui.common.WirePromotionDialog(title: kotlin.String, 
     - properties: STABLE (marked @Stable or @Immutable)
     - shape: STABLE (marked @Stable or @Immutable)
     - contentPadding: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.common.WireRadioButton(checked: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onButtonChecked: kotlin.Function0<kotlin.Unit>?, enabled: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - checked: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - onButtonChecked: STABLE (function type)
+    - enabled: STABLE (primitive type)
+
+@Composable
+private fun com.wire.android.ui.common.WireRadioButtonIndicator(checked: kotlin.Boolean, enabled: kotlin.Boolean, focused: kotlin.Boolean, selectedColor: androidx.compose.ui.graphics.Color, selectedContentColor: androidx.compose.ui.graphics.Color, unselectedColor: androidx.compose.ui.graphics.Color, unselectedBackgroundColor: androidx.compose.ui.graphics.Color, disabledSelectedColor: androidx.compose.ui.graphics.Color, disabledUnselectedColor: androidx.compose.ui.graphics.Color, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - checked: STABLE (primitive type)
+    - enabled: STABLE (primitive type)
+    - focused: STABLE (primitive type)
+    - selectedColor: STABLE (marked @Stable or @Immutable)
+    - selectedContentColor: STABLE (marked @Stable or @Immutable)
+    - unselectedColor: STABLE (marked @Stable or @Immutable)
+    - unselectedBackgroundColor: STABLE (marked @Stable or @Immutable)
+    - disabledSelectedColor: STABLE (marked @Stable or @Immutable)
+    - disabledUnselectedColor: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.common.WireTabRow(tabs: kotlin.collections.List<com.wire.android.ui.common.TabItem>, selectedTabIndex: kotlin.Int, onTabChange: kotlin.Function1<kotlin.Int, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, tabModifiers: kotlin.collections.List<androidx.compose.ui.Modifier>, containerColor: androidx.compose.ui.graphics.Color, divider: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, upperCaseTitles: kotlin.Boolean): kotlin.Unit

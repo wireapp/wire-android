@@ -20,6 +20,7 @@ package com.wire.android.ui.userprofile.qr
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.wire.android.util.externalShareChooserIntent
 
 fun Context.shareLinkToProfile(selfProfileUrl: String) {
     val sendIntent: Intent =
@@ -31,8 +32,7 @@ fun Context.shareLinkToProfile(selfProfileUrl: String) {
             type = "text/plain"
         }
 
-    val shareIntent = Intent.createChooser(sendIntent, null)
-    startActivity(shareIntent)
+    startActivity(externalShareChooserIntent(sendIntent))
 }
 
 fun Context.shareQRToProfile(uri: Uri) {
@@ -41,8 +41,9 @@ fun Context.shareQRToProfile(uri: Uri) {
             action = Intent.ACTION_SEND
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             putExtra(Intent.EXTRA_STREAM, uri)
             type = "image/jpg"
         }
-    startActivity(sendIntent)
+    startActivity(externalShareChooserIntent(sendIntent))
 }

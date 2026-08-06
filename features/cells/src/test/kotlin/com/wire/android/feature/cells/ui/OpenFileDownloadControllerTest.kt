@@ -115,9 +115,10 @@ class OpenFileDownloadControllerTest {
         )
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { arrangement.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) {
+            arrangement.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any(), any())
+        }
     }
-
 
     @Test
     fun givenFastDownloadSuccess_whenStartCalled_thenFileOpenedImmediatelyAndNoLoadStateSet() = runTest {

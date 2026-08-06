@@ -22,7 +22,6 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.common.functional.left
@@ -48,6 +47,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
+import kotlin.io.path.createTempDirectory
 
 class OpenFileDownloadControllerTest {
 
@@ -80,9 +80,10 @@ class OpenFileDownloadControllerTest {
     }
 
     @Test
-    fun givenFileWithLocalPath_whenStartCalled_thenFileOpenedImmediatelyWithoutDownload() = runTest {
+    fun givenFileWithLocalPath_whenFileExistsOnDisk_thenFileOpenedImmediatelyWithoutDownload() = runTest {
         val (arrangement, controller) = Arrangement().arrange()
-        val fileWithLocalPath = testFile.copy(localPath = "/local/path/report.pdf")
+        val realFile = File(arrangement.externalFilesDir, "report.pdf").also { it.createNewFile() }
+        val fileWithLocalPath = testFile.copy(localPath = realFile.absolutePath)
         var openedFile: CellNodeUi.File? = null
 
         controller.start(
@@ -97,6 +98,26 @@ class OpenFileDownloadControllerTest {
         assertTrue(controller.openLoadStates.value.isEmpty(), "No load state should be set")
         coVerify(exactly = 0) { arrangement.downloadUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
+
+    @Test
+    fun givenFileWithLocalPath_whenFileDeletedFromDisk_thenDownloadStarted() = runTest {
+        val (arrangement, controller) = Arrangement()
+            .withDownloadSuccess()
+            .arrange()
+        // localPath points to a file that no longer exists on disk
+        val fileWithStalePath = testFile.copy(localPath = "/non/existent/report.pdf")
+
+        controller.start(
+            scope = this,
+            cellNode = fileWithStalePath,
+            onOpenFile = {},
+            onError = {},
+        )
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any(), any()) }
+    }
+
 
     @Test
     fun givenFastDownloadSuccess_whenStartCalled_thenFileOpenedImmediatelyAndNoLoadStateSet() = runTest {
@@ -405,15 +426,13 @@ class OpenFileDownloadControllerTest {
         @MockK
         lateinit var fileHelper: FileHelper
 
-        @MockK
-        lateinit var fileNameResolver: FileNameResolver
-
         val sharedPathCache = CellFileLocalPathCache()
+
+        val externalFilesDir: File = createTempDirectory("cells-test").toFile()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { fileHelper.getExternalFilesDir() } returns File("")
-            every { fileNameResolver.getUniqueFile(any(), any()) } returns File("report.pdf")
+            every { fileHelper.getExternalFilesDir() } returns externalFilesDir
         }
 
         fun withDownloadSuccess(uuid: String = testFile.uuid) = apply {
@@ -445,7 +464,6 @@ class OpenFileDownloadControllerTest {
         fun arrange() = this to OpenFileDownloadController(
             download = downloadUseCase,
             fileHelper = fileHelper,
-            fileNameResolver = fileNameResolver,
             sharedPathCache = sharedPathCache,
         )
     }

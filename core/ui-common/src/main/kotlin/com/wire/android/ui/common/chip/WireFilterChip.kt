@@ -141,7 +141,6 @@ fun PreviewSelectedFilterChip() {
     }
 }
 
-
 @MultipleThemePreviews
 @Composable
 fun PreviewSelectedFilterChipWithoutCount() {

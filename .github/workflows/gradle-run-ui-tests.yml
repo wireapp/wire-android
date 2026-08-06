@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
-          fetch-depth: 0
+          fetch-depth: 1 # Keep the large Kalium submodule checkout shallow
 
       # trying https://github.com/actions/runner-images/issues/10386#issuecomment-2271613335
       - name: Free Disk Space Before Build

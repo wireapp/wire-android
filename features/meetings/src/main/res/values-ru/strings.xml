@@ -59,7 +59,6 @@
     <string name="new_meeting_participants_input_placeholder">Выбрать участников</string>
     <string name="content_description_new_meeting_back_icon">Закрыть вид новой встречи</string>
     <string name="content_description_new_meeting_participants_back_icon">Закрыть вид выбора участников</string>
-    <string name="new_meeting_title_name_error_empty">Пожалуйста, введите название встречи</string>
     <string name="new_meeting_title_name_error_exceeded_limit">Название встречи не должно превышать 64 символа</string>
     <string name="new_meeting_starts_input_label">Начало</string>
     <string name="new_meeting_start_date_input_placeholder">Выберите дату начала</string>
@@ -67,9 +66,6 @@
     <string name="new_meeting_ends_input_label">Окончание</string>
     <string name="new_meeting_end_date_input_placeholder">Выберите дату окончания</string>
     <string name="new_meeting_end_time_input_placeholder">Выберите время окончания</string>
-    <string name="new_meeting_start_in_past_error">Время начала не может быть в прошлом</string>
-    <string name="new_meeting_end_in_past_error">Время окончания не может быть в прошлом</string>
-    <string name="new_meeting_end_before_start_error">Время окончания не может быть раньше времени начала</string>
     <string name="new_meeting_repeats_input_label">Повторы</string>
     <string name="content_description_new_meeting_repeating_options">Выберите опцию повтора</string>
     <string name="new_meeting_allow_guests_label">Разрешить гостей</string>

@@ -40,6 +40,7 @@ import com.wire.android.model.Contact
 import com.wire.android.util.AppsUtil
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
@@ -68,6 +69,20 @@ class NewConversationViewModel @Inject constructor(
     private val isWireCellsFeatureEnabled: IsWireCellsEnabledUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 ) : ViewModel() {
+
+    private data class GroupCreationAttempt(
+        val name: String,
+        val userIdList: List<UserId>,
+        val options: CreateConversationParam,
+        val isChannel: Boolean,
+    )
+
+    private data class PendingMLSGroupCreation(
+        val conversationId: ConversationId,
+        val attempt: GroupCreationAttempt,
+    )
+
+    private var pendingMLSGroupCreation: PendingMLSGroupCreation? = null
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(GroupMetadataState())
@@ -258,7 +273,7 @@ class NewConversationViewModel @Inject constructor(
     fun createChannel() {
         viewModelScope.launch {
             groupOptionsState = groupOptionsState.copy(isLoading = true)
-            val result = createChannel(
+            val attempt = GroupCreationAttempt(
                 name = newGroupNameTextState.text.toString().trim(),
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = CreateConversationParam().copy(
@@ -273,16 +288,18 @@ class NewConversationViewModel @Inject constructor(
                     channelAddPermission = newGroupState.channelAddPermissionType.toDomainEnum(),
                     wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,
                     // TODO: include channel history type
-                )
+                ),
+                isChannel = true,
             )
-            handleNewGroupCreationResult(result)
+            val result = createOrRetryGroup(attempt)
+            handleNewGroupCreationResult(result, attempt)
         }
     }
 
     private fun createGroupForPersonalAccounts() {
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
-            val result = createRegularGroup(
+            val attempt = GroupCreationAttempt(
                 name = newGroupNameTextState.text.toString().trim(),
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
                 options = CreateConversationParam().copy(
@@ -290,9 +307,11 @@ class NewConversationViewModel @Inject constructor(
                     accessRole = Conversation.defaultGroupAccessRoles,
                     access = Conversation.defaultGroupAccess,
                     wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,
-                )
+                ),
+                isChannel = false,
             )
-            handleNewGroupCreationResult(result)
+            val result = createOrRetryGroup(attempt)
+            handleNewGroupCreationResult(result, attempt)
         }
     }
 
@@ -300,7 +319,7 @@ class NewConversationViewModel @Inject constructor(
         if (shouldCheckGuests && checkIfGuestAdded()) return
         viewModelScope.launch {
             groupOptionsState = groupOptionsState.copy(isLoading = true)
-            val result = createRegularGroup(
+            val attempt = GroupCreationAttempt(
                 name = newGroupNameTextState.text.toString().trim(),
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = newGroupState.selectedUsers.map { UserId(it.id, it.domain) },
@@ -314,17 +333,39 @@ class NewConversationViewModel @Inject constructor(
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
-                )
+                ),
+                isChannel = false,
             )
-            handleNewGroupCreationResult(result)
+            val result = createOrRetryGroup(attempt)
+            handleNewGroupCreationResult(result, attempt)
         }
     }
 
-    private fun handleNewGroupCreationResult(result: ConversationCreationResult) {
+    private suspend fun createOrRetryGroup(attempt: GroupCreationAttempt): ConversationCreationResult {
+        val pendingCreation = pendingMLSGroupCreation
+        return if (pendingCreation?.attempt == attempt) {
+            createRegularGroup.retryPendingMLSGroupCreation(pendingCreation.conversationId)
+        } else if (attempt.isChannel) {
+            createChannel(attempt.name, attempt.userIdList, attempt.options)
+        } else {
+            createRegularGroup(attempt.name, attempt.userIdList, attempt.options)
+        }
+    }
+
+    private fun handleNewGroupCreationResult(result: ConversationCreationResult, attempt: GroupCreationAttempt) {
         return when (result) {
             is ConversationCreationResult.Success -> {
+                pendingMLSGroupCreation = null
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = CreateGroupState.Created(result.conversation.id)
+            }
+
+            is ConversationCreationResult.PendingMLSGroupCreation -> {
+                pendingMLSGroupCreation = PendingMLSGroupCreation(result.conversationId, attempt)
+                appLogger.w("MLS conversation was created but still needs to be established: ${result.cause}")
+                groupOptionsState = groupOptionsState.copy(isLoading = false)
+                newGroupState = newGroupState.copy(isLoading = false)
+                createGroupState = CreateGroupState.Error.Unknown
             }
 
             ConversationCreationResult.Forbidden -> {

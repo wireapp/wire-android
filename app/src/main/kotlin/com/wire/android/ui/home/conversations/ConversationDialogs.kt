@@ -10,88 +10,106 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import com.wire.android.R
 import com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog
 import com.wire.android.ui.common.dialogs.InvalidLinkDialog
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
 import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.home.conversations.attachment.FailedAttachmentDialogState
 import com.wire.android.ui.home.conversations.attachment.IncompatibleFileNameDialogState
-import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
-import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
-import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
+import com.wire.android.ui.home.conversations.messages.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
-import com.wire.android.ui.common.R as commonR
+
+internal data class ConversationDialogsState(
+    val deleteMessage: VisibilityState<DeleteMessageDialogState>,
+    val downloadedAsset: DownloadedAssetDialogVisibilityState,
+    val assetTooLarge: AssetTooLargeDialogState,
+    val visitLink: VisitLinkDialogState,
+    val invalidLink: InvalidLinkDialogState,
+    val permissionPermanentlyDenied: VisibilityState<PermissionPermanentlyDeniedDialogState>,
+    val sureAboutMessaging: SureAboutMessagingDialogState,
+    val failedAttachment: FailedAttachmentDialogState,
+    val incompatibleFileName: IncompatibleFileNameDialogState,
+)
+
+@Suppress("LongParameterList")
+internal class ConversationDialogActions(
+    val deleteMessage: (messageId: String, deleteForEveryone: Boolean) -> Unit,
+    val saveFileToExternalStorage: (String) -> Unit,
+    val openFileWithExternalApp: (String) -> Unit,
+    val hideDownloadedAsset: () -> Unit,
+    val onAssetPermissionPermanentlyDenied: () -> Unit,
+    val hideAssetTooLarge: () -> Unit,
+    val hideVisitLink: () -> Unit,
+    val hideInvalidLink: () -> Unit,
+    val hidePermissionPermanentlyDenied: () -> Unit,
+    val acceptSureAboutMessaging: () -> Unit,
+    val dismissSureAboutMessaging: () -> Unit,
+    val retryAttachmentUpload: () -> Unit,
+    val removeAttachment: () -> Unit,
+    val dismissFailedAttachment: () -> Unit,
+    val replaceFileNameAutomatically: () -> Unit,
+    val dismissIncompatibleFileName: () -> Unit,
+)
 
 @Composable
 internal fun ConversationDialogs(
-    conversationMessagesViewModel: ConversationMessagesViewModel,
-    sendMessageViewModel: SendMessageViewModel,
-    messageComposerViewModel: MessageComposerViewModel,
-    messageAttachmentsViewModel: MessageAttachmentsViewModel,
-    permissionPermanentlyDeniedDialogState: VisibilityState<PermissionPermanentlyDeniedDialogState>,
+    state: ConversationDialogsState,
+    actions: ConversationDialogActions,
 ) {
     DeleteMessageDialog(
-        dialogState = conversationMessagesViewModel.deleteMessageDialogState,
-        deleteMessage = conversationMessagesViewModel::deleteMessage,
+        dialogState = state.deleteMessage,
+        deleteMessage = actions.deleteMessage,
     )
     DownloadedAssetDialog(
-        downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
-        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
-        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
-        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog,
-        onPermissionPermanentlyDenied = {
-            permissionPermanentlyDeniedDialogState.show(
-                PermissionPermanentlyDeniedDialogState.Visible(
-                    title = commonR.string.app_permission_dialog_title,
-                    description = R.string.save_permission_dialog_description,
-                )
-            )
-        },
+        downloadedAssetDialogState = state.downloadedAsset,
+        onSaveFileToExternalStorage = actions.saveFileToExternalStorage,
+        onOpenFileWithExternalApp = actions.openFileWithExternalApp,
+        hideOnAssetDownloadedDialog = actions.hideDownloadedAsset,
+        onPermissionPermanentlyDenied = actions.onAssetPermissionPermanentlyDenied,
     )
     AssetTooLargeDialog(
-        dialogState = sendMessageViewModel.assetTooLargeDialogState,
-        hideDialog = sendMessageViewModel::hideAssetTooLargeError,
+        dialogState = state.assetTooLarge,
+        hideDialog = actions.hideAssetTooLarge,
     )
     VisitLinkDialog(
-        dialogState = messageComposerViewModel.visitLinkDialogState,
-        hideDialog = messageComposerViewModel::hideVisitLinkDialog,
+        dialogState = state.visitLink,
+        hideDialog = actions.hideVisitLink,
     )
     InvalidLinkDialog(
-        dialogState = messageComposerViewModel.invalidLinkDialogState,
-        hideDialog = messageComposerViewModel::hideInvalidLinkError,
+        dialogState = state.invalidLink,
+        hideDialog = actions.hideInvalidLink,
     )
     PermissionPermanentlyDeniedDialog(
-        dialogState = permissionPermanentlyDeniedDialogState,
-        hideDialog = permissionPermanentlyDeniedDialogState::dismiss,
+        dialogState = state.permissionPermanentlyDenied,
+        hideDialog = actions.hidePermissionPermanentlyDenied,
     )
     SureAboutMessagingInDegradedConversationDialog(
-        dialogState = sendMessageViewModel.sureAboutMessagingDialogState,
-        sendAnyway = sendMessageViewModel::acceptSureAboutSendingMessage,
-        hideDialog = sendMessageViewModel::dismissSureAboutSendingMessage,
+        dialogState = state.sureAboutMessaging,
+        sendAnyway = actions.acceptSureAboutMessaging,
+        hideDialog = actions.dismissSureAboutMessaging,
     )
     FailedAttachmentDialog(
-        state = messageAttachmentsViewModel.failedAttachmentDialogState,
-        onRetryUpload = messageAttachmentsViewModel::retryUpload,
-        onRemoveAttachment = messageAttachmentsViewModel::remove,
-        onDismiss = messageAttachmentsViewModel::onFailedAttachmentDialogDismissed,
+        state = state.failedAttachment,
+        onRetryUpload = actions.retryAttachmentUpload,
+        onRemoveAttachment = actions.removeAttachment,
+        onDismiss = actions.dismissFailedAttachment,
     )
 
-    if (messageAttachmentsViewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible) {
+    if (state.incompatibleFileName is IncompatibleFileNameDialogState.Visible) {
         IncompatibleFileNameDialog(
-            onReplaceAutomatically = messageAttachmentsViewModel::onReplaceFileNameAutomatically,
-            onDismiss = messageAttachmentsViewModel::onDismissIncompatibleFileNameDialog,
+            onReplaceAutomatically = actions.replaceFileNameAutomatically,
+            onDismiss = actions.dismissIncompatibleFileName,
         )
     }
 
-    (sendMessageViewModel.sureAboutMessagingDialogState as?
-        SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
+    (state.sureAboutMessaging as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
         LegalHoldSubjectMessageDialog(
-            dialogDismissed = sendMessageViewModel::dismissSureAboutSendingMessage,
-            sendAnywayClicked = sendMessageViewModel::acceptSureAboutSendingMessage,
+            dialogDismissed = actions.dismissSureAboutMessaging,
+            sendAnywayClicked = actions.acceptSureAboutMessaging,
         )
     }
 }

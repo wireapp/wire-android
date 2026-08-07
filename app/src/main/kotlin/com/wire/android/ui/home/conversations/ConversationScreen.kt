@@ -587,11 +587,42 @@ fun ConversationScreen(
     }
 
     ConversationDialogs(
-        conversationMessagesViewModel = conversationMessagesViewModel,
-        sendMessageViewModel = sendMessageViewModel,
-        messageComposerViewModel = messageComposerViewModel,
-        messageAttachmentsViewModel = messageAttachmentsViewModel,
-        permissionPermanentlyDeniedDialogState = permissionPermanentlyDeniedDialogState,
+        state = ConversationDialogsState(
+            deleteMessage = conversationMessagesViewModel.deleteMessageDialogState,
+            downloadedAsset = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
+            assetTooLarge = sendMessageViewModel.assetTooLargeDialogState,
+            visitLink = messageComposerViewModel.visitLinkDialogState,
+            invalidLink = messageComposerViewModel.invalidLinkDialogState,
+            permissionPermanentlyDenied = permissionPermanentlyDeniedDialogState,
+            sureAboutMessaging = sendMessageViewModel.sureAboutMessagingDialogState,
+            failedAttachment = messageAttachmentsViewModel.failedAttachmentDialogState,
+            incompatibleFileName = messageAttachmentsViewModel.incompatibleFileNameDialogState,
+        ),
+        actions = ConversationDialogActions(
+            deleteMessage = conversationMessagesViewModel::deleteMessage,
+            saveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
+            openFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
+            hideDownloadedAsset = conversationMessagesViewModel::hideOnAssetDownloadedDialog,
+            onAssetPermissionPermanentlyDenied = {
+                permissionPermanentlyDeniedDialogState.show(
+                    PermissionPermanentlyDeniedDialogState.Visible(
+                        title = commonR.string.app_permission_dialog_title,
+                        description = R.string.save_permission_dialog_description,
+                    )
+                )
+            },
+            hideAssetTooLarge = sendMessageViewModel::hideAssetTooLargeError,
+            hideVisitLink = messageComposerViewModel::hideVisitLinkDialog,
+            hideInvalidLink = messageComposerViewModel::hideInvalidLinkError,
+            hidePermissionPermanentlyDenied = permissionPermanentlyDeniedDialogState::dismiss,
+            acceptSureAboutMessaging = sendMessageViewModel::acceptSureAboutSendingMessage,
+            dismissSureAboutMessaging = sendMessageViewModel::dismissSureAboutSendingMessage,
+            retryAttachmentUpload = messageAttachmentsViewModel::retryUpload,
+            removeAttachment = messageAttachmentsViewModel::remove,
+            dismissFailedAttachment = messageAttachmentsViewModel::onFailedAttachmentDialogDismissed,
+            replaceFileNameAutomatically = messageAttachmentsViewModel::onReplaceFileNameAutomatically,
+            dismissIncompatibleFileName = messageAttachmentsViewModel::onDismissIncompatibleFileNameDialog,
+        ),
     )
 
     ConversationNavigationResults(
@@ -601,9 +632,12 @@ fun ConversationScreen(
         drawingCanvasScreenResultRecipient = drawingCanvasScreenResultRecipient,
         resultNavigator = resultNavigator,
         navigator = navigator,
-        conversationMessagesViewModel = conversationMessagesViewModel,
-        sendMessageViewModel = sendMessageViewModel,
+        conversationId = conversationMessagesViewModel.conversationId,
         messageComposerStateHolder = messageComposerStateHolder,
+        getAndResetLastFullscreenMessage = conversationMessagesViewModel::getAndResetLastFullscreenMessage,
+        toggleReaction = conversationMessagesViewModel::toggleReaction,
+        trySendMessages = sendMessageViewModel::trySendMessages,
+        trySendMessage = sendMessageViewModel::trySendMessage,
         onConversationDeleted = { alreadyDeletedByUser = true },
     )
 }

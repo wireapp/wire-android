@@ -26,13 +26,14 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
-import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
+import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -48,9 +49,12 @@ internal fun ConversationNavigationResults(
     drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
     resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
     navigator: Navigator,
-    conversationMessagesViewModel: ConversationMessagesViewModel,
-    sendMessageViewModel: SendMessageViewModel,
+    conversationId: ConversationId,
     messageComposerStateHolder: MessageComposerStateHolder,
+    getAndResetLastFullscreenMessage: (String) -> UIMessage.Regular?,
+    toggleReaction: (messageId: String, emoji: String) -> Unit,
+    trySendMessages: (List<MessageBundle>) -> Unit,
+    trySendMessage: (MessageBundle) -> Unit,
     onConversationDeleted: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -78,7 +82,7 @@ internal fun ConversationNavigationResults(
             is Value -> {
                 when (result.value.mediaGalleryActionType) {
                     MediaGalleryActionType.REPLY -> {
-                        conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.value.messageId)?.let {
+                        getAndResetLastFullscreenMessage(result.value.messageId)?.let {
                             coroutineScope.launch {
                                 withSmoothScreenLoad {
                                     messageComposerStateHolder.toReply(it)
@@ -88,15 +92,15 @@ internal fun ConversationNavigationResults(
                     }
 
                     MediaGalleryActionType.REACT -> {
-                        result.value.emoji?.let { conversationMessagesViewModel.toggleReaction(result.value.messageId, it) }
+                        result.value.emoji?.let { toggleReaction(result.value.messageId, it) }
                     }
 
                     MediaGalleryActionType.DETAIL -> {
-                        conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.value.messageId)?.let {
+                        getAndResetLastFullscreenMessage(result.value.messageId)?.let {
                             navigator.navigate(
                                 NavigationCommand(
                                     MessageDetailsScreenDestination(
-                                        conversationMessagesViewModel.conversationId,
+                                        conversationId,
                                         result.value.messageId,
                                         result.value.isSelfAsset,
                                     )
@@ -113,10 +117,10 @@ internal fun ConversationNavigationResults(
         when (result) {
             Canceled -> Unit
             is Value -> {
-                sendMessageViewModel.trySendMessages(
+                trySendMessages(
                     result.value.pendingBundles.map { assetBundle ->
                         ComposableMessageBundle.AttachmentPickedBundle(
-                            conversationId = conversationMessagesViewModel.conversationId,
+                            conversationId = conversationId,
                             assetBundle = assetBundle,
                         )
                     }
@@ -129,9 +133,9 @@ internal fun ConversationNavigationResults(
         when (result) {
             Canceled -> Unit
             is Value -> {
-                sendMessageViewModel.trySendMessage(
+                trySendMessage(
                     ComposableMessageBundle.UriPickedBundle(
-                        conversationId = conversationMessagesViewModel.conversationId,
+                        conversationId = conversationId,
                         attachmentUri = UriAsset(result.value.uri),
                     )
                 )

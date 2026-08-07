@@ -312,7 +312,7 @@ fun ConversationScreen(
     conversationCallViewModel.callManager.actions.HandleActions()
     conversationCallViewModel.callManager.HandleJoinOrStartCallScreenDialogs()
 
-    ConversationScreen(
+    ConversationScreenContent(
         bannerMessage = conversationBannerViewModel.bannerState,
         messageComposerViewState = messageComposerViewState.value,
         bottomSheetVisible = conversationScreenState.isAnySheetVisible,
@@ -653,7 +653,7 @@ private fun conversationScreenOnBackButtonClick(
 
 @Suppress("LongParameterList")
 @Composable
-private fun ConversationScreen(
+private fun ConversationScreenContent(
     bannerMessage: UIText?,
     messageComposerViewState: MessageComposerViewState,
     conversationCallViewState: ConversationCallViewState,
@@ -907,7 +907,7 @@ fun PreviewConversationScreen() = WireTheme {
         onSearchMentionQueryChanged = {},
         onClearMentionSearchResult = {},
     )
-    ConversationScreen(
+    ConversationScreenContent(
         bannerMessage = null,
         bottomSheetVisible = false,
         messageComposerViewState = messageComposerViewState.value,

@@ -189,6 +189,15 @@ internal class NewConversationViewModelArrangement {
         )
     }
 
+    fun withPendingMLSGroupCreation() = apply {
+        coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.PendingMLSGroupCreation(
+            CONVERSATION_ID,
+            CoreFailure.Unknown(UnsupportedOperationException("establish failed"))
+        )
+        coEvery { createRegularGroup.retryPendingMLSGroupCreation(CONVERSATION_ID) } returns
+            ConversationCreationResult.Success(CONVERSATION)
+    }
+
     fun withConflictingBackendsFailure() = apply {
         createGroupState = CreateGroupState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
     }

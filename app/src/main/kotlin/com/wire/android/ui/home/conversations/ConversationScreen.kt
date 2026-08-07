@@ -43,7 +43,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -62,8 +61,6 @@ import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfi
 import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.VideoPlayerScreenDestination
 import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
-import com.ramcosta.composedestinations.result.NavResult.Canceled
-import com.ramcosta.composedestinations.result.NavResult.Value
 import com.ramcosta.composedestinations.result.OpenResultRecipient
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
@@ -117,7 +114,6 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
-import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
@@ -145,17 +141,13 @@ import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import kotlinx.collections.immutable.PersistentMap
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
 
 /**
@@ -187,7 +179,6 @@ fun ConversationScreen(
     messageDraftViewModel: MessageDraftViewModel = messageDraftViewModel(),
     messageAttachmentsViewModel: MessageAttachmentsViewModel = messageAttachmentsViewModel(),
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val resources = context.resources
@@ -603,89 +594,18 @@ fun ConversationScreen(
         permissionPermanentlyDeniedDialogState = permissionPermanentlyDeniedDialogState,
     )
 
-    groupDetailsScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            is Canceled -> {
-                appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
-            }
-
-            is Value -> {
-                resultNavigator.setResult(result.value)
-                resultNavigator.navigateBack()
-                alreadyDeletedByUser = true
-            }
-        }
-    }
-
-    mediaGalleryScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            is Canceled -> {
-                appLogger.i("Error with receiving navigation back args from mediaGallery in ConversationScreen")
-            }
-
-            is Value -> {
-                when (result.value.mediaGalleryActionType) {
-                    MediaGalleryActionType.REPLY -> {
-                        conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.value.messageId)?.let {
-                            coroutineScope.launch {
-                                withSmoothScreenLoad {
-                                    messageComposerStateHolder.toReply(it)
-                                }
-                            }
-                        }
-                    }
-
-                    MediaGalleryActionType.REACT -> {
-                        result.value.emoji?.let { conversationMessagesViewModel.toggleReaction(result.value.messageId, it) }
-                    }
-
-                    MediaGalleryActionType.DETAIL -> {
-                        conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.value.messageId)?.let {
-                            navigator.navigate(
-                                NavigationCommand(
-                                    MessageDetailsScreenDestination(
-                                        conversationMessagesViewModel.conversationId,
-                                        result.value.messageId,
-                                        result.value.isSelfAsset
-                                    )
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    imagePreviewScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            Canceled -> {}
-            is Value -> {
-                sendMessageViewModel.trySendMessages(
-                    result.value.pendingBundles.map { assetBundle ->
-                        ComposableMessageBundle.AttachmentPickedBundle(
-                            conversationId = conversationMessagesViewModel.conversationId,
-                            assetBundle = assetBundle
-                        )
-                    }
-                )
-            }
-        }
-    }
-
-    drawingCanvasScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            Canceled -> {}
-            is Value -> {
-                sendMessageViewModel.trySendMessage(
-                    ComposableMessageBundle.UriPickedBundle(
-                        conversationId = conversationMessagesViewModel.conversationId,
-                        attachmentUri = UriAsset(result.value.uri)
-                    )
-                )
-            }
-        }
-    }
+    ConversationNavigationResults(
+        groupDetailsScreenResultRecipient = groupDetailsScreenResultRecipient,
+        mediaGalleryScreenResultRecipient = mediaGalleryScreenResultRecipient,
+        imagePreviewScreenResultRecipient = imagePreviewScreenResultRecipient,
+        drawingCanvasScreenResultRecipient = drawingCanvasScreenResultRecipient,
+        resultNavigator = resultNavigator,
+        navigator = navigator,
+        conversationMessagesViewModel = conversationMessagesViewModel,
+        sendMessageViewModel = sendMessageViewModel,
+        messageComposerStateHolder = messageComposerStateHolder,
+        onConversationDeleted = { alreadyDeletedByUser = true },
+    )
 }
 
 private fun MessageBundle.withPrefetchedLinkPreview(
@@ -1066,12 +986,6 @@ private fun SnackBarMessage(
             }
         }
     }
-}
-
-private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
-    val smoothAnimationDuration = 200.milliseconds
-    delay(smoothAnimationDuration) // we wait a bit until the whole screen is loaded to show the animation properly
-    block()
 }
 
 enum class ConversationActionPermissionType {

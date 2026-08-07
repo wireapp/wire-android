@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -49,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import androidx.paging.PagingData
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
@@ -69,7 +67,6 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
-import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -85,7 +82,6 @@ import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
@@ -102,11 +98,9 @@ import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
-import com.wire.android.ui.home.conversations.messagelist.ConversationMessageList
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
-import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageSenderId
@@ -115,7 +109,6 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
-import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
@@ -130,17 +123,14 @@ import com.wire.android.util.normalizeLink
 import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.android.ui.sharing.ImportMediaNavArgs
 import com.wire.android.ui.sharing.ImportSource
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
-import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -774,7 +764,7 @@ private fun ConversationScreen(
                         .padding(internalPadding)
                         .consumeWindowInsets(internalPadding)
                 ) {
-                    ConversationScreenContent(
+                    ConversationMessageComposer(
                         conversationId = conversationInfoViewState.conversationId,
                         bottomSheetVisible = bottomSheetVisible,
                         playingAudioMessage = conversationMessagesViewState.playingAudioMessage,
@@ -861,132 +851,6 @@ private fun ConversationScreen(
 
         SnackBarMessage(composerMessages, conversationMessages)
     }
-}
-
-@Suppress("LongParameterList")
-@Composable
-private fun ConversationScreenContent(
-    conversationId: ConversationId,
-    bottomSheetVisible: Boolean,
-    lastUnreadMessageInstant: Instant?,
-    unreadEventCount: Int,
-    playingAudioMessage: PlayingAudioMessage,
-    assetStatuses: PersistentMap<String, MessageAssetStatus>,
-    selectedMessageId: String?,
-    messageComposerStateHolder: MessageComposerStateHolder,
-    attachments: List<AttachmentDraftUi>,
-    messages: Flow<PagingData<UIMessage>>,
-    onSendMessage: (MessageBundle) -> Unit,
-    onPingOptionClicked: () -> Unit,
-    onImagesPicked: (List<Uri>, Boolean) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
-    onAudioRecorded: (UriAsset) -> Unit,
-    onAssetItemClicked: (String) -> Unit,
-    onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
-    onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
-    onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
-    onOpenProfile: (senderId: MessageSenderId) -> Unit,
-    onUpdateConversationReadDate: (Instant) -> Unit,
-    onShowEditingOptions: (UIMessage.Regular) -> Unit,
-    onSwipedToReply: (UIMessage.Regular) -> Unit,
-    onSelfDeletingMessageRead: (UIMessage) -> Unit,
-    conversationDetailsData: ConversationDetailsData,
-    onFailedMessageRetryClicked: (String, ConversationId) -> Unit,
-    onFailedMessageCancelClicked: (String) -> Unit,
-    onChangeSelfDeletionClicked: (SelfDeletionTimer) -> Unit,
-    onClearMentionSearchResult: () -> Unit,
-    onLocationClicked: () -> Unit,
-    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
-    onLinkClick: (String) -> Unit,
-    onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
-    openDrawingCanvas: () -> Unit,
-    onAttachmentClick: (AttachmentDraftUi) -> Unit,
-    onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
-    currentTimeInMillisFlow: Flow<Long> = flow {},
-    onReachedOldestMessage: () -> Unit = {},
-    showHistoryLoadingIndicator: Boolean = false,
-    isFetchingOlderMessages: Boolean = false,
-    hasMoreRemoteMessages: Boolean = false,
-    isBubbleUiEnabled: Boolean = false,
-    isWireCellsEnabled: Boolean = false,
-) {
-    val lazyPagingMessages = messages.collectAsLazyPagingItemsWithLifecycle()
-
-    val lazyListState = rememberSaveable(unreadEventCount, lazyPagingMessages, saver = LazyListState.Saver) {
-        LazyListState(unreadEventCount)
-    }
-
-    val emojiPickerState = rememberWireModalSheetState<String>(skipPartiallyExpanded = false)
-
-    MessageComposer(
-        conversationId = conversationId,
-        bottomSheetVisible = bottomSheetVisible,
-        messageComposerStateHolder = messageComposerStateHolder,
-        attachments = attachments,
-        messageListContent = {
-            ConversationMessageList(
-                lazyPagingMessages = lazyPagingMessages,
-                lazyListState = lazyListState,
-                lastUnreadMessageInstant = lastUnreadMessageInstant,
-                playingAudioMessage = playingAudioMessage,
-                assetStatuses = assetStatuses,
-                onUpdateConversationReadDate = onUpdateConversationReadDate,
-                clickActions = MessageClickActions.Content(
-                    onFullMessageLongClicked = onShowEditingOptions,
-                    onProfileClicked = onOpenProfile,
-                    onReactionClicked = onReactionClicked,
-                    onAssetClicked = onAssetItemClicked,
-                    onImageClicked = onImageFullScreenMode,
-                    onVideoClicked = onVideoClick,
-                    onLinkClicked = onLinkClick,
-                    onReplyClicked = onNavigateToReplyOriginalMessage,
-                    onResetSessionClicked = onResetSessionClicked,
-                    onFailedMessageRetryClicked = onFailedMessageRetryClicked,
-                    onFailedMessageCancelClicked = onFailedMessageCancelClicked,
-                ),
-                onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                onSwipedToReply = onSwipedToReply,
-                onSwipedToReact = { message ->
-                    emojiPickerState.show(message.header.messageId)
-                },
-                conversationDetailsData = conversationDetailsData,
-                selectedMessageId = selectedMessageId,
-                interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
-                currentTimeInMillisFlow = currentTimeInMillisFlow,
-                onReachedOldestMessage = onReachedOldestMessage,
-                showHistoryLoadingIndicator = showHistoryLoadingIndicator,
-                isFetchingOlderMessages = isFetchingOlderMessages,
-                hasMoreRemoteMessages = hasMoreRemoteMessages,
-                isBubbleUiEnabled = isBubbleUiEnabled,
-                isWireCellsEnabled = isWireCellsEnabled,
-            )
-        },
-        onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
-        onLocationClicked = onLocationClicked,
-        onClearMentionSearchResult = onClearMentionSearchResult,
-        onSendMessageBundle = onSendMessage,
-        onPingOptionClicked = onPingOptionClicked,
-        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-        tempWritableVideoUri = tempWritableVideoUri,
-        tempWritableImageUri = tempWritableImageUri,
-        onImagesPicked = onImagesPicked,
-        openDrawingCanvas = openDrawingCanvas,
-        onAttachmentClick = onAttachmentClick,
-        onAttachmentMenuClick = onAttachmentMenuClick,
-        onAttachmentPicked = onAttachmentPicked,
-        onAudioRecorded = onAudioRecorded,
-    )
-
-    EmojiPickerBottomSheet(
-        sheetState = emojiPickerState,
-        onEmojiSelected = { emoji, messageId ->
-            emojiPickerState.hide()
-            onReactionClicked(messageId, emoji)
-        },
-    )
 }
 
 @Composable

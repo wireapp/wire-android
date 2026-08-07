@@ -70,7 +70,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog
 import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.media.audiomessage.PlayingAudioMessage
@@ -84,10 +83,6 @@ import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.ConfirmSendingPingDialog
-import com.wire.android.ui.common.dialogs.InvalidLinkDialog
-import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
-import com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog
-import com.wire.android.ui.common.dialogs.VisitLinkDialog
 import com.wire.android.ui.common.dialogs.calling.CallingFeatureActivatedDialog
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.snackbar.SwipeableSnackbar
@@ -95,7 +90,6 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
-import com.wire.android.ui.home.conversations.attachment.IncompatibleFileNameDialogState
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
@@ -104,7 +98,6 @@ import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.call.HandleActions
 import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
-import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayout
@@ -134,7 +127,6 @@ import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.ui.home.messagecomposer.state.rememberMessageComposerStateHolder
-import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectMessageDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.util.fileShareUri
@@ -603,73 +595,13 @@ fun ConversationScreen(
         }
     }
 
-    DeleteMessageDialog(
-        dialogState = conversationMessagesViewModel.deleteMessageDialogState,
-        deleteMessage = conversationMessagesViewModel::deleteMessage,
+    ConversationDialogs(
+        conversationMessagesViewModel = conversationMessagesViewModel,
+        sendMessageViewModel = sendMessageViewModel,
+        messageComposerViewModel = messageComposerViewModel,
+        messageAttachmentsViewModel = messageAttachmentsViewModel,
+        permissionPermanentlyDeniedDialogState = permissionPermanentlyDeniedDialogState,
     )
-    DownloadedAssetDialog(
-        downloadedAssetDialogState = conversationMessagesViewModel.conversationViewState.downloadedAssetDialogState,
-        onSaveFileToExternalStorage = conversationMessagesViewModel::downloadAssetExternally,
-        onOpenFileWithExternalApp = conversationMessagesViewModel::downloadAndOpenAsset,
-        hideOnAssetDownloadedDialog = conversationMessagesViewModel::hideOnAssetDownloadedDialog,
-        onPermissionPermanentlyDenied = {
-            permissionPermanentlyDeniedDialogState.show(
-                PermissionPermanentlyDeniedDialogState.Visible(
-                    title = commonR.string.app_permission_dialog_title,
-                    description = R.string.save_permission_dialog_description
-                )
-            )
-        }
-    )
-    AssetTooLargeDialog(
-        dialogState = sendMessageViewModel.assetTooLargeDialogState,
-        hideDialog = sendMessageViewModel::hideAssetTooLargeError
-    )
-    VisitLinkDialog(
-        dialogState = messageComposerViewModel.visitLinkDialogState,
-        hideDialog = messageComposerViewModel::hideVisitLinkDialog
-    )
-
-    InvalidLinkDialog(
-        dialogState = messageComposerViewModel.invalidLinkDialogState,
-        hideDialog = messageComposerViewModel::hideInvalidLinkError
-    )
-
-    PermissionPermanentlyDeniedDialog(
-        dialogState = permissionPermanentlyDeniedDialogState,
-        hideDialog = permissionPermanentlyDeniedDialogState::dismiss
-    )
-
-    SureAboutMessagingInDegradedConversationDialog(
-        dialogState = sendMessageViewModel.sureAboutMessagingDialogState,
-        sendAnyway = sendMessageViewModel::acceptSureAboutSendingMessage,
-        hideDialog = sendMessageViewModel::dismissSureAboutSendingMessage
-    )
-
-    FailedAttachmentDialog(
-        state = messageAttachmentsViewModel.failedAttachmentDialogState,
-        onRetryUpload = {
-            messageAttachmentsViewModel.retryUpload()
-        },
-        onRemoveAttachment = {
-            messageAttachmentsViewModel.remove()
-        },
-        onDismiss = messageAttachmentsViewModel::onFailedAttachmentDialogDismissed,
-    )
-
-    if (messageAttachmentsViewModel.incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Visible) {
-        IncompatibleFileNameDialog(
-            onReplaceAutomatically = messageAttachmentsViewModel::onReplaceFileNameAutomatically,
-            onDismiss = messageAttachmentsViewModel::onDismissIncompatibleFileNameDialog,
-        )
-    }
-
-    (sendMessageViewModel.sureAboutMessagingDialogState as? SureAboutMessagingDialogState.Visible.ConversationUnderLegalHold)?.let {
-        LegalHoldSubjectMessageDialog(
-            dialogDismissed = sendMessageViewModel::dismissSureAboutSendingMessage,
-            sendAnywayClicked = sendMessageViewModel::acceptSureAboutSendingMessage,
-        )
-    }
 
     groupDetailsScreenResultRecipient.onNavResult { result ->
         when (result) {

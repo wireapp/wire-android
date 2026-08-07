@@ -17,6 +17,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -49,13 +50,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -209,6 +226,20 @@ fun ConversationMessageList(
     }
     val audioMessageKeyInScopeResolver = rememberKeysInScope(audioMessageKeysInScope)
     val assetLocalPathKeyInScopeResolver = rememberKeysInScope(assetLocalPathKeysInScope)
+    val messageListContentDescription = stringResource(R.string.content_description_conversation_message_list)
+    val focusManager = LocalFocusManager.current
+    val messageListFocusRequester = remember { FocusRequester() }
+    val firstMessageFocusRequester = remember { FocusRequester() }
+    var isMessageNavigationActive by remember { mutableStateOf(false) }
+    var isMessageListFocused by remember { mutableStateOf(false) }
+    var messageNavigationTargetIndex by remember { mutableStateOf(0) }
+
+    LaunchedEffect(isMessageNavigationActive) {
+        if (isMessageNavigationActive && lazyPagingMessages.itemCount > 0) {
+            withFrameNanos { }
+            firstMessageFocusRequester.requestFocus()
+        }
+    }
 
     CompositionLocalProvider(
         LocalAudioMessageKeyInScopeResolver provides audioMessageKeyInScopeResolver,
@@ -224,7 +255,46 @@ fun ConversationMessageList(
                     } else {
                         colorsScheme().surfaceContainerLow
                     }
-                ),
+                )
+                .then(
+                    if (isMessageListFocused) {
+                        Modifier.background(MaterialTheme.wireColorScheme.primaryVariant)
+                    } else {
+                        Modifier
+                    }
+                )
+                .focusRequester(messageListFocusRequester)
+                .onFocusChanged { focusState ->
+                    isMessageListFocused = focusState.isFocused
+                    if (!focusState.hasFocus) {
+                        isMessageNavigationActive = false
+                    }
+                }
+                .onPreviewKeyEvent { event ->
+                    if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                    when {
+                        isMessageListFocused && (event.key == Key.Enter || event.key == Key.NumPadEnter) -> {
+                            messageNavigationTargetIndex = lazyListState.firstVisibleItemIndex
+                            isMessageNavigationActive = true
+                            true
+                        }
+                        isMessageNavigationActive && event.key == Key.DirectionUp ->
+                            focusManager.moveFocus(FocusDirection.Up)
+                        isMessageNavigationActive && event.key == Key.DirectionDown ->
+                            focusManager.moveFocus(FocusDirection.Down)
+                        isMessageNavigationActive && (event.key == Key.Escape || event.key == Key.Back) -> {
+                            isMessageNavigationActive = false
+                            messageListFocusRequester.requestFocus()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                .semantics {
+                    isTraversalGroup = true
+                    contentDescription = messageListContentDescription
+                }
+                .focusable(),
         ) {
             LazyColumn(
                 state = lazyListState,
@@ -257,6 +327,7 @@ fun ConversationMessageList(
                         false
                     }
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
+                    var isMessageKeyboardFocused by remember(message.header.messageId) { mutableStateOf(false) }
 
                     if (index > 0) {
                         val previousMessage = lazyPagingMessages[index - 1] ?: message
@@ -286,6 +357,24 @@ fun ConversationMessageList(
                     }
 
                     MessageContainerItem(
+                        modifier = Modifier
+                            .then(
+                                if (isMessageKeyboardFocused) {
+                                    Modifier.background(MaterialTheme.wireColorScheme.primaryVariant)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .then(
+                                if (index == messageNavigationTargetIndex) {
+                                    Modifier.focusRequester(firstMessageFocusRequester)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .onFocusChanged { isMessageKeyboardFocused = it.isFocused }
+                            .focusProperties { canFocus = isMessageNavigationActive }
+                            .focusable(isMessageNavigationActive),
                         message = message,
                         conversationDetailsData = conversationDetailsData,
                         showAuthor = showAuthor,

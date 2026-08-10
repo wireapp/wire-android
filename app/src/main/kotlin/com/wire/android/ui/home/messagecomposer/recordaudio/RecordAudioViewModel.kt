@@ -17,6 +17,9 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
+
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,8 +57,8 @@ import java.io.IOException
 import kotlin.io.path.deleteIfExists
 
 @Suppress("TooManyFunctions", "LongParameterList")
-class RecordAudioViewModel(
-    private val context: Context,
+class RecordAudioViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val recordAudioMessagePlayer: RecordAudioMessagePlayer,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val getAssetSizeLimit: GetAssetSizeLimitUseCase,

@@ -25,11 +25,17 @@ import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
-class VerifyEmailViewModel @Inject constructor(
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+class VerifyEmailViewModel @AssistedInject constructor(
     private val updateEmail: UpdateEmailUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): VerifyEmailViewModel
+    }
     var state: VerifyEmailState by mutableStateOf(VerifyEmailState())
         private set
     private val verifyEmailNavArgs: VerifyEmailNavArgs = savedStateHandle.navArgs()

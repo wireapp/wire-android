@@ -30,6 +30,9 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,13 +41,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class PromoteAdminViewModel(
+class PromoteAdminViewModel @AssistedInject constructor(
     private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<PromoteAdminAction>() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): PromoteAdminViewModel
+    }
 
     private val navArgs: PromoteAdminNavArgs = savedStateHandle.navArgs()
 

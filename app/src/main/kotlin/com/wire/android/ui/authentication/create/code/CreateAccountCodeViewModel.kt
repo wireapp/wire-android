@@ -50,17 +50,23 @@ import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
 // TODO: Cover this viewModel  with unit test
-class CreateAccountCodeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountCodeViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateAccountCodeViewModel
+    }
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 

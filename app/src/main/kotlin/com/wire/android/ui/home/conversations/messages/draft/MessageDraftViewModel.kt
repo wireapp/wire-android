@@ -34,14 +34,22 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.draft.MessageDraft
 import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
 
-class MessageDraftViewModel(
-    val savedStateHandle: SavedStateHandle,
+class MessageDraftViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val getMessageDraft: GetMessageDraftUseCase,
     private val getQuotedMessage: GetQuoteMessageForConversationUseCase,
     private val saveMessageDraft: SaveMessageDraftUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MessageDraftViewModel
+    }
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId

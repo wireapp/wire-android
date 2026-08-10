@@ -31,13 +31,20 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase.UpdateChannelAddPermissionUseCaseResult
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
 
-class UpdateChannelAccessViewModel(
-    savedStateHandle: SavedStateHandle,
+class UpdateChannelAccessViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     val updateChannelAddPermission: UpdateChannelAddPermissionUseCase,
     private val qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): UpdateChannelAccessViewModel
+    }
 
     private val channelAccessNavArgs: UpdateChannelAccessArgs = savedStateHandle.navArgs()
 

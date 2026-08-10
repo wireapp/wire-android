@@ -18,6 +18,10 @@
 
 package com.wire.android.ui.common.topappbar
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,11 +52,15 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 
-class CommonTopAppBarViewModel(
+class CommonTopAppBarViewModel @AssistedInject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
-    private val params: CommonTopAppBarParams,
+    @Assisted private val params: CommonTopAppBarParams,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(params: CommonTopAppBarParams): CommonTopAppBarViewModel
+    }
 
     var state by mutableStateOf(CommonTopAppBarState())
         private set

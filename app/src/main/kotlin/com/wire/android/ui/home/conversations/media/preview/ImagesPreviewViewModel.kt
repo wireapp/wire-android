@@ -28,15 +28,23 @@ import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.dispatchers.DispatcherProvider
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ImagesPreviewViewModel(
-    val savedStateHandle: SavedStateHandle,
+class ImagesPreviewViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ImagesPreviewViewModel
+    }
 
     private val navArgs: ImagesPreviewNavArgs = savedStateHandle.navArgs()
     var viewState by mutableStateOf(

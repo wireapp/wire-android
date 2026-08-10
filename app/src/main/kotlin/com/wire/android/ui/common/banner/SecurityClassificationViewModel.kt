@@ -18,6 +18,10 @@
 
 package com.wire.android.ui.common.banner
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,10 +42,14 @@ interface SecurityClassificationViewModel {
     fun state(): SecurityClassificationType = SecurityClassificationType.NONE
 }
 
-class SecurityClassificationViewModelImpl(
+class SecurityClassificationViewModelImpl @AssistedInject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val args: SecurityClassificationArgs
+    @Assisted private val args: SecurityClassificationArgs
 ) : SecurityClassificationViewModel, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl
+    }
 
     private var state by mutableStateOf(SecurityClassificationType.NONE)
 

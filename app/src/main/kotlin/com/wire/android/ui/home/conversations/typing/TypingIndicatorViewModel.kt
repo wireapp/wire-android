@@ -17,6 +17,10 @@
  */
 package com.wire.android.ui.home.conversations.typing
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -33,10 +37,14 @@ interface TypingIndicatorViewModel {
     fun state(): UsersTypingViewState = UsersTypingViewState()
 }
 
-class TypingIndicatorViewModelImpl(
+class TypingIndicatorViewModelImpl @AssistedInject constructor(
     private val observeUsersTypingInConversation: ObserveUsersTypingInConversationUseCase,
-    args: TypingIndicatorArgs,
+    @Assisted args: TypingIndicatorArgs,
 ) : TypingIndicatorViewModel, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: TypingIndicatorArgs): TypingIndicatorViewModelImpl
+    }
 
     val conversationId: QualifiedID = args.conversationId
     private var usersTypingViewState by mutableStateOf(UsersTypingViewState())

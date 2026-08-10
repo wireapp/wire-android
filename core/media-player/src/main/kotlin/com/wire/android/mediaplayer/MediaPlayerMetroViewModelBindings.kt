@@ -29,12 +29,12 @@ object MediaPlayerMetroViewModelBindings {
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(MediaPlayerManualViewModelFactory::class)
-    fun mediaPlayerManualViewModelFactory(factory: MediaPlayerViewModelFactory): ManualViewModelAssistedFactory =
+    fun mediaPlayerManualViewModelFactory(factory: VideoPlayerViewModel.Factory): ManualViewModelAssistedFactory =
         object : MediaPlayerManualViewModelFactory {
             override fun videoPlayerViewModel(
                 localPath: String?,
                 contentUrl: String?,
                 fileName: String?,
-            ): VideoPlayerViewModel = factory.videoPlayerViewModel(localPath, contentUrl, fileName)
+            ): VideoPlayerViewModel = factory.create(localPath, contentUrl, fileName)
         }
 }

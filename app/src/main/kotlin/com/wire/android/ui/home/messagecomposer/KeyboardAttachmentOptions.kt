@@ -46,7 +46,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.text.TextStyle
 import com.wire.android.ui.common.AttachmentButton
 import com.wire.android.ui.theme.wireColorScheme
@@ -129,10 +130,17 @@ private fun KeyboardAttachmentOption(
                     focusContext = AttachmentFocusContext(index, enabledOptions, columnCount, focusRequesters),
                 )
             }
-            .semantics {
+            .clearAndSetSemantics {
                 contentDescription = label
                 role = Role.Button
-                if (!option.isEnabled) disabled()
+                if (option.isEnabled) {
+                    onClick {
+                        option.onClick()
+                        true
+                    }
+                } else {
+                    disabled()
+                }
             }
             .focusable(enabled = option.isEnabled),
         contentAlignment = Alignment.Center,

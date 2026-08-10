@@ -59,6 +59,7 @@ import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.maxTitleLines
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -71,6 +72,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
@@ -276,7 +278,10 @@ private fun CallControlButton(
         StartCallButton(
             onPhoneButtonClick = onPhoneButtonClick,
             onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
-            isCallingEnabled = isCallingEnabled
+            isCallingEnabled = isCallingEnabled,
+            colors = wireSecondaryButtonColors().copy(
+                focused = MaterialTheme.wireColorScheme.primaryVariant,
+            ),
         )
     }
 }

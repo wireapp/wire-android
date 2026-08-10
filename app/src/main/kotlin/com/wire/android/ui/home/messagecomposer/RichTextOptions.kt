@@ -55,7 +55,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.onClick
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
@@ -282,9 +283,13 @@ private fun KeyboardRichTextOption(
                     else -> false
                 }
             }
-            .semantics {
+            .clearAndSetSemantics {
                 this.contentDescription = description
                 role = Role.Button
+                onClick {
+                    onClick()
+                    true
+                }
             }
             .focusable(),
         contentAlignment = Alignment.Center,

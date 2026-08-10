@@ -39,7 +39,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.onClick
 import com.wire.android.model.Clickable
 import com.wire.android.model.Contact
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
@@ -111,9 +112,13 @@ private fun KeyboardMentionItem(
                     ),
                 )
             }
-            .semantics {
+            .clearAndSetSemantics {
                 contentDescription = listOf(member.name, member.label).filter { it.isNotBlank() }.joinToString(", ")
                 role = Role.Button
+                onClick {
+                    onMentionPicked(member)
+                    true
+                }
             }
             .focusable(),
         contentAlignment = Alignment.CenterStart,

@@ -84,6 +84,7 @@ import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.common.PageLoadingIndicator
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
@@ -256,13 +257,9 @@ fun ConversationMessageList(
                         colorsScheme().surfaceContainerLow
                     }
                 )
-                .then(
-                    if (isMessageListFocused) {
-                        Modifier.background(MaterialTheme.wireColorScheme.primaryVariant)
-                    } else {
-                        Modifier
-                    }
-                )
+                .applyIf(isMessageListFocused) {
+                    background(MaterialTheme.wireColorScheme.primaryVariant)
+                }
                 .focusRequester(messageListFocusRequester)
                 .onFocusChanged { focusState ->
                     isMessageListFocused = focusState.isFocused
@@ -358,20 +355,12 @@ fun ConversationMessageList(
 
                     MessageContainerItem(
                         modifier = Modifier
-                            .then(
-                                if (isMessageKeyboardFocused) {
-                                    Modifier.background(MaterialTheme.wireColorScheme.primaryVariant)
-                                } else {
-                                    Modifier
-                                }
-                            )
-                            .then(
-                                if (index == messageNavigationTargetIndex) {
-                                    Modifier.focusRequester(firstMessageFocusRequester)
-                                } else {
-                                    Modifier
-                                }
-                            )
+                            .applyIf(isMessageKeyboardFocused) {
+                                background(MaterialTheme.wireColorScheme.primaryVariant)
+                            }
+                            .applyIf(index == messageNavigationTargetIndex) {
+                                focusRequester(firstMessageFocusRequester)
+                            }
                             .onFocusChanged { isMessageKeyboardFocused = it.isFocused }
                             .focusProperties { canFocus = isMessageNavigationActive }
                             .focusable(isMessageNavigationActive),

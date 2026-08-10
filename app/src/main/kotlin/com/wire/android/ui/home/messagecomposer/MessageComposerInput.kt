@@ -20,8 +20,9 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -56,12 +57,15 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -71,6 +75,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -327,7 +332,7 @@ private fun MessageComposerTextInput(
     val focusManager = LocalFocusManager.current
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     var isActivationGateFocused by remember { mutableStateOf(false) }
-    var isTextInputFocused by remember { mutableStateOf(false) }
+    var hasComposerFocus by remember { mutableStateOf(false) }
     var isInputActive by remember(useKeyboardActivationGate) {
         mutableStateOf(!useKeyboardActivationGate)
     }
@@ -348,6 +353,17 @@ private fun MessageComposerTextInput(
         }
     }
 
+    LaunchedEffect(hasComposerFocus, useKeyboardActivationGate) {
+        if (useKeyboardActivationGate && !hasComposerFocus) {
+            // Focus briefly leaves the activation gate before reaching the text field. Wait one frame so this
+            // internal hand-off is not mistaken for leaving the composer and deactivating the input again.
+            withFrameNanos { }
+            if (!hasComposerFocus) {
+                isInputActive = false
+            }
+        }
+    }
+
     LaunchedEffect(isPressed) {
         if (isPressed) {
             onFocused()
@@ -355,52 +371,40 @@ private fun MessageComposerTextInput(
     }
 
     Box(
-        modifier = if (useKeyboardActivationGate) {
-            modifier
-                .focusRequester(focusRequester)
-                .onPreviewKeyEvent { event ->
-                    if (isInputActive || event.type != KeyEventType.KeyDown) {
-                        return@onPreviewKeyEvent false
-                    }
-                    when {
-                        event.key == Key.Enter || event.key == Key.NumPadEnter || event.key == Key.Spacebar -> {
-                            activateInput()
-                            true
+        modifier = modifier
+            .applyIf(useKeyboardActivationGate) {
+                focusRequester(focusRequester)
+                    .onPreviewKeyEvent { event ->
+                        event.handleInputActivation(isInputActive) { initialText ->
+                            activateInput(initialText)
                         }
-
-                        event.printableCharacter != null -> {
-                            activateInput(event.printableCharacter)
-                            true
-                        }
-
-                        else -> false
                     }
-                }
-                .onFocusChanged { focusState ->
-                    isActivationGateFocused = focusState.isFocused
-                    if (!focusState.hasFocus) {
-                        isInputActive = false
+                    .onFocusChanged { focusState ->
+                        isActivationGateFocused = focusState.isFocused
+                        hasComposerFocus = focusState.hasFocus
                     }
-                }
-                .then(
-                    if (isActivationGateFocused) {
-                        Modifier.background(
+                    .applyIf(isActivationGateFocused) {
+                        background(
                             color = MaterialTheme.wireColorScheme.primaryVariant,
                             shape = RoundedCornerShape(8.dp),
                         )
-                    } else {
-                        Modifier
                     }
-                )
-                .clickable(
-                    interactionSource = activationGateInteractionSource,
-                    indication = null,
-                    enabled = !isTextInputFocused,
-                    onClick = { activateInput() },
-                )
-        } else {
-            modifier
-        }
+                    .focusable(
+                        enabled = !isInputActive,
+                        interactionSource = activationGateInteractionSource,
+                    )
+                    .applyIf(!isInputActive) {
+                        pointerInput(Unit) {
+                            awaitEachGesture {
+                                awaitFirstDown(
+                                    requireUnconsumed = false,
+                                    pass = PointerEventPass.Initial,
+                                )
+                                activateInput()
+                            }
+                        }
+                    }
+            }
     ) {
         WireTextField(
             textState = messageTextState,
@@ -413,31 +417,20 @@ private fun MessageComposerTextInput(
             onKeyboardAction = onKeyBoardAction,
             modifier = Modifier
                 .fillMaxWidth()
-                .let { textFieldModifier ->
-                    if (useKeyboardActivationGate) {
-                        textFieldModifier
-                    } else {
-                        textFieldModifier
-                            .focusable(true)
-                            .focusRequester(focusRequester)
-                            .onFocusChanged { focusState ->
-                                if (focusState.isFocused) {
-                                    onFocused()
-                                }
+                .applyIf(!useKeyboardActivationGate) {
+                    focusable(true)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                onFocused()
                             }
-                    }
+                        }
                 },
             inputModifier = Modifier
-                .then(
-                    if (useKeyboardActivationGate) {
-                        Modifier
-                            .focusRequester(inputFocusRequester)
-                            .focusProperties { canFocus = isInputActive }
-                            .onFocusChanged { isTextInputFocused = it.isFocused }
-                    } else {
-                        Modifier
-                    }
-                )
+                .applyIf(useKeyboardActivationGate) {
+                    focusRequester(inputFocusRequester)
+                        .focusProperties { canFocus = isInputActive }
+                }
                 .onPreviewKeyEvent { event ->
                     if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                     when {
@@ -463,7 +456,26 @@ private fun MessageComposerTextInput(
     }
 }
 
-private val androidx.compose.ui.input.key.KeyEvent.printableCharacter: String?
+private inline fun KeyEvent.handleInputActivation(
+    isInputActive: Boolean,
+    activateInput: (initialText: String?) -> Unit,
+): Boolean = if (isInputActive || type != KeyEventType.KeyDown) {
+    false
+} else {
+    when (key) {
+        Key.Enter, Key.NumPadEnter, Key.Spacebar -> {
+            activateInput(null)
+            true
+        }
+
+        else -> printableCharacter?.let { initialText ->
+            activateInput(initialText)
+            true
+        } ?: false
+    }
+}
+
+private val KeyEvent.printableCharacter: String?
     get() {
         if (type != KeyEventType.KeyDown || key in NON_PRINTABLE_COMPOSER_KEYS) return null
         val unicodeChar = utf16CodePoint

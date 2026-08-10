@@ -178,6 +178,7 @@ import com.wire.kalium.logic.feature.UserSessionScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -257,8 +258,7 @@ class WireActivity : BaseActivity() {
         shakeDetector = ShakeDetector(this)
         setUserSessionPreparationContent(initialQueuedIntent, startupAt)
         traceStartup("activity.preparationContent.done", startupAt)
-        shouldKeepSplashOpen = false
-        (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
+        observePreparationScreenReveal()
         startForegroundStartup(initialQueuedIntent, startupAt)
 
         lifecycleScope.launch {
@@ -351,6 +351,24 @@ class WireActivity : BaseActivity() {
         }
     }
 
+    private fun observePreparationScreenReveal() {
+        lifecycleScope.launch {
+            snapshotFlow { viewModel.userSessionPreparationState }
+                .collectLatest { state ->
+                    val revealDelayMillis = state.preparationScreenRevealDelayMillis()
+                        ?: return@collectLatest
+                    delay(revealDelayMillis)
+                    releaseSystemSplash()
+                }
+        }
+    }
+
+    private fun releaseSystemSplash() {
+        if (!shouldKeepSplashOpen) return
+        shouldKeepSplashOpen = false
+        (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
+    }
+
     private fun startForegroundStartup(initialQueuedIntent: QueuedIntent, startupAt: Long) {
         if (startupJob?.isActive == true) return
         startupJob = lifecycleScope.launch {
@@ -359,6 +377,7 @@ class WireActivity : BaseActivity() {
             val initialAppState = viewModel.initialAppState()
             if (initialAppState == InitialAppState.SessionPreparationFailed) {
                 traceStartup("activity.initialAppState.preparationFailed", startupAt)
+                releaseSystemSplash()
                 return@launch
             }
             val startDestination = when (initialAppState) {
@@ -376,6 +395,7 @@ class WireActivity : BaseActivity() {
             }
             traceStartup("activity.initialAppState.resolved:$startDestination", startupAt)
             setComposableContent(startDestination)
+            releaseSystemSplash()
             traceStartup("activity.setContent.done", startupAt)
 
             traceStartup("activity.observePersistentConnectionStatus.start", startupAt)

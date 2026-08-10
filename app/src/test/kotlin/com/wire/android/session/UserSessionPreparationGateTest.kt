@@ -17,7 +17,10 @@
  */
 package com.wire.android.session
 
+import com.wire.android.ui.MIGRATION_SCREEN_DEBOUNCE_MILLIS
 import com.wire.android.ui.UserSessionPreparationUiFailure
+import com.wire.android.ui.UserSessionPreparationUiState
+import com.wire.android.ui.preparationScreenRevealDelayMillis
 import com.wire.android.ui.toUiFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.PrepareUserSessionResult
@@ -105,6 +108,34 @@ class UserSessionPreparationGateTest {
         mappings.forEach { (failure, expected) ->
             assertEquals(expected, failure.toUiFailure())
         }
+    }
+
+    @Test
+    fun givenFastPreparationStates_whenChoosingVisibility_thenPreparationScreenStaysBehindSystemSplash() {
+        val hiddenStates = listOf(
+            UserSessionPreparationUiState.ResolvingSession,
+            UserSessionPreparationUiState.OpeningDatabase,
+            UserSessionPreparationUiState.Ready,
+        )
+
+        hiddenStates.forEach { state ->
+            assertEquals(null, state.preparationScreenRevealDelayMillis())
+        }
+    }
+
+    @Test
+    fun givenMigrationState_whenChoosingVisibility_thenPreparationScreenIsDebounced() {
+        assertEquals(
+            MIGRATION_SCREEN_DEBOUNCE_MILLIS,
+            UserSessionPreparationUiState.MigratingDatabase.preparationScreenRevealDelayMillis(),
+        )
+    }
+
+    @Test
+    fun givenFailureState_whenChoosingVisibility_thenPreparationScreenIsRevealedImmediately() {
+        val state = UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.SupportRequired)
+
+        assertEquals(0L, state.preparationScreenRevealDelayMillis())
     }
 
     private fun success(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =

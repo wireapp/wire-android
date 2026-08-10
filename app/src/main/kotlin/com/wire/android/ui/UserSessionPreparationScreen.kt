@@ -90,6 +90,18 @@ internal sealed interface UserSessionPreparationUiState {
     data class Failed(val failure: UserSessionPreparationUiFailure) : UserSessionPreparationUiState
 }
 
+/**
+ * Keeps fast session opening behind the system splash. A migration earns dedicated UI only when
+ * it lasts long enough to avoid a flash; failures are revealed immediately so they stay actionable.
+ */
+internal fun UserSessionPreparationUiState.preparationScreenRevealDelayMillis(): Long? = when (this) {
+    UserSessionPreparationUiState.MigratingDatabase -> MIGRATION_SCREEN_DEBOUNCE_MILLIS
+    is UserSessionPreparationUiState.Failed -> 0L
+    UserSessionPreparationUiState.ResolvingSession,
+    UserSessionPreparationUiState.OpeningDatabase,
+    UserSessionPreparationUiState.Ready -> null
+}
+
 internal enum class UserSessionPreparationUiFailure {
     InsufficientStorage,
     TemporarilyUnavailable,
@@ -123,6 +135,8 @@ private data class UserSessionPreparationContent(
     val message: Int,
     val action: UserSessionPreparationAction? = null,
 )
+
+internal const val MIGRATION_SCREEN_DEBOUNCE_MILLIS = 500L
 
 @Composable
 private fun UserSessionPreparationUiState.content(): UserSessionPreparationContent = when (this) {

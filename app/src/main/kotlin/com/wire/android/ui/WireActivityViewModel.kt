@@ -99,7 +99,9 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import kotlinx.datetime.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -452,12 +454,15 @@ class WireActivityViewModel @Inject constructor(
         pendingPreparationUserId = userId
 
         val result = coroutineScope {
-            val observer = launch(start = CoroutineStart.UNDISPATCHED) {
-                userSessionPreparationGate.observe(userId).collect { state ->
-                    withContext(dispatchers.main()) {
-                        userSessionPreparationState = state.toUiState()
-                    }
-                }
+            // Kalium publishes preparation states on a conflated StateFlow. Hopping to the main
+            // thread per emission would let a busy first frame swallow MigratingDatabase entirely,
+            // so states are picked up off the main thread and buffered for it to drain in order.
+            val observer = launch(dispatchers.main(), start = CoroutineStart.UNDISPATCHED) {
+                userSessionPreparationGate.observe(userId)
+                    .map { it.toUiState() }
+                    .buffer(Channel.UNLIMITED)
+                    .flowOn(dispatchers.io())
+                    .collect { state -> userSessionPreparationState = state }
             }
             try {
                 userSessionPreparationGate.prepare(userId)

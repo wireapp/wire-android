@@ -239,6 +239,10 @@ class WireActivity : BaseActivity() {
     private var shouldKeepSplashOpen = true
     private var isAppLockActivityLaunching = false
     private var startupJob: Job? = null
+    private var isShowingPreparationContent = false
+    private val migrationScreenVisibility = MigrationScreenVisibility {
+        SystemClock.elapsedRealtime()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val startupAt = SystemClock.elapsedRealtime()
@@ -333,12 +337,14 @@ class WireActivity : BaseActivity() {
     }
 
     private fun setComposableContent(startDestination: Direction) {
+        isShowingPreparationContent = false
         setContent {
             WireActivityRoot(startDestination)
         }
     }
 
     private fun setUserSessionPreparationContent(initialQueuedIntent: QueuedIntent, startupAt: Long) {
+        isShowingPreparationContent = true
         setContent {
             WireTheme(accent = viewModel.globalAppState.userAccent) {
                 UserSessionPreparationScreen(
@@ -351,13 +357,21 @@ class WireActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Reveals the preparation screen only for work that outlives the reveal delay.
+     *
+     * [collectLatest] cancels the pending delay as soon as preparation moves on, so a migration that
+     * finishes quickly never leaves the splash and the screen is skipped altogether.
+     */
     private fun observePreparationScreenReveal() {
         lifecycleScope.launch {
             snapshotFlow { viewModel.userSessionPreparationState }
                 .collectLatest { state ->
-                    val revealDelayMillis = state.preparationScreenRevealDelayMillis()
-                        ?: return@collectLatest
-                    delay(revealDelayMillis)
+                    val revealDelay = state.preparationScreenRevealDelay() ?: return@collectLatest
+                    delay(revealDelay)
+                    if (isShowingPreparationContent && state == UserSessionPreparationUiState.MigratingDatabase) {
+                        migrationScreenVisibility.onRevealed()
+                    }
                     releaseSystemSplash()
                 }
         }
@@ -394,6 +408,8 @@ class WireActivity : BaseActivity() {
                 InitialAppState.SessionPreparationFailed -> error("Handled above")
             }
             traceStartup("activity.initialAppState.resolved:$startDestination", startupAt)
+            // No-op unless the migration screen was actually revealed, so fast startups pay nothing.
+            delay(migrationScreenVisibility.remainingVisibility())
             setComposableContent(startDestination)
             releaseSystemSplash()
             traceStartup("activity.setContent.done", startupAt)

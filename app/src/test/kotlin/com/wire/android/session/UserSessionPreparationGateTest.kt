@@ -17,10 +17,12 @@
  */
 package com.wire.android.session
 
-import com.wire.android.ui.MIGRATION_SCREEN_DEBOUNCE_MILLIS
+import com.wire.android.ui.MIGRATION_SCREEN_MINIMUM_VISIBILITY
+import com.wire.android.ui.MIGRATION_SCREEN_REVEAL_DELAY
+import com.wire.android.ui.MigrationScreenVisibility
 import com.wire.android.ui.UserSessionPreparationUiFailure
 import com.wire.android.ui.UserSessionPreparationUiState
-import com.wire.android.ui.preparationScreenRevealDelayMillis
+import com.wire.android.ui.preparationScreenRevealDelay
 import com.wire.android.ui.toUiFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.PrepareUserSessionResult
@@ -40,6 +42,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class UserSessionPreparationGateTest {
 
@@ -119,15 +123,15 @@ class UserSessionPreparationGateTest {
         )
 
         hiddenStates.forEach { state ->
-            assertEquals(null, state.preparationScreenRevealDelayMillis())
+            assertEquals(null, state.preparationScreenRevealDelay())
         }
     }
 
     @Test
     fun givenMigrationState_whenChoosingVisibility_thenPreparationScreenIsDebounced() {
         assertEquals(
-            MIGRATION_SCREEN_DEBOUNCE_MILLIS,
-            UserSessionPreparationUiState.MigratingDatabase.preparationScreenRevealDelayMillis(),
+            MIGRATION_SCREEN_REVEAL_DELAY,
+            UserSessionPreparationUiState.MigratingDatabase.preparationScreenRevealDelay(),
         )
     }
 
@@ -135,7 +139,48 @@ class UserSessionPreparationGateTest {
     fun givenFailureState_whenChoosingVisibility_thenPreparationScreenIsRevealedImmediately() {
         val state = UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.SupportRequired)
 
-        assertEquals(0L, state.preparationScreenRevealDelayMillis())
+        assertEquals(Duration.ZERO, state.preparationScreenRevealDelay())
+    }
+
+    @Test
+    fun givenMigrationScreenWasNeverRevealed_whenLeavingPreparation_thenNothingIsWaitedFor() {
+        val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { 0L })
+
+        assertEquals(Duration.ZERO, visibility.remainingVisibility())
+    }
+
+    @Test
+    fun givenMigrationFinishedRightAfterReveal_whenLeavingPreparation_thenRemainderOfMinimumIsWaitedFor() {
+        var now = 1_000L
+        val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { now })
+
+        visibility.onRevealed()
+        now += 200L
+
+        assertEquals(MIGRATION_SCREEN_MINIMUM_VISIBILITY - 200.milliseconds, visibility.remainingVisibility())
+    }
+
+    @Test
+    fun givenMigrationOutlivedTheMinimum_whenLeavingPreparation_thenNothingIsWaitedFor() {
+        var now = 1_000L
+        val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { now })
+
+        visibility.onRevealed()
+        now += MIGRATION_SCREEN_MINIMUM_VISIBILITY.inWholeMilliseconds + 1L
+
+        assertEquals(Duration.ZERO, visibility.remainingVisibility())
+    }
+
+    @Test
+    fun givenScreenAlreadyRevealed_whenRevealedAgain_thenMinimumStillCountsFromFirstReveal() {
+        var now = 1_000L
+        val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { now })
+
+        visibility.onRevealed()
+        now += 400L
+        visibility.onRevealed()
+
+        assertEquals(MIGRATION_SCREEN_MINIMUM_VISIBILITY - 400.milliseconds, visibility.remainingVisibility())
     }
 
     private fun success(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =

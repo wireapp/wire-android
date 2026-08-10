@@ -36,6 +36,9 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.UserSessionPreparationState
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun UserSessionPreparationScreen(
@@ -93,13 +96,39 @@ internal sealed interface UserSessionPreparationUiState {
 /**
  * Keeps fast session opening behind the system splash. A migration earns dedicated UI only when
  * it lasts long enough to avoid a flash; failures are revealed immediately so they stay actionable.
+ *
+ * Returning `null` means the state never justifies leaving the splash on its own.
  */
-internal fun UserSessionPreparationUiState.preparationScreenRevealDelayMillis(): Long? = when (this) {
-    UserSessionPreparationUiState.MigratingDatabase -> MIGRATION_SCREEN_DEBOUNCE_MILLIS
-    is UserSessionPreparationUiState.Failed -> 0L
+internal fun UserSessionPreparationUiState.preparationScreenRevealDelay(): Duration? = when (this) {
+    UserSessionPreparationUiState.MigratingDatabase -> MIGRATION_SCREEN_REVEAL_DELAY
+    is UserSessionPreparationUiState.Failed -> Duration.ZERO
     UserSessionPreparationUiState.ResolvingSession,
     UserSessionPreparationUiState.OpeningDatabase,
     UserSessionPreparationUiState.Ready -> null
+}
+
+/**
+ * Tracks how long the migration screen has been visible so it is never replaced mid-blink.
+ *
+ * The reveal delay already skips the screen entirely for migrations that finish quickly. Once the
+ * screen does appear, a migration finishing right after would swap it out instantly, which reads as
+ * a glitch, so callers wait out [remainingVisibility] before showing the next screen.
+ */
+internal class MigrationScreenVisibility(
+    private val minimumVisibility: Duration = MIGRATION_SCREEN_MINIMUM_VISIBILITY,
+    private val elapsedRealtimeMillis: () -> Long,
+) {
+    private var revealedAtMillis: Long? = null
+
+    fun onRevealed() {
+        if (revealedAtMillis == null) revealedAtMillis = elapsedRealtimeMillis()
+    }
+
+    fun remainingVisibility(): Duration {
+        val revealedAt = revealedAtMillis ?: return Duration.ZERO
+        val visibleFor = (elapsedRealtimeMillis() - revealedAt).milliseconds
+        return (minimumVisibility - visibleFor).coerceAtLeast(Duration.ZERO)
+    }
 }
 
 internal enum class UserSessionPreparationUiFailure {
@@ -136,7 +165,11 @@ private data class UserSessionPreparationContent(
     val action: UserSessionPreparationAction? = null,
 )
 
-internal const val MIGRATION_SCREEN_DEBOUNCE_MILLIS = 500L
+/** How long a migration has to run before it is worth interrupting the splash for it. */
+internal val MIGRATION_SCREEN_REVEAL_DELAY: Duration = 500.milliseconds
+
+/** How long the migration screen stays up once revealed, even if the migration already finished. */
+internal val MIGRATION_SCREEN_MINIMUM_VISIBILITY: Duration = 1.seconds
 
 @Composable
 private fun UserSessionPreparationUiState.content(): UserSessionPreparationContent = when (this) {

@@ -37,6 +37,7 @@ import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
+import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
@@ -105,8 +106,11 @@ class SearchScreenViewModel(
         SortingCriteria.FoldersFirst
     }
 
+    val inheritedSortingCriteria: SortingCriteria =
+        navArgs.initialSortingCriteria?.toSortingCriteria() ?: defaultSortingCriteria
+
     private val _uiState = MutableStateFlow(
-        SearchUiState(sortingCriteria = defaultSortingCriteria)
+        SearchUiState(sortingCriteria = inheritedSortingCriteria)
     )
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 

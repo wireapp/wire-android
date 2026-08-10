@@ -72,6 +72,7 @@ import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.search.sort.toNavArg
 import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -275,7 +276,12 @@ internal fun ConversationFilesScreenContent(
                             onTap = {
                                 currentNodeUuid?.let {
                                     navigator.navigate(
-                                        NavigationCommand(SearchScreenDestination(conversationId = it))
+                                        NavigationCommand(
+                                            SearchScreenDestination(
+                                                conversationId = it,
+                                                initialSortingCriteria = sortingCriteria.toNavArg(),
+                                            )
+                                        )
                                     )
                                 }
                             },

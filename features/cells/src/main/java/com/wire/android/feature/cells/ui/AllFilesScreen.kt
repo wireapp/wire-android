@@ -41,6 +41,7 @@ import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
+import com.wire.android.feature.cells.ui.search.sort.toNavArg
 import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.WireNavigator
@@ -86,6 +87,7 @@ fun AllFilesScreen(
                                         NavigationCommand(
                                             SearchScreenDestination(
                                                 screenType = DriveSearchScreenType.DRIVE,
+                                                initialSortingCriteria = sortingCriteria.toNavArg(),
                                             )
                                         )
                                     )

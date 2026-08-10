@@ -46,6 +46,7 @@ class MeetingsViewModelFactory @Inject constructor(
     private val updateMeeting: UpdateMeetingUseCase,
     private val getNextMeetingOccurrence: GetNextMeetingOccurrenceUseCase,
     private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val observeActiveCallsUseCase: ObserveActiveCallsUseCase,
     private val contactMapper: ContactMapper,
 ) {
     internal fun meetingListViewModel(type: MeetingsTabItem) = MeetingListViewModelImpl(
@@ -60,6 +61,7 @@ class MeetingsViewModelFactory @Inject constructor(
         currentTimeProvider = currentTimeProvider,
         observeMeetingOccurrenceUseCase = observeMeetingOccurrence,
         deleteMeetingUseCase = deleteMeetingUseCase,
+        observeActiveCallsUseCase = observeActiveCallsUseCase,
     )
 
     internal fun newMeetingViewModel(savedStateHandle: SavedStateHandle) = NewMeetingViewModelImpl(

@@ -49,12 +49,16 @@ class ScopedMessageManualViewModelFactoryTest {
         val (arrangement, factory) = Arrangement().arrange()
         val savedStateHandle = SavedStateHandle()
         val args = mockk<CompositeMessageArgs>()
-        every { arrangement.compositeMessageFactory.create(savedStateHandle, args) } returns arrangement.compositeMessageViewModel
+        every {
+            arrangement.compositeMessageFactory.create(savedStateHandle, args)
+        } returns arrangement.compositeMessageViewModel
 
         val result = factory.compositeMessageViewModel(savedStateHandle, args)
 
         assertSame(arrangement.compositeMessageViewModel, result)
-        verify(exactly = 1) { arrangement.compositeMessageFactory.create(savedStateHandle, args) }
+        verify(exactly = 1) {
+            arrangement.compositeMessageFactory.create(savedStateHandle, args)
+        }
     }
 
     @Test

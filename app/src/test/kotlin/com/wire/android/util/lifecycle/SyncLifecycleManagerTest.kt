@@ -23,6 +23,7 @@ import com.wire.android.framework.fake.FakeSyncExecutor
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -32,6 +33,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -274,6 +276,7 @@ class SyncLifecycleManagerTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { coreLogic.getGlobalScope().observeAllValidSessionsFlow } returns observeValidAccountsUseCase
             every { coreLogic.getSessionScope(TestUser.SELF_USER_ID) } returns userSessionScope
+            coEvery { coreLogic.prepareUserSession(TestUser.SELF_USER_ID) } returns preparationSuccess(userSessionScope)
             every { currentScreenManager.isAppVisibleFlow() } returns appVisibility
             coEvery { observeValidAccountsUseCase.invoke() } returns flowOf(
                 GetAllSessionsResult.Success(
@@ -283,6 +286,11 @@ class SyncLifecycleManagerTest {
                 )
             )
         }
+
+        private fun preparationSuccess(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns sessionScope
+            }
 
         fun withAppInTheBackground() = apply {
             updateAppVisibility(false)

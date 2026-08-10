@@ -24,6 +24,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.notification.CallNotificationData
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
@@ -33,11 +34,13 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -320,14 +323,21 @@ class CallServiceManagerTest {
             outgoing: Flow<List<Call>> = flowOf(emptyList()),
             established: Flow<List<Call>> = flowOf(emptyList()),
         ) = apply {
+            val sessionScope = mockk<UserSessionScope>(relaxed = true)
             withValidSessionExists(selfUser.id, DoesValidSessionExistResult.Success(true))
-            coEvery { coreLogic.getSessionScope(selfUser.id).users.observeSelfUser() } returns flowOf(selfUser)
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.getIncomingCalls() } returns incoming
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.observeOutgoingCall() } returns outgoing
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.establishedCall() } returns established
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.answerCall } returns answerCallForUser(selfUser.id)
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.endCall } returns endCallForUser(selfUser.id)
+            coEvery { coreLogic.prepareUserSession(selfUser.id) } returns preparationSuccess(sessionScope)
+            coEvery { sessionScope.users.observeSelfUser() } returns flowOf(selfUser)
+            coEvery { sessionScope.calls.getIncomingCalls() } returns incoming
+            coEvery { sessionScope.calls.observeOutgoingCall() } returns outgoing
+            coEvery { sessionScope.calls.establishedCall() } returns established
+            coEvery { sessionScope.calls.answerCall } returns answerCallForUser(selfUser.id)
+            coEvery { sessionScope.calls.endCall } returns endCallForUser(selfUser.id)
         }
+
+        private fun preparationSuccess(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns sessionScope
+            }
     }
 
     companion object {

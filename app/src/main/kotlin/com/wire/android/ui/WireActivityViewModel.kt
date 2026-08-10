@@ -32,10 +32,6 @@ import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
-import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
-import com.wire.android.di.ObserveSelfUserUseCaseProvider
-import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountActions
@@ -43,6 +39,8 @@ import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.ActionsViewModel
@@ -77,6 +75,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
@@ -99,6 +98,7 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotC
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import kotlinx.datetime.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -106,20 +106,26 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import dev.zacsweers.metro.Inject
 
 private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
@@ -137,19 +143,13 @@ class WireActivityViewModel @Inject constructor(
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
     private val servicesManager: Lazy<ServicesManager>,
-    private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: Lazy<ObserveIfAppUpdateRequiredUseCase>,
     private val observeNewClients: Lazy<ObserveNewClientsUseCase>,
     private val clearNewClientsForUser: Lazy<ClearNewClientsForUserUseCase>,
     private val currentScreenManager: Lazy<CurrentScreenManager>,
-    private val observeScreenshotCensoringConfigUseCaseProviderFactory:
-    ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: Lazy<GlobalDataStore>,
-    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory:
-    ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>,
     private val isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory,
-    private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val defaultServerConfig: ServerConfig.Links,
@@ -162,19 +162,21 @@ class WireActivityViewModel @Inject constructor(
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
 
+    internal var userSessionPreparationState: UserSessionPreparationUiState by
+        mutableStateOf(UserSessionPreparationUiState.ResolvingSession)
+        private set
+
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic.value) }
+    private val preparedSessionScopes = ConcurrentHashMap<UserId, UserSessionScope>()
+    private val preparedCurrentSession = MutableStateFlow<PreparedCurrentSession?>(null)
+    private val sessionObserversStarted = AtomicBoolean(false)
+    private var pendingPreparationUserId: UserId? = null
+
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
     private val observeCurrentAccountInfo: SharedFlow<AccountInfo?> = currentSessionFlow.value.invoke()
         .map { (it as? CurrentSessionResult.Success)?.accountInfo }
-        .distinctUntilChanged()
-        .flowOn(dispatchers.io())
-        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
-
-    private val observeCurrentValidUserId: SharedFlow<UserId?> = observeCurrentAccountInfo
-        .map {
-            if (it?.isValid() == true) it.userId else null
-        }
         .distinctUntilChanged()
         .flowOn(dispatchers.io())
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
@@ -190,22 +192,29 @@ class WireActivityViewModel @Inject constructor(
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
 
     init {
-        observeSyncState()
         observeUpdateAppState()
-        observeNewClientState()
-        observeScreenshotCensoringConfigState()
-        observeCurrentUserState()
         observeAppThemeState()
+        // These collectors are safe to start before foreground navigation. The current-session
+        // collector is itself the preparation gate, while the others only dereference a session
+        // after it has been published through preparedCurrentSession.
+        observeCurrentUserState()
+        observeSyncState()
+        observeScreenshotCensoringConfigState()
         observeSelectedAccent()
         observeLogoutState()
         observeBackendWebsiteUrl()
         resetNewRegistrationAnalyticsState()
-        viewModelScope.launch(dispatchers.io()) { monitorSyncWorkUseCase() }
     }
 
-    private suspend fun shouldEnrollToE2ei(userId: UserId): Boolean =
-        observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(userId)
-            .observeIfE2EIIsRequiredDuringLogin().first() ?: false
+    private suspend fun shouldEnrollToE2ei(sessionScope: UserSessionScope): Boolean =
+        sessionScope.observeIfE2EIRequiredDuringLogin().first() ?: false
+
+    private fun startSessionDependentObservers() {
+        if (!sessionObserversStarted.compareAndSet(false, true)) return
+
+        observeNewClientState()
+        viewModelScope.launch(dispatchers.io()) { monitorSyncWorkUseCase() }
+    }
 
     private fun observeAppThemeState() {
         viewModelScope.launch(dispatchers.io()) {
@@ -219,9 +228,9 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeSelectedAccent() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId.flatMapLatest {
-                it?.let {
-                    observeSelfUserFactory.create(it).observeSelfUser().map { user ->
+            preparedCurrentSession.flatMapLatest { preparedSession ->
+                preparedSession?.let {
+                    it.sessionScope.users.observeSelfUser().map { user ->
                         Accent.fromAccentId(user.accentId)
                     }
                 } ?: flowOf(Accent.Unknown)
@@ -235,10 +244,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeBackendWebsiteUrl() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId.collectLatest { userId ->
-                val serverLinks = userId?.let {
+            preparedCurrentSession.collectLatest { preparedSession ->
+                val serverLinks = preparedSession?.let {
                     runCatching {
-                        when (val result = coreLogic.value.getSessionScope(it).users.serverLinks()) {
+                        when (val result = it.sessionScope.users.serverLinks()) {
                             is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
                             is SelfServerConfigUseCase.Result.Failure -> null
                         }
@@ -257,10 +266,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeSyncState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId
-                .flatMapLatest { userId ->
-                    userId?.let {
-                        observeSyncStateUseCaseProviderFactory.create(userId).observeSyncState()
+            preparedCurrentSession
+                .flatMapLatest { preparedSession ->
+                    preparedSession?.let {
+                        it.sessionScope.observeSyncState()
                     } ?: flowOf(null)
                 }
                 .distinctUntilChanged()
@@ -273,15 +282,22 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeCurrentUserState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentUserId.collectLatest {
+            observeCurrentUserId.collectLatest { userId ->
+                val sessionScope = userId?.let { prepareUserSession(it) }
+                val readyUserId = userId?.takeIf { sessionScope != null }
+                preparedCurrentSession.value = if (readyUserId != null && sessionScope != null) {
+                    PreparedCurrentSession(readyUserId, sessionScope)
+                } else {
+                    null
+                }
                 globalAppState = globalAppState.copy(
-                    currentUserId = it,
-                    isSessionTransitionInProgress = if (it != null) {
+                    currentUserId = readyUserId,
+                    isSessionTransitionInProgress = if (readyUserId != null) {
                         false
                     } else {
                         globalAppState.isSessionTransitionInProgress
                     },
-                    sessionTransitionReason = if (it != null) {
+                    sessionTransitionReason = if (readyUserId != null) {
                         null
                     } else {
                         globalAppState.sessionTransitionReason
@@ -323,7 +339,13 @@ class WireActivityViewModel @Inject constructor(
             currentScreenManager.value.observeCurrentScreen(this)
                 .flatMapLatest {
                     if (it.isGlobalDialogAllowed()) {
-                        observeNewClients.value.invoke()
+                        flow<NewClientResult> {
+                            if (prepareValidSessionsForNewClientObservation()) {
+                                emitAll(observeNewClients.value.invoke())
+                            } else {
+                                emit(NewClientResult.Empty)
+                            }
+                        }
                     } else {
                         flowOf(NewClientResult.Empty)
                     }
@@ -335,13 +357,23 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    private suspend fun prepareValidSessionsForNewClientObservation(): Boolean {
+        val sessions = if (::validSessions.isInitialized) {
+            validSessions.value
+        } else {
+            validSessionsFlow().first()
+        }
+        return sessions
+            .filter { it.isValid() }
+            .all { prepareUserSession(it.userId) != null }
+    }
+
     private fun observeScreenshotCensoringConfigState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId
-                .flatMapLatest { currentValidUserId ->
-                    currentValidUserId?.let {
-                        observeScreenshotCensoringConfigUseCaseProviderFactory.create(it)
-                            .observeScreenshotCensoringConfig()
+            preparedCurrentSession
+                .flatMapLatest { preparedSession ->
+                    preparedSession?.let {
+                        it.sessionScope.observeScreenshotCensoringConfig()
                             .map { result ->
                                 result is ObserveScreenshotCensoringConfigResult.Enabled
                             }
@@ -364,19 +396,91 @@ class WireActivityViewModel @Inject constructor(
     }
 
     suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
+        withContext(dispatchers.main()) {
+            userSessionPreparationState = UserSessionPreparationUiState.ResolvingSession
+        }
         initValidSessionsFlowIfNeeded()
         val currentValidUserId = resolveInitialCurrentUserId()
+        val preparedSessionScope = currentValidUserId?.let { prepareUserSession(it) }
+        preparedCurrentSession.value = if (currentValidUserId != null && preparedSessionScope != null) {
+            PreparedCurrentSession(currentValidUserId, preparedSessionScope)
+        } else {
+            null
+        }
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
-                currentUserId = currentValidUserId,
+                currentUserId = currentValidUserId?.takeIf { preparedSessionScope != null },
                 isSessionTransitionInProgress = false,
                 sessionTransitionReason = null,
             )
         }
+        if (currentValidUserId != null && preparedSessionScope == null) {
+            return@withContext InitialAppState.SessionPreparationFailed
+        }
+        startSessionDependentObservers()
         when {
-            currentValidUserId == null -> InitialAppState.NotLoggedIn
-            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.EnrollE2EI(currentValidUserId)
+            currentValidUserId == null -> {
+                withContext(dispatchers.main()) {
+                    userSessionPreparationState = UserSessionPreparationUiState.Ready
+                }
+                InitialAppState.NotLoggedIn
+            }
+            shouldEnrollToE2ei(checkNotNull(preparedSessionScope)) -> InitialAppState.EnrollE2EI(currentValidUserId)
             else -> InitialAppState.LoggedIn
+        }
+    }
+
+    fun preparedUserSessionScope(userId: UserId): UserSessionScope? = preparedSessionScopes[userId]
+
+    fun retryPendingUserSessionPreparation() {
+        val userId = pendingPreparationUserId ?: return
+        viewModelScope.launch(dispatchers.io()) {
+            val sessionScope = prepareUserSession(userId) ?: return@launch
+            withContext(dispatchers.main()) {
+                globalAppState = globalAppState.copy(
+                    currentUserId = userId,
+                    isSessionTransitionInProgress = false,
+                    sessionTransitionReason = null,
+                )
+            }
+            preparedSessionScopes[userId] = sessionScope
+            preparedCurrentSession.value = PreparedCurrentSession(userId, sessionScope)
+        }
+    }
+
+    private suspend fun prepareUserSession(userId: UserId): UserSessionScope? {
+        pendingPreparationUserId = userId
+
+        val result = coroutineScope {
+            val observer = launch(start = CoroutineStart.UNDISPATCHED) {
+                userSessionPreparationGate.observe(userId).collect { state ->
+                    withContext(dispatchers.main()) {
+                        userSessionPreparationState = state.toUiState()
+                    }
+                }
+            }
+            try {
+                userSessionPreparationGate.prepare(userId)
+            } finally {
+                observer.cancelAndJoin()
+            }
+        }
+
+        return when (result) {
+            is AppUserSessionPreparationResult.Ready -> result.sessionScope.also { sessionScope ->
+                preparedSessionScopes[userId] = sessionScope
+                pendingPreparationUserId = null
+                withContext(dispatchers.main()) {
+                    userSessionPreparationState = UserSessionPreparationUiState.Ready
+                }
+            }
+
+            is AppUserSessionPreparationResult.Failed -> {
+                withContext(dispatchers.main()) {
+                    userSessionPreparationState = UserSessionPreparationUiState.Failed(result.reason.toUiFailure())
+                }
+                null
+            }
         }
     }
 
@@ -428,8 +532,8 @@ class WireActivityViewModel @Inject constructor(
                 is CurrentSessionResult.Failure.Generic -> null
                 CurrentSessionResult.Failure.SessionNotFound -> null
                 is CurrentSessionResult.Success -> {
-                    coreLogic.value.sessionScope(currentSession.accountInfo.userId) {
-                        when (val result = debug.synchronizeExternalData(InputStreamReader(data).readText())) {
+                    prepareUserSession(currentSession.accountInfo.userId)?.let { sessionScope ->
+                        when (val result = sessionScope.debug.synchronizeExternalData(InputStreamReader(data).readText())) {
                             is SynchronizeExternalDataResult.Success -> {
                                 appLogger.d("Synchronized external data")
                             }
@@ -654,7 +758,7 @@ class WireActivityViewModel @Inject constructor(
                     }
                 }
                 val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
-                coreLogic.value.getSessionScope(currentUserId).logout(logoutReason)
+                preparedSessionScopes[currentUserId]?.logout(logoutReason)
                 if (wipeData) {
                     clearUserData(currentUserId)
                 }
@@ -765,6 +869,7 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun isCrossBackendLoginBlocked(target: IsCrossBackendLoginBlockedUseCase.Target): Boolean =
         coreLogic.value.getGlobalScope().isCrossBackendLoginBlocked(target)
 
+    @Suppress("NestedBlockDepth")
     private suspend fun onConversationInviteDeepLink(
         code: String,
         key: String,
@@ -774,8 +879,8 @@ class WireActivityViewModel @Inject constructor(
         is CurrentSessionResult.Failure.Generic -> null
         CurrentSessionResult.Failure.SessionNotFound -> null
         is CurrentSessionResult.Success -> {
-            coreLogic.value.sessionScope(currentSession.accountInfo.userId) {
-                when (val result = conversations.checkIConversationInviteCode(code, key, domain)) {
+            prepareUserSession(currentSession.accountInfo.userId)?.let { sessionScope ->
+                when (val result = sessionScope.conversations.checkIConversationInviteCode(code, key, domain)) {
                     is CheckConversationInviteCodeUseCase.Result.Success -> {
                         if (result.isSelfMember) {
                             // TODO; display messsage that user is already a member and ask if they want to navigate to the conversation
@@ -825,15 +930,22 @@ class WireActivityViewModel @Inject constructor(
         val userId = withContext(dispatchers.io()) {
             currentSessionUserId()
         }
+        val sessionScope = userId?.let { prepareUserSession(it) }
+        val readyUserId = userId?.takeIf { sessionScope != null }
+        preparedCurrentSession.value = if (readyUserId != null && sessionScope != null) {
+            PreparedCurrentSession(readyUserId, sessionScope)
+        } else {
+            null
+        }
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
-                currentUserId = userId,
-                isSessionTransitionInProgress = if (userId != null) {
+                currentUserId = readyUserId,
+                isSessionTransitionInProgress = if (readyUserId != null) {
                     false
                 } else {
                     globalAppState.isSessionTransitionInProgress
                 },
-                sessionTransitionReason = if (userId != null) {
+                sessionTransitionReason = if (readyUserId != null) {
                     null
                 } else {
                     globalAppState.sessionTransitionReason
@@ -910,8 +1022,8 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun onOpenUserProfileDeepLink(result: DeepLinkResult.OpenOtherUserProfile) = viewModelScope.launch {
-        observeCurrentValidUserId.first()?.let { userId ->
-            if (isProfileQRCodeEnabledFactory.create(userId).isProfileQRCodeEnabled()) {
+        preparedCurrentSession.first()?.let { preparedSession ->
+            if (isProfileQRCodeEnabledFactory.create(preparedSession.userId).isProfileQRCodeEnabled()) {
                 sendAction(OnOpenUserProfile(result))
             } else {
                 sendAction(ShowToast(R.string.profile_deeplink_feature_unavailable_title_alert))
@@ -1016,7 +1128,13 @@ sealed interface InitialAppState {
     data object NotLoggedIn : InitialAppState
     data object LoggedIn : InitialAppState
     data class EnrollE2EI(val userId: UserId) : InitialAppState
+    data object SessionPreparationFailed : InitialAppState
 }
+
+private data class PreparedCurrentSession(
+    val userId: UserId,
+    val sessionScope: UserSessionScope,
+)
 
 sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction

@@ -18,6 +18,8 @@
 package com.wire.android.ui.authentication.login.sso
 
 import com.wire.android.appLogger
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -48,6 +50,7 @@ class LoginSSOViewModelExtension(
     private val coreLogic: CoreLogic,
     private val defaultWebSocketEnabledByDefault: Boolean,
 ) {
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
     suspend fun withAuthenticationScope(
         serverConfig: ServerConfig.Links,
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
@@ -149,15 +152,27 @@ class LoginSSOViewModelExtension(
         when (authenticatedUserResult) {
             AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> onSsoIdentityChanged(session)
             is AddAuthenticatedUserUseCase.Result.Failure -> onAddAuthenticatedUserFailure(authenticatedUserResult)
-            is AddAuthenticatedUserUseCase.Result.Success -> onSuccess(authenticatedUserResult.userId)
+            is AddAuthenticatedUserUseCase.Result.Success ->
+                when (val preparation = userSessionPreparationGate.prepare(authenticatedUserResult.userId)) {
+                    is AppUserSessionPreparationResult.Ready -> onSuccess(authenticatedUserResult.userId)
+                    is AppUserSessionPreparationResult.Failed -> onAddAuthenticatedUserFailure(
+                        AddAuthenticatedUserUseCase.Result.Failure.Generic(preparation.toCoreFailure())
+                    )
+                }
         }
     }
 
-    @Suppress("TooGenericExceptionCaught")
+    @Suppress("TooGenericExceptionCaught", "NestedBlockDepth")
     suspend fun replaceRetainedSsoSession(session: StoreSessionParam): ReplaceRetainedSsoSessionResult =
         try {
             val userId = session.accountTokens.userId
-            coreLogic.getSessionScope(userId).logout(
+            val retainedScope = when (val preparation = userSessionPreparationGate.prepare(userId)) {
+                is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+                is AppUserSessionPreparationResult.Failed -> return ReplaceRetainedSsoSessionResult.Failure(
+                    AddAuthenticatedUserUseCase.Result.Failure.Generic(preparation.toCoreFailure())
+                )
+            }
+            retainedScope.logout(
                 reason = LogoutReason.SELF_HARD_LOGOUT,
                 waitUntilCompletes = true
             )
@@ -167,8 +182,16 @@ class LoginSSOViewModelExtension(
                     ReplaceRetainedSsoSessionResult.Failure(
                         AddAuthenticatedUserUseCase.Result.Failure.Generic(deleteResult.cause)
                     )
-                DeleteSessionUseCase.Result.Success ->
-                    addAuthenticatedUser(session, replace = false).toReplaceRetainedSsoSessionResult()
+                DeleteSessionUseCase.Result.Success -> when (val addResult = addAuthenticatedUser(session, replace = false)) {
+                    is AddAuthenticatedUserUseCase.Result.Failure -> ReplaceRetainedSsoSessionResult.Failure(addResult)
+                    is AddAuthenticatedUserUseCase.Result.Success ->
+                        when (val preparation = userSessionPreparationGate.prepare(addResult.userId)) {
+                            is AppUserSessionPreparationResult.Ready -> ReplaceRetainedSsoSessionResult.Success(addResult.userId)
+                            is AppUserSessionPreparationResult.Failed -> ReplaceRetainedSsoSessionResult.Failure(
+                                AddAuthenticatedUserUseCase.Result.Failure.Generic(preparation.toCoreFailure())
+                            )
+                        }
+                }
             }
         } catch (exception: CancellationException) {
             throw exception
@@ -178,6 +201,9 @@ class LoginSSOViewModelExtension(
             )
         }
 }
+
+private fun AppUserSessionPreparationResult.Failed.toCoreFailure(): CoreFailure =
+    CoreFailure.Unknown(IllegalStateException("User session preparation failed: $reason"))
 
 private fun AddAuthenticatedUserUseCase.Result.toReplaceRetainedSsoSessionResult(): ReplaceRetainedSsoSessionResult =
     when (this) {

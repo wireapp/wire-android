@@ -27,6 +27,7 @@ import com.wire.android.ui.home.HomeViewModelGraph
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
@@ -48,6 +49,7 @@ interface AppSessionViewModelGraph :
     CommonViewModelGraph {
     @get:CurrentAccount
     val currentAccount: UserId
+    val userSessionScope: UserSessionScope
 
     override val viewModelScopeKey: String
         get() = currentAccount.toString()
@@ -60,10 +62,16 @@ interface AppSessionViewModelGraph :
     @ContributesTo(AppScope::class)
     @GraphExtension.Factory
     interface Factory {
-        fun createAppSessionViewModelGraph(@Provides @CurrentAccount currentAccount: UserId): AppSessionViewModelGraph
+        fun createAppSessionViewModelGraph(
+            @Provides @CurrentAccount currentAccount: UserId,
+            @Provides userSessionScope: UserSessionScope,
+        ): AppSessionViewModelGraph
     }
 }
 
-fun WireApplicationGraph.createSessionViewModelGraph(currentAccount: UserId): AppSessionViewModelGraph {
-    return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount)
+fun WireApplicationGraph.createSessionViewModelGraph(
+    currentAccount: UserId,
+    userSessionScope: UserSessionScope,
+): AppSessionViewModelGraph {
+    return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount, userSessionScope)
 }

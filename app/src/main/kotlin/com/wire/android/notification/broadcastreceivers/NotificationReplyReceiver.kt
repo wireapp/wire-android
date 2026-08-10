@@ -28,7 +28,8 @@ import com.wire.android.di.NoSession
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConstants
-import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -41,9 +42,6 @@ class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argumen
     @Inject
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
-
-    @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
 
     @Inject
     @NoSession
@@ -64,7 +62,14 @@ class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argumen
             val qualifiedUserId = qualifiedIdMapper.fromStringToQualifiedID(userId)
             val qualifiedConversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
 
-            with(coreLogic.getSessionScope(qualifiedUserId)) {
+            val sessionScope = when (val preparation = UserSessionPreparationGate(coreLogic).prepare(qualifiedUserId)) {
+                is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+                is AppUserSessionPreparationResult.Failed -> {
+                    updateNotification(context, conversationId, qualifiedUserId, null)
+                    return
+                }
+            }
+            with(sessionScope) {
                 syncExecutor.request {
                     messages.sendTextMessage(qualifiedConversationId, replyText).toEither()
                         .fold(

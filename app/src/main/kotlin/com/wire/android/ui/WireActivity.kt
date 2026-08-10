@@ -20,6 +20,7 @@ package com.wire.android.ui
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -164,6 +165,8 @@ import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.ShakeDetector
+import com.wire.android.util.SupportPage
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
@@ -171,7 +174,9 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.getProviderAuthority
 import com.wire.android.util.launchUpdateTheApp
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -228,9 +233,11 @@ class WireActivity : BaseActivity() {
     private val newIntents = Channel<QueuedIntent>(Channel.UNLIMITED)
     private lateinit var shakeDetector: ShakeDetector
 
-    // This flag is used to keep the splash screen open until the first screen is drawn.
+    // The system splash only covers the short handoff to Compose. User-session preparation has
+    // its own app screen because a SQLDelight migration can take much longer.
     private var shouldKeepSplashOpen = true
     private var isAppLockActivityLaunching = false
+    private var startupJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val startupAt = SystemClock.elapsedRealtime()
@@ -248,55 +255,11 @@ class WireActivity : BaseActivity() {
         enableEdgeToEdge()
         setupOrientationForDevice()
         shakeDetector = ShakeDetector(this)
-
-        lifecycleScope.launch {
-            traceStartup("activity.startupCoroutine.begin", startupAt)
-
-            traceStartup("activity.observePersistentConnectionStatus.start", startupAt)
-            viewModel.observePersistentConnectionStatus()
-
-            traceStartup("activity.initialAppState.start", startupAt)
-            val initialAppState = viewModel.initialAppState()
-            val startDestination = when (initialAppState) {
-                InitialAppState.NotLoggedIn -> when (loginTypeSelector.canUseNewLogin()) {
-                    true -> NewWelcomeEmptyStartScreenDestination()
-                    false -> WelcomeScreenDestination()
-                }
-
-                is InitialAppState.EnrollE2EI -> E2EIEnrollmentScreenDestination(
-                    SessionBackedAuthenticationNavArgs.from(initialAppState.userId)
-                )
-
-                InitialAppState.LoggedIn -> HomeScreenDestination()
-            }
-            traceStartup("activity.initialAppState.resolved:$startDestination", startupAt)
-            setComposableContent(startDestination)
-            traceStartup("activity.setContent.done", startupAt)
-
-            // When the app is locked, get the app lock screen up before the splash screen is
-            // dismissed so that protected content never flashes. Waiting for the current user id
-            // is finite here because a locked app implies a logged-in session; when not logged in
-            // there is nothing to protect. Locks that happen after startup are handled by the
-            // lifecycle observer below.
-            if (initialAppState != InitialAppState.NotLoggedIn && lockCodeTimeManager.value.isAppLocked()) {
-                observeAppLockUserId(
-                    isAppLocked = lockCodeTimeManager.value.observeAppLock(),
-                    currentUserId = snapshotFlow { viewModel.globalAppState.currentUserId },
-                ).first().let { currentUserId ->
-                    startAppLockActivity(currentUserId = currentUserId)
-                }
-                traceStartup("activity.appLock.launched", startupAt)
-            }
-
-            traceStartup("activity.splash.hide", startupAt)
-            shouldKeepSplashOpen = false
-            traceStartup("activity.splash.dismissed", startupAt)
-            (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
-            traceStartup("activity.deferredLogging.triggered", startupAt)
-
-            handleNewIntent(initialQueuedIntent)
-            traceStartup("activity.initialIntent.dispatched", startupAt)
-        }
+        setUserSessionPreparationContent(initialQueuedIntent, startupAt)
+        traceStartup("activity.preparationContent.done", startupAt)
+        shouldKeepSplashOpen = false
+        (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
+        startForegroundStartup(initialQueuedIntent, startupAt)
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -375,6 +338,64 @@ class WireActivity : BaseActivity() {
         }
     }
 
+    private fun setUserSessionPreparationContent(initialQueuedIntent: QueuedIntent, startupAt: Long) {
+        setContent {
+            WireTheme(accent = viewModel.globalAppState.userAccent) {
+                UserSessionPreparationScreen(
+                    state = viewModel.userSessionPreparationState,
+                    onRetry = { startForegroundStartup(initialQueuedIntent, startupAt) },
+                    onUpdate = ::updateTheApp,
+                    onContactSupport = ::openSupport,
+                )
+            }
+        }
+    }
+
+    private fun startForegroundStartup(initialQueuedIntent: QueuedIntent, startupAt: Long) {
+        if (startupJob?.isActive == true) return
+        startupJob = lifecycleScope.launch {
+            traceStartup("activity.startupCoroutine.begin", startupAt)
+            traceStartup("activity.initialAppState.start", startupAt)
+            val initialAppState = viewModel.initialAppState()
+            if (initialAppState == InitialAppState.SessionPreparationFailed) {
+                traceStartup("activity.initialAppState.preparationFailed", startupAt)
+                return@launch
+            }
+            val startDestination = when (initialAppState) {
+                InitialAppState.NotLoggedIn -> when (loginTypeSelector.canUseNewLogin()) {
+                    true -> NewWelcomeEmptyStartScreenDestination()
+                    false -> WelcomeScreenDestination()
+                }
+
+                is InitialAppState.EnrollE2EI -> E2EIEnrollmentScreenDestination(
+                    SessionBackedAuthenticationNavArgs.from(initialAppState.userId)
+                )
+
+                InitialAppState.LoggedIn -> HomeScreenDestination()
+                InitialAppState.SessionPreparationFailed -> error("Handled above")
+            }
+            traceStartup("activity.initialAppState.resolved:$startDestination", startupAt)
+            setComposableContent(startDestination)
+            traceStartup("activity.setContent.done", startupAt)
+
+            traceStartup("activity.observePersistentConnectionStatus.start", startupAt)
+            viewModel.observePersistentConnectionStatus()
+
+            if (initialAppState != InitialAppState.NotLoggedIn && lockCodeTimeManager.value.isAppLocked()) {
+                observeAppLockUserId(
+                    isAppLocked = lockCodeTimeManager.value.observeAppLock(),
+                    currentUserId = snapshotFlow { viewModel.globalAppState.currentUserId },
+                ).first().let { currentUserId ->
+                    startAppLockActivity(currentUserId = currentUserId)
+                }
+                traceStartup("activity.appLock.launched", startupAt)
+            }
+
+            handleNewIntent(initialQueuedIntent)
+            traceStartup("activity.initialIntent.dispatched", startupAt)
+        }
+    }
+
     private fun traceStartup(event: String, startedAt: Long? = null) {
         val elapsed = startedAt?.let { " (+${SystemClock.elapsedRealtime() - it}ms)" }.orEmpty()
         Log.i(TAG, "startup:$event$elapsed")
@@ -421,6 +442,7 @@ class WireActivity : BaseActivity() {
     }
 
     @Composable
+    @Suppress("CyclomaticComplexMethod")
     private fun WireActivityThemedContent(
         startDestination: Direction,
         appGraph: WireApplicationGraph,
@@ -428,6 +450,15 @@ class WireActivity : BaseActivity() {
         sessionGraphStore: SessionGraphStoreViewModel,
         context: Context,
     ) {
+        if (viewModel.userSessionPreparationState !is UserSessionPreparationUiState.Ready) {
+            UserSessionPreparationScreen(
+                state = viewModel.userSessionPreparationState,
+                onRetry = viewModel::retryPendingUserSessionPreparation,
+                onUpdate = ::updateTheApp,
+                onContactSupport = ::openSupport,
+            )
+            return
+        }
         val isUserUiBlocked = viewModel.globalAppState.blockUserUI != null
         val navigator = rememberWireActivityNavigator(
             isUserUiBlocked = isUserUiBlocked,
@@ -474,6 +505,8 @@ class WireActivity : BaseActivity() {
             startDestinationBaseRoute = navHostStartDestination.baseRoute,
             isUserUiBlocked = isUserUiBlocked,
             isSessionTransitionInProgress = isSessionTransitionInProgress,
+            preparedSessionScope = sessionBackedAuthenticationUserId?.let(viewModel::preparedUserSessionScope)
+                ?: currentUserId?.let(viewModel::preparedUserSessionScope),
         )
         val lastSessionGraphContext = remember { mutableStateOf<WireActivityGraphContext?>(null) }
         if (graphContext?.sessionGraph != null) {
@@ -666,6 +699,7 @@ class WireActivity : BaseActivity() {
         startDestinationBaseRoute: String,
         isUserUiBlocked: Boolean,
         isSessionTransitionInProgress: Boolean,
+        preparedSessionScope: UserSessionScope?,
     ): WireActivityGraphContext? {
         if (isUserUiBlocked) return null
 
@@ -681,6 +715,7 @@ class WireActivity : BaseActivity() {
             usesNoSessionAuthenticationGraph,
             usesInvalidSessionBackedAuthenticationGraph,
             isSessionTransitionInProgress,
+            preparedSessionScope,
         ) {
             sessionGraphStore.resolveSessionGraph(
                 currentUserId = currentUserId,
@@ -688,6 +723,7 @@ class WireActivity : BaseActivity() {
                 usesNoSessionAuthenticationGraph = usesNoSessionAuthenticationGraph,
                 usesInvalidSessionBackedAuthenticationGraph = usesInvalidSessionBackedAuthenticationGraph,
                 isSessionTransitionInProgress = isSessionTransitionInProgress,
+                preparedSessionScope = preparedSessionScope,
             )
         }
         val sessionGraph = retainedSessionGraph?.graph
@@ -717,18 +753,21 @@ class WireActivity : BaseActivity() {
         }
     }
 
+    @Suppress("LongParameterList")
     private fun SessionGraphStoreViewModel.resolveSessionGraph(
         currentUserId: UserId?,
         sessionBackedAuthenticationUserId: UserId?,
         usesNoSessionAuthenticationGraph: Boolean,
         usesInvalidSessionBackedAuthenticationGraph: Boolean,
         isSessionTransitionInProgress: Boolean,
+        preparedSessionScope: UserSessionScope?,
     ): RetainedSessionGraph? = when {
         usesNoSessionAuthenticationGraph -> null
         usesInvalidSessionBackedAuthenticationGraph -> null
         isSessionTransitionInProgress -> null
-        sessionBackedAuthenticationUserId != null -> retainedGraphFor(sessionBackedAuthenticationUserId)
-        currentUserId != null -> retainedGraphFor(currentUserId)
+        sessionBackedAuthenticationUserId != null && preparedSessionScope != null ->
+            retainedGraphFor(sessionBackedAuthenticationUserId, preparedSessionScope)
+        currentUserId != null && preparedSessionScope != null -> retainedGraphFor(currentUserId, preparedSessionScope)
         else -> null
     }
 
@@ -1191,6 +1230,11 @@ class WireActivity : BaseActivity() {
 
     private fun updateTheApp() = this.launchUpdateTheApp()
 
+    private fun openSupport() {
+        val supportUrl = SupportUrlResolver.resolve(resources, SupportPage.SUPPORT)
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(supportUrl)))
+    }
+
     override fun onResume() {
         super.onResume()
         shakeDetector.start()
@@ -1376,16 +1420,16 @@ private data class WireActivityGraphContext(
 )
 
 internal class SessionGraphStoreViewModel(
-    private val createSessionGraph: (UserId) -> AppSessionViewModelGraph,
+    private val createSessionGraph: (UserId, UserSessionScope) -> AppSessionViewModelGraph,
 ) : ViewModel() {
     private val sessionGraphs = mutableMapOf<UserId, RetainedSessionGraph>()
     private var activeUserId: UserId? = null
 
-    fun retainedGraphFor(userId: UserId): RetainedSessionGraph {
+    fun retainedGraphFor(userId: UserId, userSessionScope: UserSessionScope): RetainedSessionGraph {
         activeUserId = userId
         return sessionGraphs.getOrPut(userId) {
             appLogger.i("WireActivity creating lifecycle-retained session graph for $userId")
-            RetainedSessionGraph(createSessionGraph(userId))
+            RetainedSessionGraph(createSessionGraph(userId, userSessionScope))
         }
     }
 

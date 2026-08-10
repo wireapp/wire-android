@@ -24,6 +24,7 @@ import androidx.work.WorkManager
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.common.logger.kaliumLogger
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.work.Work
@@ -51,8 +52,11 @@ class MonitorSyncWorkUseCase @Inject constructor(
      */
     suspend operator fun invoke() {
         allSessionsUseCase().filterIsInstance<GetAllSessionsResult.Success>().map { result ->
-            result.sessions.map { session ->
-                coreLogic.sessionScope(session.userId) { longWork }
+            result.sessions.mapNotNull { session ->
+                when (val preparation = coreLogic.prepareUserSession(session.userId)) {
+                    is PrepareUserSessionResult.Success -> preparation.sessionScope.longWork
+                    is PrepareUserSessionResult.Failure -> null
+                }
             }
         }.flatMapLatest { scopes ->
             scopes.map { scope ->

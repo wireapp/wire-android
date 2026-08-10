@@ -18,6 +18,7 @@
 package com.wire.android.ui.calling
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -32,7 +33,10 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -41,13 +45,16 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
 import com.wire.android.di.metro.LocalWireViewModelScopeKey
-import com.wire.android.di.metro.AppSessionViewModelGraph
 import com.wire.android.di.metro.createSessionViewModelGraph
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.model.LocalWireSessionImageLoader
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
+import com.wire.android.ui.UserSessionPreparationScreen
+import com.wire.android.ui.UserSessionPreparationUiState
+import com.wire.android.ui.toUiFailure
+import com.wire.android.ui.toUiState
 import com.wire.android.ui.calling.common.ProximitySensorManager
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -55,15 +62,28 @@ import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
+import com.wire.android.util.SupportPage
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.SwitchAccountObserver
+import com.wire.android.util.launchUpdateTheApp
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import dev.zacsweers.metro.HasMemberInjections
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provider
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import kotlinx.coroutines.launch
 
 @HasMemberInjections
+@Suppress("TooManyFunctions")
 abstract class CallActivity : BaseActivity() {
 
     @Inject
@@ -101,6 +121,10 @@ abstract class CallActivity : BaseActivity() {
         }
     }
     protected val qualifiedIdMapper = QualifiedIdMapper(null)
+    private var preparationState by mutableStateOf<UserSessionPreparationUiState>(
+        UserSessionPreparationUiState.ResolvingSession
+    )
+    private var preparationJob: Job? = null
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -112,18 +136,65 @@ abstract class CallActivity : BaseActivity() {
         wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         setupOrientationForDevice()
-        setUpScreenshotPreventionFlag()
         setUpCallingFlags()
 
         enableEdgeToEdge()
 
-        val sessionViewModelGraph = createCallSessionViewModelGraph(intent) ?: run {
+        val userId = intent.getStringExtra(EXTRA_USER_ID)
+            ?.let(qualifiedIdMapper::fromStringToQualifiedID)
+            ?: run {
             appLogger.e("$TAG missing call session user id, closing call activity")
             finish()
             return
         }
 
+        showPreparation(userId)
+    }
+
+    private fun showPreparation(userId: UserId) {
+        setContent {
+            WireTheme {
+                UserSessionPreparationScreen(
+                    state = preparationState,
+                    onRetry = { prepareSession(userId) },
+                    onUpdate = ::updateTheApp,
+                    onContactSupport = ::openSupport,
+                )
+            }
+        }
+        prepareSession(userId)
+    }
+
+    private fun prepareSession(userId: UserId) {
+        if (preparationJob?.isActive == true) return
+        preparationState = UserSessionPreparationUiState.ResolvingSession
+        preparationJob = lifecycleScope.launch {
+            val gate = UserSessionPreparationGate(wireApplicationGraph.coreLogic)
+            val result = coroutineScope {
+                val observer = launch(start = CoroutineStart.UNDISPATCHED) {
+                    gate.observe(userId).collect { preparationState = it.toUiState() }
+                }
+                try {
+                    gate.prepare(userId)
+                } finally {
+                    observer.cancelAndJoin()
+                }
+            }
+            when (result) {
+                is AppUserSessionPreparationResult.Ready -> showCall(userId, result.sessionScope)
+                is AppUserSessionPreparationResult.Failed -> {
+                    preparationState = UserSessionPreparationUiState.Failed(result.reason.toUiFailure())
+                }
+            }
+        }
+    }
+
+    private fun showCall(userId: UserId, userSessionScope: UserSessionScope) {
+        val sessionViewModelGraph = wireApplicationGraph.createSessionViewModelGraph(userId, userSessionScope)
+
         handleNewIntent(intent)
+        onSessionPrepared()
+        setUpScreenshotPreventionFlag()
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
@@ -159,13 +230,17 @@ abstract class CallActivity : BaseActivity() {
 
     protected abstract fun handleNewIntent(intent: Intent)
 
+    protected open fun onSessionPrepared() = Unit
+
     @Composable
     protected abstract fun Content()
 
-    private fun createCallSessionViewModelGraph(intent: Intent): AppSessionViewModelGraph? =
-        intent.getStringExtra(EXTRA_USER_ID)
-            ?.let(qualifiedIdMapper::fromStringToQualifiedID)
-            ?.let(wireApplicationGraph::createSessionViewModelGraph)
+    private fun updateTheApp() = launchUpdateTheApp()
+
+    private fun openSupport() {
+        val supportUrl = SupportUrlResolver.resolve(resources, SupportPage.SUPPORT)
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(supportUrl)))
+    }
 
     fun switchAccountIfNeeded(userId: String?) {
         userId?.let {

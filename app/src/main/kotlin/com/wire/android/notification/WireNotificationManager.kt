@@ -25,6 +25,8 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.media.PingRinger
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -41,6 +43,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
+import com.wire.kalium.logic.feature.UserSessionScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -91,6 +94,7 @@ class WireNotificationManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
     private val fetchOnceJobs = hashMapOf<UserId, Job>()
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
     private var observingWhileRunningJobs = ObservingJobs()
     private var observingPersistentlyJobs = ObservingJobs()
 
@@ -142,14 +146,25 @@ class WireNotificationManager @Inject constructor(
      * will join the first execution and return together.
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
-    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
-        val userId = checkIfUserIsAuthenticated(userIdValue) ?: return
+    @Suppress("ReturnCount")
+    suspend fun fetchAndShowNotificationsOnce(userIdValue: String): FetchNotificationsResult {
+        val userId = checkIfUserIsAuthenticated(userIdValue) ?: return FetchNotificationsResult.Failure
+        when (val preparation = userSessionPreparationGate.prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> Unit
+            is AppUserSessionPreparationResult.Failed -> {
+                appLogger.w(
+                    "$TAG user-session preparation failed for ${userId.toLogString()}: ${preparation.reason}"
+                )
+                return if (preparation.canRetry) FetchNotificationsResult.Retry else FetchNotificationsResult.Failure
+            }
+        }
 
         val syncAndNotificationJobForUser = fetchAndShowMessageNotificationsJob(userId)
 
         // Join the jobs for the user, waiting for its completion
         syncAndNotificationJobForUser?.start()
         syncAndNotificationJobForUser?.join()
+        return FetchNotificationsResult.Success
     }
 
     private suspend fun fetchAndShowMessageNotificationsJob(userId: UserId): Job? =
@@ -406,7 +421,7 @@ class WireNotificationManager @Inject constructor(
     ) {
         appLogger.d("$TAG observe incoming calls")
 
-        coreLogic.getSessionScope(userId).let { userSessionScope ->
+        preparedSessionScope(userId)?.let { userSessionScope ->
             userSessionScope.observeE2EIRequired()
                 .map { it is E2EIRequiredResult.NoGracePeriod }
                 .distinctUntilChanged()
@@ -439,7 +454,8 @@ class WireNotificationManager @Inject constructor(
         userId: UserId,
         currentScreenState: StateFlow<CurrentScreen>
     ) {
-        val selfUserNameState = coreLogic.getSessionScope(userId)
+        val userSessionScope = preparedSessionScope(userId) ?: return
+        val selfUserNameState = userSessionScope
             .users
             .observeSelfUser()
             .onEach { it.logIfEmptyUserName() }
@@ -447,12 +463,12 @@ class WireNotificationManager @Inject constructor(
             .distinctUntilChanged()
             .stateIn(scope)
 
-        val isBlockedByE2EIRequiredState = coreLogic.getSessionScope(userId).observeE2EIRequired()
+        val isBlockedByE2EIRequiredState = userSessionScope.observeE2EIRequired()
             .map { it is E2EIRequiredResult.NoGracePeriod }
             .distinctUntilChanged()
             .stateIn(scope)
 
-        coreLogic.getSessionScope(userId)
+        userSessionScope
             .messages
             .getNotifications()
             .cancellable()
@@ -504,17 +520,19 @@ class WireNotificationManager @Inject constructor(
         coreLogic.getGlobalScope().session.currentSessionFlow()
             .flatMapLatest {
                 if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
-                    val sessionScope = coreLogic.getSessionScope(it.accountInfo.userId)
-                    // wait for the initial cleanup of stale open calls to be completed before starting to observe the calls,
-                    // to avoid starting the service by mistake for the calls that are already stale
-                    sessionScope.calls.observeStaleOpenCallsCleanup()
-                        .dropWhile { completed -> !completed }
-                        .flatMapLatest {
-                            combine(
-                                sessionScope.calls.establishedCall(),
-                                sessionScope.calls.observeOutgoingCall()
-                            ) { establishedCalls, outgoingCalls -> (establishedCalls + outgoingCalls).isNotEmpty() }
-                        }
+                    flowOf(it.accountInfo.userId).flatMapLatest { userId ->
+                        val sessionScope = preparedSessionScope(userId) ?: return@flatMapLatest flowOf(null)
+                        // wait for the initial cleanup of stale open calls to be completed before starting to observe the calls,
+                        // to avoid starting the service by mistake for the calls that are already stale
+                        sessionScope.calls.observeStaleOpenCallsCleanup()
+                            .dropWhile { completed -> !completed }
+                            .flatMapLatest {
+                                combine(
+                                    sessionScope.calls.establishedCall(),
+                                    sessionScope.calls.observeOutgoingCall()
+                                ) { establishedCalls, outgoingCalls -> (establishedCalls + outgoingCalls).isNotEmpty() }
+                            }
+                    }
                 } else {
                     flowOf(null)
                 }
@@ -546,9 +564,9 @@ class WireNotificationManager @Inject constructor(
         val markNotified = conversationId?.let {
             MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId, lastNotified)
         } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
-        coreLogic.getSessionScope(userId)
-            .messages
-            .markMessagesAsNotified(markNotified)
+        preparedSessionScope(userId)
+            ?.messages
+            ?.markMessagesAsNotified(markNotified)
     }
 
     private suspend fun markConnectionAsNotified(
@@ -557,10 +575,25 @@ class WireNotificationManager @Inject constructor(
     ) {
         appLogger.d("$TAG markConnectionAsNotified")
         userId?.let {
-            coreLogic.getSessionScope(it)
-                .conversations
-                .markConnectionRequestAsNotified(connectionRequestUserId)
+            preparedSessionScope(it)
+                ?.conversations
+                ?.markConnectionRequestAsNotified(connectionRequestUserId)
         }
+    }
+
+    private suspend fun preparedSessionScope(userId: UserId): UserSessionScope? =
+        when (val result = userSessionPreparationGate.prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> result.sessionScope
+            is AppUserSessionPreparationResult.Failed -> {
+                appLogger.w("$TAG skipping database work for ${userId.toLogString()}: ${result.reason}")
+                null
+            }
+        }
+
+    sealed interface FetchNotificationsResult {
+        data object Success : FetchNotificationsResult
+        data object Retry : FetchNotificationsResult
+        data object Failure : FetchNotificationsResult
     }
 
     private fun playPingSoundIfNeeded(

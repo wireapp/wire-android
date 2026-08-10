@@ -35,6 +35,8 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -64,6 +66,7 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val coreLogic: CoreLogic,
     private val notificationChannelsManager: NotificationChannelsManager,
+    private val userSessionPreparationGate: UserSessionPreparationGate,
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result = coroutineScope {
         val userIdString = inputData.getString(USER_ID)
@@ -80,7 +83,12 @@ class DeleteConversationLocallyWorker @AssistedInject constructor(
                 return@coroutineScope Result.failure() // If no valid session exists, fail the work
             }
         }
-        when (coreLogic.getSessionScope(userId).conversations.deleteConversationLocallyUseCase(conversationId)) {
+        val sessionScope = when (val preparation = userSessionPreparationGate.prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+            is AppUserSessionPreparationResult.Failed ->
+                return@coroutineScope if (preparation.canRetry) Result.retry() else Result.failure()
+        }
+        when (sessionScope.conversations.deleteConversationLocallyUseCase(conversationId)) {
             is ClearConversationContentUseCase.Result.Failure -> Result.retry()
             ClearConversationContentUseCase.Result.Success -> Result.success()
         }

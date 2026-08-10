@@ -26,6 +26,7 @@ import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
@@ -63,7 +64,7 @@ class NomadLogoutReceiverTest {
         val intent = mockk<Intent> { every { action } returns NomadLogoutReceiver.ACTION_LOGOUT }
         arrangement.receiver.receive(arrangement.context, intent)
 
-        verify(exactly = 1) { arrangement.coreLogic.getSessionScope(userId) }
+        coVerify(exactly = 1) { arrangement.coreLogic.prepareUserSession(userId) }
         coVerifyOrder {
             arrangement.currentSession()
             arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
@@ -89,8 +90,10 @@ class NomadLogoutReceiverTest {
             arrangement.deleteSession(any())
             arrangement.accountSwitch(any())
         }
+        coVerify(exactly = 0) {
+            arrangement.coreLogic.prepareUserSession(any())
+        }
         verify(exactly = 0) {
-            arrangement.coreLogic.getSessionScope(any())
             arrangement.context.startActivity(any())
         }
     }
@@ -106,7 +109,7 @@ class NomadLogoutReceiverTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { arrangement.currentSession() }
-        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        coVerify(exactly = 0) { arrangement.coreLogic.prepareUserSession(any()) }
         coVerify(exactly = 0) {
             arrangement.logoutUseCase(any(), any())
             arrangement.deleteSession(any())
@@ -181,7 +184,7 @@ class NomadLogoutReceiverTest {
             every { coreLogic.getGlobalScope().isCurrentSessionNomadAccount } returns isCurrentSessionNomadAccount
             coEvery { isCurrentSessionNomadAccount() } returns true
             coEvery { accountSwitch(any()) } returns SwitchAccountResult.NoOtherAccountToSwitch
-            every { coreLogic.getSessionScope(any()) } returns userSessionScope
+            coEvery { coreLogic.prepareUserSession(any()) } returns preparationSuccess()
             every { nomadProfilesFeatureConfig.isEnabled() } returns true
         }
 
@@ -205,5 +208,10 @@ class NomadLogoutReceiverTest {
         fun withCurrentSessionNomadAccount(isNomad: Boolean) = apply {
             coEvery { isCurrentSessionNomadAccount() } returns isNomad
         }
+
+        private fun preparationSuccess(): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns userSessionScope
+            }
     }
 }

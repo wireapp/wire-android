@@ -47,6 +47,17 @@
     <string name="label_removing">Removing…</string>
     <string name="label_logging_in">Logging in…</string>
     <string name="label_try_again">Try Again</string>
+    <string name="user_session_preparation_opening_title">Preparing Wire</string>
+    <string name="user_session_preparation_opening_message">Opening your secure data. This may take a moment.</string>
+    <string name="user_session_preparation_migrating_title">Updating your secure data</string>
+    <string name="user_session_preparation_migrating_message">Keep Wire open while your messages are prepared for this version.</string>
+    <string name="user_session_preparation_storage_title">Free up storage</string>
+    <string name="user_session_preparation_storage_message">Wire needs more free space to safely update your secure data. Free up storage, then try again.</string>
+    <string name="user_session_preparation_temporary_title">Wire is temporarily unavailable</string>
+    <string name="user_session_preparation_temporary_message">Your secure data is busy right now. Wait a moment, then try again.</string>
+    <string name="user_session_preparation_support_title">Contact Wire support</string>
+    <string name="user_session_preparation_support_message">Wire could not safely open your secure data. Your data was not deleted or recreated.</string>
+    <string name="user_session_preparation_contact_support">Contact support</string>
     <string name="label_done">Done</string>
     <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>

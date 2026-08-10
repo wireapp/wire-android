@@ -31,6 +31,8 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -51,26 +53,50 @@ class AssetUploadObserverWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val coreLogic: CoreLogic,
     private val notificationChannelsManager: NotificationChannelsManager,
+    private val userSessionPreparationGate: UserSessionPreparationGate,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
 
         // Wait until there are no uploads in progress
         // switching to other user will cancel the observer and stop the worker
-        coreLogic.getGlobalScope().session.currentSessionFlow()
-            .filterIsInstance<CurrentSessionResult.Success>()
-            .map { it.accountInfo.userId }
-            .waitForUploadCompletion()
-
-        return Result.success()
+        return when (
+            coreLogic.getGlobalScope().session.currentSessionFlow()
+                .filterIsInstance<CurrentSessionResult.Success>()
+                .map { it.accountInfo.userId }
+                .waitForUploadCompletion()
+        ) {
+            UploadWaitResult.Complete -> Result.success()
+            UploadWaitResult.Retry -> Result.retry()
+            UploadWaitResult.Failure -> Result.failure()
+        }
     }
 
-    private suspend fun Flow<UserId>.waitForUploadCompletion() =
+    private suspend fun Flow<UserId>.waitForUploadCompletion(): UploadWaitResult =
         flatMapLatest { userId ->
-            coreLogic.getSessionScope(userId).messages.observeAssetUploadState()
-        }.first { uploadInProgress ->
-            uploadInProgress == false
-        }
+            when (
+                val preparation = userSessionPreparationGate.prepare(userId)
+            ) {
+                is AppUserSessionPreparationResult.Ready -> preparation.sessionScope.messages.observeAssetUploadState()
+                    .map { uploadInProgress -> UploadState.InProgress(uploadInProgress) }
+                is AppUserSessionPreparationResult.Failed -> kotlinx.coroutines.flow.flowOf(
+                    UploadState.PreparationFailed(preparation.canRetry)
+                )
+            }
+        }.first { state -> state !is UploadState.InProgress || !state.value }
+            .let { state ->
+                when (state) {
+                    is UploadState.InProgress -> UploadWaitResult.Complete
+                    is UploadState.PreparationFailed -> if (state.canRetry) UploadWaitResult.Retry else UploadWaitResult.Failure
+                }
+            }
+
+    private sealed interface UploadState {
+        data class InProgress(val value: Boolean) : UploadState
+        data class PreparationFailed(val canRetry: Boolean) : UploadState
+    }
+
+    private enum class UploadWaitResult { Complete, Retry, Failure }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
         notificationChannelsManager.createRegularChannel(

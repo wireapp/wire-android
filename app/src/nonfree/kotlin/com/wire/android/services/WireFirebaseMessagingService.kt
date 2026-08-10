@@ -29,42 +29,21 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.util.NetworkUtil
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.NotificationFetchWorker
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.notificationToken.Result
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import com.wire.android.workmanager.worker.NotificationTokenRegistrationWorker
 import java.util.Locale
 import dev.zacsweers.metro.Inject
 
 class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
-    @KaliumCoreLogic
-    lateinit var coreLogic: CoreLogic
-
-    @Inject
     lateinit var networkUtil: NetworkUtil
-
-    @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
-
-    private val scope by lazy {
-        // There's no UI, no need to run anything using the Main/UI Dispatcher
-        CoroutineScope(SupervisorJob() + dispatcherProvider.default())
-    }
 
     override fun onCreate() {
         val graph = wireApplicationGraph
-        coreLogic = graph.coreLogic
         networkUtil = graph.networkUtil
-        dispatcherProvider = graph.dispatcherProvider
         super.onCreate()
     }
 
@@ -127,24 +106,11 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        scope.launch {
-            coreLogic.globalScope {
-                saveNotificationToken(token, "GCM", BuildConfig.FIREBASE_PUSH_SENDER_ID)
-            }.let { result ->
-                when (result) {
-                    is Result.Failure.Generic ->
-                        appLogger.e("$TAG: token registration has an issue : ${result.failure} ")
-                    Result.Success ->
-                        appLogger.i("$TAG: token registered successfully")
-                }
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        scope.cancel()
-        appLogger.i("$TAG: onDestroy")
-        super.onDestroy()
+        NotificationTokenRegistrationWorker.enqueue(
+            WorkManager.getInstance(applicationContext),
+            token,
+            BuildConfig.FIREBASE_PUSH_SENDER_ID,
+        )
     }
 
     companion object {

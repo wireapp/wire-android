@@ -840,7 +840,7 @@ class NewLoginViewModelTest {
 
         fun withRegisterClientReturning(result: RegisterClientResult) = apply {
             coEvery {
-                loginViewModelExtension.registerClient(any(), any(), any(), any())
+                loginViewModelExtension.registerClient(any<UserId>(), any(), any(), any())
             } returns result
         }
 

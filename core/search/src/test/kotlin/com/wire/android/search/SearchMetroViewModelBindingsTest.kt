@@ -19,6 +19,7 @@ package com.wire.android.search
 
 import com.wire.android.search.apps.SearchAppsViewModel
 import com.wire.android.search.users.SearchUserViewModel
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.every
 import io.mockk.mockk
@@ -44,5 +45,28 @@ class SearchMetroViewModelBindingsTest {
 
         assertSame(expectedViewModel, actualViewModel)
         verify(exactly = 1) { searchUserFactory.create(conversationId, true) }
+    }
+
+    @Test
+    fun givenNullableProtocolInfo_whenCreatingSearchAppsViewModel_thenFocusedFactoryReceivesExactArguments() {
+        val protocolInfo = Conversation.ProtocolInfo.Proteus
+        val expectedViewModelWithoutProtocol = mockk<SearchAppsViewModel>()
+        val expectedViewModelWithProtocol = mockk<SearchAppsViewModel>()
+        val searchAppsFactory = mockk<SearchAppsViewModel.Factory> {
+            every { create(null) } returns expectedViewModelWithoutProtocol
+            every { create(protocolInfo) } returns expectedViewModelWithProtocol
+        }
+        val adapter = SearchMetroViewModelBindings.searchManualViewModelFactory(
+            searchUserFactory = mockk<SearchUserViewModel.Factory>(),
+            searchAppsFactory = searchAppsFactory,
+        ) as SearchManualViewModelFactory
+
+        val actualViewModelWithoutProtocol = adapter.searchAppsViewModel(null)
+        val actualViewModelWithProtocol = adapter.searchAppsViewModel(protocolInfo)
+
+        assertSame(expectedViewModelWithoutProtocol, actualViewModelWithoutProtocol)
+        assertSame(expectedViewModelWithProtocol, actualViewModelWithProtocol)
+        verify(exactly = 1) { searchAppsFactory.create(null) }
+        verify(exactly = 1) { searchAppsFactory.create(protocolInfo) }
     }
 }

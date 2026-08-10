@@ -25,6 +25,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -42,15 +43,18 @@ import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNot
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationCallViewModel(
-    val savedStateHandle: SavedStateHandle,
-    currentAccount: UserId,
+class ConversationCallViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
+    @CurrentAccount currentAccount: UserId,
     private val observeJoinableCalls: ObserveJoinableCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
@@ -64,6 +68,11 @@ class ConversationCallViewModel(
     private val observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase,
     private val observeSelf: ObserveSelfUserUseCase
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ConversationCallViewModel
+    }
+
     val callManager = JoinOrStartCallManager(
         scope = viewModelScope,
         currentAccount = currentAccount,

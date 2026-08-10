@@ -814,11 +814,7 @@ class WireActivity : BaseActivity() {
             callFeedbackViewModel = viewModel(
                 viewModelStoreOwner = retainedSessionGraph,
                 key = "CallFeedbackViewModel:$scopeKey",
-                factory = viewModelFactory {
-                    initializer {
-                        graph.callingViewModelFactory.callFeedbackViewModel()
-                    }
-                }
+                factory = graph.metroViewModelFactory,
             ),
             featureFlagNotificationViewModel = viewModel(
                 viewModelStoreOwner = retainedSessionGraph,

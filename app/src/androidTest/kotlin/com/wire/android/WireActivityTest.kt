@@ -63,7 +63,6 @@ class WireActivityTest {
     private val appInitializationRule = object : ExternalResource() {
         override fun before() {
             val context = ApplicationProvider.getApplicationContext<Application>()
-            context.deleteDatabase("global-db") // GLOBAL_DB_NAME in FileNameUtil
             WorkManagerTestInitHelper.initializeTestWorkManager(context)
             initializeApplicationLoggingFrameworks()
         }

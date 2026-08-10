@@ -58,9 +58,10 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import dev.zacsweers.metro.HasMemberInjections
-import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Provider
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import kotlinx.coroutines.launch
 
 @HasMemberInjections
 abstract class CallActivity : BaseActivity() {
@@ -70,6 +71,9 @@ abstract class CallActivity : BaseActivity() {
 
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
+
+    @Inject
+    lateinit var callActivityViewModelProvider: Provider<CallActivityViewModel>
 
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
@@ -92,7 +96,7 @@ abstract class CallActivity : BaseActivity() {
     private val callActivityViewModel: CallActivityViewModel by viewModels {
         viewModelFactory {
             initializer {
-                imageAssetViewModelGraph.callingViewModelFactory.callActivityViewModel()
+                callActivityViewModelProvider()
             }
         }
     }

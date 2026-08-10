@@ -49,7 +49,6 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.calling.CallingManualViewModelFactory
-import com.wire.android.ui.calling.CallingViewModelFactory
 import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.incoming.IncomingCallViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
@@ -218,46 +217,51 @@ object WireMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelKey(CallFeedbackViewModel::class)
-    fun callFeedbackViewModel(factory: CallingViewModelFactory): ViewModel =
-        factory.callFeedbackViewModel()
+    fun callFeedbackViewModel(viewModel: CallFeedbackViewModel): ViewModel =
+        viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(ConversationCallViewModel::class)
-    fun conversationCallViewModel(factory: CallingViewModelFactory): ViewModelAssistedFactory =
+    fun conversationCallViewModel(factory: ConversationCallViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.conversationCallViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(MeetingsCallViewModel::class)
-    fun joinOrStartCallViewModel(factory: CallingViewModelFactory): ViewModel =
-        factory.meetingsCallViewModel()
+    fun joinOrStartCallViewModel(viewModel: MeetingsCallViewModel): ViewModel =
+        viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(ConversationListCallViewModelImpl::class)
-    fun conversationListCallViewModel(factory: CallingViewModelFactory): ViewModel =
-        factory.conversationListCallViewModel()
+    fun conversationListCallViewModel(viewModel: ConversationListCallViewModelImpl): ViewModel =
+        viewModel
 
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(CallingManualViewModelFactory::class)
-    fun callingManualViewModelFactory(factory: CallingViewModelFactory): ManualViewModelAssistedFactory =
+    fun callingManualViewModelFactory(
+        incomingCallFactory: IncomingCallViewModel.Factory,
+        outgoingCallFactory: OutgoingCallViewModel.Factory,
+        ongoingCallFactory: OngoingCallViewModel.Factory,
+        sharedCallingFactory: SharedCallingViewModel.Factory,
+    ): ManualViewModelAssistedFactory =
         object : CallingManualViewModelFactory {
             override fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel =
-                factory.incomingCallViewModel(conversationId)
+                incomingCallFactory.create(conversationId)
 
             override fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel =
-                factory.outgoingCallViewModel(conversationId)
+                outgoingCallFactory.create(conversationId)
 
             override fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel =
-                factory.ongoingCallViewModel(conversationId)
+                ongoingCallFactory.create(conversationId)
 
             override fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewModel =
-                factory.sharedCallingViewModel(conversationId)
+                sharedCallingFactory.create(conversationId)
         }
 
     @Provides

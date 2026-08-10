@@ -223,7 +223,7 @@ class ConversationOptionsMenuViewModelImpl(
                     conversationId = conversationId,
                     shouldArchiveConversation = shouldArchive,
                     onlyLocally = !isSelfAMember,
-                    archivedStatusTimestamp = DateTimeUtil.currentInstant().toEpochMilliseconds()
+                    archivedStatusTimestamp = DateTimeUtil.currentInstant()
                 )
             }.let { result ->
                 when (result) {
@@ -241,7 +241,7 @@ class ConversationOptionsMenuViewModelImpl(
                 updateConversationMutedStatus(
                     conversationId = conversationId,
                     mutedConversationStatus = mutedConversationStatus,
-                    mutedStatusTimestamp = DateTimeUtil.currentInstant().toEpochMilliseconds()
+                    mutedStatusTimestamp = DateTimeUtil.currentInstant()
                 )
             }.let { result ->
                 when (result) {

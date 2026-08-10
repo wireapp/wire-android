@@ -22,8 +22,6 @@ import com.wire.android.di.ImageLoadingModule
 import com.wire.android.ui.MiscViewModelFactory
 import com.wire.android.ui.MiscViewModelGraph
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
-import com.wire.android.ui.calling.CallingViewModelFactory
-import com.wire.android.ui.calling.CallingViewModelGraph
 import com.wire.android.ui.common.CommonViewModelFactory
 import com.wire.android.ui.common.CommonViewModelGraph
 import com.wire.android.ui.debug.DebugInfoViewModelFactory
@@ -48,7 +46,6 @@ interface AppSessionViewModelGraph :
     ViewModelGraph,
     MiscViewModelGraph,
     AuthenticationViewModelGraph,
-    CallingViewModelGraph,
     DebugInfoViewModelGraph,
     HomeViewModelGraph,
     CommonViewModelGraph {
@@ -61,7 +58,6 @@ interface AppSessionViewModelGraph :
     val wireSessionImageLoader: WireSessionImageLoader
 
     override val miscViewModelFactory: MiscViewModelFactory
-    override val callingViewModelFactory: CallingViewModelFactory
     override val debugInfoViewModelFactory: DebugInfoViewModelFactory
     override val homeViewModelFactory: HomeViewModelFactory
     override val commonViewModelFactory: CommonViewModelFactory

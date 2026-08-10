@@ -42,10 +42,6 @@ interface CallingManualViewModelFactory : ManualViewModelAssistedFactory {
     fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewModel
 }
 
-interface CallingViewModelGraph {
-    val callingViewModelFactory: CallingViewModelFactory
-}
-
 @Composable
 fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel =
     sessionKeyedAssistedMetroViewModel<IncomingCallViewModel, CallingManualViewModelFactory>(

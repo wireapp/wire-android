@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
@@ -31,6 +32,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ShouldAskCallFeedbackUseCaseResult
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -40,8 +42,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
-class CallFeedbackViewModel(
-    private val coreLogic: Lazy<CoreLogic>,
+class CallFeedbackViewModel @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val isAnalyticsAvailable: Lazy<IsAnalyticsAvailableUseCase>,
     private val analyticsManager: Lazy<AnonymousAnalyticsManager>,

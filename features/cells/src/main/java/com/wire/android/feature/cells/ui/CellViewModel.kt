@@ -337,7 +337,7 @@ class CellViewModel(
     private fun startOpenDownload(cellNode: CellNodeUi.File) {
         openFileDownloadController.start(
             scope = viewModelScope,
-            cellNode = cellNode,
+            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: navArgs.conversationId),
             onOpenFile = ::openLocalFile,
             onError = { sendAction(ShowError(it)) },
         )
@@ -403,14 +403,17 @@ class CellViewModel(
                     return
                 }
             }
+
             AttachmentFileType.VIDEO -> {
                 sendAction(OpenVideoViewer(file))
                 return
             }
+
             AttachmentFileType.AUDIO -> {
                 sendAction(OpenAudioPlayer(file))
                 return
             }
+
             else -> Unit
         }
         file.contentUrl?.let { url ->
@@ -433,14 +436,17 @@ class CellViewModel(
                     return
                 }
             }
+
             AttachmentFileType.VIDEO -> {
                 sendAction(OpenVideoViewer(file))
                 return
             }
+
             AttachmentFileType.AUDIO -> {
                 sendAction(OpenAudioPlayer(file))
                 return
             }
+
             else -> Unit
         }
         file.localPath?.let { path ->

@@ -29,15 +29,23 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class ConversationMigrationViewModel(
-    val savedStateHandle: SavedStateHandle,
+class ConversationMigrationViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ConversationMigrationViewModel
+    }
 
     /**
      * Represents the target conversation, after a conversation migration.

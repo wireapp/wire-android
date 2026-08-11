@@ -38,6 +38,9 @@ import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersona
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -45,8 +48,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
-class HomeViewModel(
-    val savedStateHandle: SavedStateHandle,
+class HomeViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val dataStore: UserDataStore,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
@@ -54,6 +57,11 @@ class HomeViewModel(
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
     private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
 ) : ActionsViewModel<HomeRequirement>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): HomeViewModel
+    }
 
     @VisibleForTesting
     var homeState by mutableStateOf(HomeState())

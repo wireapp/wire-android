@@ -29,8 +29,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import dev.zacsweers.metro.Inject
 
-class DebugFeatureFlagsViewModel(
+class DebugFeatureFlagsViewModel @Inject constructor(
     private val getFeatureConfig: GetFeatureConfigUseCase,
 ) : ViewModel() {
 

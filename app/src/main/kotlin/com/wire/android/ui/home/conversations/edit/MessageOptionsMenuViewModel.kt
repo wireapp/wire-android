@@ -17,6 +17,10 @@
  */
 package com.wire.android.ui.home.conversations.edit
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ScopedArgs
@@ -42,10 +46,14 @@ interface MessageOptionsMenuViewModel {
         MutableStateFlow(MessageOptionsMenuState.Message(mockMessageWithText))
 }
 
-class MessageOptionsMenuViewModelImpl(
+class MessageOptionsMenuViewModelImpl @AssistedInject constructor(
     private val observeMessageForConversation: ObserveMessageForConversationUseCase,
-    private val args: MessageOptionsMenuArgs,
+    @Assisted private val args: MessageOptionsMenuArgs,
 ) : MessageOptionsMenuViewModel, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: MessageOptionsMenuArgs): MessageOptionsMenuViewModelImpl
+    }
 
     private val currentIdFlow = MutableStateFlow<String?>(null)
     private val stateFlow = currentIdFlow

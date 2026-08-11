@@ -784,7 +784,7 @@ class WireActivity : BaseActivity() {
                 key = "FeatureFlagNotificationViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
-                        graph.homeViewModelFactory.featureFlagNotificationViewModel()
+                        graph.featureFlagNotificationViewModel()
                     }
                 }
             ),
@@ -793,7 +793,7 @@ class WireActivity : BaseActivity() {
                 key = "CommonTopAppBarViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
-                        graph.commonViewModelFactory.commonTopAppBarViewModel(
+                        graph.commonTopAppBarViewModelFactory.create(
                             CommonTopAppBarParams(showNoNetwork = true, showSync = true, showActiveCalls = true)
                         )
                     }
@@ -804,7 +804,7 @@ class WireActivity : BaseActivity() {
                 key = "LegalHoldRequestedViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
-                        graph.miscViewModelFactory.legalHoldRequestedViewModel()
+                        graph.legalHoldRequestedViewModel()
                     }
                 }
             ),
@@ -813,7 +813,7 @@ class WireActivity : BaseActivity() {
                 key = "LegalHoldDeactivatedViewModel:$scopeKey",
                 factory = viewModelFactory {
                     initializer {
-                        graph.miscViewModelFactory.legalHoldDeactivatedViewModel()
+                        graph.legalHoldDeactivatedViewModel()
                     }
                 }
             ),

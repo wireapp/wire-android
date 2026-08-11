@@ -32,14 +32,20 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
 // TODO: Cover this viewModel  with unit test
-class CreateAccountDetailsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountDetailsViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateAccountDetailsViewModel
+    }
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 

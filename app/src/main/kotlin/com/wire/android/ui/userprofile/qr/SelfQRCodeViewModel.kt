@@ -26,6 +26,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationContext
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
@@ -41,16 +42,22 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.FileOutputStream
-import dev.zacsweers.metro.Inject
-class SelfQRCodeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val context: Context,
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+class SelfQRCodeViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
+    @ApplicationContext private val context: Context,
     @CurrentAccount private val selfUserId: UserId,
     private val selfServerLinks: SelfServerConfigUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatchers: DispatcherProvider,
     private val analyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): SelfQRCodeViewModel
+    }
     private val selfQrCodeNavArgs: SelfQrCodeNavArgs = savedStateHandle.navArgs()
     var selfQRCodeState by mutableStateOf(
         SelfQRCodeState(

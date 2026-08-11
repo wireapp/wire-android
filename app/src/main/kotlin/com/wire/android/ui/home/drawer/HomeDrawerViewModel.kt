@@ -32,6 +32,9 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -39,13 +42,18 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
-class HomeDrawerViewModel(
-    val savedStateHandle: SavedStateHandle,
+class HomeDrawerViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): HomeDrawerViewModel
+    }
 
     var drawerState by mutableStateOf(HomeDrawerState())
         private set

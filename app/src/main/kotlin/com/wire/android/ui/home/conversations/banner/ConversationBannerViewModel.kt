@@ -38,18 +38,26 @@ import com.wire.kalium.logic.data.user.type.isFederated
 import com.wire.kalium.logic.data.user.type.isGuest
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ConversationBannerViewModel(
-    val savedStateHandle: SavedStateHandle,
+class ConversationBannerViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val notifyConversationIsOpen: NotifyConversationIsOpenUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ConversationBannerViewModel
+    }
 
     var bannerState by mutableStateOf<UIText?>(null)
 

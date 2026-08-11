@@ -37,6 +37,9 @@ import com.wire.kalium.logic.data.meeting.CreateMeeting
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
@@ -80,11 +83,15 @@ class NewMeetingViewModelPreview(
     override val state: NewMeetingState = initialState(currentTimeProvider)
 }
 
-class NewMeetingViewModelImpl(
-    savedStateHandle: SavedStateHandle,
+class NewMeetingViewModelImpl @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     override val currentTimeProvider: CurrentTimeProvider,
     private val createNewMeeting: CreateNewMeetingUseCase,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): NewMeetingViewModelImpl
+    }
     val navArgs: NewMeetingNavArgs = savedStateHandle.navArgs()
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()

@@ -33,12 +33,15 @@ object SearchMetroViewModelBindings {
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(SearchManualViewModelFactory::class)
-    fun searchManualViewModelFactory(factory: SearchViewModelFactory): ManualViewModelAssistedFactory =
+    fun searchManualViewModelFactory(
+        searchUserFactory: SearchUserViewModel.Factory,
+        searchAppsFactory: SearchAppsViewModel.Factory,
+    ): ManualViewModelAssistedFactory =
         object : SearchManualViewModelFactory {
             override fun searchUserViewModel(conversationId: ConversationId?, onlyConnectedContacts: Boolean): SearchUserViewModel =
-                factory.searchUserViewModel(conversationId, onlyConnectedContacts)
+                searchUserFactory.create(conversationId, onlyConnectedContacts)
 
             override fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel =
-                factory.searchAppsViewModel(protocolInfo)
+                searchAppsFactory.create(protocolInfo)
         }
 }

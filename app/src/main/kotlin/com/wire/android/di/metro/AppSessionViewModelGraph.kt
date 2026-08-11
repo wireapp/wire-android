@@ -19,21 +19,19 @@ package com.wire.android.di.metro
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ImageLoadingModule
-import com.wire.android.ui.MiscViewModelFactory
 import com.wire.android.ui.MiscViewModelGraph
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
-import com.wire.android.ui.common.CommonViewModelFactory
 import com.wire.android.ui.common.CommonViewModelGraph
-import com.wire.android.ui.debug.DebugInfoViewModelFactory
-import com.wire.android.ui.debug.DebugInfoViewModelGraph
-import com.wire.android.ui.home.HomeViewModelFactory
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.home.HomeViewModelGraph
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.Provider
 import dev.zacsweers.metro.Scope
 import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metrox.viewmodel.ViewModelGraph
@@ -46,7 +44,6 @@ interface AppSessionViewModelGraph :
     ViewModelGraph,
     MiscViewModelGraph,
     AuthenticationViewModelGraph,
-    DebugInfoViewModelGraph,
     HomeViewModelGraph,
     CommonViewModelGraph {
     @get:CurrentAccount
@@ -57,10 +54,8 @@ interface AppSessionViewModelGraph :
 
     val wireSessionImageLoader: WireSessionImageLoader
 
-    override val miscViewModelFactory: MiscViewModelFactory
-    override val debugInfoViewModelFactory: DebugInfoViewModelFactory
-    override val homeViewModelFactory: HomeViewModelFactory
-    override val commonViewModelFactory: CommonViewModelFactory
+    override val featureFlagNotificationViewModel: Provider<FeatureFlagNotificationViewModel>
+    override val commonTopAppBarViewModelFactory: CommonTopAppBarViewModel.Factory
 
     @ContributesTo(AppScope::class)
     @GraphExtension.Factory

@@ -26,6 +26,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
 import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,10 +38,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class AudioPlayerViewModel(
+class AudioPlayerViewModel @AssistedInject constructor(
     @ApplicationContext context: Context,
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): AudioPlayerViewModel
+    }
 
     private val navArgs = CellAudioPlayerScreenDestination.argsFrom(savedStateHandle)
     val localPath: String? = navArgs.localPath

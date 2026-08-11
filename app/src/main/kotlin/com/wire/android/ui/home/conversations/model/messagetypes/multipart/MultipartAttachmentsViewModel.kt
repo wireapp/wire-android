@@ -42,6 +42,9 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -129,8 +132,8 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
 }
 
 @Suppress("LongParameterList")
-class MultipartAttachmentsViewModelImpl(
-    private val conversationId: ConversationId,
+class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
+    @Assisted private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,
     private val download: DownloadCellFileUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -141,6 +144,11 @@ class MultipartAttachmentsViewModelImpl(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): MultipartAttachmentsViewModelImpl
+    }
 
     private val uploadProgress = mutableStateMapOf<String, Float>()
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFilesByConversation(conversationId)

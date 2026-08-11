@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.home.messagecomposer.attachments
 
+import dev.zacsweers.metro.Inject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,7 +34,7 @@ interface IsFileSharingEnabledViewModel {
     fun isFileSharingEnabled(): Boolean = true
 }
 
-class IsFileSharingEnabledViewModelImpl(
+class IsFileSharingEnabledViewModelImpl @Inject constructor(
     private val isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase,
 ) : IsFileSharingEnabledViewModel, ViewModel() {
 

@@ -32,19 +32,27 @@ import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordU
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.RandomPassword
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-internal class PublicLinkPasswordScreenViewModel(
+internal class PublicLinkPasswordScreenViewModel @AssistedInject constructor(
     private val generateRandomPassword: RandomPassword,
     private val createPassword: CreatePublicLinkPasswordUseCase,
     private val updatePassword: UpdatePublicLinkPasswordUseCase,
     private val getPublicLinkPassword: GetPublicLinkPasswordUseCase,
-    val savedStateHandle: SavedStateHandle,
+    @Assisted val savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<PublicLinkPasswordScreenAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): PublicLinkPasswordScreenViewModel
+    }
 
     private val navArgs: PublicLinkPasswordNavArgs = PublicLinkPasswordScreenDestination.argsFrom(savedStateHandle)
 

@@ -43,6 +43,9 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
@@ -52,8 +55,8 @@ import kotlinx.coroutines.withContext
 import okio.Path
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class MediaGalleryViewModel(
-    savedStateHandle: SavedStateHandle,
+class MediaGalleryViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
@@ -63,6 +66,11 @@ class MediaGalleryViewModel(
     private val getCellNode: GetCellFileUseCase,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
 ) : ActionsViewModel<MediaGalleryAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MediaGalleryViewModel
+    }
 
     private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
 

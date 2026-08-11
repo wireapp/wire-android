@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.e2eiEnrollment
 
+import dev.zacsweers.metro.Inject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,7 +38,7 @@ data class E2EIEnrollmentState(
     val startGettingE2EICertificate: Boolean = false
 )
 
-class E2EIEnrollmentViewModel(
+class E2EIEnrollmentViewModel @Inject constructor(
     private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollmentUseCase,
 ) : ViewModel() {
     var state by mutableStateOf(E2EIEnrollmentState())

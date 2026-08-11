@@ -33,6 +33,9 @@ import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.util.splitFileExtension
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -40,10 +43,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
-class RenameNodeViewModel(
-    val savedStateHandle: SavedStateHandle,
+class RenameNodeViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val renameNodeUseCase: RenameNodeUseCase,
 ) : ActionsViewModel<RenameNodeViewModelAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): RenameNodeViewModel
+    }
 
     private val navArgs: RenameNodeNavArgs = RenameNodeScreenDestination.argsFrom(savedStateHandle)
 

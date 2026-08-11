@@ -30,18 +30,26 @@ import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.GetPublicLinkUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class PublicLinkViewModel(
-    val savedStateHandle: SavedStateHandle,
+class PublicLinkViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val createPublicLink: CreatePublicLinkUseCase,
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
     private val fileHelper: FileHelper,
 ) : ActionsViewModel<PublicLinkViewAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): PublicLinkViewModel
+    }
 
     private val navArgs: PublicLinkNavArgs = PublicLinkScreenDestination.argsFrom(savedStateHandle)
 

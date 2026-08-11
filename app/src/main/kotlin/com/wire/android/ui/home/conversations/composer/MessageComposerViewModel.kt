@@ -56,6 +56,9 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -68,8 +71,8 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class MessageComposerViewModel(
-    val savedStateHandle: SavedStateHandle,
+class MessageComposerViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -87,6 +90,11 @@ class MessageComposerViewModel(
     private val globalDataStore: GlobalDataStore,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MessageComposerViewModel
+    }
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
         private set

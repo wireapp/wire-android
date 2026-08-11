@@ -16,6 +16,9 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.settings.devices.e2ei
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,10 +28,14 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.coroutines.launch
 
-class E2eiCertificateDetailsViewModel(
-    savedStateHandle: SavedStateHandle,
+class E2eiCertificateDetailsViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val getSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): E2eiCertificateDetailsViewModel
+    }
     private val navArgs: E2eiCertificateDetailsScreenNavArgs =
         savedStateHandle.navArgs()
     private var selfUserHandle: String? = null

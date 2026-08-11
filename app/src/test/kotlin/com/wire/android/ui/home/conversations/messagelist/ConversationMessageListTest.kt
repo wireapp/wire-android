@@ -16,13 +16,13 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversations.messagelist
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 
-class ConversationScreenTest {
+class ConversationMessageListTest {
 
     @Test
     fun givenSelectedMessage_whenCheckingAutoTrigger_thenReturnsFalse() {

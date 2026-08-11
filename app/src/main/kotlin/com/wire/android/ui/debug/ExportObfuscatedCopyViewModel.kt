@@ -40,6 +40,7 @@ import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.util.DelicateKaliumApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import dev.zacsweers.metro.Inject
 @ViewModelScopedPreview
 interface ExportObfuscatedCopyViewModel {
 
@@ -54,7 +55,7 @@ interface ExportObfuscatedCopyViewModel {
     fun cancelBackupCreation() {}
 }
 
-class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) constructor(
+class ExportObfuscatedCopyViewModelImpl @Inject @OptIn(DelicateKaliumApi::class) constructor(
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     private val fileManager: FileManager,

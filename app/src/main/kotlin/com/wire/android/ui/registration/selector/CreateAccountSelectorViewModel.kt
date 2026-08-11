@@ -24,13 +24,20 @@ import com.wire.android.datastore.GlobalDataStore
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class CreateAccountSelectorViewModel @Inject constructor(
+class CreateAccountSelectorViewModel @AssistedInject constructor(
     private val globalDataStore: GlobalDataStore,
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateAccountSelectorViewModel
+    }
+
     val navArgs: CreateAccountSelectorNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
     val email: String = navArgs.email.orEmpty()

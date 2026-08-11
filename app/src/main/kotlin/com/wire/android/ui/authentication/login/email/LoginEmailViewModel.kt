@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.datastore.GlobalDataStore
@@ -38,6 +39,7 @@ import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
+import com.wire.android.ui.authentication.login.SavedStateLoginSavedInputStore
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
@@ -68,6 +70,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -79,8 +82,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "ComplexMethod", "TooManyFunctions")
-class LoginEmailViewModel @AssistedInject constructor(
-    @Assisted val loginNavArgs: LoginNavArgs,
+class LoginEmailViewModel(
+    val loginNavArgs: LoginNavArgs,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedInputStore: LoginSavedInputStore,
@@ -102,6 +105,37 @@ class LoginEmailViewModel @AssistedInject constructor(
     defaultServerConfig,
     isDefaultBackendConfigured,
 ) {
+    @AssistedInject
+    constructor(
+        @Assisted loginNavArgs: LoginNavArgs,
+        @Assisted savedStateHandle: SavedStateHandle,
+        addAuthenticatedUser: AddAuthenticatedUserUseCase,
+        clientScopeProviderFactory: ClientScopeProvider.Factory,
+        userDataStoreProvider: UserDataStoreProvider,
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        resendCodeTimer: CountdownTimer,
+        dispatchers: DispatcherProvider,
+        defaultServerConfig: ServerConfig.Links,
+        @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
+        @Named("isDefaultBackendConfigured") isDefaultBackendConfigured: Boolean,
+        getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
+        globalDataStore: Lazy<GlobalDataStore>,
+    ) : this(
+        loginNavArgs = loginNavArgs,
+        addAuthenticatedUser = addAuthenticatedUser,
+        clientScopeProviderFactory = clientScopeProviderFactory,
+        savedInputStore = SavedStateLoginSavedInputStore(savedStateHandle),
+        userDataStoreProvider = userDataStoreProvider,
+        coreLogic = coreLogic,
+        resendCodeTimer = resendCodeTimer,
+        dispatchers = dispatchers,
+        defaultServerConfig = defaultServerConfig,
+        defaultWebSocketEnabledByDefault = defaultWebSocketEnabledByDefault,
+        isDefaultBackendConfigured = isDefaultBackendConfigured,
+        getServerConfigUseCase = getServerConfigUseCase,
+        globalDataStore = globalDataStore,
+    )
+
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
 
     val userIdentifierTextState: TextFieldState = TextFieldState()
@@ -119,7 +153,7 @@ class LoginEmailViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(loginNavArgs: LoginNavArgs): LoginEmailViewModel
+        fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle): LoginEmailViewModel
     }
 
     init {

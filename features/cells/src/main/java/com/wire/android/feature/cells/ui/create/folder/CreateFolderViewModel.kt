@@ -31,14 +31,22 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class CreateFolderViewModel(
-    val savedStateHandle: SavedStateHandle,
+class CreateFolderViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val createFolderUseCase: CreateFolderUseCase,
 ) : ActionsViewModel<CreateFolderViewModelAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateFolderViewModel
+    }
 
     private val navArgs: CreateFolderScreenNavArgs = CreateFolderScreenDestination.argsFrom(savedStateHandle)
 

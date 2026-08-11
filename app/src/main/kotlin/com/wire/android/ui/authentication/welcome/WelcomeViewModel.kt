@@ -32,14 +32,21 @@ import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class WelcomeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class WelcomeViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val getSessions: GetSessionsUseCase,
     private val doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): WelcomeViewModel
+    }
+
     private val navArgs: WelcomeNavArgs = savedStateHandle.navArgs()
 
     var state by mutableStateOf(WelcomeScreenState(navArgs.customServerConfig ?: defaultServerConfig))

@@ -31,9 +31,9 @@ object CoreUICommonMetroViewModelBindings {
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(CoreUICommonManualViewModelFactory::class)
-    fun searchManualViewModelFactory(factory: CoreUICommonViewModelFactory): ManualViewModelAssistedFactory =
+    internal fun coreUICommonManualViewModelFactory(factory: ConnectionActionButtonViewModelImpl.Factory): ManualViewModelAssistedFactory =
         object : CoreUICommonManualViewModelFactory {
             override fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl =
-                factory.connectionActionButtonViewModel(args)
+                factory.create(args)
         }
 }

@@ -23,12 +23,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ApplicationContext
 import com.wire.android.util.getDependenciesVersion
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.launch
+import dev.zacsweers.metro.Inject
 
-class DependenciesViewModel(
-    val context: Context
+class DependenciesViewModel @Inject constructor(
+    @ApplicationContext val context: Context
 ) : ViewModel() {
 
     var state: DependenciesState by mutableStateOf(DependenciesState())

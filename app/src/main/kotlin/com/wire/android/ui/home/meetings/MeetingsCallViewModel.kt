@@ -20,6 +20,7 @@ package com.wire.android.ui.home.meetings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.home.conversations.call.JoinOrStartCallManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.user.UserId
@@ -31,10 +32,11 @@ import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNot
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import dev.zacsweers.metro.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class MeetingsCallViewModel(
-    currentAccount: UserId,
+class MeetingsCallViewModel @Inject constructor(
+    @CurrentAccount currentAccount: UserId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
     private val answerCall: AnswerCallUseCase,

@@ -29,6 +29,7 @@ import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -48,6 +49,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -386,6 +388,7 @@ class GlobalObserversManagerTest {
             every { notificationChannelsManager.createUserNotificationChannels(any()) } returns Unit
             every { coreLogic.getGlobalScope().logoutCallbackManager } returns logoutCallbackManager
             every { coreLogic.getSessionScope(any()) } returns userSessionScope
+            coEvery { coreLogic.prepareUserSession(any()) } returns preparationSuccess(userSessionScope)
             every { callsScope.endCallOnConversationChange } returns endCallOnConversationChangeUseCase
             coEvery { endCallOnConversationChangeUseCase.invoke() } returns Unit
             every { userSessionScope.calls } returns callsScope
@@ -399,6 +402,11 @@ class GlobalObserversManagerTest {
             withAppVisibleFlow(true)
             withNetworkState(NetworkState.ConnectedWithInternet)
         }
+
+        private fun preparationSuccess(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns sessionScope
+            }
 
         fun withValidAccounts(list: List<Pair<SelfUser, Team?>>): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flowOf(list)

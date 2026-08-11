@@ -52,10 +52,11 @@ fun ObserveCurrentSessionAnalyticsUseCase(
     currentSessionFlow: Flow<CurrentSessionResult>,
     getAnalyticsContactsData: suspend (UserId) -> AnalyticsContactsData,
     observeAnalyticsTrackingIdentifierStatusFlow: suspend (UserId) -> Flow<AnalyticsIdentifierResult>,
-    analyticsIdentifierManagerProvider: (UserId) -> AnalyticsIdentifierManager,
+    analyticsIdentifierManagerProvider: suspend (UserId) -> AnalyticsIdentifierManager,
     userDataStoreProvider: UserDataStoreProvider,
     globalDataStore: GlobalDataStore,
-    currentBackend: suspend (UserId) -> SelfServerConfigUseCase.Result
+    currentBackend: suspend (UserId) -> SelfServerConfigUseCase.Result,
+    prepareSession: suspend (UserId) -> Boolean = { true },
 ) = object : ObserveCurrentSessionAnalyticsUseCase {
 
     private var previousAnalyticsResult: AnalyticsIdentifierResult? = null
@@ -89,6 +90,9 @@ fun ObserveCurrentSessionAnalyticsUseCase(
 
             if (currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid()) {
                 val userId = currentSession.accountInfo.userId
+                if (!prepareSession(userId)) {
+                    return@flatMapLatest flowOf(disabledAnalyticsResult())
+                }
                 val analyticsIdentifierManager = analyticsIdentifierManagerProvider(userId)
                 combine(
                     observeAnalyticsTrackingIdentifierStatusFlow(userId)
@@ -131,22 +135,22 @@ fun ObserveCurrentSessionAnalyticsUseCase(
                     )
                 }
             } else {
-                flowOf(
-                    AnalyticsResult<AnalyticsIdentifierManager>(
-                        identifierResult = AnalyticsIdentifierResult.Disabled,
-                        profileProperties = {
-                            AnalyticsProfileProperties(
-                                isTeamMember = false,
-                                teamId = null,
-                                contactsAmount = null,
-                                teamMembersAmount = null,
-                                isEnterprise = null
-                            )
-                        },
-                        manager = null
-                    )
-                )
+                flowOf(disabledAnalyticsResult())
             }
         }.distinctUntilChanged()
     }
 }
+
+private fun disabledAnalyticsResult() = AnalyticsResult<AnalyticsIdentifierManager>(
+    identifierResult = AnalyticsIdentifierResult.Disabled,
+    profileProperties = {
+        AnalyticsProfileProperties(
+            isTeamMember = false,
+            teamId = null,
+            contactsAmount = null,
+            teamMembersAmount = null,
+            isEnterprise = null,
+        )
+    },
+    manager = null,
+)

@@ -22,6 +22,7 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
@@ -33,6 +34,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -90,11 +92,17 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
+            coEvery { coreLogic.prepareUserSession(USER_ID) } returns preparationSuccess(userSessionScope)
             every { userSessionScope.syncManager } returns syncStateObserver
             every { syncStateObserver.syncState } returns MutableStateFlow(SyncState.Live)
             every { userSessionScope.sendPendingMessages } returns sendPendingMessages
             coEvery { sendPendingMessages() } returns SendPendingMessagesUseCase.Result.Success
         }
+
+        private fun preparationSuccess(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns sessionScope
+            }
 
         fun withNextSyncRequestResult(syncRequestResult: SyncRequestResult) = apply {
             syncExecutor = object : FakeSyncExecutor() {

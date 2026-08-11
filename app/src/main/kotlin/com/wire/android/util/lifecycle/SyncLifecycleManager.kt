@@ -20,6 +20,8 @@ package com.wire.android.util.lifecycle
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
@@ -51,6 +53,7 @@ class SyncLifecycleManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
 
     private val logger by lazy { appLogger.withFeatureId(SYNC).withTextTag("SyncLifecycleManager") }
 
@@ -91,7 +94,8 @@ class SyncLifecycleManager @Inject constructor(
                             )
                             logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
                             try {
-                                coreLogic.getSessionScope(userId).syncExecutor.request {
+                                val sessionScope = preparedSessionScope(userId) ?: return@launch
+                                sessionScope.syncExecutor.request {
                                     awaitCancellation()
                                 }
                             } finally {
@@ -136,7 +140,7 @@ class SyncLifecycleManager @Inject constructor(
         )
         logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
         try {
-            coreLogic.getSessionScope(userId).run {
+            preparedSessionScope(userId)?.run {
                 syncExecutor.request {
                     logger.d("Waiting until live")
                     val syncRequestResult = if (waitForNextSyncState) {
@@ -172,4 +176,13 @@ class SyncLifecycleManager @Inject constructor(
 
     private fun UserId.toTelemetryString(): String =
         "${value.obfuscateId()}@${domain.obfuscateDomain()}"
+
+    private suspend fun preparedSessionScope(userId: UserId) =
+        when (val result = userSessionPreparationGate.prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> result.sessionScope
+            is AppUserSessionPreparationResult.Failed -> {
+                logger.w("Skipping sync because user-session preparation failed: ${result.reason}")
+                null
+            }
+        }
 }

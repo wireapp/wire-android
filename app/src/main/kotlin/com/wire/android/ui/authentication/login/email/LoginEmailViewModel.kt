@@ -27,11 +27,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.ui.authentication.toBackendConfigUrl
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginSavedInputStore
@@ -137,6 +140,7 @@ class LoginEmailViewModel(
     )
 
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
 
     val userIdentifierTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
@@ -327,9 +331,24 @@ class LoginEmailViewModel(
                 }
             }
 
+            val preparedSessionScope = when (val preparation = userSessionPreparationGate.prepare(storedUserId)) {
+                is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+                is AppUserSessionPreparationResult.Failed -> {
+                    restorePreviousSession()
+                    updateEmailFlowState(
+                        LoginState.Error.DialogError.GenericError(
+                            com.wire.kalium.common.error.CoreFailure.Unknown(
+                                IllegalStateException("User session preparation failed: ${preparation.reason}")
+                            )
+                        )
+                    )
+                    return@launch
+                }
+            }
+
             withContext(dispatchers.io()) {
                 if (coreLogic.getGlobalScope().validateEmailUseCase(userIdentifierTextState.text.toString())) {
-                    coreLogic.getSessionScope(storedUserId).users.persistSelfUserEmail(userIdentifierTextState.text.toString())
+                    preparedSessionScope.users.persistSelfUserEmail(userIdentifierTextState.text.toString())
                 } else {
                     null
                 }
@@ -343,7 +362,7 @@ class LoginEmailViewModel(
 
             withContext(dispatchers.io()) {
                 registerClient(
-                    userId = storedUserId,
+                    sessionScope = preparedSessionScope,
                     password = passwordTextState.text.toString(),
                 )
             }.let {
@@ -370,14 +389,28 @@ class LoginEmailViewModel(
     }
 
     private suspend fun revertNewSession() {
-        loginJobData.value?.newSessionUserId?.let { newSessionUserId ->
-            // logout to cancel all session-related actions, remove all sensitive data and free up resources
-            coreLogic.getSessionScope(newSessionUserId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
-            // delete the session to make it seem like the session was never logged in
-            coreLogic.getGlobalScope().deleteSession(newSessionUserId)
+        val jobData = loginJobData.value
+        jobData?.newSessionUserId?.let { newSessionUserId ->
+            when (val preparation = userSessionPreparationGate.prepare(newSessionUserId)) {
+                is AppUserSessionPreparationResult.Ready -> {
+                    // logout to cancel session actions and remove sensitive data before deleting the session
+                    preparation.sessionScope.logout(
+                        reason = LogoutReason.SELF_HARD_LOGOUT,
+                        waitUntilCompletes = true,
+                    )
+                    coreLogic.getGlobalScope().deleteSession(newSessionUserId)
+                }
+
+                is AppUserSessionPreparationResult.Failed -> appLogger.w(
+                    "Login rollback skipped database deletion because session preparation failed: ${preparation.reason}"
+                )
+            }
         }
-        // set the previous session back
-        coreLogic.getGlobalScope().session.updateCurrentSession(loginJobData.value?.previousSessionUserId)
+        restorePreviousSession(jobData)
+    }
+
+    private suspend fun restorePreviousSession(jobData: LoginJobData? = loginJobData.value) {
+        coreLogic.getGlobalScope().session.updateCurrentSession(jobData?.previousSessionUserId)
     }
 
     private suspend fun revertLogin() {

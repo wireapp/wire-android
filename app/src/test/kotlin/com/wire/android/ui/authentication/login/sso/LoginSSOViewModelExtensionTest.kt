@@ -21,12 +21,14 @@ package com.wire.android.ui.authentication.login.sso
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
@@ -117,8 +119,11 @@ class LoginSSOViewModelExtensionTest {
         val coreLogic = mockk<CoreLogic>()
         val logout = mockk<LogoutUseCase>()
         val deleteSession = mockk<DeleteSessionUseCase>()
+        val userSessionScope = mockk<UserSessionScope>()
 
         init {
+            coEvery { coreLogic.prepareUserSession(userId) } returns preparationSuccess(userSessionScope)
+            every { userSessionScope.logout } returns logout
             every { coreLogic.getSessionScope(userId).logout } returns logout
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSession
             coEvery { logout(LogoutReason.SELF_HARD_LOGOUT, true) } returns Unit
@@ -137,5 +142,10 @@ class LoginSSOViewModelExtensionTest {
         }
 
         fun arrange() = this to LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, false)
+
+        private fun preparationSuccess(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns sessionScope
+            }
     }
 }

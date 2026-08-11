@@ -28,19 +28,22 @@ import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
-import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.WillNeverOccurError
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.register.RegisterParam
@@ -57,7 +60,6 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
 ) : ViewModel() {
@@ -65,6 +67,8 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
     interface Factory {
         fun create(savedStateHandle: SavedStateHandle): CreateAccountVerificationCodeViewModel
     }
+
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
@@ -123,7 +127,7 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
         codeTextState.clearText()
     }
 
-    @Suppress("ComplexMethod")
+    @Suppress("ComplexMethod", "LongMethod")
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
@@ -185,15 +189,27 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
-            registerClient(storedUserId, registerParam)
+            val sessionScope = when (val preparation = userSessionPreparationGate.prepare(storedUserId)) {
+                is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+                is AppUserSessionPreparationResult.Failed -> {
+                    updateCodeErrorState(
+                        CreateAccountCodeResult.Error.DialogError.GenericError(
+                            CoreFailure.Unknown(IllegalStateException("User session preparation failed: ${preparation.reason}"))
+                        )
+                    )
+                    return@launch
+                }
+            }
+            registerClient(storedUserId, sessionScope, registerParam)
         }
     }
 
     private suspend fun registerClient(
         storedUserId: UserId,
+        sessionScope: UserSessionScope,
         registerParam: RegisterParam.PersonalAccount
     ) {
-        registerClient(storedUserId, registerParam.password).let {
+        registerClient(sessionScope, registerParam.password).let {
             when (it) {
                 is RegisterClientResult.Failure -> {
                     updateCodeErrorState(it.toCodeError(storedUserId))
@@ -217,8 +233,8 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
         codeState = codeState.copy(loading = false, result = codeError)
     }
 
-    private suspend fun registerClient(userId: UserId, password: String) =
-        clientScopeProviderFactory.create(userId).clientScope.getOrRegister(
+    private suspend fun registerClient(sessionScope: UserSessionScope, password: String) =
+        sessionScope.client.getOrRegister(
             RegisterClientParam(
                 password = password,
                 capabilities = null,

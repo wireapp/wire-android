@@ -24,9 +24,11 @@ import com.wire.android.ui.UserSessionPreparationUiFailure
 import com.wire.android.ui.UserSessionPreparationUiState
 import com.wire.android.ui.preparationScreenRevealDelay
 import com.wire.android.ui.toUiFailure
+import com.wire.android.ui.toUiStates
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.UserSessionPreparationFailure
+import com.wire.kalium.logic.UserSessionPreparationState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import io.mockk.coEvery
@@ -35,6 +37,11 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -142,6 +149,36 @@ class UserSessionPreparationGateTest {
         assertEquals(Duration.ZERO, state.preparationScreenRevealDelay())
     }
 
+    /** Preserves a short migration state after observation starts while the main collector is busy. */
+    @Test
+    fun givenStatesChangeWhileTheCollectorIsBusy_whenMappingForForeground_thenMigrationIsStillDelivered() = runTest {
+        val states = MutableStateFlow<UserSessionPreparationState>(UserSessionPreparationState.NotStarted)
+        val observed = mutableListOf<UserSessionPreparationUiState>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) {
+            states.toUiStates().collect { state ->
+                observed += state
+                delay(BUSY_COLLECTOR_DELAY) // stands in for a main thread stuck on the first frame
+            }
+        }
+        runCurrent()
+
+        states.value = UserSessionPreparationState.OpeningDatabase
+        states.value = UserSessionPreparationState.MigratingDatabase
+        states.value = UserSessionPreparationState.Ready
+        advanceTimeBy(BUSY_COLLECTOR_DELAY * OBSERVED_STATE_COUNT)
+        collector.cancel()
+
+        assertEquals(
+            listOf(
+                UserSessionPreparationUiState.ResolvingSession,
+                UserSessionPreparationUiState.OpeningDatabase,
+                UserSessionPreparationUiState.MigratingDatabase,
+                UserSessionPreparationUiState.Ready,
+            ),
+            observed,
+        )
+    }
+
     @Test
     fun givenMigrationScreenWasNeverRevealed_whenLeavingPreparation_thenNothingIsWaitedFor() {
         val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { 0L })
@@ -195,5 +232,7 @@ class UserSessionPreparationGateTest {
 
     private companion object {
         val USER_ID = UserId("user", "wire.test")
+        const val BUSY_COLLECTOR_DELAY = 1_000L
+        const val OBSERVED_STATE_COUNT = 4
     }
 }

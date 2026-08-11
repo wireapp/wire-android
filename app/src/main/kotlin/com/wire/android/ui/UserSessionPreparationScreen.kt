@@ -36,6 +36,10 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.UserSessionPreparationState
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.map
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -137,6 +141,18 @@ internal enum class UserSessionPreparationUiFailure {
     ApplicationUpdateRequired,
     SupportRequired,
 }
+
+/**
+ * Maps Kalium's preparation states for a collector that cannot keep up with them.
+ *
+ * Kalium publishes on a conflated `StateFlow`, and the main thread is busy with the first frame
+ * during startup. Reading the states straight from the main thread lets a short
+ * [UserSessionPreparationState.MigratingDatabase] window be overwritten before it is ever seen, so
+ * the migration screen never gets a chance to appear. Buffering hands the collector every state in
+ * order instead, at the cost of observing them slightly later than they happened.
+ */
+internal fun Flow<UserSessionPreparationState>.toUiStates(): Flow<UserSessionPreparationUiState> =
+    map { it.toUiState() }.buffer(Channel.UNLIMITED)
 
 internal fun UserSessionPreparationState.toUiState(): UserSessionPreparationUiState = when (this) {
     UserSessionPreparationState.NotStarted -> UserSessionPreparationUiState.ResolvingSession

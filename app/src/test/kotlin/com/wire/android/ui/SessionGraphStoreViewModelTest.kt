@@ -25,6 +25,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.di.metro.AppSessionViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -41,8 +42,8 @@ class SessionGraphStoreViewModelTest {
         val oldGraph = graphWith(oldImageLoader)
         val newGraph = graphWith(mockk(relaxed = true))
         val graphs = ArrayDeque(listOf(oldGraph, newGraph))
-        val store = SessionGraphStoreViewModel { graphs.removeFirst() }
-        val oldRetainedGraph = store.retainedGraphFor(USER_ID)
+        val store = SessionGraphStoreViewModel { _, _ -> graphs.removeFirst() }
+        val oldRetainedGraph = store.retainedGraphFor(USER_ID, SESSION_SCOPE)
         val oldViewModel = TrackingViewModel()
         ViewModelProvider(
             oldRetainedGraph,
@@ -50,7 +51,7 @@ class SessionGraphStoreViewModelTest {
         )[TrackingViewModel::class.java]
 
         store.invalidate(USER_ID)
-        val newRetainedGraph = store.retainedGraphFor(USER_ID)
+        val newRetainedGraph = store.retainedGraphFor(USER_ID, SESSION_SCOPE)
 
         assertNotSame(oldRetainedGraph, newRetainedGraph)
         assertSame(newGraph, newRetainedGraph.graph)
@@ -64,11 +65,11 @@ class SessionGraphStoreViewModelTest {
         val oldGraph = graphWith(oldImageLoader)
         val newGraph = graphWith(mockk(relaxed = true))
         val graphs = ArrayDeque(listOf(oldGraph, newGraph))
-        val store = SessionGraphStoreViewModel { graphs.removeFirst() }
-        val oldRetainedGraph = store.retainedGraphFor(USER_ID)
+        val store = SessionGraphStoreViewModel { _, _ -> graphs.removeFirst() }
+        val oldRetainedGraph = store.retainedGraphFor(USER_ID, SESSION_SCOPE)
 
         store.invalidateActive()
-        val newRetainedGraph = store.retainedGraphFor(USER_ID)
+        val newRetainedGraph = store.retainedGraphFor(USER_ID, SESSION_SCOPE)
 
         assertNotSame(oldRetainedGraph, newRetainedGraph)
         assertSame(newGraph, newRetainedGraph.graph)
@@ -78,10 +79,10 @@ class SessionGraphStoreViewModelTest {
     @Test
     fun givenSessionGraphIsStillValid_whenRequestedAgain_thenGraphIsReused() {
         val graph = graphWith(mockk(relaxed = true))
-        val store = SessionGraphStoreViewModel { graph }
+        val store = SessionGraphStoreViewModel { _, _ -> graph }
 
-        val first = store.retainedGraphFor(USER_ID)
-        val second = store.retainedGraphFor(USER_ID)
+        val first = store.retainedGraphFor(USER_ID, SESSION_SCOPE)
+        val second = store.retainedGraphFor(USER_ID, SESSION_SCOPE)
 
         assertSame(first, second)
     }
@@ -90,11 +91,11 @@ class SessionGraphStoreViewModelTest {
     fun givenSameUserIsRemovedAndLogsInRepeatedly_whenGraphsAreInvalidated_thenEveryLoginGetsAFreshGraph() {
         val imageLoaders = List(RELOGIN_COUNT) { mockk<WireSessionImageLoader>(relaxed = true) }
         val graphs = ArrayDeque(imageLoaders.map(::graphWith))
-        val store = SessionGraphStoreViewModel { graphs.removeFirst() }
+        val store = SessionGraphStoreViewModel { _, _ -> graphs.removeFirst() }
 
         val retainedGraphs = buildList {
             repeat(RELOGIN_COUNT) { index ->
-                add(store.retainedGraphFor(USER_ID))
+                add(store.retainedGraphFor(USER_ID, SESSION_SCOPE))
                 if (index < RELOGIN_COUNT - 1) {
                     store.invalidate(USER_ID)
                 }
@@ -119,14 +120,14 @@ class SessionGraphStoreViewModelTest {
             USER_ID to graphWith(removedUserImageLoader),
             OTHER_USER_ID to graphWith(otherUserImageLoader),
         )
-        val store = SessionGraphStoreViewModel { userId -> graphsByUser.getValue(userId) }
-        val otherUsersGraph = store.retainedGraphFor(OTHER_USER_ID)
-        val removedUsersGraph = store.retainedGraphFor(USER_ID)
+        val store = SessionGraphStoreViewModel { userId, _ -> graphsByUser.getValue(userId) }
+        val otherUsersGraph = store.retainedGraphFor(OTHER_USER_ID, OTHER_SESSION_SCOPE)
+        val removedUsersGraph = store.retainedGraphFor(USER_ID, SESSION_SCOPE)
 
         store.invalidateActive()
 
-        assertSame(otherUsersGraph, store.retainedGraphFor(OTHER_USER_ID))
-        assertNotSame(removedUsersGraph, store.retainedGraphFor(USER_ID))
+        assertSame(otherUsersGraph, store.retainedGraphFor(OTHER_USER_ID, OTHER_SESSION_SCOPE))
+        assertNotSame(removedUsersGraph, store.retainedGraphFor(USER_ID, SESSION_SCOPE))
         verify(exactly = 1) { removedUserImageLoader.shutdown() }
         verify(exactly = 0) { otherUserImageLoader.shutdown() }
     }
@@ -148,5 +149,7 @@ class SessionGraphStoreViewModelTest {
         const val RELOGIN_COUNT = 3
         val USER_ID = UserId("user", "domain")
         val OTHER_USER_ID = UserId("other-user", "domain")
+        val SESSION_SCOPE = mockk<UserSessionScope>()
+        val OTHER_SESSION_SCOPE = mockk<UserSessionScope>()
     }
 }

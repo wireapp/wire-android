@@ -31,6 +31,7 @@ import com.wire.android.ui.debug.UserDebugViewModel
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
+import com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel
 import com.wire.android.ui.MiscViewModelFactory
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.authentication.AuthenticationManualViewModelFactory
@@ -364,6 +365,12 @@ object WireMetroViewModelBindings {
     @ViewModelKey(DebugFeatureFlagsViewModel::class)
     fun debugFeatureFlagsViewModel(factory: DebugInfoViewModelFactory): ViewModel =
         factory.debugFeatureFlagsViewModel()
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(SecurityProvidersViewModel::class)
+    fun securityProvidersViewModel(factory: DebugInfoViewModelFactory): ViewModel =
+        factory.securityProvidersViewModel()
 
     @Provides
     @IntoMap

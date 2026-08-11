@@ -25,6 +25,8 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
+import com.wire.android.ui.debug.securityproviders.AppPathsProvider
+import com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModel
 import com.wire.android.ui.home.settings.about.licenses.LicensesViewModel
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModel
@@ -149,6 +151,11 @@ class DebugInfoViewModelFactory @Inject constructor(
 
     fun debugFeatureFlagsViewModel() = DebugFeatureFlagsViewModel(
         getFeatureConfig = getFeatureConfig,
+    )
+
+    fun securityProvidersViewModel() = SecurityProvidersViewModel(
+        appPathsProvider = AppPathsProvider(context = context, currentAccount = currentAccount),
+        dispatcherProvider = dispatcherProvider,
     )
 
     fun whatsNewViewModel() = WhatsNewViewModel(context = context)

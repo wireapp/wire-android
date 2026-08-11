@@ -19,6 +19,8 @@ package com.wire.android.feature
 
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import kotlinx.coroutines.flow.Flow
@@ -36,13 +38,21 @@ class ObserveAppLockConfigUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     @KaliumCoreLogic private val coreLogic: CoreLogic
 ) {
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
+
     operator fun invoke(): Flow<AppLockConfig> = channelFlow {
         coreLogic.getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
             when {
                 sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid() -> {
                     val userId = sessionResult.accountInfo.userId
-                    val appLockTeamFeatureConfigFlow =
-                        coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver
+                    val sessionScope = when (val preparation = userSessionPreparationGate.prepare(userId)) {
+                        is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+                        is AppUserSessionPreparationResult.Failed -> {
+                            send(AppLockConfig.Disabled(DEFAULT_APP_LOCK_TIMEOUT))
+                            return@collectLatest
+                        }
+                    }
+                    val appLockTeamFeatureConfigFlow = sessionScope.appLockTeamFeatureConfigObserver
 
                     appLockTeamFeatureConfigFlow().combineTransform(
                         globalDataStore.isAppLockPasscodeSetFlow()

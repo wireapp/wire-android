@@ -28,6 +28,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
@@ -44,6 +46,7 @@ class ProximitySensorManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     @ApplicationScope private val appCoroutineScope: CoroutineScope
 ) {
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic.value) }
 
     private lateinit var sensorManager: SensorManager
     private var proximity: Sensor? = null
@@ -78,7 +81,14 @@ class ProximitySensorManager @Inject constructor(
                     when {
                         currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid() -> {
                             val userId = currentSession.accountInfo.userId
-                            val isCallRunning = coreLogic.value.getSessionScope(userId).calls.isCallRunning()
+                            val sessionScope = when (val preparation = userSessionPreparationGate.prepare(userId)) {
+                                is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+                                is AppUserSessionPreparationResult.Failed -> {
+                                    if (wakeLock.isHeld) wakeLock.release()
+                                    return@launch
+                                }
+                            }
+                            val isCallRunning = sessionScope.calls.isCallRunning()
                             val distance = event.values.first()
                             val shouldTurnOffScreen = distance == NEAR_DISTANCE && isCallRunning
                             appLogger.i(

@@ -17,23 +17,33 @@
  */
 package com.wire.android.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.Logo
+import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.UserSessionPreparationState
 import kotlinx.coroutines.channels.Channel
@@ -52,17 +62,70 @@ internal fun UserSessionPreparationScreen(
     onContactSupport: () -> Unit,
 ) {
     val content = state.content()
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(colorResource(R.color.background))
             .padding(horizontal = 32.dp),
+    ) {
+        if (content.action == null) {
+            SplashContinuationContent(content)
+        } else {
+            PreparationFailureContent(
+                content = content,
+                onRetry = onRetry,
+                onUpdate = onUpdate,
+                onContactSupport = onContactSupport,
+            )
+        }
+    }
+}
+
+/**
+ * Continues the system splash with its final, static logo frame. Keeping the logo centred means
+ * dismissing the system-owned splash does not look like a navigation event; only the explanatory
+ * copy below it becomes visible.
+ */
+@Composable
+private fun BoxScope.SplashContinuationContent(content: UserSessionPreparationContent) {
+    Logo(
+        tint = colorResource(R.color.default_icon_color),
+        modifier = Modifier
+            .size(width = SPLASH_LOGO_WIDTH, height = SPLASH_LOGO_HEIGHT)
+            .align(Alignment.Center),
+    )
+    Column(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .offset(y = SPLASH_COPY_OFFSET),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(content.title),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = stringResource(content.message),
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.PreparationFailureContent(
+    content: UserSessionPreparationContent,
+    onRetry: () -> Unit,
+    onUpdate: () -> Unit,
+    onContactSupport: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.align(Alignment.Center),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        if (content.action == null) {
-            CircularProgressIndicator()
-            Spacer(Modifier.height(32.dp))
-        }
         Text(
             text = stringResource(content.title),
             style = MaterialTheme.typography.headlineSmall,
@@ -86,6 +149,41 @@ internal fun UserSessionPreparationScreen(
                 Text(stringResource(action.label))
             }
         }
+    }
+}
+
+// The system splash uses a 288 dp icon canvas. Its Wire wordmark occupies roughly 174 x 55 dp.
+private val SPLASH_LOGO_WIDTH = 174.dp
+private val SPLASH_LOGO_HEIGHT = 55.dp
+private val SPLASH_COPY_OFFSET = 96.dp
+
+private class UserSessionPreparationStatePreviewProvider :
+    PreviewParameterProvider<UserSessionPreparationUiState> {
+    override val values: Sequence<UserSessionPreparationUiState> = sequenceOf(
+        UserSessionPreparationUiState.ResolvingSession,
+        UserSessionPreparationUiState.OpeningDatabase,
+        UserSessionPreparationUiState.MigratingDatabase,
+        UserSessionPreparationUiState.Ready,
+        UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.InsufficientStorage),
+        UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.TemporarilyUnavailable),
+        UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.ApplicationUpdateRequired),
+        UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.SupportRequired),
+    )
+}
+
+@Preview(name = "User session preparation", showBackground = false)
+@Composable
+private fun PreviewUserSessionPreparationScreen(
+    @PreviewParameter(UserSessionPreparationStatePreviewProvider::class)
+    state: UserSessionPreparationUiState,
+) {
+    WireTheme {
+        UserSessionPreparationScreen(
+            state = state,
+            onRetry = {},
+            onUpdate = {},
+            onContactSupport = {},
+        )
     }
 }
 

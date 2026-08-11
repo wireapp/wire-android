@@ -21,18 +21,22 @@ package com.wire.android.ui.common
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.wire.android.R
 
 @Composable
-fun Logo(modifier: Modifier = Modifier) {
+fun Logo(
+    modifier: Modifier = Modifier,
+    tint: Color = colorsScheme().onSurface,
+) {
     Image(
         painter = painterResource(id = R.drawable.ic_wire_logo),
         contentDescription = null,
         contentScale = ContentScale.Fit,
         modifier = modifier,
-        colorFilter = ColorFilter.tint(colorsScheme().onSurface)
+        colorFilter = ColorFilter.tint(tint)
     )
 }

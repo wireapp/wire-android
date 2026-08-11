@@ -55,6 +55,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ForegroundActionsUseCase
 import dev.zacsweers.metro.Inject
@@ -73,6 +74,7 @@ class HomeViewModelFactory @Inject constructor(
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    private val observeIsWireMeetingsEnabled: ObserveIsMeetingsEnabledUseCase,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,
@@ -116,6 +118,7 @@ class HomeViewModelFactory @Inject constructor(
         observeSelfUser = observeSelf,
         getTeamUrl = getTeamUrl,
         isWireCellsEnabled = isWireCellsEnabled,
+        observeIsWireMeetingsEnabled = observeIsWireMeetingsEnabled,
     )
 
     fun featureFlagNotificationViewModel() = FeatureFlagNotificationViewModel(

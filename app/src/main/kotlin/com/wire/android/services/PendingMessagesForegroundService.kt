@@ -39,6 +39,8 @@ import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.SyncLifecycleManager
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -310,13 +312,21 @@ class SendPendingMessagesAfterForegroundSyncUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val syncLifecycleManager: SyncLifecycleManager,
 ) {
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
+
     suspend operator fun invoke(userId: UserId) {
+        val userSessionScope = when (val result = userSessionPreparationGate.prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> result.sessionScope
+            is AppUserSessionPreparationResult.Failed -> {
+                appLogger.w("$TAG: user-session preparation failed for ${userId.toLogString()}: ${result.reason}")
+                return
+            }
+        }
         syncLifecycleManager.syncTemporarily(
             userId = userId,
             stayAliveExtraDuration = 3.seconds,
             waitForNextSyncState = true,
         ) {
-            val userSessionScope = coreLogic.getSessionScope(userId)
             appLogger.i(
                 "$TAG: sending pending messages for ${userId.toLogString()}, " +
                         "syncState=${userSessionScope.syncManager.syncState.value}, " +

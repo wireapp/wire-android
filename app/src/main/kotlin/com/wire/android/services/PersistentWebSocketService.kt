@@ -38,6 +38,8 @@ import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NA
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.openAppPendingIntent
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
@@ -69,6 +71,8 @@ class PersistentWebSocketService : Service() {
 
     @Inject
     lateinit var notificationChannelsManager: NotificationChannelsManager
+
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -120,7 +124,14 @@ class PersistentWebSocketService : Service() {
         coroutineScope {
             usersToObserve.forEach { userId ->
                 launch {
-                    coreLogic.getSessionScope(userId).syncExecutor.request {
+                    val sessionScope = when (val preparation = userSessionPreparationGate.prepare(userId)) {
+                        is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+                        is AppUserSessionPreparationResult.Failed -> {
+                            appLogger.w("Skipping persistent sync for ${userId.toLogString()}: ${preparation.reason}")
+                            return@launch
+                        }
+                    }
+                    sessionScope.syncExecutor.request {
                         awaitCancellation()
                     }
                 }

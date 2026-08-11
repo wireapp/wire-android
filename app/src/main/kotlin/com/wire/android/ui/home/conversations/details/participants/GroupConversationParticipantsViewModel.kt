@@ -28,10 +28,13 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
 
-class GroupConversationParticipantsViewModel(
-    savedStateHandle: SavedStateHandle,
+class GroupConversationParticipantsViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     maxNumberOfItems: Int = -1, // -1 means return whole list
@@ -41,7 +44,13 @@ class GroupConversationParticipantsViewModel(
         observeConversationMembers = observeConversationMembers,
         refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
         maxNumberOfItems = maxNumberOfItems
-    )
+    ) {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): GroupConversationParticipantsViewModel
+    }
+}
 
 interface GroupConversationParticipantsManager {
     var groupParticipantsState: GroupConversationParticipantsState

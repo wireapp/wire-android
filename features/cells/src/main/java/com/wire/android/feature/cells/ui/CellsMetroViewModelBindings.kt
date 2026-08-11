@@ -21,7 +21,6 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
@@ -48,87 +47,84 @@ object CellsMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CellViewModel::class)
-    fun cellViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.cellViewModel(it.createSavedStateHandle()) }
+    fun cellViewModel(factory: CellViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateFileViewModel::class)
-    fun createFileViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.createFileViewModel(it.createSavedStateHandle()) }
+    fun createFileViewModel(factory: CreateFileViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateFolderViewModel::class)
-    fun createFolderViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.createFolderViewModel(it.createSavedStateHandle()) }
+    fun createFolderViewModel(factory: CreateFolderViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(MoveToFolderViewModel::class)
-    fun moveToFolderViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.moveToFolderViewModel(it.createSavedStateHandle()) }
+    fun moveToFolderViewModel(factory: MoveToFolderViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(PublicLinkViewModel::class)
-    fun publicLinkViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.publicLinkViewModel(it.createSavedStateHandle()) }
+    fun publicLinkViewModel(factory: PublicLinkViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(PublicLinkExpirationScreenViewModel::class)
-    fun publicLinkExpirationScreenViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.publicLinkExpirationScreenViewModel(it.createSavedStateHandle()) }
+    internal fun publicLinkExpirationScreenViewModel(
+        factory: PublicLinkExpirationScreenViewModel.Factory,
+    ): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(PublicLinkPasswordScreenViewModel::class)
-    fun publicLinkPasswordScreenViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.publicLinkPasswordScreenViewModel(it.createSavedStateHandle()) }
+    internal fun publicLinkPasswordScreenViewModel(
+        factory: PublicLinkPasswordScreenViewModel.Factory,
+    ): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(RenameNodeViewModel::class)
-    fun renameNodeViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.renameNodeViewModel(it.createSavedStateHandle()) }
+    fun renameNodeViewModel(factory: RenameNodeViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(SearchScreenViewModel::class)
-    fun searchScreenViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.searchScreenViewModel(it.createSavedStateHandle()) }
+    fun searchScreenViewModel(factory: SearchScreenViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(AddRemoveTagsViewModel::class)
-    fun addRemoveTagsViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.addRemoveTagsViewModel(it.createSavedStateHandle()) }
+    fun addRemoveTagsViewModel(factory: AddRemoveTagsViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(VersionHistoryViewModel::class)
-    fun versionHistoryViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.versionHistoryViewModel(it.createSavedStateHandle()) }
+    fun versionHistoryViewModel(factory: VersionHistoryViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CellImageViewerViewModel::class)
-    fun imageViewerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.cellImageViewerViewModel(it.createSavedStateHandle()) }
+    fun imageViewerViewModel(factory: CellImageViewerViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(AudioPlayerViewModel::class)
-    fun audioPlayerViewModel(factory: CellsViewModelFactory): ViewModelAssistedFactory =
-        savedStateViewModel {
-            factory.cellAudioPlayerViewModel(
-                context = checkNotNull(it[APPLICATION_KEY]) {
-                    "No Application was provided via CreationExtras"
-                },
-                savedStateHandle = it.createSavedStateHandle(),
-            )
-        }
+    fun audioPlayerViewModel(factory: AudioPlayerViewModel.Factory): ViewModelAssistedFactory =
+        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     private fun savedStateViewModel(create: (CreationExtras) -> ViewModel): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {

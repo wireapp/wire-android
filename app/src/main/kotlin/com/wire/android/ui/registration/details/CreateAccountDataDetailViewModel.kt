@@ -40,11 +40,13 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlin.time.Duration.Companion.seconds
 
-class CreateAccountDataDetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountDataDetailViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
     private val globalDataStore: GlobalDataStore,
@@ -52,6 +54,10 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateAccountDataDetailViewModel
+    }
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 

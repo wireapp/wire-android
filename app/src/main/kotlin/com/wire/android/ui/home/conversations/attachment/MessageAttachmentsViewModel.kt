@@ -52,6 +52,9 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.fileExtension
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,8 +66,8 @@ import okio.Path.Companion.toPath
 import java.io.File
 
 @Suppress("TooManyFunctions", "LongParameterList")
-class MessageAttachmentsViewModel(
-    val savedStateHandle: SavedStateHandle,
+class MessageAttachmentsViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
@@ -75,6 +78,11 @@ class MessageAttachmentsViewModel(
     private val sharedState: MessageSharedState,
     private val getMediaMetadata: GetMediaMetadataUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MessageAttachmentsViewModel
+    }
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = conversationNavArgs.conversationId

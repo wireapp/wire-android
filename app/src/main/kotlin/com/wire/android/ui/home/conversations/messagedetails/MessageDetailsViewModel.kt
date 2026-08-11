@@ -30,12 +30,19 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.receipt.ReceiptType
 import kotlinx.coroutines.launch
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class MessageDetailsViewModel(
-    val savedStateHandle: SavedStateHandle,
+class MessageDetailsViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
     private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MessageDetailsViewModel
+    }
 
     private val messageDetailsNavArgs: MessageDetailsNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = messageDetailsNavArgs.conversationId

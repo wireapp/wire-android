@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.config.DefaultServerConfig
@@ -37,6 +38,7 @@ import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
+import com.wire.android.ui.authentication.login.SavedStateLoginSavedInputStore
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -109,7 +111,7 @@ class LoginSSOViewModel : LoginViewModel {
     @AssistedInject
     constructor(
         @Assisted loginNavArgs: LoginNavArgs,
-        savedInputStore: LoginSavedInputStore,
+        @Assisted savedStateHandle: SavedStateHandle,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         validateEmailUseCase: ValidateEmailUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
@@ -120,7 +122,7 @@ class LoginSSOViewModel : LoginViewModel {
         dispatchers: DispatcherProvider,
     ) : this(
         loginNavArgs,
-        savedInputStore,
+        SavedStateLoginSavedInputStore(savedStateHandle),
         addAuthenticatedUser,
         validateEmailUseCase,
         coreLogic,
@@ -167,7 +169,7 @@ class LoginSSOViewModel : LoginViewModel {
 
     @AssistedFactory
     interface Factory {
-        fun create(loginNavArgs: LoginNavArgs): LoginSSOViewModel
+        fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle): LoginSSOViewModel
     }
 
     private fun observeSSOCodeInput() {

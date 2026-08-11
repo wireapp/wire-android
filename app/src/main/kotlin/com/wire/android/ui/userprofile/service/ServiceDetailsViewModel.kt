@@ -60,7 +60,9 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 @ViewModelScopedPreview
 interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
     fun serviceDetailsState(): ServiceDetailsState = ServiceDetailsState()
@@ -70,7 +72,7 @@ interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
 }
 
 @Suppress("LongParameterList")
-class ServiceDetailsViewModelImpl @Inject constructor(
+class ServiceDetailsViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     @CurrentAccount private val selfUserId: UserId,
     private val getServiceById: GetServiceByIdUseCase,
@@ -85,8 +87,12 @@ class ServiceDetailsViewModelImpl @Inject constructor(
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : ServiceDetailsViewModel, ActionsViewModel<ServiceDetailsViewActions>() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ServiceDetailsViewModelImpl
+    }
     private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
     private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
     private val userId: UserId = serviceDetailsNavArgs.id.userId

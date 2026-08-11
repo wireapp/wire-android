@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import dev.zacsweers.metro.Inject
 
 enum class ProtocolFilter(val label: String) {
     ALL("All"),
@@ -47,7 +48,7 @@ enum class EstablishmentFilter(val label: String) {
     NOT_APPLICABLE("N/A (Proteus)"),
 }
 
-class ConversationCryptoStatsViewModel(
+class ConversationCryptoStatsViewModel @Inject constructor(
     private val getConversationCryptoStats: GetConversationCryptoStatsUseCase,
 ) : ViewModel() {
 

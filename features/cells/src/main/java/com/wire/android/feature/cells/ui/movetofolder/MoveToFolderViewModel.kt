@@ -27,16 +27,24 @@ import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MoveToFolderViewModel(
-    val savedStateHandle: SavedStateHandle,
+class MoveToFolderViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val moveNodeUseCase: MoveNodeUseCase
 ) : ActionsViewModel<MoveToFolderViewAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MoveToFolderViewModel
+    }
 
     private val navArgs: MoveToFolderNavArgs = MoveToFolderScreenDestination.argsFrom(savedStateHandle)
 

@@ -29,6 +29,9 @@ import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -36,12 +39,17 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AddRemoveTagsViewModel(
-    val savedStateHandle: SavedStateHandle,
+class AddRemoveTagsViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val updateNodeTagsUseCase: UpdateNodeTagsUseCase,
     private val removeNodeTagsUseCase: RemoveNodeTagsUseCase,
 ) : ActionsViewModel<AddRemoveTagsViewModelAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): AddRemoveTagsViewModel
+    }
 
     private val navArgs: AddRemoveTagsNavArgs = AddRemoveTagsScreenDestination.argsFrom(savedStateHandle)
     private val initialTags: Set<String> = navArgs.tags.toSet()

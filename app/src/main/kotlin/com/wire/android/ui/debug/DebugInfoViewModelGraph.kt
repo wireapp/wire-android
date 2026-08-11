@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
@@ -31,10 +30,6 @@ import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewMode
 import com.wire.android.ui.home.settings.about.licenses.LicensesViewModel
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModel
 import com.wire.android.ui.settings.about.AboutThisAppViewModel
-
-interface DebugInfoViewModelGraph : MetroViewModelGraph {
-    val debugInfoViewModelFactory: DebugInfoViewModelFactory
-}
 
 @Composable
 inline fun <reified VM> debugInfoViewModel(

@@ -24,7 +24,6 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.ui.CallFeedbackViewModel
 import com.wire.android.ui.debug.DebugDataOptionsViewModelImpl
-import com.wire.android.ui.debug.DebugInfoViewModelFactory
 import com.wire.android.ui.debug.ExportObfuscatedCopyViewModelImpl
 import com.wire.android.ui.debug.LogManagementViewModel
 import com.wire.android.ui.debug.UserDebugViewModel
@@ -32,10 +31,8 @@ import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
 import com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel
-import com.wire.android.ui.MiscViewModelFactory
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.authentication.AuthenticationManualViewModelFactory
-import com.wire.android.ui.authentication.AuthenticationViewModelFactory
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
@@ -55,22 +52,17 @@ import com.wire.android.ui.calling.incoming.IncomingCallViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.calling.outgoing.OutgoingCallViewModel
 import com.wire.android.ui.common.CommonManualViewModelFactory
-import com.wire.android.ui.common.CommonViewModelFactory
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
 import com.wire.android.ui.home.AppSyncViewModel
 import com.wire.android.ui.home.HomeManualViewModelFactory
 import com.wire.android.ui.home.HomeViewModel
-import com.wire.android.ui.home.HomeViewModelFactory
 import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
 import com.wire.android.ui.home.appLock.unlock.EnterLockScreenViewModel
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactory
-import com.wire.android.ui.home.conversations.ConversationCoreViewModelFactory
-import com.wire.android.ui.home.conversations.ConversationDetailsViewModelFactory
 import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactory
-import com.wire.android.ui.home.conversations.ConversationSearchFolderViewModelFactory
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
@@ -104,7 +96,6 @@ import com.wire.android.ui.home.conversations.search.adddembertoconversation.Add
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversations.ScopedMessageManualViewModelFactory
-import com.wire.android.ui.home.conversations.ScopedMessageViewModelFactory
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
@@ -113,7 +104,6 @@ import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.settings.SettingsViewModel
-import com.wire.android.ui.home.settings.SettingsViewModelFactory
 import com.wire.android.ui.home.settings.account.MyAccountViewModel
 import com.wire.android.ui.home.settings.account.color.ChangeUserColorViewModel
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
@@ -170,6 +160,7 @@ import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.Provider
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
@@ -182,38 +173,35 @@ object WireMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelKey(AppSyncViewModel::class)
-    fun appSyncViewModel(factory: HomeViewModelFactory): ViewModel =
-        factory.appSyncViewModel()
+    fun appSyncViewModel(viewModel: AppSyncViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(FeatureFlagNotificationViewModel::class)
-    fun featureFlagNotificationViewModel(factory: HomeViewModelFactory): ViewModel =
-        factory.featureFlagNotificationViewModel()
+    fun featureFlagNotificationViewModel(viewModel: FeatureFlagNotificationViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(HomeViewModel::class)
-    fun homeViewModel(factory: HomeViewModelFactory): ViewModelAssistedFactory =
+    fun homeViewModel(factory: HomeViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.homeViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(HomeDrawerViewModel::class)
-    fun homeDrawerViewModel(factory: HomeViewModelFactory): ViewModelAssistedFactory =
+    fun homeDrawerViewModel(factory: HomeDrawerViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.homeDrawerViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(NewConversationViewModel::class)
-    fun newConversationViewModel(factory: HomeViewModelFactory): ViewModel =
-        factory.newConversationViewModel()
+    fun newConversationViewModel(viewModel: NewConversationViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
@@ -268,726 +256,700 @@ object WireMetroViewModelBindings {
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(HomeManualViewModelFactory::class)
-    fun homeManualViewModelFactory(factory: HomeViewModelFactory): ManualViewModelAssistedFactory =
+    fun homeManualViewModelFactory(factory: ConversationListViewModelImpl.Factory): ManualViewModelAssistedFactory =
         object : HomeManualViewModelFactory {
             override fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModelImpl =
-                factory.conversationListViewModel(conversationsSource)
+                factory.create(conversationsSource)
         }
 
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(CommonManualViewModelFactory::class)
-    fun commonManualViewModelFactory(factory: CommonViewModelFactory): ManualViewModelAssistedFactory =
+    fun commonManualViewModelFactory(
+        securityClassificationFactory: SecurityClassificationViewModelImpl.Factory,
+        conversationOptionsMenuProvider: Provider<ConversationOptionsMenuViewModelImpl>,
+    ): ManualViewModelAssistedFactory =
         object : CommonManualViewModelFactory {
             override fun securityClassificationViewModel(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl =
-                factory.securityClassificationViewModel(args)
+                securityClassificationFactory.create(args)
 
             override fun conversationOptionsMenuViewModel(): ConversationOptionsMenuViewModelImpl =
-                factory.conversationOptionsMenuViewModel()
+                conversationOptionsMenuProvider()
         }
 
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(ScopedMessageManualViewModelFactory::class)
-    fun scopedMessageManualViewModelFactory(factory: ScopedMessageViewModelFactory): ManualViewModelAssistedFactory =
+    @Suppress("LongParameterList")
+    internal fun scopedMessageManualViewModelFactory(
+        compositeMessageFactory: CompositeMessageViewModelImpl.Factory,
+        messageOptionsMenuFactory: MessageOptionsMenuViewModelImpl.Factory,
+        typingIndicatorFactory: TypingIndicatorViewModelImpl.Factory,
+        assetLocalPathFactory: AssetLocalPathViewModelImpl.Factory,
+        selfDeletingMessageActionFactory: SelfDeletingMessageActionViewModelImpl.Factory,
+        isFileSharingEnabledProvider: Provider<IsFileSharingEnabledViewModelImpl>,
+        recordAudioProvider: Provider<RecordAudioViewModel>,
+        audioMessageFactory: AudioMessageViewModelImpl.Factory,
+    ): ManualViewModelAssistedFactory =
         object : ScopedMessageManualViewModelFactory {
             override fun compositeMessageViewModel(
                 savedStateHandle: androidx.lifecycle.SavedStateHandle,
                 args: CompositeMessageArgs
             ): CompositeMessageViewModelImpl =
-                factory.compositeMessageViewModel(savedStateHandle, args)
+                compositeMessageFactory.create(savedStateHandle, args)
 
             override fun messageOptionsMenuViewModel(args: MessageOptionsMenuArgs): MessageOptionsMenuViewModelImpl =
-                factory.messageOptionsMenuViewModel(args)
+                messageOptionsMenuFactory.create(args)
 
             override fun typingIndicatorViewModel(args: TypingIndicatorArgs): TypingIndicatorViewModelImpl =
-                factory.typingIndicatorViewModel(args)
+                typingIndicatorFactory.create(args)
 
             override fun assetLocalPathViewModel(args: AssetLocalPathArgs): AssetLocalPathViewModelImpl =
-                factory.assetLocalPathViewModel(args)
+                assetLocalPathFactory.create(args)
 
             override fun selfDeletingMessageActionViewModel(
                 args: SelfDeletingMessageActionArgs
             ): SelfDeletingMessageActionViewModelImpl =
-                factory.selfDeletingMessageActionViewModel(args)
+                selfDeletingMessageActionFactory.create(args)
 
             override fun isFileSharingEnabledViewModel(): IsFileSharingEnabledViewModelImpl =
-                factory.isFileSharingEnabledViewModel()
+                isFileSharingEnabledProvider()
 
             override fun recordAudioViewModel(): RecordAudioViewModel =
-                factory.recordAudioViewModel()
+                recordAudioProvider()
 
             override fun audioMessageViewModel(args: AudioMessageArgs): AudioMessageViewModelImpl =
-                factory.audioMessageViewModel(args)
+                audioMessageFactory.create(args)
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(UserDebugViewModel::class)
-    fun userDebugViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.userDebugViewModel()
+    fun userDebugViewModel(viewModel: UserDebugViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(LogManagementViewModel::class)
-    fun logManagementViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.logManagementViewModel()
+    fun logManagementViewModel(viewModel: LogManagementViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(DebugDataOptionsViewModelImpl::class)
-    fun debugDataOptionsViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.debugDataOptionsViewModel()
+    fun debugDataOptionsViewModel(viewModel: DebugDataOptionsViewModelImpl): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(ExportObfuscatedCopyViewModelImpl::class)
-    fun exportObfuscatedCopyViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.exportObfuscatedCopyViewModel()
+    fun exportObfuscatedCopyViewModel(viewModel: ExportObfuscatedCopyViewModelImpl): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(DebugConversationViewModel::class)
-    fun debugConversationViewModel(factory: DebugInfoViewModelFactory): ViewModelAssistedFactory =
+    fun debugConversationViewModel(factory: DebugConversationViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.debugConversationViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(ConversationCryptoStatsViewModel::class)
-    fun conversationCryptoStatsViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.conversationCryptoStatsViewModel()
+    fun conversationCryptoStatsViewModel(viewModel: ConversationCryptoStatsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(DebugFeatureFlagsViewModel::class)
-    fun debugFeatureFlagsViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.debugFeatureFlagsViewModel()
+    fun debugFeatureFlagsViewModel(viewModel: DebugFeatureFlagsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(SecurityProvidersViewModel::class)
-    fun securityProvidersViewModel(factory: DebugInfoViewModelFactory): ViewModel =
+    fun securityProvidersViewModel(viewModel: DebugFeatureFlagsViewModel): ViewModel =
         factory.securityProvidersViewModel()
 
     @Provides
     @IntoMap
     @ViewModelKey(WhatsNewViewModel::class)
-    fun whatsNewViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.whatsNewViewModel()
+    fun whatsNewViewModel(viewModel: WhatsNewViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(AboutThisAppViewModel::class)
-    fun aboutThisAppViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.aboutThisAppViewModel()
+    fun aboutThisAppViewModel(viewModel: AboutThisAppViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(DependenciesViewModel::class)
-    fun dependenciesViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.dependenciesViewModel()
+    fun dependenciesViewModel(viewModel: DependenciesViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(LicensesViewModel::class)
-    fun licensesViewModel(factory: DebugInfoViewModelFactory): ViewModel =
-        factory.licensesViewModel()
+    fun licensesViewModel(viewModel: LicensesViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(AnalyticsUsageViewModel::class)
-    fun analyticsUsageViewModel(factory: MiscViewModelFactory): ViewModel =
-        factory.analyticsUsageViewModel()
+    fun analyticsUsageViewModel(viewModel: AnalyticsUsageViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(InitialSyncViewModel::class)
-    fun initialSyncViewModel(factory: MiscViewModelFactory): ViewModel =
-        factory.initialSyncViewModel()
+    fun initialSyncViewModel(viewModel: InitialSyncViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(LegalHoldRequestedViewModel::class)
-    fun legalHoldRequestedViewModel(factory: MiscViewModelFactory): ViewModel =
-        factory.legalHoldRequestedViewModel()
+    fun legalHoldRequestedViewModel(viewModel: LegalHoldRequestedViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(E2EIEnrollmentViewModel::class)
-    fun e2EIEnrollmentViewModel(factory: MiscViewModelFactory): ViewModel =
-        factory.e2EIEnrollmentViewModel()
+    fun e2EIEnrollmentViewModel(viewModel: E2EIEnrollmentViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(GetE2EICertificateViewModel::class)
-    fun getE2EICertificateViewModel(factory: MiscViewModelFactory): ViewModel =
-        factory.getE2EICertificateViewModel()
+    fun getE2EICertificateViewModel(viewModel: GetE2EICertificateViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(E2eiCertificateDetailsViewModel::class)
-    fun e2eiCertificateDetailsViewModel(factory: MiscViewModelFactory): ViewModelAssistedFactory =
+    fun e2eiCertificateDetailsViewModel(factory: E2eiCertificateDetailsViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.e2eiCertificateDetailsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(ImportMediaAuthenticatedViewModel::class)
-    fun importMediaAuthenticatedViewModel(factory: MiscViewModelFactory): ViewModel =
-        factory.importMediaAuthenticatedViewModel()
+    fun importMediaAuthenticatedViewModel(viewModel: ImportMediaAuthenticatedViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(JoinConversationViaCodeViewModel::class)
-    fun joinConversationViaCodeViewModel(factory: MiscViewModelFactory): ViewModel =
-        factory.joinConversationViaCodeViewModel()
+    fun joinConversationViaCodeViewModel(viewModel: JoinConversationViaCodeViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(WelcomeViewModel::class)
-    fun welcomeViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun welcomeViewModel(factory: WelcomeViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.welcomeViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(NewLoginViewModel::class)
-    fun newLoginViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun newLoginViewModel(factory: NewLoginViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.newLoginViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(RegisterDeviceViewModel::class)
-    fun registerDeviceViewModel(factory: AuthenticationViewModelFactory): ViewModel =
-        factory.registerDeviceViewModel()
+    fun registerDeviceViewModel(viewModel: RegisterDeviceViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(RemoveDeviceViewModel::class)
-    fun removeDeviceViewModel(factory: AuthenticationViewModelFactory): ViewModel =
-        factory.removeDeviceViewModel()
+    fun removeDeviceViewModel(viewModel: RemoveDeviceViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(AuthenticationManualViewModelFactory::class)
-    fun authenticationManualViewModelFactory(factory: AuthenticationViewModelFactory): ManualViewModelAssistedFactory =
+    fun authenticationManualViewModelFactory(
+        loginEmailFactory: LoginEmailViewModel.Factory,
+        loginSSOFactory: LoginSSOViewModel.Factory,
+        clearSessionFactory: ClearSessionViewModel.Factory,
+    ): ManualViewModelAssistedFactory =
         object : AuthenticationManualViewModelFactory {
             override fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel =
-                factory.loginEmailViewModel(loginNavArgs, extras.createSavedStateHandle())
+                loginEmailFactory.create(loginNavArgs, extras.createSavedStateHandle())
 
             override fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginSSOViewModel =
-                factory.loginSSOViewModel(loginNavArgs, extras.createSavedStateHandle())
+                loginSSOFactory.create(loginNavArgs, extras.createSavedStateHandle())
 
             override fun clearSessionViewModel(cancelUserId: UserId?): ClearSessionViewModel =
-                factory.clearSessionViewModel(cancelUserId)
+                clearSessionFactory.create(cancelUserId)
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(CreateAccountUsernameViewModel::class)
-    fun createAccountUsernameViewModel(factory: AuthenticationViewModelFactory): ViewModel =
-        factory.createAccountUsernameViewModel()
+    fun createAccountUsernameViewModel(viewModel: CreateAccountUsernameViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateAccountOverviewViewModel::class)
-    fun createAccountOverviewViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun createAccountOverviewViewModel(factory: CreateAccountOverviewViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createAccountOverviewViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateAccountEmailViewModel::class)
-    fun createAccountEmailViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun createAccountEmailViewModel(factory: CreateAccountEmailViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createAccountEmailViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateAccountDetailsViewModel::class)
-    fun createAccountDetailsViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun createAccountDetailsViewModel(factory: CreateAccountDetailsViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createAccountDetailsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateAccountCodeViewModel::class)
-    fun createAccountCodeViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun createAccountCodeViewModel(factory: CreateAccountCodeViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createAccountCodeViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateAccountSummaryViewModel::class)
-    fun createAccountSummaryViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun createAccountSummaryViewModel(factory: CreateAccountSummaryViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createAccountSummaryViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateAccountSelectorViewModel::class)
-    fun createAccountSelectorViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun createAccountSelectorViewModel(factory: CreateAccountSelectorViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createAccountSelectorViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateAccountDataDetailViewModel::class)
-    fun createAccountDataDetailViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun createAccountDataDetailViewModel(factory: CreateAccountDataDetailViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createAccountDataDetailViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreateAccountVerificationCodeViewModel::class)
-    fun createAccountVerificationCodeViewModel(factory: AuthenticationViewModelFactory): ViewModelAssistedFactory =
+    fun createAccountVerificationCodeViewModel(factory: CreateAccountVerificationCodeViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createAccountVerificationCodeViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(ConversationMessagesViewModel::class)
-    fun conversationMessagesViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun conversationMessagesViewModel(factory: ConversationMessagesViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.conversationMessagesViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(MessageComposerViewModel::class)
-    fun messageComposerViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun messageComposerViewModel(factory: MessageComposerViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.messageComposerViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(SendMessageViewModel::class)
-    fun sendMessageViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun sendMessageViewModel(factory: SendMessageViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.sendMessageViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(MessageDraftViewModel::class)
-    fun messageDraftViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun messageDraftViewModel(factory: MessageDraftViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.messageDraftViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(MessageAttachmentsViewModel::class)
-    fun messageAttachmentsViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun messageAttachmentsViewModel(factory: MessageAttachmentsViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.messageAttachmentsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(ConversationMigrationViewModel::class)
-    fun conversationMigrationViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun conversationMigrationViewModel(factory: ConversationMigrationViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.conversationMigrationViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(ConversationAssetPathsViewModelImpl::class)
-    fun conversationAssetPathsViewModel(factory: ConversationCoreViewModelFactory): ViewModel =
-        factory.conversationAssetPathsViewModel()
+    fun conversationAssetPathsViewModel(viewModel: ConversationAssetPathsViewModelImpl): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(MediaGalleryViewModel::class)
-    fun mediaGalleryViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun mediaGalleryViewModel(factory: MediaGalleryViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.mediaGalleryViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(LocationPickerViewModel::class)
-    fun locationPickerViewModel(factory: ConversationCoreViewModelFactory): ViewModel =
-        factory.locationPickerViewModel()
+    fun locationPickerViewModel(viewModel: LocationPickerViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(ConversationAssetMessagesViewModel::class)
-    fun conversationAssetMessagesViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun conversationAssetMessagesViewModel(factory: ConversationAssetMessagesViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.conversationAssetMessagesViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(ImagesPreviewViewModel::class)
-    fun imagesPreviewViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun imagesPreviewViewModel(factory: ImagesPreviewViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.imagesPreviewViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(MessageDetailsViewModel::class)
-    fun messageDetailsViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun messageDetailsViewModel(factory: MessageDetailsViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.messageDetailsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(QuotedMultipartMessageViewModel::class)
-    fun quotedMultipartMessageViewModel(factory: ConversationCoreViewModelFactory): ViewModel =
-        factory.quotedMultipartMessageViewModel()
+    fun quotedMultipartMessageViewModel(viewModel: QuotedMultipartMessageViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(ConversationBannerViewModel::class)
-    fun conversationBannerViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun conversationBannerViewModel(factory: ConversationBannerViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.conversationBannerViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(ConversationInfoViewModel::class)
-    fun conversationInfoViewModel(factory: ConversationCoreViewModelFactory): ViewModelAssistedFactory =
+    fun conversationInfoViewModel(factory: ConversationInfoViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.conversationInfoViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(ConversationCoreManualViewModelFactory::class)
     fun conversationCoreManualViewModelFactory(
-        factory: ConversationCoreViewModelFactory
+        factory: MultipartAttachmentsViewModelImpl.Factory
     ): ManualViewModelAssistedFactory =
         object : ConversationCoreManualViewModelFactory {
             override fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModelImpl =
-                factory.multipartAttachmentsViewModel(conversationId)
+                factory.create(conversationId)
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(GroupConversationDetailsViewModel::class)
-    fun groupConversationDetailsViewModel(factory: ConversationDetailsViewModelFactory): ViewModelAssistedFactory =
+    fun groupConversationDetailsViewModel(factory: GroupConversationDetailsViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.groupConversationDetailsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(GroupConversationParticipantsViewModel::class)
-    fun groupConversationParticipantsViewModel(factory: ConversationDetailsViewModelFactory): ViewModelAssistedFactory =
+    fun groupConversationParticipantsViewModel(factory: GroupConversationParticipantsViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.groupConversationParticipantsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(EditConversationMetadataViewModel::class)
-    fun editConversationMetadataViewModel(factory: ConversationDetailsViewModelFactory): ViewModelAssistedFactory =
+    fun editConversationMetadataViewModel(factory: EditConversationMetadataViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.editConversationMetadataViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(EditSelfDeletingMessagesViewModel::class)
-    fun editSelfDeletingMessagesViewModel(factory: ConversationDetailsViewModelFactory): ViewModelAssistedFactory =
+    fun editSelfDeletingMessagesViewModel(factory: EditSelfDeletingMessagesViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.editSelfDeletingMessagesViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(UpdateChannelAccessViewModel::class)
-    fun updateChannelAccessViewModel(factory: ConversationDetailsViewModelFactory): ViewModelAssistedFactory =
+    fun updateChannelAccessViewModel(factory: UpdateChannelAccessViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.updateChannelAccessViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(UpdateAppsAccessViewModel::class)
-    fun updateAppsAccessViewModel(factory: ConversationDetailsViewModelFactory): ViewModelAssistedFactory =
+    fun updateAppsAccessViewModel(factory: UpdateAppsAccessViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.updateAppsAccessViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(EditGuestAccessViewModel::class)
-    fun editGuestAccessViewModel(factory: ConversationDetailsViewModelFactory): ViewModelAssistedFactory =
+    fun editGuestAccessViewModel(factory: EditGuestAccessViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.editGuestAccessViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(CreatePasswordGuestLinkViewModel::class)
-    fun createPasswordGuestLinkViewModel(factory: ConversationDetailsViewModelFactory): ViewModelAssistedFactory =
+    fun createPasswordGuestLinkViewModel(factory: CreatePasswordGuestLinkViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.createPasswordGuestLinkViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(CheckAssetRestrictionsViewModel::class)
-    fun checkAssetRestrictionsViewModel(factory: ConversationDetailsViewModelFactory): ViewModel =
-        factory.checkAssetRestrictionsViewModel()
+    fun checkAssetRestrictionsViewModel(viewModel: CheckAssetRestrictionsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(ConversationSearchFolderManualViewModelFactory::class)
     fun conversationSearchFolderManualViewModelFactory(
-        factory: ConversationSearchFolderViewModelFactory
+        conversationFoldersFactory: ConversationFoldersVMImpl.Factory,
+        moveConversationToFolderFactory: MoveConversationToFolderVMImpl.Factory,
     ): ManualViewModelAssistedFactory =
         object : ConversationSearchFolderManualViewModelFactory {
             override fun conversationFoldersViewModel(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl =
-                factory.conversationFoldersViewModel(args)
+                conversationFoldersFactory.create(args)
 
             override fun moveConversationToFolderViewModel(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl =
-                factory.moveConversationToFolderViewModel(args)
+                moveConversationToFolderFactory.create(args)
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(NewFolderViewModel::class)
-    fun newFolderViewModel(factory: ConversationSearchFolderViewModelFactory): ViewModel =
-        factory.newFolderViewModel()
+    fun newFolderViewModel(viewModel: NewFolderViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(AddMembersToConversationViewModel::class)
-    fun addMembersToConversationViewModel(factory: ConversationSearchFolderViewModelFactory): ViewModelAssistedFactory =
+    fun addMembersToConversationViewModel(factory: AddMembersToConversationViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.addMembersToConversationViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(SearchConversationMessagesViewModel::class)
-    fun searchConversationMessagesViewModel(factory: ConversationSearchFolderViewModelFactory): ViewModelAssistedFactory =
+    fun searchConversationMessagesViewModel(factory: SearchConversationMessagesViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.searchConversationMessagesViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(PromoteAdminViewModel::class)
-    fun promoteAdminViewModel(factory: ConversationSearchFolderViewModelFactory): ViewModelAssistedFactory =
+    fun promoteAdminViewModel(factory: PromoteAdminViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.promoteAdminViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(SettingsViewModel::class)
-    fun settingsViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.settingsViewModel()
+    fun settingsViewModel(viewModel: SettingsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(MyAccountViewModel::class)
-    fun myAccountViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.myAccountViewModel()
+    fun myAccountViewModel(viewModel: MyAccountViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(DeleteAccountViewModel::class)
-    fun deleteAccountViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.deleteAccountViewModel()
+    fun deleteAccountViewModel(viewModel: DeleteAccountViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(ChangeDisplayNameViewModel::class)
-    fun changeDisplayNameViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.changeDisplayNameViewModel()
+    fun changeDisplayNameViewModel(viewModel: ChangeDisplayNameViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(ChangeUserColorViewModel::class)
-    fun changeUserColorViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.changeUserColorViewModel()
+    fun changeUserColorViewModel(viewModel: ChangeUserColorViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(ChangeEmailViewModel::class)
-    fun changeEmailViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.changeEmailViewModel()
+    fun changeEmailViewModel(viewModel: ChangeEmailViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(ChangeHandleViewModel::class)
-    fun changeHandleViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.changeHandleViewModel()
+    fun changeHandleViewModel(viewModel: ChangeHandleViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(CustomizationViewModel::class)
-    fun customizationViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.customizationViewModel()
+    fun customizationViewModel(viewModel: CustomizationViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(NetworkSettingsViewModel::class)
-    fun networkSettingsViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.networkSettingsViewModel()
+    fun networkSettingsViewModel(viewModel: NetworkSettingsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(PrivacySettingsViewModel::class)
-    fun privacySettingsViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.privacySettingsViewModel()
+    fun privacySettingsViewModel(viewModel: PrivacySettingsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(BackupAndRestoreViewModel::class)
-    fun backupAndRestoreViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.backupAndRestoreViewModel()
+    fun backupAndRestoreViewModel(viewModel: BackupAndRestoreViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(SetLockScreenViewModel::class)
-    fun setLockScreenViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.setLockScreenViewModel()
+    fun setLockScreenViewModel(viewModel: SetLockScreenViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(ForgotLockScreenViewModel::class)
-    fun forgotLockScreenViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.forgotLockScreenViewModel()
+    fun forgotLockScreenViewModel(viewModel: ForgotLockScreenViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(AppUnlockWithBiometricsViewModel::class)
-    fun appUnlockWithBiometricsViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.appUnlockWithBiometricsViewModel()
+    fun appUnlockWithBiometricsViewModel(viewModel: AppUnlockWithBiometricsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(EnterLockScreenViewModel::class)
-    fun enterLockScreenViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.enterLockScreenViewModel()
+    fun enterLockScreenViewModel(viewModel: EnterLockScreenViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(SelfDevicesViewModel::class)
-    fun selfDevicesViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.selfDevicesViewModel()
+    fun selfDevicesViewModel(viewModel: SelfDevicesViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(AvatarPickerViewModel::class)
-    fun avatarPickerViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.avatarPickerViewModel()
+    fun avatarPickerViewModel(viewModel: AvatarPickerViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(SelfUserProfileViewModel::class)
-    fun selfUserProfileViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.selfUserProfileViewModel()
+    fun selfUserProfileViewModel(viewModel: SelfUserProfileViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelKey(TeamMigrationViewModel::class)
-    fun teamMigrationViewModel(factory: SettingsViewModelFactory): ViewModel =
-        factory.teamMigrationViewModel()
+    fun teamMigrationViewModel(viewModel: TeamMigrationViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(VerifyEmailViewModel::class)
-    fun verifyEmailViewModel(factory: SettingsViewModelFactory): ViewModelAssistedFactory =
+    fun verifyEmailViewModel(factory: VerifyEmailViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.verifyEmailViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(DeviceDetailsViewModel::class)
-    fun deviceDetailsViewModel(factory: SettingsViewModelFactory): ViewModelAssistedFactory =
+    fun deviceDetailsViewModel(factory: DeviceDetailsViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.deviceDetailsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(SelfQRCodeViewModel::class)
-    fun selfQRCodeViewModel(factory: SettingsViewModelFactory): ViewModelAssistedFactory =
+    fun selfQRCodeViewModel(factory: SelfQRCodeViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.selfQRCodeViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(OtherUserProfileScreenViewModel::class)
-    fun otherUserProfileScreenViewModel(factory: SettingsViewModelFactory): ViewModelAssistedFactory =
+    fun otherUserProfileScreenViewModel(factory: OtherUserProfileScreenViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.otherUserProfileScreenViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(ServiceDetailsViewModelImpl::class)
-    fun serviceDetailsViewModel(factory: SettingsViewModelFactory): ViewModelAssistedFactory =
+    fun serviceDetailsViewModel(factory: ServiceDetailsViewModelImpl.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.serviceDetailsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 }

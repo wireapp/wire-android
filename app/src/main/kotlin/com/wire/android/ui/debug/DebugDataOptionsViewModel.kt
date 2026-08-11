@@ -27,6 +27,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig.DOMAIN_REMOVAL_KEYS_FOR_REPAIR
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationContext
+import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getDeviceIdString
@@ -64,6 +66,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.days
+import dev.zacsweers.metro.Inject
 
 @Suppress("TooManyFunctions")
 @ViewModelScopedPreview
@@ -89,9 +92,9 @@ interface DebugDataOptionsViewModel {
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class DebugDataOptionsViewModelImpl(
-    private val context: Context,
-    val currentAccount: UserId,
+class DebugDataOptionsViewModelImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @CurrentAccount val currentAccount: UserId,
     private val updateApiVersions: UpdateApiVersionsScheduler,
     private val mlsKeyPackageCount: MLSKeyPackageCountUseCase,
     private val restartSlowSyncProcessForRecovery: RestartSlowSyncProcessForRecoveryUseCase,

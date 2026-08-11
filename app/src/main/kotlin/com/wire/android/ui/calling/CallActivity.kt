@@ -87,7 +87,7 @@ abstract class CallActivity : BaseActivity() {
     private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
         viewModelFactory {
             initializer {
-                imageAssetViewModelGraph.commonViewModelFactory.commonTopAppBarViewModel(
+                imageAssetViewModelGraph.commonTopAppBarViewModelFactory.create(
                     CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false)
                 )
             }

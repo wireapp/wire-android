@@ -18,6 +18,10 @@
 
 package com.wire.android.ui.common.connection
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -64,7 +68,7 @@ interface ConnectionActionButtonViewModel : ActionsManager<ConnectionButtonActio
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-internal class ConnectionActionButtonViewModelImpl(
+internal class ConnectionActionButtonViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -72,8 +76,12 @@ internal class ConnectionActionButtonViewModelImpl(
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    private val args: ConnectionActionButtonArgs,
+    @Assisted private val args: ConnectionActionButtonArgs,
 ) : ConnectionActionButtonViewModel, ActionsViewModel<ConnectionButtonAction>() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl
+    }
 
     private val userId: QualifiedID = args.userId
     val userName: String = args.userName

@@ -364,8 +364,7 @@ object WireMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelKey(SecurityProvidersViewModel::class)
-    fun securityProvidersViewModel(viewModel: DebugFeatureFlagsViewModel): ViewModel =
-        factory.securityProvidersViewModel()
+    fun securityProvidersViewModel(viewModel: SecurityProvidersViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

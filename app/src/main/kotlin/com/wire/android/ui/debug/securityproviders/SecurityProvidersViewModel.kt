@@ -20,6 +20,7 @@ package com.wire.android.ui.debug.securityproviders
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.util.dispatchers.DispatcherProvider
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -28,7 +29,7 @@ import kotlinx.coroutines.withContext
 import java.security.Provider
 import java.security.Security
 
-class SecurityProvidersViewModel(
+class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {

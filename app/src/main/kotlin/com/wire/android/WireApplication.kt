@@ -42,6 +42,8 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
 import com.wire.android.feature.analytics.globalAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
@@ -54,6 +56,8 @@ import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
@@ -61,14 +65,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import dev.zacsweers.metro.Inject
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.collections.filter
 
@@ -112,6 +119,8 @@ class WireApplication : BaseApp() {
 
     @Inject
     lateinit var analyticsManager: Lazy<AnonymousAnalyticsManager>
+
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic.value) }
 
     @Inject
     lateinit var workManager: WorkManager
@@ -192,7 +201,7 @@ class WireApplication : BaseApp() {
             ::Pair
         ).collect { (isAppVisible, validSessions) ->
             validSessions.forEach {
-                coreLogic.value.getSessionScope(it.userId).calls.setBackground(!isAppVisible)
+                preparedSessionScope(it.userId)?.calls?.setBackground(!isAppVisible)
             }
         }
     }
@@ -201,7 +210,11 @@ class WireApplication : BaseApp() {
         coreLogic.value.getGlobalScope().session.currentSessionFlow().filterIsInstance(CurrentSessionResult.Success::class)
             .filter { session -> session.accountInfo.isValid() }
             .flatMapLatest { session ->
-                coreLogic.value.getSessionScope(session.accountInfo.userId).calls.observeRecentlyEndedCallMetadata()
+                flow {
+                    preparedSessionScope(session.accountInfo.userId)?.let { sessionScope ->
+                        emitAll(sessionScope.calls.observeRecentlyEndedCallMetadata())
+                    }
+                }
             }
             .collect { metadata ->
                 analyticsManager.value.sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
@@ -213,7 +226,11 @@ class WireApplication : BaseApp() {
             .filterIsInstance<CurrentSessionResult.Success>()
             .map { it.accountInfo.userId }
             .flatMapLatest {
-                coreLogic.value.getSessionScope(it).messages.observeAssetUploadState()
+                flow {
+                    preparedSessionScope(it)?.let { sessionScope ->
+                        emitAll(sessionScope.messages.observeAssetUploadState())
+                    }
+                }
             }
             .collect { uploadInProgress ->
                 if (uploadInProgress) {
@@ -360,6 +377,7 @@ class WireApplication : BaseApp() {
         initializeAnonymousAnalytics()
     }
 
+    @Suppress("LongMethod")
     private fun initializeAnonymousAnalytics() {
         if (!BuildConfig.ANALYTICS_ENABLED) return
 
@@ -370,22 +388,29 @@ class WireApplication : BaseApp() {
             enableDebugLogging = BuildConfig.DEBUG
         )
 
+        val analyticsSessionScopes = ConcurrentHashMap<UserId, UserSessionScope>()
         val analyticsResultFlow = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = coreLogic.value.getGlobalScope().session.currentSessionFlow(),
             getAnalyticsContactsData = { userId ->
-                coreLogic.value.getSessionScope(userId).getAnalyticsContactsData()
+                checkNotNull(analyticsSessionScopes[userId]).getAnalyticsContactsData()
             },
             observeAnalyticsTrackingIdentifierStatusFlow = { userId ->
-                coreLogic.value.getSessionScope(userId).observeAnalyticsTrackingIdentifierStatus()
+                checkNotNull(analyticsSessionScopes[userId]).observeAnalyticsTrackingIdentifierStatus()
             },
             analyticsIdentifierManagerProvider = { userId ->
-                coreLogic.value.getSessionScope(userId).analyticsIdentifierManager
+                checkNotNull(analyticsSessionScopes[userId]).analyticsIdentifierManager
             },
             userDataStoreProvider = userDataStoreProvider.value,
             globalDataStore = globalDataStore.value,
             currentBackend = { userId ->
-                coreLogic.value.getSessionScope(userId).users.serverLinks()
-            }
+                checkNotNull(analyticsSessionScopes[userId]).users.serverLinks()
+            },
+            prepareSession = { userId ->
+                preparedSessionScope(userId)?.let { sessionScope ->
+                    analyticsSessionScopes[userId] = sessionScope
+                    true
+                } ?: false
+            },
         ).invoke()
 
         AnonymousAnalyticsManagerImpl.init(
@@ -411,7 +436,7 @@ class WireApplication : BaseApp() {
                 .collect {
                     val currentSessionResult = coreLogic.value.getGlobalScope().session.currentSessionFlow().first()
                     val isTeamMember = if (currentSessionResult is CurrentSessionResult.Success) {
-                        coreLogic.value.getSessionScope(currentSessionResult.accountInfo.userId).team.isSelfATeamMember()
+                        preparedSessionScope(currentSessionResult.accountInfo.userId)?.team?.isSelfATeamMember()
                     } else {
                         null
                     }
@@ -439,6 +464,15 @@ class WireApplication : BaseApp() {
         val elapsed = startedAt?.let { " (+${SystemClock.elapsedRealtime() - it}ms)" }.orEmpty()
         Log.i(TAG, "startup:$event$elapsed")
     }
+
+    private suspend fun preparedSessionScope(userId: UserId) =
+        when (val result = userSessionPreparationGate.prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> result.sessionScope
+            is AppUserSessionPreparationResult.Failed -> {
+                appLogger.w("Skipping application database observer for ${userId.toLogString()}: ${result.reason}")
+                null
+            }
+        }
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)

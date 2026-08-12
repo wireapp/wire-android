@@ -21,6 +21,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.kalium.logic.data.user.UserId
+import java.io.File
 
 class AppPathsProvider(
     private val context: Context,
@@ -39,11 +40,80 @@ class AppPathsProvider(
         )
     }
 
+    fun userDatabaseSecurityStatus(): UserDatabaseSecurityStatus {
+        val databaseFile = context.getDatabasePath(
+            currentAccount.databaseFileName()
+        )
+        val databasePath = databaseFile.absolutePath
+        return UserDatabaseSecurityStatus(
+            path = databasePath,
+            header = databaseFile.sqliteHeaderStatus(),
+            isInInternalDataDirectory = databasePath.isWithin(context.applicationInfo.dataDir),
+        )
+    }
+
     private companion object {
         /** Only used to resolve the databases directory, the file itself never has to exist. */
         const val DATABASE_NAME_PROBE = "probe"
     }
 }
+
+private fun UserId.databaseFileName(): String =
+    "user-db-$value-$domain".filter { it.isLetterOrDigit() || it == '-' }
+
+internal fun File.sqliteHeaderStatus(): SqliteHeaderStatus = when {
+    !exists() -> SqliteHeaderStatus.NotCreated
+    !isFile -> SqliteHeaderStatus.Unavailable
+    else -> runCatching {
+        inputStream().use { input ->
+            val header = ByteArray(SQLITE_HEADER.size)
+            val bytesRead = input.read(header)
+            if (bytesRead == SQLITE_HEADER.size) {
+                if (header.contentEquals(SQLITE_HEADER)) {
+                    SqliteHeaderStatus.PlainSqlite
+                } else {
+                    SqliteHeaderStatus.NotPlainSqlite(header.toHexString())
+                }
+            } else {
+                SqliteHeaderStatus.Unavailable
+            }
+        }
+    }.getOrElse { SqliteHeaderStatus.Unavailable }
+}
+
+private fun String.isWithin(directory: String): Boolean =
+    runCatching {
+        val canonicalDirectory = File(directory).canonicalFile
+        File(this).canonicalFile.toPath().startsWith(canonicalDirectory.toPath())
+    }.getOrDefault(false)
+
+private val SQLITE_HEADER = "SQLite format 3\u0000".encodeToByteArray()
+
+data class UserDatabaseSecurityStatus(
+    val path: String,
+    val header: SqliteHeaderStatus,
+    val isInInternalDataDirectory: Boolean,
+)
+
+sealed interface SqliteHeaderStatus {
+    val value: String
+
+    data object PlainSqlite : SqliteHeaderStatus {
+        override val value: String = "SQLite format 3\\u0000"
+    }
+
+    data class NotPlainSqlite(override val value: String) : SqliteHeaderStatus
+
+    data object NotCreated : SqliteHeaderStatus {
+        override val value: String = "Not created"
+    }
+
+    data object Unavailable : SqliteHeaderStatus {
+        override val value: String = "Unavailable"
+    }
+}
+
+private fun ByteArray.toHexString(): String = joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xff) }
 
 data class AppPathEntry(
     @StringRes val labelRes: Int,

@@ -1795,6 +1795,16 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_app_path_no_backup_dir" translatable="false">No backup dir</string>
     <string name="debug_settings_app_path_external_files_dir" translatable="false">External files dir</string>
     <string name="debug_settings_security_providers_entry_count" translatable="false">%1$d entries</string>
+    <string name="debug_settings_sqlcipher" translatable="false">SQLCipher Database</string>
+    <string name="debug_settings_sqlcipher_version" translatable="false">SQLCipher version</string>
+    <string name="debug_settings_sqlcipher_database_path" translatable="false">User database path</string>
+    <string name="debug_settings_sqlcipher_header_value" translatable="false">Database header (first 16 bytes)</string>
+    <string name="debug_settings_sqlcipher_header_interpretation" translatable="false">Header interpretation</string>
+    <string name="debug_settings_sqlcipher_header_plain" translatable="false">Plain SQLite</string>
+    <string name="debug_settings_sqlcipher_header_not_plain" translatable="false">Not a plain SQLite header</string>
+    <string name="debug_settings_sqlcipher_header_not_created" translatable="false">Database not created</string>
+    <string name="debug_settings_sqlcipher_internal_storage" translatable="false">In app internal data directory</string>
+    <string name="debug_settings_unavailable" translatable="false">Unavailable</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

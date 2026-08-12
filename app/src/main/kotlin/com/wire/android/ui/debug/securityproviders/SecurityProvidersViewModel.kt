@@ -19,7 +19,9 @@ package com.wire.android.ui.debug.securityproviders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +34,7 @@ import java.security.Security
 class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
     private val dispatcherProvider: DispatcherProvider,
+    private val getSqlCipherVersion: GetSqlCipherVersionUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SecurityProvidersViewState())
@@ -51,7 +54,20 @@ class SecurityProvidersViewModel @Inject constructor(
                     )
                 }
             }
-            _state.update { current -> current.copy(appPaths = appPathsProvider(), providers = providers) }
+            val databaseSecurity = withContext(dispatcherProvider.io()) {
+                DatabaseSecurityInfo(
+                    sqlCipherVersion = getSqlCipherVersion(),
+                    userDatabase = appPathsProvider.userDatabaseSecurityStatus(),
+                )
+            }
+            appLogger.i("SQLCipher diagnostics: $databaseSecurity")
+            _state.update { current ->
+                current.copy(
+                    appPaths = appPathsProvider(),
+                    providers = providers,
+                    databaseSecurity = databaseSecurity,
+                )
+            }
         }
     }
 }
@@ -67,4 +83,10 @@ private fun Provider.versionString(): String = getProperty(PROVIDER_VERSION_PROP
 data class SecurityProvidersViewState(
     val appPaths: List<AppPathEntry> = emptyList(),
     val providers: List<SecurityProvider>? = null,
+    val databaseSecurity: DatabaseSecurityInfo? = null,
+)
+
+data class DatabaseSecurityInfo(
+    val sqlCipherVersion: String?,
+    val userDatabase: UserDatabaseSecurityStatus,
 )

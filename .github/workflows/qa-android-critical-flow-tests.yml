@@ -243,8 +243,6 @@ jobs:
       contents: write
 
     env:
-      AWS_REGION: eu-west-1
-      OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
       DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
 
@@ -253,6 +251,11 @@ jobs:
         shell: bash
 
     steps:
+      - name: Register log masks
+        run: |
+          echo "::add-mask::eu-west-1"
+          echo "::add-mask::mation"
+
       - name: Checkout (with submodules)
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -276,7 +279,7 @@ jobs:
         run: make qa-ui-setup cmd=ensure-required-tools
 
       # Flavor resolution is runner-driven (from /etc/android-qa/flavors.json), not hardcoded in repo.
-      # This bash subcommand exports S3_FOLDER, APP_ID, and PACKAGES_TO_UNINSTALL for downstream steps.
+      # Keep app install data job-wide, but pass the S3 folder only to the download step.
       - name: Resolve flavor (runner config)
         id: resolve_flavor
         env:
@@ -298,6 +301,7 @@ jobs:
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
           OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
           S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          S3_FOLDER: ${{ steps.resolve_flavor.outputs.s3Folder }}
         run: make qa-ui-setup cmd=download-apks
 
       # Select device(s): use input device when provided, otherwise auto-pick.

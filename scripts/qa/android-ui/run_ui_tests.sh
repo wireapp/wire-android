@@ -330,8 +330,24 @@ device_reported_zero_tests() {
   local log_file="${LOG_DIR}/attempt-${attempt}-instrument-${serial}.log"
   [[ -f "${log_file}" ]] || return 1
 
-  # Zero-test shards are valid for filtered/sharded runs and should not fail the pull step.
+  # A device shard can legitimately run zero tests after filtering or sharding.
+  # In that case it will not produce Allure results, so the pull step should not fail.
   grep -qE 'INSTRUMENTATION_STATUS: numtests=0|OK \(0 tests\)|No tests found' "${log_file}"
+}
+
+# Treat a zero-test attempt as valid only when every device log for that
+# attempt explicitly reported zero tests.
+attempt_reported_zero_tests() {
+  local attempt="$1"
+  shift
+  local devices=("$@")
+  [[ ${#devices[@]} -gt 0 ]] || return 1
+
+  for serial in "${devices[@]}"; do
+    if ! device_reported_zero_tests "${attempt}" "${serial}"; then
+      return 1
+    fi
+  done
 }
 
 pull_allure_results_for_attempt() {
@@ -537,9 +553,11 @@ run_attempt_on_devices() {
 
       # Android instrumentation can return non-zero for normal test failures.
       # Keep that separate from real infra failures so retries can still proceed.
+      # Keep the full device log on disk, but sanitize what gets printed to GitHub.
       set +e
       ${adb_cmd} shell am instrument -w -r "${args[@]}" "${instrumentation}" 2>&1 \
-        | sed -u "s/^/[${serial}] /" | tee "${log_file}"
+        | tee "${log_file}" \
+        | python3 scripts/qa/android-ui/sanitize_instrumentation_log.py "${serial}"
       local rc=${PIPESTATUS[0]}
       set -e
 
@@ -641,6 +659,21 @@ while true; do
   extract_failed_ids "${attempt}" "${attempt_failed_file}" "${attempt_executed_file}"
   executed_count="$(wc -l < "${attempt_executed_file}" | tr -d ' ')"
   if (( executed_count == 0 )); then
+    # During reruns, a shard can legitimately end up with no tests assigned.
+    # Only treat that as valid when every device log explicitly reported
+    # zero tests and the instrumentation command itself did not fail.
+    if ! attempt_uses_selector_mode "${attempt}" && attempt_reported_zero_tests "${attempt}" "${attempt_devices[@]}"; then
+      if (( attempt_worker_failed != 0 )); then
+        echo "ERROR: Attempt ${attempt} reported zero tests but instrumentation failed."
+        exit 1
+      fi
+      echo "Attempt ${attempt} executed zero tests across all shards."
+      if [[ ! -f "${first_failed_file}" ]]; then
+        cp "${attempt_failed_file}" "${first_failed_file}"
+      fi
+      current_failed_file="${attempt_failed_file}"
+      break
+    fi
     echo "ERROR: Attempt ${attempt} produced no identifiable executed tests."
     exit 1
   fi

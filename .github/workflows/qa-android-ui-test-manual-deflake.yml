@@ -85,8 +85,6 @@ jobs:
       actions: read
 
     env:
-      AWS_REGION: eu-west-1
-      OP_VAULT: "Test Automation"
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
       DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
 
@@ -95,6 +93,11 @@ jobs:
         shell: bash
 
     steps:
+      - name: Register log masks
+        run: |
+          echo "::add-mask::eu-west-1"
+          echo "::add-mask::mation"
+
       # Mirror qa-android-critical-flow-tests.yml runner setup so manual
       # deflake executes in the same QA office runner environment.
       - name: Checkout (with submodules)
@@ -181,9 +184,10 @@ jobs:
           RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
         run: make qa-ui-validate cmd=validate-rerun-inputs
 
-      # Reuse the same flavor resolver and APK download path so the deflake run
-      # stays aligned with qa-android-critical-flow-tests.yml app setup.
+      # Reuse the same flavor resolver and pass its S3 folder output into the APK
+      # download step so deflake stays aligned with qa-android-critical-flow-tests.yml.
       - name: Resolve flavor (runner config)
+        id: resolve_flavor
         env:
           FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
         run: make qa-ui-setup cmd=resolve-flavor
@@ -202,6 +206,7 @@ jobs:
           IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
           OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
           S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          S3_FOLDER: ${{ steps.resolve_flavor.outputs.s3Folder }}
         run: make qa-ui-setup cmd=download-apks
 
       # Keep device selection and app installation identical to the selected run

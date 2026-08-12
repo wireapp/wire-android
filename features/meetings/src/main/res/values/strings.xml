@@ -18,12 +18,6 @@
 <resources>
     <string name="all_meetings_tab_next">NEXT</string>
     <string name="all_meetings_tab_past">PAST</string>
-    <string name="meeting_repeating_never">Never</string>
-    <string name="meeting_repeating_daily">Daily</string>
-    <string name="meeting_repeating_weekly">Weekly</string>
-    <string name="meeting_repeating_biweekly">Every 2 weeks</string>
-    <string name="meeting_repeating_monthly">Monthly</string>
-    <string name="meeting_repeating_annually">Annually</string>
     <string name="meeting_started_at">Started at %1$s</string>
     <string name="content_description_meeting_icon">Meeting icon</string>
     <string name="content_description_more_menu_icon">Meeting more menu icon</string>
@@ -97,10 +91,20 @@
         <item quantity="other">+%1$d more</item>
     </plurals>
 
+    <!-- Repeating frequency options -->
+    <string name="meeting_repeating_never">Never</string>
+    <string name="meeting_repeating_days_2">Every two days</string>
+    <string name="meeting_repeating_days_3">Every three days</string>
+    <string name="meeting_repeating_days_4">Every four days</string>
+    <string name="meeting_repeating_days_5">Every five days</string>
+    <string name="meeting_repeating_days_6">Every six days</string>
     <plurals name="meeting_repeating_days">
         <item quantity="one">Daily</item>
         <item quantity="other">Every %d days</item>
     </plurals>
+    <string name="meeting_repeating_weeks_2">Every two weeks</string>
+    <string name="meeting_repeating_weeks_3">Every three weeks</string>
+    <string name="meeting_repeating_weeks_4">Every four weeks</string>
     <plurals name="meeting_repeating_weeks">
         <item quantity="one">Weekly</item>
         <item quantity="other">Every %d weeks</item>

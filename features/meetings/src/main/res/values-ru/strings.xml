@@ -19,12 +19,6 @@
 <resources>
     <string name="all_meetings_tab_next">ДАЛЕЕ</string>
     <string name="all_meetings_tab_past">НАЗАД</string>
-    <string name="meeting_repeating_never">Никогда</string>
-    <string name="meeting_repeating_daily">Ежедневно</string>
-    <string name="meeting_repeating_weekly">Еженедельно</string>
-    <string name="meeting_repeating_biweekly">Каждые 2 недели</string>
-    <string name="meeting_repeating_monthly">Ежемесячно</string>
-    <string name="meeting_repeating_annually">Ежегодно</string>
     <string name="meeting_started_at">Начиная с %1$s</string>
     <string name="content_description_meeting_icon">Значок встречи</string>
     <string name="content_description_more_menu_icon">Значок меню встречи</string>
@@ -90,6 +84,9 @@
         <item quantity="many">Еще +%1$d</item>
         <item quantity="other">Еще +%1$d</item>
     </plurals>
+
+    <!-- Repeating frequency options -->
+    <string name="meeting_repeating_never">Никогда</string>
     <plurals name="meeting_repeating_days">
         <item quantity="one">Ежедневно</item>
         <item quantity="few">Каждые %d дня</item>
@@ -114,4 +111,5 @@
         <item quantity="many">Каждые %d лет</item>
         <item quantity="other">Каждые %d года</item>
     </plurals>
+
 </resources>

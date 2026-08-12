@@ -191,6 +191,7 @@ if (!project.hasProperty("skip.aboutlibraries")) {
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
+    implementation("com.wire.kalium:kalium-network")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
     implementation("com.wire.kalium:kalium-core-libsodium")

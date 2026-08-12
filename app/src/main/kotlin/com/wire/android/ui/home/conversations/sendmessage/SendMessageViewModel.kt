@@ -80,6 +80,9 @@ import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseC
 import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -90,8 +93,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class SendMessageViewModel(
-    val savedStateHandle: SavedStateHandle,
+class SendMessageViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendMultipartMessage: SendMultipartMessageUseCase,
@@ -117,6 +120,11 @@ class SendMessageViewModel(
     private val generateLinkPreview: GenerateLinkPreviewUseCase,
     private val detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): SendMessageViewModel
+    }
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId

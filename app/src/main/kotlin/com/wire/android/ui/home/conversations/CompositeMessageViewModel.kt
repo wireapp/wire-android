@@ -17,6 +17,10 @@
  */
 package com.wire.android.ui.home.conversations
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,11 +42,15 @@ interface CompositeMessageViewModel {
     fun sendButtonActionMessage(buttonId: String) {}
 }
 
-class CompositeMessageViewModelImpl(
+class CompositeMessageViewModelImpl @AssistedInject constructor(
     private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
-    savedStateHandle: SavedStateHandle,
-    scopedArgs: CompositeMessageArgs,
+    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted scopedArgs: CompositeMessageArgs,
 ) : CompositeMessageViewModel, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle, scopedArgs: CompositeMessageArgs): CompositeMessageViewModelImpl
+    }
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId

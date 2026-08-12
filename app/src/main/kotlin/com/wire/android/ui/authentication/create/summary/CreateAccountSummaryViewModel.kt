@@ -25,11 +25,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.ramcosta.composedestinations.generated.app.navArgs
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class CreateAccountSummaryViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+class CreateAccountSummaryViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateAccountSummaryViewModel
+    }
 
     private val createAccountSummaryNavArgs: CreateAccountSummaryNavArgs = savedStateHandle.navArgs()
     private val type: CreateAccountFlowType = createAccountSummaryNavArgs.type

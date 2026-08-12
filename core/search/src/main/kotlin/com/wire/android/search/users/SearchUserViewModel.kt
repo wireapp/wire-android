@@ -35,6 +35,9 @@ import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUsersByNameUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -48,9 +51,9 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class SearchUserViewModel(
-    private val conversationId: ConversationId?,
-    private val onlyConnectedContacts: Boolean,
+class SearchUserViewModel @AssistedInject constructor(
+    @Assisted private val conversationId: ConversationId?,
+    @Assisted private val onlyConnectedContacts: Boolean,
     private val searchUsersByName: SearchUsersByNameUseCase,
     private val searchUsersByHandle: SearchUsersByHandleUseCase,
     private val contactMapper: ContactMapper,
@@ -58,6 +61,10 @@ class SearchUserViewModel(
     private val validateUserHandle: ValidateUserHandleUseCase,
     private val isFederationSearchAllowed: IsFederationSearchAllowedUseCase,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId?, onlyConnectedContacts: Boolean): SearchUserViewModel
+    }
 
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     private val selectedContactsFlow = MutableStateFlow<ImmutableSet<Contact>>(persistentSetOf())

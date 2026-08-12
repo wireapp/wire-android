@@ -47,6 +47,9 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomL
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -60,7 +63,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class EditGuestAccessViewModel(
+class EditGuestAccessViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -73,8 +76,12 @@ class EditGuestAccessViewModel(
     private val syncConversationCode: SyncConversationCodeUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val selfUser: ObserveSelfUserUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): EditGuestAccessViewModel
+    }
 
     private val editGuestAccessNavArgs: EditGuestAccessNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = editGuestAccessNavArgs.conversationId

@@ -29,13 +29,14 @@ import com.wire.kalium.logger.KaliumLogLevel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import dev.zacsweers.metro.Inject
 
 data class LogManagementState(
     val isLoggingEnabled: Boolean = false,
     val logPath: String
 )
 
-class LogManagementViewModel(
+class LogManagementViewModel @Inject constructor(
     private val logFileWriter: LogFileWriter,
     private val globalDataStore: GlobalDataStore
 ) : ViewModel() {

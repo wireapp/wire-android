@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import dev.zacsweers.metro.Provider
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface HomeManualViewModelFactory : ManualViewModelAssistedFactory {
@@ -40,7 +41,7 @@ interface HomeManualViewModelFactory : ManualViewModelAssistedFactory {
 }
 
 interface HomeViewModelGraph : MetroViewModelGraph {
-    val homeViewModelFactory: HomeViewModelFactory
+    val featureFlagNotificationViewModel: Provider<FeatureFlagNotificationViewModel>
 }
 
 @Composable

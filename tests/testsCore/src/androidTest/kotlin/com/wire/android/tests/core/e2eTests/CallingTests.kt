@@ -918,6 +918,10 @@ class CallingTests : BaseCallUiTest() {
             }
         }
 
+        step("And I wait until Wire service notification disappears") {
+            pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
+        }
+
         step("When I tap start call button") {
             pages.conversationViewPage.apply {
                 iTapStartCallButton()

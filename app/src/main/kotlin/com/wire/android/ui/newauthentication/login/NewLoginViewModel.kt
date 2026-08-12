@@ -82,7 +82,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.IOException
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -102,11 +104,11 @@ class NewLoginViewModel(
     private val globalDataStore: Lazy<GlobalDataStore>? = null,
 ) : ActionsViewModel<NewLoginAction>() {
 
-    @Inject
+    @AssistedInject
     constructor(
         validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
-        savedStateHandle: SavedStateHandle,
+        @Assisted savedStateHandle: SavedStateHandle,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
@@ -132,6 +134,11 @@ class NewLoginViewModel(
         getServerConfigUseCase,
         globalDataStore,
     )
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): NewLoginViewModel
+    }
 
     private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None

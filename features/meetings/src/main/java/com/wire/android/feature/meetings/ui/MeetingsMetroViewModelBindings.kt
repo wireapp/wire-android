@@ -38,24 +38,24 @@ object MeetingsMetroViewModelBindings {
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(MeetingsManualViewModelFactory::class)
-    fun meetingsManualViewModelFactory(factory: MeetingsViewModelFactory): ManualViewModelAssistedFactory =
+    fun meetingsManualViewModelFactory(factory: MeetingListViewModelImpl.Factory): ManualViewModelAssistedFactory =
         object : MeetingsManualViewModelFactory {
             override fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModelImpl =
-                factory.meetingListViewModel(type)
+                factory.create(type)
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(MeetingOptionsMenuViewModelImpl::class)
-    fun meetingOptionsMenuViewModel(factory: MeetingsViewModelFactory): ViewModel =
-        factory.meetingOptionsMenuViewModel()
+    fun meetingOptionsMenuViewModel(viewModel: MeetingOptionsMenuViewModelImpl): ViewModel =
+        viewModel
 
     @Provides
     @IntoMap
     @ViewModelAssistedFactoryKey(NewMeetingViewModelImpl::class)
-    fun newMeetingViewModel(factory: MeetingsViewModelFactory): ViewModelAssistedFactory =
+    fun newMeetingViewModel(factory: NewMeetingViewModelImpl.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.newMeetingViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 }

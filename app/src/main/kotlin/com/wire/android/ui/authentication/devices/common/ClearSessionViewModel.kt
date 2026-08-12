@@ -34,15 +34,22 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class ClearSessionViewModel @Inject constructor(
+class ClearSessionViewModel @AssistedInject constructor(
     private val currentSession: CurrentSessionUseCase,
     private val deleteSession: DeleteSessionUseCase,
     private val switchAccount: AccountSwitchUseCase,
     private val logout: LogoutUseCase,
-    private val cancelUserId: UserId? = null,
+    @Assisted private val cancelUserId: UserId? = null,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(cancelUserId: UserId?): ClearSessionViewModel
+    }
+
     var state: ClearSessionState by mutableStateOf(
         ClearSessionState(showCancelLoginDialog = false)
     )

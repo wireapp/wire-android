@@ -49,24 +49,29 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExternalResource
+import org.junit.rules.RuleChain
 
 class WireActivityTest {
 
-    @get:Rule
     val composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<WireActivity>, WireActivity> =
         createAndroidComposeRule<WireActivity>()
 
-    @Before
-    fun init() {
-        val context = ApplicationProvider.getApplicationContext<Application>()
-        context.deleteDatabase("global-db") // GLOBAL_DB_NAME in FileNameUtil
-        WorkManagerTestInitHelper.initializeTestWorkManager(context)
-        initializeApplicationLoggingFrameworks()
+    private val appInitializationRule = object : ExternalResource() {
+        override fun before() {
+            val context = ApplicationProvider.getApplicationContext<Application>()
+            WorkManagerTestInitHelper.initializeTestWorkManager(context)
+            initializeApplicationLoggingFrameworks()
+        }
     }
+
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain
+        .outerRule(appInitializationRule)
+        .around(composeTestRule)
 
     @Ignore // TODO add other api mocks to not have flaky test
     @Test

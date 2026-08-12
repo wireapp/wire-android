@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -41,17 +42,25 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationInfoViewModel(
+class ConversationInfoViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
-    val savedStateHandle: SavedStateHandle,
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
-    private val selfUserId: UserId,
+    @CurrentAccount private val selfUserId: UserId,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ConversationInfoViewModel
+    }
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId

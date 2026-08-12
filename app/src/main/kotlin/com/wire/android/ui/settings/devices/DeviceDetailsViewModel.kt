@@ -55,10 +55,12 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 @Suppress("TooManyFunctions", "LongParameterList")
-class DeviceDetailsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class DeviceDetailsViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     @CurrentAccount
     private val currentUserId: UserId,
     private val deleteClient: DeleteClientUseCase,
@@ -71,6 +73,10 @@ class DeviceDetailsViewModel @Inject constructor(
     private val breakSession: BreakSessionUseCase,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): DeviceDetailsViewModel
+    }
     private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
     private val deviceId: ClientId = deviceDetailsNavArgs.clientId
     private val userId: UserId = deviceDetailsNavArgs.userId

@@ -17,6 +17,10 @@
  */
 package com.wire.android.media.audiomessage
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,11 +49,15 @@ interface AudioMessageViewModel {
     fun changeAudioSpeed(audioSpeed: AudioSpeed) {}
 }
 
-class AudioMessageViewModelImpl(
+class AudioMessageViewModelImpl @AssistedInject constructor(
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
     private val observeMessageById: ObserveMessageByIdUseCase,
-    private val args: AudioMessageArgs,
+    @Assisted private val args: AudioMessageArgs,
 ) : ViewModel(), AudioMessageViewModel {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: AudioMessageArgs): AudioMessageViewModelImpl
+    }
 
     override var state: AudioMessageState by mutableStateOf(AudioMessageState())
         private set

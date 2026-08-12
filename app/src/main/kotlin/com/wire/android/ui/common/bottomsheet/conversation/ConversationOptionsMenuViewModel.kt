@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.common.bottomsheet.conversation
 
+import dev.zacsweers.metro.Inject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
@@ -108,7 +110,7 @@ interface ConversationOptionsMenuViewModel : ActionsManager<ConversationOptionsM
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationOptionsMenuViewModelImpl(
+class ConversationOptionsMenuViewModelImpl @Inject constructor(
     @CurrentAccount private val currentAccount: UserId,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase,
@@ -223,7 +225,7 @@ class ConversationOptionsMenuViewModelImpl(
                     conversationId = conversationId,
                     shouldArchiveConversation = shouldArchive,
                     onlyLocally = !isSelfAMember,
-                    archivedStatusTimestamp = DateTimeUtil.currentInstant().toEpochMilliseconds()
+                    archivedStatusTimestamp = DateTimeUtil.currentInstant()
                 )
             }.let { result ->
                 when (result) {
@@ -241,7 +243,7 @@ class ConversationOptionsMenuViewModelImpl(
                 updateConversationMutedStatus(
                     conversationId = conversationId,
                     mutedConversationStatus = mutedConversationStatus,
-                    mutedStatusTimestamp = DateTimeUtil.currentInstant().toEpochMilliseconds()
+                    mutedStatusTimestamp = DateTimeUtil.currentInstant()
                 )
             }.let { result ->
                 when (result) {

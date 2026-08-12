@@ -50,6 +50,9 @@ import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCa
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -64,7 +67,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("TooManyFunctions", "LongParameterList")
-class GroupConversationDetailsViewModel(
+class GroupConversationDetailsViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -72,7 +75,7 @@ class GroupConversationDetailsViewModel(
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
@@ -82,6 +85,10 @@ class GroupConversationDetailsViewModel(
         observeConversationMembers = observeConversationMembers,
         refreshUsersWithoutMetadata = refreshUsersWithoutMetadata
     ) {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): GroupConversationDetailsViewModel
+    }
 
     private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId

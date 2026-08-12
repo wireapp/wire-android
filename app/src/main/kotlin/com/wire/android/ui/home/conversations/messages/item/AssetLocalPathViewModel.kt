@@ -18,6 +18,10 @@
 
 package com.wire.android.ui.home.conversations.messages.item
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,11 +56,15 @@ interface AssetLocalPathViewModel {
     ) {}
 }
 
-internal class AssetLocalPathViewModelImpl(
+internal class AssetLocalPathViewModelImpl @AssistedInject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val dispatchers: DispatcherProvider,
-    private val args: AssetLocalPathArgs,
+    @Assisted private val args: AssetLocalPathArgs,
 ) : ViewModel(), AssetLocalPathViewModel {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: AssetLocalPathArgs): AssetLocalPathViewModelImpl
+    }
     override var localAssetPath: String? by mutableStateOf(null)
         private set
 

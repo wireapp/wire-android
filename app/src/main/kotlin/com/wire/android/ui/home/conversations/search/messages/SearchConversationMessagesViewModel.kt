@@ -29,17 +29,24 @@ import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFro
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 
-class SearchConversationMessagesViewModel(
+class SearchConversationMessagesViewModel @AssistedInject constructor(
     private val getSearchMessagesForConversation: GetConversationMessagesFromSearchUseCase,
     private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): SearchConversationMessagesViewModel
+    }
 
     private val searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs = savedStateHandle.navArgs()
 

@@ -32,17 +32,24 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.util.RandomPassword
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
-class CreatePasswordGuestLinkViewModel(
+class CreatePasswordGuestLinkViewModel @AssistedInject constructor(
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val validatePassword: ValidatePasswordUseCase,
     private val generatePassword: RandomPassword,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreatePasswordGuestLinkViewModel
+    }
 
     private val editGuestAccessNavArgs: CreatePasswordGuestLinkNavArgs = savedStateHandle.navArgs<CreatePasswordGuestLinkNavArgs>()
     private val conversationId: QualifiedID = editGuestAccessNavArgs.conversationId

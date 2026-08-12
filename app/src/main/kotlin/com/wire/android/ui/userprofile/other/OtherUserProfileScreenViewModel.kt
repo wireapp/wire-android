@@ -60,9 +60,11 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 @Suppress("LongParameterList", "TooManyFunctions")
-class OtherUserProfileScreenViewModel @Inject constructor(
+class OtherUserProfileScreenViewModel @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val userTypeMapper: UserTypeMapper,
@@ -75,8 +77,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val isE2EIEnabled: IsE2EIEnabledUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted savedStateHandle: SavedStateHandle
 ) : ActionsViewModel<OtherUserProfileViewAction>(), OtherUserProfileEventsHandler {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): OtherUserProfileScreenViewModel
+    }
     private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
     private val userId: QualifiedID = otherUserProfileNavArgs.userId
     private val groupConversationId: QualifiedID? = otherUserProfileNavArgs.groupConversationId

@@ -66,6 +66,10 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -91,8 +95,8 @@ import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
-class CellViewModel(
-    val savedStateHandle: SavedStateHandle,
+class CellViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
@@ -112,9 +116,14 @@ class CellViewModel(
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
-    val offlineFilesEnabled: Boolean,
-    private val inAppImageViewerEnabled: Boolean,
+    @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
+    @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CellViewModel
+    }
 
     private val searchNavArgs: SearchNavArgs? = try {
         SearchScreenDestination.argsFrom(savedStateHandle)

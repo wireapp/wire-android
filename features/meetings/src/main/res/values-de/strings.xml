@@ -51,7 +51,6 @@
     <string name="new_meeting_participants_input_placeholder">Teilnehmer auswählen</string>
     <string name="content_description_new_meeting_back_icon">Ansicht neues Meeting schließen</string>
     <string name="content_description_new_meeting_participants_back_icon">Teilnehmer auswählen Ansicht schließen</string>
-    <string name="new_meeting_title_name_error_empty">Meeting-Namen eingeben</string>
     <string name="new_meeting_title_name_error_exceeded_limit">Meeting-Name höchstens 64 Zeichen</string>
     <string name="new_meeting_starts_input_label">Beginnt</string>
     <string name="new_meeting_start_date_input_placeholder">Startdatum auswählen</string>
@@ -59,9 +58,6 @@
     <string name="new_meeting_ends_input_label">Endet</string>
     <string name="new_meeting_end_date_input_placeholder">Enddatum auswählen</string>
     <string name="new_meeting_end_time_input_placeholder">Endzeit auswählen</string>
-    <string name="new_meeting_start_in_past_error">Startzeit darf nicht in der Vergangenheit liegen</string>
-    <string name="new_meeting_end_in_past_error">Endzeit kann nicht in der Vergangenheit sein</string>
-    <string name="new_meeting_end_before_start_error">Die Endzeit darf nicht vor der Startzeit liegen</string>
     <string name="new_meeting_repeats_input_label">Wiederholt sich</string>
     <string name="content_description_new_meeting_repeating_options">Wiederholungsoption auswählen</string>
     <string name="new_meeting_allow_guests_label">Gäste zulassen</string>

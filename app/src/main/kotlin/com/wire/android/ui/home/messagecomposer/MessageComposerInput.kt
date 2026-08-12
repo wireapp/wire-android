@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.view.KeyCharacterMap
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -478,9 +479,15 @@ private inline fun KeyEvent.handleInputActivation(
 private val KeyEvent.printableCharacter: String?
     get() {
         if (type != KeyEventType.KeyDown || key in NON_PRINTABLE_COMPOSER_KEYS) return null
-        val unicodeChar = utf16CodePoint
-        return unicodeChar.takeIf { it != 0 }?.let { String(Character.toChars(it)) }
+        return unicodeCharToPrintableString(utf16CodePoint)
     }
+
+internal fun unicodeCharToPrintableString(unicodeChar: Int): String? {
+    val codePoint = unicodeChar and KeyCharacterMap.COMBINING_ACCENT_MASK
+    return codePoint
+        .takeIf { it != 0 && Character.isValidCodePoint(it) }
+        ?.let { String(Character.toChars(it)) }
+}
 
 private val NON_PRINTABLE_COMPOSER_KEYS = setOf(
     Key.Tab,

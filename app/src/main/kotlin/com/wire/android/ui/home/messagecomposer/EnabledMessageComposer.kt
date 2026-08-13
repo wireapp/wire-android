@@ -450,9 +450,6 @@ fun EnabledMessageComposer(
                     }
                 }
             }
-            BackHandler(mentionSearchResult.isNotEmpty()) {
-                closeMentionSuggestions()
-            }
             if ((inputStateHolder.optionsVisible || rippleProgress.value > 0f) && !bottomSheetVisible) {
                 Popup(
                     alignment = Alignment.BottomCenter,
@@ -535,16 +532,19 @@ fun EnabledMessageComposer(
                         )
                     }
                 }
+            }
 
-                BackHandler(inputStateHolder.optionsVisible) {
-                    inputStateHolder.showAttachments(false)
-                }
-                BackHandler(inputStateHolder.inputType is InputType.Editing) {
-                    cancelEdit()
-                }
-                BackHandler(isImeVisible || inputStateHolder.inputFocused) {
-                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
-                }
+            BackHandler(inputStateHolder.optionsVisible) {
+                inputStateHolder.showAttachments(false)
+            }
+            BackHandler(inputStateHolder.inputType is InputType.Editing) {
+                cancelEdit()
+            }
+            BackHandler(isImeVisible || inputStateHolder.inputFocused) {
+                inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+            }
+            BackHandler(mentionSearchResult.isNotEmpty()) {
+                closeMentionSuggestions()
             }
         }
     }

@@ -9,7 +9,6 @@
  */
 package com.wire.android.ui.home.messagecomposer
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -28,7 +27,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -43,6 +41,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.onClick
 import com.wire.android.model.Clickable
 import com.wire.android.model.Contact
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.theme.wireColorScheme
 
@@ -95,9 +94,6 @@ private fun KeyboardMentionItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                if (isFocused) MaterialTheme.wireColorScheme.primaryVariant else Color.Transparent
-            )
             .focusRequester(focusRequesters[index])
             .onFocusChanged { isFocused = it.isFocused }
             .onPreviewKeyEvent { event ->
@@ -133,6 +129,11 @@ private fun KeyboardMentionItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusProperties { canFocus = false },
+            backgroundColor = if (isFocused) {
+                MaterialTheme.wireColorScheme.primaryVariant
+            } else {
+                colorsScheme().surface
+            },
         )
     }
 }

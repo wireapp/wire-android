@@ -255,6 +255,12 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationSubtitleVisible(expectedSubtitle: String): ConversationListPage {
+        val subtitle = UiWaitUtils.waitElement(UiSelectorParams(text = expectedSubtitle))
+        assertTrue("Conversation subtitle '$expectedSubtitle' is not visible", !subtitle.visibleBounds.isEmpty)
+        return this
+    }
+
     fun tapSearchConversationField(): ConversationListPage {
         val element = UiWaitUtils.waitElement(searchField)
         element.click()

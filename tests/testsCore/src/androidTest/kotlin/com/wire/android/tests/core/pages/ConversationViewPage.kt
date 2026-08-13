@@ -128,6 +128,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationIsVisibleWithUser(userName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(displayedUserName(userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("User '$userName' is not visible in conversation view", e)
+        }
+        return this
+    }
+
     fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(displayedUserName(userName))

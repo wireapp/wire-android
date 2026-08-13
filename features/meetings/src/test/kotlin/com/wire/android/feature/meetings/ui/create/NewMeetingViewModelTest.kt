@@ -434,6 +434,48 @@ class NewMeetingViewModelTest {
     }
 
     @Test
+    fun givenUpdateActionReturnsUpdateConversationNameFailure_whenSubmitUpdateIsCalled_thenReturnedConversationErrorIsShown() =
+        runTest(dispatcher) {
+            val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+            val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+            val nextOccurrence = MEETING_OCCURRENCE.copy(
+                meeting = MEETING_OCCURRENCE.meeting.copy(
+                    startTime = currentTime + 1.hours,
+                    endTime = currentTime + 2.hours,
+                    recurrence = Meeting.Recurrence(frequency = Meeting.Recurrence.Frequency.DAILY, interval = 1L, until = null),
+                ),
+                occurrenceStartTime = currentTime + 1.hours,
+                occurrenceEndTime = currentTime + 2.hours,
+            )
+            val failedConversationId = ConversationId("failed-conversation-id", "domain")
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(editType)
+                    .withNextMeetingOccurrence(nextOccurrence)
+                    .withUpdateMeetingResult(
+                        nextOccurrence.meeting.meetingId,
+                        UpdateMeetingUseCase.Result.Failure.UpdateConversationNameFailure(failedConversationId)
+                    )
+            )
+
+            enterTitle(viewModel, "Weekly sync")
+
+            viewModel.actions.test {
+                viewModel.submitUpdate()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, any()) }
+                expectNoEvents()
+                assertFalse(viewModel.state.isSubmitting)
+                assertEquals(true, viewModel.state.continueButtonEnabled)
+                assertEquals(
+                    NewMeetingState.SubmitError.UpdateConversationNameFailure(failedConversationId),
+                    viewModel.state.submitError
+                )
+            }
+        }
+
+    @Test
     fun givenRetryUpdateConversationNameSucceeds_whenRetryUpdateConversationNameIsCalled_thenSuccessActionIsSent() = runTest(dispatcher) {
         val conversationId = ConversationId("conversation-id", "domain")
         val (arrangement, viewModel) = arrangeViewModel(

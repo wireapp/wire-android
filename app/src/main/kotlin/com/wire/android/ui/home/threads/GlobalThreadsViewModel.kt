@@ -46,9 +46,9 @@ import com.wire.kalium.logic.feature.message.SetThreadFollowStateUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
-import javax.inject.Inject
 
 class GlobalThreadsViewModel @Inject constructor(
     private val observeGlobalThreads: ObserveGlobalThreadsUseCase,

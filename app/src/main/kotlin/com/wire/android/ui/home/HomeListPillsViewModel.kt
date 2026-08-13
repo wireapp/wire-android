@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsWithEventsUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 /**
  * Exposes the count of conversations that have "new activity" (unread events) for the main conversation list.

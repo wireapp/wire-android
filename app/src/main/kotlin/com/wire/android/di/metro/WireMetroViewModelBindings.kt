@@ -816,7 +816,7 @@ object WireMetroViewModelBindings {
     fun conversationThreadsViewModel(factory: ConversationThreadsViewModel.Factory): ViewModelAssistedFactory =
         object : ViewModelAssistedFactory {
             override fun create(extras: CreationExtras): ViewModel =
-                factory.conversationThreadsViewModel(extras.createSavedStateHandle())
+                factory.create(extras.createSavedStateHandle())
         }
 
     @Provides

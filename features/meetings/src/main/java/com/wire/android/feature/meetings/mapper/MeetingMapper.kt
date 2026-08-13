@@ -94,8 +94,10 @@ fun Call.toOngoingCallStatus() = when (status) {
     CallStatus.INCOMING,
     CallStatus.STILL_ONGOING -> MeetingItem.OngoingCallStatus(
         currentCallEstablishedTime = establishedTime,
-        isSelfUserAttending = status in listOf(CallStatus.STARTED, CallStatus.ANSWERED, CallStatus.ESTABLISHED),
+        isSelfUserAttending = status.isSelfUserAttending(),
     )
 
     else -> null // only calls in these states above are considered ongoing, other statuses mean the call is closed
 }
+
+fun CallStatus.isSelfUserAttending() = this in listOf(CallStatus.STARTED, CallStatus.ANSWERED, CallStatus.ESTABLISHED)

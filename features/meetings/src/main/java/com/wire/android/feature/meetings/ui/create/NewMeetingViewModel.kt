@@ -97,6 +97,7 @@ class NewMeetingViewModelPreview(
     override val state: NewMeetingState = initialState(currentTimeProvider)
 }
 
+@Suppress("TooManyFunctions")
 class NewMeetingViewModelImpl @AssistedInject constructor(
     @Assisted savedStateHandle: SavedStateHandle,
     override val currentTimeProvider: CurrentTimeProvider,

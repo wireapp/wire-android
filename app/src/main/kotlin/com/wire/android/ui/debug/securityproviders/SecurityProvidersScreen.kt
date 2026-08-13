@@ -81,11 +81,6 @@ fun SecurityProvidersScreen(
                 state.appPaths.forEach { entry ->
                     SettingsItem(title = stringResource(entry.labelRes), text = entry.path)
                 }
-
-                SectionHeader(stringResource(R.string.debug_settings_security_providers))
-                state.providers?.forEach { provider ->
-                    SecurityProviderListItem(provider)
-                }
             }
         }
     )

@@ -79,7 +79,15 @@ fun SecurityProvidersScreen(
             ) {
                 SectionHeader(stringResource(R.string.debug_settings_app_paths))
                 state.appPaths.forEach { entry ->
-                    SettingsItem(title = stringResource(entry.labelRes), text = entry.path)
+                    SettingsItem(title = stringResource(entry.labelRes), text = entry.value)
+                }
+
+                SectionHeader(stringResource(R.string.debug_settings_crypto_services))
+                if (state.cryptoServices.isEmpty()) {
+                    SettingsItem(text = stringResource(R.string.debug_settings_crypto_services_empty))
+                }
+                state.cryptoServices.forEach { row ->
+                    CryptoServiceListItem(row)
                 }
 
                 SectionHeader(stringResource(R.string.debug_settings_security_providers))

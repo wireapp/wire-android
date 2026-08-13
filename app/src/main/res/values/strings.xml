@@ -1794,6 +1794,18 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_app_path_databases_dir" translatable="false">Databases dir</string>
     <string name="debug_settings_app_path_no_backup_dir" translatable="false">No backup dir</string>
     <string name="debug_settings_app_path_external_files_dir" translatable="false">External files dir</string>
+    <string name="debug_settings_crypto_services" translatable="false">Crypto Services</string>
+    <string name="debug_settings_crypto_asset_iv" translatable="false">Asset encryption IV</string>
+    <string name="debug_settings_crypto_asset_key" translatable="false">Asset AES-256 key</string>
+    <string name="debug_settings_crypto_asset_cipher" translatable="false">Asset cipher</string>
+    <string name="debug_settings_crypto_database_secret" translatable="false">Database secret / random password</string>
+    <string name="debug_settings_crypto_datastore_keystore" translatable="false">DataStore keystore</string>
+    <string name="debug_settings_crypto_datastore_key_generator" translatable="false">DataStore key generation</string>
+    <string name="debug_settings_crypto_datastore_cipher" translatable="false">DataStore cipher</string>
+    <string name="debug_settings_crypto_oauth_verifier" translatable="false">OAuth PKCE verifier</string>
+    <string name="debug_settings_crypto_oauth_challenge" translatable="false">OAuth PKCE challenge</string>
+    <string name="debug_settings_crypto_service_resolved" translatable="false">%1$s \u2014 %2$s %3$s</string>
+    <string name="debug_settings_crypto_services_empty" translatable="false">No crypto call site has run yet in this session</string>
     <string name="debug_settings_security_providers_entry_count" translatable="false">%1$d entries</string>
 
     <!--    Personal to team migration screen-->

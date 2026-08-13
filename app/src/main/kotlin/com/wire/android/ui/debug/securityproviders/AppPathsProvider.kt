@@ -18,24 +18,26 @@
 package com.wire.android.ui.debug.securityproviders
 
 import android.content.Context
-import androidx.annotation.StringRes
 import com.wire.android.R
+import com.wire.android.di.ApplicationContext
+import com.wire.android.di.CurrentAccount
 import com.wire.kalium.logic.data.user.UserId
+import dev.zacsweers.metro.Inject
 
-class AppPathsProvider(
-    private val context: Context,
-    private val currentAccount: UserId,
+class AppPathsProvider @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @CurrentAccount private val currentAccount: UserId,
 ) {
-    operator fun invoke(): List<AppPathEntry> = with(context) {
+    operator fun invoke(): List<LabelledValue> = with(context) {
         val accountSuffix = "${currentAccount.domain}/${currentAccount.value}"
         listOf(
-            AppPathEntry(R.string.debug_settings_app_path_assets, "$filesDir/$accountSuffix"),
-            AppPathEntry(R.string.debug_settings_app_path_cache, "$cacheDir/$accountSuffix"),
-            AppPathEntry(R.string.debug_settings_app_path_files_dir, filesDir.absolutePath),
-            AppPathEntry(R.string.debug_settings_app_path_cache_dir, cacheDir.absolutePath),
-            AppPathEntry(R.string.debug_settings_app_path_databases_dir, getDatabasePath(DATABASE_NAME_PROBE).parent.orEmpty()),
-            AppPathEntry(R.string.debug_settings_app_path_no_backup_dir, noBackupFilesDir.absolutePath),
-            AppPathEntry(R.string.debug_settings_app_path_external_files_dir, getExternalFilesDir(null)?.absolutePath.orEmpty()),
+            LabelledValue(R.string.debug_settings_app_path_assets, "$filesDir/$accountSuffix"),
+            LabelledValue(R.string.debug_settings_app_path_cache, "$cacheDir/$accountSuffix"),
+            LabelledValue(R.string.debug_settings_app_path_files_dir, filesDir.absolutePath),
+            LabelledValue(R.string.debug_settings_app_path_cache_dir, cacheDir.absolutePath),
+            LabelledValue(R.string.debug_settings_app_path_databases_dir, getDatabasePath(DATABASE_NAME_PROBE).parent.orEmpty()),
+            LabelledValue(R.string.debug_settings_app_path_no_backup_dir, noBackupFilesDir.absolutePath),
+            LabelledValue(R.string.debug_settings_app_path_external_files_dir, getExternalFilesDir(null)?.absolutePath.orEmpty()),
         )
     }
 
@@ -44,8 +46,3 @@ class AppPathsProvider(
         const val DATABASE_NAME_PROBE = "probe"
     }
 }
-
-data class AppPathEntry(
-    @StringRes val labelRes: Int,
-    val path: String,
-)

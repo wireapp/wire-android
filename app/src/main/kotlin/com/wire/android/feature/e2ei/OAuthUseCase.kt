@@ -42,6 +42,8 @@ import net.openid.appauth.ResponseTypeValues
 import org.json.JSONObject
 import java.net.URI
 import java.security.MessageDigest
+import com.wire.android.util.crypto.AppCryptoServiceRegistry
+import com.wire.android.util.crypto.AppCryptoUsage
 import java.security.SecureRandom
 
 class OAuthUseCase(
@@ -184,7 +186,7 @@ class OAuthUseCase(
 
     @Suppress("MagicNumber")
     private fun getCodeVerifier(): String {
-        val secureRandom = SecureRandom()
+        val secureRandom = pkceRandom()
         val bytes = ByteArray(64)
         secureRandom.nextBytes(bytes)
         return Base64.encodeToString(bytes, ENCODING)
@@ -209,7 +211,30 @@ class OAuthUseCase(
         const val CLIENT_ID_QUERY_PARAM = "client_id"
         const val CODE_VERIFIER_CHALLENGE_METHOD = "S256"
         const val MESSAGE_DIGEST_ALGORITHM = "SHA-256"
-        val MESSAGE_DIGEST = MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM)
+        val MESSAGE_DIGEST = MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM).also {
+            AppCryptoServiceRegistry.record(
+                AppCryptoUsage.OAUTH_PKCE_CHALLENGE,
+                "MessageDigest.getInstance(\"$MESSAGE_DIGEST_ALGORITHM\")",
+                it.algorithm,
+                it.provider,
+            )
+        }
+
+        /** The randomness behind the PKCE code verifier, noted for the security providers debug screen. */
+        fun pkceRandom(): SecureRandom = SecureRandom().also {
+            AppCryptoServiceRegistry.record(
+                usage = AppCryptoUsage.OAUTH_PKCE_VERIFIER,
+                lookup = "SecureRandom()",
+                algorithm = it.algorithm,
+                provider = it.provider
+            )
+        }
+
+        /** Resolves the providers backing PKCE, for the security providers debug screen. */
+        fun probeCryptoServices() {
+            pkceRandom()
+            MESSAGE_DIGEST
+        }
         const val ENCODING = Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
         val URL_AUTH_REDIRECT: Uri = Uri.Builder().scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.E2EI_DEEPLINK_HOST)

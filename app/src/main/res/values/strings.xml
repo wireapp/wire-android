@@ -1805,6 +1805,23 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_sqlcipher_header_not_created" translatable="false">Database not created</string>
     <string name="debug_settings_sqlcipher_internal_storage" translatable="false">In app internal data directory</string>
     <string name="debug_settings_unavailable" translatable="false">Unavailable</string>
+    <string name="debug_settings_key_attestation" translatable="false">Key Attestation</string>
+    <string name="debug_settings_key_attestation_result" translatable="false">Result</string>
+    <string name="debug_settings_key_attestation_success" translatable="false">Generated</string>
+    <string name="debug_settings_key_attestation_failed" translatable="false">Unavailable</string>
+    <string name="debug_settings_key_attestation_failure" translatable="false">Failure</string>
+    <string name="debug_settings_key_attestation_chain_length" translatable="false">Certificate chain length</string>
+    <string name="debug_settings_key_attestation_device_state" translatable="false">Attested Device State</string>
+    <string name="debug_settings_key_attestation_security_level" translatable="false">Attestation security level</string>
+    <string name="debug_settings_key_attestation_keymaster_security_level" translatable="false">Keymaster security level</string>
+    <string name="debug_settings_key_attestation_verified_boot_state" translatable="false">Verified Boot state</string>
+    <string name="debug_settings_key_attestation_certificate" translatable="false">Certificate %1$d</string>
+    <string name="debug_settings_key_attestation_subject" translatable="false">Subject</string>
+    <string name="debug_settings_key_attestation_issuer" translatable="false">Issuer</string>
+    <string name="debug_settings_key_attestation_signature_algorithm" translatable="false">Signature algorithm</string>
+    <string name="debug_settings_key_attestation_sha256" translatable="false">SHA-256 fingerprint</string>
+    <string name="debug_settings_key_algorithm" translatable="false">Algorithm</string>
+    <string name="debug_settings_key_security_level" translatable="false">Security level</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

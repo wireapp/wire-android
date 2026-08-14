@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.debug.securityproviders
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,11 +26,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.annotation.app.WireRootDestination
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -101,6 +107,8 @@ fun SecurityProvidersScreen(
                     )
                 }
 
+                state.keyAttestation?.apply { KeyAttestationDiagnosticsSection(this) }
+
                 SectionHeader(stringResource(R.string.debug_settings_app_paths))
                 state.appPaths.forEach { entry ->
                     SettingsItem(title = stringResource(entry.labelRes), text = entry.path)
@@ -108,6 +116,89 @@ fun SecurityProvidersScreen(
             }
         }
     )
+}
+
+@Composable
+private fun KeyAttestationDiagnosticsSection(diagnostics: KeyAttestationDiagnostics) {
+    var expanded by remember { mutableStateOf(false) }
+
+    SectionHeader(stringResource(R.string.debug_settings_key_attestation))
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_key_attestation_result),
+        text = when (diagnostics) {
+            is KeyAttestationDiagnostics.Success -> stringResource(R.string.debug_settings_key_attestation_success)
+            is KeyAttestationDiagnostics.Failure -> stringResource(R.string.debug_settings_key_attestation_failed)
+        },
+        trailingIcon = if (expanded) commonR.drawable.ic_collapse else commonR.drawable.ic_expand_more,
+        onRowPressed = Clickable { expanded = !expanded },
+    )
+
+    AnimatedVisibility(expanded) {
+        Column {
+            KeyAttestationDiagnosticsDetails(diagnostics)
+        }
+    }
+}
+
+@Composable
+private fun KeyAttestationDiagnosticsDetails(diagnostics: KeyAttestationDiagnostics) {
+    when (diagnostics) {
+        is KeyAttestationDiagnostics.Failure -> {
+            SettingsItem(
+                title = stringResource(R.string.debug_settings_key_attestation_failure),
+                text = listOf(diagnostics.exceptionType, diagnostics.message)
+                    .filter(String::isNotBlank)
+                    .joinToString(": "),
+            )
+        }
+
+        is KeyAttestationDiagnostics.Success -> {
+            SettingsItem(
+                title = stringResource(R.string.debug_settings_key_attestation_chain_length),
+                text = diagnostics.rawCertificateChainLength.toString(),
+            )
+            diagnostics.attestation?.let { attestation ->
+                SectionHeader(stringResource(R.string.debug_settings_key_attestation_device_state))
+                SettingsItem(
+                    title = stringResource(R.string.debug_settings_key_attestation_security_level),
+                    text = attestation.attestationSecurityLevel,
+                )
+                SettingsItem(
+                    title = stringResource(R.string.debug_settings_key_attestation_keymaster_security_level),
+                    text = attestation.keymasterSecurityLevel,
+                )
+                SettingsItem(
+                    title = stringResource(R.string.debug_settings_key_attestation_verified_boot_state),
+                    text = attestation.verifiedBootState ?: stringResource(R.string.debug_settings_unavailable),
+                )
+            }
+            KeyInspectionItem(diagnostics.key)
+            diagnostics.certificates.forEach { certificate ->
+                SectionHeader(stringResource(R.string.debug_settings_key_attestation_certificate, certificate.index + 1))
+                SettingsItem(title = stringResource(R.string.debug_settings_key_attestation_subject), text = certificate.subject)
+                SettingsItem(title = stringResource(R.string.debug_settings_key_attestation_issuer), text = certificate.issuer)
+                SettingsItem(
+                    title = stringResource(R.string.debug_settings_key_attestation_signature_algorithm),
+                    text = certificate.signatureAlgorithm
+                )
+                SettingsItem(title = stringResource(R.string.debug_settings_key_attestation_sha256), text = certificate.sha256Fingerprint)
+            }
+        }
+    }
+}
+
+@Composable
+private fun KeyInspectionItem(key: KeyInspection) {
+    when (key) {
+        is KeyInspection.Available -> {
+            SettingsItem(title = stringResource(R.string.debug_settings_key_algorithm), text = key.algorithm)
+            SettingsItem(title = stringResource(R.string.debug_settings_key_security_level), text = key.securityLevel)
+        }
+
+        is KeyInspection.Unavailable -> {
+            SettingsItem(title = key.label, text = key.reason)
+        }
+    }
 }
 
 private val SqliteHeaderStatus.labelRes: Int

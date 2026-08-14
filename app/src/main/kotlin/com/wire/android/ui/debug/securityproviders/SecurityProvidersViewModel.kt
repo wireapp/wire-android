@@ -19,6 +19,8 @@ package com.wire.android.ui.debug.securityproviders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
 import com.wire.kalium.util.DebugKaliumApi
@@ -35,6 +37,7 @@ class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
     private val dispatcherProvider: DispatcherProvider,
     private val getSqlCipherVersion: GetSqlCipherVersionUseCase,
+    private val keyAttestationDiagnosticsProvider: KeyAttestationDiagnosticsProvider,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SecurityProvidersViewState())
@@ -48,10 +51,18 @@ class SecurityProvidersViewModel @Inject constructor(
                     userDatabase = appPathsProvider.userDatabaseSecurityStatus(),
                 )
             }
+            val keyAttestation = if (BuildConfig.DEBUG) {
+                withContext(dispatcherProvider.io()) {
+                    keyAttestationDiagnosticsProvider.collect()
+                }.also { appLogger.i("Key attestation diagnostics: $it") }
+            } else {
+                null
+            }
             _state.update { current ->
                 current.copy(
                     appPaths = appPathsProvider(),
-                    databaseSecurity = databaseSecurity
+                    databaseSecurity = databaseSecurity,
+                    keyAttestation = keyAttestation,
                 )
             }
         }
@@ -70,6 +81,7 @@ data class SecurityProvidersViewState(
     val appPaths: List<AppPathEntry> = emptyList(),
     val providers: List<SecurityProvider>? = null,
     val databaseSecurity: DatabaseSecurityInfo? = null,
+    val keyAttestation: KeyAttestationDiagnostics? = null,
 )
 
 data class DatabaseSecurityInfo(

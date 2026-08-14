@@ -31,6 +31,7 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.debug.securityproviders.AppPathsProvider
+import com.wire.android.ui.debug.securityproviders.KeyAttestationDiagnosticsProvider
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.CurrentTimeProvider
@@ -142,4 +143,7 @@ object AppModule {
             context = context,
             currentAccount = currentAccount
         )
+
+    @Provides
+    fun provideKeyAttestationDiagnosticsProvider(): KeyAttestationDiagnosticsProvider = KeyAttestationDiagnosticsProvider()
 }

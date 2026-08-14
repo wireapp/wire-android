@@ -17,9 +17,11 @@
  */
 package com.wire.android.ui.debug.securityproviders
 
+import android.content.Context
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.datastore.EncryptionManager
+import com.wire.android.di.ApplicationContext
 import com.wire.android.feature.e2ei.OAuthUseCase
 import com.wire.android.util.crypto.AppCryptoServiceRegistry
 import com.wire.android.util.crypto.AppCryptoUsage
@@ -32,7 +34,9 @@ import dev.zacsweers.metro.Inject
  * directly, which kalium cannot see. Call sites that have not run yet are probed by performing the very
  * same lookup they perform, so every row is a provider the platform actually handed back.
  */
-class AppCryptoServicesProvider @Inject constructor() {
+class AppCryptoServicesProvider @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
 
     operator fun invoke(): List<CryptoServiceRow> {
         // Neither path runs on app start, so resolve them the same way the call sites do.
@@ -40,7 +44,7 @@ class AppCryptoServicesProvider @Inject constructor() {
         OAuthUseCase.probeCryptoServices()
         return AppCryptoServiceRegistry.recorded().map { (usage, record) ->
             CryptoServiceRow(
-                labelRes = usage.labelRes(),
+                label = context.getString(usage.labelRes()),
                 lookup = record.lookup,
                 algorithm = record.algorithm,
                 providerName = record.providerName,

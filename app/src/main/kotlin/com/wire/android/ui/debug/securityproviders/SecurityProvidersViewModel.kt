@@ -17,12 +17,9 @@
  */
 package com.wire.android.ui.debug.securityproviders
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.feature.debug.CryptoUsage
 import com.wire.kalium.logic.feature.debug.CryptoServiceUsage
 import com.wire.kalium.logic.feature.debug.GetCryptoServiceReportUseCase
 import com.wire.kalium.util.DebugKaliumApi
@@ -75,25 +72,16 @@ class SecurityProvidersViewModel @Inject constructor(
 
 @OptIn(DebugKaliumApi::class)
 private fun CryptoServiceUsage.toRow() = CryptoServiceRow(
-    labelRes = usage.labelRes(),
+    label = name,
     lookup = lookup,
     algorithm = algorithm,
     providerName = providerName,
     providerVersion = providerVersion,
 )
 
-@OptIn(DebugKaliumApi::class)
-@StringRes
-private fun CryptoUsage.labelRes(): Int = when (this) {
-    CryptoUsage.ASSET_ENCRYPTION_IV -> R.string.debug_settings_crypto_asset_iv
-    CryptoUsage.ASSET_KEY -> R.string.debug_settings_crypto_asset_key
-    CryptoUsage.ASSET_CIPHER -> R.string.debug_settings_crypto_asset_cipher
-    CryptoUsage.DATABASE_SECRET -> R.string.debug_settings_crypto_database_secret
-}
-
-/** One cryptographic call site, and the provider that served it on this device. */
+/** One cryptographic lookup, and the provider that serves it on this device. */
 data class CryptoServiceRow(
-    @StringRes val labelRes: Int,
+    val label: String,
     val lookup: String,
     val algorithm: String,
     val providerName: String,

@@ -46,7 +46,7 @@ fun CryptoServiceListItem(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = stringResource(row.labelRes),
+                text = row.label,
                 style = typography().body02,
                 color = colorsScheme().onBackground,
             )
@@ -74,7 +74,7 @@ fun CryptoServiceListItem(
 fun PreviewCryptoServiceListItem() = WireTheme {
     CryptoServiceListItem(
         row = CryptoServiceRow(
-            labelRes = R.string.debug_settings_crypto_asset_key,
+            label = "Asset AES-256 key",
             lookup = "KeyGenerator.getInstance(\"AES\")",
             algorithm = "AES",
             providerName = "AndroidOpenSSL",

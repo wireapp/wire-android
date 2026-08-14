@@ -20,8 +20,8 @@ package com.wire.android.datastore
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
-import com.wire.android.util.crypto.AppCryptoServiceRegistry
-import com.wire.android.util.crypto.AppCryptoUsage
+import com.wire.android.util.crypto.AppCryptoServiceInfo
+import com.wire.android.util.crypto.appCryptoServiceInfo
 import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
 import java.security.InvalidKeyException
@@ -42,44 +42,30 @@ object EncryptionManager {
     private const val TRANSFORMATION = "$ALGORITHM/$BLOCK_MODE/$PADDING"
     private const val ANDROID_KEY_STORE = "AndroidKeyStore"
 
-    private val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply {
-        load(null)
-        AppCryptoServiceRegistry.record(
-            usage = AppCryptoUsage.DATASTORE_KEYSTORE,
-            lookup = "KeyStore.getInstance(\"$ANDROID_KEY_STORE\")",
-            algorithm = type,
-            provider = provider
-        )
-    }
-    private val cipher = Cipher.getInstance(TRANSFORMATION).also {
-        AppCryptoServiceRegistry.record(
-            usage = AppCryptoUsage.DATASTORE_CIPHER,
-            lookup = "Cipher.getInstance(\"$TRANSFORMATION\")",
-            algorithm = it.algorithm,
-            provider = it.provider
-        )
-    }
+    private val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
+    private val cipher = Cipher.getInstance(TRANSFORMATION)
     private val charset = Charset.defaultCharset()
 
     /**
-     * Resolves the providers backing this manager, for the security providers debug screen.
+     * Which providers serve DataStore crypto, for the security providers debug screen.
      *
-     * Touching [keyStore] and [cipher] initialises them, which records what served them. The key
-     * generator is only resolved, never initialised with a [KeyGenParameterSpec] or asked for a key, so
-     * nothing is written to the Android keystore.
+     * Lives here, next to the call sites, so it shares their algorithm constants: change a constant and
+     * this follows automatically instead of quietly reporting the old one.
+     *
+     * The key generator is only resolved, never initialised with a [KeyGenParameterSpec] or asked for a
+     * key, so nothing is written to the Android keystore.
      */
-    fun probeCryptoServices() {
-        keyStore
-        cipher
-        KeyGenerator.getInstance(ALGORITHM).also {
-            AppCryptoServiceRegistry.record(
-                usage = AppCryptoUsage.DATASTORE_KEY_GENERATION,
-                lookup = "KeyGenerator.getInstance(\"$ALGORITHM\")",
-                algorithm = it.algorithm,
-                provider = it.provider
-            )
-        }
-    }
+    fun cryptoServices(): List<AppCryptoServiceInfo> = listOfNotNull(
+        appCryptoServiceInfo("DataStore keystore", "KeyStore.getInstance(\"$ANDROID_KEY_STORE\")") {
+            KeyStore.getInstance(ANDROID_KEY_STORE).run { type to provider }
+        },
+        appCryptoServiceInfo("DataStore key generation", "KeyGenerator.getInstance(\"$ALGORITHM\")") {
+            KeyGenerator.getInstance(ALGORITHM).run { algorithm to provider }
+        },
+        appCryptoServiceInfo("DataStore cipher", "Cipher.getInstance(\"$TRANSFORMATION\")") {
+            Cipher.getInstance(TRANSFORMATION).run { algorithm to provider }
+        },
+    )
 
     private fun getKey(keyAlias: String): SecretKey {
         val existingKey = keyStore.getEntry(keyAlias, null) as? KeyStore.SecretKeyEntry
@@ -88,12 +74,6 @@ object EncryptionManager {
 
     private fun createKey(keyAlias: String): SecretKey {
         return KeyGenerator.getInstance(ALGORITHM).apply {
-            AppCryptoServiceRegistry.record(
-                usage = AppCryptoUsage.DATASTORE_KEY_GENERATION,
-                lookup = "KeyGenerator.getInstance(\"$ALGORITHM\")",
-                algorithm = algorithm,
-                provider = provider
-            )
             init(
                 KeyGenParameterSpec.Builder(
                     keyAlias,

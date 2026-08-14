@@ -19,6 +19,8 @@ package com.wire.android.ui.debug.securityproviders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.util.crypto.AppCryptoServiceInfo
+import com.wire.android.util.crypto.appCryptoServices
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.debug.CryptoServiceUsage
 import com.wire.kalium.logic.feature.debug.GetCryptoServiceReportUseCase
@@ -35,7 +37,6 @@ import java.security.Security
 @OptIn(DebugKaliumApi::class)
 class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
-    private val appCryptoServicesProvider: AppCryptoServicesProvider,
     private val getCryptoServiceReport: GetCryptoServiceReportUseCase,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
@@ -45,25 +46,13 @@ class SecurityProvidersViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val providers = withContext(dispatcherProvider.default()) {
-                Security.getProviders().map { provider ->
-                    SecurityProvider(
-                        name = provider.name,
-                        version = provider.versionString(),
-                        info = provider.info,
-                        entries = provider.entries
-                            .map { (key, value) -> KeyValueEntry(key.toString(), value.toString()) }
-                            .sortedBy(KeyValueEntry::key)
-                    )
-                }
-            }
-            val appCryptoServices = withContext(dispatcherProvider.io()) { appCryptoServicesProvider() }
-            val cryptoServices = getCryptoServiceReport().map(CryptoServiceUsage::toRow) + appCryptoServices
+            val appServices = withContext(dispatcherProvider.io()) { appCryptoServices() }
+            val cryptoServices = getCryptoServiceReport().map(CryptoServiceUsage::toRow) +
+                    appServices.map(AppCryptoServiceInfo::toRow)
             _state.update { current ->
                 current.copy(
                     appPaths = appPathsProvider(),
                     cryptoServices = cryptoServices,
-                    providers = providers,
                 )
             }
         }
@@ -72,6 +61,14 @@ class SecurityProvidersViewModel @Inject constructor(
 
 @OptIn(DebugKaliumApi::class)
 private fun CryptoServiceUsage.toRow() = CryptoServiceRow(
+    label = name,
+    lookup = lookup,
+    algorithm = algorithm,
+    providerName = providerName,
+    providerVersion = providerVersion,
+)
+
+private fun AppCryptoServiceInfo.toRow() = CryptoServiceRow(
     label = name,
     lookup = lookup,
     algorithm = algorithm,
@@ -88,16 +85,7 @@ data class CryptoServiceRow(
     val providerVersion: String,
 )
 
-/**
- * `Provider.getVersionStr()` needs API 28 and `Provider.getVersion()` is deprecated, so read the version
- * straight out of the provider's own property map, where it is registered under this key.
- */
-private const val PROVIDER_VERSION_PROPERTY = "Provider.id version"
-
-private fun Provider.versionString(): String = getProperty(PROVIDER_VERSION_PROPERTY).orEmpty()
-
 data class SecurityProvidersViewState(
     val appPaths: List<LabelledValue> = emptyList(),
     val cryptoServices: List<CryptoServiceRow> = emptyList(),
-    val providers: List<SecurityProvider>? = null,
 )

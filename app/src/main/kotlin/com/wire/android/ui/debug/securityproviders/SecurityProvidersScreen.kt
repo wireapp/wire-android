@@ -82,7 +82,7 @@ fun SecurityProvidersScreen(
                     SettingsItem(title = stringResource(entry.labelRes), text = entry.value)
                 }
 
-                SectionHeader(stringResource(R.string.debug_settings_crypto_services))
+                SectionHeader(stringResource(R.string.debug_settings_entropy_sources))
                 if (state.cryptoServices.isEmpty()) {
                     SettingsItem(text = stringResource(R.string.debug_settings_crypto_services_empty))
                 }

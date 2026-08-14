@@ -19,15 +19,24 @@ package com.wire.android.ui.debug.securityproviders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
+import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.security.Provider
 
 class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
+    private val networkDiagnosticsProvider: NetworkDiagnosticsProvider,
+    private val networkStateObserver: NetworkStateObserver,
+    private val selfServerConfig: SelfServerConfigUseCase,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SecurityProvidersViewState())
@@ -37,18 +46,30 @@ class SecurityProvidersViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { current -> current.copy(appPaths = appPathsProvider()) }
         }
+        viewModelScope.launch {
+            observeNetworkDiagnostics()
+        }
+    }
+
+    private suspend fun observeNetworkDiagnostics() {
+        val apiUrl = apiUrl() ?: return
+        networkStateObserver.observeCurrentNetwork()
+            .map { networkDiagnosticsProvider(apiUrl) }
+            .flowOn(dispatchers.io())
+            .collect { diagnostics -> _state.update { current -> current.copy(network = diagnostics) } }
+    }
+
+    private suspend fun apiUrl(): String? = when (val result = selfServerConfig()) {
+        is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links.api
+        is SelfServerConfigUseCase.Result.Failure -> {
+            appLogger.w("Could not read the server config, skipping network diagnostics")
+            null
+        }
     }
 }
 
-/**
- * `Provider.getVersionStr()` needs API 28 and `Provider.getVersion()` is deprecated, so read the version
- * straight out of the provider's own property map, where it is registered under this key.
- */
-private const val PROVIDER_VERSION_PROPERTY = "Provider.id version"
-
-private fun Provider.versionString(): String = getProperty(PROVIDER_VERSION_PROPERTY).orEmpty()
-
 data class SecurityProvidersViewState(
     val appPaths: List<AppPathEntry> = emptyList(),
+    val network: NetworkDiagnostics? = null,
     val providers: List<SecurityProvider>? = null,
 )

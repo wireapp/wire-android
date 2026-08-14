@@ -19,9 +19,9 @@ package com.wire.android.ui.debug.securityproviders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
+import com.wire.kalium.util.DebugKaliumApi
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,8 +29,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.security.Provider
-import java.security.Security
 
+@OptIn(DebugKaliumApi::class)
 class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
     private val dispatcherProvider: DispatcherProvider,
@@ -42,30 +42,16 @@ class SecurityProvidersViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val providers = withContext(dispatcherProvider.default()) {
-                Security.getProviders().map { provider ->
-                    SecurityProvider(
-                        name = provider.name,
-                        version = provider.versionString(),
-                        info = provider.info,
-                        entries = provider.entries
-                            .map { (key, value) -> KeyValueEntry(key.toString(), value.toString()) }
-                            .sortedBy(KeyValueEntry::key)
-                    )
-                }
-            }
             val databaseSecurity = withContext(dispatcherProvider.io()) {
                 DatabaseSecurityInfo(
                     sqlCipherVersion = getSqlCipherVersion(),
                     userDatabase = appPathsProvider.userDatabaseSecurityStatus(),
                 )
             }
-            appLogger.i("SQLCipher diagnostics: $databaseSecurity")
             _state.update { current ->
                 current.copy(
                     appPaths = appPathsProvider(),
-                    providers = providers,
-                    databaseSecurity = databaseSecurity,
+                    databaseSecurity = databaseSecurity
                 )
             }
         }

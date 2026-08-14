@@ -56,7 +56,7 @@ fun SecurityProvidersScreen(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 titleContent = {
                     WireTopAppBarTitle(
-                        title = stringResource(R.string.debug_settings_security_providers),
+                        title = stringResource(R.string.debug_settings_security_diagnostics),
                         style = typography().title01,
                         maxLines = 2
                     )
@@ -104,11 +104,6 @@ fun SecurityProvidersScreen(
                 SectionHeader(stringResource(R.string.debug_settings_app_paths))
                 state.appPaths.forEach { entry ->
                     SettingsItem(title = stringResource(entry.labelRes), text = entry.path)
-                }
-
-                SectionHeader(stringResource(R.string.debug_settings_security_providers))
-                state.providers?.forEach { provider ->
-                    SecurityProviderListItem(provider)
                 }
             }
         }

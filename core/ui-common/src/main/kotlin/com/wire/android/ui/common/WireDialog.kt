@@ -39,7 +39,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.paneTitle
@@ -53,7 +53,6 @@ import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.isTablet
@@ -178,7 +177,7 @@ fun WireDialogContent(
     centerContent: Boolean = false,
     content: @Composable (() -> Unit)? = null
 ) {
-    val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
 
     Surface(
         modifier = modifier.padding(MaterialTheme.wireDimensions.dialogCardMargin),
@@ -212,7 +211,7 @@ fun WireDialogContent(
                         TextWithLinkSuffix(
                             text = text,
                             linkText = textSuffixLink?.linkText,
-                            onLinkClick = { textSuffixLink?.linkUrl?.let { CustomTabsHelper.launchUrl(context, it) } },
+                            onLinkClick = { textSuffixLink?.linkUrl?.let(uriHandler::openUri) },
                             modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
                         )
                     }

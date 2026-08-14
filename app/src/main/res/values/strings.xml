@@ -282,6 +282,7 @@
     <string name="app_settings_screen_title">App Settings</string>
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
+    <string name="report_misuse_screen_title">Report misuse</string>
     <string name="about_app_screen_title">About This App</string>
     <string name="settings_privacy_policy_label">Privacy Policy</string>
     <string name="settings_terms_of_use_label">Legal</string>
@@ -1138,6 +1139,7 @@
     <string name="connection_label_ignore">Ignore</string>
     <string name="connection_label_send_unverified_warning">Get certainty about the identity of %s\'s before connecting.</string>
     <string name="connection_label_received_unverified_warning">Please verify the person\'s identity before accepting the connection request.</string>
+    <string name="connection_label_unverified_support_disclaimer">Wire\'s Support team will never reach out to you in the app.</string>
     <string name="connection_label_user_not_found_warning_title">Wire can\'t find this person</string>
     <string name="connection_label_user_not_found_warning_description">You may not have permission with this account or the person may not be on Wire.</string>
     <!-- Missing keyPackages dialog -->

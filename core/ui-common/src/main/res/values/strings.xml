@@ -23,6 +23,7 @@
     <string name="content_description_hide_password">Hide password</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronized</string>
     <string name="label_wait_until_connected">Please wait until the Internet connection is restored</string>
+    <string name="no_camera_app">No camera app found to complete this action.</string>
     <string name="content_description_back_button">Back</string>
     <string name="content_description_right_arrow">Right arrow</string>
     <string name="content_description_left_arrow">Go back</string>
@@ -38,6 +39,7 @@
     <string name="url_federation_support" translatable="false">https://support.wire.com/hc/categories/4719917054365</string>
     <string name="url_file_sharing_restricted_learn_more" translatable="false">https://support.wire.com/hc/articles/4406404582673</string>
     <string name="url_learn_about_conversation_search" translatable="false">https://support.wire.com/hc/articles/115001426529</string>
+    <string name="url_learn_about_search" translatable="false">https://support.wire.com/hc/articles/203121850</string>
     <string name="url_message_details_offline_backends_learn_more" translatable="false">https://support.wire.com/hc/articles/9357718008093</string>
     <string name="url_mls_learn_more" translatable="false">https://support.wire.com/hc/articles/12434725011485</string>
     <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/articles/212053645</string>

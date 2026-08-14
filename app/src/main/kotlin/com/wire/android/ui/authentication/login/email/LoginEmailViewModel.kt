@@ -65,6 +65,7 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,6 +77,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 
 @Suppress("LongParameterList", "ComplexMethod", "TooManyFunctions")
 @HiltViewModel
@@ -89,7 +91,7 @@ class LoginEmailViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
-    isDefaultBackendConfigured: Boolean = true,
+    @Named("isDefaultBackendConfigured") isDefaultBackendConfigured: Boolean = true,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>? = null,
     private val globalDataStore: Lazy<GlobalDataStore>? = null,
 ) : LoginViewModel(
@@ -162,12 +164,12 @@ class LoginEmailViewModel @Inject constructor(
             withContext(dispatchers.main()) {
                 updateBackendConfigState(LoginEmailState.BackendConfigState.Loading)
             }
-            when (val result = getServerConfigUseCase?.value?.invoke(configUrl)) {
+            when (val result = getServerConfigUseCase?.get()?.invoke(configUrl)) {
                 is GetServerConfigResult.Success -> {
                     CustomTabsHelper.setBackendWebsiteUrl(result.serverConfigLinks.website)
                     SupportUrlResolver.setBaseUrl(result.serverConfigLinks.website)
                     globalDataStore?.let {
-                        BackendSupportConfig.storeFromServerLinks(it.value, result.serverConfigLinks)
+                        BackendSupportConfig.storeFromServerLinks(it.get(), result.serverConfigLinks)
                     }
                     withContext(dispatchers.main()) {
                         serverConfig = result.serverConfigLinks

@@ -42,6 +42,7 @@ import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase.Companion.S
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import dagger.Lazy
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -787,7 +788,7 @@ class NewLoginViewModelTest {
             ServerConfig.STAGING,
             defaultSSOCodeConfig,
             isDefaultBackendConfigured,
-            lazy { getServerConfigUseCase },
+            Lazy { getServerConfigUseCase },
         )
     }
 

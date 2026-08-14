@@ -37,6 +37,8 @@ import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
 import com.wire.android.framework.TestUser.SELF_USER
@@ -56,6 +58,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.auth.PersistentWebSocketStatus
 import com.wire.kalium.logic.data.call.Call

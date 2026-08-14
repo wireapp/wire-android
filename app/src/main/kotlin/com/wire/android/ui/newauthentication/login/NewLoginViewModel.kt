@@ -65,6 +65,7 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -207,12 +208,12 @@ class NewLoginViewModel(
             }
 
             updateLoginFlowState(NewLoginFlowState.LoadingBackendConfig)
-            when (val result = getServerConfigUseCase?.value?.invoke(configUrl)) {
+            when (val result = getServerConfigUseCase?.get()?.invoke(configUrl)) {
                 is GetServerConfigResult.Success -> {
                     CustomTabsHelper.setBackendWebsiteUrl(result.serverConfigLinks.website)
                     SupportUrlResolver.setBaseUrl(result.serverConfigLinks.website)
                     globalDataStore?.let {
-                        BackendSupportConfig.storeFromServerLinks(it.value, result.serverConfigLinks)
+                        BackendSupportConfig.storeFromServerLinks(it.get(), result.serverConfigLinks)
                     }
                     withContext(dispatchers.main()) {
                         serverConfig = result.serverConfigLinks

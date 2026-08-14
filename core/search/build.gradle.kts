@@ -25,17 +25,16 @@ dependencies {
 
     val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
+    implementation(libs.compose.activity)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material3)
-    implementation(libs.compose.navigation)
     implementation(libs.compose.ui.preview)
     implementation(libs.metrox.viewModelCompose)
 
     implementation(libs.visibilityModifiers)
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
-    implementation(libs.resaca.core)
     implementation(libs.compose.edgetoedge.preview)
     implementation(libs.ktx.dateTime)
     debugImplementation(libs.compose.ui.tooling)

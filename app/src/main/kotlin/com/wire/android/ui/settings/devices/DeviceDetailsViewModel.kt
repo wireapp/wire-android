@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -30,7 +29,6 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
@@ -60,7 +58,7 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 @Suppress("TooManyFunctions", "LongParameterList")
 class DeviceDetailsViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted navigationArgs: DeviceDetailsViewModelArgs,
     @CurrentAccount
     private val currentUserId: UserId,
     private val deleteClient: DeleteClientUseCase,
@@ -75,11 +73,10 @@ class DeviceDetailsViewModel @AssistedInject constructor(
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): DeviceDetailsViewModel
+        fun create(navigationArgs: DeviceDetailsViewModelArgs): DeviceDetailsViewModel
     }
-    private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
-    private val deviceId: ClientId = deviceDetailsNavArgs.clientId
-    private val userId: UserId = deviceDetailsNavArgs.userId
+    private val deviceId: ClientId = navigationArgs.clientId
+    private val userId: UserId = navigationArgs.userId
     val passwordTextState: TextFieldState = TextFieldState()
     var state: DeviceDetailsState by mutableStateOf(
         DeviceDetailsState(

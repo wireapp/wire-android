@@ -18,9 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -75,23 +73,22 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted navigationArgs: GroupConversationDetailsNavArgs,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
 ) : ActionsViewModel<GroupConversationDetailsViewAction>(),
     GroupConversationParticipantsManager by GroupConversationParticipantsManagerImpl(
-        savedStateHandle = savedStateHandle,
+        conversationId = navigationArgs.conversationId,
         observeConversationMembers = observeConversationMembers,
         refreshUsersWithoutMetadata = refreshUsersWithoutMetadata
     ) {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): GroupConversationDetailsViewModel
+        fun create(navigationArgs: GroupConversationDetailsNavArgs): GroupConversationDetailsViewModel
     }
 
-    private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
+    val conversationId: QualifiedID = navigationArgs.conversationId
 
     private val _groupOptionsState = MutableStateFlow(GroupConversationOptionsState(conversationId))
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState

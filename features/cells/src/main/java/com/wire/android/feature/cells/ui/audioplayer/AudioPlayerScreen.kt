@@ -60,10 +60,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.cellAudioPlayerViewModel
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -77,15 +73,11 @@ import kotlin.time.Duration.Companion.milliseconds
 private const val SKIP_S = 12
 private val SKIP_MS = SKIP_S.milliseconds.inWholeMilliseconds.toInt()
 
-@WireCellsDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = AudioPlayerNavArgs::class,
-)
 @Composable
-fun CellAudioPlayerScreen(
-    navigator: WireNavigator,
+internal fun CellAudioPlayerRouteScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: AudioPlayerViewModel,
     modifier: Modifier = Modifier,
-    viewModel: AudioPlayerViewModel = cellAudioPlayerViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     CellAudioPlayerContent(
@@ -94,7 +86,7 @@ fun CellAudioPlayerScreen(
         onTogglePlayPause = viewModel::togglePlayPause,
         onSeek = viewModel::seekTo,
         onStop = viewModel::pause,
-        onNavigateBack = navigator::navigateBack,
+        onNavigateBack = onNavigateBack,
         modifier = modifier,
     )
 }

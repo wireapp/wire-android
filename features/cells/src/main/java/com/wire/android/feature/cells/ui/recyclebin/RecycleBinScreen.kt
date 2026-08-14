@@ -32,17 +32,8 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
-import com.wire.android.feature.cells.ui.cellViewModel
+import com.wire.android.feature.cells.ui.CellsFilesNavigation
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
-import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -50,16 +41,12 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.theme.wireTypography
 
-@WireCellsDestination(
-    navArgs = CellFilesNavArgs::class,
-)
 @Composable
-fun RecycleBinScreen(
-    navigator: WireNavigator,
+internal fun RecycleBinRouteScreen(
+    navigation: CellsFilesNavigation,
     modifier: Modifier = Modifier,
-    cellViewModel: CellViewModel = cellViewModel()
+    cellViewModel: CellViewModel,
 ) {
-
     Box(modifier = modifier) {
         WireScaffold(
             topBar = {
@@ -75,7 +62,7 @@ fun RecycleBinScreen(
                         },
                         navigationIconType = NavigationIconType.Back(com.wire.android.ui.common.R.string.content_description_back_button),
                         onNavigationPressed = {
-                            navigator.navigateBack()
+                            navigation.back()
                         }
                     )
 
@@ -102,60 +89,21 @@ fun RecycleBinScreen(
                     isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
                     isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
                     openFolder = { path, title, parentFolderUuid ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                ConversationFilesWithSlideInTransitionScreenDestination(
-                                    conversationId = path,
-                                    screenTitle = title,
-                                    isRecycleBin = true,
-                                    breadcrumbs = (cellViewModel.breadcrumbs() ?: emptyArray()) + title,
-                                    parentFolderUuid = parentFolderUuid,
-                                ),
-                                BackStackMode.NONE,
-                                launchSingleTop = false
+                        navigation.folder(
+                            CellFilesNavArgs(
+                                conversationId = path,
+                                screenTitle = title,
+                                isRecycleBin = true,
+                                breadcrumbs = (cellViewModel.breadcrumbs() ?: emptyArray()) + title,
+                                parentFolderUuid = parentFolderUuid,
                             )
                         )
                     },
-                    showPublicLinkScreen = { publicLinkScreenData ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                PublicLinkScreenDestination(
-                                    assetId = publicLinkScreenData.assetId,
-                                    fileName = publicLinkScreenData.fileName,
-                                    publicLinkId = publicLinkScreenData.linkId,
-                                    isFolder = publicLinkScreenData.isFolder
-                                )
-                            )
-                        )
-                    },
-                    showMoveToFolderScreen = { currentPath, nodePath, uuid ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                MoveToFolderScreenDestination(
-                                    currentPath = currentPath,
-                                    nodeToMovePath = nodePath,
-                                    uuid = uuid,
-                                )
-                            )
-                        )
-                    },
+                    showPublicLinkScreen = navigation::publicLink,
+                    showMoveToFolderScreen = navigation::move,
                     showRenameScreen = { },
                     showAddRemoveTagsScreen = {},
-                    showImageViewer = { file ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                CellImageViewerScreenDestination(
-                                    CellImageViewerNavArgs(
-                                        localPath = file.localPath,
-                                        contentUrl = file.contentUrl,
-                                        previewUrl = file.previewUrl,
-                                        contentHash = file.contentHash,
-                                        fileName = file.name,
-                                    )
-                                )
-                            )
-                        )
-                    },
+                    showImageViewer = navigation::image,
                     isRefreshing = cellViewModel.isPullToRefresh.collectAsState(),
                     onRefresh = { cellViewModel.onPullToRefresh() }
                 )

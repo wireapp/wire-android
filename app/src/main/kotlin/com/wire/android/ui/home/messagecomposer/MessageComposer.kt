@@ -78,6 +78,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import kotlin.math.roundToInt
 
+@Suppress("SlotReused")
 @Composable
 fun MessageComposer(
     conversationId: ConversationId,

@@ -19,13 +19,14 @@ package com.wire.android.ui.calling
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
-import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.incoming.IncomingCallViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.calling.outgoing.OutgoingCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
+import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelPreview
@@ -33,56 +34,62 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.meetings.MeetingsCallViewModel
 import com.wire.kalium.logic.data.id.ConversationId
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
-import dev.zacsweers.metrox.viewmodel.metroViewModel as metroxViewModel
 
 interface CallingManualViewModelFactory : ManualViewModelAssistedFactory {
     fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel
     fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel
     fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel
     fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewModel
+    fun conversationCallViewModel(args: ConversationNavArgs): ConversationCallViewModel
 }
 
 @Composable
 fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel =
-    sessionKeyedAssistedMetroViewModel<IncomingCallViewModel, CallingManualViewModelFactory>(
-        key = "incoming_$conversationId",
-    ) {
+    wireAssistedMetroViewModel<IncomingCallViewModel, CallingManualViewModelFactory>(
+        instanceKey = "incoming_$conversationId",
+    ) { _ ->
         incomingCallViewModel(conversationId)
     }
 
 @Composable
 fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel =
-    sessionKeyedAssistedMetroViewModel<OutgoingCallViewModel, CallingManualViewModelFactory>(
-        key = "outgoing_$conversationId",
-    ) {
+    wireAssistedMetroViewModel<OutgoingCallViewModel, CallingManualViewModelFactory>(
+        instanceKey = "outgoing_$conversationId",
+    ) { _ ->
         outgoingCallViewModel(conversationId)
     }
 
 @Composable
 fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel =
-    sessionKeyedAssistedMetroViewModel<OngoingCallViewModel, CallingManualViewModelFactory>(
-        key = "ongoing_$conversationId",
-    ) {
+    wireAssistedMetroViewModel<OngoingCallViewModel, CallingManualViewModelFactory>(
+        instanceKey = "ongoing_$conversationId",
+    ) { _ ->
         ongoingCallViewModel(conversationId)
     }
 
 @Composable
 fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewModel =
-    sessionKeyedAssistedMetroViewModel<SharedCallingViewModel, CallingManualViewModelFactory>(
-        key = "shared_$conversationId",
-    ) {
+    wireAssistedMetroViewModel<SharedCallingViewModel, CallingManualViewModelFactory>(
+        instanceKey = "shared_$conversationId",
+    ) { _ ->
         sharedCallingViewModel(conversationId)
     }
 
 @Composable
 fun conversationCallViewModel(): ConversationCallViewModel =
-    metroxViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun conversationCallViewModel(args: ConversationNavArgs): ConversationCallViewModel =
+    wireAssistedMetroViewModel<ConversationCallViewModel, CallingManualViewModelFactory> { _ ->
+        conversationCallViewModel(args)
+    }
 
 @Composable
 fun conversationListCallViewModel(conversationsSource: ConversationsSource): ConversationListCallViewModel = when {
     LocalInspectionMode.current -> ConversationListCallViewModelPreview
-    else -> sessionKeyedMetroViewModel<ConversationListCallViewModelImpl>(key = "call_$conversationsSource")
+    else -> wireMetroViewModel<ConversationListCallViewModelImpl>(instanceKey = "call_$conversationsSource")
 }
 
 @Composable
-fun meetingsCallViewModel(): MeetingsCallViewModel = sessionKeyedMetroViewModel()
+fun meetingsCallViewModel(): MeetingsCallViewModel = wireMetroViewModel()

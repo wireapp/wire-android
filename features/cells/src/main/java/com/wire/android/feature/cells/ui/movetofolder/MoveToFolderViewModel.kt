@@ -17,9 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.movetofolder
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.ui.common.ActionsViewModel
@@ -36,17 +34,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MoveToFolderViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: MoveToFolderNavArgs,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val moveNodeUseCase: MoveNodeUseCase
 ) : ActionsViewModel<MoveToFolderViewAction>() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): MoveToFolderViewModel
+        fun create(navArgs: MoveToFolderNavArgs): MoveToFolderViewModel
     }
-
-    private val navArgs: MoveToFolderNavArgs = MoveToFolderScreenDestination.argsFrom(savedStateHandle)
 
     private val currentPath: String = navArgs.currentPath
     private val nodeToMovePath: String = navArgs.nodeToMovePath

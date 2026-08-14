@@ -35,10 +35,6 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FILE_NAME_MAX_COUNT
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.navigation.PreviewNavigator
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -57,15 +53,11 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
-@WireCellsDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = RenameNodeNavArgs::class,
-)
 @Composable
-fun RenameNodeScreen(
-    navigator: WireNavigator,
+internal fun RenameNodeRouteScreen(
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    renameNodeViewModel: RenameNodeViewModel = renameNodeViewModel()
+    renameNodeViewModel: RenameNodeViewModel,
 ) {
     val context = LocalContext.current
 
@@ -75,7 +67,7 @@ fun RenameNodeScreen(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = { navigator.navigateBack() },
+                onNavigationPressed = onNavigateBack,
                 title = if (renameNodeViewModel.isFolder()) {
                     stringResource(R.string.rename_folder_label)
                 } else {
@@ -142,7 +134,7 @@ fun RenameNodeScreen(
             is RenameNodeViewModelAction.Failure ->
                 Toast.makeText(context, R.string.rename_failure, Toast.LENGTH_SHORT).show()
         }
-        navigator.navigateBack()
+        onNavigateBack()
     }
 }
 
@@ -169,8 +161,9 @@ private fun computeNameErrorState(error: FileNameError?, isFolder: Boolean): Wir
 @Composable
 fun PreviewRenameNodeScreen() {
     WireTheme {
-        RenameNodeScreen(
-            navigator = PreviewNavigator
+        RenameNodeRouteScreen(
+            onNavigateBack = {},
+            renameNodeViewModel = renameNodeViewModel(RenameNodeNavArgs()),
         )
     }
 }

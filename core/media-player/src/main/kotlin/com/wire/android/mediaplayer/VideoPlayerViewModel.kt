@@ -41,7 +41,7 @@ import java.io.File
 /**
  * Plays a single video from either a local file ([localPath]) or a remote URL ([contentUrl]).
  *
- * The screen arguments are passed in through assisted injection
+ * The screen arguments are passed in through the per-ViewModel assisted [Factory]
  * rather than read from a navigation destination, so the player can be reused from any module.
  */
 class VideoPlayerViewModel @AssistedInject constructor(

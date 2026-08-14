@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.devices.register
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
@@ -39,19 +38,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import com.wire.android.ui.authentication.clearSessionViewModel
-import com.wire.android.ui.authentication.registerDeviceViewModel
 import com.wire.android.R
-import com.wire.android.feature.NavigationSwitchAccountActions
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
@@ -66,51 +56,32 @@ import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireRootDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = SessionBackedAuthenticationNavArgs::class,
-)
 @Composable
-fun RegisterDeviceScreen(
-    navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
-    sessionBackedAuthenticationNavArgs: SessionBackedAuthenticationNavArgs,
-    viewModel: RegisterDeviceViewModel = registerDeviceViewModel(),
-    clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
+internal fun RegisterDeviceRouteScreen(
+    viewModel: RegisterDeviceViewModel,
+    clearSessionViewModel: ClearSessionViewModel,
+    switchAccountActions: com.wire.android.feature.SwitchAccountActions,
+    onE2EIRequired: (com.wire.kalium.logic.data.user.UserId?) -> Unit,
+    onHomeRequired: () -> Unit,
+    onInitialSyncRequired: () -> Unit,
+    onRemoveDeviceRequired: () -> Unit,
 ) {
     clearAutofillTree()
     when (val flowState = viewModel.state.flowState) {
         is RegisterDeviceFlowState.Success -> {
-            navigator.navigate(
-                NavigationCommand(
-                    destination = if (flowState.isE2EIRequired) {
-                        E2EIEnrollmentScreenDestination(
-                            flowState.userId
-                                ?.let(SessionBackedAuthenticationNavArgs::from)
-                                ?: sessionBackedAuthenticationNavArgs
-                        )
-                    } else if (flowState.initialSyncCompleted) {
-                        HomeScreenDestination
-                    } else {
-                        InitialSyncScreenDestination
-                    },
-                    backStackMode = BackStackMode.CLEAR_WHOLE
-                )
-            )
+            when {
+                flowState.isE2EIRequired -> onE2EIRequired(flowState.userId)
+                flowState.initialSyncCompleted -> onHomeRequired()
+                else -> onInitialSyncRequired()
+            }
         }
 
-        is RegisterDeviceFlowState.TooManyDevices -> navigator.navigate(
-            NavigationCommand(RemoveDeviceScreenDestination(sessionBackedAuthenticationNavArgs))
-        )
+        is RegisterDeviceFlowState.TooManyDevices -> onRemoveDeviceRequired()
         else ->
             AnimatedContent(
                 targetState = viewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
@@ -130,9 +101,7 @@ fun RegisterDeviceScreen(
                         onErrorDismiss = viewModel::onErrorDismiss,
                         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
                         onCancelLoginClicked = {
-                            clearSessionViewModel.onCancelLoginClicked(
-                                NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
-                            )
+                            clearSessionViewModel.onCancelLoginClicked(switchAccountActions)
                         },
                         onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
                     )

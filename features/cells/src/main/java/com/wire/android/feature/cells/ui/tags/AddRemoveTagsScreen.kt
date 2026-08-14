@@ -50,9 +50,6 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.feature.cells.ui.addRemoveTagsViewModel
 import com.wire.android.feature.cells.R
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
@@ -70,15 +67,11 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import kotlinx.coroutines.launch
 
-@WireCellsDestination(
-    navArgs = AddRemoveTagsNavArgs::class,
-    style = PopUpNavigationAnimation::class,
-)
 @Composable
-fun AddRemoveTagsScreen(
-    navigator: WireNavigator,
+internal fun AddRemoveTagsRouteScreen(
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    addRemoveTagsViewModel: AddRemoveTagsViewModel = addRemoveTagsViewModel(),
+    addRemoveTagsViewModel: AddRemoveTagsViewModel,
 ) {
     val context = LocalContext.current
 
@@ -92,7 +85,7 @@ fun AddRemoveTagsScreen(
                 title = stringResource(R.string.add_or_remove_tags_title),
                 navigationIconType = NavigationIconType.Close(),
                 onNavigationPressed = {
-                    navigator.navigateBack()
+                    onNavigateBack()
                 },
                 elevation = dimensions().spacing0x,
             )
@@ -177,7 +170,7 @@ fun AddRemoveTagsScreen(
                 Toast.makeText(context, context.resources.getString(R.string.failed_edit_tags), Toast.LENGTH_SHORT).show()
             }
         }
-        navigator.navigateBack()
+        onNavigateBack()
     }
 }
 

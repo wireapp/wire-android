@@ -21,10 +21,8 @@ package com.wire.android.ui.home.conversations.call
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
@@ -53,7 +51,6 @@ import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationCallViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
     @CurrentAccount currentAccount: UserId,
     private val observeJoinableCalls: ObserveJoinableCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
@@ -66,13 +63,14 @@ class ConversationCallViewModel @AssistedInject constructor(
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase,
-    private val observeSelf: ObserveSelfUserUseCase
+    private val observeSelf: ObserveSelfUserUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
+
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ConversationCallViewModel
+        fun create(navigationArgs: ConversationNavArgs): ConversationCallViewModel
     }
-
     val callManager = JoinOrStartCallManager(
         scope = viewModelScope,
         currentAccount = currentAccount,
@@ -87,7 +85,7 @@ class ConversationCallViewModel @AssistedInject constructor(
         observeSelf = observeSelf,
     )
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
         private set

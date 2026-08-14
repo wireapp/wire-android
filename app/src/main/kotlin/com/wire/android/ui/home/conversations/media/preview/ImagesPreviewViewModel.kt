@@ -21,11 +21,9 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dev.zacsweers.metro.Assisted
@@ -36,21 +34,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ImagesPreviewViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted private val navigationArgs: ImagesPreviewNavArgs,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ImagesPreviewViewModel
+        fun create(navigationArgs: ImagesPreviewNavArgs): ImagesPreviewViewModel
     }
 
-    private val navArgs: ImagesPreviewNavArgs = savedStateHandle.navArgs()
     var viewState by mutableStateOf(
         ImagesPreviewState(
-            conversationId = navArgs.conversationId,
-            conversationName = navArgs.conversationName
+            conversationId = navigationArgs.conversationId,
+            conversationName = navigationArgs.conversationName
         )
     )
         private set
@@ -70,7 +67,7 @@ class ImagesPreviewViewModel @AssistedInject constructor(
     private fun handleAssets() {
         viewState = viewState.copy(isLoading = true)
         viewModelScope.launch {
-            val assets = navArgs.assetUriList.map { handleImportedAsset(it) }
+            val assets = navigationArgs.assetUriList.map { handleImportedAsset(it) }
             viewState = viewState.copy(
                 assetBundleList = assets.filterNotNull().toPersistentList(),
                 isLoading = false

@@ -42,7 +42,6 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     id(libs.plugins.wire.versionizer.get().pluginId)
     alias(libs.plugins.screenshot)
-    id(libs.plugins.wire.android.navigation.get().pluginId)
 }
 
 repositories {
@@ -66,6 +65,17 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
 
 android {
     defaultConfig {
+        val navigationDiagnosticsEnabled = providers
+            .gradleProperty("wire.navigation.diagnostics")
+            .orNull
+            ?.toBooleanStrictOrNull()
+            ?: false
+        buildConfigField(
+            "boolean",
+            "NAVIGATION_DIAGNOSTICS_ENABLED",
+            navigationDiagnosticsEnabled.toString(),
+        )
+
         ndk {
             abiFilters.apply {
                 add("armeabi-v7a")
@@ -178,10 +188,6 @@ baselineProfile {
     dexLayoutOptimization = true
 }
 
-ksp {
-    arg("compose-destinations.moduleName", "app")
-}
-
 // Skip AboutLibraries configuration when running lint to reduce memory usage
 if (!project.hasProperty("skip.aboutlibraries")) {
     aboutLibraries {
@@ -207,6 +213,7 @@ dependencies {
     implementationWithCoverage(projects.core.media)
     implementationWithCoverage(projects.core.mediaPlayer)
     implementationWithCoverage(projects.core.notification)
+    implementationWithCoverage(projects.core.navigation)
     implementationWithCoverage(projects.core.search)
     implementationWithCoverage(projects.features.cells)
     implementationWithCoverage(projects.features.sketch)
@@ -287,7 +294,6 @@ dependencies {
 
     // smaller view models
     implementation(libs.resaca.core)
-    implementation(libs.resaca.metro)
     implementation(libs.metrox.viewModelCompose)
     implementation(libs.bundlizer.core)
 

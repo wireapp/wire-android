@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.teammigration.step1
 
-import com.wire.android.navigation.annotation.app.WirePersonalToTeamMigrationDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,12 +44,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationTeamNameStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
@@ -59,28 +54,22 @@ import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContain
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WirePersonalToTeamMigrationDestination(
-    start = true,
-    navArgs = TeamMigrationTeamPlanNavArgs::class,
-    style = AuthPopUpNavigationAnimation::class
-)
 @Composable
-fun TeamMigrationTeamPlanStepScreen(
-    navigator: Navigator,
-    navArgs: TeamMigrationTeamPlanNavArgs,
-    teamMigrationViewModel: TeamMigrationViewModel
+internal fun TeamMigrationTeamPlanRouteScreen(
+    teamMigrationViewModel: TeamMigrationViewModel,
+    isMigrationDotActive: Boolean,
+    onBackButtonClicked: () -> Unit,
+    onContinueButtonClicked: () -> Unit,
 ) {
     TeamMigrationTeamPlanStepScreenContent(
-        onBackButtonClicked = navigator::navigateBack,
-        onContinueButtonClicked = {
-            navigator.navigate(NavigationCommand(TeamMigrationTeamNameStepScreenDestination))
-        }
+        onBackButtonClicked = onBackButtonClicked,
+        onContinueButtonClicked = onContinueButtonClicked,
     )
 
     LaunchedEffect(Unit) {
         teamMigrationViewModel.setCurrentStep(
             step = TeamMigrationViewModel.TEAM_MIGRATION_TEAM_PLAN_STEP,
-            isMigrationDotActive = navArgs.isMigrationDotActive
+            isMigrationDotActive = isMigrationDotActive,
         )
     }
 }

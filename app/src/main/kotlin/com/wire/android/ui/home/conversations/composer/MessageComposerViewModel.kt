@@ -22,10 +22,8 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -72,7 +70,6 @@ import kotlinx.datetime.Instant
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class MessageComposerViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -89,11 +86,12 @@ class MessageComposerViewModel @AssistedInject constructor(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val globalDataStore: GlobalDataStore,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): MessageComposerViewModel
+        fun create(navigationArgs: ConversationNavArgs): MessageComposerViewModel
     }
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
@@ -105,7 +103,7 @@ class MessageComposerViewModel @AssistedInject constructor(
     var tempWritableImageUri: Uri? = null
         private set
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(

@@ -44,7 +44,6 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
 
     private val closeButton = UiSelectorParams(
-        className = "android.view.View",
         description = "Close"
     )
 

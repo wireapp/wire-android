@@ -32,8 +32,10 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerifyOrder
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import com.wire.android.assertions.shouldBeEqualTo
@@ -100,6 +102,52 @@ class ClearSessionViewModelTest {
             arrangement.deleteSession(currentSession.userId)
             arrangement.switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
             arrangement.switchAccountActions.switchedToAnotherAccount()
+        }
+        coVerifyOrder {
+            arrangement.switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
+            arrangement.switchAccountActions.switchedToAnotherAccount()
+            arrangement.logout(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSession(currentSession.userId)
+        }
+    }
+
+    @Test
+    fun `given account switch fails, when canceling login, then still logout and delete the unfinished session`() = runTest {
+        val currentSession = AccountInfo.Valid(UserId("userId", "domain"))
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionReturning(CurrentSessionResult.Success(currentSession))
+            .withSwitchAccountThrowing(IllegalStateException("switch failed"))
+            .arrange()
+
+        val failure = runCatching {
+            viewModel.cancelLogin(arrangement.switchAccountActions)
+        }.exceptionOrNull()
+
+        failure?.message shouldBeEqualTo "switch failed"
+        coVerifyOrder {
+            arrangement.switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
+            arrangement.logout(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSession(currentSession.userId)
+        }
+    }
+
+    @Test
+    fun `given account switch is canceled, when canceling login, then cleanup remains non-cancellable`() = runTest {
+        val currentSession = AccountInfo.Valid(UserId("userId", "domain"))
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionReturning(CurrentSessionResult.Success(currentSession))
+            .withSwitchAccountThrowing(CancellationException("switch canceled"))
+            .arrange()
+
+        val failure = runCatching {
+            viewModel.cancelLogin(arrangement.switchAccountActions)
+        }.exceptionOrNull()
+
+        failure?.message shouldBeEqualTo "switch canceled"
+        coVerifyOrder {
+            arrangement.switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
+            arrangement.logout(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSession(currentSession.userId)
         }
     }
 
@@ -184,6 +232,10 @@ class ClearSessionViewModelTest {
 
         fun withSwitchAccountReturning(result: SwitchAccountResult) = apply {
             coEvery { switchAccount(any()) } returns result
+        }
+
+        fun withSwitchAccountThrowing(failure: Exception) = apply {
+            coEvery { switchAccount(any()) } throws failure
         }
     }
 }

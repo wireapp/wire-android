@@ -30,7 +30,6 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
-import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.GetMediaMetadataUseCase
@@ -126,10 +125,6 @@ object AppModule {
     @Provides
     @Named("inAppImageViewerEnabled")
     fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
-
-    @Provides
-    @SingleIn(AppScope::class)
-    fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
 
     @Provides
     fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()

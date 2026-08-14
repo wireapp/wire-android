@@ -34,14 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.feature.cells.ui.createFolderViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FileNameError
-import com.wire.android.navigation.PreviewNavigator
-import com.wire.android.navigation.PreviewResultBackNavigator
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -60,16 +54,12 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import androidx.compose.ui.platform.LocalLocale
 
-@WireCellsDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = CreateFolderScreenNavArgs::class,
-)
 @Composable
-fun CreateFolderScreen(
-    navigator: WireNavigator,
-    resultNavigator: ResultBackNavigator<Boolean>,
+internal fun CreateFolderRouteScreen(
+    onNavigateBack: () -> Unit,
+    onCreated: () -> Unit,
     modifier: Modifier = Modifier,
-    createFolderViewModel: CreateFolderViewModel = createFolderViewModel(),
+    createFolderViewModel: CreateFolderViewModel,
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 
@@ -91,7 +81,7 @@ fun CreateFolderScreen(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = { navigator.navigateBack() },
+                onNavigationPressed = onNavigateBack,
                 navigationIconType = NavigationIconType.Close(),
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.cells_create_folder),
@@ -151,8 +141,7 @@ fun CreateFolderScreen(
     HandleActions(createFolderViewModel.actions) { action ->
         when (action) {
             CreateFolderViewModelAction.Success -> {
-                resultNavigator.setResult(true)
-                resultNavigator.navigateBack()
+                onCreated()
             }
             CreateFolderViewModelAction.Failure -> {
                 showErrorDialog.value = true
@@ -178,9 +167,10 @@ private fun computeNameErrorState(error: FileNameError?): WireTextFieldState {
 @Composable
 fun PreviewCreateFolderScreen() {
     WireTheme {
-        CreateFolderScreen(
-            navigator = PreviewNavigator,
-            resultNavigator = PreviewResultBackNavigator as ResultBackNavigator<Boolean>,
+        CreateFolderRouteScreen(
+            onNavigateBack = {},
+            onCreated = {},
+            createFolderViewModel = createFolderViewModel(CreateFolderScreenNavArgs(null)),
         )
     }
 }

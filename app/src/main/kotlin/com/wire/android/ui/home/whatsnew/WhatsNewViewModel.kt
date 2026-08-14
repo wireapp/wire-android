@@ -27,10 +27,10 @@ import com.prof18.rssparser.RssParser
 import com.wire.android.R
 import com.wire.android.di.ApplicationContext
 import com.wire.android.util.toMediumOnlyDateTime
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import dev.zacsweers.metro.Inject
 
 class WhatsNewViewModel @Inject constructor(@ApplicationContext context: Context) : ViewModel() {
     private val rssParser = RssParser()

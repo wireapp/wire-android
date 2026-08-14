@@ -76,10 +76,12 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     observeActiveCalls: ObserveActiveCallsUseCase,
     dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
+
     @AssistedFactory
     interface Factory {
         fun create(type: MeetingsTabItem): MeetingListViewModelImpl
     }
+
     private val alignedTickerFlow = flow {
         while (currentCoroutineContext().isActive) {
             val currentTime = currentTimeProvider()

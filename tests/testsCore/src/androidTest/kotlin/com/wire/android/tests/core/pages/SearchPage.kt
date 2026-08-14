@@ -25,7 +25,6 @@ import user.usermanager.ClientUserManager
 data class SearchPage(private val device: UiDevice) {
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
     private val closeSearchInputFieldButton = UiSelectorParams(
-        className = "android.view.View",
         description = "Go back to add participants view"
     )
 

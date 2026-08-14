@@ -21,13 +21,10 @@ package com.wire.android.ui.home.conversations.media
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import dev.zacsweers.metro.Assisted
@@ -38,7 +35,7 @@ import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationAssetMessagesViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted navigationArgs: ConversationMediaNavArgs,
     private val getImageMessages: ObserveImageAssetMessagesFromConversationUseCase,
     private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
     private val observeAssetStatuses: ObserveAssetStatusesUseCase,
@@ -46,11 +43,10 @@ class ConversationAssetMessagesViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ConversationAssetMessagesViewModel
+        fun create(navigationArgs: ConversationMediaNavArgs): ConversationAssetMessagesViewModel
     }
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    val conversationId: QualifiedID = navigationArgs.conversationId
 
     var viewState by mutableStateOf(ConversationAssetMessagesViewState())
         private set

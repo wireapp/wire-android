@@ -45,9 +45,6 @@ import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreNodeVersionConfirmationDialog
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
@@ -64,15 +61,11 @@ import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.ui.toUIText
 import kotlinx.coroutines.launch
 
-@WireCellsDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = VersionHistoryNavArgs::class,
-)
 @Composable
-fun VersionHistoryScreen(
-    navigator: WireNavigator,
+internal fun VersionHistoryRouteScreen(
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    versionHistoryViewModel: VersionHistoryViewModel = versionHistoryViewModel()
+    versionHistoryViewModel: VersionHistoryViewModel,
 ) {
     val optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>()
     val snackbarHostState = LocalSnackbarHostState.current
@@ -89,7 +82,7 @@ fun VersionHistoryScreen(
         fileName = versionHistoryViewModel.fileName,
         versionHistoryState = versionHistoryViewModel.versionHistoryState,
         restoreDialogState = versionHistoryViewModel.restoreDialogState.value,
-        navigateBack = { navigator.navigateBack() },
+        navigateBack = onNavigateBack,
         optionsBottomSheetState = optionsBottomSheetState,
         restoreVersion = {
             versionHistoryViewModel.restoreVersion()

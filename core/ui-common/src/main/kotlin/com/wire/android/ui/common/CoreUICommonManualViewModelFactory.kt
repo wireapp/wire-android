@@ -34,13 +34,13 @@ fun connectionActionButtonViewModel(
     args: ConnectionActionButtonArgs,
 ): ConnectionActionButtonViewModel =
     wireManualMetroViewModelScoped<
-            ConnectionActionButtonViewModelImpl,
-            ConnectionActionButtonViewModel,
-            ConnectionActionButtonArgs,
-            CoreUICommonManualViewModelFactory
-            >(
+        ConnectionActionButtonViewModelImpl,
+        ConnectionActionButtonViewModel,
+        ConnectionActionButtonArgs,
+        CoreUICommonManualViewModelFactory,
+    >(
         arguments = args,
         previewProvider = CoreUICommonViewModelScopedPreviews,
-    ) { _, arguments ->
+    ) { arguments ->
         connectionActionButtonViewModel(arguments)
     }

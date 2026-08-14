@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.settings.account
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,26 +31,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.ui.home.settings.deleteAccountViewModel
-import com.wire.android.ui.home.settings.myAccountViewModel
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -61,10 +51,6 @@ import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.ChangeDisplayNameScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ChangeEmailScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ChangeHandleScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ChangeUserColorScreenDestination
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.DisplayName
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Domain
 import com.wire.android.ui.home.settings.account.AccountDetailsItem.Email
@@ -85,72 +71,69 @@ import com.wire.android.util.ui.sectionWithElements
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
-@WireRootDestination
+internal enum class MyAccountUpdateKind {
+    DISPLAY_NAME,
+    HANDLE,
+    USER_COLOR,
+}
+
+internal data class MyAccountUpdateNotification(
+    val requestId: String,
+    val kind: MyAccountUpdateKind,
+    val successful: Boolean,
+)
+
 @Composable
-fun MyAccountScreen(
-    navigator: Navigator,
-    changeDisplayNameResultRecipient: ResultRecipient<ChangeDisplayNameScreenDestination, Boolean>,
-    changeHandleResultRecipient: ResultRecipient<ChangeHandleScreenDestination, Boolean>,
-    changeUserColorResultRecipient: ResultRecipient<ChangeUserColorScreenDestination, Boolean>,
-    viewModel: MyAccountViewModel = myAccountViewModel(),
-    deleteAccountViewModel: DeleteAccountViewModel = deleteAccountViewModel()
+internal fun MyAccountRouteScreen(
+    viewModel: MyAccountViewModel,
+    deleteAccountViewModel: DeleteAccountViewModel,
+    onNavigateBack: () -> Unit,
+    onChangeDisplayName: () -> Unit,
+    onChangeHandle: () -> Unit,
+    onChangeEmail: () -> Unit,
+    onChangeUserColor: () -> Unit,
+    updateNotification: MyAccountUpdateNotification?,
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
-    val scope = rememberCoroutineScope()
+    val tryAgainMessage = stringResource(id = R.string.error_unknown_message)
+    val displayNameSuccessMessage = stringResource(id = R.string.settings_myaccount_display_name_updated)
+    val handleSuccessMessage = stringResource(id = R.string.settings_myaccount_handle_updated)
+    val userColorSuccessMessage = stringResource(id = R.string.settings_myaccount_user_color_updated)
+
+    LaunchedEffect(updateNotification) {
+        updateNotification?.let { notification ->
+            snackbarHostState.showSnackbar(
+                if (!notification.successful) {
+                    tryAgainMessage
+                } else {
+                    when (notification.kind) {
+                        MyAccountUpdateKind.DISPLAY_NAME -> displayNameSuccessMessage
+                        MyAccountUpdateKind.HANDLE -> handleSuccessMessage
+                        MyAccountUpdateKind.USER_COLOR -> userColorSuccessMessage
+                    }
+                }
+            )
+        }
+    }
+
     with(viewModel.myAccountState) {
         MyAccountContent(
             accountDetailItems = mapToUISections(
                 state = this,
-                navigateToChangeDisplayName = { navigator.navigate(NavigationCommand(ChangeDisplayNameScreenDestination)) },
-                navigateToChangeHandle = { navigator.navigate(NavigationCommand(ChangeHandleScreenDestination)) },
-                navigateToChangeEmail = { navigator.navigate(NavigationCommand(ChangeEmailScreenDestination)) },
-                navigateToChangeColor = { navigator.navigate(NavigationCommand(ChangeUserColorScreenDestination)) }
+                navigateToChangeDisplayName = onChangeDisplayName,
+                navigateToChangeHandle = onChangeHandle,
+                navigateToChangeEmail = onChangeEmail,
+                navigateToChangeColor = onChangeUserColor,
             ),
-            forgotPasswordUrl = this.changePasswordUrl,
-            canDeleteAccount = viewModel.myAccountState.canDeleteAccount,
+            forgotPasswordUrl = changePasswordUrl,
+            canDeleteAccount = canDeleteAccount,
             onDeleteAccountClicked = deleteAccountViewModel::onDeleteAccountClicked,
             onDeleteAccountConfirmed = deleteAccountViewModel::onDeleteAccountDialogConfirmed,
             onDeleteAccountDismissed = deleteAccountViewModel::onDeleteAccountDialogDismissed,
             startDeleteAccountFlow = deleteAccountViewModel.state.startDeleteAccountFlow,
-            onNavigateBack = navigator::navigateBack
+            onNavigateBack = onNavigateBack,
         )
-    }
-    val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
-    val successDisplayNameSnackBarMessage = stringResource(id = R.string.settings_myaccount_display_name_updated)
-    val successHandleSnackBarMessage = stringResource(id = R.string.settings_myaccount_handle_updated)
-    val successUserColorSnackBarMessage = stringResource(id = R.string.settings_myaccount_user_color_updated)
-    HandleNavResult(scope, changeDisplayNameResultRecipient, tryAgainSnackBarMessage, successDisplayNameSnackBarMessage, snackbarHostState)
-    HandleNavResult(scope, changeHandleResultRecipient, tryAgainSnackBarMessage, successHandleSnackBarMessage, snackbarHostState)
-    HandleNavResult(scope, changeUserColorResultRecipient, tryAgainSnackBarMessage, successUserColorSnackBarMessage, snackbarHostState)
-}
-
-@Composable
-private fun <T : DestinationSpec> HandleNavResult(
-    scope: CoroutineScope,
-    resultRecipient: ResultRecipient<T, Boolean>,
-    tryAgainSnackBarMessage: String,
-    successSnackBarMessage: String,
-    snackbarHostState: SnackbarHostState
-) {
-    resultRecipient.onNavResult { result ->
-        when (result) {
-            is NavResult.Canceled -> {
-                appLogger.i("Error with receiving navigation back args")
-            }
-
-            is NavResult.Value -> {
-                scope.launch {
-                    if (result.value) {
-                        snackbarHostState.showSnackbar(successSnackBarMessage)
-                    } else {
-                        snackbarHostState.showSnackbar(tryAgainSnackBarMessage)
-                    }
-                }
-            }
-        }
     }
 }
 

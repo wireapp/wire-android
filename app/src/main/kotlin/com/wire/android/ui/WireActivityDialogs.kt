@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-@file:Suppress("TooManyFunctions")
+@file:Suppress("TooManyFunctions", "MatchingDeclarationName")
 
 package com.wire.android.ui
 
@@ -33,6 +33,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,8 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -52,6 +51,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
@@ -62,13 +62,26 @@ import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
+import com.wire.android.ui.home.E2EICertificateRevokedDialog
+import com.wire.android.ui.home.E2EIRequiredDialog
+import com.wire.android.ui.home.E2EIResultDialog
+import com.wire.android.ui.home.E2EISnoozeDialog
+import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedState
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.deviceDateTimeFormat
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -79,6 +92,241 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.datetime.Instant
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import java.text.NumberFormat
+import kotlinx.coroutines.flow.collectLatest
+
+/**
+ * Navigation- and Activity-neutral effects emitted by the global dialog layer.
+ *
+ * The Navigation 3 host maps these callbacks to typed routes without changing dialog ordering or
+ * state ownership.
+ */
+internal data class WireActivityDialogActions(
+    val updateApp: () -> Unit,
+    val openLoginIfEmptyWelcomeStart: () -> Unit,
+    val openSelfProfile: () -> Unit,
+    val openSelfDevices: () -> Unit,
+    val switchAccountAndOpenSelfDevices: (UserId) -> Unit,
+    val openE2EICertificateDetails: (String) -> Unit,
+    val openJoinedConversation: (ConversationId) -> Unit,
+    val startTeamAppLock: () -> Unit,
+    val hardLogout: () -> Unit,
+    val recoverFromLoggedOutSession: () -> Unit,
+)
+
+@Suppress("ComplexMethod")
+@Composable
+internal fun WireActivityDialogs(
+    viewModel: WireActivityViewModel,
+    activityViewModels: WireActivityScopedViewModels?,
+    actions: WireActivityDialogActions,
+) {
+    if (activityViewModels == null) {
+        UpdateAppDialog(viewModel.globalAppState.updateAppDialog, actions.updateApp)
+        CustomBackendDialog(
+            state = viewModel.globalAppState.customBackendDialog,
+            onDismiss = {
+                viewModel.dismissCustomBackendDialog()
+                actions.openLoginIfEmptyWelcomeStart()
+            },
+            onConfirm = viewModel::customBackendDialogProceedButtonClicked,
+            onTryAgain = viewModel::onCustomServerConfig,
+        )
+        MaxAccountDialog(
+            shouldShow = viewModel.globalAppState.maxAccountDialog,
+            onConfirm = {
+                viewModel.dismissMaxAccountDialog()
+                actions.openSelfProfile()
+            },
+            onDismiss = viewModel::dismissMaxAccountDialog,
+        )
+        AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI) {
+            actions.recoverFromLoggedOutSession()
+        }
+        CrossBackendLoginBlockedDialog(
+            shouldShow = viewModel.globalAppState.crossBackendLoginBlockedDialog,
+            onDismiss = viewModel::dismissCrossBackendLoginBlockedDialog,
+        )
+        return
+    }
+
+    val callFeedbackViewModel = activityViewModels.callFeedbackViewModel
+    val featureFlagNotificationViewModel = activityViewModels.featureFlagNotificationViewModel
+    val legalHoldRequestedViewModel = activityViewModels.legalHoldRequestedViewModel
+    val legalHoldDeactivatedViewModel = activityViewModels.legalHoldDeactivatedViewModel
+    val callFeedbackSheetState =
+        rememberWireModalSheetState<Unit>(onDismissAction = {
+            callFeedbackViewModel.skipCallFeedback(false)
+        })
+
+    with(featureFlagNotificationViewModel.featureFlagState) {
+        if (shouldShowTeamAppLockDialog) {
+            TeamAppLockFeatureFlagDialog(
+                isTeamAppLockEnabled = isTeamAppLockEnabled,
+                onConfirm = {
+                    featureFlagNotificationViewModel.dismissTeamAppLockDialog()
+                    if (isTeamAppLockEnabled) {
+                        val isUserAppLockSet =
+                            featureFlagNotificationViewModel.featureFlagState.isUserAppLockSet
+                        if (!isUserAppLockSet) {
+                            actions.startTeamAppLock()
+                        } else {
+                            featureFlagNotificationViewModel.markTeamAppLockStatusAsNot()
+                        }
+                    } else {
+                        with(featureFlagNotificationViewModel) {
+                            markTeamAppLockStatusAsNot()
+                            confirmAppLockNotEnforced()
+                        }
+                    }
+                },
+            )
+        } else {
+            if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
+                LegalHoldRequestedDialog(
+                    state = legalHoldRequestedViewModel.state as LegalHoldRequestedState.Visible,
+                    passwordTextState = legalHoldRequestedViewModel.passwordTextState,
+                    notNowClicked = legalHoldRequestedViewModel::notNowClicked,
+                    acceptClicked = legalHoldRequestedViewModel::acceptClicked,
+                )
+            }
+            if (legalHoldDeactivatedViewModel.state is LegalHoldDeactivatedState.Visible) {
+                LegalHoldDeactivatedDialog(
+                    dialogDismissed = legalHoldDeactivatedViewModel::dismiss,
+                )
+            }
+            if (showFileSharingDialog) {
+                FileRestrictionDialog(
+                    isFileSharingEnabled =
+                        isFileSharingState !is FeatureFlagState.FileSharingState.DisabledByTeam,
+                    hideDialogStatus = featureFlagNotificationViewModel::dismissFileSharingDialog,
+                )
+            }
+            if (shouldShowGuestRoomLinkDialog) {
+                GuestRoomLinkFeatureFlagDialog(
+                    isGuestRoomLinkEnabled = isGuestRoomLinkEnabled,
+                    onDismiss = featureFlagNotificationViewModel::dismissGuestRoomLinkDialog,
+                )
+            }
+            if (shouldShowSelfDeletingMessagesDialog) {
+                SelfDeletingMessagesDialog(
+                    areSelfDeletingMessagesEnabled = areSelfDeletedMessagesEnabled,
+                    enforcedTimeout = enforcedTimeoutDuration,
+                    hideDialogStatus =
+                        featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog,
+                )
+            }
+
+            val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
+            LogoutOptionsDialog(
+                dialogState = logoutOptionsDialogState,
+                checkboxEnabled = false,
+                logout = {
+                    actions.hardLogout()
+                    logoutOptionsDialogState.dismiss()
+                },
+            )
+            if (shouldShowE2eiCertificateRevokedDialog) {
+                E2EICertificateRevokedDialog(
+                    onLogout = {
+                        logoutOptionsDialogState.show(
+                            LogoutOptionsDialogState(shouldWipeData = true)
+                        )
+                    },
+                    onContinue =
+                        featureFlagNotificationViewModel::dismissE2EICertificateRevokedDialog,
+                )
+            }
+            e2EIRequired?.let {
+                E2EIRequiredDialog(
+                    e2EIRequired = e2EIRequired,
+                    isE2EILoading = isE2EILoading,
+                    getCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
+                    snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
+                )
+            }
+            e2EISnoozeInfo?.let {
+                E2EISnoozeDialog(
+                    timeLeft = e2EISnoozeInfo.timeLeft,
+                    dismissDialog = featureFlagNotificationViewModel::dismissSnoozeE2EIdRequiredDialog,
+                )
+            }
+            e2EIResult?.let {
+                E2EIResultDialog(
+                    result = e2EIResult,
+                    updateCertificate = featureFlagNotificationViewModel::enrollE2EICertificate,
+                    snoozeDialog = featureFlagNotificationViewModel::snoozeE2EIdRequiredDialog,
+                    openCertificateDetails = actions.openE2EICertificateDetails,
+                    dismissSuccessDialog =
+                        featureFlagNotificationViewModel::dismissSuccessE2EIdDialog,
+                    isE2EILoading = isE2EILoading,
+                )
+            }
+
+            UpdateAppDialog(viewModel.globalAppState.updateAppDialog, actions.updateApp)
+            JoinConversationDialog(
+                joinedDialogState = viewModel.globalAppState.conversationJoinedDialog,
+                openConversation = actions.openJoinedConversation,
+                onJoinConversationFlowCompleted = viewModel::onJoinConversationFlowCompleted,
+                viewModel = activityViewModels.joinConversationViaCodeViewModel,
+            )
+            CustomBackendDialog(
+                state = viewModel.globalAppState.customBackendDialog,
+                onDismiss = {
+                    viewModel.dismissCustomBackendDialog()
+                    actions.openLoginIfEmptyWelcomeStart()
+                },
+                onConfirm = viewModel::customBackendDialogProceedButtonClicked,
+                onTryAgain = viewModel::onCustomServerConfig,
+            )
+            MaxAccountDialog(
+                shouldShow = viewModel.globalAppState.maxAccountDialog,
+                onConfirm = {
+                    viewModel.dismissMaxAccountDialog()
+                    actions.openSelfProfile()
+                },
+                onDismiss = viewModel::dismissMaxAccountDialog,
+            )
+            CrossBackendLoginBlockedDialog(
+                shouldShow = viewModel.globalAppState.crossBackendLoginBlockedDialog,
+                onDismiss = viewModel::dismissCrossBackendLoginBlockedDialog,
+            )
+            AccountLoggedOutDialog(viewModel.globalAppState.blockUserUI) {
+                actions.recoverFromLoggedOutSession()
+            }
+            NewClientDialog(
+                data = viewModel.globalAppState.newClientDialog,
+                openDeviceManager = actions.openSelfDevices,
+                switchAccountAndOpenDeviceManager = actions.switchAccountAndOpenSelfDevices,
+                dismiss = viewModel::dismissNewClientsDialog,
+            )
+        }
+
+        if (showCallEndedBecauseOfConversationDegraded) {
+            GuestCallWasEndedBecauseOfVerificationDegradedDialog(
+                featureFlagNotificationViewModel::dismissCallEndedBecauseOfConversationDegraded
+            )
+        }
+        CallFeedbackDialog(
+            sheetState = callFeedbackSheetState,
+            onRated = callFeedbackViewModel::rateCall,
+            onSkipClicked = callFeedbackViewModel::skipCallFeedback,
+        )
+        if (startGettingE2EICertificate) {
+            GetE2EICertificateUI(
+                enrollmentResultHandler =
+                    featureFlagNotificationViewModel::handleE2EIEnrollmentResult,
+                isNewClient = false,
+                viewModel = activityViewModels.getE2EICertificateViewModel,
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        callFeedbackViewModel.showCallFeedbackFlow.collectLatest {
+            callFeedbackSheetState.show()
+        }
+    }
+}
 
 @Composable
 fun FileRestrictionDialog(
@@ -206,22 +454,16 @@ fun UpdateAppDialog(shouldShow: Boolean, onUpdateClick: () -> Unit) {
 @Composable
 fun JoinConversationDialog(
     joinedDialogState: JoinConversationViaCodeState?,
-    navigate: (NavigationCommand) -> Unit,
-    onJoinConversationFlowCompleted: () -> Unit
+    openConversation: (ConversationId) -> Unit,
+    viewModel: JoinConversationViaCodeViewModel = joinConversationViaCodeViewModel(),
+    onJoinConversationFlowCompleted: () -> Unit,
 ) {
     joinedDialogState?.let { state ->
 
         val onComplete: (convId: ConversationId?) -> Unit = remember {
             {
                 onJoinConversationFlowCompleted()
-                it?.also {
-                    navigate(
-                        NavigationCommand(
-                            ConversationScreenDestination(it),
-                            BackStackMode.CLEAR_TILL_START
-                        )
-                    )
-                }
+                it?.let(openConversation)
             }
         }
 
@@ -238,7 +480,8 @@ fun JoinConversationDialog(
                     domain = state.domain,
                     key = state.key,
                     requirePassword = state.passwordProtected,
-                    onFlowCompleted = onComplete
+                    onFlowCompleted = onComplete,
+                    viewModel = viewModel,
                 )
             }
         }

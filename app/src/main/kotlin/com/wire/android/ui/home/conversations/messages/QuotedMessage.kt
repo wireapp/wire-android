@@ -115,6 +115,7 @@ enum class QuotedStyle {
     PREVIEW
 }
 
+@Suppress("SlotReused")
 @Composable
 internal fun QuotedMessage(
     conversationId: ConversationId,

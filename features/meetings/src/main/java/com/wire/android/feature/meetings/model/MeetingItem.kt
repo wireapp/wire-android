@@ -45,9 +45,22 @@ data class MeetingItem(
 ) : MeetingListItem {
     @Stable
     data class RepeatingInterval(val frequency: Frequency, val interval: Int) {
-        val label: UIText = when (frequency) {
-            Frequency.DAILY -> UIText.PluralResource(R.plurals.meeting_repeating_days, interval, interval)
-            Frequency.WEEKLY -> UIText.PluralResource(R.plurals.meeting_repeating_weeks, interval, interval)
+        val label = when (frequency) {
+            Frequency.DAILY -> when (interval) {
+                2 -> UIText.StringResource(R.string.meeting_repeating_days_2)
+                3 -> UIText.StringResource(R.string.meeting_repeating_days_3)
+                4 -> UIText.StringResource(R.string.meeting_repeating_days_4)
+                5 -> UIText.StringResource(R.string.meeting_repeating_days_5)
+                6 -> UIText.StringResource(R.string.meeting_repeating_days_6)
+                else -> UIText.PluralResource(R.plurals.meeting_repeating_days, interval, interval)
+            }
+
+            Frequency.WEEKLY -> when (interval) {
+                2 -> UIText.StringResource(R.string.meeting_repeating_weeks_2)
+                3 -> UIText.StringResource(R.string.meeting_repeating_weeks_3)
+                4 -> UIText.StringResource(R.string.meeting_repeating_weeks_4)
+                else -> UIText.PluralResource(R.plurals.meeting_repeating_weeks, interval, interval)
+            }
         }
 
         companion object {

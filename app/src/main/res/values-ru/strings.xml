@@ -754,6 +754,7 @@
     <string name="label_message_details">Сведения о сообщении</string>
     <string name="label_copy">Скопировать текст</string>
     <string name="label_share">Поделиться</string>
+    <string name="label_share_via_wire">Переслать</string>
     <string name="label_edit">Изменить текст</string>
     <string name="label_delete">Удалить</string>
     <string name="info_message_copied">Сообщение скопировано</string>
@@ -1348,6 +1349,7 @@
     <string name="label_logs_option_title">Журналы</string>
     <string name="label_share_logs">Поделиться журналами</string>
     <string name="label_share_logs_failed">Не удалось подготовить логи для отправки</string>
+    <string name="label_share_logs_via_wire">Переслать</string>
     <string name="label_delete_logs">Удалить все журналы</string>
     <string name="label_restart_slowsync_for_recovery">Перезапустить медленную синхронизацию</string>
     <string name="restart_slowsync_for_recovery_button">Перезапуск</string>
@@ -1461,6 +1463,7 @@
     <string name="start_manual_migration">Начать</string>
     <string name="file_sharing_restricted_description_by_team">Вы не можете поделиться этим файлом, поскольку данная возможность отключена для данного аккаунта.</string>
     <string name="file_sharing_restricted_description_no_users">Чтобы поделиться чем-либо, необходимо авторизоваться в Wire</string>
+    <string name="public_share_ignored_wire_internal_files">Эта попытка поделиться была проигнорирована, поскольку в ней содержатся внутренние файлы Wire.</string>
     <string name="file_sharing_restricted_button_text_no_users">Открыть Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Присоединиться к беседе?</string>

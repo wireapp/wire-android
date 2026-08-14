@@ -464,6 +464,12 @@ public fun com.ramcosta.composedestinations.generated.app.destinations.SearchCon
   params:
 
 @Composable
+public fun com.ramcosta.composedestinations.generated.app.destinations.SecurityProvidersScreenDestination.Content(): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination.Content(): kotlin.Unit
   skippable: true
   restartable: true
@@ -3548,7 +3554,7 @@ public fun com.wire.android.ui.debug.DangerOptions(exportObfuscatedCopyViewModel
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.debug.DebugDataOptions(appVersion: kotlin.String, buildVariant: kotlin.String, onCopyText: kotlin.Function1<kotlin.String, kotlin.Unit>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, viewModel: com.wire.android.ui.debug.DebugDataOptionsViewModel): kotlin.Unit
+public fun com.wire.android.ui.debug.DebugDataOptions(appVersion: kotlin.String, buildVariant: kotlin.String, onCopyText: kotlin.Function1<kotlin.String, kotlin.Unit>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, onShowSecurityProviders: kotlin.Function0<kotlin.Unit>, viewModel: com.wire.android.ui.debug.DebugDataOptionsViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -3557,10 +3563,11 @@ public fun com.wire.android.ui.debug.DebugDataOptions(appVersion: kotlin.String,
     - onCopyText: STABLE (function type)
     - onShowFeatureFlags: STABLE (function type)
     - onShowCryptoStats: STABLE (function type)
+    - onShowSecurityProviders: STABLE (function type)
     - viewModel: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.debug.DebugDataOptionsContent(state: com.wire.android.ui.debug.DebugDataOptionsState, appVersion: kotlin.String, buildVariant: kotlin.String, onCopyText: kotlin.Function1<kotlin.String, kotlin.Unit>, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, enrollE2EICertificate: kotlin.Function0<kotlin.Unit>, e2eiCertificateExpirationInputState: androidx.compose.foundation.text.input.TextFieldState, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult, kotlin.Unit>, dismissCertificateDialog: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onResendFCMToken: kotlin.Function0<kotlin.Unit>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, onRepairFaultyRemovalKeys: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.debug.DebugDataOptionsContent(state: com.wire.android.ui.debug.DebugDataOptionsState, appVersion: kotlin.String, buildVariant: kotlin.String, onCopyText: kotlin.Function1<kotlin.String, kotlin.Unit>, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, enrollE2EICertificate: kotlin.Function0<kotlin.Unit>, e2eiCertificateExpirationInputState: androidx.compose.foundation.text.input.TextFieldState, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult, kotlin.Unit>, dismissCertificateDialog: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onResendFCMToken: kotlin.Function0<kotlin.Unit>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, onShowSecurityProviders: kotlin.Function0<kotlin.Unit>, onRepairFaultyRemovalKeys: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3581,6 +3588,7 @@ public fun com.wire.android.ui.debug.DebugDataOptionsContent(state: com.wire.and
     - onResendFCMToken: STABLE (function type)
     - onShowFeatureFlags: STABLE (function type)
     - onShowCryptoStats: STABLE (function type)
+    - onShowSecurityProviders: STABLE (function type)
     - onRepairFaultyRemovalKeys: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -3925,6 +3933,21 @@ public fun com.wire.android.ui.debug.rememberDebugContentState(logPath: kotlin.S
   restartable: true
   params:
     - logPath: STABLE (String is immutable)
+
+@Composable
+public fun com.wire.android.ui.debug.securityProvidersViewModel(): com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+public fun com.wire.android.ui.debug.securityproviders.SecurityProvidersScreen(navigator: com.wire.android.navigation.Navigator, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - navigator: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 public fun com.wire.android.ui.debug.userDebugViewModel(): com.wire.android.ui.debug.UserDebugViewModel

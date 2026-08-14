@@ -214,7 +214,7 @@ fun DebugDataOptionsContent(
             )
 
             SettingsItem(
-                text = stringResource(R.string.debug_settings_security_providers),
+                text = stringResource(R.string.debug_settings_security_diagnostics),
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = onShowSecurityProviders

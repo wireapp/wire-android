@@ -27,15 +27,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 @ViewModelScopedPreview
 interface SecurityClassificationViewModel {
@@ -44,7 +42,8 @@ interface SecurityClassificationViewModel {
 
 class SecurityClassificationViewModelImpl @AssistedInject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    @Assisted private val args: SecurityClassificationArgs
+    @CurrentAccount private val currentAccount: UserId,
+    @Assisted private val args: SecurityClassificationArgs,
 ) : SecurityClassificationViewModel, ViewModel() {
     @AssistedFactory
     interface Factory {
@@ -57,24 +56,10 @@ class SecurityClassificationViewModelImpl @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            coreLogic.getGlobalScope().session.currentSessionFlow()
-                .flatMapLatest { currentSession ->
-                    when (currentSession) {
-                        is CurrentSessionResult.Success -> when (args) {
-                            is SecurityClassificationArgs.Conversation -> observeConversationClassificationType(
-                                currentSession.accountInfo.userId,
-                                args.id
-                            )
-
-                            is SecurityClassificationArgs.User -> observeUserClassificationType(
-                                currentSession.accountInfo.userId,
-                                args.id
-                            )
-                        }
-
-                        is CurrentSessionResult.Failure -> flowOf(SecurityClassificationType.NONE)
-                    }
-                }
+            when (args) {
+                is SecurityClassificationArgs.Conversation -> observeConversationClassificationType(currentAccount, args.id)
+                is SecurityClassificationArgs.User -> observeUserClassificationType(currentAccount, args.id)
+            }
                 .collect { classificationType ->
                     state = classificationType
                 }

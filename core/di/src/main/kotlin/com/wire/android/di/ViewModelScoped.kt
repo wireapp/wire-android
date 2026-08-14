@@ -21,14 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.sebaslogen.resaca.KeyInScopeResolver
-import com.wire.android.di.metro.LocalWireViewModelScopeKey
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import kotlin.reflect.KClass
@@ -42,13 +39,13 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified FactoryType> w
     arguments: R,
     previewProvider: PreviewProvider = EmptyPreviewProvider,
     clearDelay: Duration? = null,
-    noinline create: FactoryType.(SavedStateHandle, R) -> T,
+    noinline create: FactoryType.(R) -> T,
 ): S where T : ViewModel, T : S, FactoryType : ManualViewModelAssistedFactory = previewProvider.findPreviewOr {
     resacaMetroViewModelScoped<T>(
-        key = scopedResacaKey(LocalWireViewModelScopeKey.current, arguments.key?.toString()),
+        key = arguments.key,
         clearDelay = clearDelay,
-        factory = manualScopedViewModelFactory<T, FactoryType> { extras ->
-            create(extras.createSavedStateHandle(), arguments)
+        factory = manualScopedViewModelFactory<T, FactoryType> {
+            create(arguments)
         },
         creationExtras = defaultViewModelCreationExtras(),
     ) as S
@@ -61,49 +58,18 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified FactoryType> w
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     previewProvider: PreviewProvider = EmptyPreviewProvider,
     clearDelay: Duration? = null,
-    noinline create: FactoryType.(SavedStateHandle, R) -> T,
+    noinline create: FactoryType.(R) -> T,
 ): S where T : ViewModel, T : S, FactoryType : ManualViewModelAssistedFactory = previewProvider.findPreviewOr {
-    val argumentsKey = requireNotNull(arguments.key?.toString()) {
-        "Scoped key must not be null for ${T::class.qualifiedName}"
-    }
+    val argumentsKey = arguments.key
     resacaMetroViewModelScoped<T, String>(
-        key = requireNotNull(scopedResacaKey(LocalWireViewModelScopeKey.current, argumentsKey)),
+        key = argumentsKey,
         keyInScopeResolver = { keyInScopeResolver(argumentsKey) },
         clearDelay = clearDelay,
-        factory = manualScopedViewModelFactory<T, FactoryType> { extras ->
-            create(extras.createSavedStateHandle(), arguments)
+        factory = manualScopedViewModelFactory<T, FactoryType> {
+            create(arguments)
         },
         creationExtras = defaultViewModelCreationExtras(),
     ) as S
-}
-
-@Composable
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-inline fun <reified T, reified S, reified FactoryType> wireManualMetroViewModelScoped(
-    previewProvider: PreviewProvider = EmptyPreviewProvider,
-    clearDelay: Duration? = null,
-    noinline create: FactoryType.(SavedStateHandle) -> T,
-): S where T : ViewModel, T : S, FactoryType : ManualViewModelAssistedFactory = previewProvider.findPreviewOr {
-    resacaMetroViewModelScoped<T>(
-        key = scopedResacaKey(LocalWireViewModelScopeKey.current),
-        clearDelay = clearDelay,
-        factory = manualScopedViewModelFactory<T, FactoryType> { extras ->
-            create(extras.createSavedStateHandle())
-        },
-        creationExtras = defaultViewModelCreationExtras(),
-    ) as S
-}
-
-@Composable
-inline fun <reified T, reified FactoryType> wireManualMetroViewModelScoped(
-    previewProvider: PreviewProvider = EmptyPreviewProvider,
-    clearDelay: Duration? = null,
-    noinline create: FactoryType.(SavedStateHandle) -> T,
-): T where T : ViewModel, FactoryType : ManualViewModelAssistedFactory = previewProvider.findPreviewOr {
-    wireManualMetroViewModelScoped<T, T, FactoryType>(
-        clearDelay = clearDelay,
-        create = create,
-    )
 }
 
 @Composable
@@ -133,13 +99,6 @@ internal fun defaultViewModelCreationExtras(): CreationExtras {
     }
 }
 
-@PublishedApi
-internal fun scopedResacaKey(scopeKey: String?, key: String? = null): String? =
-    when (scopeKey) {
-        null -> key
-        else -> listOfNotNull(key, scopeKey).joinToString(":")
-    }
-
 @Composable
 @PublishedApi
 internal inline fun <reified S> PreviewProvider.findPreviewOr(provideViewModel: @Composable () -> S): S {
@@ -165,7 +124,7 @@ val espresso
  * It is used to provide a unique key for the scoped ViewModel.
  */
 interface ScopedArgs {
-    val key: Any?
+    val key: String
 }
 
 @Stable

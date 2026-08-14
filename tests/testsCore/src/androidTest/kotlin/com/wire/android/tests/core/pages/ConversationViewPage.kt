@@ -561,9 +561,10 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private fun isConversationViewStillVisible(): Boolean {
         return try {
+            val backButtonVisible = findElementOrNull(backButton)?.let { !it.visibleBounds.isEmpty } == true
             val typeMessageVisible = findElementOrNull(typeMessageField)?.let { !it.visibleBounds.isEmpty } == true
             val sendButtonVisible = findElementOrNull(sendButton)?.let { !it.visibleBounds.isEmpty } == true
-            typeMessageVisible || sendButtonVisible
+            backButtonVisible || typeMessageVisible || sendButtonVisible
         } catch (_: StaleObjectException) {
             false
         }

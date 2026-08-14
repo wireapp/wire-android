@@ -42,6 +42,7 @@ import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
@@ -877,7 +878,63 @@ class WireActivityViewModelTest {
         }
 
     @Test
+    fun givenInvalidAccount_whenCurrentAccountObserverRuns_thenKeepSessionUntilLogoutStateIsPublished() {
+        val initialState = GlobalAppState(currentUserId = USER_ID)
+
+        val result = initialState.withObservedCurrentAccount(
+            invalidAccountInfo(LogoutReason.REMOVED_CLIENT)
+        )
+
+        result shouldBeEqualTo initialState
+    }
+
+    @Test
+    fun givenSameAlreadyValidAccount_whenObservedAgain_thenDoNotConfirmANewSessionGeneration() {
+        val initialState = GlobalAppState(
+            currentUserId = USER_ID,
+            confirmedSessionGeneration = 7,
+        )
+
+        val result = initialState.withObservedCurrentAccount(TEST_ACCOUNT_INFO)
+
+        result.confirmedSessionGeneration shouldBeEqualTo 7
+    }
+
+    @Test
+    fun givenSessionWasInvalidated_whenValidAccountIsObserved_thenConfirmANewSessionGeneration() {
+        val initialState = GlobalAppState(
+            currentUserId = null,
+            confirmedSessionGeneration = 7,
+            blockUserUI = CurrentSessionErrorState.RemovedClient,
+            sessionTransitionReason = SessionTransitionReason.REMOVED_CLIENT,
+        )
+
+        val result = initialState.withObservedCurrentAccount(TEST_ACCOUNT_INFO)
+
+        result.currentUserId shouldBeEqualTo USER_ID
+        result.confirmedSessionGeneration shouldBeEqualTo 8
+    }
+
+    @Test
+    fun givenRemovedClient_whenRecoveringLogin_thenPreserveAndConsumeItsServerConfig() = runTest {
+        val serverConfig = newServerConfig(42)
+        val (_, viewModel) = Arrangement()
+            .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
+            .withServerConfigForUser(USER_ID, serverConfig)
+            .arrange()
+
+        advanceUntilIdle()
+
+        viewModel.globalAppState.pendingRemovedClientRecovery shouldBeEqualTo
+                PendingRemovedClientRecovery(USER_ID, serverConfig.links)
+        viewModel.consumeSessionRecoveryServerLinks() shouldBeEqualTo serverConfig.links
+        viewModel.globalAppState.pendingRemovedClientRecovery shouldBeEqualTo null
+    }
+
+    @Test
     fun givenNoOtherAccount_whenTryingToSwitchFromLoggedOutDialog_thenExposeLoggedOutState() = runTest {
+        var navigatedToLogin = false
+        val actions = switchAccountActions(onNoOtherAccount = { navigatedToLogin = true })
         val (arrangement, viewModel) = Arrangement()
             .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
             .withAccountSwitchResult(SwitchAccountResult.NoOtherAccountToSwitch)
@@ -885,16 +942,20 @@ class WireActivityViewModelTest {
         advanceUntilIdle()
         viewModel.globalAppState.blockUserUI shouldBeEqualTo CurrentSessionErrorState.RemovedClient
 
-        viewModel.tryToSwitchAccount()
+        viewModel.tryToSwitchAccount(actions)
         advanceUntilIdle()
 
         arrangement.verifyTryToSwitchToNextAccount()
         viewModel.globalAppState.currentUserId shouldBeEqualTo null
         viewModel.globalAppState.blockUserUI shouldBeEqualTo null
+        viewModel.globalAppState.isSessionTransitionInProgress shouldBeEqualTo true
+        navigatedToLogin shouldBeEqualTo true
     }
 
     @Test
     fun givenAnotherAccount_whenTryingToSwitchFromLoggedOutDialog_thenExposeSwitchedAccountState() = runTest {
+        var navigatedToHome = false
+        val actions = switchAccountActions(onSwitchedAccount = { navigatedToHome = true })
         val (arrangement, viewModel) = Arrangement()
             .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
             .withCurrentSession(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
@@ -903,12 +964,23 @@ class WireActivityViewModelTest {
         advanceUntilIdle()
         viewModel.globalAppState.blockUserUI shouldBeEqualTo CurrentSessionErrorState.RemovedClient
 
-        viewModel.tryToSwitchAccount()
+        viewModel.tryToSwitchAccount(actions)
         advanceUntilIdle()
 
         arrangement.verifyTryToSwitchToNextAccount()
         viewModel.globalAppState.currentUserId shouldBeEqualTo TEST_ACCOUNT_INFO.userId
         viewModel.globalAppState.blockUserUI shouldBeEqualTo null
+        viewModel.globalAppState.isSessionTransitionInProgress shouldBeEqualTo false
+        navigatedToHome shouldBeEqualTo true
+    }
+
+    private fun switchAccountActions(
+        onSwitchedAccount: () -> Unit = {},
+        onNoOtherAccount: () -> Unit = {},
+    ): SwitchAccountActions = object : SwitchAccountActions {
+        override fun switchedToAnotherAccount() = onSwitchedAccount()
+
+        override fun noOtherAccountToSwitch() = onNoOtherAccount()
     }
 
     @Test

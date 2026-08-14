@@ -20,7 +20,7 @@
 package com.wire.android.search
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.search.apps.SearchAppsViewModel
 import com.wire.android.search.users.SearchUserViewModel
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -41,11 +41,11 @@ fun searchUserViewModel(
     conversationId: ConversationId? = null,
     onlyConnectedContacts: Boolean = false,
 ): SearchUserViewModel =
-    sessionKeyedAssistedMetroViewModel<SearchUserViewModel, SearchManualViewModelFactory>(
-        key = listOfNotNull(
+    wireAssistedMetroViewModel<SearchUserViewModel, SearchManualViewModelFactory>(
+        instanceKey = listOfNotNull(
             "search_user",
             if (onlyConnectedContacts) "only_connected_contacts" else null,
-            if (conversationId != null) "conversation_id_${conversationId.value}" else null
+            conversationId?.let { "conversation_id_${it.value}@${it.domain}" },
         ).joinToString("_")
     ) {
         searchUserViewModel(conversationId, onlyConnectedContacts)
@@ -53,8 +53,8 @@ fun searchUserViewModel(
 
 @Composable
 fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel =
-    sessionKeyedAssistedMetroViewModel<SearchAppsViewModel, SearchManualViewModelFactory>(
-        key = "search_apps_protocol_info_${protocolInfo?.name()}"
+    wireAssistedMetroViewModel<SearchAppsViewModel, SearchManualViewModelFactory>(
+        instanceKey = "search_apps_protocol_info_${protocolInfo?.name()}"
     ) {
         searchAppsViewModel(protocolInfo)
     }

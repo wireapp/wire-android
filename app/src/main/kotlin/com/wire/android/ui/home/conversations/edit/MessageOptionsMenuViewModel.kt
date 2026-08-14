@@ -23,7 +23,6 @@ import dev.zacsweers.metro.AssistedInject
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -83,13 +82,7 @@ class MessageOptionsMenuViewModelImpl @AssistedInject constructor(
 }
 
 @Serializable
-data class MessageOptionsMenuArgs(val conversationId: QualifiedID) : ScopedArgs {
-    override val key = "$ARGS_KEY:$conversationId"
-
-    companion object {
-        const val ARGS_KEY = "MessageOptionsMenuArgsKey"
-    }
-}
+data class MessageOptionsMenuArgs(val conversationId: QualifiedID)
 
 sealed interface MessageOptionsMenuState {
     data object Loading : MessageOptionsMenuState

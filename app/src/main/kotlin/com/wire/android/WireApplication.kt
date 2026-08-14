@@ -35,6 +35,7 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.metro.WireApplicationGraph
+import com.wire.android.di.metro.WireViewModelDiagnostics
 import com.wire.android.di.metro.createWireApplicationGraph
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -42,6 +43,7 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
 import com.wire.android.feature.analytics.globalAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
+import com.wire.android.navigation.runtime.WireNavigationDiagnostics
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
@@ -128,6 +130,9 @@ class WireApplication : BaseApp() {
         appGraph.inject(this)
         super.onCreate()
         initializeMinimalLogging()
+        if (WireNavigationDiagnostics.enabled) {
+            WireViewModelDiagnostics.install(WireNavigationDiagnostics)
+        }
 
         enableStrictMode()
 

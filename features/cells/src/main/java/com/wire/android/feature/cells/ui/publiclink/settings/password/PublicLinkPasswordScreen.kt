@@ -44,13 +44,10 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
-import com.wire.android.feature.cells.ui.publicLinkPasswordScreenViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.publiclink.settings.RemovePasswordDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
@@ -62,14 +59,11 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 
-@WireCellsDestination(
-    navArgs = PublicLinkPasswordNavArgs::class,
-)
 @Composable
-internal fun PublicLinkPasswordScreen(
-    resultNavigator: ResultBackNavigator<Boolean>,
+internal fun PublicLinkPasswordRouteScreen(
+    onResult: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkPasswordScreenViewModel = publicLinkPasswordScreenViewModel(),
+    viewModel: PublicLinkPasswordScreenViewModel,
 ) {
     val state by viewModel.state.collectAsState()
     val clipboardManager = LocalClipboardManager.current
@@ -80,7 +74,7 @@ internal fun PublicLinkPasswordScreen(
 
     BackHandler {
         if (!state.showProgress) {
-            resultNavigator.navigateBack(viewModel.isPasswordCreated)
+            onResult(viewModel.isPasswordCreated)
         }
     }
 
@@ -90,7 +84,7 @@ internal fun PublicLinkPasswordScreen(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = {
                     if (!state.showProgress) {
-                        resultNavigator.navigateBack(viewModel.isPasswordCreated)
+                        onResult(viewModel.isPasswordCreated)
                     }
                 },
                 title = stringResource(R.string.public_link_setting_password_title),
@@ -145,7 +139,7 @@ internal fun PublicLinkPasswordScreen(
         when (action) {
             is CopyPasswordAndClose -> {
                 copyPassword(clipboardManager, action.password)
-                resultNavigator.navigateBack(true)
+                onResult(true)
             }
             ShowMissingPasswordDialog -> showMissingPasswordDialog = true
             ShowRemoveConfirmationDialog -> showRemoveConfirmationDialog = true

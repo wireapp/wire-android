@@ -20,15 +20,7 @@ package com.wire.android.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
-import com.ramcosta.composedestinations.generated.app.destinations.AllConversationsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ArchiveScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MeetingsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SettingsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.VaultScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WhatsNewScreenDestination
 import com.wire.android.util.ui.UIText
 
 @Suppress("LongParameterList")
@@ -36,7 +28,6 @@ sealed class HomeDestination(
     val title: UIText,
     @DrawableRes val icon: Int,
     val withUserAvatar: Boolean = true,
-    val direction: Direction,
     val searchBar: SearchBarOptions? = null,
     val fab: FabOptions? = null,
     val filterAction: FilterActionOptions? = null,
@@ -47,57 +38,48 @@ sealed class HomeDestination(
         searchBar = SearchBarOptions(),
         fab = FabOptions.NewConversation,
         filterAction = FilterActionOptions.FilterConversations,
-        direction = AllConversationsScreenDestination
     )
 
     data object Settings : HomeDestination(
         title = UIText.StringResource(R.string.settings_screen_title),
         icon = R.drawable.ic_settings,
         withUserAvatar = false,
-        direction = SettingsScreenDestination
     )
 
     data object Vault : HomeDestination(
         title = UIText.StringResource(R.string.vault_screen_title),
         icon = R.drawable.ic_vault,
-        direction = VaultScreenDestination
     )
 
     data object Archive : HomeDestination(
         title = UIText.StringResource(R.string.archive_screen_title),
         icon = R.drawable.ic_archive,
         searchBar = SearchBarOptions(),
-        direction = ArchiveScreenDestination
     )
 
     data object Support : HomeDestination(
         title = UIText.StringResource(R.string.support_screen_title),
         icon = R.drawable.ic_support,
-        direction = SupportScreenDestination
     )
 
     data object WhatsNew : HomeDestination(
         title = UIText.StringResource(R.string.whats_new_screen_title),
         icon = R.drawable.ic_star,
-        direction = WhatsNewScreenDestination
     )
 
     data object TeamManagement : HomeDestination(
         title = UIText.StringResource(R.string.team_management_screen_title),
         icon = R.drawable.ic_team_management,
-        direction = TeamManagementScreenDestination
     )
 
     data object Cells : HomeDestination(
         title = UIText.StringResource(R.string.drive_screen_title),
         icon = R.drawable.ic_files,
-        direction = GlobalCellsScreenDestination
     )
 
     data object Meetings : HomeDestination(
         title = UIText.StringResource(R.string.meetings_screen_title),
         icon = com.wire.android.ui.common.R.drawable.ic_video_call,
-        direction = MeetingsScreenDestination,
         fab = FabOptions.NewMeeting,
     )
 
@@ -137,9 +119,6 @@ sealed class HomeDestination(
 
     companion object {
         private const val ITEM_NAME_PREFIX = "HomeNavigationItem."
-
-        fun fromRoute(fullRoute: String): HomeDestination? =
-            values().find { it.direction.baseRoute == fullRoute.getBaseRoute() }
 
         fun values(): Array<HomeDestination> =
             arrayOf(Conversations, Settings, Vault, Archive, Support, TeamManagement, WhatsNew, Cells, Meetings)

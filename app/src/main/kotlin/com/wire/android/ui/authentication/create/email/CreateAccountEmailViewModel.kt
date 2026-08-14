@@ -21,13 +21,11 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -41,18 +39,15 @@ import dev.zacsweers.metro.AssistedInject
 
 // TODO: Cover this viewModel  with unit test
 class CreateAccountEmailViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
     private val validateEmail: ValidateEmailUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): CreateAccountEmailViewModel
+        fun create(createAccountNavArgs: CreateAccountNavArgs): CreateAccountEmailViewModel
     }
-
-    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
-
     val emailTextState: TextFieldState = TextFieldState()
     var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(createAccountNavArgs.flowType))
         private set

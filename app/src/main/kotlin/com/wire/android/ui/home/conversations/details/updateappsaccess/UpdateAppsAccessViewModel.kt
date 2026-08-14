@@ -20,11 +20,9 @@ package com.wire.android.ui.home.conversations.details.updateappsaccess
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.AppsUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -59,16 +57,15 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val selfUser: ObserveSelfUserUseCase,
     private val changeAccessForAppsInConversation: ChangeAccessForAppsInConversationUseCase,
-    @Assisted savedStateHandle: SavedStateHandle
+    @Assisted navigationArgs: UpdateAppsAccessNavArgs,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): UpdateAppsAccessViewModel
+        fun create(navigationArgs: UpdateAppsAccessNavArgs): UpdateAppsAccessViewModel
     }
 
-    private val updateAppsAccessNavArgs: UpdateAppsAccessNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = updateAppsAccessNavArgs.conversationId
-    private val currentAccessParams = updateAppsAccessNavArgs.updateAppsAccessParams
+    private val conversationId: QualifiedID = navigationArgs.conversationId
+    private val currentAccessParams = navigationArgs.updateAppsAccessParams
     val shouldUseNewAppsUi: Boolean = currentAccessParams.shouldUseNewAppsUi
 
     var updateAppsAccessState by mutableStateOf(

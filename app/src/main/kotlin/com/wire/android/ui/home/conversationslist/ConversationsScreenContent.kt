@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.foundation.layout.Box
@@ -35,21 +37,11 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import com.ramcosta.composedestinations.generated.app.destinations.BrowseChannelsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.calling.conversationListCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
@@ -65,6 +57,7 @@ import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
 import com.wire.android.ui.home.conversations.promoteadmin.toPromoteAdminEligibleMemberArgs
 import com.wire.android.ui.home.conversationListViewModel
@@ -80,14 +73,25 @@ import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
+@Suppress("LongParameterList")
+data class ConversationsNavigationActions(
+    val openConversation: (ConversationId) -> Unit,
+    val openUserProfile: (UserId) -> Unit,
+    val startConversation: () -> Unit,
+    val browseChannels: () -> Unit,
+    val openConversationFolders: (ConversationFoldersNavArgs) -> Unit,
+    val promoteAdmin: (PromoteAdminNavArgs) -> Unit,
+    val openDebugMenu: (DebugConversationScreenNavArgs) -> Unit,
+)
+
 /**
  * This is a base for creating screens for displaying list of conversations.
  * Can be used to create proper navigation destination for different sources of conversations, like archive.
  */
-@Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping", "SlotReused")
+@Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping", "SlotReused", "LongParameterList")
 @Composable
 fun ConversationsScreenContent(
-    navigator: Navigator,
+    navigationActions: ConversationsNavigationActions,
     searchBarState: SearchBarState,
     modifier: Modifier = Modifier,
     emptyListContent: @Composable (domain: String) -> Unit = {},
@@ -141,27 +145,20 @@ fun ConversationsScreenContent(
         }
     }
 
-    val onOpenConversation: (ConversationItem) -> Unit = remember(navigator, onConversationOpened) {
+    val onOpenConversation: (ConversationItem) -> Unit = remember(navigationActions, onConversationOpened) {
         {
-            navigator.navigate(NavigationCommand(ConversationScreenDestination(it.conversationId)))
+            navigationActions.openConversation(it.conversationId)
             onConversationOpened()
         }
     }
-    val onOpenUserProfile: (UserId) -> Unit = remember(navigator) {
-        {
-            navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(it)))
-        }
-    }
+    val onOpenUserProfile: (UserId) -> Unit = remember(navigationActions) { navigationActions.openUserProfile }
     val onJoinCall: (ConversationId) -> Unit = remember {
         {
             conversationListCallViewModel.joinOngoingCall(it)
         }
     }
-    val onNewConversationClicked: () -> Unit = remember {
-        {
-            navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination))
-        }
-    }
+    val onNewConversationClicked: () -> Unit =
+        remember(navigationActions) { navigationActions.startConversation }
 
     val onPlayPauseCurrentAudio: () -> Unit = remember {
         {
@@ -209,7 +206,7 @@ fun ConversationsScreenContent(
                         onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
                         onStopCurrentAudio = onStopCurrentAudio,
                         onBrowsePublicChannels = {
-                            navigator.navigate(NavigationCommand(BrowseChannelsScreenDestination))
+                            navigationActions.browseChannels()
                         }
                     )
                     // when there is no conversation in any folder
@@ -276,24 +273,14 @@ fun ConversationsScreenContent(
 
     ConversationOptionsModalSheetLayout(
         sheetState = sheetState,
-        openConversationFolders = { navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it))) },
+        openConversationFolders = navigationActions.openConversationFolders,
         onPromoteAdmin = { conversationId, eligibleMembers ->
-            navigator.navigate(
-                NavigationCommand(
-                    PromoteAdminScreenDestination(
-                        PromoteAdminNavArgs(conversationId, eligibleMembers.toPromoteAdminEligibleMemberArgs())
-                    )
-                )
+            navigationActions.promoteAdmin(
+                PromoteAdminNavArgs(conversationId, eligibleMembers.toPromoteAdminEligibleMemberArgs())
             )
         },
         openConversationDebugMenu = { conversationId ->
-            navigator.navigate(
-                NavigationCommand(
-                    DebugConversationScreenDestination(
-                navArgs = DebugConversationScreenNavArgs(conversationId)
-            )
-                )
-            )
+            navigationActions.openDebugMenu(DebugConversationScreenNavArgs(conversationId))
         },
     )
 
@@ -316,5 +303,16 @@ private const val TAG = "BaseConversationsScreen"
 @PreviewMultipleThemes
 @Composable
 fun PreviewConversationsScreenContent() = WireTheme {
-    ConversationsScreenContent(navigator = rememberNavigator { }, searchBarState = rememberSearchbarState())
+    ConversationsScreenContent(
+        navigationActions = ConversationsNavigationActions(
+            openConversation = {},
+            openUserProfile = {},
+            startConversation = {},
+            browseChannels = {},
+            openConversationFolders = {},
+            promoteAdmin = {},
+            openDebugMenu = {},
+        ),
+        searchBarState = rememberSearchbarState(),
+    )
 }

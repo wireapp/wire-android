@@ -26,14 +26,60 @@ import dev.zacsweers.metro.binding
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import com.wire.android.navigation.runtime.WireNavigationDiagnostics
 import kotlin.reflect.KClass
 
+abstract class WireMetroViewModelFactory(
+    viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel>,
+    assistedFactoryProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory>,
+    manualAssistedFactoryProviders:
+    Map<KClass<out ManualViewModelAssistedFactory>, () -> ManualViewModelAssistedFactory>,
+) : MetroViewModelFactory() {
+    override val viewModelProviders = viewModelProviders.withDiagnostics("direct")
+    override val assistedFactoryProviders = assistedFactoryProviders.withDiagnostics("assisted")
+    override val manualAssistedFactoryProviders =
+        manualAssistedFactoryProviders.withDiagnostics("manual-assisted")
+}
+
+/** Application graph factory. It must only see application-owned ViewModel bindings. */
 @Inject
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class, binding = binding<MetroViewModelFactory>())
-class WireMetroViewModelFactory(
-    override val viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel>,
-    override val assistedFactoryProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory>,
-    override val manualAssistedFactoryProviders:
+class WireApplicationMetroViewModelFactory(
+    viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel>,
+    assistedFactoryProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory>,
+    manualAssistedFactoryProviders:
     Map<KClass<out ManualViewModelAssistedFactory>, () -> ManualViewModelAssistedFactory>,
-) : MetroViewModelFactory()
+) : WireMetroViewModelFactory(
+    viewModelProviders,
+    assistedFactoryProviders,
+    manualAssistedFactoryProviders,
+)
+
+/** Session graph factory. It must be built from the selected session graph's binding maps. */
+@Inject
+@SingleIn(MetroSessionScope::class)
+@ContributesBinding(MetroSessionScope::class, binding = binding<MetroViewModelFactory>())
+class WireSessionMetroViewModelFactory(
+    viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel>,
+    assistedFactoryProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory>,
+    manualAssistedFactoryProviders:
+    Map<KClass<out ManualViewModelAssistedFactory>, () -> ManualViewModelAssistedFactory>,
+) : WireMetroViewModelFactory(
+    viewModelProviders,
+    assistedFactoryProviders,
+    manualAssistedFactoryProviders,
+)
+
+private fun <K : Any, V : Any> Map<KClass<out K>, () -> V>.withDiagnostics(
+    factory: String,
+): Map<KClass<out K>, () -> V> =
+    mapValues { (type, provider) ->
+        {
+            WireNavigationDiagnostics.viewModel(
+                type = type.qualifiedName ?: type.simpleName ?: "anonymous",
+                factory = factory,
+            )
+            provider()
+        }
+    }

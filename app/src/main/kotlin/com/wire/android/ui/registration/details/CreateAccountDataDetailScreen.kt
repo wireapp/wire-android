@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.registration.details
 
-import com.wire.android.navigation.annotation.app.WireCreateAccountDestination
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -55,11 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
-import com.wire.android.ui.authentication.createAccountDataDetailViewModel
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
@@ -77,7 +72,6 @@ import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountVerificationCodeScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
@@ -92,35 +86,27 @@ import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@WireCreateAccountDestination(
-    navArgs = CreateAccountDataNavArgs::class,
-    style = AuthPopUpNavigationAnimation::class
-)
 @Composable
-fun CreateAccountDataDetailScreen(
-    navigator: Navigator,
-    createAccountDataDetailViewModel: CreateAccountDataDetailViewModel = createAccountDataDetailViewModel()
+internal fun CreateAccountDataDetailRouteScreen(
+    viewModel: CreateAccountDataDetailViewModel,
+    onNavigateBack: () -> Unit,
+    onCodeRequested: (CreateAccountDataNavArgs) -> Unit,
 ) {
-    with(createAccountDataDetailViewModel) {
-        fun navigateToCodeScreen() = navigator.navigate(
-            NavigationCommand(
-                CreateAccountVerificationCodeScreenDestination(
-                    createAccountNavArgs.copy(
-                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
-                            email = emailTextState.text.toString().trim(),
-                            name = nameTextState.text.toString().trim(),
-                            password = passwordTextState.text.toString(),
-                            teamName = String.EMPTY
-                        )
-                    )
+    with(viewModel) {
+        fun nextArgs() =
+            createAccountNavArgs.copy(
+                userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
+                    email = emailTextState.text.toString().trim(),
+                    name = nameTextState.text.toString().trim(),
+                    password = passwordTextState.text.toString(),
+                    teamName = String.EMPTY,
                 )
             )
-        )
 
-        LaunchedEffect(createAccountDataDetailViewModel.detailsState.success) {
-            if (createAccountDataDetailViewModel.detailsState.success) {
-                createAccountDataDetailViewModel.onCodeSentHandled()
-                navigateToCodeScreen()
+        LaunchedEffect(detailsState.success) {
+            if (detailsState.success) {
+                onCodeSentHandled()
+                onCodeRequested(nextArgs())
             }
         }
 
@@ -135,7 +121,7 @@ fun CreateAccountDataDetailScreen(
             onPrivacyPolicyAccepted = ::onPrivacyPolicyAccepted,
             onTermsDialogDismiss = ::onTermsDialogDismiss,
             onTermsAccept = ::onTermsAccept,
-            onBackPressed = navigator::navigateBack,
+            onBackPressed = onNavigateBack,
             onContinuePressed = ::onDetailsContinue,
             onErrorDismiss = ::onDetailsErrorDismiss,
             serverConfig = serverConfig

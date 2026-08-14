@@ -252,9 +252,10 @@ class CommonTopAppBarViewModelTest {
     }
 
     @Test
-    fun givenNoCurrentSession_whenGettingState_thenNone() = runTest {
+    fun givenGlobalCurrentSessionIsMissing_whenSessionOwnedViewModelGetsState_thenKeepsUsingInjectedAccount() = runTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
             .withNotCurrentSession()
+            .withCurrentScreen(CurrentScreen.Home)
             .arrange()
 
         advanceUntilIdle()
@@ -448,6 +449,7 @@ class CommonTopAppBarViewModelTest {
             CommonTopAppBarViewModel(
                 currentScreenManager = currentScreenManager,
                 coreLogic = lazyOf(coreLogic),
+                currentAccount = userId,
                 params = params
             )
         }

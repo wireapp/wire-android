@@ -69,10 +69,6 @@ gradlePlugin {
             id = libs.plugins.wire.android.test.library.get().pluginId
             implementationClass = "AndroidTestLibraryConventionPlugin"
         }
-        register("androidNavigationConventionPlugin") {
-            id = libs.plugins.wire.android.navigation.get().pluginId
-            implementationClass = "AndroidNavigationConventionPlugin"
-        }
         register("composeCompilerConventionPlugin") {
             id = libs.plugins.wire.compose.compiler.get().pluginId
             implementationClass = "ComposeCompilerConventionPlugin"

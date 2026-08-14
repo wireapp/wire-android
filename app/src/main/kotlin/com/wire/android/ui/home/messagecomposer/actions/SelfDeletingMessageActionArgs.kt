@@ -17,17 +17,10 @@
  */
 package com.wire.android.ui.home.messagecomposer.actions
 
-import com.wire.android.di.ScopedArgs
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class SelfDeletingMessageActionArgs(
     val conversationId: ConversationId,
-) : ScopedArgs {
-    override val key = "$ARGS_KEY:$conversationId"
-
-    companion object {
-        const val ARGS_KEY = "SelfDeletingMessageActionArgsKey"
-    }
-}
+)

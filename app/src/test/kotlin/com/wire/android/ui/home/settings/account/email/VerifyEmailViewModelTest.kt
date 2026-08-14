@@ -17,17 +17,13 @@
  */
 package com.wire.android.ui.home.settings.account.email
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
-import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailNavArgs
 import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModel
-import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModelArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -36,9 +32,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(NavigationTestExtension::class)
 class VerifyEmailViewModelTest {
 
     @Test
@@ -59,26 +53,23 @@ class VerifyEmailViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var updateEmail: UpdateEmailUseCase
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun withNewEmail(email: String) = apply {
-            every { savedStateHandle.navArgs<VerifyEmailNavArgs>() } returns VerifyEmailNavArgs(newEmail = email)
-        }
+        private var newEmail = ""
+
+        fun withNewEmail(email: String) = apply { newEmail = email }
 
         fun withUpdateEmailResult(result: UpdateEmailUseCase.Result) = apply {
             coEvery { updateEmail(any()) } returns result
         }
 
         fun arrange() = this to VerifyEmailViewModel(
-            updateEmail,
-            savedStateHandle
+            updateEmail = updateEmail,
+            navigationArgs = VerifyEmailViewModelArgs(newEmail),
         )
     }
 }

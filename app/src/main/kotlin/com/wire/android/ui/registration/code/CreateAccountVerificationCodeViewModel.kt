@@ -22,10 +22,8 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.di.ClientScopeProvider
@@ -53,7 +51,7 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 
 class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted val createAccountNavArgs: CreateAccountDataNavArgs,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
@@ -63,11 +61,8 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): CreateAccountVerificationCodeViewModel
+        fun create(createAccountNavArgs: CreateAccountDataNavArgs): CreateAccountVerificationCodeViewModel
     }
-
-    val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
-
     val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
 
     val codeTextState: TextFieldState = TextFieldState()
@@ -201,13 +196,13 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
 
                 is RegisterClientResult.Success -> {
                     codeState =
-                        codeState.copy(result = CreateAccountCodeResult.Success)
+                        codeState.copy(result = CreateAccountCodeResult.Success(storedUserId))
                 }
 
                 is RegisterClientResult.E2EICertificateRequired -> {
                     // TODO
                     codeState =
-                        codeState.copy(result = CreateAccountCodeResult.Success)
+                        codeState.copy(result = CreateAccountCodeResult.Success(storedUserId))
                 }
             }
         }

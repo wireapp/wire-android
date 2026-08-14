@@ -24,9 +24,11 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -36,6 +38,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeNavGraph
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.ReportBugDestination
 import com.wire.android.navigation.WireDestination
 import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -54,6 +57,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
+    val missingSupportEmailDialogState = rememberVisibilityState<Unit>()
     val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
         { isChecked ->
             if (isChecked) homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
@@ -62,20 +66,39 @@ fun SettingsScreen(
     }
 
     val context = LocalContext.current
+    val staticSupportEmail = stringResource(R.string.send_bug_report_email)
+    LaunchedEffect(viewModel, context) {
+        viewModel.reportBugClickAction.collect { action ->
+            when (action) {
+                ReportBugClickAction.ConfirmSharingWithoutRecipient -> missingSupportEmailDialogState.show(Unit)
+                is ReportBugClickAction.Share -> context.startActivity(
+                    ReportBugDestination.intent(context, action.supportEmail)
+                )
+            }
+        }
+    }
     SettingsScreenContent(
         lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Settings),
         settingsState = viewModel.state,
-        onItemClicked = remember {
-            {
-                it.direction.handleNavigation(
-                    context = context,
-                    handleOtherDirection = { homeStateHolder.navigator.navigate(NavigationCommand(it)) }
-                )
+        onItemClicked = remember(context, homeStateHolder.navigator, staticSupportEmail, viewModel) {
+            { item ->
+                if (item == SettingsItem.ReportBug) {
+                    viewModel.onReportBugClicked(staticSupportEmail)
+                } else {
+                    item.direction.handleNavigation(
+                        context = context,
+                        handleOtherDirection = { homeStateHolder.navigator.navigate(NavigationCommand(it)) }
+                    )
+                }
             }
         },
         onAppLockSwitchChanged = onAppLockSwitchClicked
     )
     TurnAppLockOffDialog(dialogState = turnAppLockOffDialogState, turnOff = viewModel::disableAppLock)
+    MissingSupportEmailDialog(
+        dialogState = missingSupportEmailDialogState,
+        onConfirm = { context.startActivity(ReportBugDestination.intent(context, supportEmail = null)) }
+    )
 }
 
 @Composable

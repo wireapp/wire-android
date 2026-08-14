@@ -40,7 +40,14 @@ public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState
     - onScheduleClick: STABLE (function type)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: com.wire.android.feature.meetings.ui.create.NewMeetingState, titleState: androidx.compose.foundation.text.input.TextFieldState, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, modifier: androidx.compose.ui.Modifier, onBackPressed: kotlin.Function0<kotlin.Unit>, onParticipantsClicked: kotlin.Function0<kotlin.Unit>, onCreateClicked: kotlin.Function0<kotlin.Unit>, onStartTimeChanged: kotlin.Function1<@[ParameterName(name = \, onEndTimeChanged: kotlin.Function1<@[ParameterName(name = \, onRepeatingIntervalChanged: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError(navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - navigateBack: STABLE (function type)
+
+@Composable
+public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: com.wire.android.feature.meetings.ui.create.NewMeetingState, titleState: androidx.compose.foundation.text.input.TextFieldState, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, modifier: androidx.compose.ui.Modifier, onBackPressed: kotlin.Function0<kotlin.Unit>, onParticipantsClicked: kotlin.Function0<kotlin.Unit>, onCreateClicked: kotlin.Function0<kotlin.Unit>, onUpdateClicked: kotlin.Function0<kotlin.Unit>, onStartTimeChanged: kotlin.Function1<@[ParameterName(name = \, onEndTimeChanged: kotlin.Function1<@[ParameterName(name = \, onRepeatingIntervalChanged: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -51,6 +58,7 @@ public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: 
     - onBackPressed: STABLE (function type)
     - onParticipantsClicked: STABLE (function type)
     - onCreateClicked: STABLE (function type)
+    - onUpdateClicked: STABLE (function type)
     - onStartTimeChanged: STABLE (function type)
     - onEndTimeChanged: STABLE (function type)
     - onRepeatingIntervalChanged: STABLE (function type)

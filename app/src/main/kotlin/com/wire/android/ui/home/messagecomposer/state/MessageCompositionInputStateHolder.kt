@@ -144,6 +144,13 @@ class MessageCompositionInputStateHolder(
         inputFocused = true
     }
 
+    fun requestHardwareFocus() {
+        focusRequester.freeFocus()
+        focusRequester.requestFocus()
+        keyboardController?.hide()
+        inputFocused = false
+    }
+
     fun collapseComposer(additionalOptionsSubMenuState: AdditionalOptionSubMenuState? = null) {
         if (additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio) {
             isTextExpanded = false

@@ -167,16 +167,10 @@ data class AttestationExtension(
 /** Minimal DER reader for the Android Key Attestation extension. */
 private object AndroidKeyAttestationParser {
     fun parse(extension: ByteArray): AttestationExtension {
-        val wrappedExtension = DerReader(extension).readValue().requireTag(DER_TAG_OCTET_STRING)
-        val fields = DerReader(wrappedExtension.content).readValue().requireTag(DER_TAG_SEQUENCE).children()
+        val fields = extension.readKeyDescriptionFields()
         require(fields.size >= KEY_DESCRIPTION_FIELD_COUNT) { "Key attestation extension is incomplete" }
 
-        val teeEnforced = fields[TEE_ENFORCED_INDEX].requireTag(DER_TAG_SEQUENCE)
-        val rootOfTrust = teeEnforced.children().firstOrNull { field ->
-            field.tagClass == DER_TAG_CLASS_CONTEXT_SPECIFIC && field.tagNumber == ROOT_OF_TRUST_TAG
-        }?.let { explicitRootOfTrust ->
-            DerReader(explicitRootOfTrust.content).readValue().requireTag(DER_TAG_SEQUENCE).children()
-        }
+        val rootOfTrust = fields[TEE_ENFORCED_INDEX].children().rootOfTrust()
 
         return AttestationExtension(
             attestationSecurityLevel = fields[ATTESTATION_SECURITY_LEVEL_INDEX].securityLevelName(),
@@ -185,31 +179,60 @@ private object AndroidKeyAttestationParser {
         )
     }
 
-    private fun DerValue.securityLevelName(): String = when (integerValue()) {
-        0 -> "Software"
-        1 -> "Trusted Environment"
-        2 -> "StrongBox"
-        else -> "Unknown (${integerValue()})"
+    private fun ByteArray.readKeyDescriptionFields(): List<DerValue> {
+        val keyDescription = DerReader(this)
+            .readValue()
+            .requireUniversalTag(DER_TAG_OCTET_STRING)
+            .content
+        return DerReader(keyDescription)
+            .readValue()
+            .requireUniversalTag(DER_TAG_SEQUENCE)
+            .children()
     }
 
-    private fun DerValue.verifiedBootStateName(): String = when (integerValue()) {
-        0 -> "Verified"
-        1 -> "Self-signed"
-        2 -> "Unverified"
-        3 -> "Failed"
-        else -> "Unknown (${integerValue()})"
+    private fun List<DerValue>.rootOfTrust(): List<DerValue>? = firstOrNull {
+        it.isContextSpecificTag(ROOT_OF_TRUST_TAG)
+    }?.content?.let { encodedRootOfTrust ->
+        DerReader(encodedRootOfTrust)
+            .readValue()
+            .requireUniversalTag(DER_TAG_SEQUENCE)
+            .children()
+    }
+
+    private fun DerValue.securityLevelName(): String {
+        val securityLevel = integerValue()
+        return when (securityLevel) {
+            0 -> "Software"
+            1 -> "Trusted Environment"
+            2 -> "StrongBox"
+            else -> "Unknown ($securityLevel)"
+        }
+    }
+
+    private fun DerValue.verifiedBootStateName(): String {
+        val verifiedBootState = integerValue()
+        return when (verifiedBootState) {
+            0 -> "Verified"
+            1 -> "Self-signed"
+            2 -> "Unverified"
+            3 -> "Failed"
+            else -> "Unknown ($verifiedBootState)"
+        }
     }
 
     private fun DerValue.integerValue(): Int = content.fold(0) { value, byte ->
         (value shl BITS_PER_BYTE) or (byte.toInt() and BYTE_MASK)
     }
 
-    private fun DerValue.requireTag(expectedTagNumber: Int): DerValue {
+    private fun DerValue.requireUniversalTag(expectedTagNumber: Int): DerValue {
         require(tagClass == DER_TAG_CLASS_UNIVERSAL && tagNumber == expectedTagNumber) {
             "Unexpected DER tag"
         }
         return this
     }
+
+    private fun DerValue.isContextSpecificTag(expectedTagNumber: Int): Boolean =
+        tagClass == DER_TAG_CLASS_CONTEXT_SPECIFIC && tagNumber == expectedTagNumber
 
     private const val DER_TAG_CLASS_UNIVERSAL = 0x00
     private const val DER_TAG_CLASS_CONTEXT_SPECIFIC = 0x80
@@ -247,11 +270,11 @@ private class DerReader(private val bytes: ByteArray) {
     private fun readTagNumber(initialValue: Int): Int {
         if (initialValue != 0x1f) return initialValue
         var value = 0
-        do {
+        while (true) {
             val byte = readUnsignedByte()
             value = (value shl 7) or (byte and 0x7f)
             if (byte and 0x80 == 0) return value
-        } while (true)
+        }
     }
 
     private fun readLength(): Int {

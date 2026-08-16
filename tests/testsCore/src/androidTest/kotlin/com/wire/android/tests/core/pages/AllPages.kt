@@ -39,6 +39,8 @@ class AllPages(val device: UiDevice) {
 
     val groupConversationDetailsPage = GroupConversationDetailsPage(device)
 
+    val groupAccessOptionsPage = GroupAccessOptionsPage(device)
+
     val searchPage = SearchPage(device)
 
     val ssoPage = SSOPage(device)

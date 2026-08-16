@@ -50,6 +50,8 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val participantsTab = UiSelectorParams(text = "PARTICIPANTS")
 
+    private val appsTab = UiSelectorParams(text = "APPS")
+
     private val addParticipantsButton = UiSelectorParams(text = "Add participants")
 
     private val continueButton = UiSelectorParams(text = "Continue")
@@ -82,6 +84,15 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapDeleteConversationButton() {
         UiWaitUtils.waitElement(deleteConversationButton).click()
+    }
+
+    fun assertDeleteConversationButtonNotVisible(): GroupConversationDetailsPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = deleteConversationButton.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Delete Conversation button is visible."
+        )
+        return this
     }
 
     fun tapMoveToArchiveButton(): GroupConversationDetailsPage {
@@ -140,6 +151,11 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(participantsTab).click()
     }
 
+    fun tapOnAppsTab(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(appsTab).click()
+        return this
+    }
+
     fun tapAddParticipantsButton() {
         UiWaitUtils.waitElement(addParticipantsButton).click()
     }
@@ -172,6 +188,14 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         handleTextView.parent.click()
 
         return this
+    }
+
+    fun assertAppInSearchResultsVisible(appName: String): GroupConversationDetailsPage {
+        return assertUsernameInSuggestionsListIs(appName)
+    }
+
+    fun tapAppInSearchResults(appName: String): GroupConversationDetailsPage {
+        return selectUserInSuggestionList(appName)
     }
 
     fun tapContinueButton() {
@@ -239,6 +263,11 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun assertAddToConversationButtonVisible(): GroupConversationDetailsPage {
         UiWaitUtils.waitElement(addToConversationButton)
+        return this
+    }
+
+    fun tapAddToConversationButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(addToConversationButton).click()
         return this
     }
 

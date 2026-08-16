@@ -47,6 +47,8 @@ class AllPages(val device: UiDevice) {
 
     val teamCreationPage = TeamCreationPage(device)
 
+    val createNewGroupPage = CreateNewGroupPage(device)
+
     val selfUserProfilePage = SelfUserProfilePage(device)
     val callingPage = CallingPage(device)
 

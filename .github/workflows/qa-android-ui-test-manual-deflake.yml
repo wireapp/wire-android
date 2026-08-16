@@ -96,7 +96,6 @@ jobs:
       - name: Register log masks
         run: |
           echo "::add-mask::eu-west-1"
-          echo "::add-mask::mation"
 
       # Mirror qa-android-critical-flow-tests.yml runner setup so manual
       # deflake executes in the same QA office runner environment.

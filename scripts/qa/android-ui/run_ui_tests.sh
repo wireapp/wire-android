@@ -553,11 +553,9 @@ run_attempt_on_devices() {
 
       # Android instrumentation can return non-zero for normal test failures.
       # Keep that separate from real infra failures so retries can still proceed.
-      # Keep the full device log on disk, but sanitize what gets printed to GitHub.
       set +e
       ${adb_cmd} shell am instrument -w -r "${args[@]}" "${instrumentation}" 2>&1 \
-        | tee "${log_file}" \
-        | python3 scripts/qa/android-ui/sanitize_instrumentation_log.py "${serial}"
+        | sed -u "s/^/[${serial}] /" | tee "${log_file}"
       local rc=${PIPESTATUS[0]}
       set -e
 

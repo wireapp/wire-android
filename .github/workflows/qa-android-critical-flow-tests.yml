@@ -48,9 +48,6 @@ on:
           - alpha beta
           - staging compat
           - experimental
-          - column-1
-          - column-2
-          - column-3
           - debug
           - fdroid
           - production
@@ -254,7 +251,6 @@ jobs:
       - name: Register log masks
         run: |
           echo "::add-mask::eu-west-1"
-          echo "::add-mask::mation"
 
       - name: Checkout (with submodules)
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6

@@ -82,8 +82,6 @@ class SystemMessageContentMapper @Inject constructor(
             members
         )
 
-        is MessageContent.AdminlessDeleteReminder ->
-            UIMessageContent.SystemMessage.AdminlessDeleteReminder(content.deletionScheduledFor)
     }
 
     private fun mapConversationConversationAppsAccessChanged(

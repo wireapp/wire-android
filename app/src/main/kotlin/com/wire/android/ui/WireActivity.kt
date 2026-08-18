@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -97,6 +98,9 @@ class WireActivity : BaseActivity() {
             factory = wireApplicationGraph.metroViewModelFactory,
         )
     }
+
+    @VisibleForTesting
+    internal fun viewModelForTest(): WireActivityViewModel = viewModel
 
     private val intentCoordinator = WireActivityIntentCoordinator()
     private lateinit var shakeDetector: ShakeDetector

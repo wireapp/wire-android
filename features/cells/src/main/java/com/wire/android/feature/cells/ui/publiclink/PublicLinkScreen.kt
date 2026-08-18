@@ -66,8 +66,8 @@ internal fun PublicLinkRouteScreen(
     onNavigateBack: () -> Unit,
     onOpenPasswordSettings: (String, Boolean) -> Unit,
     onOpenExpirationSettings: (String, Long?) -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: PublicLinkViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current

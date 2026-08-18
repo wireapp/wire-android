@@ -64,8 +64,8 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun VersionHistoryRouteScreen(
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
     versionHistoryViewModel: VersionHistoryViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val optionsBottomSheetState = rememberWireModalSheetState<Pair<String, CellVersion>>()
     val snackbarHostState = LocalSnackbarHostState.current

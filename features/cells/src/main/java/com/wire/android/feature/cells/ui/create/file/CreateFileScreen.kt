@@ -53,8 +53,8 @@ import com.wire.android.ui.theme.wireDimensions
 internal fun CreateFileRouteScreen(
     onNavigateBack: () -> Unit,
     onCreated: () -> Unit,
-    modifier: Modifier = Modifier,
     createFileViewModel: CreateFileViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 

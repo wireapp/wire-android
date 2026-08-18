@@ -63,8 +63,8 @@ import kotlinx.parcelize.Parcelize
 @Composable
 internal fun PublicLinkExpirationRouteScreen(
     onResult: (PublicLinkExpirationResult) -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: PublicLinkExpirationScreenViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsState()
 

@@ -66,8 +66,8 @@ internal fun SearchRouteScreen(
     navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation,
     animatedVisibilityScope: AnimatedVisibilityScope,
     cellViewModel: CellViewModel,
-    modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
     val isOnlineState by cellViewModel.isOnline.collectAsState()

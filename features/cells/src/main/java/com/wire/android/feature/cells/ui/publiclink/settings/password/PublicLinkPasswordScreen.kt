@@ -62,8 +62,8 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 internal fun PublicLinkPasswordRouteScreen(
     onResult: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: PublicLinkPasswordScreenViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsState()
     val clipboardManager = LocalClipboardManager.current

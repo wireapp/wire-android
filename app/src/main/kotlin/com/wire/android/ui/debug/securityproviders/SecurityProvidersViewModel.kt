@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.security.Provider
 
 @OptIn(DebugKaliumApi::class)
 class SecurityProvidersViewModel @Inject constructor(
@@ -57,14 +56,6 @@ class SecurityProvidersViewModel @Inject constructor(
         }
     }
 }
-
-/**
- * `Provider.getVersionStr()` needs API 28 and `Provider.getVersion()` is deprecated, so read the version
- * straight out of the provider's own property map, where it is registered under this key.
- */
-private const val PROVIDER_VERSION_PROPERTY = "Provider.id version"
-
-private fun Provider.versionString(): String = getProperty(PROVIDER_VERSION_PROPERTY).orEmpty()
 
 @OptIn(DebugKaliumApi::class)
 private fun CryptoServiceUsage.toRow() = CryptoServiceRow(

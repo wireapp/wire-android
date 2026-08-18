@@ -31,8 +31,8 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
+import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsReadyUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -86,7 +86,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase
 
     @MockK
-    lateinit var isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase
+    lateinit var checkOneToOneConversationIsReady: CheckOneToOneConversationIsReadyUseCase
 
     @MockK
     lateinit var mlsClientIdentity: GetMLSClientIdentityUseCase
@@ -108,7 +108,7 @@ internal class OtherUserProfileViewModelArrangement {
             observeClientList,
             fetchUsersClientsFromRemote,
             getUserE2eiCertificateStatus,
-            isOneToOneConversationCreated,
+            checkOneToOneConversationIsReady,
             mlsClientIdentity,
             isE2EIEnabled,
             savedStateHandle,
@@ -140,7 +140,9 @@ internal class OtherUserProfileViewModelArrangement {
         )
         coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns true
         coEvery { mlsClientIdentity.invoke(any()) } returns GetMLSClientIdentityResult.Success(mlsIdentity)
-        coEvery { isOneToOneConversationCreated.invoke(any()) } returns true
+        coEvery { checkOneToOneConversationIsReady.invoke(any()) } returns CheckOneToOneConversationIsReadyUseCase.Result.Ready(
+            OtherUserProfileScreenViewModelTest.CONVERSATION
+        )
         coEvery { isE2EIEnabled.invoke() } returns true
     }
 
@@ -161,6 +163,10 @@ internal class OtherUserProfileViewModelArrangement {
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {
         coEvery { observeUserInfo(any()) } returns flowOf(result)
+    }
+
+    fun withConversationReadiness(result: CheckOneToOneConversationIsReadyUseCase.Result) = apply {
+        coEvery { checkOneToOneConversationIsReady(any()) } returns result
     }
 
     fun arrange() = this to viewModel

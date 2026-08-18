@@ -41,7 +41,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
-import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
+import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsReadyUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -74,7 +74,7 @@ class OtherUserProfileScreenViewModel @AssistedInject constructor(
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val fetchUsersClients: FetchUsersClientsFromRemoteUseCase,
     private val getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase,
-    private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
+    private val checkOneToOneConversationIsReady: CheckOneToOneConversationIsReadyUseCase,
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val isE2EIEnabled: IsE2EIEnabledUseCase,
     @Assisted savedStateHandle: SavedStateHandle
@@ -104,8 +104,13 @@ class OtherUserProfileScreenViewModel @AssistedInject constructor(
     }
     private fun getIfConversationExist() {
         viewModelScope.launch {
-            val isOneToOneConversationCreated = isOneToOneConversationCreated(userId)
-            state = state.copy(isConversationStarted = isOneToOneConversationCreated)
+            val readiness = checkOneToOneConversationIsReady(userId)
+            if (readiness is CheckOneToOneConversationIsReadyUseCase.Result.Failure) {
+                appLogger.w("Failed to check one-to-one conversation readiness: ${readiness.coreFailure}")
+            }
+            state = state.copy(
+                isConversationStarted = readiness is CheckOneToOneConversationIsReadyUseCase.Result.Ready
+            )
         }
     }
     private fun getMLSVerificationStatus() {

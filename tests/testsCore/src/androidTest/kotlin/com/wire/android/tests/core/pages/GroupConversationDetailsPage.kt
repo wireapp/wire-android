@@ -62,6 +62,10 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val addToConversationButton = UiSelectorParams(text = "Add To Conversation")
 
+    private val notificationsButton = UiSelectorParams(text = "Notifications")
+
+    private fun notificationStatusSelector(status: String) = UiSelectorParams(text = status)
+
     private fun textViewSelector(text: String) = UiSelectorParams(
         className = "android.widget.TextView",
         text = text
@@ -78,6 +82,21 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapShowMoreOptionsButton() {
         UiWaitUtils.waitElement(showMoreOptionsButton).click()
+    }
+
+    fun tapNotificationsButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(notificationsButton).click()
+        return this
+    }
+
+    fun tapNotificationStatus(status: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(notificationStatusSelector(status)).click()
+        return this
+    }
+
+    fun assertNotificationStatusVisible(status: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(notificationStatusSelector(status))
+        return this
     }
 
     fun tapDeleteConversationButton() {

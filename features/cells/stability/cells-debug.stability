@@ -14,7 +14,7 @@ internal fun com.wire.android.feature.cells.navigation.CellsNavigation3RouteScre
     - onExitCells: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.cells.navigation.consumeNavigation3Result(runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, requestIdValue: kotlin.String?, resultType: com.wire.android.navigation.navigation3.WireNavigation3ResultType<T of com.wire.android.feature.cells.navigation.consumeNavigation3Result>, onConsumed: kotlin.Function0<kotlin.Unit>, onResult: kotlin.Function1<T of com.wire.android.feature.cells.navigation.consumeNavigation3Result, kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.feature.cells.navigation.ConsumeNavigation3Result(runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, requestIdValue: kotlin.String?, resultType: com.wire.android.navigation.navigation3.WireNavigation3ResultType<T of com.wire.android.feature.cells.navigation.ConsumeNavigation3Result>, onConsumed: kotlin.Function0<kotlin.Unit>, onResult: kotlin.Function1<T of com.wire.android.feature.cells.navigation.ConsumeNavigation3Result, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -384,14 +384,14 @@ public fun com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog(sh
     - onItemSelected: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.create.file.CreateFileRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onCreated: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, createFileViewModel: com.wire.android.feature.cells.ui.create.file.CreateFileViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.create.file.CreateFileRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onCreated: kotlin.Function0<kotlin.Unit>, createFileViewModel: com.wire.android.feature.cells.ui.create.file.CreateFileViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onNavigateBack: STABLE (function type)
     - onCreated: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - createFileViewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.create.file.computeNameErrorState(error: com.wire.android.feature.cells.ui.common.FileNameError?): com.wire.android.ui.common.textfield.WireTextFieldState
@@ -401,14 +401,14 @@ private fun com.wire.android.feature.cells.ui.create.file.computeNameErrorState(
     - error: STABLE (class with no mutable properties)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.create.folder.CreateFolderRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onCreated: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, createFolderViewModel: com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.create.folder.CreateFolderRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onCreated: kotlin.Function0<kotlin.Unit>, createFolderViewModel: com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onNavigateBack: STABLE (function type)
     - onCreated: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - createFolderViewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.create.folder.computeNameErrorState(error: com.wire.android.feature.cells.ui.common.FileNameError?): com.wire.android.ui.common.textfield.WireTextFieldState
@@ -571,7 +571,7 @@ private fun com.wire.android.feature.cells.ui.movetofolder.EmptyScreen(isRootFol
     - isRootFolder: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onCloseFlow: kotlin.Function0<kotlin.Unit>, onNavigateBackSteps: kotlin.Function1<kotlin.Int, kotlin.Unit>, onOpenCreateFolder: kotlin.Function1<kotlin.String, kotlin.Unit>, onOpenFolder: kotlin.Function4<kotlin.String, kotlin.String, kotlin.String, kotlin.collections.List<kotlin.String>, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, moveToFolderViewModel: com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onCloseFlow: kotlin.Function0<kotlin.Unit>, onNavigateBackSteps: kotlin.Function1<kotlin.Int, kotlin.Unit>, onOpenCreateFolder: kotlin.Function1<kotlin.String, kotlin.Unit>, onOpenFolder: kotlin.Function4<kotlin.String, kotlin.String, kotlin.String, kotlin.collections.List<kotlin.String>, kotlin.Unit>, moveToFolderViewModel: com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -580,8 +580,8 @@ internal fun com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScr
     - onNavigateBackSteps: STABLE (function type)
     - onOpenCreateFolder: STABLE (function type)
     - onOpenFolder: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - moveToFolderViewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.movetofolder.MoveToFolderScreenContent(folders: kotlin.collections.List<com.wire.android.feature.cells.ui.model.CellNodeUi>, onFolderClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.Folder, kotlin.Unit>): kotlin.Unit
@@ -639,15 +639,15 @@ private fun com.wire.android.feature.cells.ui.publiclink.EnableLinkSection(check
     - onCheckClick: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.publiclink.PublicLinkRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onOpenPasswordSettings: kotlin.Function2<kotlin.String, kotlin.Boolean, kotlin.Unit>, onOpenExpirationSettings: kotlin.Function2<kotlin.String, kotlin.Long?, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.publiclink.PublicLinkRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onOpenPasswordSettings: kotlin.Function2<kotlin.String, kotlin.Boolean, kotlin.Unit>, onOpenExpirationSettings: kotlin.Function2<kotlin.String, kotlin.Long?, kotlin.Unit>, viewModel: com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onNavigateBack: STABLE (function type)
     - onOpenPasswordSettings: STABLE (function type)
     - onOpenExpirationSettings: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.publiclink.PublicLinkSection(state: com.wire.android.feature.cells.ui.publiclink.PublicLinkState, expirationError: kotlin.String?, onShareLink: kotlin.Function0<kotlin.Unit>, onCopyLink: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -749,13 +749,13 @@ private fun com.wire.android.feature.cells.ui.publiclink.settings.expiration.Exp
     - onSetClick: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationRouteScreen(onResult: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationRouteScreen(onResult: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult, kotlin.Unit>, viewModel: com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onResult: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.publiclink.settings.expiration.TimeView(time: kotlin.String?, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -840,22 +840,22 @@ public fun com.wire.android.feature.cells.ui.publiclink.settings.password.Passwo
     - onSetPassword: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.publiclink.settings.password.PublicLinkPasswordRouteScreen(onResult: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.feature.cells.ui.publiclink.settings.password.PublicLinkPasswordScreenViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.publiclink.settings.password.PublicLinkPasswordRouteScreen(onResult: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, viewModel: com.wire.android.feature.cells.ui.publiclink.settings.password.PublicLinkPasswordScreenViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onResult: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.recyclebin.RecycleBinRouteScreen(navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, modifier: androidx.compose.ui.Modifier, cellViewModel: com.wire.android.feature.cells.ui.CellViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.recyclebin.RecycleBinRouteScreen(navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, cellViewModel: com.wire.android.feature.cells.ui.CellViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - navigation: RUNTIME (requires runtime check)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - cellViewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog(itemName: kotlin.String, isFolder: kotlin.Boolean, isRestoreInProgress: kotlin.Boolean, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -887,13 +887,13 @@ public fun com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog(is
     - onDismiss: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.rename.RenameNodeRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, renameNodeViewModel: com.wire.android.feature.cells.ui.rename.RenameNodeViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.rename.RenameNodeRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, renameNodeViewModel: com.wire.android.feature.cells.ui.rename.RenameNodeViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onNavigateBack: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - renameNodeViewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.rename.computeNameErrorState(error: com.wire.android.feature.cells.ui.common.FileNameError?, isFolder: kotlin.Boolean): com.wire.android.ui.common.textfield.WireTextFieldState
@@ -911,15 +911,15 @@ internal fun com.wire.android.feature.cells.ui.renameNodeViewModel(navArgs: com.
     - navArgs: STABLE (class with no mutable properties)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.search.SearchRouteScreen(navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, cellViewModel: com.wire.android.feature.cells.ui.CellViewModel, modifier: androidx.compose.ui.Modifier, searchScreenViewModel: com.wire.android.feature.cells.ui.search.SearchScreenViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.search.SearchRouteScreen(navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, cellViewModel: com.wire.android.feature.cells.ui.CellViewModel, searchScreenViewModel: com.wire.android.feature.cells.ui.search.SearchScreenViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - navigation: RUNTIME (requires runtime check)
     - animatedVisibilityScope: RUNTIME (requires runtime check)
     - cellViewModel: UNSTABLE (has mutable properties or unstable members)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - searchScreenViewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.feature.cells.ui.search.filter.FilterChipsRow(state: com.wire.android.feature.cells.ui.search.filter.FilterChipsUiState, screenType: com.wire.android.feature.cells.ui.search.DriveSearchScreenType, modifier: androidx.compose.ui.Modifier, onFilterByTagsClicked: kotlin.Function0<kotlin.Unit>, onFilterByTypeClicked: kotlin.Function0<kotlin.Unit>, onFilterByOwnerClicked: kotlin.Function0<kotlin.Unit>, onRemoveAllFiltersClicked: kotlin.Function0<kotlin.Unit>, onFilterByConversationClicked: kotlin.Function0<kotlin.Unit>, onFilterBySharedByLinkClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -1113,13 +1113,13 @@ private fun com.wire.android.feature.cells.ui.subtitle(showConversationName: kot
     - showConversationName: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.tags.AddRemoveTagsRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, addRemoveTagsViewModel: com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.tags.AddRemoveTagsRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, addRemoveTagsViewModel: com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onNavigateBack: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - addRemoveTagsViewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.feature.cells.ui.tags.AddRemoveTagsScreenContent(internalPadding: androidx.compose.foundation.layout.PaddingValues, textFieldState: androidx.compose.foundation.text.input.TextFieldState, addedTags: kotlin.collections.Set<kotlin.String>, isValidTag: kotlin.Function0<kotlin.Boolean>, onAddTag: kotlin.Function1<kotlin.String, kotlin.Unit>, onRemoveTag: kotlin.Function1<kotlin.String, kotlin.Unit>, onRemoveLastTag: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -1184,13 +1184,13 @@ public fun com.wire.android.feature.cells.ui.versioning.VersionActionBottomSheet
     - onDownloadVersionClicked: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.versioning.VersionHistoryRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, versionHistoryViewModel: com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.versioning.VersionHistoryRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, versionHistoryViewModel: com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - onNavigateBack: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - versionHistoryViewModel: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.versioning.VersionHistoryScreenContent(versionsGroupedByTime: kotlin.collections.List<com.wire.android.feature.cells.ui.versioning.VersionGroup>, versionHistoryState: androidx.compose.runtime.State<com.wire.android.feature.cells.ui.versioning.VersionHistoryState>, optionsBottomSheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.Pair<kotlin.String, com.wire.android.feature.cells.ui.versioning.CellVersion>>, restoreDialogState: com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState, onRefresh: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, fileName: kotlin.String?, restoreVersion: kotlin.Function0<kotlin.Unit>, downloadVersion: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showRestoreConfirmationDialog: kotlin.Function1<kotlin.String, kotlin.Unit>, onDismissRestoreConfirmationDialog: kotlin.Function0<kotlin.Unit>, onGoToFileClicked: kotlin.Function0<kotlin.Unit>, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit

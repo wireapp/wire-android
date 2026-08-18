@@ -50,7 +50,7 @@ class SecurityProvidersViewModel @Inject constructor(
             observeNetworkDiagnostics()
         }
     }
-    
+
     private suspend fun observeNetworkDiagnostics() {
         val apiUrl = apiUrl() ?: return
         networkStateObserver.observeCurrentNetwork()

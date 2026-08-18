@@ -30,6 +30,8 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
+import com.wire.android.ui.debug.securityproviders.AppPathsProvider
+import com.wire.android.ui.debug.securityproviders.NetworkDiagnosticsProvider
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.CurrentTimeProvider
@@ -39,6 +41,7 @@ import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.AndroidUiTextResolver
 import com.wire.android.util.ui.UiTextResolver
+import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.Named
@@ -133,4 +136,15 @@ object AppModule {
 
     @Provides
     fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()
+
+    @Provides
+    fun provideAppPathsProvider(@ApplicationContext context: Context, @CurrentAccount currentAccount: UserId): AppPathsProvider =
+        AppPathsProvider(
+            context = context,
+            currentAccount = currentAccount
+        )
+
+    @Provides
+    fun provideNetworkDiagnosticsProvider(@ApplicationContext context: Context): NetworkDiagnosticsProvider =
+        NetworkDiagnosticsProvider(context = context)
 }

@@ -1,4 +1,11 @@
-@file:Suppress("TooManyFunctions", "TooGenericExceptionCaught", "TooGenericExceptionThrown", "ReturnCount", "MagicNumber")
+@file:Suppress(
+    "TooManyFunctions",
+    "TooGenericExceptionCaught",
+    "TooGenericExceptionThrown",
+    "ReturnCount",
+    "MagicNumber",
+    "LargeClass"
+)
 /*
  * Wire
  * Copyright (C) 2025 Wire Swiss GmbH
@@ -632,6 +639,26 @@ class TestServiceHelper(
         val pattern = Regex("""([a-z]+://)?[a-z0-9\-]+\.[a-z]+[^\s\n]*""", RegexOption.IGNORE_CASE)
         val matcher = pattern.toPattern().matcher(message)
         return if (matcher.find()) matcher else null
+    }
+
+    fun userReadsRecentMessageFromGroupConversation(
+        userAlias: String,
+        conversationName: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendEphemeralConfirmationDelivered(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
     }
 
     fun userTogglesReactionOnLatestMessage(

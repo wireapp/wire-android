@@ -111,7 +111,13 @@ fun AllMeetingsScreen(
             )
         }
 
-        MeetingOptionsModalSheetLayout(sheetState = meetingOptionsSheetState, editMeeting = editMeeting)
+        MeetingOptionsModalSheetLayout(
+            sheetState = meetingOptionsSheetState,
+            editMeeting = editMeeting,
+            startCall = startCall,
+            joinCall = joinCall,
+            returnToCall = returnToCall,
+        )
     }
 }
 

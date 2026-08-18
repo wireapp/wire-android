@@ -36,6 +36,7 @@ class RegistrationPage(private val device: UiDevice) {
 
     private val welcomePage = UiSelectorParams(text = "Enter your email to start!")
     private val emailInputField = UiSelectorParams(resourceId = "userIdentifierInput")
+    private val oldLoginRegistrationEmailInputField = UiSelectorParams(resourceId = "emailField")
     private val loginButton = UiSelectorParams(resourceId = "loginButton")
     private val createAccountButton = UiSelectorParams(text = "Create account or team")
     private val createTeamButton = UiSelectorParams(text = "Create Team")
@@ -107,6 +108,13 @@ class RegistrationPage(private val device: UiDevice) {
         if (!success) {
             throw AssertionError("Could not enter registration email: email input field was unstable.")
         }
+        return this
+    }
+
+    fun enterPersonalUserRegistrationEmailOnOldLoginFlow(email: String): RegistrationPage {
+        val parent = UiWaitUtils.waitElement(oldLoginRegistrationEmailInputField)
+        val input = parent.findObject(editTextClass)
+        input.text = email
         return this
     }
 

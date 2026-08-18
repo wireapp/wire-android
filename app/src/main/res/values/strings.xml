@@ -1063,6 +1063,7 @@
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
+    <string name="content_description_conversation_message_list">Conversation messages. Press Enter to navigate messages.</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
     <string name="notification_incoming_call_content">Calling…</string>

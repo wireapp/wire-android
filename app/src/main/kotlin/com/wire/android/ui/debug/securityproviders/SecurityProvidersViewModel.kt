@@ -20,26 +20,22 @@ package com.wire.android.ui.debug.securityproviders
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.kalium.logic.feature.debug.GetCryptoServiceReportUseCase
-import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.android.util.crypto.AppCryptoServiceInfo
 import com.wire.android.util.crypto.appCryptoServices
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.debug.CryptoServiceUsage
 import com.wire.kalium.logic.feature.debug.GetCryptoServiceReportUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import com.wire.kalium.network.NetworkStateObserver
 import com.wire.kalium.util.DebugKaliumApi
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import com.wire.kalium.network.NetworkStateObserver
 
 @OptIn(DebugKaliumApi::class)
 class SecurityProvidersViewModel @Inject constructor(
@@ -71,29 +67,11 @@ class SecurityProvidersViewModel @Inject constructor(
         }
     }
 
-
-    @OptIn(DebugKaliumApi::class)
-    private fun CryptoServiceUsage.toRow() = CryptoServiceRow(
-        label = name,
-        lookup = lookup,
-        algorithm = algorithm,
-        providerName = providerName,
-        providerVersion = providerVersion,
-    )
-
-    private fun AppCryptoServiceInfo.toRow() = CryptoServiceRow(
-        label = name,
-        lookup = lookup,
-        algorithm = algorithm,
-        providerName = providerName,
-        providerVersion = providerVersion,
-    )
-
     private suspend fun observeNetworkDiagnostics() {
         val apiUrl = apiUrl() ?: return
         networkStateObserver.observeCurrentNetwork()
             .map { networkDiagnosticsProvider(apiUrl) }
-            .flowOn(dispatchers.io())
+            .flowOn(dispatcherProvider.io())
             .collect { diagnostics -> _state.update { current -> current.copy(network = diagnostics) } }
     }
 
@@ -105,6 +83,23 @@ class SecurityProvidersViewModel @Inject constructor(
         }
     }
 }
+
+private fun AppCryptoServiceInfo.toRow() = CryptoServiceRow(
+    label = name,
+    lookup = lookup,
+    algorithm = algorithm,
+    providerName = providerName,
+    providerVersion = providerVersion,
+)
+
+@OptIn(DebugKaliumApi::class)
+private fun CryptoServiceUsage.toRow() = CryptoServiceRow(
+    label = name,
+    lookup = lookup,
+    algorithm = algorithm,
+    providerName = providerName,
+    providerVersion = providerVersion,
+)
 
 /** One cryptographic lookup, and the provider that serves it on this device. */
 data class CryptoServiceRow(

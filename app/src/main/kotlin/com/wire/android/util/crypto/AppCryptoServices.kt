@@ -61,21 +61,6 @@ fun appCryptoServiceInfo(name: String, lookup: String, resolve: () -> Pair<Strin
     }
 
 /**
- * Which security provider serves one cryptographic lookup, read off the instance the platform returned.
- *
- * @param name what the lookup is for, e.g. `DataStore cipher`.
- * @param lookup the lookup performed, as written in the source, e.g. `KeyGenerator.getInstance("AES")`.
- * @param algorithm the algorithm the resolved instance reports, e.g. `AES/GCM/NoPadding`.
- */
-data class AppCryptoServiceInfo(
-    val name: String,
-    val lookup: String,
-    val algorithm: String,
-    val providerName: String,
-    val providerVersion: String,
-)
-
-/**
  * `Provider.getVersionStr()` needs API 28 and `Provider.getVersion()` is deprecated, so read the version
  * out of the provider's own property map, where it is registered under this key.
  */

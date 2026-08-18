@@ -84,10 +84,10 @@ fun SecurityProvidersScreen(
                 }
 
                 SectionHeader(stringResource(R.string.debug_settings_entropy_sources))
-                if (state.cryptoServices.isEmpty()) {
+                if (state.cryptoServices?.isEmpty() == true) {
                     SettingsItem(text = stringResource(R.string.debug_settings_crypto_services_empty))
                 }
-                state.cryptoServices.forEach { row ->
+                state.cryptoServices?.forEach { row ->
                     CryptoServiceListItem(row)
                 }
 

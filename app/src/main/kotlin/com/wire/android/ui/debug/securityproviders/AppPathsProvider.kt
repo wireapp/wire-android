@@ -18,7 +18,6 @@
 package com.wire.android.ui.debug.securityproviders
 
 import android.content.Context
-import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.di.ApplicationContext
 import com.wire.android.di.CurrentAccount

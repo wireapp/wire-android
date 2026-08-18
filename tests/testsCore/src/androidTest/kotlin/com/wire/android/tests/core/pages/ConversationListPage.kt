@@ -273,6 +273,10 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun typeConversationNameInSearchField(conversationName: String): ConversationListPage {
+        return typeFirstNCharsInSearchField(conversationName, conversationName.length)
+    }
+
     fun clickGroupConversation(
         conversationName: String,
         timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT

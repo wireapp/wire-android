@@ -39,7 +39,6 @@ import com.wire.android.ui.common.button.WirePrimaryIconButton
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.button.WireTertiaryIconButton
 import com.wire.android.ui.common.button.wireSendPrimaryButtonColors
-import com.wire.android.ui.common.button.wireTertiaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
@@ -75,7 +74,10 @@ fun MessageSendActions(
                 textStyle = typography().label02,
                 fillMaxWidth = false,
                 state = if (!selfDeletionTimer.isEnforced) WireButtonState.Default else WireButtonState.Disabled,
-                colors = wireTertiaryButtonColors().copy(onEnabled = colorsScheme().primary, onDisabled = colorsScheme().primary),
+                colors = messageComposerTertiaryButtonColors().copy(
+                    onEnabled = colorsScheme().primary,
+                    onDisabled = colorsScheme().primary,
+                ),
             )
         }
         WirePrimaryIconButton(
@@ -115,6 +117,7 @@ fun MessageEditActions(
                 shape = CircleShape,
                 minSize = MaterialTheme.wireDimensions.buttonCircleMinSize,
                 minClickableSize = MaterialTheme.wireDimensions.buttonMinClickableSize,
+                colors = messageComposerTertiaryButtonColors(),
             )
         }
         Spacer(modifier = Modifier.weight(1f))

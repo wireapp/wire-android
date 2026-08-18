@@ -68,8 +68,8 @@ internal fun MoveToFolderRouteScreen(
     onNavigateBackSteps: (Int) -> Unit,
     onOpenCreateFolder: (String) -> Unit,
     onOpenFolder: (String, String, String, List<String>) -> Unit,
-    modifier: Modifier = Modifier,
     moveToFolderViewModel: MoveToFolderViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val viewState by moveToFolderViewModel.state.collectAsState()

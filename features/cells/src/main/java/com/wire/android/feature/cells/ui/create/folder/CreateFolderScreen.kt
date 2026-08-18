@@ -58,8 +58,8 @@ import androidx.compose.ui.platform.LocalLocale
 internal fun CreateFolderRouteScreen(
     onNavigateBack: () -> Unit,
     onCreated: () -> Unit,
-    modifier: Modifier = Modifier,
     createFolderViewModel: CreateFolderViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 

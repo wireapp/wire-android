@@ -119,7 +119,7 @@ internal fun CellsNavigation3RouteScreen(
         )
         is MoveToFolderRoute -> {
             val viewModel = moveToFolderViewModel(route.toScreenArgs())
-            consumeNavigation3Result(
+            ConsumeNavigation3Result(
                 runtime = runtime,
                 requestIdValue = booleanRequestIdValue,
                 resultType = CellsBooleanNavigation3ResultType,
@@ -162,14 +162,14 @@ internal fun CellsNavigation3RouteScreen(
         }
         is PublicLinkRoute -> {
             val viewModel = publicLinkViewModel(route.toScreenArgs())
-            consumeNavigation3Result(
+            ConsumeNavigation3Result(
                 runtime = runtime,
                 requestIdValue = booleanRequestIdValue,
                 resultType = CellsBooleanNavigation3ResultType,
                 onConsumed = { booleanRequestIdValue = null },
                 onResult = { viewModel.onPasswordUpdate(it.value) },
             )
-            consumeNavigation3Result(
+            ConsumeNavigation3Result(
                 runtime = runtime,
                 requestIdValue = expirationRequestIdValue,
                 resultType = PublicLinkExpirationNavigation3ResultType,
@@ -387,7 +387,7 @@ private fun completeBooleanResult(runtime: WireNavigation3Runtime, value: Boolea
 }
 
 @Composable
-private fun <T> consumeNavigation3Result(
+private fun <T> ConsumeNavigation3Result(
     runtime: WireNavigation3Runtime,
     requestIdValue: String?,
     resultType: WireNavigation3ResultType<T>,

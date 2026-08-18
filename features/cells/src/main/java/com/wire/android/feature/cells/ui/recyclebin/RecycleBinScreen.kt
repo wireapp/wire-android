@@ -44,8 +44,8 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 internal fun RecycleBinRouteScreen(
     navigation: CellsFilesNavigation,
-    modifier: Modifier = Modifier,
     cellViewModel: CellViewModel,
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
         WireScaffold(

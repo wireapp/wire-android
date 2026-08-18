@@ -56,8 +56,8 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 internal fun RenameNodeRouteScreen(
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
     renameNodeViewModel: RenameNodeViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
 

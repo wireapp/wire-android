@@ -70,8 +70,8 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun AddRemoveTagsRouteScreen(
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
     addRemoveTagsViewModel: AddRemoveTagsViewModel,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
 

@@ -1786,6 +1786,16 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_repair_faulty_keys" translatable="false">Reset</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
     <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
+    <string name="debug_settings_security_diagnostics" translatable="false">Security Diagnostics</string>
+    <string name="debug_settings_app_paths" translatable="false">App Paths</string>
+    <string name="debug_settings_app_path_assets" translatable="false">Assets path</string>
+    <string name="debug_settings_app_path_cache" translatable="false">Cache path</string>
+    <string name="debug_settings_app_path_files_dir" translatable="false">Files dir</string>
+    <string name="debug_settings_app_path_cache_dir" translatable="false">Cache dir</string>
+    <string name="debug_settings_app_path_databases_dir" translatable="false">Databases dir</string>
+    <string name="debug_settings_app_path_no_backup_dir" translatable="false">No backup dir</string>
+    <string name="debug_settings_app_path_external_files_dir" translatable="false">External files dir</string>
+    <string name="debug_settings_security_providers_entry_count" translatable="false">%1$d entries</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

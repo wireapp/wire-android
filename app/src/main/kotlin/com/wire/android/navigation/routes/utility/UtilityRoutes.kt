@@ -80,3 +80,16 @@ data class ConversationCryptoStatsRoute(
         const val ROUTE_ID = "app/conversation_crypto_stats_screen"
     }
 }
+
+@Serializable
+data class SecurityProvidersRoute(
+    override val sessionId: WireSessionId,
+    override val entryId: WireNavEntryId = WireNavEntryId.random(),
+) : SessionRoute {
+    override val routeId: String
+        get() = ROUTE_ID
+
+    companion object {
+        const val ROUTE_ID = "app/security_providers_screen"
+    }
+}

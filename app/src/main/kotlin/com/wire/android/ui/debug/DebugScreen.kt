@@ -63,6 +63,7 @@ internal fun DebugRouteScreen(
     onBack: () -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    onShowSecurityProviders: () -> Unit,
     onShareLogsViaWire: (Uri) -> Unit,
     userDebugViewModel: UserDebugViewModel = userDebugViewModel(),
     debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
@@ -83,6 +84,7 @@ internal fun DebugRouteScreen(
                 onCopyText = debugContentState::copyToClipboard,
                 onShowFeatureFlags = onShowFeatureFlags,
                 onShowCryptoStats = onShowCryptoStats,
+                onShowSecurityProviders = onShowSecurityProviders,
                 viewModel = debugDataOptionsViewModel,
             )
         },
@@ -268,6 +270,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
                 onCopyText = it::copyToClipboard,
                 onShowFeatureFlags = {},
                 onShowCryptoStats = {},
+                onShowSecurityProviders = {},
                 viewModel = object : DebugDataOptionsViewModel {},
             )
         },

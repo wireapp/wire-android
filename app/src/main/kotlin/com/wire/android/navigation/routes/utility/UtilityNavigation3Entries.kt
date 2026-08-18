@@ -19,6 +19,7 @@ import com.wire.android.ui.debug.DebugRouteScreen
 import com.wire.android.ui.debug.LogManagementRouteScreen
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsRouteScreen
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsRouteScreen
+import com.wire.android.ui.debug.securityproviders.SecurityProvidersRouteScreen
 import com.wire.android.ui.initialsync.InitialSyncRouteScreen
 import com.wire.navigation.WireNavigationCommand
 
@@ -58,6 +59,11 @@ internal fun utilityNavigation3Entries(
                     WireNavigationCommand(ConversationCryptoStatsRoute(route.sessionId))
                 )
             },
+            onShowSecurityProviders = {
+                runtime.navigator.navigate(
+                    WireNavigationCommand(SecurityProvidersRoute(route.sessionId))
+                )
+            },
             onShareLogsViaWire = { uri ->
                 runtime.navigator.navigate(
                     WireNavigationCommand(
@@ -84,5 +90,8 @@ internal fun utilityNavigation3Entries(
     }
     wireEntry<ConversationCryptoStatsRoute> {
         ConversationCryptoStatsRouteScreen(onBack = runtime.navigator::goBack)
+    }
+    wireEntry<SecurityProvidersRoute> {
+        SecurityProvidersRouteScreen(onBack = runtime.navigator::goBack)
     }
 }

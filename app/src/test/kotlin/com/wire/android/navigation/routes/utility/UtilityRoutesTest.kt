@@ -34,6 +34,7 @@ class UtilityRoutesTest {
         assertEquals("app/log_management_screen", LogManagementRoute.ROUTE_ID)
         assertEquals("app/debug_feature_flags_screen", DebugFeatureFlagsRoute.ROUTE_ID)
         assertEquals("app/conversation_crypto_stats_screen", ConversationCryptoStatsRoute.ROUTE_ID)
+        assertEquals("app/security_providers_screen", SecurityProvidersRoute.ROUTE_ID)
     }
 
     @Test

@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.security.Provider
 
 class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
@@ -50,6 +51,13 @@ class SecurityProvidersViewModel @Inject constructor(
             observeNetworkDiagnostics()
         }
     }
+    /**
+     * `Provider.getVersionStr()` needs API 28 and `Provider.getVersion()` is deprecated, so read the version
+     * straight out of the provider's own property map, where it is registered under this key.
+     */
+    private const val PROVIDER_VERSION_PROPERTY = "Provider.id version"
+
+    private fun Provider.versionString(): String = getProperty(PROVIDER_VERSION_PROPERTY).orEmpty()
 
     private suspend fun observeNetworkDiagnostics() {
         val apiUrl = apiUrl() ?: return

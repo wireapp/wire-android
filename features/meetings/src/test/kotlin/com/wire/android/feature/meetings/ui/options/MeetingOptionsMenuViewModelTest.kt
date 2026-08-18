@@ -23,11 +23,16 @@ import com.wire.android.model.asSnackBarMessage
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import io.mockk.MockKAnnotations
@@ -182,6 +187,57 @@ class MeetingOptionsMenuViewModelTest {
         }
     }
 
+    @Test
+    fun givenEstablishedCall_whenCheckingCallStatus_thenSendReturnToCallAction() = runTest(dispatcher) {
+        val call = call(CallStatus.ESTABLISHED)
+        val (arrangement, viewModel) = Arrangement()
+            .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Member, CURRENT_TIME + 1.hours))
+            .arrange()
+        coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
+
+        viewModel.actions.test {
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            advanceUntilIdle()
+
+            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenStillOngoingEstablishedCall_whenCheckingCallStatus_thenSendReturnToCallAction() = runTest(dispatcher) {
+        val call = call(CallStatus.ESTABLISHED)
+        val (arrangement, viewModel) = Arrangement()
+            .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Member, CURRENT_TIME + 1.hours))
+            .arrange()
+        coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
+
+        viewModel.actions.test {
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            advanceUntilIdle()
+
+            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenOngoingEstablishedCall_whenCheckingCallStatus_thenSendReturnToCallAction() = runTest(dispatcher) {
+        val call = call(CallStatus.ESTABLISHED)
+        val (arrangement, viewModel) = Arrangement()
+            .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Member, CURRENT_TIME + 1.hours))
+            .arrange()
+        coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
+
+        viewModel.actions.test {
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            advanceUntilIdle()
+
+            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
     private fun meeting(
         selfRole: MeetingOccurrence.SelfRole,
         occurrenceStartTime: Instant,
@@ -204,12 +260,28 @@ class MeetingOptionsMenuViewModelTest {
         selfRole = selfRole,
     )
 
+    private fun call(status: CallStatus) = Call(
+        conversationId = CONVERSATION_ID,
+        status = status,
+        isMuted = false,
+        isCameraOn = true,
+        isCbrEnabled = false,
+        callerId = QualifiedID("some_id", "some_domain"),
+        conversationName = "some_name",
+        conversationType = Conversation.Type.Group.Regular,
+        callerName = "some_name",
+        callerTeamName = "some_team_name"
+    )
+
     private class Arrangement {
         @MockK
         lateinit var observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase
 
         @MockK
         lateinit var deleteMeetingUseCase: DeleteMeetingUseCase
+
+        @MockK
+        lateinit var observeActiveCallsUseCase: ObserveActiveCallsUseCase
 
         val currentTimeProvider = CurrentTimeProvider { CURRENT_TIME }
 
@@ -228,6 +300,7 @@ class MeetingOptionsMenuViewModelTest {
             currentTimeProvider = currentTimeProvider,
             observeMeetingOccurrenceUseCase = observeMeetingOccurrenceUseCase,
             deleteMeetingUseCase = deleteMeetingUseCase,
+            observeActiveCallsUseCase = observeActiveCallsUseCase,
         )
     }
 

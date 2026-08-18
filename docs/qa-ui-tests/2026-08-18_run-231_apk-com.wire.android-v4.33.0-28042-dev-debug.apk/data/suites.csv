@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Tue Aug 18 13:11:24 CEST 2026","Tue Aug 18 13:12:48 CEST 2026","84188","","com.wire.android.tests.core.e2eTests.ArchiveTests","","com.wire.android.tests.core.e2eTests.ArchiveTests","givenOneOnOneConversation_whenArchivingFromUserProfilePageAndConversationListPage_thenICanArchiveAndUnarchive","givenOneOnOneConversation_whenArchivingFromUserProfilePageAndConversationListPage_thenICanArchiveAndUnarchive",""

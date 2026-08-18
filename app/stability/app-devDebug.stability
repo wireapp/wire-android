@@ -3942,6 +3942,13 @@ public fun com.wire.android.ui.debug.securityProvidersViewModel(): com.wire.andr
   params:
 
 @Composable
+private fun com.wire.android.ui.debug.securityproviders.NetworkSection(network: com.wire.android.ui.debug.securityproviders.NetworkDiagnostics): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - network: RUNTIME (requires runtime check)
+
+@Composable
 public fun com.wire.android.ui.debug.securityproviders.SecurityProvidersScreen(navigator: com.wire.android.navigation.Navigator, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel): kotlin.Unit
   skippable: false
   restartable: true
@@ -6007,7 +6014,7 @@ public fun com.wire.android.ui.home.conversations.mediaGalleryViewModel(): com.w
   params:
 
 @Composable
-public fun com.wire.android.ui.home.conversations.mention.MemberItemToMention(avatarData: com.wire.android.model.UserAvatarData, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, clickable: com.wire.android.model.Clickable, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.conversations.mention.MemberItemToMention(avatarData: com.wire.android.model.UserAvatarData, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, clickable: com.wire.android.model.Clickable, modifier: androidx.compose.ui.Modifier, backgroundColor: androidx.compose.ui.graphics.Color): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -6018,6 +6025,7 @@ public fun com.wire.android.ui.home.conversations.mention.MemberItemToMention(av
     - searchQuery: STABLE (String is immutable)
     - clickable: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - backgroundColor: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.wire.android.ui.home.conversations.messageAttachmentsViewModel(): com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel

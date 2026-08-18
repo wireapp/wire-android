@@ -112,7 +112,7 @@ class WireNavigation3Runtime internal constructor(
                 if (current?.entryId != targetEntryId || backStack.size <= 1) {
                     false
                 } else {
-                    backStack.removeLast()
+                    backStack.removeAt(backStack.lastIndex)
                     true
                 }
             },

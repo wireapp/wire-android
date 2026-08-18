@@ -26,6 +26,12 @@ import com.wire.android.model.Contact
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
+import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -213,7 +219,7 @@ class NewMeetingViewModelTest {
         enterTitle(viewModel, "Weekly sync")
 
         viewModel.actions.test {
-            viewModel.createMeeting()
+            viewModel.submitCreation()
             advanceUntilIdle()
 
             assertEquals(NewMeetingViewActions.Success, awaitItem())
@@ -225,7 +231,7 @@ class NewMeetingViewModelTest {
         val (_, viewModel) = arrangeViewModel()
 
         viewModel.actions.test {
-            viewModel.createMeeting()
+            viewModel.submitCreation()
             advanceUntilIdle()
 
             expectNoEvents()
@@ -270,6 +276,13 @@ class NewMeetingViewModelTest {
         fun arrange() = this to NewMeetingViewModelImpl(
             navArgs = NewMeetingNavArgs(type = newMeetingType),
             currentTimeProvider = currentTimeProvider,
+            createNewMeeting = mockk<CreateNewMeetingUseCase>().also {
+                coEvery { it(any()) } returns CreateNewMeetingUseCase.Result.Success
+            },
+            updateMeeting = mockk<UpdateMeetingUseCase>(relaxed = true),
+            getNextMeetingOccurrence = mockk<GetNextMeetingOccurrenceUseCase>(relaxed = true),
+            observeConversationMembers = mockk<ObserveConversationMembersUseCase>(relaxed = true),
+            contactMapper = mockk(relaxed = true),
         )
     }
 }

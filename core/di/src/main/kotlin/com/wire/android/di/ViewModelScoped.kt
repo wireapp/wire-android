@@ -104,9 +104,10 @@ internal fun defaultViewModelCreationExtras(): CreationExtras {
 internal inline fun <reified S> PreviewProvider.findPreviewOr(provideViewModel: @Composable () -> S): S {
     val errorMessage = "No preview found for ${S::class.qualifiedName} in preview provider ${this::class.qualifiedName}." +
             " Make sure to add @ViewModelScopedPreview to the ViewModel interface."
+    val preview = previews.firstNotNullOfOrNull { it as? S }
     return when {
-        LocalInspectionMode.current -> previews.firstNotNullOfOrNull { it as? S } ?: error(errorMessage)
-        espresso -> previews.firstNotNullOfOrNull { it as? S } ?: error(errorMessage)
+        LocalInspectionMode.current -> preview ?: error(errorMessage)
+        espresso -> preview ?: provideViewModel()
         else -> provideViewModel()
     }
 }

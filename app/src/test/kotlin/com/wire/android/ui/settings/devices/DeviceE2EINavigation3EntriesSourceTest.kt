@@ -78,6 +78,15 @@ class DeviceE2EINavigation3EntriesSourceTest {
     }
 
     @Test
+    fun givenDeviceRemovalCompletes_whenInspectingScreen_thenBackNavigationIsAOneShotEffect() {
+        val source = sourceFile("ui/settings/devices/DeviceDetailsScreen.kt").readText()
+
+        assertTrue(source.contains("LaunchedEffect(shouldNavigateBack)"))
+        assertFalse(source.contains("viewModel.state.deviceRemoved -> onNavigateBack()"))
+        assertFalse(source.contains("RemoveDeviceError.InitError -> onNavigateBack()"))
+    }
+
+    @Test
     fun givenRegisterDeviceCompletes_whenInspectingFlow_thenNavigationIsAppliedOnlyOnce() {
         val screen = sourceFile(
             "ui/authentication/devices/register/RegisterDeviceScreen.kt"

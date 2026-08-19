@@ -1809,6 +1809,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_network_no_active_network" translatable="false">No active network</string>
     <string name="debug_settings_network_resolution_failed" translatable="false">Could not be resolved</string>
     <string name="debug_settings_network_unknown" translatable="false">Unknown</string>
+    <string name="debug_settings_sqlcipher" translatable="false">SQLCipher Database</string>
+    <string name="debug_settings_sqlcipher_version" translatable="false">SQLCipher version</string>
+    <string name="debug_settings_sqlcipher_database_path" translatable="false">User database path</string>
+    <string name="debug_settings_sqlcipher_header_value" translatable="false">Database header (first 16 bytes)</string>
+    <string name="debug_settings_sqlcipher_header_interpretation" translatable="false">Header interpretation</string>
+    <string name="debug_settings_sqlcipher_header_plain" translatable="false">Plain SQLite</string>
+    <string name="debug_settings_sqlcipher_header_not_plain" translatable="false">Not a plain SQLite header</string>
+    <string name="debug_settings_sqlcipher_header_not_created" translatable="false">Database not created</string>
+    <string name="debug_settings_sqlcipher_internal_storage" translatable="false">In app internal data directory</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

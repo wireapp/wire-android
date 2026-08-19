@@ -10,6 +10,7 @@
 
 package com.wire.android.navigation.routes.auth
 
+import com.wire.navigation.AuthBackgroundRoute
 import com.wire.navigation.AuthenticationRoute
 import com.wire.navigation.AuthenticationScreenRoute
 import com.wire.navigation.SessionRoute
@@ -185,7 +186,7 @@ data class CreateAccountSummaryRoute(
     override val sessionId: WireSessionId,
     override val flowId: String,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
-) : SessionRoute, AuthenticationScreenRoute {
+) : SessionRoute, AuthenticationScreenRoute, AuthBackgroundRoute {
     override val routeId: String get() = ROUTE_ID
 
     init {
@@ -202,7 +203,7 @@ data class CreateAccountUsernameRoute(
     override val sessionId: WireSessionId,
     override val flowId: String,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
-) : SessionRoute, AuthenticationScreenRoute {
+) : SessionRoute, AuthenticationScreenRoute, AuthBackgroundRoute {
     override val routeId: String get() = ROUTE_ID
 
     init {

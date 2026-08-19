@@ -12,6 +12,7 @@ package com.wire.android.navigation.runtime
 
 import com.wire.android.navigation.routes.auth.NewWelcomeEmptyStartRoute
 import com.wire.android.navigation.style.BackgroundType
+import com.wire.navigation.AuthBackgroundRoute
 import com.wire.navigation.AuthenticationScreenRoute
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireRoute
@@ -26,7 +27,7 @@ import com.wire.navigation.WireRoute
 internal object WireNavigation3ActivityPolicy {
 
     fun backgroundType(route: WireRoute?): BackgroundType =
-        if (route is AuthenticationScreenRoute) BackgroundType.Auth else BackgroundType.Default
+        if (route is AuthBackgroundRoute) BackgroundType.Auth else BackgroundType.Default
 
     fun sessionSnapshot(
         route: WireRoute?,

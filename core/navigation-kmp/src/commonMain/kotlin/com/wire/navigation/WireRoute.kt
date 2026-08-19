@@ -81,9 +81,18 @@ interface WireRoute : NavKey {
 interface AuthenticationScreenRoute : WireRoute
 
 /**
+ * Marks a route whose Activity chrome uses the authentication background.
+ *
+ * This is deliberately separate from [AuthenticationScreenRoute]: session setup screens still
+ * belong to authentication policy and analytics, but visually use the regular application
+ * background.
+ */
+interface AuthBackgroundRoute : WireRoute
+
+/**
  * Marks an authentication screen that does not require an authenticated session graph.
  */
-interface AuthenticationRoute : AuthenticationScreenRoute
+interface AuthenticationRoute : AuthenticationScreenRoute, AuthBackgroundRoute
 
 /**
  * Marks a route whose dependencies belong to a specific account session.

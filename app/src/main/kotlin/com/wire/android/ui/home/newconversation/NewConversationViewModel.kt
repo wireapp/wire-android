@@ -128,6 +128,7 @@ class NewConversationViewModel @Inject constructor(
     fun resetState() {
         newGroupNameTextState.clearText()
         newGroupState = GroupMetadataState()
+        pendingMLSGroupCreation = null
         loadDefaultProtocol()
         observeAllowanceOfAppsUsageInitialState()
         createGroupState = CreateGroupState.Default
@@ -202,6 +203,25 @@ class NewConversationViewModel @Inject constructor(
 
     fun onCreateGroupErrorDismiss() {
         createGroupState = CreateGroupState.Default
+    }
+
+    fun retryPendingMLSGroupCreation() {
+        val pendingCreation = pendingMLSGroupCreation ?: return
+        createGroupState = CreateGroupState.Error.PendingMLSCreation(isRetrying = true)
+        viewModelScope.launch {
+            when (val result = createRegularGroup.retryPendingMLSGroupCreation(pendingCreation.conversationId)) {
+                is ConversationCreationResult.Success,
+                is ConversationCreationResult.PendingMLSGroupCreation ->
+                    handleNewGroupCreationResult(result, pendingCreation.attempt)
+
+                else -> {
+                    appLogger.w("Failed to retry pending MLS conversation creation: $result")
+                    groupOptionsState = groupOptionsState.copy(isLoading = false)
+                    newGroupState = newGroupState.copy(isLoading = false)
+                    createGroupState = CreateGroupState.Error.PendingMLSCreation()
+                }
+            }
+        }
     }
 
     fun onAllowGuestStatusChanged(status: Boolean) {
@@ -365,7 +385,7 @@ class NewConversationViewModel @Inject constructor(
                 appLogger.w("MLS conversation was created but still needs to be established: ${result.cause}")
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
-                createGroupState = CreateGroupState.Error.Unknown
+                createGroupState = CreateGroupState.Error.PendingMLSCreation()
             }
 
             ConversationCreationResult.Forbidden -> {

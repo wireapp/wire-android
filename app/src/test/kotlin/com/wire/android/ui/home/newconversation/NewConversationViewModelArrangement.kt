@@ -198,6 +198,11 @@ internal class NewConversationViewModelArrangement {
             ConversationCreationResult.Success(CONVERSATION)
     }
 
+    fun withPendingMLSGroupCreationRetryFailure() = apply {
+        coEvery { createRegularGroup.retryPendingMLSGroupCreation(CONVERSATION_ID) } returns
+            ConversationCreationResult.UnknownFailure(CoreFailure.Unknown(UnsupportedOperationException("retry failed")))
+    }
+
     fun withConflictingBackendsFailure() = apply {
         createGroupState = CreateGroupState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
     }

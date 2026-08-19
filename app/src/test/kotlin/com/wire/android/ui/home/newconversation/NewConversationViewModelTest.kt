@@ -99,8 +99,10 @@ class NewConversationViewModelTest {
 
         viewModel.createGroup()
         advanceUntilIdle()
-        viewModel.onCreateGroupErrorDismiss()
-        viewModel.createGroup()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.PendingMLSCreation()
+
+        viewModel.retryPendingMLSGroupCreation()
         advanceUntilIdle()
 
         viewModel.createGroupState shouldBeEqualTo CreateGroupState.Created(CONVERSATION.id)
@@ -108,6 +110,24 @@ class NewConversationViewModelTest {
         coVerify(exactly = 1) {
             arrangement.createRegularGroup.retryPendingMLSGroupCreation(NewConversationViewModelArrangement.CONVERSATION_ID)
         }
+    }
+
+    @Test
+    fun `given pending MLS creation, when retry fails, then pending creation dialog remains available`() = runTest {
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withPendingMLSGroupCreation()
+            .withPendingMLSGroupCreationRetryFailure()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+        viewModel.retryPendingMLSGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.PendingMLSCreation()
     }
 
     @Test

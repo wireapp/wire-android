@@ -12,10 +12,14 @@ package com.wire.android.navigation.runtime
 
 import com.wire.android.navigation.routes.auth.NewWelcomeEmptyStartRoute
 import com.wire.android.navigation.routes.auth.WelcomeRoute
+import com.wire.android.navigation.routes.utility.InitialSyncRoute
 import com.wire.android.navigation.style.BackgroundType
+import com.wire.android.ui.authentication.devices.register.RegisterDeviceRoute
+import com.wire.android.ui.authentication.devices.remove.RemoveDeviceRoute
 import com.wire.navigation.AuthenticationScreenRoute
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavEntryId
+import com.wire.navigation.WireRoute
 import com.wire.navigation.WireSessionId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -51,12 +55,28 @@ class WireNavigation3ActivityPolicyTest {
             isSelfLogoutTransition = true,
         )
 
-        assertEquals(BackgroundType.Auth, WireNavigation3ActivityPolicy.backgroundType(route))
+        assertEquals(BackgroundType.Default, WireNavigation3ActivityPolicy.backgroundType(route))
         assertTrue(snapshot.isAuthenticationRoute)
         assertTrue(snapshot.isSessionBackedAuthenticationRoute)
         assertTrue(snapshot.isUserUiBlocked)
         assertTrue(snapshot.isSessionTransitionInProgress)
         assertTrue(snapshot.isSelfLogoutTransition)
+    }
+
+    @Test
+    fun givenSessionSetupRoutes_whenResolvingBackground_thenRegularBackgroundIsUsed() {
+        val sessionId = WireSessionId("user", "wire.example")
+
+        val routes: List<WireRoute> = listOf(
+            RegisterDeviceRoute(sessionId),
+            RemoveDeviceRoute(sessionId),
+            InitialSyncRoute(sessionId),
+        )
+
+        routes.forEach { route ->
+            assertEquals(BackgroundType.Default, WireNavigation3ActivityPolicy.backgroundType(route))
+            assertTrue(route is AuthenticationScreenRoute)
+        }
     }
 
     @Test

@@ -21,12 +21,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class CreateAccountOverviewViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountOverviewViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateAccountOverviewViewModel
+    }
+
     val navArgs: CreateAccountOverviewNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
     fun learnMoreUrl(): String = serverConfig.pricing

@@ -35,15 +35,21 @@ import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScop
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
 // TODO: Cover this viewModel  with unit test
-class CreateAccountEmailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountEmailViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val validateEmail: ValidateEmailUseCase,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateAccountEmailViewModel
+    }
 
     val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
 

@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.sharing
 
+import dev.zacsweers.metro.Inject
+
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -72,7 +74,7 @@ import kotlinx.coroutines.withContext
 
 @OptIn(FlowPreview::class)
 @Suppress("LongParameterList", "TooManyFunctions")
-class ImportMediaAuthenticatedViewModel(
+class ImportMediaAuthenticatedViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val getSelf: ObserveSelfUserUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,

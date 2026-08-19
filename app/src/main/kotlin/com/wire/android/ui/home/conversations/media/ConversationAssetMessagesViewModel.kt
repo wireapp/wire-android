@@ -30,16 +30,24 @@ import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesF
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationAssetMessagesViewModel(
-    val savedStateHandle: SavedStateHandle,
+class ConversationAssetMessagesViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val getImageMessages: ObserveImageAssetMessagesFromConversationUseCase,
     private val getAssetMessages: GetAssetMessagesFromConversationUseCase,
     private val observeAssetStatuses: ObserveAssetStatusesUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ConversationAssetMessagesViewModel
+    }
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId

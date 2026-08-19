@@ -45,6 +45,9 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseC
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
@@ -90,8 +93,8 @@ class NewMeetingViewModelPreview(
     override val state: NewMeetingState = initialState(currentTimeProvider)
 }
 
-class NewMeetingViewModelImpl(
-    savedStateHandle: SavedStateHandle,
+class NewMeetingViewModelImpl @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     override val currentTimeProvider: CurrentTimeProvider,
     private val createNewMeeting: CreateNewMeetingUseCase,
     private val updateMeeting: UpdateMeetingUseCase,
@@ -99,6 +102,10 @@ class NewMeetingViewModelImpl(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val contactMapper: ContactMapper,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): NewMeetingViewModelImpl
+    }
     val navArgs: NewMeetingNavArgs = savedStateHandle.navArgs()
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
@@ -166,9 +173,11 @@ class NewMeetingViewModelImpl(
 
     override fun updateStartTime(startTime: Instant) {
         val currentDuration = state.endTime - state.startTime
+        val latestEndTime = startTime.latestEndTimeOnSameDay()
         state = state.copy(
             startTime = startTime,
-            endTime = startTime.plus(currentDuration) // adjust end time based on the new start time but keep the same duration
+            // adjust end time based on the new start time but try to keep the same duration, unless it extends into the next day
+            endTime = minOf(startTime.plus(currentDuration), latestEndTime)
         )
         validateStartAndEndTime()
     }
@@ -292,6 +301,21 @@ internal fun getNextFullHour(now: Instant, timeZone: TimeZone = TimeZone.current
         dayOfMonth = localFuture.dayOfMonth,
         hour = localFuture.hour,
         minute = 0,
+        second = 0,
+        nanosecond = 0
+    ).toInstant(timeZone)
+}
+
+// Find the latest possible end time on the same day as the given Instant, in the given time zone.
+// The latest possible end time is 23:59:00 on the same day in the given time zone.
+private fun Instant.latestEndTimeOnSameDay(timeZone: TimeZone = TimeZone.currentSystemDefault()): Instant {
+    val localStartTime = toLocalDateTime(timeZone)
+    return LocalDateTime(
+        year = localStartTime.year,
+        monthNumber = localStartTime.monthNumber,
+        dayOfMonth = localStartTime.dayOfMonth,
+        hour = 23,
+        minute = 59,
         second = 0,
         nanosecond = 0
     ).toInstant(timeZone)

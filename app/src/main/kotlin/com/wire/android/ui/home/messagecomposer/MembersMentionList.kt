@@ -23,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.Dp
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
@@ -39,17 +40,31 @@ fun MembersMentionList(
     membersToMention: List<Contact>,
     searchQuery: String,
     onMentionPicked: (Contact) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    useKeyboardNavigation: Boolean = false,
+    firstItemFocusRequester: FocusRequester = FocusRequester.Default,
+    onDismissRequest: () -> Unit = {},
 ) {
     if (membersToMention.isNotEmpty()) {
         HorizontalDivider()
     }
-    LazyColumn(
-        modifier = modifier.background(colorsScheme().background),
-        reverseLayout = true
-    ) {
-        membersToMention.forEach {
-            if (it.membership != Membership.Service) {
+    val visibleMembers = membersToMention.filter { it.membership != Membership.Service }
+    if (useKeyboardNavigation) {
+        KeyboardMentionList(
+            membersToMention = visibleMembers,
+            searchQuery = searchQuery,
+            onMentionPicked = onMentionPicked,
+            onDismissRequest = onDismissRequest,
+            firstItemFocusRequester = firstItemFocusRequester,
+            reverseLayout = true,
+            modifier = modifier.background(colorsScheme().background),
+        )
+    } else {
+        LazyColumn(
+            modifier = modifier.background(colorsScheme().background),
+            reverseLayout = true
+        ) {
+            visibleMembers.forEach {
                 item {
                     MemberItemToMention(
                         avatarData = it.avatarData,

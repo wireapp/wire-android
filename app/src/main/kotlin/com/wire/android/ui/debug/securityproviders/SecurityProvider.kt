@@ -15,23 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.mediaplayer
+package com.wire.android.ui.debug.securityproviders
 
-import android.content.Context
-import com.wire.android.di.ApplicationContext
-import dev.zacsweers.metro.Inject
+data class SecurityProvider(
+    val name: String,
+    val version: String,
+    val info: String,
+    val entries: List<KeyValueEntry>,
+)
 
-class MediaPlayerViewModelFactory @Inject constructor(
-    @ApplicationContext private val context: Context,
-) {
-    fun videoPlayerViewModel(
-        localPath: String?,
-        contentUrl: String?,
-        fileName: String?,
-    ) = VideoPlayerViewModel(
-        context = context,
-        localPath = localPath,
-        contentUrl = contentUrl,
-        fileName = fileName,
-    )
-}
+data class KeyValueEntry(
+    val key: String,
+    val value: String,
+)

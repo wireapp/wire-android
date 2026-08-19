@@ -38,16 +38,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class DebugConversationViewModel(
+class DebugConversationViewModel @AssistedInject constructor(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
     private val fetchConversation: FetchConversationUseCase,
     private val feedConversation: DebugFeedConversationUseCase,
     private val getConversationEpochFromCC: GetConversationEpochFromCCUseCase,
     private val migrateConversationToMLSUseCase: MigrateConversationToMLSUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted savedStateHandle: SavedStateHandle,
 ) : ActionsViewModel<DebugConversationScreenAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): DebugConversationViewModel
+    }
 
     val args: DebugConversationScreenNavArgs = savedStateHandle.navArgs()
 

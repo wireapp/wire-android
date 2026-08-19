@@ -345,7 +345,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4261")
-    @Category("regression", "calling", "smoke")
+    @Category("regression", "calling", "smoke", "TEMP")
     @Test
     fun givenMemberCallsMeWithAppInBackground_whenIAccept_thenOneOnOneCallIsEstablished() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -916,6 +916,10 @@ class CallingTests : BaseCallUiTest() {
             runBlocking {
                 callHelper.userXAcceptsNextIncomingCallAutomatically("user2Name,user3Name")
             }
+        }
+
+        step("And I wait until Wire service notification disappears") {
+            pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
         }
 
         step("When I tap start call button") {

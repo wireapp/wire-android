@@ -23,12 +23,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ApplicationContext
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getGitBuildId
 import kotlinx.coroutines.launch
+import dev.zacsweers.metro.Inject
 
-class AboutThisAppViewModel(
-    private val context: Context
+class AboutThisAppViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     var state by mutableStateOf(

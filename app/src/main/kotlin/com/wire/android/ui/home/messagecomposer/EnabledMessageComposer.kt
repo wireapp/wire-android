@@ -56,6 +56,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,18 +67,14 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isShiftPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -96,6 +93,7 @@ import com.wire.android.ui.common.textfield.MessageComposerDefault
 import com.wire.android.ui.common.textfield.MessageComposerEnterToSend
 import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.UsersTypingIndicatorForConversation
+import com.wire.android.ui.home.conversations.isHardwareKeyboardConnected
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
@@ -134,6 +132,8 @@ fun EnabledMessageComposer(
     val density = LocalDensity.current
     val navBarHeight = bottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
+    val isHardwareKeyboardConnected = isHardwareKeyboardConnected()
+    val keyboardControlsVisible = isImeVisible || isHardwareKeyboardConnected
     val offsetY = WindowInsets.ime.getBottom(density)
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
     val rippleProgress = remember { Animatable(0f) }
@@ -142,6 +142,31 @@ fun EnabledMessageComposer(
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
+        val mentionListFirstFocusRequester = remember { FocusRequester() }
+        var focusMentionListOnOpen by remember { mutableStateOf(false) }
+        val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
+
+        LaunchedEffect(mentionSearchResult, focusMentionListOnOpen, isHardwareKeyboardConnected) {
+            if (isHardwareKeyboardConnected && focusMentionListOnOpen && mentionSearchResult.isNotEmpty()) {
+                withFrameNanos { }
+                mentionListFirstFocusRequester.requestFocus()
+                focusMentionListOnOpen = false
+            }
+        }
+
+        val finishHardwareMention = {
+            val messageTextState = inputStateHolder.messageTextState
+            val selection = messageTextState.selection
+            messageTextState.edit {
+                replace(selection.min, selection.max, " ")
+                this.selection = TextRange(selection.min + 1)
+            }
+            onClearMentionSearchResult()
+        }
+        val closeMentionSuggestions = {
+            if (isHardwareKeyboardConnected) finishHardwareMention() else onClearMentionSearchResult()
+            if (isHardwareKeyboardConnected) inputStateHolder.requestHardwareFocus()
+        }
 
         LaunchedEffect(offsetY) {
             with(density) {
@@ -203,7 +228,11 @@ fun EnabledMessageComposer(
                             onMentionPicked = { pickedMention ->
                                 messageCompositionHolder.value.addMention(pickedMention)
                                 onClearMentionSearchResult()
+                                if (isHardwareKeyboardConnected) inputStateHolder.requestHardwareFocus()
                             },
+                            useKeyboardNavigation = isHardwareKeyboardConnected,
+                            firstItemFocusRequester = mentionListFirstFocusRequester,
+                            onDismissRequest = closeMentionSuggestions,
                             modifier = Modifier.align(Alignment.BottomCenter)
                         )
                     }
@@ -275,6 +304,35 @@ fun EnabledMessageComposer(
                             messageComposition = messageComposition.value,
                             keyboardOptions = keyboardOptions,
                             onKeyboardAction = keyboardActionHandler,
+                            onHardwareEnter = { isShiftPressed ->
+                                if (isShiftPressed) {
+                                    messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {
+                                        append("\n")
+                                    }
+                                    true
+                                } else if (canSendMessage) {
+                                    onSendButtonClicked()
+                                    true
+                                } else {
+                                    false
+                                }
+                            },
+                            onHardwareTab = {
+                                if (mentionSearchResult.isNotEmpty()) {
+                                    mentionListFirstFocusRequester.requestFocus()
+                                    true
+                                } else {
+                                    false
+                                }
+                            },
+                            onHardwareEscape = {
+                                if (mentionSearchResult.isNotEmpty()) {
+                                    finishHardwareMention()
+                                    true
+                                } else {
+                                    false
+                                }
+                            },
                             canSendMessage = canSendMessage,
                             messageTextState = inputStateHolder.messageTextState,
                             isTextExpanded = inputStateHolder.isTextExpanded,
@@ -296,7 +354,9 @@ fun EnabledMessageComposer(
                             onSelectedLineIndexChanged = { index ->
                                 currentSelectedLineIndex = index
                             },
-                            showOptions = isImeVisible,
+                            showOptions = keyboardControlsVisible,
+                            showInlinePlusButton = !keyboardControlsVisible,
+                            useKeyboardActivationGate = isHardwareKeyboardConnected,
                             optionsSelected = inputStateHolder.optionsVisible,
                             onPlusClick = {
                                 if (!hideRipple) {
@@ -332,30 +392,9 @@ fun EnabledMessageComposer(
                                             transferableContent
                                         }
                                     }
-                                )
-                                .onKeyEvent { keyEvent ->
-                                    if (keyEvent.type != KeyEventType.KeyDown) {
-                                        return@onKeyEvent false
-                                    }
-                                    if (keyEvent.isShiftPressed && keyEvent.key == Key.Enter) {
-                                        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {
-                                            append("\n")
-                                        }
-                                        true
-                                    } else if (keyEvent.key == Key.Enter) {
-                                        if (canSendMessage) {
-                                            onSendButtonClicked()
-                                        } else {
-                                            Unit
-                                        }
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                },
+                                ),
                         )
 
-                        val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
                         if (mentionSearchResult.isNotEmpty() && inputStateHolder.isTextExpanded) {
                             DropDownMentionsSuggestions(
                                 currentSelectedLineIndex = currentSelectedLineIndex,
@@ -365,7 +404,11 @@ fun EnabledMessageComposer(
                                 onMentionPicked = {
                                     messageCompositionHolder.value.addMention(it)
                                     onClearMentionSearchResult()
-                                }
+                                    if (isHardwareKeyboardConnected) inputStateHolder.requestHardwareFocus()
+                                },
+                                useKeyboardNavigation = isHardwareKeyboardConnected,
+                                firstItemFocusRequester = mentionListFirstFocusRequester,
+                                onDismissRequest = closeMentionSuggestions,
                             )
                         }
                     }
@@ -378,7 +421,7 @@ fun EnabledMessageComposer(
                         )
                     }
 
-                    AnimatedVisibility(isImeVisible) {
+                    AnimatedVisibility(keyboardControlsVisible) {
                         AdditionalOptionsMenu(
                             conversationId = conversationId,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionState,
@@ -386,7 +429,10 @@ fun EnabledMessageComposer(
                             attachmentsVisible = inputStateHolder.optionsVisible,
                             isEditing = messageCompositionInputStateHolder.inputType is InputType.Editing,
                             isMentionActive = messageComposerViewState.value.mentionSearchResult.isNotEmpty(),
-                            onMentionButtonClicked = messageCompositionHolder.value::startMention,
+                            onMentionButtonClicked = {
+                                focusMentionListOnOpen = isHardwareKeyboardConnected
+                                messageCompositionHolder.value.startMention()
+                            },
                             onOnSelfDeletingOptionClicked = onChangeSelfDeletionClicked,
                             onRichOptionButtonClicked = messageCompositionHolder.value::addOrRemoveMessageMarkdown,
                             onPingOptionClicked = onPingOptionClicked,
@@ -396,7 +442,9 @@ fun EnabledMessageComposer(
                                 }
                             },
                             onRichEditingButtonClicked = {
-                                messageCompositionInputStateHolder.requestFocus()
+                                if (!isHardwareKeyboardConnected) {
+                                    messageCompositionInputStateHolder.requestFocus()
+                                }
                                 additionalOptionStateHolder.toRichTextEditing()
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
@@ -407,6 +455,7 @@ fun EnabledMessageComposer(
                             },
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
                             areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
+                            useKeyboardNavigation = isHardwareKeyboardConnected,
                         )
                     }
                 }
@@ -415,6 +464,7 @@ fun EnabledMessageComposer(
                 Popup(
                     alignment = Alignment.BottomCenter,
                     properties = PopupProperties(
+                        focusable = isHardwareKeyboardConnected,
                         dismissOnBackPress = true,
                         dismissOnClickOutside = true
                     ),
@@ -487,20 +537,24 @@ fun EnabledMessageComposer(
                             onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
                             tempWritableImageUri = tempWritableImageUri,
                             tempWritableVideoUri = tempWritableVideoUri,
+                            useKeyboardNavigation = isHardwareKeyboardConnected,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
                 }
+            }
 
-                BackHandler(inputStateHolder.optionsVisible) {
-                    inputStateHolder.showAttachments(false)
-                }
-                BackHandler(inputStateHolder.inputType is InputType.Editing) {
-                    cancelEdit()
-                }
-                BackHandler(isImeVisible || inputStateHolder.inputFocused) {
-                    inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
-                }
+            BackHandler(inputStateHolder.optionsVisible) {
+                inputStateHolder.showAttachments(false)
+            }
+            BackHandler(inputStateHolder.inputType is InputType.Editing) {
+                cancelEdit()
+            }
+            BackHandler(isImeVisible || inputStateHolder.inputFocused) {
+                inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+            }
+            BackHandler(mentionSearchResult.isNotEmpty()) {
+                closeMentionSuggestions()
             }
         }
     }

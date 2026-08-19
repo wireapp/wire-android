@@ -17,6 +17,10 @@
  */
 package com.wire.android.ui.home.messagecomposer.actions
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -37,11 +41,15 @@ interface SelfDeletingMessageActionViewModel {
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class SelfDeletingMessageActionViewModelImpl(
+class SelfDeletingMessageActionViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeSelfDeletingMessages: ObserveSelfDeletionTimerSettingsForConversationUseCase,
-    args: SelfDeletingMessageActionArgs,
+    @Assisted args: SelfDeletingMessageActionArgs,
 ) : SelfDeletingMessageActionViewModel, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: SelfDeletingMessageActionArgs): SelfDeletingMessageActionViewModelImpl
+    }
 
     private val conversationId: QualifiedID = args.conversationId
 

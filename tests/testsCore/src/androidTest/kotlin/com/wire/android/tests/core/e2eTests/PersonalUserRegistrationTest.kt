@@ -135,4 +135,92 @@ class PersonalUserRegistrationTest : BaseUiTest() {
             }
         }
     }
+
+    @Suppress("LongMethod")
+    @TestCaseId("TC-4493")
+    @Category("regression", "RC", "registration")
+    @Test
+    fun givenUserOnOldLoginFlow_whenCreatingPersonalAccountWithValidDetails_thenAccountIsCreatedSuccessfully() {
+        val userInfo = UserClient.generateUniqueUserInfo()
+        lateinit var otp: String
+
+        step("Given I see email verification Welcome Page") {
+            pages.registrationPage.assertEmailWelcomePage()
+        }
+
+        step("And I open staging backend deep link for old login flows and see Welcome Page") {
+            pages.loginPage.apply {
+                clickStagingDeepLinkForOldLoginFlow()
+                clickProceedButtonOnDeeplinkOverlay()
+                assertOldLoginWelcomePageVisible()
+            }
+        }
+
+        step("When I start creating a personal account from the old login Welcome Page") {
+            pages.loginPage.clickCreatePersonalAccountLinkOnOldWelcomePage()
+            pages.registrationPage.clickCreatePersonalAccountButton()
+        }
+
+        step("And I enter my email, name, password, and confirm password") {
+            pages.registrationPage.apply {
+                enterPersonalUserRegistrationEmailOnOldLoginFlow(userInfo.email)
+                enterFirstName("${userInfo.name} ${userInfo.lastName}")
+                enterPassword(userInfo.password)
+                closeKeyboardIfOpened()
+                enterConfirmPassword(userInfo.password)
+            }
+        }
+
+        step("And I tap show password icon and see my password in cleartext") {
+            pages.registrationPage.apply {
+                clickShowPasswordEyeIcon()
+                verifyConfirmPasswordIsCorrect(userInfo.password)
+            }
+        }
+
+        step("And I tap hide password icon and hide the keyboard") {
+            pages.registrationPage.clickHidePasswordEyeIcon()
+            closeKeyboardIfOpened()
+        }
+
+        step("And I continue and accept the Terms of Use") {
+            pages.registrationPage.apply {
+                clickContinueButton()
+                assertTermsOfUseModalVisible()
+                clickContinueButton()
+            }
+        }
+
+        step("And I retrieve the verification code") {
+            otp = runBlocking {
+                InbucketClient.getVerificationCode(
+                    userInfo.email,
+                    backendClient.inbucketUrl,
+                    backendClient.inbucketPassword,
+                    backendClient.inbucketUsername
+                )
+            }
+        }
+
+        step("And I verify my email and submit my username") {
+            pages.registrationPage.apply {
+                enter2FAOnCreatePersonalAccountPage(otp)
+                assertEnterYourUserNameInfoText()
+                assertUserNameHelpText()
+                setUserName(userInfo.username)
+                clickConfirmButton()
+            }
+        }
+
+        step("And I wait until I am fully logged in and decline share data alert") {
+            step("Wait for registration flow to finish and handle post-registration prompts") {
+                pages.registrationPage.apply {
+                    waitUntilRegistrationFlowIsCompleted()
+                    clickAllowNotificationButton()
+                    clickDeclineShareDataAlert()
+                    assertConversationPageVisible()
+                }
+            }
+        }
+    }
 }

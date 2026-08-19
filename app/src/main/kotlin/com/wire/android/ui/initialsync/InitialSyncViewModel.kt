@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.initialsync
 
+import dev.zacsweers.metro.Inject
+
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +39,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class InitialSyncViewModel(
+class InitialSyncViewModel @Inject constructor(
     private val observeSyncState: ObserveSyncStateUseCase,
     private val userDataStoreProvider: UserDataStoreProvider,
     @CurrentAccount private val userId: UserId,

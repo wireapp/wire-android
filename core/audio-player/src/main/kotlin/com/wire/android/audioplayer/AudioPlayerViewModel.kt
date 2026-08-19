@@ -20,7 +20,6 @@ package com.wire.android.audioplayer
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import java.io.File
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -31,6 +30,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * Playback ViewModel for the reusable [AudioPlayer]. Plays either a local file ([localPath]) or a
@@ -43,11 +43,6 @@ class AudioPlayerViewModel(
     val contentUrl: String?,
     val fileName: String?,
 ) : ViewModel() {
-
-//    private val navArgs = CellAudioPlayerScreenDestination.argsFrom(savedStateHandle)
-//    val localPath: String? = navArgs.localPath
-//    val contentUrl: String? = navArgs.contentUrl
-//    val fileName: String? = navArgs.fileName
 
     private val _state = MutableStateFlow(AudioPlaybackState())
     val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()
@@ -96,6 +91,7 @@ class AudioPlayerViewModel(
                 seekTo(0)
                 play()
             }
+
             current.isPlaying -> pause()
             else -> play()
         }

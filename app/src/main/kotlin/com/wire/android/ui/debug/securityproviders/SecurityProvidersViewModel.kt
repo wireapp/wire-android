@@ -21,8 +21,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.network.NetworkStateObserver
+import com.wire.kalium.util.DebugKaliumApi
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,12 +32,15 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+@OptIn(DebugKaliumApi::class)
 class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
     private val networkDiagnosticsProvider: NetworkDiagnosticsProvider,
     private val networkStateObserver: NetworkStateObserver,
     private val selfServerConfig: SelfServerConfigUseCase,
+    private val getSqlCipherVersion: GetSqlCipherVersionUseCase,
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
@@ -44,7 +49,18 @@ class SecurityProvidersViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _state.update { current -> current.copy(appPaths = appPathsProvider()) }
+            val databaseSecurity = withContext(dispatchers.io()) {
+                DatabaseSecurityInfo(
+                    sqlCipherVersion = getSqlCipherVersion(),
+                    userDatabase = appPathsProvider.userDatabaseSecurityStatus(),
+                )
+            }
+            _state.update { current ->
+                current.copy(
+                    appPaths = appPathsProvider(),
+                    databaseSecurity = databaseSecurity
+                )
+            }
         }
         viewModelScope.launch {
             observeNetworkDiagnostics()
@@ -72,4 +88,10 @@ data class SecurityProvidersViewState(
     val appPaths: List<AppPathEntry> = emptyList(),
     val network: NetworkDiagnostics? = null,
     val providers: List<SecurityProvider>? = null,
+    val databaseSecurity: DatabaseSecurityInfo? = null,
+)
+
+data class DatabaseSecurityInfo(
+    val sqlCipherVersion: String?,
+    val userDatabase: UserDatabaseSecurityStatus,
 )

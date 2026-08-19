@@ -95,4 +95,3 @@ data class DatabaseSecurityInfo(
     val sqlCipherVersion: String?,
     val userDatabase: UserDatabaseSecurityStatus,
 )
-

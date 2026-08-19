@@ -113,6 +113,7 @@ sealed interface SqliteHeaderStatus {
     }
 }
 
+@Suppress("MagicNumber")
 private fun ByteArray.toHexString(): String = joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xff) }
 
 data class AppPathEntry(

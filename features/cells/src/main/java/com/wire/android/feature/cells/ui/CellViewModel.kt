@@ -28,6 +28,7 @@ import androidx.paging.map
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.data.ViewerAccessBannerStore
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -64,6 +65,8 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.delay
@@ -111,6 +114,9 @@ class CellViewModel(
     private val networkStateObserver: NetworkStateObserver,
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    private val viewerAccessBannerStore: ViewerAccessBannerStore,
+    private val qualifiedIdMapper: QualifiedIdMapper,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     val offlineFilesEnabled: Boolean,
     private val inAppImageViewerEnabled: Boolean,
@@ -177,9 +183,41 @@ class CellViewModel(
 
     private var isCollaboraEnabled: Boolean = false
 
+    private val rootConversationId: String? = navArgs.conversationId?.substringBefore("/")
+
+    private val isViewerOnly = MutableStateFlow(false)
+
+    /**
+     * Viewer access banner is shown while browsing files of a conversation the self user only has viewer access to,
+     * until it is dismissed. Dismissal is remembered for that conversation.
+     */
+    internal val showViewerAccessBanner: StateFlow<Boolean> = combine(
+        isViewerOnly,
+        rootConversationId?.let { viewerAccessBannerStore.isDismissed(it) } ?: flowOf(true),
+    ) { viewerOnly, dismissed ->
+        viewerOnly && !dismissed
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
     init {
         loadWireCellConfig()
         checkCellAvailabilityAndRefresh()
+        checkViewerAccess()
+    }
+
+    private fun checkViewerAccess() = viewModelScope.launch {
+        val conversationId = rootConversationId?.takeIf { isConversationFiles() } ?: return@launch
+        isViewerOnly.value = !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+    }
+
+    internal fun onViewerAccessBannerDismissed() {
+        val conversationId = rootConversationId ?: return
+        viewModelScope.launch {
+            viewerAccessBannerStore.setDismissed(conversationId)
+        }
     }
 
     private fun checkCellAvailabilityAndRefresh() = viewModelScope.launch {
@@ -253,7 +291,6 @@ class CellViewModel(
             sharedPathCache.openLoadStates,
             offlineFileDownloadController.downloadProgresses,
         ) { offlineFiles, openLoadStates, downloadProgresses ->
-            val rootConversationId = navArgs.conversationId?.substringBefore("/")
             val filtered = if (rootConversationId != null) {
                 offlineFiles.filter { it.conversationId == rootConversationId }
             } else {

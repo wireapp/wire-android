@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.feature.cells.data.ViewerAccessBannerStore
 import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
@@ -68,6 +69,8 @@ import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUs
 import com.wire.kalium.cells.domain.usecase.publiclink.UpdatePublicLinkPasswordUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.util.RandomPassword
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Inject
@@ -93,6 +96,9 @@ class CellsViewModelFactory @Inject constructor(
     private val networkStateObserver: NetworkStateObserver,
     private val getConversationNameUseCase: GetConversationNameUseCase,
     private val getUserNameUseCase: GetUserNameUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    private val viewerAccessBannerStore: ViewerAccessBannerStore,
+    private val qualifiedIdMapper: QualifiedIdMapper,
     @Named("offlineFilesEnabled") private val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     private val createPresentationFileUseCase: CreatePresentationFileUseCase,
@@ -141,6 +147,9 @@ class CellsViewModelFactory @Inject constructor(
         networkStateObserver = networkStateObserver,
         getConversationName = getConversationNameUseCase,
         getUserName = getUserNameUseCase,
+        isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
+        viewerAccessBannerStore = viewerAccessBannerStore,
+        qualifiedIdMapper = qualifiedIdMapper,
         offlineFilesEnabled = offlineFilesEnabled,
         inAppImageViewerEnabled = inAppImageViewerEnabled,
     )

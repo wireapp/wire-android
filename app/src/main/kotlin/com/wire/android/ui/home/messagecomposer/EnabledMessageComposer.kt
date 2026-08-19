@@ -54,6 +54,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,6 +88,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.allUploaded
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.banner.ViewerAccessBanner
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -136,6 +138,7 @@ fun EnabledMessageComposer(
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
     val rippleProgress = remember { Animatable(0f) }
     var hideRipple by remember { mutableStateOf(true) }
+    var viewerAccessBannerDismissed by rememberSaveable { mutableStateOf(false) }
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
@@ -218,6 +221,13 @@ fun EnabledMessageComposer(
                         .fillMaxWidth()
                         .background(color = colorsScheme().surfaceContainerLow)
                 ) {
+                    if (!messageComposerViewState.value.areAttachmentOptionsEnabled && !viewerAccessBannerDismissed) {
+                        ViewerAccessBanner(
+                            onCloseClick = { viewerAccessBannerDismissed = true },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
                     Box(Modifier.wrapContentSize()) {
                         SecurityClassificationBannerForConversation(
                             conversationId = conversationId

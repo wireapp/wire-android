@@ -105,6 +105,7 @@ internal data class WireNavigation3ActivityCallbacks(
     val hardLogout: () -> Unit,
     val restartAfterLogout: () -> Unit,
     val moveTaskToBackground: () -> Unit,
+    val completeSessionBackedAuthenticationCancellation: (WireSessionId) -> Unit,
 )
 
 internal enum class WireNavigation3ExternalIntent {
@@ -276,6 +277,8 @@ internal class WireNavigation3ProductionActions(
     override fun exitSettings() = goBackOrFinish()
 
     override fun exitDeviceManagement() = goBackOrFinish()
+    override fun completeSessionBackedAuthenticationCancellation(sessionId: WireSessionId) =
+        activity.completeSessionBackedAuthenticationCancellation(sessionId)
     override fun exitUserProfile() = goBackOrFinish()
     override fun openAppSettings() = navigate(AppSettingsRoute(requireSession()))
     override fun openAddAccount() {

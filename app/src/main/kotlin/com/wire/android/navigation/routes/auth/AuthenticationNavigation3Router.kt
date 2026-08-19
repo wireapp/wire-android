@@ -73,6 +73,14 @@ internal enum class AuthenticationNavigationTransition {
     BACK,
 }
 
+/** Terminal outcome produced by the register-device flow and consumed by its router. */
+internal sealed interface RegisterDeviceCompletion {
+    data class E2EIEnrollment(val sessionId: WireSessionId) : RegisterDeviceCompletion
+    data object Home : RegisterDeviceCompletion
+    data object InitialSync : RegisterDeviceCompletion
+    data object RemoveDevice : RegisterDeviceCompletion
+}
+
 @Suppress("TooManyFunctions")
 internal class AuthenticationNavigation3Router(
     private val runtime: WireNavigation3Runtime,
@@ -171,20 +179,48 @@ internal class AuthenticationNavigation3Router(
     fun completeLogin(
         eventId: String,
         completion: AuthenticationLoginCompletion,
-    ): Boolean =
-        when (transitionLedger.executeOnce(eventId) { completeLogin(completion) }) {
-            AuthenticationTransitionLedger.Outcome.APPLIED -> true
-            AuthenticationTransitionLedger.Outcome.REJECTED -> false
-            AuthenticationTransitionLedger.Outcome.ALREADY_APPLIED -> {
-                val transitionId = WireNavigationDiagnostics.nextTransitionId()
-                WireNavigationDiagnostics.auth(
-                    transitionId = transitionId,
-                    event = "LOGIN_TERMINAL",
-                    outcome = "duplicate-ignored",
-                )
-                true
-            }
+    ): Boolean = executeTerminalTransitionOnce(eventId, "LOGIN_TERMINAL") {
+        completeLogin(completion)
+    }
+
+    fun completeRegisterDevice(
+        eventId: String,
+        routeSessionId: WireSessionId,
+        flowId: String,
+        completion: RegisterDeviceCompletion,
+    ): Boolean = executeTerminalTransitionOnce(eventId, "REGISTER_DEVICE_TERMINAL") {
+        when (completion) {
+            is RegisterDeviceCompletion.E2EIEnrollment ->
+                registerDeviceToE2EI(completion.sessionId, flowId)
+
+            RegisterDeviceCompletion.Home ->
+                completeSessionSetup(routeSessionId, SessionSetupDestination.HOME)
+
+            RegisterDeviceCompletion.InitialSync ->
+                completeSessionSetup(routeSessionId, SessionSetupDestination.INITIAL_SYNC)
+
+            RegisterDeviceCompletion.RemoveDevice ->
+                registerDeviceToRemoveDevice(routeSessionId, flowId)
         }
+    }
+
+    private fun executeTerminalTransitionOnce(
+        eventId: String,
+        eventName: String,
+        transition: () -> Boolean,
+    ): Boolean = when (transitionLedger.executeOnce(eventId, transition)) {
+        AuthenticationTransitionLedger.Outcome.APPLIED -> true
+        AuthenticationTransitionLedger.Outcome.REJECTED -> false
+        AuthenticationTransitionLedger.Outcome.ALREADY_APPLIED -> {
+            val transitionId = WireNavigationDiagnostics.nextTransitionId()
+            WireNavigationDiagnostics.auth(
+                transitionId = transitionId,
+                event = eventName,
+                outcome = "duplicate-ignored",
+            )
+            true
+        }
+    }
 
     fun completeSessionSetup(
         sessionId: WireSessionId,

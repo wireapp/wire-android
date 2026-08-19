@@ -23,6 +23,7 @@ import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -37,6 +38,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsReadyUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -89,6 +91,35 @@ class OtherUserProfileScreenViewModelTest {
             arrangement.observeConversationRoleForUserUseCase(any(), any())
         }
         assertEquals(groupState, null)
+    }
+
+    @Test
+    fun `given one-to-one conversation is ready, when loading profile, then conversation is started`() = runTest {
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
+            .withConversationReadiness(CheckOneToOneConversationIsReadyUseCase.Result.Ready(CONVERSATION))
+            .arrange()
+
+        assertEquals(true, viewModel.state.isConversationStarted)
+    }
+
+    @Test
+    fun `given one-to-one conversation is not ready, when loading profile, then conversation is not started`() = runTest {
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
+            .withConversationReadiness(CheckOneToOneConversationIsReadyUseCase.Result.NotReady)
+            .arrange()
+
+        assertEquals(false, viewModel.state.isConversationStarted)
+    }
+
+    @Test
+    fun `given one-to-one readiness check fails, when loading profile, then conversation is not started`() = runTest {
+        val (_, viewModel) = OtherUserProfileViewModelArrangement()
+            .withConversationReadiness(
+                CheckOneToOneConversationIsReadyUseCase.Result.Failure(CoreFailure.Unknown(null))
+            )
+            .arrange()
+
+        assertEquals(false, viewModel.state.isConversationStarted)
     }
 
     @Test

@@ -73,6 +73,11 @@ fun NewGroupNameScreen(
         CreateGroupErrorDialog(
             error = it,
             onDismiss = newConversationViewModel::onCreateGroupErrorDismiss,
+            onRetryPendingCreation = newConversationViewModel::retryPendingMLSGroupCreation,
+            onPendingCreationAcknowledged = {
+                newConversationViewModel.onCreateGroupErrorDismiss()
+                navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+            },
             onEditParticipantsList = {
                 newConversationViewModel.onCreateGroupErrorDismiss()
                 navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))

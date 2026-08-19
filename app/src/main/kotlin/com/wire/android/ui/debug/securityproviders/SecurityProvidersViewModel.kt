@@ -23,6 +23,7 @@ import com.wire.android.appLogger
 import com.wire.android.util.crypto.AppCryptoServiceInfo
 import com.wire.android.util.crypto.appCryptoServices
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
 import com.wire.kalium.logic.feature.debug.CryptoServiceUsage
 import com.wire.kalium.logic.feature.debug.GetCryptoServiceReportUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withContext
 
 @OptIn(DebugKaliumApi::class)
 class SecurityProvidersViewModel @Inject constructor(
@@ -44,7 +46,8 @@ class SecurityProvidersViewModel @Inject constructor(
     private val networkDiagnosticsProvider: NetworkDiagnosticsProvider,
     private val networkStateObserver: NetworkStateObserver,
     private val selfServerConfig: SelfServerConfigUseCase,
-    private val dispatcherProvider: DispatcherProvider,
+    private val getSqlCipherVersion: GetSqlCipherVersionUseCase,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SecurityProvidersViewState())
@@ -52,13 +55,20 @@ class SecurityProvidersViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val appServices = withContext(dispatcherProvider.io()) { appCryptoServices() }
+            val databaseSecurity = withContext(dispatchers.io()) {
+                DatabaseSecurityInfo(
+                    sqlCipherVersion = getSqlCipherVersion(),
+                    userDatabase = appPathsProvider.userDatabaseSecurityStatus(),
+                )
+            }
+            val appServices = withContext(dispatchers.io()) { appCryptoServices() }
             val cryptoServices = getCryptoServiceReport().map(CryptoServiceUsage::toRow) +
                     appServices.map(AppCryptoServiceInfo::toRow)
             _state.update { current ->
                 current.copy(
                     appPaths = appPathsProvider(),
                     cryptoServices = cryptoServices,
+                    databaseSecurity = databaseSecurity
                 )
             }
         }
@@ -71,7 +81,7 @@ class SecurityProvidersViewModel @Inject constructor(
         val apiUrl = apiUrl() ?: return
         networkStateObserver.observeCurrentNetwork()
             .map { networkDiagnosticsProvider(apiUrl) }
-            .flowOn(dispatcherProvider.io())
+            .flowOn(dispatchers.io())
             .collect { diagnostics -> _state.update { current -> current.copy(network = diagnostics) } }
     }
 
@@ -114,4 +124,10 @@ data class SecurityProvidersViewState(
     val appPaths: List<LabelledValue> = emptyList(),
     val network: NetworkDiagnostics? = null,
     val cryptoServices: List<CryptoServiceRow>? = null,
+    val databaseSecurity: DatabaseSecurityInfo? = null,
+)
+
+data class DatabaseSecurityInfo(
+    val sqlCipherVersion: String?,
+    val userDatabase: UserDatabaseSecurityStatus,
 )

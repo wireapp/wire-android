@@ -1086,6 +1086,7 @@
     <string name="notification_action_reply">Ответить</string>
     <string name="notification_receiver_name">Вы</string>
     <string name="label_type_a_message">Введите сообщение</string>
+    <string name="content_description_conversation_message_list">Сообщения в беседе. Нажмите Enter для перехода между сообщениями.</string>
     <string name="notification_action_open_call">Открыть вызов</string>
     <string name="notification_action_decline_call">Отклонить</string>
     <string name="notification_incoming_call_content">Вызов…</string>

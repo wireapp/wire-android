@@ -23,9 +23,9 @@ import com.wire.android.appLogger
 import com.wire.android.util.crypto.AppCryptoServiceInfo
 import com.wire.android.util.crypto.appCryptoServices
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
 import com.wire.kalium.logic.feature.debug.CryptoServiceUsage
 import com.wire.kalium.logic.feature.debug.GetCryptoServiceReportUseCase
+import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.network.NetworkStateObserver
 import com.wire.kalium.util.DebugKaliumApi
@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withContext
 
 @OptIn(DebugKaliumApi::class)

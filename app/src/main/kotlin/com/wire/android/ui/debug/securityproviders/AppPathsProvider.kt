@@ -23,6 +23,7 @@ import com.wire.android.di.ApplicationContext
 import com.wire.android.di.CurrentAccount
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
+import java.io.File
 
 class AppPathsProvider @Inject constructor(
     @ApplicationContext private val context: Context,

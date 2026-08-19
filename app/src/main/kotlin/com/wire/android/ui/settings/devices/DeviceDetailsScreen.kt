@@ -34,6 +34,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -101,10 +102,13 @@ internal fun DeviceDetailsRouteScreen(
     onNavigateBack: () -> Unit,
     onOpenCertificateDetails: (MLSClientIdentity) -> Unit,
 ) {
-    when {
-        viewModel.state.error is RemoveDeviceError.InitError -> onNavigateBack()
-        viewModel.state.deviceRemoved -> onNavigateBack()
-        else -> DeviceDetailsContent(
+    val shouldNavigateBack = viewModel.state.error is RemoveDeviceError.InitError ||
+        viewModel.state.deviceRemoved
+    LaunchedEffect(shouldNavigateBack) {
+        if (shouldNavigateBack) onNavigateBack()
+    }
+    if (!shouldNavigateBack) {
+        DeviceDetailsContent(
             state = viewModel.state,
             passwordTextState = viewModel.passwordTextState,
             onDeleteDevice = viewModel::removeDevice,

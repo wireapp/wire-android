@@ -20,8 +20,12 @@ package com.wire.android.ui.home.meetings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
+import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.call.JoinOrStartCallManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -29,12 +33,15 @@ import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
+import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class MeetingsCallViewModel(
-    currentAccount: UserId,
+class MeetingsCallViewModel @Inject constructor(
+    @CurrentAccount currentAccount: UserId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
     private val answerCall: AnswerCallUseCase,
@@ -43,8 +50,11 @@ class MeetingsCallViewModel(
     private val isConferenceCallingEnabled: IsEligibleToStartCallUseCase,
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
-    private val observeSelf: ObserveSelfUserUseCase
+    private val observeSelf: ObserveSelfUserUseCase,
+    private val ensureMeetingIsMLSEstablished: EnsureMeetingIsMLSEstablishedUseCase,
 ) : ViewModel() {
+    val notEstablishedDialogState: VisibilityState<Unit> = VisibilityState()
+
     val callManager = JoinOrStartCallManager(
         scope = viewModelScope,
         currentAccount = currentAccount,
@@ -58,4 +68,31 @@ class MeetingsCallViewModel(
         observeDegradedConversationNotified = observeDegradedConversationNotified,
         observeSelf = observeSelf,
     )
+
+    fun joinOngoingCall(conversationId: ConversationId) {
+        viewModelScope.launch {
+            ensureMLSEstablished(conversationId) {
+                callManager.joinOngoingCall(conversationId)
+            }
+        }
+    }
+
+    fun startCallIfPossible(conversationId: ConversationId) {
+        viewModelScope.launch {
+            ensureMLSEstablished(conversationId) {
+                callManager.startCallIfPossible(
+                    conversationId = conversationId,
+                    conversationType = Conversation.Type.Group.Meeting,
+                    shouldCheckParticipantCount = false, // since this is a meeting, we don't need to check participant count
+                )
+            }
+        }
+    }
+
+    private suspend fun ensureMLSEstablished(conversationId: ConversationId, actionIfEstablished: suspend () -> Unit) =
+        if (ensureMeetingIsMLSEstablished(conversationId)) {
+            actionIfEstablished()
+        } else {
+            notEstablishedDialogState.show(Unit)
+        }
 }

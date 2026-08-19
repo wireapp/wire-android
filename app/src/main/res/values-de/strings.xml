@@ -351,6 +351,9 @@
     <string name="login_error_user_already_logged_in_message">Sie sind bereits mit diesen Daten auf diesem Gerät angemeldet.</string>
     <string name="login_sso_error_invalid_cookie_title">Ungültiger Cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">Die Sitzung ist ungültig oder abgelaufen! Bitte versuchen Sie erneut, sich anzumelden.</string>
+    <string name="sso_identity_changed_dialog_title">Identitätsanbieter geändert</string>
+    <string name="sso_identity_changed_dialog_message">Dieses Benutzerkonto wurde mit einem anderen Identitätsanbieter verwendet. Wenn Sie fortfahren, werden alle Unterhaltungen von diesem Gerät gelöscht.\nUm Ihre Daten zu behalten, wählen Sie „Abbrechen“ und melden Sie sich anschließend mit Ihrem bisherigen Identitätsanbieter an.</string>
+    <string name="sso_identity_changed_dialog_confirm">Daten löschen und fortfahren</string>
     <string name="login_password_placeholder">Passwort</string>
     <string name="login_password_label">PASSWORT</string>
     <string name="login_tab_email">E-MAIL-ADRESSE</string>
@@ -613,6 +616,7 @@
     <string name="promote_admin_search_placeholder">Name oder E-Mail-Adresse eingeben</string>
     <string name="promote_admin_button">Als Admin ernennen und Gruppe verlassen</string>
     <string name="delete_conversation_conversation_menu_item">Unterhaltung löschen…</string>
+    <string name="delete_conversation_conversation_dialog_title">\"%s\" löschen?</string>
     <string name="delete_conversation_conversation_dialog_description">Dies wird die Gruppe und alle Inhalte für alle Teilnehmer auf allen Geräten löschen. Es gibt keine Möglichkeit, den Inhalt wiederherzustellen. Alle Teilnehmer werden darüber benachrichtigt.</string>
     <string name="delete_conversation_locally_conversation_dialog_title">Unterhaltung \"%s\" für mich löschen?</string>
     <string name="delete_conversation_locally_conversation_dialog_description">Sie können dann nicht mehr auf die Unterhaltung und ihren Inhalt zugreifen. Es gibt keine Möglichkeit, sie wiederherzustellen.</string>
@@ -1194,7 +1198,6 @@
     <string name="settings_myaccount_display_name_title">Ihr Profilname</string>
     <string name="settings_myaccount_display_name_description">Ihr Profilname wird in Unterhaltungen, Anrufen und bei der Benutzersuche angezeigt. Er ist in Wire nicht eindeutig.</string>
     <string name="settings_myaccount_display_name_error">Bitte geben Sie Ihren Profilnamen ein</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
     <string name="settings_myaccount_display_name_updated">Ihr Profilname wurde geändert</string>
     <string name="settings_myaccount_handle_updated">Ihr Benutzername wurde geändert</string>
     <string name="settings_myaccount_user_color_title">Profilfarbe</string>
@@ -1809,4 +1812,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
     <string name="label_system_message_admin_role_assigned">Sie wurden zum Gruppen-Admin ernannt</string>
     <string name="more_information_about_this_server">Mehr Informationen über dieses Backend</string>
+    <!-- Pending messages service notification -->
+    <string name="pending_messages_notification_waiting">Auf Verbindung warten</string>
+    <string name="pending_messages_notification_sending">Nachrichten werden gesendet</string>
 </resources>

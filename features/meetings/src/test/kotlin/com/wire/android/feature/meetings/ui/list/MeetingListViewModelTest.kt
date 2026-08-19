@@ -32,7 +32,9 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -131,7 +133,7 @@ class MeetingListViewModelTest {
             startTime = currentTime - 5.minutes
         )
         val activeCall = call(
-            conversationId = meetingWithActiveCall.conversationId,
+            conversationId = meetingWithActiveCall.meeting.conversationId,
             establishedTime = Instant.parse("2026-01-01T11:55:00Z")
         )
         val (_, viewModel) = Arrangement(dispatcher)
@@ -147,11 +149,11 @@ class MeetingListViewModelTest {
                 currentCallEstablishedTime = Instant.parse("2026-01-01T11:55:00Z"),
                 isSelfUserAttending = true
             ),
-            meetingItems.single { it.meetingId == meetingWithActiveCall.meetingId }.ongoingStatus().ongoingCallStatus
+            meetingItems.single { it.meetingId == meetingWithActiveCall.meeting.meetingId }.ongoingStatus().ongoingCallStatus
         )
         assertEquals(
             null,
-            meetingItems.single { it.meetingId == meetingWithoutActiveCall.meetingId }.ongoingStatus().ongoingCallStatus
+            meetingItems.single { it.meetingId == meetingWithoutActiveCall.meeting.meetingId }.ongoingStatus().ongoingCallStatus
         )
     }
 
@@ -185,17 +187,20 @@ class MeetingListViewModelTest {
         startTime: Instant,
         conversationId: ConversationId = ConversationId("conversation-id", "domain"),
     ) = MeetingOccurrence(
+        meeting = Meeting(
+            meetingId = meetingId,
+            conversationId = conversationId,
+            creatorId = UserId("creator_id", "domain"),
+            title = "Meeting",
+            startTime = startTime,
+            endTime = startTime + 30.minutes,
+            recurrence = null,
+        ),
         occurrenceId = "$meetingId-occurrence",
-        meetingId = meetingId,
-        conversationId = conversationId,
         conversationName = "Meeting",
         conversationType = MeetingOccurrence.ConversationType.Group,
-        title = "Meeting",
-        startTime = startTime,
-        endTime = startTime + 30.minutes,
         occurrenceStartTime = startTime,
         occurrenceEndTime = startTime + 30.minutes,
-        recurrence = null,
         selfRole = MeetingOccurrence.SelfRole.Creator,
     )
     private fun call(

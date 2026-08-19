@@ -52,6 +52,9 @@ import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.UserAssetId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,12 +68,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
 
 @Suppress("TooManyFunctions")
-class SearchScreenViewModel(
-    val savedStateHandle: SavedStateHandle,
+class SearchScreenViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
@@ -78,6 +82,11 @@ class SearchScreenViewModel(
     private val sharedPathCache: CellFileLocalPathCache,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): SearchScreenViewModel
+    }
 
     private data class SearchParams(
         val query: String,
@@ -112,7 +121,7 @@ class SearchScreenViewModel(
     private val queryFlow = MutableStateFlow("")
 
     private val debouncedQueryFlow: Flow<String> = queryFlow
-        .debounce(SEARCH_DEBOUNCE_MILLIS)
+        .debounce(SEARCH_DEBOUNCE_MILLIS.milliseconds)
         .distinctUntilChanged()
 
     private val searchParamsFlow: Flow<SearchParams> =
@@ -166,7 +175,9 @@ class SearchScreenViewModel(
                     sortingSpec = SortingSpec(
                         criteria = params.sortingCriteria.toKaliumCriteria(),
                         descending = params.sortingCriteria.isDescending
-                    )
+                    ),
+                    // only when searching; filtering and sorting should be non-recursive
+                    isRecursive = params.query.isNotEmpty()
                 ).map { pagingData: PagingData<Node> ->
                     pagingData.map { node: Node ->
                         when (node) {

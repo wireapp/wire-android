@@ -37,6 +37,9 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filterIsInstance
@@ -45,12 +48,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class EditConversationMetadataViewModel(
+class EditConversationMetadataViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
-    val savedStateHandle: SavedStateHandle
+    @Assisted val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): EditConversationMetadataViewModel
+    }
 
     private val editConversationNameNavArgs: EditConversationNameNavArgs = savedStateHandle.navArgs()
     private val conversationId: QualifiedID = editConversationNameNavArgs.conversationId
@@ -96,7 +103,7 @@ class EditConversationMetadataViewModel(
     fun saveNewGroupName() {
         viewModelScope.launch {
             withContext(dispatcher.io()) {
-                renameConversation(conversationId, editConversationNameTextState.text.toString())
+                renameConversation(conversationId, editConversationNameTextState.text.toString().trim())
             }.let { renamingResult ->
                 editConversationState = editConversationState.copy(
                     completed = when (renamingResult) {

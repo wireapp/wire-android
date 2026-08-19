@@ -40,8 +40,12 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
@@ -51,8 +55,8 @@ import kotlinx.coroutines.withContext
 import okio.Path
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class MediaGalleryViewModel(
-    savedStateHandle: SavedStateHandle,
+class MediaGalleryViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
@@ -60,7 +64,13 @@ class MediaGalleryViewModel(
     private val deleteMessage: DeleteMessageUseCase,
     private val getAttachment: GetMessageAttachmentUseCase,
     private val getCellNode: GetCellFileUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
 ) : ActionsViewModel<MediaGalleryAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): MediaGalleryViewModel
+    }
 
     private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
 
@@ -80,6 +90,13 @@ class MediaGalleryViewModel(
     init {
         getConversationTitle()
         setupImageAsset()
+        getViewerAccess()
+    }
+
+    private fun getViewerAccess() = viewModelScope.launch {
+        mediaGalleryViewState = mediaGalleryViewState.copy(
+            viewerAccess = !isSelfUserViewerOnConversation(conversationId)
+        )
     }
 
     private fun setupImageAsset() = viewModelScope.launch {
@@ -121,7 +138,7 @@ class MediaGalleryViewModel(
     private fun shareAsset() = viewModelScope.launch {
         if (cellAssetId == null) {
             assetDataPath(conversationId, messageId)?.run {
-                sendAction(MediaGalleryAction.Share(first, second))
+                sendAction(MediaGalleryAction.ShareExternally(first, second))
             }
         } else {
             getCellNode(cellAssetId)
@@ -189,6 +206,14 @@ class MediaGalleryViewModel(
         }
     }
 
+    private fun shareAssetViaWire() = viewModelScope.launch {
+        if (cellAssetId == null) {
+            assetDataPath(conversationId, messageId)?.run {
+                sendAction(MediaGalleryAction.ShareViaWire(first, second))
+            }
+        }
+    }
+
     private fun onSnackbarMessage(messageCode: MediaGallerySnackbarMessages) {
         viewModelScope.launch {
             _snackbarMessage.emit(messageCode)
@@ -227,7 +252,8 @@ class MediaGalleryViewModel(
 
             MenuIntent.Download -> sendAction(MediaGalleryAction.Download)
 
-            MenuIntent.Share -> shareAsset()
+            MenuIntent.ShareExternally -> shareAsset()
+            MenuIntent.ShareViaWire -> shareAssetViaWire()
 
             MenuIntent.Delete -> {
                 deleteMessageDialogState.show(
@@ -258,7 +284,9 @@ class MediaGalleryViewModel(
                     add(MediaGalleryMenuItem.REACT)
                     add(MediaGalleryMenuItem.SHOW_DETAILS)
                     add(MediaGalleryMenuItem.REPLY)
-                    add(MediaGalleryMenuItem.SHARE_PUBLIC_LINK)
+                    if (!mediaGalleryViewState.viewerAccess) {
+                        add(MediaGalleryMenuItem.SHARE_PUBLIC_LINK)
+                    }
                 }
 
                 mediaGalleryNavArgs.isEphemeral -> {
@@ -272,13 +300,17 @@ class MediaGalleryViewModel(
                     add(MediaGalleryMenuItem.SHOW_DETAILS)
                     add(MediaGalleryMenuItem.REPLY)
                     add(MediaGalleryMenuItem.DOWNLOAD)
-                    add(MediaGalleryMenuItem.SHARE)
+                    add(MediaGalleryMenuItem.SHARE_VIA_WIRE)
+                    add(MediaGalleryMenuItem.SHARE_EXTERNALLY)
                     add(MediaGalleryMenuItem.DELETE)
                 }
             }
         } else if (cellAssetId == null) {
             add(MediaGalleryMenuItem.DOWNLOAD)
-            if (!mediaGalleryNavArgs.isEphemeral) add(MediaGalleryMenuItem.SHARE)
+            if (!mediaGalleryNavArgs.isEphemeral) {
+                add(MediaGalleryMenuItem.SHARE_VIA_WIRE)
+                add(MediaGalleryMenuItem.SHARE_EXTERNALLY)
+            }
             add(MediaGalleryMenuItem.DELETE)
         }
     }
@@ -298,7 +330,8 @@ class MediaGalleryViewModel(
 
 sealed interface MediaGalleryAction {
     data class ShowDetails(val messageId: String, val isSelfAsset: Boolean) : MediaGalleryAction
-    data class Share(val path: Path, val assetName: String) : MediaGalleryAction
+    data class ShareExternally(val path: Path, val assetName: String) : MediaGalleryAction
+    data class ShareViaWire(val path: Path, val assetName: String) : MediaGalleryAction
     data class React(val messageId: String, val emoji: String) : MediaGalleryAction
     data class Reply(val messageId: String) : MediaGalleryAction
     data object Download : MediaGalleryAction
@@ -312,7 +345,8 @@ sealed interface MenuIntent {
     data object ShowDetails : MenuIntent
     data object Reply : MenuIntent
     data object Download : MenuIntent
-    data object Share : MenuIntent
+    data object ShareExternally : MenuIntent
+    data object ShareViaWire : MenuIntent
     data object Delete : MenuIntent
 }
 
@@ -321,7 +355,8 @@ enum class MediaGalleryMenuItem {
     SHOW_DETAILS,
     REPLY,
     DOWNLOAD,
-    SHARE,
+    SHARE_EXTERNALLY,
+    SHARE_VIA_WIRE,
     SHARE_PUBLIC_LINK,
     DELETE
 }

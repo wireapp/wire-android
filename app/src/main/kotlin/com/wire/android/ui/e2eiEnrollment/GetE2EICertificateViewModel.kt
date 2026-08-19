@@ -17,6 +17,9 @@
  */
 package com.wire.android.ui.e2eiEnrollment
 
+import com.wire.android.di.KaliumCoreLogic
+import dev.zacsweers.metro.Inject
+
 import androidx.lifecycle.ViewModel
 import com.wire.android.feature.e2ei.OAuthUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -31,8 +34,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-class GetE2EICertificateViewModel(
-    private val coreLogic: CoreLogic,
+class GetE2EICertificateViewModel @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentSession: CurrentSessionUseCase,
     val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {

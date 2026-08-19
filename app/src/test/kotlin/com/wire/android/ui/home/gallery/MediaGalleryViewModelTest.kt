@@ -48,6 +48,7 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MessageOperationResult
@@ -270,7 +271,8 @@ class MediaGalleryViewModelTest {
         assertEquals(
             listOf(
                 MediaGalleryMenuItem.DOWNLOAD,
-                MediaGalleryMenuItem.SHARE,
+                MediaGalleryMenuItem.SHARE_VIA_WIRE,
+                MediaGalleryMenuItem.SHARE_EXTERNALLY,
                 MediaGalleryMenuItem.DELETE,
             ),
             state.menuItems
@@ -355,6 +357,42 @@ class MediaGalleryViewModelTest {
     }
 
     @Test
+    fun givenSelfUserHasViewerAccessOnly_whenShowingCellAssetMenu_thenSharePublicLinkIsHidden() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withViewerAccessOnly()
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = null,
+                    assetPath = "asset/path",
+                    contentUrl = "content/url",
+                    previewUrl = "preview/url",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+                )
+            ).arrange()
+
+        viewModel.onOptionsClick()
+
+        val state = viewModel.mediaGalleryViewState
+
+        assertTrue(state.viewerAccess)
+        assertEquals(
+            listOf(
+                MediaGalleryMenuItem.REACT,
+                MediaGalleryMenuItem.SHOW_DETAILS,
+                MediaGalleryMenuItem.REPLY,
+            ),
+            state.menuItems
+        )
+    }
+
+    @Test
     fun givenMessageMenuOptionsEnabled_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
         val (_, viewModel) = Arrangement()
             .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = null)
@@ -371,7 +409,8 @@ class MediaGalleryViewModelTest {
                 MediaGalleryMenuItem.SHOW_DETAILS,
                 MediaGalleryMenuItem.REPLY,
                 MediaGalleryMenuItem.DOWNLOAD,
-                MediaGalleryMenuItem.SHARE,
+                MediaGalleryMenuItem.SHARE_VIA_WIRE,
+                MediaGalleryMenuItem.SHARE_EXTERNALLY,
                 MediaGalleryMenuItem.DELETE,
             ),
             state.menuItems
@@ -400,9 +439,14 @@ class MediaGalleryViewModelTest {
         @MockK
         lateinit var getCellFile: GetCellFileUseCase
 
+        @MockK
+        lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
+
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
+
+            coEvery { isSelfUserViewerOnConversation(any()) } returns true
 
             every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
                 conversationId = dummyConversationId,
@@ -477,6 +521,10 @@ class MediaGalleryViewModelTest {
             return this
         }
 
+        fun withViewerAccessOnly() = apply {
+            coEvery { isSelfUserViewerOnConversation(any()) } returns false
+        }
+
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             getConversationDetails,
@@ -486,6 +534,7 @@ class MediaGalleryViewModelTest {
             deleteMessage,
             getAttachment,
             getCellFile,
+            isSelfUserViewerOnConversation,
         )
     }
 

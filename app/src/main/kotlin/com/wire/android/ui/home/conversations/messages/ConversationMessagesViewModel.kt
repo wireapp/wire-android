@@ -73,6 +73,9 @@ import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -94,8 +97,8 @@ import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationMessagesViewModel(
-    val savedStateHandle: SavedStateHandle,
+class ConversationMessagesViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
@@ -115,6 +118,11 @@ class ConversationMessagesViewModel(
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     private val networkStateObserver: NetworkStateObserver,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): ConversationMessagesViewModel
+    }
 
     private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
     val conversationId: QualifiedID = conversationNavArgs.conversationId
@@ -429,6 +437,14 @@ class ConversationMessagesViewModel(
         viewModelScope.launch {
             assetDataPath(conversationId, messageId)?.run {
                 context.startFileShareIntent(first, second)
+            }
+        }
+    }
+
+    fun prepareAssetForWireShare(messageId: String, onAssetReady: (Path, String) -> Unit) {
+        viewModelScope.launch {
+            assetDataPath(conversationId, messageId)?.run {
+                onAssetReady(first, second)
             }
         }
     }

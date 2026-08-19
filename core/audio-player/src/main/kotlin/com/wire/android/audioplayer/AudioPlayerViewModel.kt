@@ -44,6 +44,11 @@ class AudioPlayerViewModel(
     val fileName: String?,
 ) : ViewModel() {
 
+//    private val navArgs = CellAudioPlayerScreenDestination.argsFrom(savedStateHandle)
+//    val localPath: String? = navArgs.localPath
+//    val contentUrl: String? = navArgs.contentUrl
+//    val fileName: String? = navArgs.fileName
+
     private val _state = MutableStateFlow(AudioPlaybackState())
     val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()
 

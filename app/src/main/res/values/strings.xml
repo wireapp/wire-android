@@ -377,6 +377,9 @@
     <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
+    <string name="sso_identity_changed_dialog_title">Identity provider changed</string>
+    <string name="sso_identity_changed_dialog_message">This account was used with a different identity provider. Continuing will delete all conversations from this device.\nTo keep your data, select Cancel, then log in with your previous identity provider.</string>
+    <string name="sso_identity_changed_dialog_confirm">Delete data and continue</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
@@ -769,6 +772,7 @@
     <string name="label_message_details">Message Details</string>
     <string name="label_copy">Copy text</string>
     <string name="label_share">Share</string>
+    <string name="label_share_via_wire">Forward</string>
     <string name="label_edit">Edit text</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
@@ -1059,6 +1063,7 @@
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
+    <string name="content_description_conversation_message_list">Conversation messages. Press Enter to navigate messages.</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
     <string name="notification_incoming_call_content">Calling…</string>
@@ -1232,7 +1237,7 @@
     <string name="settings_myaccount_display_name_title">Your profile name</string>
     <string name="settings_myaccount_display_name_description">People see your profile name in conversations, calls, and user search. It is not unique in Wire.</string>
     <string name="settings_myaccount_display_name_error">Please enter your profile name</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 64 characters</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Minimum of 1 and maximum of 128 characters</string>
     <string name="settings_myaccount_display_name_updated">Your profile name changed</string>
     <string name="settings_myaccount_handle_updated">Your username changed</string>
     <string name="settings_myaccount_user_color_title">User Color</string>
@@ -1319,6 +1324,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_logs_option_title">Logs</string>
     <string name="label_share_logs">Share Logs</string>
     <string name="label_share_logs_failed">Could not prepare logs for sharing</string>
+    <string name="label_share_logs_via_wire">Forward</string>
     <string name="label_delete_logs">Delete All Logs</string>
     <string name="label_restart_slowsync_for_recovery">Restart slow sync</string>
     <string name="restart_slowsync_for_recovery_button">Restart</string>
@@ -1439,6 +1445,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="start_manual_migration">Start</string>
     <string name="file_sharing_restricted_description_by_team">You can not share this file because this feature is disabled for this account.</string>
     <string name="file_sharing_restricted_description_no_users">You need to be logged in to Wire before you can share anything</string>
+    <string name="public_share_ignored_wire_internal_files">This share was ignored because it contains internal Wire files.</string>
     <string name="file_sharing_restricted_button_text_no_users">Open Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Join conversation?</string>
@@ -1779,6 +1786,29 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_repair_faulty_keys" translatable="false">Reset</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
     <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
+    <string name="debug_settings_security_diagnostics" translatable="false">Security Diagnostics</string>
+    <string name="debug_settings_app_paths" translatable="false">App Paths</string>
+    <string name="debug_settings_app_path_assets" translatable="false">Assets path</string>
+    <string name="debug_settings_app_path_cache" translatable="false">Cache path</string>
+    <string name="debug_settings_app_path_files_dir" translatable="false">Files dir</string>
+    <string name="debug_settings_app_path_cache_dir" translatable="false">Cache dir</string>
+    <string name="debug_settings_app_path_databases_dir" translatable="false">Databases dir</string>
+    <string name="debug_settings_app_path_no_backup_dir" translatable="false">No backup dir</string>
+    <string name="debug_settings_app_path_external_files_dir" translatable="false">External files dir</string>
+    <string name="debug_settings_security_providers_entry_count" translatable="false">%1$d entries</string>
+    <string name="debug_settings_network" translatable="false">Network</string>
+    <string name="debug_settings_network_vpn" translatable="false">VPN</string>
+    <string name="debug_settings_network_vpn_active" translatable="false">Active</string>
+    <string name="debug_settings_network_vpn_inactive" translatable="false">Not active</string>
+    <string name="debug_settings_network_type" translatable="false">Network type</string>
+    <string name="debug_settings_network_backend_host" translatable="false">Backend host</string>
+    <string name="debug_settings_network_resolved_addresses" translatable="false">Resolved addresses</string>
+    <string name="debug_settings_network_resolved_address" translatable="false">Resolved address (%1$s)</string>
+    <string name="debug_settings_network_ip_v4" translatable="false">IPv4</string>
+    <string name="debug_settings_network_ip_v6" translatable="false">IPv6</string>
+    <string name="debug_settings_network_no_active_network" translatable="false">No active network</string>
+    <string name="debug_settings_network_resolution_failed" translatable="false">Could not be resolved</string>
+    <string name="debug_settings_network_unknown" translatable="false">Unknown</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

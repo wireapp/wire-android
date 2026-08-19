@@ -10,7 +10,8 @@
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true
+            "enforce_configuration_signature": true,
+            "link_preview_enabled": true
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
@@ -35,7 +36,6 @@
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
             "channels_history_options_enabled": true,
-            "meetings_enabled": true,
             "phone_landscape_enabled": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
@@ -168,7 +168,6 @@
     "mls_read_receipts_enabled": false,
     "is_mls_reset_enabled": true,
     "use_strict_mls_filter": false,
-    "meetings_enabled": false,
     "emm_support_enabled": true,
     "conversation_feeder_enabled": false,
     "background_notification_retry_enabled": true,

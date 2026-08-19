@@ -27,11 +27,14 @@ import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
+import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModel
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModel
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel
+import dev.zacsweers.metro.Provider
 
 interface MiscViewModelGraph : MetroViewModelGraph {
-    val miscViewModelFactory: MiscViewModelFactory
+    val legalHoldRequestedViewModel: Provider<LegalHoldRequestedViewModel>
+    val legalHoldDeactivatedViewModel: Provider<LegalHoldDeactivatedViewModel>
 }
 
 @Composable

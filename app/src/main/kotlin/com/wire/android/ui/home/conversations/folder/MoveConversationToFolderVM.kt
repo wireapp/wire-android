@@ -30,6 +30,9 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.folder.MoveConversationToFolderUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -45,11 +48,15 @@ interface MoveConversationToFolderVM {
     fun moveConversationToFolder(folder: ConversationFolder) {}
 }
 
-class MoveConversationToFolderVMImpl(
+class MoveConversationToFolderVMImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
-    private val args: MoveConversationToFolderArgs,
+    @Assisted private val args: MoveConversationToFolderArgs,
     private val moveConversationToFolder: MoveConversationToFolderUseCase,
 ) : MoveConversationToFolderVM, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
+    }
 
     private var state: MoveConversationToFolderState by mutableStateOf(MoveConversationToFolderState())
 

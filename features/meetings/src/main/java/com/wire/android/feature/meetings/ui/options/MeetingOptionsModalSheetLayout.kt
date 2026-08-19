@@ -30,9 +30,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon
+import com.wire.android.feature.meetings.ui.list.VideoCallIcon
 import com.wire.android.feature.meetings.ui.meetingOptionsMenuListViewModel
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
+import com.wire.android.feature.meetings.ui.util.audioPermissionCheckFlow
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
@@ -47,12 +49,18 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.android.ui.common.R as UICommonR
 
 @Composable
 @SuppressLint("ComposeModifierMissing")
 fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
+    editMeeting: (meetingId: MeetingId) -> Unit = {},
+    startCall: (conversationId: ConversationId) -> Unit = {},
+    joinCall: (conversationId: ConversationId) -> Unit = {},
+    returnToCall: (conversationId: ConversationId) -> Unit = {},
     viewModel: MeetingOptionsMenuViewModel = when {
         LocalInspectionMode.current -> MeetingOptionsMenuViewModelPreview(CurrentTimeProvider.Preview)
         else -> meetingOptionsMenuListViewModel()
@@ -72,6 +80,16 @@ fun MeetingOptionsModalSheetLayout(
                             viewModel.deleteMeetingForEveryoneDialogState.show(
                                 DeleteMeetingDialogState(forEveryone = true, meetingId = state.meetingId, meetingTitle = state.title)
                             )
+                        }
+                    },
+                    onEditMeeting = {
+                        sheetState.hide {
+                            editMeeting(state.meetingId)
+                        }
+                    },
+                    onJoinNow = {
+                        sheetState.hide {
+                            viewModel.checkCallStatusAndSendCallAction(state.conversationId)
                         }
                     }
                 ).also {
@@ -100,6 +118,15 @@ fun MeetingOptionsModalSheetLayout(
             is MeetingOptionsMenuViewAction.Message -> sheetState.hide {
                 snackbarHostState.showSnackbar(action.message.uiText.asString(context.resources))
             }
+            is MeetingOptionsMenuViewAction.JoinCall -> sheetState.hide {
+                joinCall(action.conversationId)
+            }
+            is MeetingOptionsMenuViewAction.ReturnToCall -> sheetState.hide {
+                returnToCall(action.conversationId)
+            }
+            is MeetingOptionsMenuViewAction.StartCall -> sheetState.hide {
+                startCall(action.conversationId)
+            }
         }
     }
 }
@@ -112,7 +139,9 @@ private fun MeetingOptionsModalContent(
     onEditMeeting: () -> Unit = {},
     onDeleteMeetingForMe: () -> Unit = {},
     onDeleteMeetingForEveryone: () -> Unit = {},
+    onJoinNow: () -> Unit = {},
 ) {
+    val audioPermissionCheck = audioPermissionCheckFlow(onPermissionGranted = onJoinNow)
     WireMenuModalSheetContent(
         header = MenuModalSheetHeader.Visible(
             title = meetingState.title,
@@ -130,6 +159,13 @@ private fun MeetingOptionsModalContent(
             customVerticalPadding = dimensions().spacing0x
         ),
         menuItems = buildList<@Composable () -> Unit> {
+            add {
+                MenuBottomSheetItem(
+                    title = stringResource(R.string.meeting_options_join_now),
+                    leading = { VideoCallIcon(tint = colorsScheme().onSurface) },
+                    onItemClick = audioPermissionCheck::launch,
+                )
+            }
             addIf(meetingState.createConversationEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_create_conversation),

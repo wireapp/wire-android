@@ -18,6 +18,7 @@
 package com.wire.android.feature.meetings.ui.create
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,19 +26,34 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ramcosta.composedestinations.generated.meetings.navArgs
+import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.Companion.initialState
+import com.wire.android.feature.meetings.ui.create.NewMeetingState.InitialLoadingState
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.meeting.Meeting
+import com.wire.kalium.logic.data.meeting.UpsertMeeting
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
+import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
@@ -60,7 +76,9 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun updateStartTime(startTime: Instant) {}
     fun updateEndTime(endTime: Instant) {}
     fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval?) {}
-    fun createMeeting() {}
+    fun submitCreation() {}
+    fun submitUpdate() {}
+    fun dismissCreationError() {}
 
     companion object {
         const val MEETING_NAME_MAX_COUNT = 64
@@ -75,10 +93,19 @@ class NewMeetingViewModelPreview(
     override val state: NewMeetingState = initialState(currentTimeProvider)
 }
 
-class NewMeetingViewModelImpl(
-    savedStateHandle: SavedStateHandle,
+class NewMeetingViewModelImpl @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     override val currentTimeProvider: CurrentTimeProvider,
+    private val createNewMeeting: CreateNewMeetingUseCase,
+    private val updateMeeting: UpdateMeetingUseCase,
+    private val getNextMeetingOccurrence: GetNextMeetingOccurrenceUseCase,
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val contactMapper: ContactMapper,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): NewMeetingViewModelImpl
+    }
     val navArgs: NewMeetingNavArgs = savedStateHandle.navArgs()
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
@@ -86,6 +113,38 @@ class NewMeetingViewModelImpl(
         private set
 
     init {
+        observeTitleChanges()
+        loadInitialDataForEditing()
+    }
+
+    private fun loadInitialDataForEditing() {
+        viewModelScope.launch {
+            try {
+                val meetingType = navArgs.type
+                if (meetingType is NewMeetingType.Edit) {
+                    val meetingOccurrence = getNextMeetingOccurrence(meetingType.id, currentTimeProvider())
+                    if (meetingOccurrence != null) {
+                        val otherContacts = observeConversationMembers(meetingOccurrence.meeting.conversationId).firstOrNull()?.let {
+                            it.map { it.user }.filterIsInstance<OtherUser>().map { contactMapper.fromOtherUser(it) }.toPersistentSet()
+                        } ?: persistentSetOf()
+                        titleTextState.setTextAndPlaceCursorAtEnd(meetingOccurrence.meeting.title)
+                        state = state.copy(
+                            startTime = meetingOccurrence.occurrenceStartTime,
+                            endTime = meetingOccurrence.occurrenceEndTime,
+                            repeatingInterval = meetingOccurrence.meeting.recurrence?.toRepeatingInterval(),
+                            selectedContacts = otherContacts,
+                            confirmedContacts = otherContacts,
+                        )
+                    }
+                }
+                state = state.copy(initialLoading = InitialLoadingState.Loaded)
+            } catch (_: Exception) {
+                state = state.copy(initialLoading = InitialLoadingState.Error)
+            }
+        }
+    }
+
+    private fun observeTitleChanges() {
         viewModelScope.launch {
             titleTextState.textAsFlow()
                 .drop(1) // drop initial value to avoid showing error on start
@@ -131,45 +190,103 @@ class NewMeetingViewModelImpl(
     }
 
     private fun validateTitle(): Boolean {
+        val titleError = when {
+            titleTextState.text.trim().isEmpty() -> NewMeetingState.TitleError.TitleEmptyError
+            titleTextState.text.trim().length > MEETING_NAME_MAX_COUNT -> NewMeetingState.TitleError.TitleExceedsLimitError
+            else -> null
+        }
         state = state.copy(
-            titleError = when {
-                titleTextState.text.isEmpty() -> NewMeetingState.TitleError.TitleEmptyError
-                titleTextState.text.length > MEETING_NAME_MAX_COUNT -> NewMeetingState.TitleError.TitleExceedsLimitError
-                else -> null
-            }
-        ).withContinueButtonState()
-        return state.titleError == null
+            titleError = titleError,
+            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
+                    titleError == null &&
+                    state.startTimeError == null &&
+                    state.endTimeError == null
+        )
+        return titleError == null
     }
 
     private fun validateStartAndEndTime(): Boolean {
+        val startTimeError = when {
+            state.startTime < currentTimeProvider() -> NewMeetingState.TimeError.StartTimeInPastError
+            else -> null
+        }
+        val endTimeError = when {
+            state.endTime < currentTimeProvider() -> NewMeetingState.TimeError.EndTimeInPastError
+            state.endTime < state.startTime -> NewMeetingState.TimeError.EndTimeBeforeStartTimeError
+            else -> null
+        }
         state = state.copy(
-            startTimeError = when {
-                state.startTime < currentTimeProvider() -> NewMeetingState.TimeError.StartTimeInPastError
-                else -> null
-            },
-            endTimeError = when {
-                state.endTime < currentTimeProvider() -> NewMeetingState.TimeError.EndTimeInPastError
-                state.endTime < state.startTime -> NewMeetingState.TimeError.EndTimeBeforeStartTimeError
-                else -> null
-            }
-        ).withContinueButtonState()
-        return state.startTimeError == null && state.endTimeError == null
+            startTimeError = startTimeError,
+            endTimeError = endTimeError,
+            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
+                    state.titleError == null &&
+                    startTimeError == null &&
+                    endTimeError == null
+        )
+        return startTimeError == null && endTimeError == null
     }
 
-    private fun NewMeetingState.withContinueButtonState(): NewMeetingState = copy(
-        continueButtonEnabled = titleTextState.text.isNotEmpty() &&
-                titleError == null &&
-                startTimeError == null &&
-                endTimeError == null
-    )
+    override fun submitCreation() {
+        viewModelScope.launch {
+            val titleValid = validateTitle()
+            val startAndEndTimeValid = when (type) {
+                NewMeetingType.MeetNow -> {
+                    val startTime = currentTimeProvider()
+                    state = state.copy(startTime = startTime, endTime = startTime.plus(1.hours))
+                    true // for "meet now", we set the start time to the current time and end time to +1 hour, so it's already valid
+                }
 
-    override fun createMeeting() {
-        val titleValid = validateTitle()
-        val startAndEndTimeValid = validateStartAndEndTime()
-        if (titleValid && startAndEndTimeValid) {
-            // TODO implement meeting creation
-            sendAction(NewMeetingViewActions.Success)
+                NewMeetingType.Schedule -> validateStartAndEndTime()
+                is NewMeetingType.Edit -> false
+            }
+            if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
+                state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+                val creationResult = createNewMeeting(
+                    createMeeting = UpsertMeeting(
+                        title = titleTextState.text.trim().toString(),
+                        startTime = state.startTime,
+                        endTime = state.endTime,
+                        recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
+                        otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
+                    )
+                )
+                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                when (creationResult) {
+                    is CreateNewMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
+                    is CreateNewMeetingUseCase.Result.Failure -> state = state.copy(submitError = NewMeetingState.SubmitError.Other)
+                }
+            }
         }
+    }
+
+    override fun submitUpdate() {
+        val meetingType = type as? NewMeetingType.Edit ?: return
+        viewModelScope.launch {
+            val titleValid = validateTitle()
+            val startAndEndTimeValid = validateStartAndEndTime()
+            if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
+                state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+                val updateResult = updateMeeting(
+                    meetingId = meetingType.id,
+                    updateMeeting = UpsertMeeting(
+                        title = titleTextState.text.trim().toString(),
+                        startTime = state.startTime,
+                        endTime = state.endTime,
+                        recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
+                        otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
+                    )
+                )
+                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                when (updateResult) {
+                    is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
+                    is UpdateMeetingUseCase.Result.Failure -> state = state.copy(submitError = NewMeetingState.SubmitError.Other)
+                }
+            }
+        }
+    }
+
+    override fun dismissCreationError() {
+        state = state.copy(submitError = null)
     }
 }
 
@@ -177,14 +294,14 @@ internal fun getNextFullHour(now: Instant, timeZone: TimeZone = TimeZone.current
     val futureHour = now.plus(1, DateTimeUnit.HOUR, timeZone)
     val localFuture = futureHour.toLocalDateTime(timeZone)
     return LocalDateTime(
-            year = localFuture.year,
-            monthNumber = localFuture.monthNumber,
-            dayOfMonth = localFuture.dayOfMonth,
-            hour = localFuture.hour,
-            minute = 0,
-            second = 0,
-            nanosecond = 0
-        ).toInstant(timeZone)
+        year = localFuture.year,
+        monthNumber = localFuture.monthNumber,
+        dayOfMonth = localFuture.dayOfMonth,
+        hour = localFuture.hour,
+        minute = 0,
+        second = 0,
+        nanosecond = 0
+    ).toInstant(timeZone)
 }
 
 @Stable
@@ -198,7 +315,12 @@ data class NewMeetingState(
     val endTime: Instant,
     val endTimeError: TimeError? = null,
     val repeatingInterval: MeetingItem.RepeatingInterval? = null,
+    val submitError: SubmitError? = null,
+    val isSubmitting: Boolean = false,
+    val initialLoading: InitialLoadingState = InitialLoadingState.Loading,
 ) {
+    enum class InitialLoadingState { Error, Loading, Loaded }
+
     @Stable
     sealed interface TitleError {
         data object TitleEmptyError : TitleError
@@ -209,6 +331,10 @@ data class NewMeetingState(
         data object StartTimeInPastError : TimeError
         data object EndTimeInPastError : TimeError
         data object EndTimeBeforeStartTimeError : TimeError
+    }
+
+    sealed interface SubmitError {
+        data object Other : SubmitError // TODO Add more specific error types in the future
     }
 
     companion object {

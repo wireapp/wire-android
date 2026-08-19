@@ -31,6 +31,8 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
+import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
@@ -135,6 +137,18 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given search screen args when files flow subscribed then nodes flow is empty`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        val items = flowOf(pagingData).asSnapshot()
+        assertTrue(items.isEmpty())
+    }
+
+    @Test
     fun `given viewer only node when files loaded then ui model is marked viewer only`() = runTest {
         val (_, viewModel) = Arrangement()
             .withLoadedFiles(listOf(testFiles[0].copy(isViewerOnly = true)))
@@ -167,6 +181,29 @@ class CellViewModelTest {
             .arrange()
 
         assertEquals(conversationId, viewModel.currentNodeUuid())
+    }
+
+    @Test
+    fun `given conversation context when a nested folder is clicked then OpenFolder uses its full remote path`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        val nestedFolder = Node.Folder(
+            uuid = "folderUuid",
+            name = "subSubFolder",
+            remotePath = "conversationId/parent/sub/subSubFolder",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(nestedFolder))
+
+            val action = awaitItem()
+            assertTrue(action is OpenFolder)
+            assertEquals("conversationId/parent/sub/subSubFolder", (action as OpenFolder).path)
+        }
     }
 
     @Test
@@ -378,6 +415,56 @@ class CellViewModelTest {
         }
     }
 
+    @Test
+    fun `GIVEN AllFiles context WHEN setSortBy called with Name THEN sortingCriteria changes to ByName AtoZ`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        assertEquals(SortingCriteria.ByDate.NewestFirst, viewModel.sortingCriteria.value)
+
+        viewModel.setSortBy(SortBy.Name)
+
+        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.sortingCriteria.value)
+    }
+
+    @Test
+    fun `GIVEN AllFiles context WHEN setSorting called THEN sortingCriteria updates`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        viewModel.setSorting(SortingCriteria.ByName.ZtoA)
+
+        assertEquals(SortingCriteria.ByName.ZtoA, viewModel.sortingCriteria.value)
+    }
+
+    @Test
+    fun `GIVEN same sortBy WHEN setSortBy called with same criteria THEN sortingCriteria unchanged`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val initial = viewModel.sortingCriteria.value
+        viewModel.setSortBy(SortBy.Modified)
+
+        assertEquals(initial, viewModel.sortingCriteria.value)
+    }
+
+    @Test
+    fun `GIVEN conversation context WHEN setSortBy called with Size THEN sortingCriteria changes to BySize SmallestFirst`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withConversationId("conversationId")
+            .arrange()
+
+        assertEquals(SortingCriteria.FoldersFirst, viewModel.sortingCriteria.value)
+
+        viewModel.setSortBy(SortBy.Size)
+
+        assertEquals(SortingCriteria.BySize.SmallestFirst, viewModel.sortingCriteria.value)
+    }
+
     private class Arrangement(
         private var conversationId: String? = null,
         private var inAppImageViewerEnabled: Boolean = false,
@@ -515,6 +602,9 @@ class CellViewModelTest {
 
         fun withConversationId(conversationId: String) = apply {
             this.conversationId = conversationId
+            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
+                conversationId = conversationId
+            )
             every { savedStateHandle.get<String>(any()) } returns conversationId
             every { savedStateHandle.get<String>("conversationId") } returns conversationId
         }

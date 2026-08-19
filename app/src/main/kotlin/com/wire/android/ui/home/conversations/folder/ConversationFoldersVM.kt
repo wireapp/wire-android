@@ -25,6 +25,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -36,10 +39,14 @@ interface ConversationFoldersVM {
     fun onFolderSelected(folderId: String) {}
 }
 
-class ConversationFoldersVMImpl(
-    private val args: ConversationFoldersStateArgs,
+class ConversationFoldersVMImpl @AssistedInject constructor(
+    @Assisted private val args: ConversationFoldersStateArgs,
     private val observeUserFoldersUseCase: ObserveUserFoldersUseCase,
 ) : ConversationFoldersVM, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
+    }
 
     private var state by mutableStateOf(ConversationFoldersState(persistentListOf(), args.selectedFolderId))
 

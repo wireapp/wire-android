@@ -17,7 +17,7 @@ public fun com.ramcosta.composedestinations.generated.meetings.destinations.NewM
   params:
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, tabs: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.meetings.ui.MeetingsTabItem>, initialTab: com.wire.android.feature.meetings.ui.MeetingsTabItem, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, tabs: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.meetings.ui.MeetingsTabItem>, initialTab: com.wire.android.feature.meetings.ui.MeetingsTabItem, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \, editMeeting: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -28,6 +28,7 @@ public fun com.wire.android.feature.meetings.ui.AllMeetingsScreen(lazyListState:
     - startCall: STABLE (function type)
     - joinCall: STABLE (function type)
     - returnToCall: STABLE (function type)
+    - editMeeting: STABLE (function type)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.Unit>, onMeetNowClick: kotlin.Function0<kotlin.Unit>, onScheduleClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -39,7 +40,14 @@ public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState
     - onScheduleClick: STABLE (function type)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: com.wire.android.feature.meetings.ui.create.NewMeetingState, titleState: androidx.compose.foundation.text.input.TextFieldState, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, modifier: androidx.compose.ui.Modifier, onBackPressed: kotlin.Function0<kotlin.Unit>, onParticipantsClicked: kotlin.Function0<kotlin.Unit>, onCreateClicked: kotlin.Function0<kotlin.Unit>, onStartTimeChanged: kotlin.Function1<@[ParameterName(name = \, onEndTimeChanged: kotlin.Function1<@[ParameterName(name = \, onRepeatingIntervalChanged: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError(navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - navigateBack: STABLE (function type)
+
+@Composable
+public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: com.wire.android.feature.meetings.ui.create.NewMeetingState, titleState: androidx.compose.foundation.text.input.TextFieldState, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, modifier: androidx.compose.ui.Modifier, onBackPressed: kotlin.Function0<kotlin.Unit>, onParticipantsClicked: kotlin.Function0<kotlin.Unit>, onCreateClicked: kotlin.Function0<kotlin.Unit>, onUpdateClicked: kotlin.Function0<kotlin.Unit>, onStartTimeChanged: kotlin.Function1<@[ParameterName(name = \, onEndTimeChanged: kotlin.Function1<@[ParameterName(name = \, onRepeatingIntervalChanged: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -50,9 +58,18 @@ public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: 
     - onBackPressed: STABLE (function type)
     - onParticipantsClicked: STABLE (function type)
     - onCreateClicked: STABLE (function type)
+    - onUpdateClicked: STABLE (function type)
     - onStartTimeChanged: STABLE (function type)
     - onEndTimeChanged: STABLE (function type)
     - onRepeatingIntervalChanged: STABLE (function type)
+
+@Composable
+public fun com.wire.android.feature.meetings.ui.create.NewMeetingErrorDialog(type: com.wire.android.feature.meetings.ui.create.NewMeetingType, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - type: STABLE (class with no mutable properties)
+    - onDismiss: STABLE (function type)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsScreen(navigator: com.wire.android.feature.meetings.navigation.MeetingNavigator, newMeetingViewModel: com.wire.android.feature.meetings.ui.create.NewMeetingViewModel): kotlin.Unit
@@ -111,12 +128,13 @@ private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlinx.
     - timePlaceholder: STABLE (String is immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.create.TitleInput(titleState: androidx.compose.foundation.text.input.TextFieldState, titleError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TitleError?): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.TitleInput(titleState: androidx.compose.foundation.text.input.TextFieldState, titleError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TitleError?, readOnly: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - titleState: STABLE (marked @Stable or @Immutable)
     - titleError: STABLE (marked @Stable or @Immutable)
+    - readOnly: STABLE (primitive type)
 
 @Composable
 internal fun com.wire.android.feature.meetings.ui.list.CalendarIcon(tint: androidx.compose.ui.graphics.Color, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -281,13 +299,6 @@ internal fun com.wire.android.feature.meetings.ui.list.VideoCallIcon(tint: andro
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.audioPermissionCheckFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
-  skippable: true
-  restartable: true
-  params:
-    - onPermissionGranted: STABLE (function type)
-
-@Composable
 private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlinx.datetime.Instant): kotlin.String
   skippable: true
   restartable: true
@@ -323,7 +334,7 @@ internal fun com.wire.android.feature.meetings.ui.options.DeleteMeetingDialog(di
     - onDelete: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalContent(meetingState: com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuState.Meeting, onCreateConversation: kotlin.Function0<kotlin.Unit>, onCopyLink: kotlin.Function0<kotlin.Unit>, onEditMeeting: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForMe: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForEveryone: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalContent(meetingState: com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuState.Meeting, onCreateConversation: kotlin.Function0<kotlin.Unit>, onCopyLink: kotlin.Function0<kotlin.Unit>, onEditMeeting: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForMe: kotlin.Function0<kotlin.Unit>, onDeleteMeetingForEveryone: kotlin.Function0<kotlin.Unit>, onJoinNow: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -333,12 +344,24 @@ private fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalCont
     - onEditMeeting: STABLE (function type)
     - onDeleteMeetingForMe: STABLE (function type)
     - onDeleteMeetingForEveryone: STABLE (function type)
+    - onJoinNow: STABLE (function type)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalSheetLayout(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.String>, viewModel: com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.options.MeetingOptionsModalSheetLayout(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.String>, editMeeting: kotlin.Function1<@[ParameterName(name = \, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \, viewModel: com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - sheetState: UNSTABLE (has mutable properties or unstable members)
+    - editMeeting: STABLE (function type)
+    - startCall: STABLE (function type)
+    - joinCall: STABLE (function type)
+    - returnToCall: STABLE (function type)
     - viewModel: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.feature.meetings.ui.util.audioPermissionCheckFlow(onPermissionGranted: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
+  skippable: true
+  restartable: true
+  params:
+    - onPermissionGranted: STABLE (function type)
 

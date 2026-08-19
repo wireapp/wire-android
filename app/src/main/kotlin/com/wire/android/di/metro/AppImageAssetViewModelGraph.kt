@@ -17,19 +17,13 @@
  */
 package com.wire.android.di.metro
 
-import com.wire.android.ui.calling.CallingViewModelFactory
-import com.wire.android.ui.calling.CallingViewModelGraph
-import com.wire.android.ui.common.CommonViewModelFactory
 import com.wire.android.ui.common.CommonViewModelGraph
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import dev.zacsweers.metro.Inject
 
 class AppImageAssetViewModelGraph @Inject constructor(
-    private val callingViewModelFactoryProvider: () -> CallingViewModelFactory,
-    private val commonViewModelFactoryProvider: () -> CommonViewModelFactory,
-) : CallingViewModelGraph, CommonViewModelGraph {
-    override val callingViewModelFactory: CallingViewModelFactory
-        get() = callingViewModelFactoryProvider()
-
-    override val commonViewModelFactory: CommonViewModelFactory
-        get() = commonViewModelFactoryProvider()
+    private val commonTopAppBarViewModelFactoryProvider: () -> CommonTopAppBarViewModel.Factory,
+) : CommonViewModelGraph {
+    override val commonTopAppBarViewModelFactory: CommonTopAppBarViewModel.Factory
+        get() = commonTopAppBarViewModelFactoryProvider()
 }

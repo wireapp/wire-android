@@ -39,6 +39,7 @@ data class ConversationListPage(private val device: UiDevice) {
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
     )
+    private val welcomeMessage = UiSelectorParams(textContains = "Welcome")
     private val mainMenuButton = UiSelectorParams(description = "Main navigation")
     private val settingsButton = UiSelectorParams(text = "Settings")
 
@@ -53,7 +54,7 @@ data class ConversationListPage(private val device: UiDevice) {
 
     private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
 
-    private val removeConversationButton = UiSelectorParams(text = "Remove")
+    private val deleteConversationButtonOnModal = UiSelectorParams(text = "Delete")
 
     private val leaveConversationButtonOnModal = UiSelectorParams(text = "Leave")
 
@@ -87,6 +88,24 @@ data class ConversationListPage(private val device: UiDevice) {
         Assert.assertTrue(
             "Conversation list heading is not visible",
             !heading.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertWelcomeMessageVisible(): ConversationListPage {
+        val message = UiWaitUtils.waitElement(welcomeMessage)
+        Assert.assertTrue(
+            "Welcome message is not visible",
+            !message.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun assertIntroductionMessageVisible(expectedMessage: String): ConversationListPage {
+        val message = UiWaitUtils.waitElement(UiSelectorParams(text = expectedMessage))
+        Assert.assertTrue(
+            "Introduction message '$expectedMessage' is not visible",
+            !message.visibleBounds.isEmpty
         )
         return this
     }
@@ -213,6 +232,30 @@ data class ConversationListPage(private val device: UiDevice) {
     fun assertConversationVisible(conversationName: String): ConversationListPage {
         val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertMembershipIdentifierVisible(
+        conversationName: String,
+        expectedIdentifier: String,
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
+    ): ConversationListPage {
+        val identifierSelector = UiSelectorParams(text = expectedIdentifier).toBySelector()
+        val identifierIsVisible = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            findElementOrNull(conversationNameSelector(conversationName))
+                ?.parent
+                ?.findObject(identifierSelector)
+                ?.visibleBounds
+                ?.isEmpty == false
+        }
+
+        assertTrue(
+            "Identifier '$expectedIdentifier' is not visible next to conversation '$conversationName'",
+            identifierIsVisible
+        )
         return this
     }
 
@@ -370,16 +413,16 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertRemoveConversationConfirmationModalVisible(conversationName: String): ConversationListPage {
+    fun assertDeleteConversationConfirmationModalVisible(conversationName: String): ConversationListPage {
         val modalTitle = UiSelectorParams(
-            textMatches = ".*Remove.*${Pattern.quote(conversationName)}.*"
+            textMatches = ".*Delete.*${Pattern.quote(conversationName)}.*"
         )
         try {
             UiWaitUtils.waitElement(modalTitle)
-            UiWaitUtils.waitElement(removeConversationButton)
+            UiWaitUtils.waitElement(deleteConversationButtonOnModal)
         } catch (e: AssertionError) {
             throw AssertionError(
-                "Remove conversation confirmation modal for '$conversationName' is not visible.",
+                "Delete conversation confirmation modal for '$conversationName' is not visible.",
                 e
             )
         }
@@ -403,8 +446,8 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-    fun tapRemoveConversationButton(): ConversationListPage {
-        UiWaitUtils.waitElement(removeConversationButton).click()
+    fun tapDeleteConversationButtonOnModal(): ConversationListPage {
+        UiWaitUtils.waitElement(deleteConversationButtonOnModal).click()
         return this
     }
 

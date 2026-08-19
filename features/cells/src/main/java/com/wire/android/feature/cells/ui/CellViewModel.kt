@@ -39,6 +39,8 @@ import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
+import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
+import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.feature.cells.util.FileHelper
@@ -64,6 +66,10 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -89,8 +95,8 @@ import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
-class CellViewModel(
-    val savedStateHandle: SavedStateHandle,
+class CellViewModel @AssistedInject constructor(
+    @Assisted val savedStateHandle: SavedStateHandle,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
@@ -110,9 +116,14 @@ class CellViewModel(
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
-    val offlineFilesEnabled: Boolean,
-    private val inAppImageViewerEnabled: Boolean,
+    @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
+    @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CellViewModel
+    }
 
     private val searchNavArgs: SearchNavArgs? = try {
         SearchScreenDestination.argsFrom(savedStateHandle)
@@ -156,13 +167,14 @@ class CellViewModel(
 
     // AllFiles context (no conversationId, not recycle bin) defaults to newest-first;
     // ConversationFiles and RecycleBin default to folders-first.
-    private val _defaultSortingCriteria = MutableStateFlow(
-        if (navArgs.conversationId == null && !(navArgs.isRecycleBin ?: false)) {
-            SortingCriteria.ByDate.NewestFirst
-        } else {
-            SortingCriteria.FoldersFirst
-        }
-    )
+    val defaultSortingCriteria: SortingCriteria = if (navArgs.conversationId == null && !(navArgs.isRecycleBin ?: false)) {
+        SortingCriteria.ByDate.NewestFirst
+    } else {
+        SortingCriteria.FoldersFirst
+    }
+
+    private val _sortingCriteria = MutableStateFlow(defaultSortingCriteria)
+    val sortingCriteria: StateFlow<SortingCriteria> = _sortingCriteria.asStateFlow()
 
     val isOnline: StateFlow<Boolean> = networkStateObserver.observeNetworkState()
         .map { it is NetworkState.ConnectedWithInternet }
@@ -196,7 +208,7 @@ class CellViewModel(
         }
 
         refreshTrigger.flatMapLatest {
-            _defaultSortingCriteria.flatMapLatest { sortingCriteria ->
+            _sortingCriteria.flatMapLatest { sortingCriteria ->
                 combine(
                     getCellFilesPaged(
                         conversationId = navArgs.conversationId,
@@ -352,7 +364,9 @@ class CellViewModel(
                 "${currentNodeUuid()}/recycle_bin/${cellNode.name}"
             }
 
-            isConversationFiles() -> "${currentNodeUuid()}/${cellNode.name}"
+            // Use the folder's full remote path so results opened from a (recursive) search
+            // resolve correctly at any depth. Fall back to the current folder + name when it is missing.
+            isConversationFiles() -> cellNode.remotePath ?: "${currentNodeUuid()}/${cellNode.name}"
             else -> cellNode.remotePath
         } ?: run {
             sendAction(ShowError(CellError.OTHER_ERROR))
@@ -377,6 +391,16 @@ class CellViewModel(
 
     internal fun cancelDownload(uuid: String) {
         cancelOpenDownload(uuid)
+    }
+
+    fun setSortBy(by: SortBy) {
+        _sortingCriteria.update { current ->
+            if (current.by == by) current else defaultCriteriaFor(by)
+        }
+    }
+
+    fun setSorting(criteria: SortingCriteria) {
+        _sortingCriteria.value = criteria
     }
 
     @Suppress("ReturnCount")

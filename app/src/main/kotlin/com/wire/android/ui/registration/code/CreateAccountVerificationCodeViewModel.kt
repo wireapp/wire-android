@@ -48,10 +48,12 @@ import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 
-class CreateAccountVerificationCodeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
+    @Assisted savedStateHandle: SavedStateHandle,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
@@ -59,6 +61,10 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(savedStateHandle: SavedStateHandle): CreateAccountVerificationCodeViewModel
+    }
 
     val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
 
@@ -274,6 +280,9 @@ class CreateAccountVerificationCodeViewModel @Inject constructor(
             CreateAccountCodeResult.Error.DialogError.GenericError(this.genericFailure)
 
         AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists ->
+            CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
+
+        AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged ->
             CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
 
         AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation ->

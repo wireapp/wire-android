@@ -48,13 +48,14 @@ sealed interface ConversationItem : ConversationItemType {
     val mlsVerificationStatus: Conversation.VerificationStatus
     val proteusVerificationStatus: Conversation.VerificationStatus
     val hasNewActivitiesToShow: Boolean
+    val hasOnGoingCall: Boolean get() = false
 
     val isTeamConversation get() = teamId != null
 
     @Serializable
     sealed interface Group : ConversationItem {
         val groupName: String
-        val hasOnGoingCall: Boolean
+        override val hasOnGoingCall: Boolean
         val selfMemberRole: Conversation.Member.Role?
         val isFromTheSameTeam: Boolean
         val isSelfUserMember: Boolean
@@ -122,6 +123,7 @@ sealed interface ConversationItem : ConversationItemType {
         override val mlsVerificationStatus: Conversation.VerificationStatus,
         override val proteusVerificationStatus: Conversation.VerificationStatus,
         override val hasNewActivitiesToShow: Boolean = false,
+        override val hasOnGoingCall: Boolean = false,
     ) : ConversationItem
 
     @Serializable

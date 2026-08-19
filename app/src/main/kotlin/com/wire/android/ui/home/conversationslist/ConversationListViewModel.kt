@@ -60,6 +60,9 @@ import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -99,9 +102,9 @@ class ConversationListViewModelPreview(
 }
 
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
-class ConversationListViewModelImpl(
-    val conversationsSource: ConversationsSource,
-    private val usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
+class ConversationListViewModelImpl @AssistedInject constructor(
+    @Assisted val conversationsSource: ConversationsSource,
+    @Assisted private val usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
     private val dispatcher: DispatcherProvider,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
     private val observeConversationListDetailsWithEvents: ObserveConversationListDetailsWithEventsUseCase,
@@ -115,6 +118,14 @@ class ConversationListViewModelImpl(
     private val uiTextResolver: UiTextResolver,
     private val observeJoinableCalls: ObserveJoinableCallsUseCase,
 ) : ConversationListViewModel, ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            conversationsSource: ConversationsSource,
+            usePagination: Boolean = BuildConfig.PAGINATED_CONVERSATION_LIST_ENABLED,
+        ): ConversationListViewModelImpl
+    }
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     override val infoMessage = _infoMessage.asSharedFlow()
@@ -374,7 +385,7 @@ private fun List<ConversationItem>.unreadToReadConversationsItems(): Pair<List<C
                 }
 
             MutedConversationStatus.AllMuted -> false
-        } || (it is ConversationItem.Group && it.hasOnGoingCall)
+        } || it.hasOnGoingCall
     }
 
     val remainingConversations = this - unreadConversations.toSet()

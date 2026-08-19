@@ -20,11 +20,19 @@ package com.wire.android.feature.meetings.ui.options
 import app.cash.turbine.test
 import com.wire.android.feature.meetings.R
 import com.wire.android.model.asSnackBarMessage
+import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import io.mockk.MockKAnnotations
@@ -40,7 +48,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -66,8 +73,12 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenFutureMeeting_andSelfUserIsCreator_whenObserving_thenDeleteForEveryoneIsAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Creator, occurrenceStartTime = Clock.System.now() + 1.hours)
+    fun givenFutureMeeting_andSelfUserIsCreator_whenObserving_thenEditAndDeleteForEveryoneIsAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Creator,
+            occurrenceStartTime = CURRENT_TIME + 1.hours,
+            occurrenceEndTime = CURRENT_TIME + 2.hours,
+        )
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
             .arrange()
@@ -78,33 +89,19 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone, it.deleteOption)
+                assertEquals(true, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenDeleteForMeIsAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Member, occurrenceStartTime = Clock.System.now() + 1.hours)
-        val (_, viewModel) = Arrangement()
-            .withObservedMeeting(meeting)
-            .arrange()
-
-        viewModel.observeMeetingStateFlow(OCCURRENCE_ID).test {
-            assertEquals(MeetingOptionsMenuState.Loading, awaitItem())
-            runCurrent()
-
-            assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
-                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
-            }
-            cancelAndConsumeRemainingEvents()
-            cancelAndConsumeRemainingEvents()
-        }
-    }
-
-    @Test
-    fun givenPastMeeting_whenObserving_thenDeleteIsNotAvailable() = runTest(dispatcher) {
-        val meeting = meeting(selfRole = MeetingOccurrence.SelfRole.Creator, occurrenceStartTime = Clock.System.now() - 1.hours)
+    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Member,
+            occurrenceStartTime = CURRENT_TIME + 1.hours,
+            occurrenceEndTime = CURRENT_TIME + 2.hours
+        )
         val (_, viewModel) = Arrangement()
             .withObservedMeeting(meeting)
             .arrange()
@@ -115,6 +112,30 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(false, it.editMeetingEnabled)
+            }
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenPastMeeting_andSelfUserIsCreator_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+        val meeting = meeting(
+            selfRole = MeetingOccurrence.SelfRole.Creator,
+            occurrenceStartTime = CURRENT_TIME - 2.hours,
+            occurrenceEndTime = CURRENT_TIME - 1.hours,
+        )
+        val (_, viewModel) = Arrangement()
+            .withObservedMeeting(meeting)
+            .arrange()
+
+        viewModel.observeMeetingStateFlow(OCCURRENCE_ID).test {
+            assertEquals(MeetingOptionsMenuState.Loading, awaitItem())
+            runCurrent()
+
+            assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
+                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
         }
@@ -166,22 +187,90 @@ class MeetingOptionsMenuViewModelTest {
         }
     }
 
+    @Test
+    fun givenEstablishedCall_whenCheckingCallStatus_thenSendReturnToCallAction() = runTest(dispatcher) {
+        val call = call(CallStatus.ESTABLISHED)
+        val (arrangement, viewModel) = Arrangement()
+            .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Member, CURRENT_TIME + 1.hours))
+            .arrange()
+        coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
+
+        viewModel.actions.test {
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            advanceUntilIdle()
+
+            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenStillOngoingEstablishedCall_whenCheckingCallStatus_thenSendReturnToCallAction() = runTest(dispatcher) {
+        val call = call(CallStatus.ESTABLISHED)
+        val (arrangement, viewModel) = Arrangement()
+            .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Member, CURRENT_TIME + 1.hours))
+            .arrange()
+        coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
+
+        viewModel.actions.test {
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            advanceUntilIdle()
+
+            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenOngoingEstablishedCall_whenCheckingCallStatus_thenSendReturnToCallAction() = runTest(dispatcher) {
+        val call = call(CallStatus.ESTABLISHED)
+        val (arrangement, viewModel) = Arrangement()
+            .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Member, CURRENT_TIME + 1.hours))
+            .arrange()
+        coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
+
+        viewModel.actions.test {
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            advanceUntilIdle()
+
+            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
     private fun meeting(
         selfRole: MeetingOccurrence.SelfRole,
         occurrenceStartTime: Instant,
+        occurrenceEndTime: Instant = occurrenceStartTime + 30.minutes
     ) = MeetingOccurrence(
+        meeting = Meeting(
+            meetingId = MEETING_ID,
+            conversationId = CONVERSATION_ID,
+            creatorId = UserId("creator-id", "domain"),
+            title = MEETING_TITLE,
+            startTime = occurrenceStartTime,
+            endTime = occurrenceEndTime,
+            recurrence = null,
+        ),
         occurrenceId = OCCURRENCE_ID,
-        meetingId = MEETING_ID,
-        conversationId = CONVERSATION_ID,
         conversationName = "Meeting conversation",
         conversationType = MeetingOccurrence.ConversationType.Group,
-        title = MEETING_TITLE,
-        startTime = occurrenceStartTime,
-        endTime = occurrenceStartTime + 30.minutes,
         occurrenceStartTime = occurrenceStartTime,
-        occurrenceEndTime = occurrenceStartTime + 30.minutes,
-        recurrence = null,
+        occurrenceEndTime = occurrenceEndTime,
         selfRole = selfRole,
+    )
+
+    private fun call(status: CallStatus) = Call(
+        conversationId = CONVERSATION_ID,
+        status = status,
+        isMuted = false,
+        isCameraOn = true,
+        isCbrEnabled = false,
+        callerId = QualifiedID("some_id", "some_domain"),
+        conversationName = "some_name",
+        conversationType = Conversation.Type.Group.Regular,
+        callerName = "some_name",
+        callerTeamName = "some_team_name"
     )
 
     private class Arrangement {
@@ -190,6 +279,11 @@ class MeetingOptionsMenuViewModelTest {
 
         @MockK
         lateinit var deleteMeetingUseCase: DeleteMeetingUseCase
+
+        @MockK
+        lateinit var observeActiveCallsUseCase: ObserveActiveCallsUseCase
+
+        val currentTimeProvider = CurrentTimeProvider { CURRENT_TIME }
 
         init {
             MockKAnnotations.init(this)
@@ -203,14 +297,17 @@ class MeetingOptionsMenuViewModelTest {
             coEvery { deleteMeetingUseCase.invoke(MEETING_ID) } returns result
         }
         fun arrange() = this to MeetingOptionsMenuViewModelImpl(
+            currentTimeProvider = currentTimeProvider,
             observeMeetingOccurrenceUseCase = observeMeetingOccurrenceUseCase,
             deleteMeetingUseCase = deleteMeetingUseCase,
+            observeActiveCallsUseCase = observeActiveCallsUseCase,
         )
     }
 
     private companion object {
         const val OCCURRENCE_ID = "occurrence-id"
         const val MEETING_TITLE = "Weekly sync"
+        val CURRENT_TIME = Instant.parse("2026-08-01T12:00:00Z")
         val MEETING_ID = MeetingId("meeting-id", "domain")
         val CONVERSATION_ID = ConversationId("conversation-id", "domain")
     }

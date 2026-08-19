@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.config.DefaultServerConfig
@@ -37,6 +38,7 @@ import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
+import com.wire.android.ui.authentication.login.SavedStateLoginSavedInputStore
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -47,6 +49,7 @@ import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
@@ -79,6 +82,7 @@ class LoginSSOViewModel : LoginViewModel {
 
     private var pendingNomadServiceUrl: String? = null
     private var pendingCookieLabel: String? = null
+    private var pendingSsoSession: StoreSessionParam? = null
 
     constructor(
         loginNavArgs: LoginNavArgs,
@@ -107,7 +111,7 @@ class LoginSSOViewModel : LoginViewModel {
     @AssistedInject
     constructor(
         @Assisted loginNavArgs: LoginNavArgs,
-        savedInputStore: LoginSavedInputStore,
+        @Assisted savedStateHandle: SavedStateHandle,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         validateEmailUseCase: ValidateEmailUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
@@ -118,7 +122,7 @@ class LoginSSOViewModel : LoginViewModel {
         dispatchers: DispatcherProvider,
     ) : this(
         loginNavArgs,
-        savedInputStore,
+        SavedStateLoginSavedInputStore(savedStateHandle),
         addAuthenticatedUser,
         validateEmailUseCase,
         coreLogic,
@@ -165,7 +169,7 @@ class LoginSSOViewModel : LoginViewModel {
 
     @AssistedFactory
     interface Factory {
-        fun create(loginNavArgs: LoginNavArgs): LoginSSOViewModel
+        fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle): LoginSSOViewModel
     }
 
     private fun observeSSOCodeInput() {
@@ -189,6 +193,28 @@ class LoginSSOViewModel : LoginViewModel {
 
     fun clearLoginErrors() {
         updateSSOFlowState(LoginState.Default)
+    }
+
+    fun onSsoIdentityChangeDismissed() {
+        pendingSsoSession = null
+        loginState = loginState.copy(showSsoIdentityChangedDialog = false)
+        updateSSOFlowState(LoginState.Default)
+    }
+
+    fun onSsoIdentityChangeConfirmed() {
+        val session = pendingSsoSession ?: return
+        pendingSsoSession = null
+        loginState = loginState.copy(showSsoIdentityChangedDialog = false)
+        updateSSOFlowState(LoginState.Loading)
+
+        viewModelScope.launch {
+            when (val result = ssoExtension.replaceRetainedSsoSession(session)) {
+                is ReplaceRetainedSsoSessionResult.Failure ->
+                    updateSSOFlowState(result.cause.toLoginError())
+                is ReplaceRetainedSsoSessionResult.Success ->
+                    continueAfterSsoSessionStored(result.userId, session.nomadServiceUrl != null)
+            }
+        }
     }
 
     fun login() {
@@ -313,14 +339,15 @@ class LoginSSOViewModel : LoginViewModel {
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOLoginFailure = { updateSSOFlowState(it.toLoginError()) },
                 onAddAuthenticatedUserFailure = { updateSSOFlowState(it.toLoginError()) },
+                onSsoIdentityChanged = { session ->
+                    pendingSsoSession = session
+                    loginState = loginState.copy(
+                        flowState = LoginState.Default,
+                        showSsoIdentityChangedDialog = true
+                    )
+                },
                 onSuccess = { storedUserId ->
-                    if (!isNomadFlow) {
-                        appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
-                        registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
-                    } else {
-                        appLogger.i("$TAG Nomad flow, attempting crypto state restore")
-                        restoreCryptoStateAndContinue(storedUserId)
-                    }
+                    continueAfterSsoSessionStored(storedUserId, isNomadFlow)
                 }
             )
         }
@@ -341,6 +368,16 @@ class LoginSSOViewModel : LoginViewModel {
                 updateSSOFlowState(LoginState.Error.DialogError.SSOResultError(ssoLoginResult.ssoError))
 
             null -> {}
+        }
+    }
+
+    private suspend fun continueAfterSsoSessionStored(userId: UserId, isNomadFlow: Boolean) {
+        if (!isNomadFlow) {
+            appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
+            registerClientAndUpdateState(userId, setLastDeviceId = false)
+        } else {
+            appLogger.i("$TAG Nomad flow, attempting crypto state restore")
+            restoreCryptoStateAndContinue(userId)
         }
     }
 

@@ -87,8 +87,37 @@ fun SecurityProvidersScreen(
                     SectionHeader(stringResource(R.string.debug_settings_network))
                     NetworkSection(network)
                 }
+
+                state.databaseSecurity?.let { security ->
+                    SectionHeader(stringResource(R.string.debug_settings_sqlcipher))
+                    SQLSecuritySection(security)
+                }
             }
         }
+    )
+}
+
+@Composable
+private fun SQLSecuritySection(security: DatabaseSecurityInfo) {
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_version),
+        text = security.sqlCipherVersion ?: stringResource(R.string.debug_settings_network_unknown),
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_database_path),
+        text = security.userDatabase.path,
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_header_value),
+        text = security.userDatabase.header.value,
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_header_interpretation),
+        text = stringResource(security.userDatabase.header.labelRes),
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_internal_storage),
+        text = security.userDatabase.isInInternalDataDirectory.toString(),
     )
 }
 
@@ -144,3 +173,11 @@ private fun IpVersion.labelRes(): Int = when (this) {
     IpVersion.V4 -> R.string.debug_settings_network_ip_v4
     IpVersion.V6 -> R.string.debug_settings_network_ip_v6
 }
+
+private val SqliteHeaderStatus.labelRes: Int
+    get() = when (this) {
+        SqliteHeaderStatus.PlainSqlite -> R.string.debug_settings_sqlcipher_header_plain
+        is SqliteHeaderStatus.NotPlainSqlite -> R.string.debug_settings_sqlcipher_header_not_plain
+        SqliteHeaderStatus.NotCreated -> R.string.debug_settings_sqlcipher_header_not_created
+        SqliteHeaderStatus.Unavailable -> R.string.debug_settings_network_unknown
+    }

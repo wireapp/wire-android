@@ -77,6 +77,24 @@ class DeviceE2EINavigation3EntriesSourceTest {
         }
     }
 
+    @Test
+    fun givenRegisterDeviceCompletes_whenInspectingFlow_thenNavigationIsAppliedOnlyOnce() {
+        val screen = sourceFile(
+            "ui/authentication/devices/register/RegisterDeviceScreen.kt"
+        ).readText()
+        val entries = sourceFile(
+            "ui/settings/devices/DeviceE2EINavigation3Entries.kt"
+        ).readText()
+        val router = sourceFile(
+            "navigation/routes/auth/AuthenticationNavigation3Router.kt"
+        ).readText()
+
+        assertTrue(screen.contains("LaunchedEffect(flowState)"))
+        assertTrue(entries.contains("route.registerDeviceTerminalEventId()"))
+        assertTrue(router.contains("executeTerminalTransitionOnce(eventId, \"REGISTER_DEVICE_TERMINAL\")"))
+        assertFalse(screen.contains("is RegisterDeviceFlowState.TooManyDevices -> onRemoveDeviceRequired()\n        else ->"))
+    }
+
     private fun sourceFile(relativePath: String): File {
         val projectDir = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
             .first { File(it, "app/src/main/kotlin").isDirectory }

@@ -32,6 +32,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -72,16 +73,30 @@ internal fun RegisterDeviceRouteScreen(
     onRemoveDeviceRequired: () -> Unit,
 ) {
     clearAutofillTree()
-    when (val flowState = viewModel.state.flowState) {
-        is RegisterDeviceFlowState.Success -> {
-            when {
-                flowState.isE2EIRequired -> onE2EIRequired(flowState.userId)
-                flowState.initialSyncCompleted -> onHomeRequired()
-                else -> onInitialSyncRequired()
+
+    val flowState = viewModel.state.flowState
+    LaunchedEffect(flowState) {
+        when (flowState) {
+            is RegisterDeviceFlowState.Success -> {
+                when {
+                    flowState.isE2EIRequired -> onE2EIRequired(flowState.userId)
+                    flowState.initialSyncCompleted -> onHomeRequired()
+                    else -> onInitialSyncRequired()
+                }
             }
+
+            is RegisterDeviceFlowState.TooManyDevices -> onRemoveDeviceRequired()
+            else -> Unit
+        }
+    }
+
+    when (flowState) {
+        is RegisterDeviceFlowState.Success -> {
+            // The terminal result is handled by the effect above. Rendering stays empty while
+            // Navigation 3 commits and animates the accepted transition.
         }
 
-        is RegisterDeviceFlowState.TooManyDevices -> onRemoveDeviceRequired()
+        is RegisterDeviceFlowState.TooManyDevices -> Unit
         else ->
             AnimatedContent(
                 targetState = viewModel.secondFactorVerificationCodeState.isCodeInputNecessary,

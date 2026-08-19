@@ -20,6 +20,7 @@ import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.navigation.routes.auth.AuthenticationNavigation3Router
 import com.wire.android.navigation.routes.auth.AuthenticationNavigationTransition
+import com.wire.android.navigation.routes.auth.RegisterDeviceCompletion
 import com.wire.android.navigation.runtime.sessionCancellationSwitchAccountActions
 import com.wire.android.ui.authentication.clearSessionViewModel
 import com.wire.android.ui.authentication.registerDeviceViewModel
@@ -121,22 +122,44 @@ private fun RegisterDeviceNavigation3Entry(
             onNavigationCompleted = actions::completeSessionBackedAuthenticationCancellation,
         ),
         onE2EIRequired = { userId ->
-            authenticationRouter.registerDeviceToE2EI(
-                sessionId = userId?.let { WireSessionId(it.value, it.domain) } ?: route.sessionId,
+            authenticationRouter.completeRegisterDevice(
+                eventId = route.registerDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
                 flowId = route.flowId,
+                completion = RegisterDeviceCompletion.E2EIEnrollment(
+                    userId?.let { WireSessionId(it.value, it.domain) } ?: route.sessionId,
+                ),
             )
         },
         onHomeRequired = {
-            authenticationRouter.completeSessionSetup(route.sessionId, SessionSetupDestination.HOME)
+            authenticationRouter.completeRegisterDevice(
+                eventId = route.registerDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RegisterDeviceCompletion.Home,
+            )
         },
         onInitialSyncRequired = {
-            authenticationRouter.completeSessionSetup(route.sessionId, SessionSetupDestination.INITIAL_SYNC)
+            authenticationRouter.completeRegisterDevice(
+                eventId = route.registerDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RegisterDeviceCompletion.InitialSync,
+            )
         },
         onRemoveDeviceRequired = {
-            authenticationRouter.registerDeviceToRemoveDevice(route.sessionId, route.flowId)
+            authenticationRouter.completeRegisterDevice(
+                eventId = route.registerDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RegisterDeviceCompletion.RemoveDevice,
+            )
         },
     )
 }
+
+private fun RegisterDeviceRoute.registerDeviceTerminalEventId(): String =
+    "${entryId.value}:register-device-terminal"
 
 @Composable
 private fun RemoveDeviceNavigation3Entry(

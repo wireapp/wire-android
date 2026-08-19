@@ -92,6 +92,23 @@ internal fun LoginNavArgs.toNewLoginPasswordRoute(
     entryId: WireNavEntryId = WireNavEntryId.random(),
 ): NewLoginPasswordRoute = NewLoginPasswordRoute(toAuthenticationArguments(), flowId, entryId)
 
+/**
+ * Starts an isolated password attempt within the wider authentication flow.
+ *
+ * [LoginEmailViewModel] is shared with the verification-code entry, so both entries need a Flow
+ * owner. That owner must not be the parent login flow, however: after cancellation it retains a
+ * terminal [com.wire.android.ui.authentication.login.LoginState.Canceled] state and would
+ * immediately cancel the next password attempt. Tying the attempt flow to its first entry gives a
+ * retry a fresh owner while password -> verification continues to share one ViewModel.
+ */
+internal fun LoginNavArgs.toNewLoginPasswordAttemptRoute(
+    entryId: WireNavEntryId = WireNavEntryId.random(),
+): NewLoginPasswordRoute = NewLoginPasswordRoute(
+    args = toAuthenticationArguments(),
+    flowId = "new-login-password:${entryId.value}",
+    entryId = entryId,
+)
+
 internal fun NewLoginPasswordRoute.toLegacyNavArgs(): LoginNavArgs = args.toLegacy()
 
 internal fun LoginNavArgs.toNewLoginVerificationCodeRoute(

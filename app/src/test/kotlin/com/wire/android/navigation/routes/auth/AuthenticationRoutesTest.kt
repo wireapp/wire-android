@@ -151,6 +151,34 @@ class AuthenticationRoutesTest {
     }
 
     @Test
+    fun givenRepeatedPasswordAttempts_whenCreatingRoutes_thenEachAttemptGetsAnIsolatedFlowOwner() {
+        val legacy = completeLegacyLoginArguments()
+
+        val firstAttempt = legacy.toNewLoginPasswordAttemptRoute(
+            entryId = WireNavEntryId("password-attempt-one"),
+        )
+        val secondAttempt = legacy.toNewLoginPasswordAttemptRoute(
+            entryId = WireNavEntryId("password-attempt-two"),
+        )
+
+        assertEquals("new-login-password:password-attempt-one", firstAttempt.flowId)
+        assertEquals("new-login-password:password-attempt-two", secondAttempt.flowId)
+        assertNotEquals(firstAttempt.flowId, secondAttempt.flowId)
+    }
+
+    @Test
+    fun givenPasswordAttempt_whenOpeningVerification_thenVerificationKeepsAttemptOwner() {
+        val passwordAttempt = completeLegacyLoginArguments().toNewLoginPasswordAttemptRoute(
+            entryId = WireNavEntryId("password-attempt"),
+        )
+
+        val verification = passwordAttempt.toLegacyNavArgs()
+            .toNewLoginVerificationCodeRoute(passwordAttempt.flowId)
+
+        assertEquals(passwordAttempt.flowId, verification.flowId)
+    }
+
+    @Test
     fun givenWelcomeArguments_whenMappedToTypedSerializedAndBack_thenServerLinksArePreserved() {
         val legacy = WelcomeNavArgs(customServerConfig = SERVER_LINKS)
         val route = legacy.toWelcomeRoute(WireNavEntryId("welcome-entry"))

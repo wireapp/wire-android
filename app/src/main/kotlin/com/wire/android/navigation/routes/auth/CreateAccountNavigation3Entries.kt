@@ -97,7 +97,7 @@ private fun CreateAccountSelectorNavigation3Entry(
             val returnRoute = LoginNavArgs(
                 userHandle = PreFilledUserIdentifierType.PreFilled(viewModel.email),
                 loginPasswordPath = LoginPasswordPath(customServerConfig = viewModel.serverConfig),
-            ).toNewLoginPasswordRoute(route.flowId)
+            ).toNewLoginPasswordAttemptRoute()
             actions.openTeamAccountCreation(
                 AuthenticationTeamAccountCreationRequest(url, returnRoute)
             )

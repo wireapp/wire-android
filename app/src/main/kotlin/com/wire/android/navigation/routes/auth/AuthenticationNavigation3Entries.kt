@@ -350,7 +350,7 @@ private fun handleNewLoginAction(
                         action.userIdentifier
                     ),
                     loginPasswordPath = action.loginPasswordPath,
-                ).toNewLoginPasswordRoute(route.flowId),
+                ).toNewLoginPasswordAttemptRoute(),
         )
 
         is NewLoginAction.CustomConfig -> router.navigate(

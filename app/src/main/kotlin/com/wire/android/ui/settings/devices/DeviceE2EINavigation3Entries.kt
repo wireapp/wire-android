@@ -20,6 +20,7 @@ import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.navigation.routes.auth.AuthenticationNavigation3Router
 import com.wire.android.navigation.routes.auth.AuthenticationNavigationTransition
+import com.wire.android.navigation.runtime.sessionCancellationSwitchAccountActions
 import com.wire.android.ui.authentication.clearSessionViewModel
 import com.wire.android.ui.authentication.registerDeviceViewModel
 import com.wire.android.ui.authentication.removeDeviceViewModel
@@ -62,6 +63,9 @@ internal interface DeviceE2EINavigation3Actions : SwitchAccountActions {
      * Used when a restored/deep-linked device route has no parent entry to pop to.
      */
     fun exitDeviceManagement()
+
+    /** Finalizes the graph generation after navigation leaves a cancelled login session. */
+    fun completeSessionBackedAuthenticationCancellation(sessionId: WireSessionId)
 }
 
 internal object DeviceE2EINavigation3Contribution {
@@ -111,7 +115,11 @@ private fun RegisterDeviceNavigation3Entry(
     RegisterDeviceRouteScreen(
         viewModel = registerDeviceViewModel(flowOwner),
         clearSessionViewModel = clearSessionViewModel(flowOwner),
-        switchAccountActions = actions,
+        switchAccountActions = sessionCancellationSwitchAccountActions(
+            delegate = actions,
+            sessionId = route.sessionId,
+            onNavigationCompleted = actions::completeSessionBackedAuthenticationCancellation,
+        ),
         onE2EIRequired = { userId ->
             authenticationRouter.registerDeviceToE2EI(
                 sessionId = userId?.let { WireSessionId(it.value, it.domain) } ?: route.sessionId,
@@ -140,7 +148,11 @@ private fun RemoveDeviceNavigation3Entry(
     RemoveDeviceRouteScreen(
         viewModel = removeDeviceViewModel(flowOwner),
         clearSessionViewModel = clearSessionViewModel(flowOwner),
-        switchAccountActions = actions,
+        switchAccountActions = sessionCancellationSwitchAccountActions(
+            delegate = actions,
+            sessionId = route.sessionId,
+            onNavigationCompleted = actions::completeSessionBackedAuthenticationCancellation,
+        ),
         onE2EIRequired = {
             authenticationRouter.removeDeviceToE2EI(route.sessionId, route.flowId)
         },
@@ -163,7 +175,11 @@ private fun E2EIEnrollmentNavigation3Entry(
     E2EIEnrollmentRouteScreen(
         viewModel = e2EIEnrollmentViewModel(flowOwner),
         clearSessionViewModel = clearSessionViewModel(flowOwner),
-        switchAccountActions = actions,
+        switchAccountActions = sessionCancellationSwitchAccountActions(
+            delegate = actions,
+            sessionId = route.sessionId,
+            onNavigationCompleted = actions::completeSessionBackedAuthenticationCancellation,
+        ),
         onInitialSyncRequired = {
             authenticationRouter.completeSessionSetup(route.sessionId, SessionSetupDestination.INITIAL_SYNC)
         },

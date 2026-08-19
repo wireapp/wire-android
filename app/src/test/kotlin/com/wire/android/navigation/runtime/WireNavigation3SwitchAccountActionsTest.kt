@@ -17,6 +17,7 @@ import com.wire.navigation.WireSessionId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 class WireNavigation3SwitchAccountActionsTest {
@@ -43,6 +44,64 @@ class WireNavigation3SwitchAccountActionsTest {
 
         assertEquals(0, switched)
         assertEquals(1, empty)
+    }
+
+    @Test
+    fun givenCancelledSessionSwitchesAccount_whenNotified_thenNavigationCompletesBeforeGraphTeardown() {
+        val sessionId = WireSessionId("cancelled", "example.com")
+        val events = mutableListOf<String>()
+        val delegate = WireNavigation3SwitchAccountActions(
+            onSwitchedToAnotherAccount = { events += "navigate" },
+            onNoOtherAccountToSwitch = { events += "login" },
+        )
+        val actions = sessionCancellationSwitchAccountActions(delegate, sessionId) {
+            events += "remove:${it.value}@${it.domain}"
+        }
+
+        actions.switchedToAnotherAccount()
+
+        assertEquals(listOf("navigate", "remove:cancelled@example.com"), events)
+    }
+
+    @Test
+    fun givenCancelledSessionHasNoOtherAccount_whenNotified_thenLoginCompletesBeforeGraphTeardown() {
+        val sessionId = WireSessionId("cancelled", "example.com")
+        val events = mutableListOf<String>()
+        val delegate = WireNavigation3SwitchAccountActions(
+            onSwitchedToAnotherAccount = { events += "navigate" },
+            onNoOtherAccountToSwitch = { events += "login" },
+        )
+        val actions = sessionCancellationSwitchAccountActions(delegate, sessionId) {
+            events += "remove:${it.value}@${it.domain}"
+        }
+
+        actions.noOtherAccountToSwitch()
+
+        assertEquals(listOf("login", "remove:cancelled@example.com"), events)
+    }
+
+    @Test
+    fun givenNavigationFailsDuringSessionCancellation_whenNotified_thenGraphIsStillTornDownAndFailureIsRethrown() {
+        val sessionId = WireSessionId("cancelled", "example.com")
+        val events = mutableListOf<String>()
+        val failure = IllegalStateException("navigation failed")
+        val delegate = WireNavigation3SwitchAccountActions(
+            onSwitchedToAnotherAccount = {
+                events += "navigate"
+                throw failure
+            },
+            onNoOtherAccountToSwitch = { error("unused") },
+        )
+        val actions = sessionCancellationSwitchAccountActions(delegate, sessionId) {
+            events += "remove:${it.value}@${it.domain}"
+        }
+
+        val thrown = assertThrows(IllegalStateException::class.java) {
+            actions.switchedToAnotherAccount()
+        }
+
+        assertEquals(failure, thrown)
+        assertEquals(listOf("navigate", "remove:cancelled@example.com"), events)
     }
 
     @Test

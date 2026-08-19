@@ -294,6 +294,18 @@ private fun WireActivityNavigation3ThemedHost(
             },
             restartAfterLogout = activityEffects::restartAfterLogout,
             moveTaskToBackground = { dependencies.activity.moveTaskToBack(true) },
+            completeSessionBackedAuthenticationCancellation = { sessionId ->
+                teardownWireActivitySession(
+                    sessionId = sessionId,
+                    markInvalidating = sessionGraphStore::markInvalidating,
+                    clearOwner = { ownerKey ->
+                        clearWireViewModelStoreOwner(sharedViewModelStoreProvider, ownerKey) {
+                            WireViewModelDiagnostics.ownerCleared(ownerKey)
+                        }
+                    },
+                    markRemoved = sessionGraphStore::markRemoved,
+                )
+            },
         )
     }
     val actions = rememberWireNavigation3ProductionActions(

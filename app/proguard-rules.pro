@@ -58,6 +58,9 @@
 -keep class com.waz.call.CaptureDevice { *; }
 -keep class com.waz.media.manager.** { *; }
 -keep class com.waz.service.call.** { *; }
+-keep class org.jni_zero.JniZero {
+    private static java.lang.Object[] init();
+}
 -keep class com.waz.soundlink.SoundLinkAPI { *; }
 -dontwarn org.webrtc.CalledByNative
 -dontwarn org.webrtc.JniCommon

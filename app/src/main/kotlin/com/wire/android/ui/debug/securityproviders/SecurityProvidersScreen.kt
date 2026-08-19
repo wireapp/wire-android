@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.debug.securityproviders
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -77,11 +78,21 @@ fun SecurityProvidersScreen(
                     .padding(paddingValues)
                     .verticalScroll(scrollState)
             ) {
+                SectionHeader(stringResource(R.string.debug_settings_app_paths))
+                state.appPaths.forEach { entry ->
+                    SettingsItem(title = stringResource(entry.labelRes), text = entry.path)
+                }
+
+                state.network?.let { network ->
+                    SectionHeader(stringResource(R.string.debug_settings_network))
+                    NetworkSection(network)
+                }
+
                 state.databaseSecurity?.let { security ->
                     SectionHeader(stringResource(R.string.debug_settings_sqlcipher))
                     SettingsItem(
                         title = stringResource(R.string.debug_settings_sqlcipher_version),
-                        text = security.sqlCipherVersion ?: stringResource(R.string.debug_settings_unavailable),
+                        text = security.sqlCipherVersion ?: stringResource(R.string.debug_settings_network_unknown),
                     )
                     SettingsItem(
                         title = stringResource(R.string.debug_settings_sqlcipher_database_path),
@@ -100,14 +111,62 @@ fun SecurityProvidersScreen(
                         text = security.userDatabase.isInInternalDataDirectory.toString(),
                     )
                 }
-
-                SectionHeader(stringResource(R.string.debug_settings_app_paths))
-                state.appPaths.forEach { entry ->
-                    SettingsItem(title = stringResource(entry.labelRes), text = entry.path)
-                }
             }
         }
     )
+}
+
+@Composable
+private fun NetworkSection(network: NetworkDiagnostics) {
+    val unknown = stringResource(R.string.debug_settings_network_unknown)
+
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_network_vpn),
+        text = stringResource(
+            if (network.isVpn) R.string.debug_settings_network_vpn_active else R.string.debug_settings_network_vpn_inactive
+        ),
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_network_type),
+        text = network.networkTypes.joinToString().ifEmpty { unknown },
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_network_backend_host),
+        text = network.backendHost.ifEmpty { unknown },
+    )
+
+    val addressesLabel = stringResource(R.string.debug_settings_network_resolved_addresses)
+    when (val addresses = network.addresses) {
+        is AddressResolution.Resolved -> if (addresses.addresses.isEmpty()) {
+            SettingsItem(title = addressesLabel, text = unknown)
+        } else {
+            addresses.addresses.forEach { resolved ->
+                SettingsItem(
+                    title = stringResource(
+                        R.string.debug_settings_network_resolved_address,
+                        stringResource(resolved.version.labelRes())
+                    ),
+                    text = resolved.address,
+                )
+            }
+        }
+
+        AddressResolution.NoActiveNetwork -> SettingsItem(
+            title = addressesLabel,
+            text = stringResource(R.string.debug_settings_network_no_active_network),
+        )
+
+        AddressResolution.Failed -> SettingsItem(
+            title = addressesLabel,
+            text = stringResource(R.string.debug_settings_network_resolution_failed),
+        )
+    }
+}
+
+@StringRes
+private fun IpVersion.labelRes(): Int = when (this) {
+    IpVersion.V4 -> R.string.debug_settings_network_ip_v4
+    IpVersion.V6 -> R.string.debug_settings_network_ip_v6
 }
 
 private val SqliteHeaderStatus.labelRes: Int
@@ -115,5 +174,5 @@ private val SqliteHeaderStatus.labelRes: Int
         SqliteHeaderStatus.PlainSqlite -> R.string.debug_settings_sqlcipher_header_plain
         is SqliteHeaderStatus.NotPlainSqlite -> R.string.debug_settings_sqlcipher_header_not_plain
         SqliteHeaderStatus.NotCreated -> R.string.debug_settings_sqlcipher_header_not_created
-        SqliteHeaderStatus.Unavailable -> R.string.debug_settings_unavailable
+        SqliteHeaderStatus.Unavailable -> R.string.debug_settings_network_unknown
     }

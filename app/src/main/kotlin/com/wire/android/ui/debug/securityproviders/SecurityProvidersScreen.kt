@@ -90,29 +90,34 @@ fun SecurityProvidersScreen(
 
                 state.databaseSecurity?.let { security ->
                     SectionHeader(stringResource(R.string.debug_settings_sqlcipher))
-                    SettingsItem(
-                        title = stringResource(R.string.debug_settings_sqlcipher_version),
-                        text = security.sqlCipherVersion ?: stringResource(R.string.debug_settings_network_unknown),
-                    )
-                    SettingsItem(
-                        title = stringResource(R.string.debug_settings_sqlcipher_database_path),
-                        text = security.userDatabase.path,
-                    )
-                    SettingsItem(
-                        title = stringResource(R.string.debug_settings_sqlcipher_header_value),
-                        text = security.userDatabase.header.value,
-                    )
-                    SettingsItem(
-                        title = stringResource(R.string.debug_settings_sqlcipher_header_interpretation),
-                        text = stringResource(security.userDatabase.header.labelRes),
-                    )
-                    SettingsItem(
-                        title = stringResource(R.string.debug_settings_sqlcipher_internal_storage),
-                        text = security.userDatabase.isInInternalDataDirectory.toString(),
-                    )
+                    SQLSecuritySection(security)
                 }
             }
         }
+    )
+}
+
+@Composable
+private fun SQLSecuritySection(security: DatabaseSecurityInfo) {
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_version),
+        text = security.sqlCipherVersion ?: stringResource(R.string.debug_settings_network_unknown),
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_database_path),
+        text = security.userDatabase.path,
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_header_value),
+        text = security.userDatabase.header.value,
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_header_interpretation),
+        text = stringResource(security.userDatabase.header.labelRes),
+    )
+    SettingsItem(
+        title = stringResource(R.string.debug_settings_sqlcipher_internal_storage),
+        text = security.userDatabase.isInInternalDataDirectory.toString(),
     )
 }
 

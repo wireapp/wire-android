@@ -398,6 +398,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     // Shared 1:1 notification setup: creates the team conversation and logs in as user2Name.
+    @Suppress("LongMethod")
     private fun givenTeamMemberIsLoggedInWithOneOnOneConversation() {
         step("Given There is a team owner user1Name with team Notification") {
             backendSetupHelper.createTeamOwnerByAlias(
@@ -472,6 +473,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     // Shared group notification setup: creates the team and group, prepares the sender device, and logs in as user2Name.
+    @Suppress("LongMethod")
     private fun givenTeamMemberIsLoggedInWithGroupConversation() {
         step("Given There is a team owner user1Name with team Notification") {
             backendSetupHelper.createTeamOwnerByAlias(

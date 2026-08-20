@@ -155,6 +155,7 @@ class CopyMessageTests : BaseUiTest() {
     }
 
     // Shared copy-message setup: creates CopyMe, prepares Member1's device, and logs in as TeamOwner.
+    @Suppress("LongMethod")
     private fun givenTeamOwnerIsLoggedInWithCopyMeGroupConversation() {
         step("Given There is a team owner user1Name with team CopyCats") {
             backendSetupHelper.createTeamOwnerByAlias(
@@ -226,6 +227,5 @@ class CopyMessageTests : BaseUiTest() {
                 clickDeclineShareDataAlert()
             }
         }
-
     }
 }

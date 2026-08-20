@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       pull-request:
-        description: "PR number whose existing DevDebug artifact should be uploaded; leave empty to build the selected branch"
+        description: "PR number whose existing DevDebug artifact should be uploaded, i.e. 123; leave empty to build the selected branch"
         required: false
-        type: string
+        type: number
       release-notes:
         description: "Help testers know what to test in this build, i.e. refactor navigation, meetings M1, etc."
         required: true

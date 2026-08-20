@@ -69,6 +69,7 @@ fun DebugDataOptions(
     onCopyText: (String) -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    onShowSecurityProviders: () -> Unit,
     viewModel: DebugDataOptionsViewModel,
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
@@ -90,6 +91,7 @@ fun DebugDataOptions(
         onResendFCMToken = viewModel::forceSendFCMToken,
         onShowFeatureFlags = onShowFeatureFlags,
         onShowCryptoStats = onShowCryptoStats,
+        onShowSecurityProviders = onShowSecurityProviders,
         onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys,
     )
 }
@@ -114,6 +116,7 @@ fun DebugDataOptionsContent(
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    onShowSecurityProviders: () -> Unit,
     onRepairFaultyRemovalKeys: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -206,6 +209,15 @@ fun DebugDataOptionsContent(
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = onShowCryptoStats
+                ),
+                trailingIcon = commonR.drawable.ic_arrow_right,
+            )
+
+            SettingsItem(
+                text = stringResource(R.string.debug_settings_security_diagnostics),
+                onRowPressed = Clickable(
+                    enabled = true,
+                    onClick = onShowSecurityProviders
                 ),
                 trailingIcon = commonR.drawable.ic_arrow_right,
             )
@@ -414,6 +426,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onResendFCMToken = {},
         onShowFeatureFlags = {},
         onShowCryptoStats = {},
+        onShowSecurityProviders = {},
         onRepairFaultyRemovalKeys = {}
     )
 }

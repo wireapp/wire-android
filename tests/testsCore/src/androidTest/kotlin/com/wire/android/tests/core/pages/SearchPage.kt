@@ -18,12 +18,15 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 
 data class SearchPage(private val device: UiDevice) {
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
+    private val createNewGroupButton = UiSelectorParams(text = "New Group")
+    private val continueButton = UiSelectorParams(text = "Continue")
     private val closeSearchInputFieldButton = UiSelectorParams(
         className = "android.view.View",
         description = "Go back to add participants view"
@@ -51,6 +54,21 @@ data class SearchPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapCreateNewGroupButton(): SearchPage {
+        UiWaitUtils.waitElement(createNewGroupButton).click()
+        return this
+    }
+
+    fun assertCreateNewGroupButtonNotVisible(): SearchPage {
+        UiWaitUtils.waitElement(searchFieldSearchPeople)
+        val createNewGroup = UiWaitUtils.findElementOrNull(createNewGroupButton)
+        Assert.assertTrue(
+            "Create new group button is visible.",
+            createNewGroup == null || createNewGroup.visibleBounds.isEmpty
+        )
+        return this
+    }
+
     fun tapUsernameInSearchResult(userName: String): SearchPage {
         val userName = UiWaitUtils.waitElement(UiSelectorParams(text = userName))
         userName.click()
@@ -59,6 +77,16 @@ data class SearchPage(private val device: UiDevice) {
 
     fun clickCloseButtonOnSearchInputField(): SearchPage {
         UiWaitUtils.waitElement(closeSearchInputFieldButton).click()
+        return this
+    }
+
+    fun clearSearchInputField(): SearchPage {
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text = ""
+        return this
+    }
+
+    fun tapContinueButtonOnAddParticipantsPage(): SearchPage {
+        UiWaitUtils.waitElement(continueButton).click()
         return this
     }
 

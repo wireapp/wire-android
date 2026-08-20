@@ -53,6 +53,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.SecurityProvidersScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
@@ -91,6 +92,9 @@ fun DebugScreen(
                 },
                 onShowCryptoStats = {
                     navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
+                },
+                onShowSecurityProviders = {
+                    navigator.navigate(NavigationCommand(SecurityProvidersScreenDestination))
                 },
                 viewModel = debugDataOptionsViewModel,
             )
@@ -293,6 +297,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
                 onCopyText = it::copyToClipboard,
                 onShowFeatureFlags = {},
                 onShowCryptoStats = {},
+                onShowSecurityProviders = {},
                 viewModel = object : DebugDataOptionsViewModel {},
             )
         },

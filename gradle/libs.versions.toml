@@ -50,7 +50,7 @@ compose-qr = "1.0.1"
 enterprise-feedback = "1.1.0"
 
 # Compose
-composeBom = "2026.06.00"
+composeBom = "2026.06.01"
 compose-activity = "1.13.0"
 compose-constraint = "1.1.1"
 compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
@@ -95,7 +95,7 @@ ksp = "2.3.7"
 
 # Benchmark
 benchmark-macro-junit4 = "1.4.1"
-benchmark-baselineprofile-plugin = "1.5.0-alpha05"
+benchmark-baselineprofile-plugin = "1.5.0-beta01"
 profileinstaller = "1.4.1"
 
 # Testing

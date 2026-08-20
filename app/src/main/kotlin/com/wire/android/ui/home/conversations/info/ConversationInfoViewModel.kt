@@ -34,6 +34,7 @@ import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -41,6 +42,8 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -52,6 +55,7 @@ class ConversationInfoViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     @Assisted val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val createRegularGroup: CreateRegularGroupUseCase,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     @CurrentAccount private val selfUserId: UserId,
@@ -66,6 +70,8 @@ class ConversationInfoViewModel @AssistedInject constructor(
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState(conversationId))
+
+    private var pendingMLSCreationRetryStarted = false
 
     init {
         fetchMLSVerificationStatus()
@@ -107,6 +113,8 @@ class ConversationInfoViewModel @AssistedInject constructor(
     }
 
     private suspend fun handleConversationDetails(conversationDetails: ConversationDetails) {
+        retryPendingMLSCreationIfNeeded(conversationDetails)
+
         val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne ->
                 conversationDetails.otherUser
@@ -131,6 +139,23 @@ class ConversationInfoViewModel @AssistedInject constructor(
             accentId = getAccentId(conversationDetails),
             isWireCellEnabled = wireCellEnabled && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
         )
+    }
+
+    private fun retryPendingMLSCreationIfNeeded(conversationDetails: ConversationDetails) {
+        val protocol = conversationDetails.conversation.protocol as? Conversation.ProtocolInfo.MLSCapable
+        if (protocol?.groupState != Conversation.ProtocolInfo.MLSCapable.GroupState.PENDING_CREATION ||
+            pendingMLSCreationRetryStarted
+        ) {
+            return
+        }
+
+        pendingMLSCreationRetryStarted = true
+        viewModelScope.launch {
+            when (val result = createRegularGroup.retryPendingMLSGroupCreation(conversationDetails.conversation.id)) {
+                is ConversationCreationResult.Success -> Unit
+                else -> appLogger.w("Failed to establish pending MLS conversation after opening it: $result")
+            }
+        }
     }
 
     private fun getAccentId(conversationDetails: ConversationDetails): Int {

@@ -18,6 +18,8 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
+import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.toBySelector
@@ -50,6 +52,8 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val participantsTab = UiSelectorParams(text = "PARTICIPANTS")
 
+    private val appsTab = UiSelectorParams(text = "APPS")
+
     private val addParticipantsButton = UiSelectorParams(text = "Add participants")
 
     private val continueButton = UiSelectorParams(text = "Continue")
@@ -61,6 +65,14 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     private val removeFromConversationButton = UiSelectorParams(text = "Remove From Conversation")
 
     private val addToConversationButton = UiSelectorParams(text = "Add To Conversation")
+
+    private val guestOptions = UiSelectorParams(text = "Guests")
+
+    private val appsOptions = UiSelectorParams(text = "Apps")
+
+    private val guestOptionsText = UiSelector().text("Guests")
+
+    private val appsOptionsText = UiSelector().text("Apps")
 
     private fun textViewSelector(text: String) = UiSelectorParams(
         className = "android.widget.TextView",
@@ -82,6 +94,15 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapDeleteConversationButton() {
         UiWaitUtils.waitElement(deleteConversationButton).click()
+    }
+
+    fun assertDeleteConversationButtonNotVisible(): GroupConversationDetailsPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = deleteConversationButton.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Delete Conversation button is visible."
+        )
+        return this
     }
 
     fun tapMoveToArchiveButton(): GroupConversationDetailsPage {
@@ -140,6 +161,11 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(participantsTab).click()
     }
 
+    fun tapOnAppsTab(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(appsTab).click()
+        return this
+    }
+
     fun tapAddParticipantsButton() {
         UiWaitUtils.waitElement(addParticipantsButton).click()
     }
@@ -174,6 +200,14 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertAppInSearchResultsVisible(appName: String): GroupConversationDetailsPage {
+        return assertUsernameInSuggestionsListIs(appName)
+    }
+
+    fun tapAppInSearchResults(appName: String): GroupConversationDetailsPage {
+        return selectUserInSuggestionList(appName)
+    }
+
     fun tapContinueButton() {
         UiWaitUtils.waitElement(continueButton).click()
     }
@@ -197,6 +231,36 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         channelNameInput.text = ""
         channelNameInput.text = newName
         UiWaitUtils.waitElement(okButton).click()
+        return this
+    }
+
+    fun assertGroupNameVisible(expectedName: String): GroupConversationDetailsPage {
+        return assertChannelNameVisible(expectedName)
+    }
+
+    fun tapOnGroupName(expectedName: String): GroupConversationDetailsPage {
+        return tapOnChannelName(expectedName)
+    }
+
+    fun changeGroupName(newName: String): GroupConversationDetailsPage {
+        return changeChannelName(newName)
+    }
+
+    fun assertGuestOptionsState(expectedState: String): GroupConversationDetailsPage {
+        return assertAccessOptionState(guestOptions, guestOptionsText, "Guests", expectedState)
+    }
+
+    fun tapGuestOptions(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(guestOptions).click()
+        return this
+    }
+
+    fun assertAppsOptionsState(expectedState: String): GroupConversationDetailsPage {
+        return assertAccessOptionState(appsOptions, appsOptionsText, "Apps", expectedState)
+    }
+
+    fun tapAppsOptions(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(appsOptions).click()
         return this
     }
 
@@ -242,6 +306,11 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapAddToConversationButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(addToConversationButton).click()
+        return this
+    }
+
     fun tapBackButton(): GroupConversationDetailsPage {
         device.pressBack()
         return this
@@ -263,5 +332,21 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapCloseButtonOnChannelConversationDetailsPage(): GroupConversationDetailsPage {
         return tapCloseButtonOnGroupConversationDetailsPage()
+    }
+
+    private fun assertAccessOptionState(
+        optionSelector: UiSelectorParams,
+        optionTextSelector: UiSelector,
+        optionName: String,
+        expectedState: String
+    ): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(optionSelector)
+        val option = device.findObject(optionTextSelector)
+        val state = option.getFromParent(UiSelector().text(expectedState))
+        assertTrue(
+            "$optionName option is not in $expectedState state.",
+            state.exists() && !state.visibleBounds.isEmpty
+        )
+        return this
     }
 }

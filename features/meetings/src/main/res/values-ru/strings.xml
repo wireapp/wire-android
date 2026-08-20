@@ -31,7 +31,7 @@
     <string name="meeting_date_header_tomorrow">Завтра (%1$s)</string>
     <string name="meeting_date_header_yesterday">Вчера (%1$s)</string>
     <string name="deleted_meeting_options_closed">Опции были закрыты, поскольку эта встреча больше не доступна.</string>
-    <string name="meeting_options_start_meeting">Начать встречу</string>
+    <string name="meeting_options_join_now">Присоединиться</string>
     <string name="meeting_options_create_conversation">Создать беседу</string>
     <string name="meeting_options_copy_link">Скопировать ссылку</string>
     <string name="meeting_options_edit_meeting">Изменить встречу</string>
@@ -45,14 +45,17 @@
     <string name="new_meeting_participants_title">Выбрать участников</string>
     <string name="new_meeting_now">Встречи сейчас</string>
     <string name="new_meeting_schedule">Запланировать встречу</string>
+    <string name="new_meeting_edit">Изменить встречу</string>
     <string name="new_meeting_action_start">Начать встречу</string>
     <string name="new_meeting_action_schedule">Расписание</string>
+    <string name="new_meeting_action_edit">Подтвердить изменения</string>
     <string name="new_meeting_title_input_label">Название</string>
     <string name="new_meeting_title_input_placeholder">Введите название встречи</string>
     <string name="new_meeting_participants_input_label">Участники</string>
     <string name="new_meeting_participants_input_placeholder">Выбрать участников</string>
     <string name="content_description_new_meeting_back_icon">Закрыть вид новой встречи</string>
     <string name="content_description_new_meeting_participants_back_icon">Закрыть вид выбора участников</string>
+    <string name="new_meeting_title_name_error_empty">Название обязательно</string>
     <string name="new_meeting_title_name_error_exceeded_limit">Название встречи не должно превышать 64 символа</string>
     <string name="new_meeting_starts_input_label">Начало</string>
     <string name="new_meeting_start_date_input_placeholder">Выберите дату начала</string>
@@ -60,6 +63,9 @@
     <string name="new_meeting_ends_input_label">Окончание</string>
     <string name="new_meeting_end_date_input_placeholder">Выберите дату окончания</string>
     <string name="new_meeting_end_time_input_placeholder">Выберите время окончания</string>
+    <string name="new_meeting_start_in_past_error">Время начала должно быть в будущем</string>
+    <string name="new_meeting_end_in_past_error">Время окончания должно быть в будущем</string>
+    <string name="new_meeting_end_before_start_error">Время окончания должны быть после времени начала</string>
     <string name="new_meeting_repeats_input_label">Повторы</string>
     <string name="content_description_new_meeting_repeating_options">Выберите опцию повтора</string>
     <string name="new_meeting_allow_guests_label">Разрешить гостей</string>
@@ -74,21 +80,34 @@
     <string name="new_meeting_now_failure_description">Что-то пошло не так при начале встречи. Попробуйте еще раз.</string>
     <string name="new_meeting_schedule_failure_title">Не удалось запланировать встречу</string>
     <string name="new_meeting_schedule_failure_description">Что-то пошло не так при планировании встречи. Попробуйте еще раз.</string>
+    <string name="new_meeting_edit_failure_title">Не удалось обновить встречу</string>
+    <string name="new_meeting_edit_failure_description">Что-то пошло не так при обновлении встречи. Попробуйте еще раз.</string>
+    <string name="new_meeting_edit_init_failure_title">Не удалось загрузить встречу</string>
+    <string name="new_meeting_edit_init_failure_description">Что-то пошло не так во время загрузки встречи для обновления. Пожалуйста, попробуйте еще раз.</string>
+    <string name="meeting_join_failure_title">Не удалось присоединиться к встрече</string>
+    <string name="meeting_join_failure_description">При подключении к встрече произошла ошибка. Попробуйте еще раз.</string>
     <plurals name="new_meeting_participants_input_more_suffix">
         <item quantity="one">Еще +%1$d</item>
         <item quantity="few">Еще +%1$d</item>
         <item quantity="many">Еще +%1$d</item>
         <item quantity="other">Еще +%1$d</item>
     </plurals>
-
     <!-- Repeating frequency options -->
     <string name="meeting_repeating_never">Никогда</string>
+    <string name="meeting_repeating_days_2">Каждые два дня</string>
+    <string name="meeting_repeating_days_3">Каждые три дня</string>
+    <string name="meeting_repeating_days_4">Каждые четыре дня</string>
+    <string name="meeting_repeating_days_5">Каждые пять дней</string>
+    <string name="meeting_repeating_days_6">Каждые шесть дней</string>
     <plurals name="meeting_repeating_days">
         <item quantity="one">Ежедневно</item>
         <item quantity="few">Каждые %d дня</item>
         <item quantity="many">Каждые %d дней</item>
         <item quantity="other">Каждые %d дня</item>
     </plurals>
+    <string name="meeting_repeating_weeks_2">Каждые две недели</string>
+    <string name="meeting_repeating_weeks_3">Каждые три недели</string>
+    <string name="meeting_repeating_weeks_4">Каждые четыре недели</string>
     <plurals name="meeting_repeating_weeks">
         <item quantity="one">Еженедельно</item>
         <item quantity="few">Каждые %d недели</item>
@@ -107,5 +126,4 @@
         <item quantity="many">Каждые %d лет</item>
         <item quantity="other">Каждые %d года</item>
     </plurals>
-
 </resources>

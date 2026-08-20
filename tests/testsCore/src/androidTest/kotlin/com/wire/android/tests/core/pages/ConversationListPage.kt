@@ -235,6 +235,30 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertMembershipIdentifierVisible(
+        conversationName: String,
+        expectedIdentifier: String,
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
+    ): ConversationListPage {
+        val identifierSelector = UiSelectorParams(text = expectedIdentifier).toBySelector()
+        val identifierIsVisible = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            findElementOrNull(conversationNameSelector(conversationName))
+                ?.parent
+                ?.findObject(identifierSelector)
+                ?.visibleBounds
+                ?.isEmpty == false
+        }
+
+        assertTrue(
+            "Identifier '$expectedIdentifier' is not visible next to conversation '$conversationName'",
+            identifierIsVisible
+        )
+        return this
+    }
+
     fun assertGroupConversationVisible(conversationName: String): ConversationListPage {
         return assertConversationVisible(conversationName)
     }

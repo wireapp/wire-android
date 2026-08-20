@@ -73,8 +73,7 @@ fun RestoreBackupDialogFlow(
                 RestoreBackupStep(
                     backUpAndRestoreState = backUpAndRestoreState,
                     restoreDialogStateHolder = restoreDialogStateHolder,
-                    onOpenConversations = onOpenConversations,
-                    onCancelBackupRestore = onCancelBackupRestore
+                    onOpenConversations = onOpenConversations
                 )
             }
 
@@ -168,8 +167,7 @@ fun EnterPasswordStep(
 fun RestoreBackupStep(
     backUpAndRestoreState: BackupAndRestoreState,
     restoreDialogStateHolder: RestoreDialogStateHolder,
-    onOpenConversations: () -> Unit,
-    onCancelBackupRestore: () -> Unit
+    onOpenConversations: () -> Unit
 ) {
     with(restoreDialogStateHolder) {
         LaunchedEffect(backUpAndRestoreState.backupRestoreProgress) {
@@ -196,8 +194,7 @@ fun RestoreBackupStep(
         RestoreProgressDialog(
             isRestoreCompleted = isRestoreCompleted,
             restoreProgress = restoreProgress,
-            onOpenConversation = onOpenConversations,
-            onCancelBackupRestore = onCancelBackupRestore
+            onOpenConversation = onOpenConversations
         )
     }
 }

@@ -25,6 +25,7 @@ import backendUtils.connection.sendConnectionRequest
 import backendUtils.conversation.addUsersToGroupConversation
 import backendUtils.conversation.createChannelTeamConversation
 import backendUtils.conversation.createTeamConversation
+import backendUtils.conversation.deleteTeamConversation
 import backendUtils.conversation.getConversationByName
 import backendUtils.conversation.removeUserFromGroupConversation
 import backendUtils.conversation.setArchivedStateForConversation
@@ -347,6 +348,12 @@ class BackendSetupHelper(
             userToRemove,
             toConvoObj(userWhoRemoves, chatName)
         )
+    }
+
+    fun userDeletesGroupConversation(userAlias: String, chatName: String) {
+        val user = toClientUser(userAlias)
+        val backend = backendFor(user)
+        backend.deleteTeamConversation(user, toConvoObj(user, chatName))
     }
 
     private fun toClientUser(nameAlias: String): ClientUser {

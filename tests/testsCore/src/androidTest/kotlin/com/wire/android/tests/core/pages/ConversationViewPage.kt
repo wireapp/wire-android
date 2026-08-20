@@ -648,6 +648,24 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationBannerVisible(expectedMessage: String): ConversationViewPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = expectedMessage),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "'$expectedMessage' banner is not visible in conversation view."
+        )
+        return this
+    }
+
+    fun assertConversationBannerNotVisible(expectedMessage: String): ConversationViewPage {
+        assertElementNotVisible(
+            params = UiSelectorParams(text = expectedMessage),
+            description = "'$expectedMessage' banner",
+            timeoutSeconds = 2
+        )
+        return this
+    }
+
     fun assertTopOfConversationViewPageVisible(): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(topOfConversationViewPageMessage)

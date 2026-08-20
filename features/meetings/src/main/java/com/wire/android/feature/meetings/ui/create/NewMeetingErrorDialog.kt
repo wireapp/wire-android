@@ -24,35 +24,64 @@ import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun NewMeetingErrorDialog(
+    error: NewMeetingState.SubmitError,
     type: NewMeetingType,
+    isSubmitting: Boolean,
     onDismiss: () -> Unit,
+    onRetryUpdateConversationName: (conversationId: ConversationId) -> Unit
 ) {
     // TODO: specific errors to be handled later, for now we just show single generic one
-    val (titleResId, descriptionResId) = when (type) {
-        NewMeetingType.MeetNow -> R.string.new_meeting_now_failure_title to R.string.new_meeting_now_failure_description
-        NewMeetingType.Schedule -> R.string.new_meeting_schedule_failure_title to R.string.new_meeting_schedule_failure_description
-        is NewMeetingType.Edit -> R.string.new_meeting_edit_failure_title to R.string.new_meeting_edit_failure_description
+    val (titleResId, descriptionResId) = when (error) {
+        is NewMeetingState.SubmitError.UpdateConversationNameFailure ->
+            R.string.new_meeting_edit_conversation_name_failure_title to R.string.new_meeting_edit_conversation_name_failure_description
+
+        is NewMeetingState.SubmitError.Other -> when (type) {
+            NewMeetingType.MeetNow -> R.string.new_meeting_now_failure_title to R.string.new_meeting_now_failure_description
+            NewMeetingType.Schedule -> R.string.new_meeting_schedule_failure_title to R.string.new_meeting_schedule_failure_description
+            is NewMeetingType.Edit -> R.string.new_meeting_edit_failure_title to R.string.new_meeting_edit_failure_description
+        }
     }
+
     WireDialog(
         title = stringResource(titleResId),
         text = stringResource(descriptionResId),
         onDismiss = onDismiss,
         buttonsHorizontalAlignment = false,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDismiss,
-            text = stringResource(commonR.string.label_ok),
-            type = WireDialogButtonType.Primary,
-        ),
+        optionButton1Properties = when (error) {
+            is NewMeetingState.SubmitError.Other -> WireDialogButtonProperties(
+                onClick = onDismiss,
+                text = stringResource(commonR.string.label_ok),
+                type = WireDialogButtonType.Primary,
+            )
+
+            is NewMeetingState.SubmitError.UpdateConversationNameFailure -> WireDialogButtonProperties(
+                onClick = {
+                    onRetryUpdateConversationName(error.conversationId)
+                },
+                text = stringResource(R.string.new_meeting_edit_conversation_name_failure_action),
+                type = WireDialogButtonType.Primary,
+                state = if (isSubmitting) WireButtonState.Disabled else WireButtonState.Default,
+                loading = isSubmitting,
+            )
+        }
     )
 }
 
 @PreviewMultipleThemes
 @Composable
 private fun PreviewCreateGroupErrorDialogLackingConnection() = WireTheme {
-    NewMeetingErrorDialog(type = NewMeetingType.MeetNow, onDismiss = {})
+    NewMeetingErrorDialog(
+        error = NewMeetingState.SubmitError.Other,
+        type = NewMeetingType.MeetNow,
+        isSubmitting = false,
+        onDismiss = {},
+        onRetryUpdateConversationName = {},
+    )
 }

@@ -13,9 +13,9 @@ on:
         type: string
 
 permissions:
-  actions: read
-  contents: read
-  pull-requests: read
+  actions: read # required to find and download DevDebug artifacts from PR build runs
+  contents: read # required to check out the selected branch
+  pull-requests: read # required to resolve the PR head commit
 
 concurrency:
   group: firebase-app-distribution-dev-${{ inputs.pull-request || github.ref }}

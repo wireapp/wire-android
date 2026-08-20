@@ -22,7 +22,6 @@ gms-location = "21.3.0"
 android-gradlePlugin = "9.0.1"
 desugaring = "2.1.5"
 firebaseBOM = "34.13.0"
-firebaseAppDistribution = "5.3.0"
 fragment = "1.5.6"
 resaca = "5.0.2"
 metro = "1.2.1"
@@ -138,7 +137,6 @@ compose-stability-analyzer = { id = "com.github.skydoves.compose.stability.analy
 cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
 androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark-baselineprofile-plugin" }
-firebase-appdistribution = { id = "com.google.firebase.appdistribution", version.ref = "firebaseAppDistribution" }
 
 # Home-made convention plugins defined in build-logic
 wire-android-application = { id = "com.wire.android.application" }

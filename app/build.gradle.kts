@@ -1,7 +1,6 @@
 import customization.ConfigurationFileImporter
 import customization.Customization.isCustomizationEnabled
 import customization.NormalizedFlavorSettings
-import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 
 /*
  * Wire
@@ -44,7 +43,6 @@ plugins {
     id(libs.plugins.wire.versionizer.get().pluginId)
     alias(libs.plugins.screenshot)
     id(libs.plugins.wire.android.navigation.get().pluginId)
-    alias(libs.plugins.firebase.appdistribution) apply false
 }
 
 repositories {
@@ -65,19 +63,6 @@ private fun getFlavorsSettings(): NormalizedFlavorSettings =
     } catch (e: Exception) {
         error(">> Error reading current flavors, exception: ${e.localizedMessage}")
     }
-
-val firebaseAppDistributionCredentialsJson = System.getenv("FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON")
-    ?.takeIf(String::isNotBlank)
-val firebaseAppDistributionCredentialsFile = firebaseAppDistributionCredentialsJson?.let { credentialsJson ->
-    layout.buildDirectory.file("firebase-app-distribution/service-account.json").get().asFile.apply {
-        parentFile.mkdirs()
-        writeText(credentialsJson)
-    }
-}
-
-if (firebaseAppDistributionCredentialsFile != null) {
-    pluginManager.apply(libs.plugins.firebase.appdistribution.get().pluginId)
-}
 
 android {
     defaultConfig {
@@ -178,24 +163,6 @@ android {
             java.directories.add("src/screenshotTest/kotlin")
             kotlin.directories.add("src/screenshotTest/kotlin")
             res.directories.add("src/main/res")
-        }
-    }
-
-    firebaseAppDistributionCredentialsFile?.let { credentialsFile ->
-        val devFirebaseAppId = getFlavorsSettings().flavorMap
-            .getValue("dev")
-            .getValue("firebase_app_id") as? String
-            ?: error("Missing firebase_app_id for the dev flavor")
-
-        productFlavors.named("dev") {
-            firebaseAppDistribution {
-                appId = devFirebaseAppId
-                artifactType = "APK"
-                serviceCredentialsFile = credentialsFile.absolutePath
-                System.getenv("FIREBASE_APP_DISTRIBUTION_GROUPS")
-                    ?.takeIf(String::isNotBlank)
-                    ?.let { groups = it }
-            }
         }
     }
 

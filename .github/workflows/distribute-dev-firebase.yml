@@ -24,7 +24,8 @@ concurrency:
 jobs:
   distribute:
     name: Distribute DevDebug
-    runs-on: ubuntu-latest
+    runs-on: warp-ubuntu-2404-x64-8x
+    timeout-minutes: 45
     steps:
       - name: Checkout selected branch
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -38,14 +39,45 @@ jobs:
         with:
           java-version: "21"
           distribution: temurin
-          cache: gradle
+
+      - name: Restore Gradle cache
+        uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.0.1
+        with:
+          node-version: 24
 
       - name: Resolve DevDebug APK
         id: apk
         env:
           GH_TOKEN: ${{ github.token }}
           PULL_REQUEST: ${{ inputs.pull-request }}
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+          DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
         run: |
+          find_dev_debug_apk() {
+            local search_root="$1"
+            local -a apks
+            mapfile -t apks < <(find "${search_root}" -type f -path '*/apk/dev/debug/*.apk' -print)
+            (( ${#apks[@]} == 1 )) || {
+              echo "Expected exactly one DevDebug APK in ${search_root}, found ${#apks[@]}"
+              return 1
+            }
+            printf '%s\n' "${apks[0]}"
+          }
+
           if [[ -n "${PULL_REQUEST}" ]]; then
             [[ "${PULL_REQUEST}" =~ ^[0-9]+$ ]] || { echo "pull-request must be a number"; exit 1; }
 
@@ -54,10 +86,10 @@ jobs:
             [[ -n "${source_run_id}" ]] || { echo "No successful Develop PR build found for PR #${PULL_REQUEST}"; exit 1; }
 
             gh run download "${source_run_id}" --repo "${GITHUB_REPOSITORY}" --name Dev-Debug-artifacts --dir downloaded-artifacts
-            apk_path="$(find downloaded-artifacts -type f -name '*.apk' -print -quit)"
+            apk_path="$(find_dev_debug_apk downloaded-artifacts)"
           else
             ./gradlew :app:assembleDevDebug
-            apk_path="$(find app/build/outputs/apk/dev/debug -type f -name '*.apk' -print -quit)"
+            apk_path="$(find_dev_debug_apk app/build/outputs)"
           fi
 
           [[ -n "${apk_path}" && -f "${apk_path}" ]] || { echo "DevDebug APK was not found"; exit 1; }
@@ -72,8 +104,14 @@ jobs:
         run: |
           : "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON:?Configure the FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON repository secret}"
 
-          upload_args=(":app:appDistributionUploadDevDebug" "--artifactPath=${APK_PATH}")
-          if [[ -n "${RELEASE_NOTES}" ]]; then
-            upload_args+=("--releaseNotes=${RELEASE_NOTES}")
+          credentials_file="$(mktemp "${RUNNER_TEMP}/firebase-app-distribution.XXXXXX.json")"
+          trap 'rm -f "${credentials_file}"' EXIT
+          printf '%s' "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON}" > "${credentials_file}"
+          chmod 600 "${credentials_file}"
+
+          firebase_app_id="$(jq -er '.flavors.dev.firebase_app_id | strings | select(length > 0)' default.json)"
+          upload_args=(appdistribution:distribute "${APK_PATH}" "--app=${firebase_app_id}" "--release-notes=${RELEASE_NOTES}" "--non-interactive")
+          if [[ -n "${FIREBASE_APP_DISTRIBUTION_GROUPS}" ]]; then
+            upload_args+=("--groups=${FIREBASE_APP_DISTRIBUTION_GROUPS}")
           fi
-          ./gradlew "${upload_args[@]}"
+          npx --yes firebase-tools@15.27.0 "${upload_args[@]}"

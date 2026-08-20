@@ -14,9 +14,9 @@ selected Firebase Android app.
 
 ## Decision
 
-Use the Firebase App Distribution Gradle plugin for the Dev flavor only. It is enabled only when
-CI provides `FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON`; local builds do not create upload
-tasks.
+Use the Firebase CLI from the distribution workflow. CI writes
+`FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON` to a temporary credentials file and passes it as
+Application Default Credentials. Local builds do not include App Distribution tooling or tasks.
 
 Use a manual `Distribute Dev Build` workflow for uploads. The workflow accepts a PR number to reuse
 the existing DevDebug artifact from its successful Develop PR build. Without a PR number, it builds

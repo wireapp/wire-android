@@ -1,0 +1,79 @@
+name: "Distribute Dev Build"
+
+on:
+  workflow_dispatch:
+    inputs:
+      pull-request:
+        description: "PR number whose existing DevDebug artifact should be uploaded; leave empty to build the selected branch"
+        required: false
+        type: string
+      release-notes:
+        description: "Help testers know what to test in this build, i.e. refactor navigation, meetings M1, etc."
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: firebase-app-distribution-dev-${{ inputs.pull-request || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  distribute:
+    name: Distribute DevDebug
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout selected branch
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
+        with:
+          java-version: "21"
+          distribution: temurin
+          cache: gradle
+
+      - name: Resolve DevDebug APK
+        id: apk
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_REQUEST: ${{ inputs.pull-request }}
+        run: |
+          if [[ -n "${PULL_REQUEST}" ]]; then
+            [[ "${PULL_REQUEST}" =~ ^[0-9]+$ ]] || { echo "pull-request must be a number"; exit 1; }
+
+            head_sha="$(gh pr view "${PULL_REQUEST}" --repo "${GITHUB_REPOSITORY}" --json headRefOid --jq .headRefOid)"
+            source_run_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/build-develop-pr.yml/runs?event=pull_request&head_sha=${head_sha}&status=success&per_page=1" --jq '.workflow_runs[0].id // empty')"
+            [[ -n "${source_run_id}" ]] || { echo "No successful Develop PR build found for PR #${PULL_REQUEST}"; exit 1; }
+
+            gh run download "${source_run_id}" --repo "${GITHUB_REPOSITORY}" --name Dev-Debug-artifacts --dir downloaded-artifacts
+            apk_path="$(find downloaded-artifacts -type f -name '*.apk' -print -quit)"
+          else
+            ./gradlew :app:assembleDevDebug
+            apk_path="$(find app/build/outputs/apk/dev/debug -type f -name '*.apk' -print -quit)"
+          fi
+
+          [[ -n "${apk_path}" && -f "${apk_path}" ]] || { echo "DevDebug APK was not found"; exit 1; }
+          echo "path=${apk_path}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload to Firebase App Distribution
+        env:
+          FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_APP_DISTRIBUTION_GROUPS: ${{ vars.FIREBASE_APP_DISTRIBUTION_GROUPS }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+          RELEASE_NOTES: ${{ inputs.release-notes }}
+        run: |
+          : "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON:?Configure the FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON repository secret}"
+
+          upload_args=(":app:appDistributionUploadDevDebug" "--artifactPath=${APK_PATH}")
+          if [[ -n "${RELEASE_NOTES}" ]]; then
+            upload_args+=("--releaseNotes=${RELEASE_NOTES}")
+          fi
+          ./gradlew "${upload_args[@]}"

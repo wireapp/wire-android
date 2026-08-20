@@ -130,6 +130,15 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationIsVisibleWithUser(userName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(displayedUserName(userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("User '$userName' is not visible in conversation view", e)
+        }
+        return this
+    }
+
     fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationViewPage {
         try {
             UiWaitUtils.waitElement(displayedUserName(userName))
@@ -669,6 +678,24 @@ data class ConversationViewPage(private val device: UiDevice) {
             throw AssertionError("'Guests and apps are present' banner is not visible in conversation view", e)
         }
 
+        return this
+    }
+
+    fun assertConversationBannerVisible(expectedMessage: String): ConversationViewPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = expectedMessage),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "'$expectedMessage' banner is not visible in conversation view."
+        )
+        return this
+    }
+
+    fun assertConversationBannerNotVisible(expectedMessage: String): ConversationViewPage {
+        assertElementNotVisible(
+            params = UiSelectorParams(text = expectedMessage),
+            description = "'$expectedMessage' banner",
+            timeoutSeconds = 2
+        )
         return this
     }
 

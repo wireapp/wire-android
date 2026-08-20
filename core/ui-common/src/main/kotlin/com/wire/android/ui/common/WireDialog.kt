@@ -50,16 +50,17 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.ui.common.button.WireTertiaryButton
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.theme.isTablet
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 
 @Stable
 @Composable
@@ -287,13 +288,34 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
         Box(modifier = modifier) {
             when (type) {
                 WireDialogButtonType.Primary ->
-                    WirePrimaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
+                    WirePrimaryButton(
+                        onClick = onClick,
+                        text = text,
+                        state = state,
+                        loading = loading,
+                        trailingIconAlignment = loadingIndicatorAlignment,
+                        description = description
+                    )
 
                 WireDialogButtonType.Secondary ->
-                    WireSecondaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
+                    WireSecondaryButton(
+                        onClick = onClick,
+                        text = text,
+                        state = state,
+                        loading = loading,
+                        trailingIconAlignment = loadingIndicatorAlignment,
+                        description = description
+                    )
 
                 WireDialogButtonType.Tertiary ->
-                    WireTertiaryButton(onClick = onClick, text = text, state = state, loading = loading, description = description)
+                    WireTertiaryButton(
+                        onClick = onClick,
+                        text = text,
+                        state = state,
+                        loading = loading,
+                        trailingIconAlignment = loadingIndicatorAlignment,
+                        description = description
+                    )
             }
         }
     }
@@ -307,6 +329,7 @@ data class WireDialogButtonProperties(
     val state: WireButtonState = WireButtonState.Default,
     val type: WireDialogButtonType = WireDialogButtonType.Secondary,
     val loading: Boolean = false,
+    val loadingIndicatorAlignment: IconAlignment = IconAlignment.Border,
     val description: String? = null
 )
 

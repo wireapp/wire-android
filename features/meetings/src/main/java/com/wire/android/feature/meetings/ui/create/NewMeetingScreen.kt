@@ -168,6 +168,7 @@ fun NewMeetingContent(
                         label = stringResource(R.string.new_meeting_ends_input_label),
                         datePlaceholder = stringResource(R.string.new_meeting_end_date_input_placeholder),
                         timePlaceholder = stringResource(R.string.new_meeting_end_time_input_placeholder),
+                        dateInputDisabled = true,
                     )
                     VerticalSpace.x8()
                     RepeatingIntervalDropDown(
@@ -325,6 +326,7 @@ private fun TimeInput(
     label: String,
     datePlaceholder: String,
     timePlaceholder: String,
+    dateInputDisabled: Boolean = false,
 ) {
     val dateTextFieldState = rememberTextFieldState(DateAndTimeParsers.meetingDate(time))
     val timeTextFieldState = rememberTextFieldState(DateAndTimeParsers.meetingTime(time))
@@ -346,7 +348,12 @@ private fun TimeInput(
                 placeholderText = datePlaceholder,
                 labelText = label.uppercase(),
                 keyboardOptions = KeyboardOptions.DefaultEmailDone,
-                state = if (timeError != null) WireTextFieldState.Error() else WireTextFieldState.Default,
+                state = when {
+                    dateInputDisabled -> WireTextFieldState.Disabled
+                    timeError != null -> WireTextFieldState.Error()
+                    else -> WireTextFieldState.Default
+                },
+                enabled = !dateInputDisabled,
                 readOnly = true,
                 shape = RoundedCornerShape(
                     topStart = dimensions().textFieldCornerSize,
@@ -356,7 +363,7 @@ private fun TimeInput(
                 ),
                 onTap = {
                     datePickerDialogState.show(Unit)
-                },
+                }.takeUnless { dateInputDisabled },
                 trailingIcon = {
                     Icon(
                         painter = painterResource(commonR.drawable.ic_calendar),

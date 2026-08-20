@@ -43,6 +43,9 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -165,6 +168,33 @@ class NewMeetingViewModelTest {
 
         assertEquals(NewMeetingState.TimeError.StartTimeInPastError, viewModel.state.startTimeError)
         assertFalse(viewModel.state.continueButtonEnabled)
+    }
+
+    @Test
+    fun givenStartTimeChanges_whenEndTimeFitsSameDay_thenEndTimeKeepsCurrentDuration() = runTest(dispatcher) {
+        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        val newStartTime = currentTime + 3.hours
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+
+        viewModel.updateStartTime(newStartTime)
+
+        assertEquals(newStartTime, viewModel.state.startTime)
+        assertEquals(newStartTime + 1.hours, viewModel.state.endTime)
+    }
+
+    @Test
+    fun givenStartTimeChanges_whenEndTimeWouldMoveToNextDay_thenEndTimeIsCappedAt2359() = runTest(dispatcher) {
+        val timeZone = TimeZone.currentSystemDefault()
+        val currentTime = LocalDateTime(2026, 1, 1, 12, 0).toInstant(timeZone)
+        val newStartTime = LocalDateTime(2026, 1, 1, 23, 30).toInstant(timeZone)
+        val latestEndTime = LocalDateTime(2026, 1, 1, 23, 59).toInstant(timeZone)
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+
+        viewModel.updateStartTime(newStartTime)
+
+        assertEquals(newStartTime, viewModel.state.startTime)
+        assertEquals(latestEndTime, viewModel.state.endTime)
+        assertNull(viewModel.state.endTimeError)
     }
 
     @Test

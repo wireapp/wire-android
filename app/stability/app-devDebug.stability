@@ -3647,6 +3647,20 @@ public fun com.wire.android.ui.debug.securityProvidersViewModel(): com.wire.andr
   params:
 
 @Composable
+private fun com.wire.android.ui.debug.securityproviders.NetworkSection(network: com.wire.android.ui.debug.securityproviders.NetworkDiagnostics): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - network: RUNTIME (requires runtime check)
+
+@Composable
+private fun com.wire.android.ui.debug.securityproviders.SQLSecuritySection(security: com.wire.android.ui.debug.securityproviders.DatabaseSecurityInfo): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - security: STABLE (class with no mutable properties)
+
+@Composable
 internal fun com.wire.android.ui.debug.securityproviders.SecurityProvidersRouteScreen(onBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel): kotlin.Unit
   skippable: false
   restartable: true

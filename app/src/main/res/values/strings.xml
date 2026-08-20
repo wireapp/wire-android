@@ -1796,6 +1796,28 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_app_path_no_backup_dir" translatable="false">No backup dir</string>
     <string name="debug_settings_app_path_external_files_dir" translatable="false">External files dir</string>
     <string name="debug_settings_security_providers_entry_count" translatable="false">%1$d entries</string>
+    <string name="debug_settings_network" translatable="false">Network</string>
+    <string name="debug_settings_network_vpn" translatable="false">VPN</string>
+    <string name="debug_settings_network_vpn_active" translatable="false">Active</string>
+    <string name="debug_settings_network_vpn_inactive" translatable="false">Not active</string>
+    <string name="debug_settings_network_type" translatable="false">Network type</string>
+    <string name="debug_settings_network_backend_host" translatable="false">Backend host</string>
+    <string name="debug_settings_network_resolved_addresses" translatable="false">Resolved addresses</string>
+    <string name="debug_settings_network_resolved_address" translatable="false">Resolved address (%1$s)</string>
+    <string name="debug_settings_network_ip_v4" translatable="false">IPv4</string>
+    <string name="debug_settings_network_ip_v6" translatable="false">IPv6</string>
+    <string name="debug_settings_network_no_active_network" translatable="false">No active network</string>
+    <string name="debug_settings_network_resolution_failed" translatable="false">Could not be resolved</string>
+    <string name="debug_settings_network_unknown" translatable="false">Unknown</string>
+    <string name="debug_settings_sqlcipher" translatable="false">SQLCipher Database</string>
+    <string name="debug_settings_sqlcipher_version" translatable="false">SQLCipher version</string>
+    <string name="debug_settings_sqlcipher_database_path" translatable="false">User database path</string>
+    <string name="debug_settings_sqlcipher_header_value" translatable="false">Database header (first 16 bytes)</string>
+    <string name="debug_settings_sqlcipher_header_interpretation" translatable="false">Header interpretation</string>
+    <string name="debug_settings_sqlcipher_header_plain" translatable="false">Plain SQLite</string>
+    <string name="debug_settings_sqlcipher_header_not_plain" translatable="false">Not a plain SQLite header</string>
+    <string name="debug_settings_sqlcipher_header_not_created" translatable="false">Database not created</string>
+    <string name="debug_settings_sqlcipher_internal_storage" translatable="false">In app internal data directory</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>

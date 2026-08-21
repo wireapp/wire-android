@@ -17,9 +17,21 @@
  */
 package com.wire.android.session
 
+import com.wire.android.ui.MIGRATION_LONG_RUNNING_MESSAGE_DELAY
+import com.wire.android.ui.MIGRATION_SCREEN_MINIMUM_VISIBILITY
+import com.wire.android.ui.MIGRATION_SCREEN_REVEAL_DELAY
+import com.wire.android.ui.MigrationScreenPhase
+import com.wire.android.ui.MigrationScreenVisibility
+import com.wire.android.ui.UserSessionPreparationUiFailure
+import com.wire.android.ui.UserSessionPreparationUiState
+import com.wire.android.ui.migrationScreenPhase
+import com.wire.android.ui.preparationScreenRevealDelay
+import com.wire.android.ui.toUiFailure
+import com.wire.android.ui.toUiStates
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.UserSessionPreparationFailure
+import com.wire.kalium.logic.UserSessionPreparationState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import io.mockk.coEvery
@@ -28,6 +40,11 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -35,6 +52,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class UserSessionPreparationGateTest {
 
@@ -90,6 +109,135 @@ class UserSessionPreparationGateTest {
         }
     }
 
+    @Test
+    fun givenPublicPreparationFailures_whenMappingForForeground_thenEveryActionableStateIsPreserved() {
+        val mappings: List<Pair<UserSessionPreparationFailure, UserSessionPreparationUiFailure>> = listOf(
+            mockk<UserSessionPreparationFailure.InsufficientStorage>() to
+                    UserSessionPreparationUiFailure.InsufficientStorage,
+            mockk<UserSessionPreparationFailure.TemporarilyUnavailable>() to
+                    UserSessionPreparationUiFailure.TemporarilyUnavailable,
+            mockk<UserSessionPreparationFailure.ApplicationUpdateRequired>() to
+                    UserSessionPreparationUiFailure.ApplicationUpdateRequired,
+            mockk<UserSessionPreparationFailure.SupportRequired>() to UserSessionPreparationUiFailure.SupportRequired,
+        )
+
+        mappings.forEach { (failure, expected) ->
+            assertEquals(expected, failure.toUiFailure())
+        }
+    }
+
+    @Test
+    fun givenFastPreparationStates_whenChoosingVisibility_thenPreparationScreenStaysBehindSystemSplash() {
+        val hiddenStates = listOf(
+            UserSessionPreparationUiState.ResolvingSession,
+            UserSessionPreparationUiState.OpeningDatabase,
+            UserSessionPreparationUiState.Ready,
+        )
+
+        hiddenStates.forEach { state ->
+            assertEquals(null, state.preparationScreenRevealDelay())
+        }
+    }
+
+    @Test
+    fun givenMigrationState_whenChoosingVisibility_thenPreparationScreenIsDebounced() {
+        assertEquals(
+            MIGRATION_SCREEN_REVEAL_DELAY,
+            UserSessionPreparationUiState.MigratingDatabase.preparationScreenRevealDelay(),
+        )
+    }
+
+    @Test
+    fun givenFailureState_whenChoosingVisibility_thenPreparationScreenIsRevealedImmediately() {
+        val state = UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.SupportRequired)
+
+        assertEquals(Duration.ZERO, state.preparationScreenRevealDelay())
+    }
+
+    @Test
+    fun givenVisibleMigration_whenChoosingCopy_thenLongRunningMessageStartsAtItsDelay() {
+        assertEquals(MigrationScreenPhase.Updating, migrationScreenPhase(Duration.ZERO))
+        assertEquals(
+            MigrationScreenPhase.Updating,
+            migrationScreenPhase(MIGRATION_LONG_RUNNING_MESSAGE_DELAY - 1.milliseconds),
+        )
+        assertEquals(
+            MigrationScreenPhase.StillUpdating,
+            migrationScreenPhase(MIGRATION_LONG_RUNNING_MESSAGE_DELAY),
+        )
+    }
+
+    /** Preserves a short migration state after observation starts while the main collector is busy. */
+    @Test
+    fun givenStatesChangeWhileTheCollectorIsBusy_whenMappingForForeground_thenMigrationIsStillDelivered() = runTest {
+        val states = MutableStateFlow<UserSessionPreparationState>(UserSessionPreparationState.NotStarted)
+        val observed = mutableListOf<UserSessionPreparationUiState>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) {
+            states.toUiStates().collect { state ->
+                observed += state
+                delay(BUSY_COLLECTOR_DELAY) // stands in for a main thread stuck on the first frame
+            }
+        }
+        runCurrent()
+
+        states.value = UserSessionPreparationState.OpeningDatabase
+        states.value = UserSessionPreparationState.MigratingDatabase
+        states.value = UserSessionPreparationState.Ready
+        advanceTimeBy(BUSY_COLLECTOR_DELAY * OBSERVED_STATE_COUNT)
+        collector.cancel()
+
+        assertEquals(
+            listOf(
+                UserSessionPreparationUiState.ResolvingSession,
+                UserSessionPreparationUiState.OpeningDatabase,
+                UserSessionPreparationUiState.MigratingDatabase,
+                UserSessionPreparationUiState.Ready,
+            ),
+            observed,
+        )
+    }
+
+    @Test
+    fun givenMigrationScreenWasNeverRevealed_whenLeavingPreparation_thenNothingIsWaitedFor() {
+        val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { 0L })
+
+        assertEquals(Duration.ZERO, visibility.remainingVisibility())
+    }
+
+    @Test
+    fun givenMigrationFinishedRightAfterReveal_whenLeavingPreparation_thenRemainderOfMinimumIsWaitedFor() {
+        var now = 1_000L
+        val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { now })
+
+        visibility.onRevealed()
+        now += 200L
+
+        assertEquals(MIGRATION_SCREEN_MINIMUM_VISIBILITY - 200.milliseconds, visibility.remainingVisibility())
+    }
+
+    @Test
+    fun givenMigrationOutlivedTheMinimum_whenLeavingPreparation_thenNothingIsWaitedFor() {
+        var now = 1_000L
+        val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { now })
+
+        visibility.onRevealed()
+        now += MIGRATION_SCREEN_MINIMUM_VISIBILITY.inWholeMilliseconds + 1L
+
+        assertEquals(Duration.ZERO, visibility.remainingVisibility())
+    }
+
+    @Test
+    fun givenScreenAlreadyRevealed_whenRevealedAgain_thenMinimumStillCountsFromFirstReveal() {
+        var now = 1_000L
+        val visibility = MigrationScreenVisibility(elapsedRealtimeMillis = { now })
+
+        visibility.onRevealed()
+        now += 400L
+        visibility.onRevealed()
+
+        assertEquals(MIGRATION_SCREEN_MINIMUM_VISIBILITY - 400.milliseconds, visibility.remainingVisibility())
+    }
+
     private fun success(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =
         mockk<PrepareUserSessionResult.Success>().also {
             every { it.sessionScope } returns sessionScope
@@ -102,5 +250,7 @@ class UserSessionPreparationGateTest {
 
     private companion object {
         val USER_ID = UserId("user", "wire.test")
+        const val BUSY_COLLECTOR_DELAY = 1_000L
+        const val OBSERVED_STATE_COUNT = 4
     }
 }

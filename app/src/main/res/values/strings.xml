@@ -50,7 +50,8 @@
     <string name="user_session_preparation_opening_title">Preparing Wire</string>
     <string name="user_session_preparation_opening_message">Opening your secure data. This may take a moment.</string>
     <string name="user_session_preparation_migrating_title">Updating your secure data</string>
-    <string name="user_session_preparation_migrating_message">Keep Wire open while your messages are prepared for this version.</string>
+    <string name="user_session_preparation_migrating_message">Updating your data...</string>
+    <string name="user_session_preparation_migrating_long_running_message">Still updating. Almost there...</string>
     <string name="user_session_preparation_storage_title">Free up storage</string>
     <string name="user_session_preparation_storage_message">Wire needs more free space to safely update your secure data. Free up storage, then try again.</string>
     <string name="user_session_preparation_temporary_title">Wire is temporarily unavailable</string>

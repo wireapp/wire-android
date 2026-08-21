@@ -28,10 +28,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -48,6 +55,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.UserSessionPreparationState
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
@@ -69,16 +77,53 @@ internal fun UserSessionPreparationScreen(
             .background(colorsScheme().background)
             .padding(horizontal = dimensions().spacing32x),
     ) {
-        if (content.action == null) {
-            SplashContinuationContent(content)
-        } else {
-            PreparationFailureContent(
-                content = content,
-                onRetry = onRetry,
-                onUpdate = onUpdate,
-                onContactSupport = onContactSupport,
-            )
+        when {
+            state == UserSessionPreparationUiState.MigratingDatabase -> MigrationContent()
+            content.action == null -> SplashContinuationContent(content)
+            else -> {
+                PreparationFailureContent(
+                    content = content,
+                    onRetry = onRetry,
+                    onUpdate = onUpdate,
+                    onContactSupport = onContactSupport,
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun BoxScope.MigrationContent() {
+    var phase by remember { mutableStateOf(MigrationScreenPhase.Updating) }
+    LaunchedEffect(Unit) {
+        delay(MIGRATION_LONG_RUNNING_MESSAGE_DELAY.inWholeMilliseconds)
+        phase = migrationScreenPhase(MIGRATION_LONG_RUNNING_MESSAGE_DELAY)
+    }
+
+    Logo(
+        tint = colorsScheme().onBackground,
+        modifier = Modifier
+            .size(width = SPLASH_LOGO_WIDTH, height = SPLASH_LOGO_HEIGHT)
+            .align(Alignment.Center),
+    )
+    Column(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .offset(y = SPLASH_COPY_OFFSET + dimensions().spacing32x),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(phase.message),
+            color = colorsScheme().onBackground,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(dimensions().spacing20x))
+        LinearProgressIndicator(
+            modifier = Modifier.width(SPLASH_LOGO_WIDTH),
+            color = colorsScheme().primary,
+            trackColor = colorsScheme().primaryVariant,
+        )
     }
 }
 
@@ -234,6 +279,18 @@ internal class MigrationScreenVisibility(
     }
 }
 
+internal enum class MigrationScreenPhase {
+    Updating,
+    StillUpdating,
+}
+
+internal fun migrationScreenPhase(elapsed: Duration): MigrationScreenPhase =
+    if (elapsed >= MIGRATION_LONG_RUNNING_MESSAGE_DELAY) {
+        MigrationScreenPhase.StillUpdating
+    } else {
+        MigrationScreenPhase.Updating
+    }
+
 internal enum class UserSessionPreparationUiFailure {
     InsufficientStorage,
     TemporarilyUnavailable,
@@ -285,6 +342,15 @@ internal val MIGRATION_SCREEN_REVEAL_DELAY: Duration = 500.milliseconds
 
 /** How long the migration screen stays up once revealed, even if the migration already finished. */
 internal val MIGRATION_SCREEN_MINIMUM_VISIBILITY: Duration = 1.seconds
+
+/** How long the initial migration copy is shown before reassuring the user that work is continuing. */
+internal val MIGRATION_LONG_RUNNING_MESSAGE_DELAY: Duration = 10.seconds
+
+private val MigrationScreenPhase.message: Int
+    get() = when (this) {
+        MigrationScreenPhase.Updating -> R.string.user_session_preparation_migrating_message
+        MigrationScreenPhase.StillUpdating -> R.string.user_session_preparation_migrating_long_running_message
+    }
 
 @Composable
 private fun UserSessionPreparationUiState.content(): UserSessionPreparationContent = when (this) {

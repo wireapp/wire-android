@@ -17,11 +17,14 @@
  */
 package com.wire.android.session
 
+import com.wire.android.ui.MIGRATION_LONG_RUNNING_MESSAGE_DELAY
 import com.wire.android.ui.MIGRATION_SCREEN_MINIMUM_VISIBILITY
 import com.wire.android.ui.MIGRATION_SCREEN_REVEAL_DELAY
+import com.wire.android.ui.MigrationScreenPhase
 import com.wire.android.ui.MigrationScreenVisibility
 import com.wire.android.ui.UserSessionPreparationUiFailure
 import com.wire.android.ui.UserSessionPreparationUiState
+import com.wire.android.ui.migrationScreenPhase
 import com.wire.android.ui.preparationScreenRevealDelay
 import com.wire.android.ui.toUiFailure
 import com.wire.android.ui.toUiStates
@@ -147,6 +150,19 @@ class UserSessionPreparationGateTest {
         val state = UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.SupportRequired)
 
         assertEquals(Duration.ZERO, state.preparationScreenRevealDelay())
+    }
+
+    @Test
+    fun givenVisibleMigration_whenChoosingCopy_thenLongRunningMessageStartsAtItsDelay() {
+        assertEquals(MigrationScreenPhase.Updating, migrationScreenPhase(Duration.ZERO))
+        assertEquals(
+            MigrationScreenPhase.Updating,
+            migrationScreenPhase(MIGRATION_LONG_RUNNING_MESSAGE_DELAY - 1.milliseconds),
+        )
+        assertEquals(
+            MigrationScreenPhase.StillUpdating,
+            migrationScreenPhase(MIGRATION_LONG_RUNNING_MESSAGE_DELAY),
+        )
     }
 
     /** Preserves a short migration state after observation starts while the main collector is busy. */

@@ -35,11 +35,14 @@ import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.UpsertMeeting
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RenamingResult
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
@@ -77,6 +80,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun submitCreation() {}
     fun submitUpdate() {}
     fun dismissCreationError() {}
+    fun retryUpdateConversationName(conversationId: ConversationId) {}
 
     companion object {
         const val MEETING_NAME_MAX_COUNT = 64
@@ -91,6 +95,7 @@ class NewMeetingViewModelPreview(
     override val state: NewMeetingState = initialState(currentTimeProvider)
 }
 
+@Suppress("TooManyFunctions")
 class NewMeetingViewModelImpl @AssistedInject constructor(
     @Assisted val navArgs: NewMeetingNavArgs,
     override val currentTimeProvider: CurrentTimeProvider,
@@ -98,12 +103,14 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     private val updateMeeting: UpdateMeetingUseCase,
     private val getNextMeetingOccurrence: GetNextMeetingOccurrenceUseCase,
     private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val renameConversationUseCase: RenameConversationUseCase,
     private val contactMapper: ContactMapper,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
     @AssistedFactory
     interface Factory {
         fun create(navArgs: NewMeetingNavArgs): NewMeetingViewModelImpl
     }
+
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider))
@@ -278,7 +285,28 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 state = state.copy(isSubmitting = false, continueButtonEnabled = true)
                 when (updateResult) {
                     is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
-                    is UpdateMeetingUseCase.Result.Failure -> state = state.copy(submitError = NewMeetingState.SubmitError.Other)
+                    is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
+                        submitError = when (updateResult) {
+                            is UpdateMeetingUseCase.Result.Failure.UpdateConversationNameFailure ->
+                                NewMeetingState.SubmitError.UpdateConversationNameFailure(updateResult.conversationId)
+
+                            else -> NewMeetingState.SubmitError.Other
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    override fun retryUpdateConversationName(conversationId: ConversationId) {
+        viewModelScope.launch {
+            state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+            renameConversationUseCase(conversationId = conversationId, conversationName = titleTextState.text.trim().toString()).let {
+                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                when (it) {
+                    is RenamingResult.Failure ->
+                        state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))
+                    RenamingResult.Success -> sendAction(NewMeetingViewActions.Success)
                 }
             }
         }
@@ -348,6 +376,7 @@ data class NewMeetingState(
     }
 
     sealed interface SubmitError {
+        data class UpdateConversationNameFailure(val conversationId: ConversationId) : SubmitError
         data object Other : SubmitError // TODO Add more specific error types in the future
     }
 

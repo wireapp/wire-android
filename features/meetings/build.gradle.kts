@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material3)
+    implementation(libs.compose.activity)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
     implementation(libs.metrox.viewModelCompose)

@@ -63,9 +63,10 @@ private fun NewMeetingDetailsNavigation3Entry(
     actions: MeetingsNavigation3Actions,
 ) {
     val viewModel = newMeetingFlowViewModel(route.type, route.meetingId, route.flowId)
+    val navigateBack = { if (!runtime.navigator.goBack()) actions.exitMeetingFlow() }
     NewMeetingContent(
         type = route.type.toLegacyType(route.meetingId),
-        onBackPressed = { if (!runtime.navigator.goBack()) actions.exitMeetingFlow() },
+        onBackPressed = navigateBack,
         state = viewModel.state,
         titleState = viewModel.titleTextState,
         onParticipantsClicked = {
@@ -75,20 +76,26 @@ private fun NewMeetingDetailsNavigation3Entry(
                 )
             )
         },
-        onCreateClicked = {
-            when (route.type) {
-                NewMeetingRouteType.EDIT -> viewModel.submitUpdate()
-                NewMeetingRouteType.MEET_NOW,
-                NewMeetingRouteType.SCHEDULE,
-                -> viewModel.submitCreation()
-            }
-        },
+        onCreateClicked = viewModel::submitCreation,
+        onUpdateClicked = viewModel::submitUpdate,
         onStartTimeChanged = viewModel::updateStartTime,
         onEndTimeChanged = viewModel::updateEndTime,
         onRepeatingIntervalChanged = viewModel::updateRepeatingInterval,
     )
+    viewModel.state.submitError?.let { submitError ->
+        NewMeetingErrorDialog(
+            error = submitError,
+            type = viewModel.type,
+            isSubmitting = viewModel.state.isSubmitting,
+            onDismiss = viewModel::dismissCreationError,
+            onRetryUpdateConversationName = viewModel::retryUpdateConversationName,
+        )
+    }
+    if (viewModel.state.initialLoading == NewMeetingState.InitialLoadingState.Error) {
+        FailedToLoadEditMeetingDataError(navigateBack)
+    }
     HandleActions(viewModel.actions) {
-        if (!runtime.navigator.goBack()) actions.exitMeetingFlow()
+        navigateBack()
     }
 }
 

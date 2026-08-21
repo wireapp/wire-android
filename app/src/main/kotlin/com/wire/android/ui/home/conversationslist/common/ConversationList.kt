@@ -179,22 +179,6 @@ fun ConversationList(
     }
 }
 
-/**
- * Conversation IDs remain stable while paging refreshes. Section rows are transient separators,
- * and Paging can briefly expose the same separator more than once while generations are swapped.
- * Their position is therefore part of the key so that such a transient frame remains renderable.
- */
-internal fun conversationListItemKey(item: ConversationItemType?, index: Int): String = when (item) {
-    is ConversationItem -> item.conversationId.toString()
-    is ConversationSection.Custom -> "section_custom_${item.sectionName}_$index"
-    is ConversationSection.WithoutHeader -> "section_without_header_$index"
-    ConversationSection.Predefined.BrowseChannels -> "section_predefined_browse_channels_$index"
-    ConversationSection.Predefined.Conversations -> "section_predefined_conversations_$index"
-    ConversationSection.Predefined.Favorites -> "section_predefined_favorites_$index"
-    ConversationSection.Predefined.NewActivities -> "section_predefined_new_activities_$index"
-    null -> "conversation_placeholder_$index"
-}
-
 @Composable
 private fun BrowsePublicChannelsItem(onBrowsePublicChannels: () -> Unit = {}) {
     RowItemTemplate(

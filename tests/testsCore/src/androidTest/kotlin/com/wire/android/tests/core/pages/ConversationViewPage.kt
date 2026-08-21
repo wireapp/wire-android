@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.view.KeyEvent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.StaleObjectException
@@ -81,6 +82,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
 
     private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
+    private val copyMessageOption = UiSelectorParams(description = "Copy the message")
 
     private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
@@ -124,6 +126,15 @@ data class ConversationViewPage(private val device: UiDevice) {
             UiWaitUtils.waitElement(displayedUserName(userName))
         } catch (e: AssertionError) {
             throw AssertionError("Team member name '$userName' is not visible in conversation view", e)
+        }
+        return this
+    }
+
+    fun assertConversationIsVisibleWithUser(userName: String): ConversationViewPage {
+        try {
+            UiWaitUtils.waitElement(displayedUserName(userName))
+        } catch (e: AssertionError) {
+            throw AssertionError("User '$userName' is not visible in conversation view", e)
         }
         return this
     }
@@ -230,6 +241,18 @@ data class ConversationViewPage(private val device: UiDevice) {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .swipe(center.x, center.y, center.x, center.y, 120)
 
+        return this
+    }
+
+    fun tapCopyMessageOption(): ConversationViewPage {
+        UiWaitUtils.waitElement(copyMessageOption).click()
+        return this
+    }
+
+    fun dismissClipboardOverlay(): ConversationViewPage {
+        UiWaitUtils.waitFor(UiWaitUtils.VERY_SHORT_TIMEOUT)
+        val overlayCenterY = device.displayHeight * 9 / 10
+        device.swipe(device.displayWidth / 3, overlayCenterY, 0, overlayCenterY, 20)
         return this
     }
 
@@ -449,6 +472,16 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
     }
 
+    fun scrollToTopOfConversationScreen() {
+        try {
+            val scrollable = UiScrollable(UiSelector().scrollable(true))
+            scrollable.setAsVerticalList()
+            scrollable.flingToBeginning(10)
+        } catch (e: Exception) {
+            println("Failed to scroll: ${e.message}")
+        }
+    }
+
     fun tapDownloadButtonOnVideoFile(): ConversationViewPage {
         UiWaitUtils.waitElement(downloadButtonOnVideoFile).click()
         return this
@@ -540,6 +573,15 @@ data class ConversationViewPage(private val device: UiDevice) {
     fun tapMessageInInputField(): ConversationViewPage {
         val inputField = UiWaitUtils.waitElement(messageInputField)
         inputField.click()
+        return this
+    }
+
+    fun pasteCopiedTextIntoMessageInputField(expectedText: String): ConversationViewPage {
+        tapMessageInInputField()
+        device.pressKeyCode(KeyEvent.KEYCODE_PASTE)
+        UiWaitUtils.waitFor(UiWaitUtils.SHORT_WAIT)
+        val pastedText = UiWaitUtils.waitElement(messageInputField).text
+        assertEquals(expectedText, pastedText, "Pasted text does not match the copied message.")
         return this
     }
 

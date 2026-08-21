@@ -81,6 +81,7 @@ internal sealed interface RegisterDeviceCompletion {
     data object RemoveDevice : RegisterDeviceCompletion
 }
 
+@Suppress("TooManyFunctions")
 internal class AuthenticationNavigation3Router(
     private val runtime: WireNavigation3Runtime,
     private val transitionLedger: AuthenticationTransitionLedger = AuthenticationTransitionLedger(),

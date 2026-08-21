@@ -9936,24 +9936,22 @@ public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackup
     - onChooseFilePermissionPermanentlyDenied: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupStep(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, restoreDialogStateHolder: com.wire.android.ui.home.settings.backup.dialog.restore.RestoreDialogStateHolder, onOpenConversations: kotlin.Function0<kotlin.Unit>, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupStep(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, restoreDialogStateHolder: com.wire.android.ui.home.settings.backup.dialog.restore.RestoreDialogStateHolder, onOpenConversations: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - backUpAndRestoreState: UNSTABLE (has mutable properties or unstable members)
     - restoreDialogStateHolder: STABLE (marked @Stable or @Immutable)
     - onOpenConversations: STABLE (function type)
-    - onCancelBackupRestore: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreProgressDialog(isRestoreCompleted: kotlin.Boolean, restoreProgress: kotlin.Float, onOpenConversation: kotlin.Function0<kotlin.Unit>, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreProgressDialog(isRestoreCompleted: kotlin.Boolean, restoreProgress: kotlin.Float, onOpenConversation: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - isRestoreCompleted: STABLE (primitive type)
     - restoreProgress: STABLE (primitive type)
     - onOpenConversation: STABLE (function type)
-    - onCancelBackupRestore: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -12264,4 +12262,3 @@ public fun com.wire.android.util.ui.WireScrollableThemePreview(content: @[Compos
   restartable: true
   params:
     - content: STABLE (composable function type)
-

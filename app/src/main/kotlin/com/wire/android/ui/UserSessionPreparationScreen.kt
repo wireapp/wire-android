@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -100,16 +102,21 @@ private fun BoxScope.MigrationContent() {
         phase = migrationScreenPhase(MIGRATION_LONG_RUNNING_MESSAGE_DELAY)
     }
 
+    MigrationContent(phase)
+}
+
+@Composable
+private fun BoxScope.MigrationContent(phase: MigrationScreenPhase) {
     Logo(
         tint = colorsScheme().onBackground,
         modifier = Modifier
-            .size(width = SPLASH_LOGO_WIDTH, height = SPLASH_LOGO_HEIGHT)
+            .size(width = MIGRATION_CONTENT_WIDTH, height = MIGRATION_LOGO_HEIGHT)
             .align(Alignment.Center),
     )
     Column(
         modifier = Modifier
             .align(Alignment.Center)
-            .offset(y = SPLASH_COPY_OFFSET + dimensions().spacing32x),
+            .offset(y = SPLASH_COPY_OFFSET),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -120,9 +127,10 @@ private fun BoxScope.MigrationContent() {
         )
         Spacer(Modifier.height(dimensions().spacing20x))
         LinearProgressIndicator(
-            modifier = Modifier.width(SPLASH_LOGO_WIDTH),
+            modifier = Modifier.width(MIGRATION_CONTENT_WIDTH),
             color = colorsScheme().primary,
             trackColor = colorsScheme().primaryVariant,
+            strokeCap = StrokeCap.Butt,
         )
     }
 }
@@ -198,38 +206,42 @@ private fun BoxScope.PreparationFailureContent(
     }
 }
 
+private val MIGRATION_CONTENT_WIDTH = 212.dp
+private val MIGRATION_LOGO_HEIGHT = 67.dp
+
 // The system splash uses a 288 dp icon canvas. Its Wire wordmark occupies roughly 174 x 55 dp.
 private val SPLASH_LOGO_WIDTH = 174.dp
 private val SPLASH_LOGO_HEIGHT = 55.dp
 private val SPLASH_COPY_OFFSET = 96.dp
 
-private class UserSessionPreparationStatePreviewProvider :
-    PreviewParameterProvider<UserSessionPreparationUiState> {
-    override val values: Sequence<UserSessionPreparationUiState> = sequenceOf(
-        UserSessionPreparationUiState.ResolvingSession,
-        UserSessionPreparationUiState.OpeningDatabase,
-        UserSessionPreparationUiState.MigratingDatabase,
-        UserSessionPreparationUiState.Ready,
-        UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.InsufficientStorage),
-        UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.TemporarilyUnavailable),
-        UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.ApplicationUpdateRequired),
-        UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.SupportRequired),
+private class MigrationScreenPhasePreviewProvider : PreviewParameterProvider<MigrationScreenPhase> {
+    override val values: Sequence<MigrationScreenPhase> = sequenceOf(
+        MigrationScreenPhase.Updating,
+        MigrationScreenPhase.StillUpdating,
     )
 }
 
-@Preview(name = "User session preparation", showBackground = false)
+@Preview(
+    name = "Active migration · Dark",
+    widthDp = 360,
+    heightDp = 800,
+    uiMode = UI_MODE_NIGHT_YES,
+    showSystemUi = true,
+)
 @Composable
 private fun PreviewUserSessionPreparationScreen(
-    @PreviewParameter(UserSessionPreparationStatePreviewProvider::class)
-    state: UserSessionPreparationUiState,
+    @PreviewParameter(MigrationScreenPhasePreviewProvider::class)
+    phase: MigrationScreenPhase,
 ) {
     WireTheme {
-        UserSessionPreparationScreen(
-            state = state,
-            onRetry = {},
-            onUpdate = {},
-            onContactSupport = {},
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorsScheme().background)
+                .padding(horizontal = dimensions().spacing32x),
+        ) {
+            MigrationContent(phase)
+        }
     }
 }
 

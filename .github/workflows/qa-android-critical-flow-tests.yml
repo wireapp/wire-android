@@ -46,7 +46,6 @@ on:
         options:
           - alpha release candidate
           - alpha beta
-          - staging compat
           - experimental
           - column-1
           - column-2

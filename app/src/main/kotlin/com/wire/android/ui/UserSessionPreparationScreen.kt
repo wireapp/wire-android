@@ -34,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +42,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.Logo
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.UserSessionPreparationState
@@ -65,8 +66,8 @@ internal fun UserSessionPreparationScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(R.color.background))
-            .padding(horizontal = 32.dp),
+            .background(colorsScheme().background)
+            .padding(horizontal = dimensions().spacing32x),
     ) {
         if (content.action == null) {
             SplashContinuationContent(content)
@@ -89,7 +90,7 @@ internal fun UserSessionPreparationScreen(
 @Composable
 private fun BoxScope.SplashContinuationContent(content: UserSessionPreparationContent) {
     Logo(
-        tint = colorResource(R.color.default_icon_color),
+        tint = colorsScheme().onSurface,
         modifier = Modifier
             .size(width = SPLASH_LOGO_WIDTH, height = SPLASH_LOGO_HEIGHT)
             .align(Alignment.Center),
@@ -105,7 +106,7 @@ private fun BoxScope.SplashContinuationContent(content: UserSessionPreparationCo
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(dimensions().spacing12x))
         Text(
             text = stringResource(content.message),
             style = MaterialTheme.typography.bodyLarge,
@@ -131,14 +132,14 @@ private fun BoxScope.PreparationFailureContent(
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(dimensions().spacing12x))
         Text(
             text = stringResource(content.message),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
         )
         content.action?.let { action ->
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(dimensions().spacing32x))
             Button(
                 onClick = when (action) {
                     UserSessionPreparationAction.Retry -> onRetry

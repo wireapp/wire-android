@@ -20,6 +20,8 @@ package com.wire.android.feature
 import app.cash.turbine.test
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
+import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -31,6 +33,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -127,6 +130,19 @@ class ObserveAppLockConfigUseCaseTest {
             }
         }
 
+    @Test
+    fun givenSessionPreparationFails_whenObservingAppLock_thenSendSafeDisabledStatus() = runTest {
+        val (_, useCase) = Arrangement()
+            .withValidSession()
+            .withPreparationFailure()
+            .arrange()
+
+        useCase().test {
+            assertEquals(AppLockConfig.Disabled(timeout), awaitItem())
+            awaitComplete()
+        }
+    }
+
     inner class Arrangement {
 
         @MockK
@@ -150,6 +166,7 @@ class ObserveAppLockConfigUseCaseTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { coreLogic.prepareUserSession(any()) } returns preparationSuccess()
         }
 
         fun arrange() = this to useCase
@@ -170,7 +187,6 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
         fun withTeamAppLockEnabled() = apply {
-            every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every {
                 userSessionScope.appLockTeamFeatureConfigObserver
             } returns appLockTeamFeatureConfigObserver
@@ -180,7 +196,6 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
         fun withTeamAppLockDisabled() = apply {
-            every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every {
                 userSessionScope.appLockTeamFeatureConfigObserver
             } returns appLockTeamFeatureConfigObserver
@@ -196,6 +211,17 @@ class ObserveAppLockConfigUseCaseTest {
         fun withAppNonLockedByCurrentUser() = apply {
             every { globalDataStore.isAppLockPasscodeSetFlow() } returns flowOf(false)
         }
+
+        fun withPreparationFailure() = apply {
+            val failure = mockk<PrepareUserSessionResult.Failure>()
+            every { failure.reason } returns UserSessionPreparationFailure.TemporarilyUnavailable
+            coEvery { coreLogic.prepareUserSession(any()) } returns failure
+        }
+
+        private fun preparationSuccess(): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns userSessionScope
+            }
     }
 
     companion object {

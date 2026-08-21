@@ -71,11 +71,12 @@ class OngoingCallActivity : CallActivity() {
         switchAccountIfNeeded(userId)
     }
 
-    @SuppressLint("UnusedContentLambdaTargetStateParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
+    }
 
+    override fun onSessionPrepared() {
         if (shouldAnswerCall && userId != null && conversationId != null) {
             callNotificationManager.hideIncomingCallNotification(userId!!, conversationId!!)
             servicesManager.startCallServiceToAnswer(

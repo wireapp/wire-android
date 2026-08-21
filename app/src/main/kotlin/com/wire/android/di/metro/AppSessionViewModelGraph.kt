@@ -75,10 +75,3 @@ fun WireApplicationGraph.createSessionViewModelGraph(
 ): AppSessionViewModelGraph {
     return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount, userSessionScope)
 }
-
-/**
- * Compatibility path for secondary activities while their preparation entry points are migrated
- * in the next stack slice.
- */
-fun WireApplicationGraph.createSessionViewModelGraph(currentAccount: UserId): AppSessionViewModelGraph =
-    createSessionViewModelGraph(currentAccount, coreLogic.getSessionScope(currentAccount))

@@ -15,20 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.audioplayer
+package com.wire.android.audioplayer
 
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
-import java.io.File
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import com.wire.android.di.ApplicationContext
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,21 +30,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 
-class AudioPlayerViewModel @AssistedInject constructor(
-    @ApplicationContext context: Context,
-    @Assisted savedStateHandle: SavedStateHandle,
+/**
+ * Playback ViewModel for the reusable [AudioPlayer]. Plays either a local file ([localPath]) or a
+ * remote [contentUrl]. The arguments are passed in through assisted injection
+ * (see [AudioPlayerViewModelFactory]) so any module can host the audio player screen.
+ */
+class AudioPlayerViewModel(
+    context: Context,
+    val localPath: String?,
+    val contentUrl: String?,
+    val fileName: String?,
 ) : ViewModel() {
-
-    @AssistedFactory
-    interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): AudioPlayerViewModel
-    }
-
-    private val navArgs = CellAudioPlayerScreenDestination.argsFrom(savedStateHandle)
-    val localPath: String? = navArgs.localPath
-    val contentUrl: String? = navArgs.contentUrl
-    val fileName: String? = navArgs.fileName
 
     private val _state = MutableStateFlow(AudioPlaybackState())
     val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()
@@ -100,12 +91,14 @@ class AudioPlayerViewModel @AssistedInject constructor(
                 seekTo(0)
                 play()
             }
+
             current.isPlaying -> pause()
             else -> play()
         }
     }
 
     fun seekTo(positionMs: Int) {
+        if (!_state.value.isPrepared) return
         mediaPlayer.seekTo(positionMs)
         _state.update { it.copy(currentPositionMs = positionMs) }
     }

@@ -15,17 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.ui.home.conversations.audioplayer
 
-package com.wire.android.ui.sharing
-
-import android.net.Uri
-
-data class ImportMediaNavArgs(
-    val source: ImportSource,
-    val internalAssetUriList: ArrayList<Uri> = arrayListOf()
+data class AudioPlayerNavArgs(
+    val localPath: String? = null,
+    val contentUrl: String? = null,
+    val fileName: String? = null,
 )
-
-enum class ImportSource {
-    EXTERNAL_SHARE,
-    INTERNAL_SHARE
-}

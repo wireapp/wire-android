@@ -23,7 +23,6 @@ package com.wire.android.feature.cells.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
@@ -118,12 +117,6 @@ object CellsMetroViewModelBindings {
     @IntoMap
     @ViewModelAssistedFactoryKey(CellImageViewerViewModel::class)
     fun imageViewerViewModel(factory: CellImageViewerViewModel.Factory): ViewModelAssistedFactory =
-        savedStateViewModel { factory.create(it.createSavedStateHandle()) }
-
-    @Provides
-    @IntoMap
-    @ViewModelAssistedFactoryKey(AudioPlayerViewModel::class)
-    fun audioPlayerViewModel(factory: AudioPlayerViewModel.Factory): ViewModelAssistedFactory =
         savedStateViewModel { factory.create(it.createSavedStateHandle()) }
 
     private fun savedStateViewModel(create: (CreationExtras) -> ViewModel): ViewModelAssistedFactory =

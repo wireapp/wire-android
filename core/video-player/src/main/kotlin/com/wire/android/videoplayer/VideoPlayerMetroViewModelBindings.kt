@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.mediaplayer
+package com.wire.android.videoplayer
 
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
@@ -24,13 +24,13 @@ import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 
 @BindingContainer
-object MediaPlayerMetroViewModelBindings {
+object VideoPlayerMetroViewModelBindings {
 
     @Provides
     @IntoMap
-    @ManualViewModelAssistedFactoryKey(MediaPlayerManualViewModelFactory::class)
-    fun mediaPlayerManualViewModelFactory(factory: VideoPlayerViewModel.Factory): ManualViewModelAssistedFactory =
-        object : MediaPlayerManualViewModelFactory {
+    @ManualViewModelAssistedFactoryKey(VideoPlayerManualViewModelFactory::class)
+    fun videoPlayerManualViewModelFactory(factory: VideoPlayerViewModel.Factory): ManualViewModelAssistedFactory =
+        object : VideoPlayerManualViewModelFactory {
             override fun videoPlayerViewModel(
                 localPath: String?,
                 contentUrl: String?,

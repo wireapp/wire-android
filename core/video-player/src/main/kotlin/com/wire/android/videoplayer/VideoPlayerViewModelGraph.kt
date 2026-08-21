@@ -17,13 +17,13 @@
  */
 @file:Suppress("MatchingDeclarationName")
 
-package com.wire.android.mediaplayer
+package com.wire.android.videoplayer
 
 import androidx.compose.runtime.Composable
 import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface MediaPlayerManualViewModelFactory : ManualViewModelAssistedFactory {
+interface VideoPlayerManualViewModelFactory : ManualViewModelAssistedFactory {
     fun videoPlayerViewModel(
         localPath: String?,
         contentUrl: String?,
@@ -37,7 +37,7 @@ fun videoPlayerViewModel(
     contentUrl: String?,
     fileName: String?,
 ): VideoPlayerViewModel =
-    sessionKeyedAssistedMetroViewModel<VideoPlayerViewModel, MediaPlayerManualViewModelFactory>(
+    sessionKeyedAssistedMetroViewModel<VideoPlayerViewModel, VideoPlayerManualViewModelFactory>(
         key = "video_player_${localPath ?: contentUrl}"
     ) {
         videoPlayerViewModel(localPath, contentUrl, fileName)

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.mediaplayer
+package com.wire.android.videoplayer
 
 data class VideoPlaybackState(
     val isPlaying: Boolean = false,

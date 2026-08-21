@@ -15,17 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.audioplayer
 
-package com.wire.android.ui.sharing
+import android.content.Context
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
 
-import android.net.Uri
-
-data class ImportMediaNavArgs(
-    val source: ImportSource,
-    val internalAssetUriList: ArrayList<Uri> = arrayListOf()
-)
-
-enum class ImportSource {
-    EXTERNAL_SHARE,
-    INTERNAL_SHARE
+class AudioPlayerViewModelFactory @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
+    fun audioPlayerViewModel(
+        localPath: String?,
+        contentUrl: String?,
+        fileName: String?,
+    ) = AudioPlayerViewModel(
+        context = context,
+        localPath = localPath,
+        contentUrl = contentUrl,
+        fileName = fileName,
+    )
 }

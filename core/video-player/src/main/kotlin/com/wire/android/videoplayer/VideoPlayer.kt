@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.mediaplayer
+package com.wire.android.videoplayer
 
 import android.app.Activity
 import android.content.Context
@@ -104,7 +104,7 @@ private const val CONTROLS_AUTO_HIDE_MS = 3_000L
 /**
  * Reusable full-screen video player. Plays either a local file ([localPath]) or a remote
  * [contentUrl]. Callers own navigation via [onNavigateBack]; the ViewModel is resolved from the
- * shared media-player Metro graph so any module can host this screen.
+ * shared video-player Metro graph so any module can host this screen.
  */
 @Composable
 fun VideoPlayer(

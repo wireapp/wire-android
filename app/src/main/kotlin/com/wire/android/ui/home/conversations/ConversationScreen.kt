@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import com.ramcosta.composedestinations.generated.app.destinations.AudioPlayerScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
@@ -438,6 +439,17 @@ fun ConversationScreen(
                 )
             )
         },
+        onAudioClick = { localPath, contentUrl, fileName ->
+            navigator.navigate(
+                NavigationCommand(
+                    AudioPlayerScreenDestination(
+                        localPath = localPath,
+                        contentUrl = contentUrl,
+                        fileName = fileName,
+                    )
+                )
+            )
+        },
         onStartCall = {
             conversationCallViewModel.startCallIfPossible(conversationInfoViewModel.conversationInfoViewState.conversationType)
         },
@@ -672,6 +684,7 @@ private fun ConversationScreenContent(
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -784,6 +797,7 @@ private fun ConversationScreenContent(
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onVideoClick = onVideoClick,
+                        onAudioClick = onAudioClick,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
@@ -926,6 +940,7 @@ fun PreviewConversationScreen() = WireTheme {
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _, _ -> },
         onVideoClick = { _, _, _ -> },
+        onAudioClick = { _, _, _ -> },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

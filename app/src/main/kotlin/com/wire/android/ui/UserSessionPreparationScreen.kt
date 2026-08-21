@@ -71,22 +71,6 @@ internal fun UserSessionPreparationScreen(
     onUpdate: () -> Unit,
     onContactSupport: () -> Unit,
 ) {
-    UserSessionPreparationScreenContent(
-        state = state,
-        onRetry = onRetry,
-        onUpdate = onUpdate,
-        onContactSupport = onContactSupport,
-    )
-}
-
-@Composable
-private fun UserSessionPreparationScreenContent(
-    state: UserSessionPreparationUiState,
-    onRetry: () -> Unit,
-    onUpdate: () -> Unit,
-    onContactSupport: () -> Unit,
-    migrationPhase: MigrationScreenPhase? = null,
-) {
     val content = state.content()
     Box(
         modifier = Modifier
@@ -95,9 +79,7 @@ private fun UserSessionPreparationScreenContent(
             .padding(horizontal = dimensions().spacing32x),
     ) {
         when {
-            state == UserSessionPreparationUiState.MigratingDatabase -> {
-                if (migrationPhase == null) MigrationContent() else MigrationContent(migrationPhase)
-            }
+            state == UserSessionPreparationUiState.MigratingDatabase -> MigrationContent()
             content.action == null -> SplashContinuationContent(content)
             else -> {
                 PreparationFailureContent(
@@ -231,63 +213,26 @@ private val SPLASH_LOGO_WIDTH = 174.dp
 private val SPLASH_LOGO_HEIGHT = 55.dp
 private val SPLASH_COPY_OFFSET = 96.dp
 
-private data class UserSessionPreparationPreview(
-    val name: String,
-    val state: UserSessionPreparationUiState,
-    val migrationPhase: MigrationScreenPhase? = null,
-)
-
-private class UserSessionPreparationPreviewProvider : PreviewParameterProvider<UserSessionPreparationPreview> {
-    private val previews = listOf(
-        UserSessionPreparationPreview("Resolving session", UserSessionPreparationUiState.ResolvingSession),
-        UserSessionPreparationPreview("Opening database", UserSessionPreparationUiState.OpeningDatabase),
-        UserSessionPreparationPreview(
-            "Migrating database - updating",
-            UserSessionPreparationUiState.MigratingDatabase,
-            MigrationScreenPhase.Updating,
-        ),
-        UserSessionPreparationPreview(
-            "Migrating database - still updating",
-            UserSessionPreparationUiState.MigratingDatabase,
-            MigrationScreenPhase.StillUpdating,
-        ),
-        UserSessionPreparationPreview("Ready", UserSessionPreparationUiState.Ready),
-        UserSessionPreparationPreview(
-            "Insufficient storage",
-            UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.InsufficientStorage),
-        ),
-        UserSessionPreparationPreview(
-            "Temporarily unavailable",
-            UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.TemporarilyUnavailable),
-        ),
-        UserSessionPreparationPreview(
-            "Application update required",
-            UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.ApplicationUpdateRequired),
-        ),
-        UserSessionPreparationPreview(
-            "Support required",
-            UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.SupportRequired),
-        ),
-    )
-
-    override val values: Sequence<UserSessionPreparationPreview> = previews.asSequence()
-    override fun getDisplayName(index: Int): String? = previews.getOrNull(index)?.name
+private class MigrationScreenPhasePreviewProvider : PreviewParameterProvider<MigrationScreenPhase> {
+    override val values: Sequence<MigrationScreenPhase> = MigrationScreenPhase.entries.asSequence()
+    override fun getDisplayName(index: Int): String? = MigrationScreenPhase.entries.getOrNull(index)?.name
 }
 
 @PreviewMultipleThemes
 @Composable
 private fun PreviewUserSessionPreparationScreen(
-    @PreviewParameter(UserSessionPreparationPreviewProvider::class)
-    preview: UserSessionPreparationPreview,
+    @PreviewParameter(MigrationScreenPhasePreviewProvider::class)
+    phase: MigrationScreenPhase,
 ) {
     WireTheme {
-        UserSessionPreparationScreenContent(
-            state = preview.state,
-            onRetry = {},
-            onUpdate = {},
-            onContactSupport = {},
-            migrationPhase = preview.migrationPhase,
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorsScheme().background)
+                .padding(horizontal = dimensions().spacing32x),
+        ) {
+            MigrationContent(phase)
+        }
     }
 }
 

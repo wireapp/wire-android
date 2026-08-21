@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
@@ -54,6 +52,7 @@ import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.UserSessionPreparationState
 import kotlinx.coroutines.channels.Channel
@@ -72,6 +71,22 @@ internal fun UserSessionPreparationScreen(
     onUpdate: () -> Unit,
     onContactSupport: () -> Unit,
 ) {
+    UserSessionPreparationScreenContent(
+        state = state,
+        onRetry = onRetry,
+        onUpdate = onUpdate,
+        onContactSupport = onContactSupport,
+    )
+}
+
+@Composable
+private fun UserSessionPreparationScreenContent(
+    state: UserSessionPreparationUiState,
+    onRetry: () -> Unit,
+    onUpdate: () -> Unit,
+    onContactSupport: () -> Unit,
+    migrationPhase: MigrationScreenPhase? = null,
+) {
     val content = state.content()
     Box(
         modifier = Modifier
@@ -80,7 +95,9 @@ internal fun UserSessionPreparationScreen(
             .padding(horizontal = dimensions().spacing32x),
     ) {
         when {
-            state == UserSessionPreparationUiState.MigratingDatabase -> MigrationContent()
+            state == UserSessionPreparationUiState.MigratingDatabase -> {
+                if (migrationPhase == null) MigrationContent() else MigrationContent(migrationPhase)
+            }
             content.action == null -> SplashContinuationContent(content)
             else -> {
                 PreparationFailureContent(
@@ -214,34 +231,63 @@ private val SPLASH_LOGO_WIDTH = 174.dp
 private val SPLASH_LOGO_HEIGHT = 55.dp
 private val SPLASH_COPY_OFFSET = 96.dp
 
-private class MigrationScreenPhasePreviewProvider : PreviewParameterProvider<MigrationScreenPhase> {
-    override val values: Sequence<MigrationScreenPhase> = sequenceOf(
-        MigrationScreenPhase.Updating,
-        MigrationScreenPhase.StillUpdating,
+private data class UserSessionPreparationPreview(
+    val name: String,
+    val state: UserSessionPreparationUiState,
+    val migrationPhase: MigrationScreenPhase? = null,
+)
+
+private class UserSessionPreparationPreviewProvider : PreviewParameterProvider<UserSessionPreparationPreview> {
+    private val previews = listOf(
+        UserSessionPreparationPreview("Resolving session", UserSessionPreparationUiState.ResolvingSession),
+        UserSessionPreparationPreview("Opening database", UserSessionPreparationUiState.OpeningDatabase),
+        UserSessionPreparationPreview(
+            "Migrating database - updating",
+            UserSessionPreparationUiState.MigratingDatabase,
+            MigrationScreenPhase.Updating,
+        ),
+        UserSessionPreparationPreview(
+            "Migrating database - still updating",
+            UserSessionPreparationUiState.MigratingDatabase,
+            MigrationScreenPhase.StillUpdating,
+        ),
+        UserSessionPreparationPreview("Ready", UserSessionPreparationUiState.Ready),
+        UserSessionPreparationPreview(
+            "Insufficient storage",
+            UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.InsufficientStorage),
+        ),
+        UserSessionPreparationPreview(
+            "Temporarily unavailable",
+            UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.TemporarilyUnavailable),
+        ),
+        UserSessionPreparationPreview(
+            "Application update required",
+            UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.ApplicationUpdateRequired),
+        ),
+        UserSessionPreparationPreview(
+            "Support required",
+            UserSessionPreparationUiState.Failed(UserSessionPreparationUiFailure.SupportRequired),
+        ),
     )
+
+    override val values: Sequence<UserSessionPreparationPreview> = previews.asSequence()
+    override fun getDisplayName(index: Int): String? = previews.getOrNull(index)?.name
 }
 
-@Preview(
-    name = "Active migration · Dark",
-    widthDp = 360,
-    heightDp = 800,
-    uiMode = UI_MODE_NIGHT_YES,
-    showSystemUi = true,
-)
+@PreviewMultipleThemes
 @Composable
 private fun PreviewUserSessionPreparationScreen(
-    @PreviewParameter(MigrationScreenPhasePreviewProvider::class)
-    phase: MigrationScreenPhase,
+    @PreviewParameter(UserSessionPreparationPreviewProvider::class)
+    preview: UserSessionPreparationPreview,
 ) {
     WireTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colorsScheme().background)
-                .padding(horizontal = dimensions().spacing32x),
-        ) {
-            MigrationContent(phase)
-        }
+        UserSessionPreparationScreenContent(
+            state = preview.state,
+            onRetry = {},
+            onUpdate = {},
+            onContactSupport = {},
+            migrationPhase = preview.migrationPhase,
+        )
     }
 }
 

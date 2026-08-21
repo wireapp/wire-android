@@ -20,6 +20,8 @@
 package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
+import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -33,13 +35,19 @@ import com.wire.android.ui.home.conversations.details.participants.model.Convers
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
+import com.wire.android.util.ui.UIText
 import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAddPermission
 import com.wire.kalium.logic.data.conversation.ConversationHistorySettings
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.featureConfig.FeatureConfigModel
+import com.wire.kalium.logic.data.featureConfig.MLSMigrationModel
+import com.wire.kalium.logic.data.featureConfig.Status
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -52,10 +60,13 @@ import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ArchiveStatusUpdateResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
+import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
+import com.wire.kalium.logic.feature.debug.GetFeatureConfigResult
+import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
@@ -63,11 +74,14 @@ import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCa
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
+import com.wire.kalium.network.api.model.GenericAPIErrorResponse
+import com.wire.kalium.network.exceptions.KaliumException
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
@@ -82,6 +96,195 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class GroupDetailsViewModelTest {
+    @Test
+    fun `given Proteus conversation admin and migration flag enabled, then fifth protocol tap shows migration dialog`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
+            selfRole = Conversation.Member.Role.Admin,
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED, startTime = Instant.DISTANT_FUTURE)
+            .withSelfTeamId(TeamId("team_id"))
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        assertEquals(true, viewModel.groupOptionsState.value.canManuallyMigrateToMLS)
+        repeat(4) { viewModel.onProtocolTapped() }
+        assertEquals(false, viewModel.groupOptionsState.value.shouldShowMlsMigrationDialog)
+
+        viewModel.onProtocolTapped()
+
+        assertEquals(true, viewModel.groupOptionsState.value.shouldShowMlsMigrationDialog)
+    }
+
+    @Test
+    fun `given Mixed conversation admin and migration flag enabled, then manual migration is allowed`() = runTest {
+        val mixedProtocolInfo = with(TestConversation.MLS_PROTOCOL_INFO) {
+            Conversation.ProtocolInfo.Mixed(groupId, groupState, epoch, keyingMaterialLastUpdate, cipherSuite)
+        }
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = mixedProtocolInfo),
+            selfRole = Conversation.Member.Role.Admin,
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED)
+            .withSelfTeamId(TeamId("team_id"))
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        assertEquals(true, viewModel.groupOptionsState.value.canManuallyMigrateToMLS)
+    }
+
+    @Test
+    fun `given conversation member and migration flag enabled, then protocol taps show migration dialog`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
+            selfRole = Conversation.Member.Role.Member,
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED)
+            .withSelfTeamId(TeamId("team_id"))
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        repeat(5) { viewModel.onProtocolTapped() }
+
+        assertEquals(true, viewModel.groupOptionsState.value.canManuallyMigrateToMLS)
+        assertEquals(true, viewModel.groupOptionsState.value.shouldShowMlsMigrationDialog)
+    }
+
+    @Test
+    fun `given conversation belongs to another team, then protocol taps do not show migration dialog`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
+            selfRole = Conversation.Member.Role.Admin,
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED)
+            .withSelfTeamId(TeamId("other_team_id"))
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        repeat(5) { viewModel.onProtocolTapped() }
+
+        assertEquals(false, viewModel.groupOptionsState.value.canManuallyMigrateToMLS)
+        assertEquals(false, viewModel.groupOptionsState.value.shouldShowMlsMigrationDialog)
+    }
+
+    @Test
+    fun `given migration flag disabled, then protocol taps do not show migration dialog`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
+            selfRole = Conversation.Member.Role.Admin,
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.DISABLED)
+            .withSelfTeamId(TeamId("team_id"))
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        repeat(5) { viewModel.onProtocolTapped() }
+
+        assertEquals(false, viewModel.groupOptionsState.value.canManuallyMigrateToMLS)
+        assertEquals(false, viewModel.groupOptionsState.value.shouldShowMlsMigrationDialog)
+    }
+
+    @Test
+    fun `given MLS conversation admin and migration flag enabled, then manual migration is not allowed`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = TestConversation.MLS_PROTOCOL_INFO),
+            selfRole = Conversation.Member.Role.Admin,
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED)
+            .withSelfTeamId(TeamId("team_id"))
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        assertEquals(false, viewModel.groupOptionsState.value.canManuallyMigrateToMLS)
+    }
+
+    @Test
+    fun `given migration dialog is shown, when confirmed, then conversation migration is started`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
+            selfRole = Conversation.Member.Role.Admin,
+        )
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED)
+            .withSelfTeamId(TeamId("team_id"))
+            .withConversationDetailUpdate(details)
+            .arrange()
+        repeat(5) { viewModel.onProtocolTapped() }
+
+        viewModel.onMlsMigrationConfirmed()
+
+        coVerify(exactly = 1) { arrangement.migrateConversationToMLS(arrangement.conversationId) }
+        assertEquals(false, viewModel.groupOptionsState.value.shouldShowMlsMigrationDialog)
+        assertEquals(false, viewModel.groupOptionsState.value.isMigratingToMLS)
+    }
+
+    @Test
+    fun `given backend network error, when migration fails, then toast includes http code and label`() = runTest {
+        val backendError = GenericAPIErrorResponse(
+            code = 409,
+            message = "Migration rejected",
+            label = "mls-migration-rejected",
+        )
+        val migrationFailure = MigrateConversationToMLSUseCase.Result.Failure(
+            NetworkFailure.ServerMiscommunication(KaliumException.InvalidRequestError(backendError))
+        )
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED)
+            .withSelfTeamId(TeamId("team_id"))
+            .withMigrateConversationToMLSResult(migrationFailure)
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        viewModel.actions.test {
+            repeat(5) { viewModel.onProtocolTapped() }
+            viewModel.onMlsMigrationConfirmed()
+
+            assertEquals(
+                GroupConversationDetailsViewAction.Message(
+                    UIText.StringResource(
+                        R.string.mls_migration_failure_with_backend_error,
+                        backendError.code,
+                        backendError.label,
+                    )
+                ),
+                awaitItem(),
+            )
+        }
+    }
+
+    @Test
+    fun `given non backend error, when migration fails, then toast uses generic message`() = runTest {
+        val migrationFailure = MigrateConversationToMLSUseCase.Result.Failure(CoreFailure.Unknown(null))
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED)
+            .withSelfTeamId(TeamId("team_id"))
+            .withMigrateConversationToMLSResult(migrationFailure)
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        viewModel.actions.test {
+            repeat(5) { viewModel.onProtocolTapped() }
+            viewModel.onMlsMigrationConfirmed()
+
+            assertEquals(
+                GroupConversationDetailsViewAction.Message(UIText.StringResource(R.string.mls_migration_failure)),
+                awaitItem(),
+            )
+        }
+    }
+
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
         // Given
@@ -783,6 +986,12 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
 
+    @MockK
+    lateinit var getFeatureConfig: GetFeatureConfigUseCase
+
+    @MockK
+    lateinit var migrateConversationToMLS: MigrateConversationToMLSUseCase
+
     private var arrangedSelfUser: SelfUser = TestUser.SELF_USER
     private var arrangedTeam: Team? = TestTeam.TEAM
 
@@ -799,6 +1008,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             observeSelfDeletionTimerSettingsForConversation = observeSelfDeletionTimerSettingsForConversation,
             refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
             isWireCellsEnabled = isWireCellsEnabled,
+            getFeatureConfig = getFeatureConfig,
+            migrateConversationToMLS = migrateConversationToMLS,
         )
     }
 
@@ -826,6 +1037,8 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeSelfDeletionTimerSettingsForConversation(any(), any()) } returns flowOf(SelfDeletionTimer.Disabled)
         coEvery { updateConversationArchivedStatus(any(), any(), any()) } returns ArchiveStatusUpdateResult.Success
         coEvery { isWireCellsEnabled() } returns false
+        coEvery { migrateConversationToMLS(any()) } returns MigrateConversationToMLSUseCase.Result.Success
+        withMlsMigrationFeatureFlag(Status.DISABLED)
         withAppsAllowedResult(AppsAllowedResult.Disabled)
     }
 
@@ -833,8 +1046,27 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
     }
 
+    fun withMlsMigrationFeatureFlag(status: Status, startTime: Instant? = null) = apply {
+        val featureConfigModel = mockk<FeatureConfigModel>()
+        every { featureConfigModel.mlsMigrationModel } returns MLSMigrationModel(
+            startTime = startTime,
+            endTime = null,
+            status = status,
+        )
+        coEvery { getFeatureConfig() } returns GetFeatureConfigResult.Success(featureConfigModel)
+    }
+
+    fun withMigrateConversationToMLSResult(result: MigrateConversationToMLSUseCase.Result) = apply {
+        coEvery { migrateConversationToMLS(any()) } returns result
+    }
+
     suspend fun withGetSelfUserReturns(user: SelfUser) = apply {
         arrangedSelfUser = user
+        updateSelfUserWithTeamFlow()
+    }
+
+    suspend fun withSelfTeamId(teamId: TeamId?) = apply {
+        arrangedSelfUser = arrangedSelfUser.copy(teamId = teamId)
         updateSelfUserWithTeamFlow()
     }
 

@@ -30,15 +30,18 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
+import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.work.Work
 import com.wire.kalium.work.WorkId
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
-import kotlinx.coroutines.launch
 import com.wire.android.feature.notification.R as NR
 
 class InitialSyncWorker @AssistedInject constructor(
@@ -62,23 +65,34 @@ class InitialSyncWorker @AssistedInject constructor(
             Log.e("InitialSyncWorker", "Failure to get active sessions. Not waiting for Sync.")
             Result.failure()
         } else {
-            coroutineScope {
-                result.sessions.forEach { session ->
-                    launch {
-                        coreLogic.sessionScope(session.userId) {
-                            syncExecutor.request {
-                                Log.i("InitialSyncWorker", "Waiting for Initial Sync for user '${session.userId}' to finish.")
-                                longWork.observeWorkStatus(workId).takeWhile {
-                                    it !is Work.Status.Complete
-                                }.collect()
-                                Log.i("InitialSyncWorker", "Initial Sync for user '${session.userId}' complete.")
+            val preparationFailures = coroutineScope {
+                result.sessions.map { session ->
+                    async {
+                        when (val preparation = coreLogic.prepareUserSession(session.userId)) {
+                            is PrepareUserSessionResult.Success -> {
+                                preparation.sessionScope.syncExecutor.request {
+                                    Log.i("InitialSyncWorker", "Waiting for Initial Sync for user '${session.userId}' to finish.")
+                                    preparation.sessionScope.longWork.observeWorkStatus(workId).takeWhile {
+                                        it !is Work.Status.Complete
+                                    }.collect()
+                                    Log.i("InitialSyncWorker", "Initial Sync for user '${session.userId}' complete.")
+                                }
+                                null
                             }
+
+                            is PrepareUserSessionResult.Failure -> preparation.failure
                         }
                     }
+                }.awaitAll().filterNotNull()
+            }
+            when {
+                preparationFailures.any { it.isRetryable() } -> Result.retry()
+                preparationFailures.isNotEmpty() -> Result.failure()
+                else -> {
+                    Log.i("InitialSyncWorker", "Initial Sync complete for all users")
+                    Result.success()
                 }
             }
-            Log.i("InitialSyncWorker", "Initial Sync complete for all users")
-            Result.success()
         }
     }
 
@@ -110,3 +124,7 @@ class InitialSyncWorker @AssistedInject constructor(
             .build()
     }
 }
+
+private fun UserSessionPreparationFailure.isRetryable(): Boolean =
+    this is UserSessionPreparationFailure.InsufficientStorage ||
+            this is UserSessionPreparationFailure.TemporarilyUnavailable

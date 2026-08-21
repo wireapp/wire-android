@@ -20,6 +20,8 @@ package com.wire.android.services
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.CallNotificationData
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.services.CallService.Action
 import com.wire.android.util.logging.logIfEmptyUserName
 import com.wire.kalium.common.functional.Either
@@ -48,6 +50,7 @@ import dev.zacsweers.metro.Inject
 
 class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: CoreLogic) {
     private val actions = Channel<Action>(capacity = Channel.BUFFERED, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
 
     /** Handles the action by adding it to the channel for processing. */
     internal suspend fun handleAction(action: Action) = actions.send(action)
@@ -97,7 +100,7 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
         coreLogic.getGlobalScope().session.currentSessionFlow().firstOrNull().let {
             if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
                 val userId = it.accountInfo.userId
-                val userSessionScope = coreLogic.getSessionScope(userId)
+                val userSessionScope = preparedSessionScope(userId) ?: return@let
                 combine(
                     userSessionScope.calls.observeOutgoingCall(),
                     userSessionScope.calls.establishedCall(),
@@ -124,7 +127,8 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
             .flatMapLatest {
                 if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
                     val userId = it.accountInfo.userId
-                    val userSessionScope = coreLogic.getSessionScope(userId)
+                    val userSessionScope = preparedSessionScope(userId)
+                        ?: return@flatMapLatest flowOf(Either.Left(StopReason.NO_VALID_CURRENT_SESSION))
                     val userName = userSessionScope.getUserName()
                     combine(
                         userSessionScope.calls.establishedCall().mapToCallNotificationData(userId, userName),
@@ -170,9 +174,18 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
     private suspend fun getValidSessionIfExists(userId: UserId): Either<Unit, UserSessionScope> =
         coreLogic.getGlobalScope().doesValidSessionExist(userId).let { result ->
             if (result is DoesValidSessionExistResult.Success && result.doesValidSessionExist) {
-                coreLogic.getSessionScope(userId).right()
+                preparedSessionScope(userId)?.right() ?: Unit.left()
             } else {
                 Unit.left()
+            }
+        }
+
+    private suspend fun preparedSessionScope(userId: UserId): UserSessionScope? =
+        when (val result = userSessionPreparationGate.prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> result.sessionScope
+            is AppUserSessionPreparationResult.Failed -> {
+                appLogger.w("$TAG: user-session preparation failed for ${userId.toLogString()}: ${result.reason}")
+                null
             }
         }
 

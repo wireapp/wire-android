@@ -26,9 +26,11 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.StartPersistentWebsocketIfNecessaryUseCase
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.sync.InitialSyncWorker
 import com.wire.android.workmanager.worker.DeleteConversationLocallyWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
+import com.wire.android.workmanager.worker.NotificationTokenRegistrationWorker
 import com.wire.android.workmanager.worker.PersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.AssetUploadObserverWorker
 import com.wire.kalium.logic.CoreLogic
@@ -40,6 +42,7 @@ class WireWorkerFactory @Inject constructor(
     private val wireNotificationManager: WireNotificationManager,
     private val notificationChannelsManager: NotificationChannelsManager,
     private val startPersistentWebsocketIfNecessary: StartPersistentWebsocketIfNecessaryUseCase,
+    private val userSessionPreparationGate: UserSessionPreparationGate,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic
 ) : WorkerFactory() {
@@ -53,6 +56,9 @@ class WireWorkerFactory @Inject constructor(
             NotificationFetchWorker::class.java.canonicalName ->
                 NotificationFetchWorker(appContext, workerParameters, wireNotificationManager, notificationChannelsManager)
 
+            NotificationTokenRegistrationWorker::class.java.canonicalName ->
+                NotificationTokenRegistrationWorker(appContext, workerParameters, coreLogic, userSessionPreparationGate)
+
             PersistentWebsocketCheckWorker::class.java.canonicalName ->
                 PersistentWebsocketCheckWorker(
                     appContext,
@@ -62,10 +68,22 @@ class WireWorkerFactory @Inject constructor(
                 )
 
             DeleteConversationLocallyWorker::class.java.canonicalName ->
-                DeleteConversationLocallyWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
+                DeleteConversationLocallyWorker(
+                    appContext,
+                    workerParameters,
+                    coreLogic,
+                    notificationChannelsManager,
+                    userSessionPreparationGate,
+                )
 
             AssetUploadObserverWorker::class.java.canonicalName ->
-                AssetUploadObserverWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)
+                AssetUploadObserverWorker(
+                    appContext,
+                    workerParameters,
+                    coreLogic,
+                    notificationChannelsManager,
+                    userSessionPreparationGate,
+                )
 
             InitialSyncWorker::class.java.canonicalName ->
                 InitialSyncWorker(appContext, workerParameters, coreLogic, notificationChannelsManager)

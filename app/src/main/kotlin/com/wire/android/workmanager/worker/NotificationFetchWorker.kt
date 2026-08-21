@@ -44,11 +44,12 @@ class NotificationFetchWorker
     }
 
     override suspend fun doWork(): Result {
-        inputData.getString(USER_ID_INPUT_DATA)?.let { userId ->
-            wireNotificationManager.fetchAndShowNotificationsOnce(userId)
+        val userId = inputData.getString(USER_ID_INPUT_DATA) ?: return Result.failure()
+        return when (wireNotificationManager.fetchAndShowNotificationsOnce(userId)) {
+            WireNotificationManager.FetchNotificationsResult.Success -> Result.success()
+            WireNotificationManager.FetchNotificationsResult.Retry -> Result.retry()
+            WireNotificationManager.FetchNotificationsResult.Failure -> Result.failure()
         }
-
-        return Result.success()
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {

@@ -29,6 +29,8 @@ import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
+import com.wire.kalium.logic.PrepareUserSessionResult
+import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.call.Call
@@ -69,6 +71,7 @@ import io.mockk.MockKMatcherScope
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -130,6 +133,24 @@ class WireNotificationManagerTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) }
+            coVerifyOrder {
+                arrangement.coreLogic.prepareUserSession(TEST_AUTH_TOKEN.userId)
+                arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any())
+            }
+        }
+
+    @Test
+    fun givenBackgroundFirstOpenIsTemporarilyUnavailable_whenFetchingNotifications_thenWorkerCanRetry() =
+        runTest(dispatcherProvider.main()) {
+            val (arrangement, manager) = Arrangement()
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withPreparationFailure(UserSessionPreparationFailure.TemporarilyUnavailable)
+                .arrange()
+
+            val result = manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
+
+            assertEquals(WireNotificationManager.FetchNotificationsResult.Retry, result)
+            coVerify(exactly = 0) { arrangement.syncLifecycleManager.syncTemporarily(any(), any()) }
         }
 
     @Test
@@ -1229,6 +1250,7 @@ class WireNotificationManagerTest {
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
+            coEvery { coreLogic.prepareUserSession(any()) } returns preparationSuccess(userSessionScope)
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
             coEvery { messageNotificationManager.handleNotification(any(), any(), any()) } returns Unit
             coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
@@ -1261,7 +1283,7 @@ class WireNotificationManagerTest {
             selfUser: SelfUser = TestUser.SELF_USER,
             userId: MockKMatcherScope.() -> UserId
         ) {
-            coEvery { coreLogic.getSessionScope(userId()) } returns mockk {
+            val specificSessionScope = mockk<UserSessionScope> {
                 coEvery { syncManager } returns this@Arrangement.syncManager
                 coEvery { conversations } returns mockk {
                     coEvery { markConnectionRequestAsNotified } returns this@Arrangement.markConnectionRequestAsNotified
@@ -1281,11 +1303,24 @@ class WireNotificationManagerTest {
                 }
                 coEvery { observeE2EIRequired } returns this@Arrangement.observeE2EIRequired
             }
+            coEvery { coreLogic.getSessionScope(userId()) } returns specificSessionScope
+            coEvery { coreLogic.prepareUserSession(userId()) } returns preparationSuccess(specificSessionScope)
         }
+
+        private fun preparationSuccess(scope: UserSessionScope): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns scope
+            }
 
         fun withSession(session: GetAllSessionsResult): Arrangement {
             coEvery { getSessionsUseCase() } returns session
             return this
+        }
+
+        fun withPreparationFailure(reason: UserSessionPreparationFailure): Arrangement = apply {
+            val result = mockk<PrepareUserSessionResult.Failure>()
+            every { result.reason } returns reason
+            coEvery { coreLogic.prepareUserSession(any()) } returns result
         }
 
         suspend fun withCurrentUserSession(session: CurrentSessionResult): Arrangement {

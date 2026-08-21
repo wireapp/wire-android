@@ -25,6 +25,8 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.android.util.lifecycle.AppBackgroundManager
 import com.wire.kalium.logic.CoreLogic
@@ -97,7 +99,14 @@ class NomadLogoutReceiver : CoroutineReceiver() {
             is CurrentSessionResult.Success -> {
                 val userId = session.accountInfo.userId
                 appLogger.i("$TAG Logging out user: ${userId.toLogString()}")
-                coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+                val sessionScope = when (val preparation = UserSessionPreparationGate(coreLogic).prepare(userId)) {
+                    is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+                    is AppUserSessionPreparationResult.Failed -> {
+                        appLogger.e("$TAG session preparation failed: ${preparation.reason}")
+                        return
+                    }
+                }
+                sessionScope.logout(LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
                 coreLogic.getGlobalScope().deleteSession(userId)
                 accountSwitch(SwitchAccountParam.TryToSwitchToNextAccount).callAction(switchAccountObserver)
             }

@@ -18,49 +18,42 @@
 
 package com.wire.android.notification.broadcastreceivers
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
-import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.notification.CallNotificationManager
-import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
 
-class IncomingCallActionReceiver : BroadcastReceiver() {
+class IncomingCallActionReceiver : CoroutineReceiver() {
 
     @Inject
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
 
     @Inject
-    lateinit var dispatcherProvider: DispatcherProvider
-
-    @Inject
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @Inject
-    @ApplicationScope
-    lateinit var coroutineScope: CoroutineScope
-
-    @Inject
     lateinit var callNotificationManager: CallNotificationManager
 
-    @Suppress("ReturnCount")
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(context: Context, intent: Intent?) {
         context.wireApplicationGraph.inject(this)
+        super.onReceive(context, intent)
+    }
+
+    @Suppress("ReturnCount")
+    override suspend fun receive(context: Context, intent: Intent) {
         val conversationIdString: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: run {
             appLogger.e("CallNotificationDismissReceiver: onReceive, conversation ID is missing")
             return
@@ -75,15 +68,18 @@ class IncomingCallActionReceiver : BroadcastReceiver() {
             return
         }
 
-        coroutineScope.launch(Dispatchers.Default) {
-            with(coreLogic.getSessionScope(userId)) {
+        when (val preparation = UserSessionPreparationGate(coreLogic).prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> with(preparation.sessionScope) {
                 val conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
                 if (action == ACTION_DECLINE_CALL) {
                     calls.rejectCall(conversationId)
                 }
             }
-            callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)
+
+            is AppUserSessionPreparationResult.Failed ->
+                appLogger.w("CallNotificationDismissReceiver: session preparation failed: ${preparation.reason}")
         }
+        callNotificationManager.hideIncomingCallNotification(userId.toString(), conversationIdString)
     }
 
     companion object {

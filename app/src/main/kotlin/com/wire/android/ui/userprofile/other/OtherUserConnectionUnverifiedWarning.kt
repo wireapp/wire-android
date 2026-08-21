@@ -23,19 +23,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
@@ -44,6 +53,19 @@ fun OtherUserConnectionUnverifiedWarning(
     connectionStatus: ConnectionState,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val reportMisuseUrl = supportUrlResource(SupportPage.REPORT_MISUSE)
+    val reportMisuseLabel = stringResource(R.string.report_misuse_screen_title)
+    val reportMisuseLinkText = remember(reportMisuseLabel) {
+        buildAnnotatedString {
+            append(reportMisuseLabel)
+            addStyle(
+                style = SpanStyle(textDecoration = TextDecoration.Underline),
+                start = 0,
+                end = reportMisuseLabel.length
+            )
+        }
+    }
     Box(
         modifier
             .fillMaxWidth()
@@ -57,6 +79,22 @@ fun OtherUserConnectionUnverifiedWarning(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.wireColorScheme.error,
                     style = MaterialTheme.wireTypography.body01
+                )
+                VerticalSpace.x8()
+                Text(
+                    text = stringResource(R.string.connection_label_unverified_support_disclaimer),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.wireColorScheme.error,
+                    style = MaterialTheme.wireTypography.body01
+                )
+                VerticalSpace.x8()
+                ClickableText(
+                    text = reportMisuseLinkText,
+                    style = MaterialTheme.wireTypography.body01.copy(
+                        color = MaterialTheme.wireColorScheme.error,
+                        textAlign = TextAlign.Center
+                    ),
+                    onClick = { CustomTabsHelper.launchUrl(context, reportMisuseUrl) }
                 )
                 VerticalSpace.x24()
             }

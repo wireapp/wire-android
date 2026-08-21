@@ -127,7 +127,7 @@ val Direction.baseRoute: String
 
 fun Direction.handleNavigation(context: Context, handleOtherDirection: (Direction) -> Unit) = when (this) {
     is ExternalUriDirection -> CustomTabsHelper.launchUri(context, this.uri)
-    is ExternalUriStringResDirection -> CustomTabsHelper.launchUri(context, this.getUri(context.resources))
+    is ExternalUriStringResDirection -> CustomTabsHelper.launchUrl(context, this.getUriString(context.resources))
     is IntentDirection -> context.startActivity(this.intent(context))
     else -> handleOtherDirection(this)
 }

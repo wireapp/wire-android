@@ -26,7 +26,7 @@ import javax.inject.Singleton
 @Singleton
 class ServerConfigProvider @Inject constructor() {
 
-    fun getDefaultServerConfig(managedServerConfig: ManagedServerConfig? = null): ServerConfig.Links {
+    fun getDefaultServerConfigOrNull(managedServerConfig: ManagedServerConfig? = null): ServerConfig.Links? {
         return if (managedServerConfig != null) {
             with(managedServerConfig) {
                 ServerConfig.Links(
@@ -38,9 +38,12 @@ class ServerConfigProvider @Inject constructor() {
                     website = endpoints.websiteURL,
                     title = title,
                     isOnPremises = true, // EMM configuration always treated as on-premises
-                    apiProxy = null
+                    apiProxy = null,
+                    supportEmail = supportEmail,
                 )
             }
+        } else if (!BuildConfig.DEFAULT_BACKEND_ENABLED) {
+            null
         } else {
             ServerConfig.Links(
                 api = BuildConfig.DEFAULT_BACKEND_URL_BASE_API,
@@ -54,6 +57,23 @@ class ServerConfigProvider @Inject constructor() {
                 apiProxy = null
             )
         }
+    }
+
+    fun getDefaultServerConfig(managedServerConfig: ManagedServerConfig? = null): ServerConfig.Links =
+        getDefaultServerConfigOrNull(managedServerConfig) ?: EmptyServerConfig
+
+    companion object {
+        val EmptyServerConfig = ServerConfig.Links(
+            api = "",
+            accounts = "",
+            webSocket = "",
+            teams = "",
+            blackList = "",
+            website = "",
+            title = "",
+            isOnPremises = false,
+            apiProxy = null
+        )
     }
 }
 

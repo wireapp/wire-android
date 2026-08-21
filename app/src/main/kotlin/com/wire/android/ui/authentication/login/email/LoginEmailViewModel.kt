@@ -28,12 +28,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.authentication.toBackendConfigUrl
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
+import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginError
@@ -41,6 +44,9 @@ import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.EMPTY
+import com.wire.android.util.BackendSupportConfig
+import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
@@ -56,7 +62,10 @@ import com.wire.kalium.logic.feature.auth.PersistSelfUserEmailResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,6 +77,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 
 @Suppress("LongParameterList", "ComplexMethod", "TooManyFunctions")
 @HiltViewModel
@@ -81,12 +91,17 @@ class LoginEmailViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault private val defaultWebSocketEnabledByDefault: Boolean,
+    @Named("isDefaultBackendConfigured") isDefaultBackendConfigured: Boolean = true,
+    private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>? = null,
+    private val globalDataStore: Lazy<GlobalDataStore>? = null,
 ) : LoginViewModel(
     savedStateHandle,
     clientScopeProviderFactory,
     userDataStoreProvider,
     coreLogic,
-    defaultServerConfig
+    LoginViewModelExtension(clientScopeProviderFactory, userDataStoreProvider),
+    defaultServerConfig,
+    isDefaultBackendConfigured,
 ) {
     val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
     private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
@@ -136,10 +151,61 @@ class LoginEmailViewModel @Inject constructor(
         }
     }
 
-    private fun updateEmailFlowState(flowState: LoginState) {
+    fun onBackendConfigLinkEntered(input: String) {
+        viewModelScope.launch(dispatchers.io()) {
+            val configUrl = input.toBackendConfigUrl()
+            if (configUrl == null) {
+                withContext(dispatchers.main()) {
+                    updateBackendConfigState(LoginEmailState.BackendConfigState.Error)
+                }
+                return@launch
+            }
+
+            withContext(dispatchers.main()) {
+                updateBackendConfigState(LoginEmailState.BackendConfigState.Loading)
+            }
+            when (val result = getServerConfigUseCase?.get()?.invoke(configUrl)) {
+                is GetServerConfigResult.Success -> {
+                    CustomTabsHelper.setBackendWebsiteUrl(result.serverConfigLinks.website)
+                    SupportUrlResolver.setBaseUrl(result.serverConfigLinks.website)
+                    globalDataStore?.let {
+                        BackendSupportConfig.storeFromServerLinks(it.get(), result.serverConfigLinks)
+                    }
+                    withContext(dispatchers.main()) {
+                        serverConfig = result.serverConfigLinks
+                        isBackendConfigured = true
+                        updateBackendConfigState(LoginEmailState.BackendConfigState.Success)
+                    }
+                }
+
+                is GetServerConfigResult.Failure.Generic,
+                null -> withContext(dispatchers.main()) {
+                    updateBackendConfigState(LoginEmailState.BackendConfigState.Error)
+                }
+            }
+        }
+    }
+
+    fun onBackendConfigSuccessContinue() {
+        updateBackendConfigState(LoginEmailState.BackendConfigState.Missing)
+    }
+
+    private fun updateBackendConfigState(state: LoginEmailState.BackendConfigState) {
+        loginState = loginState.copy(backendConfigState = state)
+    }
+
+    private fun updateEmailFlowState(
+        flowState: LoginState,
+        showInvalidCredentialsError: Boolean = when (flowState) {
+            LoginState.Error.DialogError.InvalidCredentialsError -> true
+            LoginState.Default -> loginState.showInvalidCredentialsError
+            else -> false
+        }
+    ) {
         val proxyFieldsNotEmpty = proxyIdentifierTextState.text.isNotEmpty() && proxyPasswordTextState.text.isNotEmpty()
         loginState = loginState.copy(
             flowState = flowState,
+            showInvalidCredentialsError = showInvalidCredentialsError,
             loginEnabled = userIdentifierTextState.text.isNotEmpty()
                     && passwordTextState.text.isNotEmpty()
                     && (!serverConfig.isProxyAuthRequired || proxyFieldsNotEmpty)

@@ -73,8 +73,10 @@ import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.Navigator
 import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.isConfigured
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -157,6 +159,19 @@ private fun WelcomeContent(
             MaxAccountsReachedDialog(dialogState = maxAccountsReachedDialogState) { navigateBack() }
             if (maxAccountsReached) {
                 maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
+            }
+
+            if (!state.isConfigured()) {
+                MissingBackendConfigContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding)
+                        .weight(1f, true),
+                    showTitle = true,
+                    centerText = true,
+                    verticalArrangement = Arrangement.Center,
+                )
+                return@Column
             }
 
             Icon(

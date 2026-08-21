@@ -27,7 +27,9 @@ data class ManagedServerConfig(
     @SerialName("title")
     val title: String,
     @SerialName("endpoints")
-    val endpoints: ManagedServerLinks
+    val endpoints: ManagedServerLinks,
+    @SerialName("supportEmail")
+    val supportEmail: String? = null
 )
 
 @Serializable

@@ -29,6 +29,8 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DialogErrorStrings
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.stringWithStyledArgs
 
@@ -63,7 +65,7 @@ fun CreateGroupErrorDialog(
             ),
         ) to DialogTextSuffixLink(
             linkText = stringResource(id = R.string.label_learn_more),
-            linkUrl = stringResource(id = R.string.url_message_details_offline_backends_learn_more)
+            linkUrl = supportUrlResource(SupportPage.OFFLINE_BACKENDS)
         )
         is CreateGroupState.Error.Forbidden -> DialogErrorStrings(
             title = stringResource(R.string.conversation_can_not_be_created_title),

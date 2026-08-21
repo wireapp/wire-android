@@ -49,8 +49,11 @@ import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.ThemeOption
+import com.wire.android.util.BackendSupportConfig
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
@@ -82,6 +85,7 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
@@ -168,6 +172,7 @@ class WireActivityViewModel @Inject constructor(
         observeAppThemeState()
         observeSelectedAccent()
         observeLogoutState()
+        observeBackendWebsiteUrl()
         resetNewRegistrationAnalyticsState()
         viewModelScope.launch(dispatchers.io()) { monitorSyncWorkUseCase() }
     }
@@ -200,6 +205,27 @@ class WireActivityViewModel @Inject constructor(
                 .collectLatest {
                     globalAppState = globalAppState.copy(userAccent = it)
                 }
+        }
+    }
+
+    private fun observeBackendWebsiteUrl() {
+        viewModelScope.launch(dispatchers.io()) {
+            observeCurrentValidUserId.collectLatest { userId ->
+                val serverLinks = userId?.let {
+                    runCatching {
+                        when (val result = coreLogic.get().getSessionScope(it).users.serverLinks()) {
+                            is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
+                            is SelfServerConfigUseCase.Result.Failure -> null
+                        }
+                    }.getOrNull()
+                }
+                serverLinks?.let(BackendSupportConfig::setCurrentBackend)
+                val websiteUrl = serverLinks?.website
+                    ?: managedConfigurationsManager.currentServerConfig?.website
+
+                CustomTabsHelper.setBackendWebsiteUrl(websiteUrl)
+                SupportUrlResolver.setBaseUrl(websiteUrl)
+            }
         }
     }
 
@@ -456,7 +482,11 @@ class WireActivityViewModel @Inject constructor(
 
     private suspend fun loadServerConfig(url: String): ServerConfig.Links? =
         when (val result = getServerConfigUseCase.get().invoke(url)) {
-            is GetServerConfigResult.Success -> result.serverConfigLinks
+            is GetServerConfigResult.Success -> result.serverConfigLinks.also {
+                CustomTabsHelper.setBackendWebsiteUrl(it.website)
+                SupportUrlResolver.setBaseUrl(it.website)
+                BackendSupportConfig.storeFromServerLinks(globalDataStore.get(), it)
+            }
             is GetServerConfigResult.Failure.Generic -> {
                 appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
                 null

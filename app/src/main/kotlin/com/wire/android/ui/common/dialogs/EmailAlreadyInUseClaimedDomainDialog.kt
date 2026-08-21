@@ -42,6 +42,8 @@ import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.SupportPage
+import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
@@ -86,12 +88,12 @@ private fun Content() {
                 append(deletePersonalAccount)
 
                 addStyledLink(
-                    url = stringResource(id = R.string.url_change_email),
+                    url = supportUrlResource(SupportPage.CHANGE_EMAIL),
                     start = bullet.length,
                     end = (bullet + changeEmail).length
                 )
                 addStyledLink(
-                    url = stringResource(id = R.string.url_delete_personal_account),
+                    url = supportUrlResource(SupportPage.DELETE_ACCOUNT),
                     start = (bullet + changeEmail + bullet).length,
                     end = (bullet + changeEmail + bullet + deletePersonalAccount).length
                 )

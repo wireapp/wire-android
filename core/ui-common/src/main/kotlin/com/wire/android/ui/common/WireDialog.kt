@@ -211,7 +211,7 @@ fun WireDialogContent(
                         TextWithLinkSuffix(
                             text = text,
                             linkText = textSuffixLink?.linkText,
-                            onLinkClick = { textSuffixLink?.linkUrl?.let { uriHandler.openUri(it) } },
+                            onLinkClick = { textSuffixLink?.linkUrl?.let(uriHandler::openUri) },
                             modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
                         )
                     }

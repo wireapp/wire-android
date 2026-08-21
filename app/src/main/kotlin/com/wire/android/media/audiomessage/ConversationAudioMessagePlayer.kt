@@ -24,10 +24,13 @@ import android.net.Uri
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -73,6 +76,8 @@ class ConversationAudioMessagePlayer
     @ApplicationScope private val scope: CoroutineScope,
     private val dispatchers: DispatcherProvider,
 ) {
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
+
     private companion object {
         const val UPDATE_POSITION_INTERVAL_IN_MS = 1000L
     }
@@ -398,13 +403,21 @@ class ConversationAudioMessagePlayer
         conversationId: ConversationId,
         messageId: String,
     ): MessageAssetResult = withContext(dispatchers.io()) {
+        val preparation = userSessionPreparationGate.prepare(userId)
+        val sessionScope = when (preparation) {
+            is AppUserSessionPreparationResult.Ready -> preparation.sessionScope
+            is AppUserSessionPreparationResult.Failed -> return@withContext MessageAssetResult.Failure(
+                CoreFailure.Unknown(IllegalStateException("User session preparation failed: ${preparation.reason}")),
+                preparation.canRetry,
+            )
+        }
         val key = GetAssetMessageKey(userId, conversationId, messageId)
         getAssetMessageMutex.withLock {
             // keep deferred in the map to prevent multiple calls to the same asset at the same time, instead just reuse the existing one
             val deferredResult = getAssetMessageDeferredMap[key]
             // if no deferred exists or the existing one is already completed with failure, create a new one
             if (deferredResult == null || (deferredResult.isCompleted && deferredResult.getCompleted() is MessageAssetResult.Failure)) {
-                coreLogic.getSessionScope(userId).messages.getAssetMessage(conversationId, messageId).also {
+                sessionScope.messages.getAssetMessage(conversationId, messageId).also {
                     getAssetMessageDeferredMap[key] = it
                 }
             } else {
@@ -415,7 +428,7 @@ class ConversationAudioMessagePlayer
             // this is to handle the case when the file has been uploaded and the file name has changed from temporary to proper one
             if (result is MessageAssetResult.Success && !result.decodedAssetPath.toFile().exists()) {
                 getAssetMessageMutex.withLock {
-                    coreLogic.getSessionScope(userId).messages.getAssetMessage(conversationId, messageId).also {
+                    sessionScope.messages.getAssetMessage(conversationId, messageId).also {
                         getAssetMessageDeferredMap[key] = it
                     }
                 }.await()
@@ -463,30 +476,37 @@ class ConversationAudioMessagePlayer
         _audioSpeed.emit(currentSpeed)
     }
 
+    @Suppress("NestedBlockDepth")
     private suspend fun tryToPlayNextAudio(currentMessageIdWrapper: MessageIdWrapper): Boolean {
         val (conversationId, currentMessageId) = currentMessageIdWrapper
 
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
         if (currentAccountResult is CurrentSessionResult.Success) {
-            coreLogic
-                .getSessionScope((currentAccountResult).accountInfo.userId)
-                .messages
-                .getNextAudioMessageInConversation(conversationId, currentMessageId).let { nextAudio ->
-                    if (nextAudio is GetNextAudioMessageInConversationUseCase.Result.Success) {
-                        playAudio(conversationId, nextAudio.messageId)
-                        return true
+            val preparation = userSessionPreparationGate.prepare(currentAccountResult.accountInfo.userId)
+            if (preparation is AppUserSessionPreparationResult.Ready) {
+                preparation.sessionScope
+                    .messages
+                    .getNextAudioMessageInConversation(conversationId, currentMessageId).let { nextAudio ->
+                        if (nextAudio is GetNextAudioMessageInConversationUseCase.Result.Success) {
+                            playAudio(conversationId, nextAudio.messageId)
+                            return true
+                        }
                     }
-                }
+            }
         }
         return false
     }
 
+    @Suppress("ReturnCount")
     private suspend fun getSenderNameByMessageId(conversationId: ConversationId, messageId: String): String? {
         val currentAccountResult = coreLogic.getGlobalScope().session.currentSession()
         if (currentAccountResult is CurrentSessionResult.Failure) return null
 
-        val senderNameResult = coreLogic
-            .getSessionScope((currentAccountResult as CurrentSessionResult.Success).accountInfo.userId)
+        val preparation = userSessionPreparationGate.prepare(
+            (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
+        )
+        if (preparation !is AppUserSessionPreparationResult.Ready) return null
+        val senderNameResult = preparation.sessionScope
             .messages
             .getSenderNameByMessageId(conversationId, messageId)
 

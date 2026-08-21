@@ -23,6 +23,8 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
+import com.wire.android.session.AppUserSessionPreparationResult
+import com.wire.android.session.UserSessionPreparationGate
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
@@ -69,6 +71,7 @@ class GlobalObserversManager @Inject constructor(
 ) {
     // TODO(tests): refactor so scope/dispatcher can be injected and properly stopped
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
+    private val userSessionPreparationGate by lazy { UserSessionPreparationGate(coreLogic) }
 
     fun observe() {
         scope.launch { setUpNotifications() }
@@ -76,7 +79,9 @@ class GlobalObserversManager @Inject constructor(
             coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
                 coroutineScope {
                     it.forEach {
-                        launch { coreLogic.getSessionScope(it.first.id).calls.endCallOnConversationChange() }
+                        launch {
+                            preparedSessionScope(it.first.id)?.calls?.endCallOnConversationChange()
+                        }
                     }
                 }
             }
@@ -165,7 +170,7 @@ class GlobalObserversManager @Inject constructor(
                         emptyFlow()
                     }
                 }
-                .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
+                .collect { userId -> preparedSessionScope(userId)?.messages?.deleteEphemeralMessageEndDate() }
         }
     }
 
@@ -200,4 +205,13 @@ class GlobalObserversManager @Inject constructor(
     private companion object {
         private const val TAG = "GlobalObserversManager"
     }
+
+    private suspend fun preparedSessionScope(userId: UserId) =
+        when (val result = userSessionPreparationGate.prepare(userId)) {
+            is AppUserSessionPreparationResult.Ready -> result.sessionScope
+            is AppUserSessionPreparationResult.Failed -> {
+                appLogger.w("$TAG skipping database observer for ${userId.toLogString()}: ${result.reason}")
+                null
+            }
+        }
 }

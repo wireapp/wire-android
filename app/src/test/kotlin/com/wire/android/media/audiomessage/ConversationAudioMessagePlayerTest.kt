@@ -27,11 +27,13 @@ import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.Messag
 import com.wire.android.services.ServicesManager
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.MockKAnnotations
@@ -39,6 +41,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -630,6 +633,9 @@ class Arrangement(private val tempDir: File) {
     lateinit var coreLogic: CoreLogic
 
     @MockK
+    lateinit var userSessionScope: UserSessionScope
+
+    @MockK
     lateinit var mediaPlayer: MediaPlayer
 
     @MockK
@@ -661,8 +667,9 @@ class Arrangement(private val tempDir: File) {
     init {
         MockKAnnotations.init(this, relaxed = true)
 
-        every { coreLogic.getSessionScope(any()).messages.getAssetMessage } returns getAssetMessage
-        every { coreLogic.getSessionScope(any()).messages.getMessageById } returns getMessageById
+        coEvery { coreLogic.prepareUserSession(any()) } returns preparationSuccess(userSessionScope)
+        every { userSessionScope.messages.getAssetMessage } returns getAssetMessage
+        every { userSessionScope.messages.getMessageById } returns getMessageById
         every { mediaPlayer.currentPosition } returns 100
 
         every { servicesManager.stopPlayingAudioMessageService() } returns Unit
@@ -672,6 +679,11 @@ class Arrangement(private val tempDir: File) {
         every { audioFocusHelper.abandon() } returns Unit
         every { audioFocusHelper.request() } returns true
     }
+
+    private fun preparationSuccess(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =
+        mockk<PrepareUserSessionResult.Success>().also { result ->
+            every { result.sessionScope } returns sessionScope
+        }
 
     fun withCurrentSession() = apply {
         coEvery { coreLogic.getGlobalScope().session.currentSession.invoke() } returns CurrentSessionResult.Success(

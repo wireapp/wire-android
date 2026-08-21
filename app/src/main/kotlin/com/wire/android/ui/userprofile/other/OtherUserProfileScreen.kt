@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.userprofile.other
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -49,15 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import com.wire.android.ui.home.settings.otherUserProfileScreenViewModel
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
-import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
@@ -81,15 +72,8 @@ import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.connection.ConnectionActionButton
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationMediaScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DeviceDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SearchConversationMessagesScreenDestination
 import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
@@ -110,34 +94,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
-@WireRootDestination(
-    navArgs = OtherUserProfileNavArgs::class,
-    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
-)
+@Suppress("ComposeViewModelForwarding")
 @Composable
-fun OtherUserProfileScreen(
-    navigator: Navigator,
-    navArgs: OtherUserProfileNavArgs,
-    resultNavigator: ResultBackNavigator<String>,
-    conversationFoldersScreenResultRecipient:
-    ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: OtherUserProfileScreenViewModel = otherUserProfileScreenViewModel()
+internal fun OtherUserProfileRouteScreen(
+    viewModel: OtherUserProfileScreenViewModel,
+    onNavigateBack: () -> Unit,
+    onIgnoredConnectionRequest: (String) -> Unit,
+    onOpenConversation: (ConversationId) -> Unit,
+    onOpenDeviceDetails: (Device) -> Unit,
+    onSearchConversationMessages: (ConversationId) -> Unit,
+    onOpenConversationMedia: (ConversationId) -> Unit,
+    onMoveToFolder: (ConversationId, (String) -> Unit) -> Unit,
+    onOpenConversationDebugMenu: (ConversationId) -> Unit,
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val onSearchConversationMessagesClick: () -> Unit = {
-        viewModel.state.activeOneOnOneConversationId?.let {
-            navigator.navigate(NavigationCommand(SearchConversationMessagesScreenDestination(conversationId = it)))
-        }
-    }
-
-    val onConversationMediaClick: () -> Unit = {
-        viewModel.state.activeOneOnOneConversationId?.let {
-            navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(conversationId = it)))
-        }
-    }
-
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
     val conversationOptionsSheetState = rememberWireModalSheetState<ConversationSheetState>()
     val changeRoleSheetState = rememberWireModalSheetState<OtherUserProfileGroupState>()
@@ -145,43 +117,28 @@ fun OtherUserProfileScreen(
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
-                conversationOptionsSheetState = conversationOptionsSheetState,
+        conversationOptionsSheetState = conversationOptionsSheetState,
         changeRoleSheetState = changeRoleSheetState,
         removeMemberDialogState = viewModel.removeConversationMemberDialogState,
-        eventsHandler = viewModel as OtherUserProfileEventsHandler,
+        eventsHandler = viewModel,
         onChangeMemberRole = viewModel::onChangeMemberRole,
-        onIgnoreConnectionRequest = {
-            resultNavigator.setResult(it)
-            resultNavigator.navigateBack()
+        onIgnoreConnectionRequest = onIgnoredConnectionRequest,
+        onOpenConversation = onOpenConversation,
+        onOpenDeviceDetails = onOpenDeviceDetails,
+        onSearchConversationMessagesClick = {
+            viewModel.state.activeOneOnOneConversationId?.let(onSearchConversationMessages)
         },
-        onOpenConversation = {
-            navigator.navigate(
-                NavigationCommand(
-                    ConversationScreenDestination(it),
-                    BackStackMode.UPDATE_EXISTED
-                )
-            )
+        navigateBack = onNavigateBack,
+        onConversationMediaClick = {
+            viewModel.state.activeOneOnOneConversationId?.let(onOpenConversationMedia)
         },
-        onOpenDeviceDetails = {
-            navigator.navigate(
-                NavigationCommand(
-                    DeviceDetailsScreenDestination(
-                        navArgs.userId,
-                        it.clientId
-                    )
-                )
-            )
-        },
-        onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-        navigateBack = navigator::navigateBack,
-        onConversationMediaClick = onConversationMediaClick,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
-        onMoveToFolder = {
-            navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
+        onMoveToFolder = { arguments ->
+            onMoveToFolder(arguments.conversationId) { message ->
+                scope.launch { snackbarHostState.showSnackbar(message) }
+            }
         },
-        openConversationDebugMenu = { conversationId ->
-            navigator.navigate(NavigationCommand(DebugConversationScreenDestination(conversationId)))
-        },
+        openConversationDebugMenu = onOpenConversationDebugMenu,
     )
 
     HandleActions(viewModel.actions) { action ->
@@ -203,18 +160,7 @@ fun OtherUserProfileScreen(
     }
 
     if (viewModel.state.errorLoadingUser != null) {
-        UserNotFoundDialog(onActionButtonClicked = navigator::navigateBack)
-    }
-
-    conversationFoldersScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(result.value.message)
-                }
-            }
-        }
+        UserNotFoundDialog(onActionButtonClicked = onNavigateBack)
     }
 }
 

@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.sketch
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -43,15 +44,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
-import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.feature.sketch.util.PreviewMultipleThemes
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.navigation.annotation.features.sketch.WireSketchDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.IconAlignment
@@ -69,37 +64,30 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import kotlinx.coroutines.launch
 
-@WireSketchDestination(
-    start = true,
-    style = PopUpNavigationAnimation::class,
-    navArgs = DrawingCanvasNavArgs::class,
-)
 @Composable
-fun DrawingCanvasScreen(
-    drawingCanvasNavArgs: DrawingCanvasNavArgs,
-    resultNavigator: ResultBackNavigator<DrawingCanvasNavBackArgs>,
-    viewModel: DrawingCanvasViewModel = viewModel(),
+internal fun DrawingCanvasRouteScreen(
+    conversationName: String,
+    tempWritableUri: Uri?,
+    onDismiss: () -> Unit,
+    onSketchSaved: (Uri) -> Unit,
+    viewModel: DrawingCanvasViewModel,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val discardDrawing: () -> Unit = remember {
-        {
-            viewModel.initializeCanvas()
-            resultNavigator.navigateBack()
-        }
+    val discardDrawing: () -> Unit = {
+        viewModel.initializeCanvas()
+        onDismiss()
     }
-    val onDismissEvent: () -> Unit = remember {
-        {
-            if (viewModel.state.paths.isNotEmpty()) {
-                viewModel.onShowConfirmationDialog()
-            } else {
-                discardDrawing()
-            }
+    val onDismissEvent: () -> Unit = {
+        if (viewModel.state.paths.isNotEmpty()) {
+            viewModel.onShowConfirmationDialog()
+        } else {
+            discardDrawing()
         }
     }
     DrawingCanvasContent(
         state = viewModel.state,
-        title = drawingCanvasNavArgs.conversationName,
+        title = conversationName,
         onStartDrawingEvent = viewModel::onStartDrawingEvent,
         onDrawEvent = viewModel::onDrawEvent,
         onStopDrawingEvent = viewModel::onStopDrawingEvent,
@@ -110,12 +98,9 @@ fun DrawingCanvasScreen(
         onStopDrawing = viewModel::onStopDrawing,
         onDismissEvent = onDismissEvent,
         onUndoStroke = viewModel::onUndoLastStroke,
-        onSendSketch = remember {
-            {
-                scope.launch {
-                    resultNavigator.setResult(DrawingCanvasNavBackArgs(viewModel.saveImage(context)))
-                    resultNavigator.navigateBack()
-                }
+        onSendSketch = {
+            scope.launch {
+                onSketchSaved(viewModel.saveImage(context, tempWritableUri))
             }
         },
     )

@@ -21,12 +21,10 @@ package com.wire.android.ui.home.conversations.search.adddembertoconversation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.model.Contact
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
@@ -42,14 +40,12 @@ import kotlinx.coroutines.withContext
 class AddMembersToConversationViewModel @AssistedInject constructor(
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val dispatchers: DispatcherProvider,
-    @Assisted savedStateHandle: SavedStateHandle
+    @Assisted private val addMembersSearchNavArgs: AddMembersSearchNavArgs,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): AddMembersToConversationViewModel
+        fun create(addMembersSearchNavArgs: AddMembersSearchNavArgs): AddMembersToConversationViewModel
     }
-
-    private val addMembersSearchNavArgs: AddMembersSearchNavArgs = savedStateHandle.navArgs()
 
     var newGroupState: AddMembersToConversationState by mutableStateOf(AddMembersToConversationState())
         private set

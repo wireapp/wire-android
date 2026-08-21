@@ -19,19 +19,43 @@ package com.wire.android.di.metro
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ImageLoadingModule
-import com.wire.android.ui.MiscViewModelGraph
+import com.wire.android.di.SessionModule
+import com.wire.android.di.accountScoped.AppsModule
+import com.wire.android.di.accountScoped.AuthenticationModule
+import com.wire.android.di.accountScoped.BackupModule
+import com.wire.android.di.accountScoped.CallsModule
+import com.wire.android.di.accountScoped.CellsModule
+import com.wire.android.di.accountScoped.ChannelsModule
+import com.wire.android.di.accountScoped.ClientModule
+import com.wire.android.di.accountScoped.ConnectionModule
+import com.wire.android.di.accountScoped.ConversationModule
+import com.wire.android.di.accountScoped.DebugModule
+import com.wire.android.di.accountScoped.MeetingModule
+import com.wire.android.di.accountScoped.MessageModule
+import com.wire.android.di.accountScoped.SearchModule
+import com.wire.android.di.accountScoped.ServicesModule
+import com.wire.android.di.accountScoped.TeamModule
+import com.wire.android.di.accountScoped.UserModule
+import com.wire.android.feature.cells.ui.CellsMetroViewModelBindings
+import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
+import com.wire.android.feature.sketch.SketchMetroViewModelBindings
+import com.wire.android.mediaplayer.MediaPlayerMetroViewModelBindings
+import com.wire.android.search.SearchMetroViewModelBindings
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
-import com.wire.android.ui.common.CommonViewModelGraph
-import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.calling.CallingMetroViewModelBindings
+import com.wire.android.ui.common.CommonMetroViewModelBindings
+import com.wire.android.ui.common.CoreUICommonMetroViewModelBindings
+import com.wire.android.ui.debug.DebugMetroViewModelBindings
+import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.home.HomeMetroViewModelBindings
 import com.wire.android.ui.home.HomeViewModelGraph
-import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.ui.home.conversations.ConversationSearchFolderMetroViewModelBindings
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.Provider
 import dev.zacsweers.metro.Scope
 import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metrox.viewmodel.ViewModelGraph
@@ -39,13 +63,46 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
 @Scope
 annotation class MetroSessionScope
 
-@GraphExtension(MetroSessionScope::class, bindingContainers = [WireMetroViewModelBindings::class, ImageLoadingModule::class])
+@GraphExtension(
+    MetroSessionScope::class,
+    bindingContainers = [
+        SessionModule::class,
+        AppsModule::class,
+        AuthenticationModule::class,
+        BackupModule::class,
+        CallsModule::class,
+        CellsModule::class,
+        ChannelsModule::class,
+        ClientModule::class,
+        ConnectionModule::class,
+        ConversationModule::class,
+        DebugModule::class,
+        MessageModule::class,
+        SearchModule::class,
+        ServicesModule::class,
+        TeamModule::class,
+        UserModule::class,
+        MeetingModule::class,
+        WireMetroViewModelBindings::class,
+        DebugMetroViewModelBindings::class,
+        HomeMetroViewModelBindings::class,
+        ConversationSearchFolderMetroViewModelBindings::class,
+        CallingMetroViewModelBindings::class,
+        CommonMetroViewModelBindings::class,
+        CellsMetroViewModelBindings::class,
+        MeetingsMetroViewModelBindings::class,
+        SketchMetroViewModelBindings::class,
+        CoreUICommonMetroViewModelBindings::class,
+        SearchMetroViewModelBindings::class,
+        MediaPlayerMetroViewModelBindings::class,
+        ImageLoadingModule::class,
+    ]
+)
 interface AppSessionViewModelGraph :
     ViewModelGraph,
-    MiscViewModelGraph,
     AuthenticationViewModelGraph,
-    HomeViewModelGraph,
-    CommonViewModelGraph {
+    DebugInfoViewModelGraph,
+    HomeViewModelGraph {
     @get:CurrentAccount
     val currentAccount: UserId
 
@@ -53,9 +110,6 @@ interface AppSessionViewModelGraph :
         get() = currentAccount.toString()
 
     val wireSessionImageLoader: WireSessionImageLoader
-
-    override val featureFlagNotificationViewModel: Provider<FeatureFlagNotificationViewModel>
-    override val commonTopAppBarViewModelFactory: CommonTopAppBarViewModel.Factory
 
     @ContributesTo(AppScope::class)
     @GraphExtension.Factory

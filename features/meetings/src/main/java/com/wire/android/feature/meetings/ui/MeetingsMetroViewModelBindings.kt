@@ -18,8 +18,7 @@
 package com.wire.android.feature.meetings.ui
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.CreationExtras
+import com.wire.android.feature.meetings.ui.create.NewMeetingNavArgs
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
@@ -28,8 +27,6 @@ import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
-import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
-import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 
 @BindingContainer
@@ -38,24 +35,20 @@ object MeetingsMetroViewModelBindings {
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(MeetingsManualViewModelFactory::class)
-    fun meetingsManualViewModelFactory(factory: MeetingListViewModelImpl.Factory): ManualViewModelAssistedFactory =
+    fun meetingsManualViewModelFactory(
+        meetingListFactory: MeetingListViewModelImpl.Factory,
+        newMeetingFactory: NewMeetingViewModelImpl.Factory,
+    ): ManualViewModelAssistedFactory =
         object : MeetingsManualViewModelFactory {
             override fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModelImpl =
-                factory.create(type)
+                meetingListFactory.create(type)
+
+            override fun newMeetingViewModel(navArgs: NewMeetingNavArgs): NewMeetingViewModelImpl =
+                newMeetingFactory.create(navArgs)
         }
 
     @Provides
     @IntoMap
     @ViewModelKey(MeetingOptionsMenuViewModelImpl::class)
-    fun meetingOptionsMenuViewModel(viewModel: MeetingOptionsMenuViewModelImpl): ViewModel =
-        viewModel
-
-    @Provides
-    @IntoMap
-    @ViewModelAssistedFactoryKey(NewMeetingViewModelImpl::class)
-    fun newMeetingViewModel(factory: NewMeetingViewModelImpl.Factory): ViewModelAssistedFactory =
-        object : ViewModelAssistedFactory {
-            override fun create(extras: CreationExtras): ViewModel =
-                factory.create(extras.createSavedStateHandle())
-        }
+    fun meetingOptionsMenuViewModel(viewModel: MeetingOptionsMenuViewModelImpl): ViewModel = viewModel
 }

@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
@@ -30,7 +29,6 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent.RegistrationPersonalAccount
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -46,7 +44,7 @@ import dev.zacsweers.metro.AssistedInject
 import kotlin.time.Duration.Companion.seconds
 
 class CreateAccountDataDetailViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted val createAccountNavArgs: CreateAccountDataNavArgs,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
     private val globalDataStore: GlobalDataStore,
@@ -56,11 +54,8 @@ class CreateAccountDataDetailViewModel @AssistedInject constructor(
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): CreateAccountDataDetailViewModel
+        fun create(createAccountNavArgs: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel
     }
-
-    val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
-
     private var withPasswordTries = false
     val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)
     val nameTextState: TextFieldState = TextFieldState()

@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -34,7 +33,6 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.FileManager
 import com.wire.android.util.GetMediaMetadataUseCase
@@ -67,7 +65,6 @@ import java.io.File
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class MessageAttachmentsViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
     private val handleUriAsset: HandleUriAssetUseCase,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
@@ -77,14 +74,15 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
     private val fileManager: FileManager,
     private val sharedState: MessageSharedState,
     private val getMediaMetadata: GetMediaMetadataUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): MessageAttachmentsViewModel
+        fun create(navigationArgs: ConversationNavArgs): MessageAttachmentsViewModel
     }
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = navigationArgs
     private val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val uploadObservers = mutableMapOf<String, Job>()
     private val removedAttachments = MutableStateFlow(emptyList<String>())

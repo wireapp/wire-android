@@ -18,9 +18,6 @@
 
 package com.wire.android.ui.home.conversations.details.participants
 
-import com.wire.android.ui.home.conversations.groupConversationParticipantsViewModel
-
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -37,57 +34,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
 import com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 
-@WireRootDestination(
-    navArgs = GroupConversationAllParticipantsNavArgs::class
-)
 @Composable
-fun GroupConversationAllParticipantsScreen(
-    navigator: Navigator,
-    navArgs: GroupConversationAllParticipantsNavArgs,
-    viewModel: GroupConversationParticipantsViewModel = groupConversationParticipantsViewModel()
+internal fun GroupConversationAllParticipantsRouteScreen(
+    viewModel: GroupConversationParticipantsViewModel,
+    onBackPressed: () -> Unit,
+    onProfilePressed: (UIParticipant) -> Unit,
 ) {
     GroupConversationAllParticipantsContent(
-        onBackPressed = navigator::navigateBack,
+        onBackPressed = onBackPressed,
         groupParticipantsState = viewModel.groupParticipantsState,
-        onProfilePressed = { participant ->
-            when {
-                participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-                participant.isService && participant.botService != null ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            ServiceDetailsScreenDestination(
-                                navArgs.conversationId,
-                                ServiceDetailsNavArgs.Id.BotServiceId(participant.botService)
-                            )
-                        )
-                    )
-                participant.isService ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            ServiceDetailsScreenDestination(
-                                navArgs.conversationId,
-                                ServiceDetailsNavArgs.Id.AppId(participant.id)
-                            )
-                        )
-                    )
-
-                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, navArgs.conversationId)))
-            }
-        },
+        onProfilePressed = onProfilePressed,
     )
 }
 

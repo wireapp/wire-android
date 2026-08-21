@@ -22,11 +22,9 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -98,7 +96,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted navigationArgs: ConversationNavArgs,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
@@ -121,10 +119,10 @@ class ConversationMessagesViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ConversationMessagesViewModel
+        fun create(navigationArgs: ConversationNavArgs): ConversationMessagesViewModel
     }
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs: ConversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
 

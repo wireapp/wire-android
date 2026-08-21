@@ -17,9 +17,7 @@
  */
 package com.wire.android.ui.home.drawer
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.HomeDestination
 import com.wire.kalium.logic.data.user.type.UserType
@@ -45,7 +43,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeDrawerViewModelTest {
 
@@ -166,9 +163,6 @@ class HomeDrawerViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var observeArchivedUnreadConversationsCount: ObserveArchivedUnreadConversationsCountUseCase
 
         @MockK
@@ -207,7 +201,6 @@ class HomeDrawerViewModelTest {
         }
 
         fun arrange() = this to HomeDrawerViewModel(
-            savedStateHandle = savedStateHandle,
             observeArchivedUnreadConversationsCount = lazyOf(observeArchivedUnreadConversationsCount),
             observeSelfUser = observeSelfUserUseCase,
             getTeamUrl = getTeamUrlUseCase,

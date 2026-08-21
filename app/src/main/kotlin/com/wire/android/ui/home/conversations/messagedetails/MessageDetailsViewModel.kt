@@ -21,33 +21,29 @@ package com.wire.android.ui.home.conversations.messagedetails
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.receipt.ReceiptType
-import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-
+import kotlinx.coroutines.launch
 class MessageDetailsViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted navigationArgs: MessageDetailsNavArgs,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,
     private val observeReceiptsForMessage: ObserveReceiptsForMessageUseCase
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): MessageDetailsViewModel
+        fun create(navigationArgs: MessageDetailsNavArgs): MessageDetailsViewModel
     }
 
-    private val messageDetailsNavArgs: MessageDetailsNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = messageDetailsNavArgs.conversationId
-    private val messageId: String = messageDetailsNavArgs.messageId
-    private val isSelfMessage: Boolean = messageDetailsNavArgs.isSelfMessage
+    private val conversationId: QualifiedID = navigationArgs.conversationId
+    private val messageId: String = navigationArgs.messageId
+    private val isSelfMessage: Boolean = navigationArgs.isSelfMessage
 
     var messageDetailsState: MessageDetailsState by mutableStateOf(MessageDetailsState())
 

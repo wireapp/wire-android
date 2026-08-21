@@ -17,9 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.publiclink
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.util.FileHelper
@@ -39,7 +37,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PublicLinkViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: PublicLinkNavArgs,
     private val createPublicLink: CreatePublicLinkUseCase,
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
@@ -48,10 +46,8 @@ class PublicLinkViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): PublicLinkViewModel
+        fun create(navArgs: PublicLinkNavArgs): PublicLinkViewModel
     }
-
-    private val navArgs: PublicLinkNavArgs = PublicLinkScreenDestination.argsFrom(savedStateHandle)
 
     private val _state = MutableStateFlow(
         PublicLinkViewState(

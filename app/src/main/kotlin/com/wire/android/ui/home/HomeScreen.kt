@@ -18,218 +18,33 @@
 
 package com.wire.android.ui.home
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewConversationSearchPeopleScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
-import com.wire.android.R
-import com.wire.android.ui.common.R as commonR
-import com.wire.android.appLogger
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.handleNavigation
-import com.wire.android.ui.analytics.AnalyticsUsageViewModel
-import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
-import com.wire.android.ui.home.conversations.details.GroupConversationActionType
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
 import com.wire.android.ui.home.drawer.HomeDrawerState
-import com.wire.android.ui.home.drawer.HomeDrawerViewModel
-import com.wire.android.ui.analyticsUsageViewModel
-import com.wire.android.util.permission.rememberShowNotificationsPermissionFlow
-import kotlinx.coroutines.launch
-
-@WireRootDestination
-@Composable
-fun HomeScreen(
-    navigator: Navigator,
-    groupDetailsScreenResultRecipient:
-    ResultRecipient<ConversationScreenDestination, GroupConversationDetailsNavBackArgs>,
-    otherUserProfileScreenResultRecipient: ResultRecipient<OtherUserProfileScreenDestination, String>,
-    conversationFoldersScreenResultRecipient:
-    ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    homeViewModel: HomeViewModel = homeViewModel(),
-    appSyncViewModel: AppSyncViewModel = appSyncViewModel(),
-    homeDrawerViewModel: HomeDrawerViewModel = homeDrawerViewModel(),
-    analyticsUsageViewModel: AnalyticsUsageViewModel = analyticsUsageViewModel(),
-) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-
-    homeViewModel.checkRequirements()
-
-    HandleActions(homeViewModel.actions) { action ->
-        action.navigate(navigator::navigate)
-    }
-
-    val homeScreenState = rememberHomeScreenState(navigator)
-    val notificationsPermissionDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
-    val showNotificationsPermissionDeniedDialog = {
-        notificationsPermissionDeniedDialogState.show(
-            PermissionPermanentlyDeniedDialogState.Visible(
-                title = commonR.string.app_permission_dialog_title,
-                description = R.string.notifications_permission_dialog_description,
-            )
-        )
-    }
-    val showNotificationsFlow =
-        rememberShowNotificationsPermissionFlow(
-            onPermissionGranted = { /* do nothing */ },
-            onPermissionDenied = showNotificationsPermissionDeniedDialog,
-            onPermissionPermanentlyDenied = { /* do nothing */ },
-        )
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val snackbarHostState = LocalSnackbarHostState.current
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                appSyncViewModel.startSyncingAppConfig()
-                homeScreenState.clearSearchOnResumeIfRequested()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    LaunchedEffect(homeViewModel.savedStateHandle) {
-        showNotificationsFlow.launch()
-    }
-
-    val homeState = homeViewModel.homeState
-
-    if (analyticsUsageViewModel.state.shouldDisplayDialog) {
-        AnalyticsUsageDialog(
-            agreeOption = analyticsUsageViewModel::agreeAnalyticsUsage,
-            declineOption = analyticsUsageViewModel::declineAnalyticsUsage
-        )
-    }
-
-    HomeContent(
-        homeState = homeState,
-        homeDrawerState = homeDrawerViewModel.drawerState,
-        homeStateHolder = homeScreenState,
-        onNewConversationClick = { navigator.navigate(NavigationCommand(NewConversationSearchPeopleScreenDestination)) },
-        onSelfUserClick = {
-            // Temporarily stopping sending ui.clicked-profile event
-            // homeViewModel.sendOpenProfileEvent()
-            navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-        },
-    )
-
-    BackHandler(homeScreenState.drawerState.isOpen) {
-        homeScreenState.coroutineScope.launch {
-            homeScreenState.drawerState.close()
-        }
-    }
-    BackHandler(homeScreenState.searchBarState.isSearchActive) {
-        homeScreenState.searchBarState.closeSearch()
-    }
-
-    groupDetailsScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            is NavResult.Canceled -> {
-                appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
-            }
-
-            is NavResult.Value -> {
-                when (result.value.groupConversationActionType) {
-                    GroupConversationActionType.LEAVE_GROUP -> {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar((HomeSnackBarMessage.LeftConversationSuccess.uiText.asString(context.resources)))
-                        }
-                    }
-
-                    GroupConversationActionType.DELETE_GROUP -> {
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                HomeSnackBarMessage.DeletedConversationGroupSuccess(result.value.conversationName).uiText.asString(
-                                    context.resources
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    otherUserProfileScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            is NavResult.Canceled -> {
-                appLogger.i("Error with receiving navigation back args from OtherUserProfile in ConversationScreen")
-            }
-
-            is NavResult.Value -> {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        HomeSnackBarMessage.SuccessConnectionIgnoreRequest(result.value).uiText.asString(context.resources)
-                    )
-                }
-            }
-        }
-    }
-
-    conversationFoldersScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(result.value.message)
-                }
-            }
-        }
-    }
-
-    PermissionPermanentlyDeniedDialog(
-        dialogState = notificationsPermissionDeniedDialogState,
-        hideDialog = notificationsPermissionDeniedDialogState::dismiss
-    )
-}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeContent(
     homeState: HomeState,
     homeDrawerState: HomeDrawerState,
-    homeStateHolder: HomeStateHolder,
+    homeStateHolder: HomeShellState,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
+    onNavigateToHomeItem: (HomeDestination) -> Unit,
+    content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val searchFocusRequester = remember { FocusRequester() }
     val fabFocusRequester = remember { FocusRequester() }
@@ -261,23 +76,6 @@ fun HomeContent(
             }
         }
 
-        fun openWireHomeDestination(item: HomeDestination) {
-            item.direction.handleNavigation(
-                context = context,
-                handleOtherDirection = { direction ->
-                    navController.navigate(direction.route) {
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
-                            }
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-            )
-        }
-
         val drawerSheetFocusTrapState = HomeDrawerSheetFocusTrapState(
             enabled = drawerState.isOpen,
             focusRequester = drawerFocusRequester,
@@ -299,13 +97,13 @@ fun HomeContent(
             drawerState = drawerState,
             drawerContent = {
                 HomeDrawerSheet(
-                    currentRoute = currentNavigationItem.direction.route,
+                    currentDestination = currentNavigationItem,
                     homeDrawerState = homeDrawerState,
                     focusTrapState = drawerSheetFocusTrapState,
                     focusTrapActions = drawerSheetFocusTrapActions,
                     firstItemFocusRequester = firstDrawerItemFocusRequester,
                     lastItemFocusRequester = lastDrawerItemFocusRequester,
-                    onNavigateToHomeItem = ::openWireHomeDestination,
+                    onNavigateToHomeItem = onNavigateToHomeItem,
                     onCloseDrawer = ::closeHomeDrawer
                 )
             },
@@ -324,7 +122,8 @@ fun HomeContent(
                         onNewConversationClick = onNewConversationClick,
                         onSelfUserClick = onSelfUserClick,
                         onHamburgerMenuClick = ::openDrawer
-                    )
+                    ),
+                    content = content,
                 )
             }
         )

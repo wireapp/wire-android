@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.settings.about.dependencies
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -30,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.debug.dependenciesViewModel
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.dimensions
@@ -43,14 +41,13 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
 @Composable
-@WireRootDestination
 fun DependenciesScreen(
-    navigator: Navigator,
+    onBackPressed: () -> Unit,
     viewModel: DependenciesViewModel = dependenciesViewModel()
 ) {
     WireScaffold(topBar = {
         WireCenterAlignedTopAppBar(
-            onNavigationPressed = navigator::navigateBack,
+            onNavigationPressed = onBackPressed,
             elevation = 0.dp,
             title = stringResource(id = R.string.settings_dependencies_label)
         )

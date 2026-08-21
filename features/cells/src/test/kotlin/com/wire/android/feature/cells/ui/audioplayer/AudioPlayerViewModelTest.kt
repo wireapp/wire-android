@@ -20,17 +20,13 @@ package com.wire.android.feature.cells.ui.audioplayer
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
@@ -43,7 +39,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class AudioPlayerViewModelTest {
 
     @AfterEach
@@ -278,7 +274,6 @@ class AudioPlayerViewModelTest {
     private class Arrangement {
 
         val context = mockk<Context>(relaxed = true)
-        val savedStateHandle = mockk<SavedStateHandle>(relaxed = true)
         val fileUri = mockk<Uri>()
         val contentUri = mockk<Uri>()
 
@@ -289,8 +284,6 @@ class AudioPlayerViewModelTest {
         private var navArgs = AudioPlayerNavArgs(localPath = "/tmp/audio.mp3")
 
         init {
-            mockkObject(CellAudioPlayerScreenDestination)
-
             mockkStatic(Uri::class)
             every { Uri.fromFile(any()) } returns fileUri
             every { Uri.parse(any()) } returns contentUri
@@ -341,8 +334,12 @@ class AudioPlayerViewModelTest {
         }
 
         fun arrange(): Pair<Arrangement, AudioPlayerViewModel> {
-            every { CellAudioPlayerScreenDestination.argsFrom(savedStateHandle) } returns navArgs
-            return this to AudioPlayerViewModel(context, savedStateHandle)
+            return this to AudioPlayerViewModel(
+                context = context,
+                localPath = navArgs.localPath,
+                contentUrl = navArgs.contentUrl,
+                fileName = navArgs.fileName,
+            )
         }
     }
 }

@@ -15,52 +15,128 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions", "MatchingDeclarationName")
+
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import androidx.lifecycle.ViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.wireMetroViewModel
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavArgs
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModel
+import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessNavArgs
+import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel
 import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesViewModel
+import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModel
+import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameNavArgs
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessViewModel
+import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel
+import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+
+interface ConversationDetailsManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun groupConversationDetailsViewModel(args: GroupConversationDetailsNavArgs): GroupConversationDetailsViewModel
+    fun groupConversationParticipantsViewModel(
+        args: GroupConversationAllParticipantsNavArgs,
+    ): GroupConversationParticipantsViewModel
+
+    fun editConversationMetadataViewModel(args: EditConversationNameNavArgs): EditConversationMetadataViewModel
+    fun editSelfDeletingMessagesViewModel(
+        args: EditSelfDeletingMessagesNavArgs,
+    ): EditSelfDeletingMessagesViewModel
+
+    fun updateChannelAccessViewModel(args: UpdateChannelAccessArgs): UpdateChannelAccessViewModel
+    fun updateAppsAccessViewModel(args: UpdateAppsAccessNavArgs): UpdateAppsAccessViewModel
+    fun editGuestAccessViewModel(args: EditGuestAccessNavArgs): EditGuestAccessViewModel
+    fun createPasswordGuestLinkViewModel(args: CreatePasswordGuestLinkNavArgs): CreatePasswordGuestLinkViewModel
+}
 
 @Composable
 fun groupConversationDetailsViewModel(): GroupConversationDetailsViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun groupConversationDetailsViewModel(args: GroupConversationDetailsNavArgs): GroupConversationDetailsViewModel =
+    conversationDetailsAssistedViewModel { groupConversationDetailsViewModel(args) }
 
 @Composable
 fun groupConversationParticipantsViewModel(): GroupConversationParticipantsViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun groupConversationParticipantsViewModel(
+    args: GroupConversationAllParticipantsNavArgs,
+): GroupConversationParticipantsViewModel =
+    conversationDetailsAssistedViewModel { groupConversationParticipantsViewModel(args) }
 
 @Composable
 fun editConversationMetadataViewModel(): EditConversationMetadataViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun editConversationMetadataViewModel(args: EditConversationNameNavArgs): EditConversationMetadataViewModel =
+    conversationDetailsAssistedViewModel { editConversationMetadataViewModel(args) }
 
 @Composable
 fun editSelfDeletingMessagesViewModel(): EditSelfDeletingMessagesViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun editSelfDeletingMessagesViewModel(
+    args: EditSelfDeletingMessagesNavArgs,
+): EditSelfDeletingMessagesViewModel =
+    conversationDetailsAssistedViewModel { editSelfDeletingMessagesViewModel(args) }
 
 @Composable
 fun updateChannelAccessViewModel(): UpdateChannelAccessViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun updateChannelAccessViewModel(args: UpdateChannelAccessArgs): UpdateChannelAccessViewModel =
+    conversationDetailsAssistedViewModel { updateChannelAccessViewModel(args) }
 
 @Composable
 fun updateAppsAccessViewModel(): UpdateAppsAccessViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun updateAppsAccessViewModel(args: UpdateAppsAccessNavArgs): UpdateAppsAccessViewModel =
+    conversationDetailsAssistedViewModel { updateAppsAccessViewModel(args) }
 
 @Composable
 fun editGuestAccessViewModel(): EditGuestAccessViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun editGuestAccessViewModel(args: EditGuestAccessNavArgs): EditGuestAccessViewModel =
+    conversationDetailsAssistedViewModel { editGuestAccessViewModel(args) }
 
 @Composable
 fun createPasswordGuestLinkViewModel(): CreatePasswordGuestLinkViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+fun createPasswordGuestLinkViewModel(
+    args: CreatePasswordGuestLinkNavArgs,
+): CreatePasswordGuestLinkViewModel =
+    conversationDetailsAssistedViewModel { createPasswordGuestLinkViewModel(args) }
 
 @Composable
 fun checkAssetRestrictionsViewModel(): CheckAssetRestrictionsViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
+
+@Composable
+private inline fun <reified VM> conversationDetailsAssistedViewModel(
+    crossinline create: ConversationDetailsManualViewModelFactory.() -> VM,
+): VM where VM : ViewModel =
+    wireAssistedMetroViewModel<VM, ConversationDetailsManualViewModelFactory>(
+        create = { _ -> create() },
+    )

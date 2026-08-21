@@ -195,7 +195,7 @@ fun SearchScreen(
 
             val isShowingFilteredResults = uiState.hasAnyFilter ||
                     searchState.text.isNotEmpty() ||
-                    uiState.sortingCriteria != searchScreenViewModel.defaultSortingCriteria
+                    uiState.sortingCriteria != searchScreenViewModel.inheritedSortingCriteria
             val initialItems = cellViewModel.nodesFlow.collectAsLazyPagingItems()
             val filteredItems = searchScreenViewModel.cellNodesFlow.collectAsLazyPagingItems()
             val lazyItems = if (isShowingFilteredResults) filteredItems else initialItems

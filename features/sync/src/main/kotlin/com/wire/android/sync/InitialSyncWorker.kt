@@ -80,7 +80,7 @@ class InitialSyncWorker @AssistedInject constructor(
                                 null
                             }
 
-                            is PrepareUserSessionResult.Failure -> preparation.reason
+                            is PrepareUserSessionResult.Failure -> preparation.failure
                         }
                     }
                 }.awaitAll().filterNotNull()

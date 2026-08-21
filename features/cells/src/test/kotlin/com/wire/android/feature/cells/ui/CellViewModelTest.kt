@@ -26,6 +26,7 @@ import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.feature.cells.data.ViewerAccessBannerStore
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
@@ -49,6 +50,9 @@ import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.right
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
@@ -526,6 +530,15 @@ class CellViewModelTest {
         @MockK
         lateinit var getUserNames: GetUserNameUseCase
 
+        @MockK
+        lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
+
+        @MockK
+        lateinit var viewerAccessBannerStore: ViewerAccessBannerStore
+
+        @MockK
+        lateinit var qualifiedIdMapper: QualifiedIdMapper
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -547,6 +560,9 @@ class CellViewModelTest {
             every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.ConnectedWithInternet)
             coEvery { getConversationNames(any()) } returns null
             coEvery { getUserNames(any()) } returns null
+            coEvery { isSelfUserViewerOnConversation(any()) } returns true
+            every { viewerAccessBannerStore.isDismissed(any()) } returns flowOf(false)
+            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
@@ -658,6 +674,9 @@ class CellViewModelTest {
                 networkStateObserver = networkStateObserver,
                 getConversationName = getConversationNames,
                 getUserName = getUserNames,
+                isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
+                viewerAccessBannerStore = viewerAccessBannerStore,
+                qualifiedIdMapper = qualifiedIdMapper,
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
             )

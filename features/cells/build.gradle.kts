@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":core:media-player"))
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.dataStore)
     implementation(libs.androidx.browser)
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)

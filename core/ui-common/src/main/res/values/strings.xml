@@ -72,6 +72,7 @@
     <string name="connection_request_accepted">Connection request accepted</string>
     <string name="connection_request_ignore_error">Connection request could not be ignored</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
+    <string name="conversation_viewer_access_banner">Viewer access: you can’t upload or edit files.</string>
     <string name="content_description_close_button">Close</string>
     <string name="content_description_close">Close</string>
     <string name="content_description_menu_button">Main navigation</string>
@@ -79,6 +80,7 @@
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
     <string name="content_description_alert">Alert</string>
     <string name="content_description_show_more_options">Show more options</string>
+    <string name="content_description_close_access_info">Close access info</string>
 
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>

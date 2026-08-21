@@ -76,11 +76,11 @@ class UserSessionPreparationGateTest {
 
     @Test
     fun givenPublicPreparationFailures_whenMapping_thenRetryabilityIsExplicit() {
-        val failures = listOf(
-            UserSessionPreparationFailure.InsufficientStorage to true,
-            UserSessionPreparationFailure.TemporarilyUnavailable to true,
-            UserSessionPreparationFailure.ApplicationUpdateRequired to false,
-            UserSessionPreparationFailure.SupportRequired to false,
+        val failures: List<Pair<UserSessionPreparationFailure, Boolean>> = listOf(
+            mockk<UserSessionPreparationFailure.InsufficientStorage>() to true,
+            mockk<UserSessionPreparationFailure.TemporarilyUnavailable>() to true,
+            mockk<UserSessionPreparationFailure.ApplicationUpdateRequired>() to false,
+            mockk<UserSessionPreparationFailure.SupportRequired>() to false,
         )
 
         failures.forEach { (reason, expectedCanRetry) ->
@@ -97,7 +97,7 @@ class UserSessionPreparationGateTest {
 
     private fun failure(reason: UserSessionPreparationFailure): PrepareUserSessionResult.Failure =
         mockk<PrepareUserSessionResult.Failure>().also {
-            every { it.reason } returns reason
+            every { it.failure } returns reason
         }
 
     private companion object {

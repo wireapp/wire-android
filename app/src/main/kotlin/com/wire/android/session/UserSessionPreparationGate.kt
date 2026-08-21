@@ -58,8 +58,8 @@ sealed interface AppUserSessionPreparationResult {
 internal fun PrepareUserSessionResult.toAppResult(): AppUserSessionPreparationResult = when (this) {
     is PrepareUserSessionResult.Success -> AppUserSessionPreparationResult.Ready(sessionScope)
     is PrepareUserSessionResult.Failure -> AppUserSessionPreparationResult.Failed(
-        reason = reason,
-        canRetry = reason is UserSessionPreparationFailure.InsufficientStorage ||
-                reason is UserSessionPreparationFailure.TemporarilyUnavailable,
+        reason = failure,
+        canRetry = failure is UserSessionPreparationFailure.InsufficientStorage ||
+                failure is UserSessionPreparationFailure.TemporarilyUnavailable,
     )
 }

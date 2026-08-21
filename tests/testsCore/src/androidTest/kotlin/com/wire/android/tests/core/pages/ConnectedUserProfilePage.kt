@@ -39,6 +39,7 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val blockButtonAlert = UiSelectorParams(text = "Block")
     private val participantRemoveFromConversationButton = UiSelectorParams(textContains = "Remove from conversation")
     private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
+    private val moveToFolderButton = UiSelectorParams(text = "Move to Folder...")
     private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
     private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
     private val notificationsButton = UiSelectorParams(text = "Notifications")
@@ -193,6 +194,15 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun tapMoveOutOfArchiveButton(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(moveOutOfArchiveButton).click()
+        return this
+    }
+
+    fun assertMoveToFolderButtonNotVisible(): ConnectedUserProfilePage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = moveToFolderButton.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Move to Folder... button is visible in archived conversation options."
+        )
         return this
     }
 

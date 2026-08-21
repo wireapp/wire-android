@@ -83,7 +83,6 @@ import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSelectorScreenDestination
@@ -110,7 +109,6 @@ fun NewLoginPasswordScreen(
     navArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel = loginEmailViewModel(navArgs)
 ) {
-    clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
 
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {

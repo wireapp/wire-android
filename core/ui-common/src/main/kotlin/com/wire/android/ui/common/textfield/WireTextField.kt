@@ -129,12 +129,7 @@ fun WireTextField(
         inputMinHeight = inputMinHeight,
         shape = shape,
         colors = colors,
-        modifier = modifier.then(
-            autoFillModifier(
-                autoFillType,
-                textState::setTextAndPlaceCursorAtEnd
-            )
-        ),
+        modifier = modifier,
         onInputSizeChanged = onInputSizeChanged,
         onTap = onTap,
         testTag = testTag,
@@ -155,7 +150,9 @@ fun WireTextField(
                 enabled = enabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
-                modifier = textFieldModifier.then(inputModifier),
+                modifier = textFieldModifier
+                    .then(inputModifier)
+                    .applyAutofill(autoFillType),
                 decorator = decorator,
                 onTextLayout = onTextLayout(
                     textState,

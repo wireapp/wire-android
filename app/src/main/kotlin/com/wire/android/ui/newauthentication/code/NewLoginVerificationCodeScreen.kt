@@ -39,7 +39,6 @@ import com.wire.android.ui.authentication.verificationcode.VerificationCode
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
-import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
@@ -59,7 +58,6 @@ fun NewLoginVerificationCodeScreen(
     navigator: Navigator,
     loginEmailViewModel: LoginEmailViewModel, // provided in MainNavHost to reuse from NewLoginPasswordScreen, don't use wireViewModel()
 ) {
-    clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
 
     LaunchedEffect(loginEmailViewModel) {

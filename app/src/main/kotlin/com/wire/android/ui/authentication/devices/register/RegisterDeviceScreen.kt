@@ -62,7 +62,6 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -87,7 +86,6 @@ fun RegisterDeviceScreen(
     viewModel: RegisterDeviceViewModel = registerDeviceViewModel(),
     clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
 ) {
-    clearAutofillTree()
     when (val flowState = viewModel.state.flowState) {
         is RegisterDeviceFlowState.Success -> {
             navigator.navigate(

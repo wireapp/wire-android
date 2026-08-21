@@ -151,10 +151,13 @@ fun NewMeetingScreen(
         onRepeatingIntervalChanged = newMeetingViewModel::updateRepeatingInterval,
     )
 
-    if (newMeetingViewModel.state.submitError != null) {
+    newMeetingViewModel.state.submitError?.let { submitError ->
         NewMeetingErrorDialog(
+            error = submitError,
             type = newMeetingViewModel.type,
-            onDismiss = newMeetingViewModel::dismissCreationError
+            isSubmitting = newMeetingViewModel.state.isSubmitting,
+            onDismiss = newMeetingViewModel::dismissCreationError,
+            onRetryUpdateConversationName = newMeetingViewModel::retryUpdateConversationName,
         )
     }
     if (newMeetingViewModel.state.initialLoading == NewMeetingState.InitialLoadingState.Error) {

@@ -111,12 +111,14 @@ class UserSessionPreparationGateTest {
 
     @Test
     fun givenPublicPreparationFailures_whenMappingForForeground_thenEveryActionableStateIsPreserved() {
-        val mappings = mapOf(
-            UserSessionPreparationFailure.InsufficientStorage to UserSessionPreparationUiFailure.InsufficientStorage,
-            UserSessionPreparationFailure.TemporarilyUnavailable to UserSessionPreparationUiFailure.TemporarilyUnavailable,
-            UserSessionPreparationFailure.ApplicationUpdateRequired to
+        val mappings: List<Pair<UserSessionPreparationFailure, UserSessionPreparationUiFailure>> = listOf(
+            mockk<UserSessionPreparationFailure.InsufficientStorage>() to
+                    UserSessionPreparationUiFailure.InsufficientStorage,
+            mockk<UserSessionPreparationFailure.TemporarilyUnavailable>() to
+                    UserSessionPreparationUiFailure.TemporarilyUnavailable,
+            mockk<UserSessionPreparationFailure.ApplicationUpdateRequired>() to
                     UserSessionPreparationUiFailure.ApplicationUpdateRequired,
-            UserSessionPreparationFailure.SupportRequired to UserSessionPreparationUiFailure.SupportRequired,
+            mockk<UserSessionPreparationFailure.SupportRequired>() to UserSessionPreparationUiFailure.SupportRequired,
         )
 
         mappings.forEach { (failure, expected) ->

@@ -315,14 +315,14 @@ internal fun UserSessionPreparationState.toUiState(): UserSessionPreparationUiSt
     UserSessionPreparationState.OpeningDatabase -> UserSessionPreparationUiState.OpeningDatabase
     UserSessionPreparationState.MigratingDatabase -> UserSessionPreparationUiState.MigratingDatabase
     UserSessionPreparationState.Ready -> UserSessionPreparationUiState.Ready
-    is UserSessionPreparationState.Failed -> UserSessionPreparationUiState.Failed(reason.toUiFailure())
+    is UserSessionPreparationState.Failed -> UserSessionPreparationUiState.Failed(failure.toUiFailure())
 }
 
 internal fun UserSessionPreparationFailure.toUiFailure(): UserSessionPreparationUiFailure = when (this) {
-    UserSessionPreparationFailure.InsufficientStorage -> UserSessionPreparationUiFailure.InsufficientStorage
-    UserSessionPreparationFailure.TemporarilyUnavailable -> UserSessionPreparationUiFailure.TemporarilyUnavailable
-    UserSessionPreparationFailure.ApplicationUpdateRequired -> UserSessionPreparationUiFailure.ApplicationUpdateRequired
-    UserSessionPreparationFailure.SupportRequired -> UserSessionPreparationUiFailure.SupportRequired
+    is UserSessionPreparationFailure.InsufficientStorage -> UserSessionPreparationUiFailure.InsufficientStorage
+    is UserSessionPreparationFailure.TemporarilyUnavailable -> UserSessionPreparationUiFailure.TemporarilyUnavailable
+    is UserSessionPreparationFailure.ApplicationUpdateRequired -> UserSessionPreparationUiFailure.ApplicationUpdateRequired
+    is UserSessionPreparationFailure.SupportRequired -> UserSessionPreparationUiFailure.SupportRequired
 }
 
 private enum class UserSessionPreparationAction(val label: Int) {

@@ -32,6 +32,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.DomainLookupUseCase
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 
 @Suppress("TooManyFunctions")
@@ -59,6 +60,13 @@ open class LoginViewModel(
         secondFactorVerificationCode: String? = null,
         capabilities: List<ClientCapability>? = null,
     ): RegisterClientResult = loginExtension.registerClient(userId, password, secondFactorVerificationCode, capabilities)
+
+    suspend fun registerClient(
+        sessionScope: UserSessionScope,
+        password: String?,
+        secondFactorVerificationCode: String? = null,
+        capabilities: List<ClientCapability>? = null,
+    ): RegisterClientResult = loginExtension.registerClient(sessionScope, password, secondFactorVerificationCode, capabilities)
 
     internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean = loginExtension.isInitialSyncCompleted(userId)
 }

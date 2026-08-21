@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-@file:Suppress("MaxLineLength")
+@file:Suppress("MaxLineLength", "LargeClass")
 
 package com.wire.android.ui.authentication.login.email
 
@@ -44,6 +44,8 @@ import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.PrepareUserSessionResult
+import com.wire.kalium.logic.UserSessionPreparationFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -69,6 +71,7 @@ import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerifi
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
@@ -625,6 +628,30 @@ class LoginEmailViewModelTest {
     }
 
     @Test
+    fun `given new session preparation fails, when canceling login, then preserve database and restore previous session`() = runTest {
+        val newUserId = UserId("newUserId", "domain")
+        val previousUserId = UserId("previousUserId", "domain")
+        val (arrangement, viewModel) = Arrangement()
+            .withPreparationFailure(UserSessionPreparationFailure.SupportRequired)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .arrange()
+        viewModel.loginJobData.value = LoginJobData(
+            job = mockk(relaxUnitFun = true),
+            previousSessionUserId = previousUserId,
+            newSessionUserId = newUserId,
+        )
+
+        viewModel.cancelLogin()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) {
+            arrangement.logoutUseCase(any(), any())
+            arrangement.deleteSessionUseCase(any())
+        }
+        coVerify(exactly = 1) { arrangement.updateCurrentSessionUseCase(previousUserId) }
+    }
+
+    @Test
     fun `given no previous session, when canceling login, then update current session to null`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
@@ -832,6 +859,9 @@ class LoginEmailViewModelTest {
         internal lateinit var coreLogic: CoreLogic
 
         @MockK
+        internal lateinit var userSessionScope: UserSessionScope
+
+        @MockK
         internal lateinit var requestSecondFactorCodeUseCase: RequestSecondFactorVerificationCodeUseCase
 
         @MockK
@@ -862,6 +892,9 @@ class LoginEmailViewModelTest {
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns USER_ID
             every { savedInputStore.userIdentifier = any<String>() } returns Unit
             every { coreLogic.getGlobalScope().validateEmailUseCase } returns validateEmailUseCase
+            coEvery { coreLogic.prepareUserSession(any()) } returns preparationSuccess(userSessionScope)
+            every { userSessionScope.users } returns userScope
+            every { userSessionScope.client } returns clientScope
             every { coreLogic.getSessionScope(any()).users } returns userScope
             every { userScope.persistSelfUserEmail } returns persistSelfUserEmailUseCase
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
@@ -870,6 +903,7 @@ class LoginEmailViewModelTest {
             every { authenticationScope.login } returns loginUseCase
             every { authenticationScope.requestSecondFactorVerificationCode } returns requestSecondFactorCodeUseCase
             every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
+            every { userSessionScope.logout } returns logoutUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getGlobalScope().session.updateCurrentSession } returns updateCurrentSessionUseCase
@@ -877,6 +911,11 @@ class LoginEmailViewModelTest {
             coEvery { currentSessionUseCase() } returns CurrentSessionResult.Success(AccountInfo.Valid(USER_ID))
             coEvery { countdownTimer.start(any(), any(), any()) } returns Unit
         }
+
+        private fun preparationSuccess(sessionScope: UserSessionScope): PrepareUserSessionResult.Success =
+            mockk<PrepareUserSessionResult.Success>().also { result ->
+                every { result.sessionScope } returns sessionScope
+            }
 
         fun arrange() = this to LoginEmailViewModel(
             LoginNavArgs(loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)),
@@ -937,6 +976,12 @@ class LoginEmailViewModelTest {
             coEvery {
                 currentSessionUseCase()
             } returns result
+        }
+
+        fun withPreparationFailure(reason: UserSessionPreparationFailure) = apply {
+            val result = mockk<PrepareUserSessionResult.Failure>()
+            every { result.reason } returns reason
+            coEvery { coreLogic.prepareUserSession(any()) } returns result
         }
 
         fun withDeleteSessionReturning(result: DeleteSessionUseCase.Result) = apply {

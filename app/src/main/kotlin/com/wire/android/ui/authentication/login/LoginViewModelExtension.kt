@@ -22,6 +22,8 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientParam
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import kotlinx.coroutines.flow.first
@@ -38,15 +40,34 @@ class LoginViewModelExtension(
         capabilities: List<ClientCapability>? = null,
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.getOrRegister(
-            RegisterClientParam(
-                password = password,
-                capabilities = capabilities,
-                secondFactorVerificationCode = secondFactorVerificationCode,
-                modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
-            )
-        )
+        return registerClient(clientScope.getOrRegister, password, secondFactorVerificationCode, capabilities)
     }
+
+    suspend fun registerClient(
+        sessionScope: UserSessionScope,
+        password: String?,
+        secondFactorVerificationCode: String? = null,
+        capabilities: List<ClientCapability>? = null,
+    ): RegisterClientResult = registerClient(
+        sessionScope.client.getOrRegister,
+        password,
+        secondFactorVerificationCode,
+        capabilities,
+    )
+
+    private suspend fun registerClient(
+        getOrRegister: GetOrRegisterClientUseCase,
+        password: String?,
+        secondFactorVerificationCode: String?,
+        capabilities: List<ClientCapability>?,
+    ): RegisterClientResult = getOrRegister(
+        RegisterClientParam(
+            password = password,
+            capabilities = capabilities,
+            secondFactorVerificationCode = secondFactorVerificationCode,
+            modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null
+        )
+    )
 
     internal suspend fun isInitialSyncCompleted(userId: UserId): Boolean =
         userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first()

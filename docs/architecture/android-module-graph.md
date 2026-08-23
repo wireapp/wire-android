@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `5a1eec28f`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `6615392c5`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -101,13 +101,13 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **230**, message composer **41**,
-conversations list **27**, gallery **6**, calling **60**, and feature meetings
+Audited app production-file counts are: conversations **227**, message composer **41**,
+conversations list **28**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **54** unit tests and **1** Android
-test; **83** files import app `R`, **423** distinct fully-qualified `R.type.name`
+test; **82** files import app `R`, **422** distinct fully-qualified `R.type.name`
 IDs occur there, and only the app host configuration adapter still uses
-`BuildConfig`. `:features:conversation` now owns **24** production files and
-**13** unit-test files. The temporary source SCC is conversation,
+`BuildConfig`. `:features:conversation` now owns **29** production files and
+**14** unit-test files. The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
 the existing `:features:meetings` module is not in that SCC.
 

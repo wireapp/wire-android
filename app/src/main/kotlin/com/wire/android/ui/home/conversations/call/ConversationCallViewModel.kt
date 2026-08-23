@@ -47,6 +47,7 @@ import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
@@ -78,7 +79,9 @@ class ConversationCallViewModel @AssistedInject constructor(
         scope = viewModelScope,
         currentAccount = currentAccount,
         observeEstablishedCalls = observeEstablishedCalls,
-        observeParticipantsForConversation = observeParticipantsForConversation,
+        observeConversationParticipantCount = ObserveConversationParticipantCount { conversationId ->
+            observeParticipantsForConversation(conversationId).map { it.allCount }
+        },
         answerCall = answerCall,
         endCall = endCall,
         observeSyncState = observeSyncState,

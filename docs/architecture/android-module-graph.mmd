@@ -2,7 +2,7 @@ graph TD
     App[":app<br/>composition root and runtime adapters"]
     Conversation[":features:conversation"]
     Meetings[":features:meetings"]
-    Calling[":core:calling<br/>proposed; not created"]
+    Calling[":core:calling"]
     Navigation[":core:navigation"]
     Di[":core:di"]
     UiCommon[":core:ui-common"]
@@ -13,7 +13,7 @@ graph TD
 
     App --> Conversation
     App --> Meetings
-    App -. proposed .-> Calling
+    App --> Calling
     App --> Navigation
     App --> Di
     App --> UiCommon
@@ -27,7 +27,7 @@ graph TD
     Meetings --> Navigation
     Meetings --> Di
     Meetings --> UiCommon
-    Calling -. proposed .-> UiCommon
-    Calling -. proposed .-> KaliumLogic
+    Calling --> UiCommon
+    Calling --> KaliumLogic
     KaliumLogic --> KaliumCalling
     KaliumCalling --> Avs

@@ -209,6 +209,7 @@ dependencies {
         kover(dependency)
     }
     implementationWithCoverage(projects.core.uiCommon)
+    implementationWithCoverage(projects.core.calling)
     implementation(projects.core.queryMatching)
     implementation(projects.core.interactionModel)
     implementation(projects.core.designSystem)

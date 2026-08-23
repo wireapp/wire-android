@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.call.JoinOrStartCallManager
+import com.wire.android.ui.home.conversations.call.ObserveConversationParticipantCount
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -37,6 +38,7 @@ import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCas
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -59,7 +61,9 @@ class MeetingsCallViewModel @Inject constructor(
         scope = viewModelScope,
         currentAccount = currentAccount,
         observeEstablishedCalls = observeEstablishedCalls,
-        observeParticipantsForConversation = observeParticipantsForConversation,
+        observeConversationParticipantCount = ObserveConversationParticipantCount { conversationId ->
+            observeParticipantsForConversation(conversationId).map { it.allCount }
+        },
         answerCall = answerCall,
         endCall = endCall,
         observeSyncState = observeSyncState,

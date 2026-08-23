@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, HEAD `4f249fba79616d5bee035d0da081079b426c233c`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, HEAD `cc124ec0d`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed, including all current-empty
@@ -15,7 +15,7 @@ graph TD
     App[":app<br/>composition root and runtime adapters"]
     Conversation[":features:conversation"]
     Meetings[":features:meetings"]
-    Calling[":core:calling<br/>proposed; not created"]
+    Calling[":core:calling"]
     Navigation[":core:navigation"]
     Di[":core:di"]
     UiCommon[":core:ui-common"]
@@ -26,7 +26,7 @@ graph TD
 
     App --> Conversation
     App --> Meetings
-    App -. proposed .-> Calling
+    App --> Calling
     App --> Navigation
     App --> Di
     App --> UiCommon
@@ -40,8 +40,8 @@ graph TD
     Meetings --> Navigation
     Meetings --> Di
     Meetings --> UiCommon
-    Calling -. proposed .-> UiCommon
-    Calling -. proposed .-> KaliumLogic
+    Calling --> UiCommon
+    Calling --> KaliumLogic
     KaliumLogic --> KaliumCalling
     KaliumCalling --> Avs
 ```
@@ -52,11 +52,13 @@ graph TD
 |---|---|---|---|---|---|
 | `:app` | `:features:conversation` | `implementationWithCoverage` | current | Composition of the empty conversation spine | App may depend on a feature |
 | `:app` | `:features:meetings` | `implementationWithCoverage` | current | Composition | App may depend on a feature |
-| `:app` | `:core:navigation`, `:core:di`, `:core:ui-common` | implementation / coverage helper | current | Android runtime composition | Allowed |
+| `:app` | `:core:calling`, `:core:navigation`, `:core:di`, `:core:ui-common` | implementation / coverage helper | current | Android runtime composition | Allowed |
 | `:app` | Kalium Logic | implementation coordinate | current | Application runtime | Allowed |
 | `:features:meetings` | `:core:di`, `:core:navigation`, `:core:ui-common`, `:core:search` | implementation | current | Existing feature dependencies | Feature to core only |
 | `:core:navigation` | `:core:navigation-kmp`, `:core:design-system`, `:core:ui-common` | api / implementation | current | Navigation primitives | Core to core only |
 | `:core:ui-common` | `:core:design-system`, `:core:interaction-model`, `:core:di` | api / implementation | current | Shared Android UI primitives | Core to core only |
+| `:core:calling` | `:core:ui-common`, Kalium Logic, coroutines | api | current | Public `ActionsManager`, Kalium and `Flow` types in the coordinator API | No app/feature/navigation edge |
+| `:core:calling` | Kalium common, Compose Runtime, AndroidX | implementation | current | Coordinator implementation and `VisibleForTesting` | No app/feature/navigation edge |
 | Kalium Logic | Kalium Domain Calling | api | current | Kalium calling domain | Kalium-owned edge |
 | Kalium Domain Calling | AVS Android runtime | Android `api` | current | AVS platform binding | Kalium-owned edge |
 | `:app` | `:core:analytics-enabled` or `:core:analytics-disabled` | flavor implementation | current | App selects analytics runtime by flavor | Runtime adapter only |
@@ -80,7 +82,8 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Seam | Evidence | Required disposition |
 |---|---|---|
 | Conversation/calling/meetings host Metro hub | `ui/calling/CallingManualViewModelFactoryGroup.kt` imports conversation, list, and app meetings-host view models; `CallingMetroViewModelBindings.kt` binds the latter two | Split assembly ownership before terminal move; preserve Metro groups, keys, and scopes |
-| Conversation calling flow used by meetings host | `ui/home/meetings/MeetingsCallViewModel.kt` imports `JoinOrStartCallManager` and `ObserveParticipantsForConversationUseCase` | Extract only the neutral call coordinator and a narrow participant-count port |
+| Conversation calling flow used by meetings host | Conversation and `ui/home/meetings/MeetingsCallViewModel.kt` adapt `ObserveParticipantsForConversationUseCase` to `ObserveConversationParticipantCount` | `:core:calling` owns only coordinator and port; app keeps participant details |
+| Calling coordinator runtime adapters | `JoinOrStartCallRuntimeActions.kt` and `JoinOrStartCallRuntimeDialogs.kt` contain activity/analytics handling and app dialog rendering | App owns runtime adapters; core exposes only action/dialog-state contracts and dialog-response methods |
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
@@ -107,10 +110,11 @@ rg -l 'BuildConfig' app/src/main/kotlin/com/wire/android/ui/home/conversations -
 
 | From | To | Scope | Status | Reason | Allowed rule |
 |---|---|---|---|---|---|
-| `:app` | `:core:calling` | implementation | proposed | App owns call activities, intents, services, and assembly adapters | Allowed when the module exists |
+| `:app` | `:core:calling` | implementation | current | App consumes the shared coordinator | Allowed |
 | `:features:conversation` | `:core:calling` | implementation; `api` only for public Kalium types | proposed | Shared call coordinator/contracts | Allowed when the module exists |
 | `:features:conversation` | `:core:analytics` | implementation | proposed | Feature consumes analytics interface/event model | Allowed |
-| `:core:calling` | `:core:ui-common`, Kalium Logic | implementation; Kalium `api` only if exposed | proposed | Neutral coordinator needs shared UI state and calling use cases | No app/feature edge |
+| `:core:calling` | `:core:ui-common`, Kalium Logic, coroutines | api | current | Public coordinator API exposes `ActionsManager`, Kalium and `Flow` types | No app/feature/navigation edge |
+| `:core:calling` | Kalium common, Compose Runtime, AndroidX | implementation | current | Neutral coordinator implementation and `VisibleForTesting` | No app/feature/navigation edge |
 | `:features:meetings` | `:core:calling` | none currently | conditional | Add only if meetings itself later owns calling state | Never route via conversation |
 | any `:features:*` | `:app` | any | forbidden | App is not reusable domain owner | Boundary test enforces |
 | any `:features:*` | any other `:features:*` | any | forbidden | Independent features share through neutral core/platform | Boundary test enforces |
@@ -122,8 +126,8 @@ Place a declaration in a neutral core/platform module only when a stable source
 contract or implementation has at least two independent consumers. A common
 third-party dependency alone does not justify a wrapper.
 
-- `JoinOrStartCall*` is used by conversation and the meetings flow: extract the
-  neutral coordinator to proposed `:core:calling`. Its participant-count input
+- `JoinOrStartCall*` is used by conversation and the meetings flow: the neutral
+  coordinator now lives in `:core:calling`. Its participant-count input
   must be a narrow port; do not move the conversation participant-details use
   case wholesale.
 - `Membership`, `ChannelConversationAvatar`, and
@@ -133,12 +137,17 @@ third-party dependency alone does not justify a wrapper.
   Flavor-specific `AnonymousAnalyticsManagerImpl` remains an app runtime choice;
   feature code must not depend on that implementation.
 - Call activities/intents, `ServicesManager`, `CallService`, audio services, and
-  AVS renderers remain app Android adapters. They are not core or feature APIs.
+  AVS renderers, `JoinOrStartCallRuntimeActions`, and
+  `JoinOrStartCallRuntimeDialogs` remain app Android adapters. They are not core
+  or feature APIs.
 
 Dependency budgets: a feature may depend on the smallest required core modules and
-Kalium APIs, never app or another feature. Proposed `:core:calling` may depend on
-Kalium Logic and `:core:ui-common` only as proved by the moved coordinator; it has
-zero budget for app, feature, Navigation3 runtime, services, or AVS dependencies.
+Kalium APIs, never app or another feature. `:core:calling` depends on Kalium
+common/logic and `:core:ui-common` only as proved by the moved coordinator. Its
+public ABI deliberately exposes `:core:ui-common`, Kalium Logic, and coroutines
+(`Flow`) with `api`; Kalium common, Compose, and AndroidX remain implementation
+details. It has zero budget for app, feature, Navigation3 runtime, services, or AVS
+dependencies.
 
 ## Update protocol and migration gates
 
@@ -147,7 +156,7 @@ as every module-edge change, refreshes the verified HEAD/date and commands, and
 keeps the boundary test aligned with existing modules only.
 
 1. Keep the feature spine and graph guard green.
-2. Extract the neutral call coordinator and narrow participant-count port.
+2. Keep the neutral call coordinator and narrow participant-count port bounded.
 3. Split app Metro/runtime assembly from conversation/list/meetings-host view
    models without changing binding/group semantics.
 4. Prepare Navigation3 host adapters and produce an exact resource-ID ownership

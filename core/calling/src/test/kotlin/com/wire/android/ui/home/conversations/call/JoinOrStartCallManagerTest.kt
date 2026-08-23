@@ -18,11 +18,8 @@
 package com.wire.android.ui.home.conversations.call
 
 import app.cash.turbine.test
-import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
-import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -267,7 +264,7 @@ class JoinOrStartCallManagerTest {
             advanceUntilIdle()
 
             assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount), awaitItem())
-            coVerify(exactly = 0) { arrangement.observeParticipantsForConversation(any()) }
+            coVerify(exactly = 0) { arrangement.observeConversationParticipantCount(any()) }
             assertIs<JoinOrStartCallScreenDialogType.None>(viewModel.joinOrStartCallViewState.dialogType)
         }
     }
@@ -348,7 +345,7 @@ class JoinOrStartCallManagerTest {
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK
-        lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
+        lateinit var observeConversationParticipantCount: ObserveConversationParticipantCount
 
         @MockK
         lateinit var answerCall: AnswerCallUseCase
@@ -374,7 +371,7 @@ class JoinOrStartCallManagerTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeEstablishedCalls() } returns emptyFlow()
-            coEvery { observeParticipantsForConversation(any()) } returns flowOf(ConversationParticipantsData())
+            coEvery { observeConversationParticipantCount(any()) } returns flowOf(0)
             coEvery { answerCall(conversationId = any()) } returns Unit
             coEvery { endCall(any()) } returns Unit
             every { observeSyncState() } returns flowOf(SyncState.Live)
@@ -395,9 +392,7 @@ class JoinOrStartCallManagerTest {
         }
 
         fun withParticipantsCount(participantsCount: Int) = apply {
-            coEvery { observeParticipantsForConversation(any()) } returns flowOf(
-                ConversationParticipantsData(allParticipantsCount = participantsCount)
-            )
+            coEvery { observeConversationParticipantCount(any()) } returns flowOf(participantsCount)
         }
 
         fun withIsConferenceCallingEnabled(result: ConferenceCallingResult) = apply {
@@ -432,7 +427,7 @@ class JoinOrStartCallManagerTest {
             scope = TestScope(),
             currentAccount = currentAccount,
             observeEstablishedCalls = observeEstablishedCalls,
-            observeParticipantsForConversation = observeParticipantsForConversation,
+            observeConversationParticipantCount = observeConversationParticipantCount,
             answerCall = answerCall,
             endCall = endCall,
             observeSyncState = observeSyncState,
@@ -462,5 +457,11 @@ class JoinOrStartCallManagerTest {
         )
         private const val SMALL_GROUP_PARTICIPANTS_COUNT = 3
         private const val LARGE_GROUP_PARTICIPANTS_COUNT = 6
+    }
+
+    private inline fun <reified T> assertIs(value: Any): T {
+        assertTrue(value is T, "Expected ${T::class.simpleName}, but was ${value::class.simpleName}.")
+        @Suppress("UNCHECKED_CAST")
+        return value as T
     }
 }

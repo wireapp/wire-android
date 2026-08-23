@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsManagerImpl
-import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -44,7 +43,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNot
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
-import io.github.esentsov.PackagePrivate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -58,7 +56,7 @@ class JoinOrStartCallManager(
     private val scope: CoroutineScope,
     val currentAccount: UserId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
+    private val observeConversationParticipantCount: ObserveConversationParticipantCount,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
@@ -103,8 +101,7 @@ class JoinOrStartCallManager(
             }
     }
 
-    @PackagePrivate
-    internal fun joinAnyway(conversationId: ConversationId) {
+    fun joinAnyway(conversationId: ConversationId) {
         scope.launch {
             establishedCallConversationId?.let {
                 endCall(it)
@@ -130,8 +127,7 @@ class JoinOrStartCallManager(
         sendAction(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount))
     }
 
-    @PackagePrivate
-    internal fun initiateCall(conversationId: ConversationId) {
+    fun initiateCall(conversationId: ConversationId) {
         scope.launch {
             initiateCallInternal(conversationId)
         }
@@ -156,16 +152,14 @@ class JoinOrStartCallManager(
         )
     }
 
-    @PackagePrivate
-    internal fun startCallAfterDegradedVerification(conversationId: ConversationId, conversationType: Conversation.Type) {
+    fun startCallAfterDegradedVerification(conversationId: ConversationId, conversationType: Conversation.Type) {
         scope.launch {
             onApplyConversationDegradation(conversationId)
             startCallOrShowDialog(conversationId = conversationId, conversationType = conversationType, shouldCheckParticipantCount = true)
         }
     }
 
-    @PackagePrivate
-    internal fun startCallAfterConfirmingParticipantsCount(conversationId: ConversationId, conversationType: Conversation.Type) {
+    fun startCallAfterConfirmingParticipantsCount(conversationId: ConversationId, conversationType: Conversation.Type) {
         scope.launch {
             startCallIfPossible(conversationId = conversationId, conversationType = conversationType, shouldCheckParticipantCount = false)
         }
@@ -217,7 +211,7 @@ class JoinOrStartCallManager(
     } ?: false
 
     private suspend fun participantsCountForConversation(conversationId: ConversationId): Int =
-        observeParticipantsForConversation(conversationId).firstOrNull()?.allCount ?: 0
+        observeConversationParticipantCount(conversationId).firstOrNull() ?: 0
 
     private suspend fun isConferenceCallingEnabled(conversationId: ConversationId, conversationType: Conversation.Type) =
         isEligibleToStartCall.invoke(conversationId, conversationType)
@@ -233,8 +227,7 @@ class JoinOrStartCallManager(
         joinOrStartCallViewState = joinOrStartCallViewState.copy(dialogType = dialogType)
     }
 
-    @PackagePrivate
-    internal fun dismissDialog() = updateDialogType(JoinOrStartCallScreenDialogType.None)
+    fun dismissDialog() = updateDialogType(JoinOrStartCallScreenDialogType.None)
 
     companion object {
         const val DELAY_END_CALL = 200L

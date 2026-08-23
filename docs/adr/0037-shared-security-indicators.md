@@ -31,6 +31,10 @@ only direct resource-ID call sites switch to `commonR`. Visual output, content
 descriptions, theme variants, previews, and app-specific verification behavior
 are unchanged.
 
+Core source filenames intentionally differ from the remaining app adapter and
+preview filenames. This prevents duplicate `LegalHoldIndicatorKt` and
+`VerifiedIconsKt` JVM facades while preserving the Kotlin package and API.
+
 An app source/resource ownership test protects the split: it asserts the exact
 three shared declarations and five drawable files are core-owned, validates the
 full localized verified-label coverage, checks direct resource consumers use

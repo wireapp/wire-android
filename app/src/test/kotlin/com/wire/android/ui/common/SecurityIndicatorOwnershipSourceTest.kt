@@ -28,8 +28,8 @@ class SecurityIndicatorOwnershipSourceTest {
 
     @Test
     fun neutralIndicatorsAreOwnedByCoreUiCommonWhileAppKeepsOnlyItsPreviewAndKaliumAdapters() {
-        val legalHoldCore = sourceFile("core/ui-common/src/main/kotlin/com/wire/android/ui/common/LegalHoldIndicator.kt")
-        val verifiedIconsCore = sourceFile("core/ui-common/src/main/kotlin/com/wire/android/ui/common/VerifiedIcons.kt")
+        val legalHoldCore = sourceFile("core/ui-common/src/main/kotlin/com/wire/android/ui/common/SharedLegalHoldIndicator.kt")
+        val verifiedIconsCore = sourceFile("core/ui-common/src/main/kotlin/com/wire/android/ui/common/SecurityIndicatorIcons.kt")
         val legalHoldApp = sourceFile("app/src/main/kotlin/com/wire/android/ui/common/LegalHoldIndicator.kt")
         val verifiedIconsApp = sourceFile("app/src/main/kotlin/com/wire/android/ui/common/VerifiedIcons.kt")
 
@@ -47,6 +47,8 @@ class SecurityIndicatorOwnershipSourceTest {
         assertTrue(verifiedIconsApp.contains("fun MLSNotVerifiedIcon("))
         assertFalse(verifiedIconsApp.contains("fun ProteusVerifiedIcon("))
         assertFalse(verifiedIconsApp.contains("fun MLSVerifiedIcon("))
+        assertFalse(File(repositoryRoot(), "core/ui-common/src/main/kotlin/com/wire/android/ui/common/VerifiedIcons.kt").exists())
+        assertFalse(File(repositoryRoot(), "core/ui-common/src/main/kotlin/com/wire/android/ui/common/LegalHoldIndicator.kt").exists())
     }
 
     @Test

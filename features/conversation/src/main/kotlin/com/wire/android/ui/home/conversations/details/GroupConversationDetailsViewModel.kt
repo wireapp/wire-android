@@ -64,10 +64,13 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
+import com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryGroup
 
 @Suppress("TooManyFunctions", "LongParameterList")
-@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = GroupConversationDetailsManualViewModelFactoryGroup::class,
+    factoryMethod = "groupConversationDetailsViewModel",
+)
 class GroupConversationDetailsViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,

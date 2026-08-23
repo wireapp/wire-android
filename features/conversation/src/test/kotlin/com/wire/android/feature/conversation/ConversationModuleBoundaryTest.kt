@@ -190,9 +190,27 @@ class ConversationModuleBoundaryTest {
             ),
             "The participants gateway must keep its dedicated assisted factory type.",
         )
-        assertFalse(graph.contains("ConversationDetailsManualViewModelFactory"))
+        assertFalse(graph.contains("object ConversationDetailsManualViewModelFactoryGroup"))
         assertTrue(viewModel.contains("GroupConversationParticipantsManualViewModelFactoryGroup::class"))
         assertTrue(viewModel.contains("factoryMethod = \"groupConversationParticipantsViewModel\""))
+    }
+
+    @Test
+    fun groupConversationDetailsMetroFactoryIsFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, groupConversationDetailsViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, groupConversationDetailsViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object GroupConversationDetailsManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<GroupConversationDetailsViewModel, GroupConversationDetailsManualViewModelFactory>"
+            ),
+            "The group-details gateway must keep its dedicated assisted factory type.",
+        )
+        assertFalse(graph.contains("object ConversationDetailsManualViewModelFactoryGroup"))
+        assertTrue(viewModel.contains("GroupConversationDetailsManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"groupConversationDetailsViewModel\""))
     }
 
     @Test
@@ -263,6 +281,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsViewModel.kt"
         const val groupConversationParticipantsViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/GroupConversationParticipantsViewModelGraph.kt"
+        const val groupConversationDetailsViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
+        const val groupConversationDetailsViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/GroupConversationDetailsViewModelGraph.kt"
         const val groupParticipantRendererRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
         const val groupParticipantPreviewsRelativePath =
@@ -391,11 +413,20 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/options/GroupConversationOptionsState.kt" to
                     "com.wire.android.ui.home.conversations.details.options",
         )
+        val groupConversationDetailsViewModelSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.details",
+            groupConversationDetailsViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.details",
+            groupConversationDetailsViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
                     participantPresentationStateSources + conversationAssetPathSources + participantRendererSources +
-                    participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources
+                    participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources +
+                    groupConversationDetailsViewModelSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -403,6 +434,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.di.metro.WireAssistedViewModelFactoryGroup",
             "com.wire.android.di.metro.wireAssistedMetroViewModel",
             "com.wire.android.di.metro.wireMetroViewModel",
+            "com.wire.android.appLogger",
             "com.wire.android.feature.conversation.R",
             "com.wire.android.feature.conversation.config.LocalConversationHostConfiguration",
             "com.wire.android.mapper.UIParticipantMapper",
@@ -416,6 +448,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.search.widget.HighlightName",
             "com.wire.android.search.widget.HighlightSubtitle",
             "com.wire.android.ui.common.ArrowRightIcon",
+            "com.wire.android.ui.common.ActionsViewModel",
             "com.wire.android.ui.common.LegalHoldIndicator",
             "com.wire.android.ui.common.MLSVerifiedIcon",
             "com.wire.android.ui.common.ProteusVerifiedIcon",
@@ -441,9 +474,15 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData",
             "com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase",
             "com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs",
+            "com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsManager",
+            "com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsManagerImpl",
             "com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel",
+            "com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavArgs",
+            "com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel",
+            "com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState",
             "com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType",
             "com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType",
+            "com.wire.android.ui.home.newconversation.channelaccess.toUiEnum",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData",
             "com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs",
@@ -452,6 +491,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase",
             "com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationParticipantsManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",
@@ -462,8 +502,10 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.theme.wireTypography",
             "com.wire.android.ui.theme.WireTheme",
             "com.wire.android.util.EMPTY",
+            "com.wire.android.util.AppsUtil",
             "com.wire.android.util.dispatchers.DispatcherProvider",
             "com.wire.android.util.ui.FolderType",
+            "com.wire.android.util.ui.UIText",
             "com.wire.android.util.ui.sectionWithElements",
             "com.wire.android.util.uiReadReceiptDateTime",
             "dev.zacsweers.metro.Inject",

@@ -23,8 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavArgs
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessNavArgs
 import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
@@ -42,14 +40,6 @@ import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
 @WireAssistedViewModelFactoryGroup
 object ConversationDetailsManualViewModelFactoryGroup
-
-@Composable
-fun groupConversationDetailsViewModel(): GroupConversationDetailsViewModel =
-    wireMetroViewModel()
-
-@Composable
-fun groupConversationDetailsViewModel(args: GroupConversationDetailsNavArgs): GroupConversationDetailsViewModel =
-    conversationDetailsAssistedViewModel { groupConversationDetailsViewModel(args) }
 
 @Composable
 fun editConversationMetadataViewModel(): EditConversationMetadataViewModel =

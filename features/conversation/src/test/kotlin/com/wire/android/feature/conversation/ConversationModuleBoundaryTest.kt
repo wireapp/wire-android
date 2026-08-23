@@ -178,6 +178,38 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun conversationInfoMetroFactoryAndArgumentsAreFeatureOwned() {
+        val graph = File(
+            Konsist.projectRootPath,
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/" +
+                    "ConversationInfoViewModelGraph.kt",
+        ).readText()
+        val viewModel = File(
+            Konsist.projectRootPath,
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/info/" +
+                    "ConversationInfoViewModel.kt",
+        ).readText()
+        val args = File(
+            Konsist.projectRootPath,
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/info/" +
+                    "ConversationInfoViewModelArgs.kt",
+        ).readText()
+
+        assertTrue(graph.contains("object ConversationInfoManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<ConversationInfoViewModel, ConversationInfoManualViewModelFactory>"
+            ),
+        )
+        assertTrue(viewModel.contains("ConversationInfoManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"conversationInfoViewModel\""))
+        assertTrue(viewModel.contains("@Assisted private val args: ConversationInfoViewModelArgs"))
+        assertTrue(args.contains("val deletedAccountLabel: UIText"))
+        assertFalse(viewModel.contains("ConversationNavArgs"))
+        assertFalse(viewModel.contains("com.wire.android.R"))
+    }
+
+    @Test
     fun groupConversationParticipantsMetroFactoryIsFeatureOwned() {
         val graph = File(Konsist.projectRootPath, groupConversationParticipantsViewModelGraphRelativePath).readText()
         val viewModel = File(Konsist.projectRootPath, groupConversationParticipantsViewModelRelativePath).readText()
@@ -675,6 +707,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/info/ConversationInfoViewState.kt" to
                     "com.wire.android.ui.home.conversations.info",
         )
+        val conversationInfoViewModelSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/info/ConversationInfoViewModel.kt" to
+                    "com.wire.android.ui.home.conversations.info",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/info/ConversationInfoViewModelArgs.kt" to
+                    "com.wire.android.ui.home.conversations.info",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationInfoViewModelGraph.kt" to
+                    "com.wire.android.ui.home.conversations",
+        )
         val deleteMessageDialogStateSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/delete/DeleteMessageDialogState.kt" to
                     "com.wire.android.ui.home.conversations.delete",
@@ -716,7 +756,8 @@ class ConversationModuleBoundaryTest {
                     createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources +
                     editSelfDeletingMessagesViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
-                    visualMediaParamsSources + conversationInfoStateSources + deleteMessageDialogStateSources + uiMentionSources +
+                    visualMediaParamsSources + conversationInfoStateSources + conversationInfoViewModelSources +
+                    deleteMessageDialogStateSources + uiMentionSources +
                     conversationScreenDialogTypeSources + conversationCallViewStateSources +
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
@@ -725,6 +766,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
             "com.wire.android.di.ConversationViewModelScopedPreviews",
+            "com.wire.android.di.CurrentAccount",
             "com.wire.android.di.metro.WireAssistedViewModelBinding",
             "com.wire.android.di.metro.WireAssistedViewModelFactoryGroup",
             "com.wire.android.di.metro.wireAssistedMetroViewModel",
@@ -793,9 +835,12 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData",
             "com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs",
             "com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModel",
+            "com.wire.android.ui.home.conversations.info.ConversationInfoViewModel",
+            "com.wire.android.ui.home.conversations.info.ConversationInfoViewModelArgs",
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase",
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase",
             "com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.ConversationInfoManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationParticipantsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.UpdateChannelAccessManualViewModelFactoryGroup",
@@ -836,6 +881,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.util.dispatchers.DispatcherProvider",
             "com.wire.android.util.ui.FolderType",
             "com.wire.android.util.ui.UIText",
+            "com.wire.android.util.ui.toUIText",
             "com.wire.android.util.ui.sectionWithElements",
             "com.wire.android.util.uiReadReceiptDateTime",
             "dev.zacsweers.metro.Inject",

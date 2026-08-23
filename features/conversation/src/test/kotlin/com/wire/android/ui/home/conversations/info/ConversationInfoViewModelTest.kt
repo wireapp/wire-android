@@ -21,8 +21,7 @@ package com.wire.android.ui.home.conversations.info
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.composer.mockConversationDetailsGroup
-import com.wire.android.ui.home.conversations.composer.withMockConversationDetailsOneOnOne
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.StorageFailure
@@ -80,7 +79,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a self mentioned user, when getting user data, then return valid result`() = runTest {
         // Given
-        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val groupConversationDetails = conversationInfoGroupDetails("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withMentionedUserId(TestUser.SELF_USER.id)
@@ -94,7 +93,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given an other mentioned user, when getting user data, then return valid result`() = runTest {
         // Given
-        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val groupConversationDetails = conversationInfoGroupDetails("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .withMentionedUserId(TestUser.OTHER_USER.id)
@@ -108,7 +107,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a 1 on 1 conversation, when solving the conversation name, then the name of the other user is used`() = runTest {
         // Given
-        val oneToOneConversationDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
+        val oneToOneConversationDetails = conversationInfoOneOnOneDetails("Other User Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
@@ -129,7 +128,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a 1 on 1 conversation, when solving the conversation name, then unavailable user is used`() = runTest {
         // Given
-        val oneToOneConversationDetails = withMockConversationDetailsOneOnOne(senderName = "", unavailable = true)
+        val oneToOneConversationDetails = conversationInfoOneOnOneDetails(senderName = "", unavailable = true)
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
@@ -138,7 +137,10 @@ class ConversationInfoViewModelTest {
         launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
-            assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
+            assertEquals(
+                UIText.StringResource(commonR.string.username_unavailable_label),
+                viewModel.conversationInfoViewState.conversationName,
+            )
             cancel()
         }
     }
@@ -146,7 +148,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
         // Given
-        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val groupConversationDetails = conversationInfoGroupDetails("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .arrange()
@@ -165,8 +167,8 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given the conversation name is updated, when solving the conversation name, then the state is updated accordingly`() = runTest {
         // Given
-        val firstConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val secondConversationDetails = mockConversationDetailsGroup("Conversation Name Was Updated")
+        val firstConversationDetails = conversationInfoGroupDetails("Conversation Name Goes Here")
+        val secondConversationDetails = conversationInfoGroupDetails("Conversation Name Was Updated")
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(
                 conversationDetails = firstConversationDetails
@@ -209,8 +211,8 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a 1 on 1 conversation, when the user is deleted, then the name of the conversation should be a string resource`() = runTest {
         // Given
-        val oneToOneConversationDetails = withMockConversationDetailsOneOnOne("")
-        val (_, viewModel) = ConversationInfoViewModelArrangement()
+        val oneToOneConversationDetails = conversationInfoOneOnOneDetails("")
+        val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
             )
@@ -218,7 +220,10 @@ class ConversationInfoViewModelTest {
         launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
-            assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
+            assertEquals(
+                arrangement.deletedAccountLabel,
+                viewModel.conversationInfoViewState.conversationName,
+            )
             cancel()
         }
     }
@@ -226,7 +231,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a 1 on 1 conversation, when solving the conversation avatar, then the avatar of the other user is used`() = runTest {
         // Given
-        val conversationDetails = withMockConversationDetailsOneOnOne("", ConversationId("userAssetId", "domain"))
+        val conversationDetails = conversationInfoOneOnOneDetails("", ConversationId("userAssetId", "domain"))
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
@@ -244,7 +249,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a not-verified MLS conversation, then mlsVerificationStatus is not verified`() = runTest {
         // Given
-        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val groupConversationDetails = conversationInfoGroupDetails("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .arrange()
@@ -267,7 +272,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given conversation is MLS verified, then mlsVerificationStatus is verified`() = runTest {
         // Given
-        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val groupConversationDetails = conversationInfoGroupDetails("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .arrange()
@@ -290,7 +295,7 @@ class ConversationInfoViewModelTest {
     @Test
     fun `given a verified Proteus conversation, then proteusVerificationStatus is verified`() = runTest {
         // Given
-        val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val groupConversationDetails = conversationInfoGroupDetails("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .arrange()
@@ -303,8 +308,8 @@ class ConversationInfoViewModelTest {
                 viewModel.conversationInfoViewState.protocolInfo
             )
             assertEquals(
-                groupConversationDetails.conversation.mlsVerificationStatus,
-                viewModel.conversationInfoViewState.mlsVerificationStatus
+                groupConversationDetails.conversation.proteusVerificationStatus,
+                viewModel.conversationInfoViewState.proteusVerificationStatus,
             )
             cancel()
         }

@@ -28,7 +28,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
-import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel
 import com.wire.android.ui.home.conversations.media.ConversationMediaNavArgs
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModel
@@ -163,16 +162,6 @@ fun conversationBannerViewModel(): ConversationBannerViewModel =
 fun conversationBannerViewModel(args: ConversationNavArgs): ConversationBannerViewModel =
     wireAssistedMetroViewModel<ConversationBannerViewModel, ConversationCoreManualViewModelFactory> { _ ->
         conversationBannerViewModel(args)
-    }
-
-@Composable
-fun conversationInfoViewModel(): ConversationInfoViewModel =
-    conversationCoreViewModel()
-
-@Composable
-fun conversationInfoViewModel(args: ConversationNavArgs): ConversationInfoViewModel =
-    wireAssistedMetroViewModel<ConversationInfoViewModel, ConversationCoreManualViewModelFactory> { _ ->
-        conversationInfoViewModel(args)
     }
 
 @Composable

@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `40d603300`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `1ff2ab4ad`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -120,10 +120,10 @@ These are not Gradle edges and must not be mistaken for module ownership:
 
 Audited app production-file counts are: conversations **187**, message composer **40**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
-**27**. The strict app conversations directory has **58** unit tests and **1** Android
+**27**. The strict app conversations directory has **57** unit tests and **1** Android
 test; **80** files import app `R`, **419** distinct fully-qualified `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**73** production files and **22** unit-test files; the first live internal capability,
+**76** production files and **24** unit-test files; the first live internal capability,
 `:features:conversation:folders`, owns **6** production files and **2** unit-test files.
 The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;

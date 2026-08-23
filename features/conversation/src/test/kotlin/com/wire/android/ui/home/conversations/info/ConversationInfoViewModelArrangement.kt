@@ -18,15 +18,23 @@
 
 package com.wire.android.ui.home.conversations.info
 
-import com.wire.android.config.mockUri
+import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
@@ -44,6 +52,7 @@ import kotlinx.coroutines.flow.map
 class ConversationInfoViewModelArrangement {
 
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+    val deletedAccountLabel: UIText = UIText.DynamicString("Deleted account")
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
@@ -65,7 +74,7 @@ class ConversationInfoViewModelArrangement {
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper = qualifiedIdMapper,
-            navigationArgs = ConversationNavArgs(conversationId),
+            args = ConversationInfoViewModelArgs(conversationId, deletedAccountLabel),
             observeConversationDetails = observeConversationDetails,
             createRegularGroup = createRegularGroup,
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
@@ -76,7 +85,6 @@ class ConversationInfoViewModelArrangement {
 
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        mockUri()
 
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
@@ -106,3 +114,41 @@ class ConversationInfoViewModelArrangement {
 
     fun arrange() = this to viewModel
 }
+
+internal fun conversationInfoOneOnOneDetails(
+    senderName: String,
+    senderAvatar: UserAssetId? = null,
+    senderId: UserId = UserId("user-id", "user-domain"),
+    connectionState: ConnectionState = ConnectionState.ACCEPTED,
+    unavailable: Boolean = false,
+) = ConversationDetails.OneOne(
+    conversation = TestConversation.ONE_ON_ONE,
+    otherUser = io.mockk.mockk<OtherUser>().apply {
+        every { id } returns senderId
+        every { name } returns senderName
+        every { previewPicture } returns senderAvatar
+        every { availabilityStatus } returns UserAvailabilityStatus.NONE
+        every { connectionStatus } returns connectionState
+        every { isUnavailableUser } returns unavailable
+        every { deleted } returns false
+        every { accentId } returns 0
+        every { botService } returns null
+        every { userType } returns UserTypeInfo.Regular(UserType.NONE)
+    },
+    userType = UserTypeInfo.Regular(UserType.INTERNAL),
+)
+
+internal fun conversationInfoGroupDetails(
+    conversationName: String,
+    conversationId: ConversationId = ConversationId("someId", "someDomain"),
+    teamId: TeamId? = TestConversation.GROUP().teamId,
+) = ConversationDetails.Group.Regular(
+    conversation = TestConversation.GROUP().copy(
+        name = conversationName,
+        id = conversationId,
+        teamId = teamId,
+    ),
+    isSelfUserMember = true,
+    selfRole = Conversation.Member.Role.Member,
+    wireCell = null,
+)

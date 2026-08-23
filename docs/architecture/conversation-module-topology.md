@@ -49,6 +49,8 @@ The graph shows permitted direction, not mandatory dependencies. Every capabilit
 
 Today `:features:conversation` is the migration facade and temporary owner for the capabilities not yet split. It re-exports `:features:conversation:folders` with an `api` edge, so `:app` continues to depend only on the facade. Folders owns its six package-preserving ViewModel/Metro sources, focused unit test, and 18 localized string entries; app retains folder screens, routes, Navigation 3 entries, and session binding installation.
 
+Conversation info state and its ViewModel now belong to the facade. The feature accepts a platform-suitable `ConversationInfoViewModelArgs`; app keeps the `ConversationNavArgs` adapter, localized deleted-account label selection, unchanged Navigation 3 call, and one-time session binding installation. The `CurrentAccount` qualifier keeps its FQN but is physically owned by `:core:di`, allowing feature ViewModels to consume the composition qualifier without an app dependency.
+
 - Feature-owned ViewModels, immutable UI state, use cases, pure mappers, local resources, and Metro gateway code may move into the current module.
 - `:app` stays the composition root: Navigation 3 runtime registration, activities, services, providers, manifest declarations, flavor selection, app `BuildConfig`, and host-only side effects remain app-owned.
 - Shared code moves first to neutral core when it has independent consumers; it never creates a conversation-to-feature dependency.

@@ -23,12 +23,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentAccount
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.R as commonR
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.ConversationInfoManualViewModelFactoryGroup
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.StorageFailure
@@ -47,11 +47,12 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = ConversationInfoManualViewModelFactoryGroup::class,
+    factoryMethod = "conversationInfoViewModel",
+)
 class ConversationInfoViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -59,16 +60,15 @@ class ConversationInfoViewModel @AssistedInject constructor(
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     @CurrentAccount private val selfUserId: UserId,
-    @Assisted navigationArgs: ConversationNavArgs,
+    @Assisted private val args: ConversationInfoViewModelArgs,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(navigationArgs: ConversationNavArgs): ConversationInfoViewModel
+        fun create(args: ConversationInfoViewModelArgs): ConversationInfoViewModel
     }
 
-    private val conversationNavArgs = navigationArgs
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    val conversationId: QualifiedID = args.conversationId
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState(conversationId))
 
@@ -217,7 +217,7 @@ class ConversationInfoViewModel @AssistedInject constructor(
         when {
             it.isNotEmpty() -> it.toUIText()
             it.isEmpty() && isConversationUnavailable -> UIText.StringResource(commonR.string.username_unavailable_label)
-            else -> UIText.StringResource(R.string.member_name_deleted_label)
+            else -> args.deletedAccountLabel
         }
     }
 

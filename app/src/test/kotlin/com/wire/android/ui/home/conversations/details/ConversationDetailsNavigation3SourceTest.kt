@@ -77,7 +77,7 @@ class ConversationDetailsNavigation3SourceTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsViewModel.kt",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updateappsaccess/UpdateAppsAccessViewModel.kt",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updatechannelaccess/UpdateChannelAccessViewModel.kt",
-            "editguestaccess/EditGuestAccessViewModel.kt",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/EditGuestAccessViewModel.kt",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/createPasswordProtectedGuestLink/CreatePasswordGuestLinkViewModel.kt",
         )
     }

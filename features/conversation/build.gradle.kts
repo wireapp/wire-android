@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.compose.ui.preview)
 
     testImplementation(libs.junit5.core)
+    testImplementation(libs.junit5.params)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.konsist)
     testImplementation(libs.mockk.core)

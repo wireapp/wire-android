@@ -60,10 +60,13 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
+import com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = EditGuestAccessManualViewModelFactoryGroup::class,
+    factoryMethod = "editGuestAccessViewModel",
+)
 class EditGuestAccessViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,

@@ -26,14 +26,13 @@ import com.wire.android.feature.conversation.config.ConversationHostConfiguratio
 import com.wire.android.feature.conversation.config.ConversationRuntimeCapabilities
 import com.wire.android.feature.conversation.config.ConversationUiVisibility
 import com.wire.android.framework.TestConversation
-import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
@@ -266,7 +265,12 @@ class EditGuestAccessViewModelTest {
                         }
                     )
             val conversationResult = ObserveConversationDetailsUseCase.Result.Success(
-                TestConversationDetails.GROUP.copy(conversation = conversation)
+                ConversationDetails.Group.Regular(
+                    conversation = conversation,
+                    isSelfUserMember = true,
+                    selfRole = Conversation.Member.Role.Member,
+                    wireCell = null,
+                )
             )
             val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
                 .withConversationDetails(flowOf(conversationResult))
@@ -320,7 +324,7 @@ class EditGuestAccessViewModelTest {
         val editGuestAccessViewModel: EditGuestAccessViewModel by lazy {
             EditGuestAccessViewModel(
                 navigationArgs = EditGuestAccessNavArgs(
-                    conversationId = OtherUserProfileScreenViewModelTest.CONVERSATION_ID,
+                    conversationId = TestConversation.ID,
                     editGuessAccessParams = EditGuestAccessParams(
                         isGuestAccessAllowed = true,
                         isServicesAllowed = true,

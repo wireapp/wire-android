@@ -34,14 +34,17 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
+import com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryGroup
 @ViewModelScopedPreview
 interface ConversationFoldersVM {
     fun state(): ConversationFoldersState = ConversationFoldersState(persistentListOf())
     fun onFolderSelected(folderId: String) {}
 }
 
-@WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class, factoryMethod = "conversationFoldersViewModel")
+@WireAssistedViewModelBinding(
+    group = ConversationFoldersManualViewModelFactoryGroup::class,
+    factoryMethod = "conversationFoldersViewModel",
+)
 class ConversationFoldersVMImpl @AssistedInject constructor(
     @Assisted private val args: ConversationFoldersStateArgs,
     private val observeUserFoldersUseCase: ObserveUserFoldersUseCase,

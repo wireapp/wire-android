@@ -64,6 +64,7 @@ import com.wire.android.ui.home.conversations.UpdateChannelAccessManualViewModel
 import com.wire.android.ui.home.conversations.CreatePasswordGuestLinkManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.UpdateAppsAccessManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversationslist.ConversationListCallMetroViewModelBindings
 import com.wire.android.ui.home.meetings.MeetingsCallMetroViewModelBindings
@@ -117,6 +118,7 @@ annotation class MetroSessionScope
         CreatePasswordGuestLinkManualViewModelFactoryMetroBindings::class,
         UpdateAppsAccessManualViewModelFactoryMetroBindings::class,
         EditGuestAccessManualViewModelFactoryMetroBindings::class,
+        ConversationFoldersManualViewModelFactoryMetroBindings::class,
         SettingsManualViewModelFactoryMetroBindings::class,
         CallingManualViewModelFactoryMetroBindings::class,
         CallingMetroViewModelBindings::class,

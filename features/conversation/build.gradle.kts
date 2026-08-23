@@ -23,6 +23,7 @@ dependencies {
     api(libs.androidx.lifecycle.viewModel)
     api(libs.coroutines.android)
     api(libs.ktx.dateTime)
+    api(libs.ktx.immutableCollections)
     api(libs.ktx.serialization)
 
     implementation(projects.core.di)

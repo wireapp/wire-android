@@ -286,6 +286,26 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun conversationFoldersMetroFactoryIsFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, conversationFoldersViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, conversationFoldersViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object ConversationFoldersManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModelAs<\n        ConversationFoldersVMImpl,\n        ConversationFoldersVM,\n        ConversationFoldersManualViewModelFactory,"
+            ),
+            "The folders gateway must preserve its assisted implementation and interface types.",
+        )
+        assertTrue(graph.contains("instanceKey = \"conversation_folders_\${args.selectedFolderId}\""))
+        assertTrue(graph.contains("previewProvider = ViewModelScopedPreviews"))
+        assertFalse(graph.contains("object ConversationSearchFolderManualViewModelFactoryGroup"))
+        assertTrue(viewModel.contains("ConversationFoldersManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"conversationFoldersViewModel\""))
+    }
+
+    @Test
     fun participantRendererPreviewsRemainAppOwned() {
         val previews = File(Konsist.projectRootPath, groupParticipantPreviewsRelativePath)
         val renderer = File(Konsist.projectRootPath, groupParticipantRendererRelativePath)
@@ -373,6 +393,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/EditGuestAccessViewModel.kt"
         const val editGuestAccessViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/EditGuestAccessViewModelGraph.kt"
+        const val conversationFoldersViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/folder/ConversationFoldersVM.kt"
+        const val conversationFoldersViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationFoldersViewModelGraph.kt"
         const val groupParticipantRendererRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
         const val groupParticipantPreviewsRelativePath =
@@ -555,19 +579,28 @@ class ConversationModuleBoundaryTest {
             editGuestAccessViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val conversationFoldersViewModelSources = mapOf(
+            conversationFoldersViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.folder",
+            conversationFoldersViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
                     participantPresentationStateSources + conversationAssetPathSources + participantRendererSources +
                     participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources +
                     groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources + conversationDetailsContractSources +
-                    createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources
+                    createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources +
+                    conversationFoldersViewModelSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
+            "com.wire.android.di.ConversationViewModelScopedPreviews",
             "com.wire.android.di.metro.WireAssistedViewModelBinding",
             "com.wire.android.di.metro.WireAssistedViewModelFactoryGroup",
             "com.wire.android.di.metro.wireAssistedMetroViewModel",
+            "com.wire.android.di.metro.wireAssistedMetroViewModelAs",
             "com.wire.android.di.metro.wireMetroViewModel",
             "com.wire.android.appLogger",
             "com.wire.android.feature.conversation.R",
@@ -634,6 +667,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.CreatePasswordGuestLinkManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.UpdateAppsAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs",
             "com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel",
@@ -642,6 +676,9 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs",
             "com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModel",
             "com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessNavArgs",
+            "com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs",
+            "com.wire.android.ui.home.conversations.folder.ConversationFoldersVM",
+            "com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",

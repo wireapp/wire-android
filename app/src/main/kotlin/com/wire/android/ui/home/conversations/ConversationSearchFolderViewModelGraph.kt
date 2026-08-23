@@ -24,9 +24,6 @@ import com.wire.android.di.ViewModelScopedPreviews
 import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireAssistedMetroViewModelAs
 import com.wire.android.di.metro.wireMetroViewModel
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
 import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderArgs
 import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVM
 import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl
@@ -41,21 +38,6 @@ import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
 @WireAssistedViewModelFactoryGroup
 object ConversationSearchFolderManualViewModelFactoryGroup
-
-@Composable
-fun conversationFoldersViewModel(
-    args: ConversationFoldersStateArgs
-): ConversationFoldersVM =
-    wireAssistedMetroViewModelAs<
-        ConversationFoldersVMImpl,
-        ConversationFoldersVM,
-        ConversationSearchFolderManualViewModelFactory,
-        >(
-        instanceKey = "conversation_folders_${args.selectedFolderId}",
-        previewProvider = ViewModelScopedPreviews,
-    ) { _ ->
-        conversationFoldersViewModel(args)
-    }
 
 @Composable
 fun moveConversationToFolderViewModel(

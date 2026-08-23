@@ -189,7 +189,9 @@ class EntryOwnedViewModelGatewaySourceTest {
         ).readText()
 
         assertTrue(home.contains("instanceKey = \"list_\$conversationsSource\""))
-        assertTrue(calling.contains("instanceKey = \"call_\$conversationsSource\""))
+        listOf("incoming", "outgoing", "ongoing", "shared").forEach { callType ->
+            assertTrue(calling.contains("instanceKey = \"${callType}_\$conversationId\""))
+        }
         assertTrue(
             core.contains(
                 "conversationCoreViewModel<ConversationAssetPathsViewModelImpl>(key = conversationKey)"

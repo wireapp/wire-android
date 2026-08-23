@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, HEAD `afdd31920c1863bc03cd71357e52c0281ab5f681`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, HEAD `86feddd3f3f50fc79c1412f834423ef9160b7de2`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -37,6 +37,7 @@ graph TD
     Conversation -. proposed .-> Calling
     Conversation -. proposed .-> Analytics
     Conversation -. proposed .-> Navigation
+    Meetings -. conditional .-> Calling
     Meetings --> Navigation
     Meetings --> Di
     Meetings --> UiCommon
@@ -85,16 +86,18 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Seam | Evidence | Required disposition |
 |---|---|---|
 | Conversation/calling/meetings host Metro hub | `ui/calling/CallingManualViewModelFactoryGroup.kt` imports conversation, list, and app meetings-host view models; `CallingMetroViewModelBindings.kt` binds the latter two | Split assembly ownership before terminal move; preserve Metro groups, keys, and scopes |
-| Conversation calling flow used by meetings host | Conversation and `ui/home/meetings/MeetingsCallViewModel.kt` adapt `ObserveParticipantsForConversationUseCase` to `ObserveConversationParticipantCount` | `:core:calling` owns only coordinator and port; app keeps participant details |
+| Neutral participant count at app-hosted call ViewModels | Conversation and meetings construct `KaliumObserveConversationParticipantCount`; only conversation retains its feature-owned participant aggregation for conversation UI state | Keep the Kalium-only producer and port in `:core:calling`; when ViewModels move, each feature gets its own core edge, never a feature-to-feature edge |
 | Calling coordinator runtime adapters | `JoinOrStartCallRuntimeActions.kt` and `JoinOrStartCallRuntimeDialogs.kt` contain activity/analytics handling and app dialog rendering | App owns runtime adapters; core exposes only action/dialog-state contracts and dialog-response methods |
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited production-file counts are: conversations **250**, message composer **41**,
+Audited app production-file counts are: conversations **238**, message composer **41**,
 conversations list **27**, gallery **6**, calling **60**, and feature meetings
-**27**. The strict conversations directory has **59** unit tests and **1** Android
+**27**. The strict app conversations directory has **55** unit tests and **1** Android
 test; **85** files import app `R`, **428** distinct fully-qualified `R.type.name`
-IDs occur there, and **7** files use `BuildConfig`. The temporary source SCC is conversation,
+IDs occur there, and only the app host configuration adapter still uses
+`BuildConfig`. `:features:conversation` now owns **14** production files and
+**8** unit-test files. The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
 the existing `:features:meetings` module is not in that SCC.
 
@@ -107,6 +110,8 @@ find app/src/androidTest/kotlin/com/wire/android/ui/home/conversations -type f -
 rg -l 'com\.wire\.android\.R|import com\.wire\.android\.R' app/src/main/kotlin/com/wire/android/ui/home/conversations --glob '*.kt' | wc -l
 rg --no-filename -o 'R\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+' app/src/main/kotlin/com/wire/android/ui/home/conversations --glob '*.kt' | sort -u | wc -l
 rg -l 'BuildConfig' app/src/main/kotlin/com/wire/android/ui/home/conversations --glob '*.kt' | wc -l
+find features/conversation/src/main -type f -name '*.kt' | wc -l
+find features/conversation/src/test -type f -name '*.kt' | wc -l
 ```
 
 ## Target rules and proposed edges
@@ -130,9 +135,9 @@ contract or implementation has at least two independent consumers. A common
 third-party dependency alone does not justify a wrapper.
 
 - `JoinOrStartCall*` is used by conversation and the meetings flow: the neutral
-  coordinator now lives in `:core:calling`. Its participant-count input
-  must be a narrow port; do not move the conversation participant-details use
-  case wholesale.
+  coordinator, participant-count port, and Kalium-only count producer live in
+  `:core:calling`. Meetings no longer consumes the conversation participant
+  aggregation; do not move that UI projection into core.
 - `Membership`, `ChannelConversationAvatar`, and
   `RegularGroupConversationAvatar` are already shared in `:core:ui-common` and
   stay there despite legacy `ui.home.conversationslist` package names.

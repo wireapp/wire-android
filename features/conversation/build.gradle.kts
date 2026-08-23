@@ -34,6 +34,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation("androidx.compose.foundation:foundation")
     implementation(libs.compose.material3)
+    implementation(libs.compose.ui.preview)
 
     testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)

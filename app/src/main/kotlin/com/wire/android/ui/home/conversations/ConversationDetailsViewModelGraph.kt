@@ -33,8 +33,6 @@ import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.E
 import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModel
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameNavArgs
-import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
-import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessViewModel
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel
@@ -52,16 +50,6 @@ fun groupConversationDetailsViewModel(): GroupConversationDetailsViewModel =
 @Composable
 fun groupConversationDetailsViewModel(args: GroupConversationDetailsNavArgs): GroupConversationDetailsViewModel =
     conversationDetailsAssistedViewModel { groupConversationDetailsViewModel(args) }
-
-@Composable
-fun groupConversationParticipantsViewModel(): GroupConversationParticipantsViewModel =
-    wireMetroViewModel()
-
-@Composable
-fun groupConversationParticipantsViewModel(
-    args: GroupConversationAllParticipantsNavArgs,
-): GroupConversationParticipantsViewModel =
-    conversationDetailsAssistedViewModel { groupConversationParticipantsViewModel(args) }
 
 @Composable
 fun editConversationMetadataViewModel(): EditConversationMetadataViewModel =

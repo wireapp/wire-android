@@ -31,9 +31,12 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
 import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
+import com.wire.android.ui.home.conversations.GroupConversationParticipantsManualViewModelFactoryGroup
 
-@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = GroupConversationParticipantsManualViewModelFactoryGroup::class,
+    factoryMethod = "groupConversationParticipantsViewModel",
+)
 class GroupConversationParticipantsViewModel @AssistedInject constructor(
     @Assisted navigationArgs: GroupConversationAllParticipantsNavArgs,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,

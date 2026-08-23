@@ -178,6 +178,24 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun groupConversationParticipantsMetroFactoryIsFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, groupConversationParticipantsViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, groupConversationParticipantsViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object GroupConversationParticipantsManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<GroupConversationParticipantsViewModel, GroupConversationParticipantsManualViewModelFactory>"
+            ),
+            "The participants gateway must keep its dedicated assisted factory type.",
+        )
+        assertFalse(graph.contains("ConversationDetailsManualViewModelFactory"))
+        assertTrue(viewModel.contains("GroupConversationParticipantsManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"groupConversationParticipantsViewModel\""))
+    }
+
+    @Test
     fun participantRendererPreviewsRemainAppOwned() {
         val previews = File(Konsist.projectRootPath, groupParticipantPreviewsRelativePath)
         val renderer = File(Konsist.projectRootPath, groupParticipantRendererRelativePath)
@@ -241,6 +259,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/MessageDetailsViewModel.kt"
         const val messageDetailsViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/MessageDetailsViewModelGraph.kt"
+        const val groupConversationParticipantsViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsViewModel.kt"
+        const val groupConversationParticipantsViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/GroupConversationParticipantsViewModelGraph.kt"
         const val groupParticipantRendererRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
         const val groupParticipantPreviewsRelativePath =
@@ -355,11 +377,21 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt" to
                     "com.wire.android.ui.home.conversations.details.participants",
         )
+        val allParticipantsSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationAllParticipantsNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants",
+            groupConversationParticipantsViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.details.participants",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationAllParticipantsScreen.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants",
+            groupConversationParticipantsViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
                     participantPresentationStateSources + conversationAssetPathSources + participantRendererSources +
-                    participantRendererContainerSources
+                    participantRendererContainerSources + allParticipantsSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -368,6 +400,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.di.metro.wireAssistedMetroViewModel",
             "com.wire.android.di.metro.wireMetroViewModel",
             "com.wire.android.feature.conversation.R",
+            "com.wire.android.feature.conversation.config.LocalConversationHostConfiguration",
             "com.wire.android.mapper.UIParticipantMapper",
             "com.wire.android.mapper.UserTypeMapper",
             "com.wire.android.mapper.UsernameMapper",
@@ -389,6 +422,10 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.common.avatar.UserProfileAvatarType",
             "com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators",
             "com.wire.android.ui.common.dimensions",
+            "com.wire.android.ui.common.rememberTopBarElevationState",
+            "com.wire.android.ui.common.scaffold.WireScaffold",
+            "com.wire.android.ui.common.topappbar.NavigationIconType",
+            "com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar",
             "com.wire.android.ui.common.maxTitleLines",
             "com.wire.android.ui.common.divider.WireDivider",
             "com.wire.android.ui.common.progress.WireLinearProgressIndicator",
@@ -398,6 +435,9 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.participants.model.MemberSectionActions",
             "com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState",
             "com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData",
+            "com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase",
+            "com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs",
+            "com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData",
             "com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs",
@@ -405,6 +445,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase",
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase",
             "com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.GroupConversationParticipantsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",
@@ -413,6 +454,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.theme.wireColorScheme",
             "com.wire.android.ui.theme.wireDimensions",
             "com.wire.android.ui.theme.wireTypography",
+            "com.wire.android.ui.theme.WireTheme",
             "com.wire.android.util.EMPTY",
             "com.wire.android.util.dispatchers.DispatcherProvider",
             "com.wire.android.util.ui.FolderType",

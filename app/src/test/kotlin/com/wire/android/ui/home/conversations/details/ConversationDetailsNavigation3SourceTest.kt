@@ -59,7 +59,12 @@ class ConversationDetailsNavigation3SourceTest {
     private fun source(path: String): String {
         val root = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
             .first { File(it, "app/src/main/kotlin").isDirectory }
-        return File(root, "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/$path")
+        val file = if (path.startsWith("features/")) {
+            File(root, path)
+        } else {
+            File(root, "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/$path")
+        }
+        return file
             .also { assertTrue(it.isFile) }
             .readText()
     }
@@ -69,7 +74,7 @@ class ConversationDetailsNavigation3SourceTest {
             "GroupConversationDetailsViewModel.kt",
             "metadata/EditConversationMetadataViewModel.kt",
             "editselfdeletingmessages/EditSelfDeletingMessagesViewModel.kt",
-            "participants/GroupConversationParticipantsViewModel.kt",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsViewModel.kt",
             "updateappsaccess/UpdateAppsAccessViewModel.kt",
             "updatechannelaccess/UpdateChannelAccessViewModel.kt",
             "editguestaccess/EditGuestAccessViewModel.kt",

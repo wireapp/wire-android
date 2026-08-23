@@ -33,8 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.R
 import com.wire.android.feature.conversation.config.LocalConversationHostConfiguration
+import com.wire.android.feature.conversation.R
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -44,7 +44,7 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
-internal fun GroupConversationAllParticipantsRouteScreen(
+fun GroupConversationAllParticipantsRouteScreen(
     viewModel: GroupConversationParticipantsViewModel,
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,

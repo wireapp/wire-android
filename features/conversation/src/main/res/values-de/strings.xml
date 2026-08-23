@@ -1,4 +1,5 @@
 <resources>
+    <string name="conversation_details_participants_title">Teilnehmer</string>
     <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
     <string name="conversation_details_conversation_members">MITGLIEDER (%d)</string>
     <string name="conversation_details_conversation_apps">APPS (%d)</string>

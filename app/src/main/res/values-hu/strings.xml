@@ -499,7 +499,6 @@
     <string name="conversation_details_participants_info">A beszélgetésnek %s résztvevője van.\nAkár 500 fő is csatlakozhat egy beszélgetéshez.</string>
     <string name="conversation_details_participants_count">%s résztvevő</string>
     <string name="conversation_details_show_all_participants">Mutassa az összes résztvevőt (%d)</string>
-    <string name="conversation_details_participants_title">A beszélgetés résztvevői</string>
     <string name="conversation_details_conversation_participants_add">Résztvevők hozzáadása</string>
     <string name="conversation_details_is_classified">BIZTONSÁGI SZINT: VS-NfD</string>
     <string name="conversation_details_is_not_classified">BIZTONSÁGI SZINT: NYÍLT</string>

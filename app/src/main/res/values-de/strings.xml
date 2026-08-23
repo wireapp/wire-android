@@ -579,7 +579,6 @@
     <string name="conversation_details_participants_info">Diese Unterhaltung hat %s Teilnehmer.\nBis zu 500 Personen können an einer Unterhaltung teilnehmen.</string>
     <string name="conversation_details_participants_count">%s Teilnehmer</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
-    <string name="conversation_details_participants_title">Teilnehmer</string>
     <string name="conversation_details_conversation_participants_add">Teilnehmer hinzufügen</string>
     <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>

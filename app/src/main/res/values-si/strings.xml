@@ -1542,7 +1542,6 @@
     <string name="new_folder_error_name_exist">මෙම නමින් ෆෝල්ඩරයක් දැනටමත් පවතී. කරුණාකර වෙනත් නමක් තෝරන්න.</string>
     <string name="new_folder_error_name_empty">කරුණාකර ෆෝල්ඩරයේ නම ඇතුළත් කරන්න.</string>
     <string name="new_folder_error_name_exceeded_limit_error">අවම වශයෙන් අක්ෂර 1ක් සහ උපරිමය අක්ෂර 64ක්</string>
-    <string name="new_folder_failure">“%1$s” ෆෝල්ඩරය එක් කිරීමට නොහැකි විය.</string>
     <string name="press_enter_to_send_title">යැවීමට Enter ඔබන්න</string>
     <string name="press_enter_to_send_text">මෙය ක්‍රියාත්මක විට, ඔබට ඔබේ යතුරුපුවරුවේ Enter යතුර භාවිතයෙන් පණිවිඩ යැවිය හැක.</string>
     <string name="customization_options_header_title">විකල්ප</string>

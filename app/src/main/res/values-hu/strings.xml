@@ -1533,7 +1533,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="new_folder_error_name_exist">Már van ilyen nevű mappa. Válasszon másik nevet.</string>
     <string name="new_folder_error_name_empty">Adja meg a mappa nevét.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Legalább 1, legfeljebb 64 karakter</string>
-    <string name="new_folder_failure">\"%1$s\" mappa létrehozása nem sikerült</string>
     <string name="press_enter_to_send_title">Nyomja meg az Entert a küldéshez</string>
     <string name="press_enter_to_send_text">Ha ez aktív, a billentyűzet Enter gombjával tud üzenetet küldeni.</string>
     <string name="customization_options_header_title">Beállítások</string>

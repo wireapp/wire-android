@@ -1758,7 +1758,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="new_folder_error_name_exist">Es gibt bereits einen Ordner mit diesem Namen. Bitte wählen Sie einen anderen Namen.</string>
     <string name="new_folder_error_name_empty">Bitte Ordnernamen eingeben.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Mindestens ein und höchstens 64 Zeichen</string>
-    <string name="new_folder_failure">Ordner “%1$s” konnte nicht hinzugefügt werden</string>
     <string name="press_enter_to_send_title">Enter zum Senden drücken</string>
     <string name="press_enter_to_send_text">Wenn diese Option aktiviert ist, können Sie Nachrichten mit der Eingabetaste auf Ihrer Tastatur senden.</string>
     <string name="customization_options_header_title">Optionen</string>

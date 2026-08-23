@@ -1878,7 +1878,6 @@
     <string name="new_folder_error_name_exist">Папка с таким названием уже существует. Пожалуйста, выберите другое имя.</string>
     <string name="new_folder_error_name_empty">Пожалуйста, введите название папки.</string>
     <string name="new_folder_error_name_exceeded_limit_error">Минимум 1 и не более 64 символов</string>
-    <string name="new_folder_failure">Папка “%1$s” не может быть добавлена</string>
     <string name="press_enter_to_send_title">Нажмите Enter для отправки</string>
     <string name="press_enter_to_send_text">Когда эта опция включена, вы можете отправлять сообщения с помощью клавиши Enter на клавиатуре.</string>
     <string name="customization_options_header_title">Настройки</string>

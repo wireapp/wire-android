@@ -21,8 +21,6 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
 import com.wire.android.di.metro.wireAssistedMetroViewModel
-import com.wire.android.di.metro.wireMetroViewModel
-import com.wire.android.ui.home.conversations.folder.NewFolderViewModel
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
@@ -33,10 +31,6 @@ import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
 @WireAssistedViewModelFactoryGroup
 object ConversationSearchFolderManualViewModelFactoryGroup
-
-@Composable
-fun newFolderViewModel(): NewFolderViewModel =
-    wireMetroViewModel()
 
 @Composable
 fun addMembersToConversationViewModel(args: AddMembersSearchNavArgs): AddMembersToConversationViewModel =

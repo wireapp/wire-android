@@ -95,7 +95,7 @@ class UpdateChannelAccessViewModelTest {
         private val viewModel by lazy {
             UpdateChannelAccessViewModel(
                 updateChannelAddPermission = updateChannelAddPermission,
-                navigationArgs = UpdateChannelAccessArgs("conversationId"),
+                navigationArgs = UpdateChannelAccessViewModelArgs("conversationId"),
                 qualifiedIdMapper = QualifiedIdMapper(TestUser.SELF_USER_ID)
             )
         }

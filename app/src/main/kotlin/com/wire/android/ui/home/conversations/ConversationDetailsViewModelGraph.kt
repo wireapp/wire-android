@@ -33,8 +33,6 @@ import com.wire.android.ui.home.conversations.details.metadata.EditConversationM
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameNavArgs
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessViewModel
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs
-import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel
-import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
@@ -58,14 +56,6 @@ fun editSelfDeletingMessagesViewModel(
     args: EditSelfDeletingMessagesNavArgs,
 ): EditSelfDeletingMessagesViewModel =
     conversationDetailsAssistedViewModel { editSelfDeletingMessagesViewModel(args) }
-
-@Composable
-fun updateChannelAccessViewModel(): UpdateChannelAccessViewModel =
-    wireMetroViewModel()
-
-@Composable
-fun updateChannelAccessViewModel(args: UpdateChannelAccessArgs): UpdateChannelAccessViewModel =
-    conversationDetailsAssistedViewModel { updateChannelAccessViewModel(args) }
 
 @Composable
 fun updateAppsAccessViewModel(): UpdateAppsAccessViewModel =

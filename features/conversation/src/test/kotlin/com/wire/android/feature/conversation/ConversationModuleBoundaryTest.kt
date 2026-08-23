@@ -214,6 +214,24 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun updateChannelAccessMetroFactoryIsFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, updateChannelAccessViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, updateChannelAccessViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object UpdateChannelAccessManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<UpdateChannelAccessViewModel, UpdateChannelAccessManualViewModelFactory>"
+            ),
+            "The channel-access gateway must keep its dedicated assisted factory type.",
+        )
+        assertFalse(graph.contains("object ConversationDetailsManualViewModelFactoryGroup"))
+        assertTrue(viewModel.contains("UpdateChannelAccessManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"updateChannelAccessViewModel\""))
+    }
+
+    @Test
     fun participantRendererPreviewsRemainAppOwned() {
         val previews = File(Konsist.projectRootPath, groupParticipantPreviewsRelativePath)
         val renderer = File(Konsist.projectRootPath, groupParticipantRendererRelativePath)
@@ -285,6 +303,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
         const val groupConversationDetailsViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/GroupConversationDetailsViewModelGraph.kt"
+        const val updateChannelAccessViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updatechannelaccess/UpdateChannelAccessViewModel.kt"
+        const val updateChannelAccessViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/UpdateChannelAccessViewModelGraph.kt"
         const val groupParticipantRendererRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
         const val groupParticipantPreviewsRelativePath =
@@ -421,12 +443,20 @@ class ConversationModuleBoundaryTest {
             groupConversationDetailsViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val updateChannelAccessViewModelSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updatechannelaccess/UpdateChannelAccessViewModelArgs.kt" to
+                    "com.wire.android.ui.home.conversations.details.updatechannelaccess",
+            updateChannelAccessViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.details.updatechannelaccess",
+            updateChannelAccessViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
                     participantPresentationStateSources + conversationAssetPathSources + participantRendererSources +
                     participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources +
-                    groupConversationDetailsViewModelSources
+                    groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -482,6 +512,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState",
             "com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType",
             "com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType",
+            "com.wire.android.ui.home.newconversation.channelaccess.toDomainEnum",
             "com.wire.android.ui.home.newconversation.channelaccess.toUiEnum",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData",
@@ -492,6 +523,9 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationParticipantsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.UpdateChannelAccessManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel",
+            "com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModelArgs",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",

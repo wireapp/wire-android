@@ -20,7 +20,7 @@ import com.wire.android.ui.home.conversations.details.metadata.EditConversationN
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessParams
-import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
+import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModelArgs
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -49,7 +49,7 @@ internal fun UpdateAppsAccessRoute.toViewModelArgs() = UpdateAppsAccessNavArgs(
     ),
 )
 
-internal fun ChannelAccessOnUpdateRoute.toViewModelArgs() = UpdateChannelAccessArgs(
+internal fun ChannelAccessOnUpdateRoute.toViewModelArgs() = UpdateChannelAccessViewModelArgs(
     conversationId = conversationId.toQualifiedId().toString(),
     accessType = accessType.toLegacy(),
     permissionType = permissionType.toLegacy(),

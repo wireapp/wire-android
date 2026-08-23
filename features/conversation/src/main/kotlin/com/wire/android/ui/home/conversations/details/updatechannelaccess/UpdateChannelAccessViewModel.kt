@@ -34,17 +34,20 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
 import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
+import com.wire.android.ui.home.conversations.UpdateChannelAccessManualViewModelFactoryGroup
 
-@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = UpdateChannelAccessManualViewModelFactoryGroup::class,
+    factoryMethod = "updateChannelAccessViewModel",
+)
 class UpdateChannelAccessViewModel @AssistedInject constructor(
-    @Assisted navigationArgs: UpdateChannelAccessArgs,
+    @Assisted navigationArgs: UpdateChannelAccessViewModelArgs,
     val updateChannelAddPermission: UpdateChannelAddPermissionUseCase,
     private val qualifiedIdMapper: QualifiedIdMapper,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(navigationArgs: UpdateChannelAccessArgs): UpdateChannelAccessViewModel
+        fun create(navigationArgs: UpdateChannelAccessViewModelArgs): UpdateChannelAccessViewModel
     }
 
     var accessType: ChannelAccessType by mutableStateOf(navigationArgs.accessType)

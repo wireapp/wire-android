@@ -76,7 +76,7 @@ class ConversationDetailsNavigation3SourceTest {
             "editselfdeletingmessages/EditSelfDeletingMessagesViewModel.kt",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsViewModel.kt",
             "updateappsaccess/UpdateAppsAccessViewModel.kt",
-            "updatechannelaccess/UpdateChannelAccessViewModel.kt",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updatechannelaccess/UpdateChannelAccessViewModel.kt",
             "editguestaccess/EditGuestAccessViewModel.kt",
             "editguestaccess/createPasswordProtectedGuestLink/CreatePasswordGuestLinkViewModel.kt",
         )

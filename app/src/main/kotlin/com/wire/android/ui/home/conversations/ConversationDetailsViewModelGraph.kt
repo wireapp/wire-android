@@ -29,8 +29,6 @@ import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.E
 import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModel
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameNavArgs
-import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessViewModel
-import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
@@ -54,14 +52,6 @@ fun editSelfDeletingMessagesViewModel(
     args: EditSelfDeletingMessagesNavArgs,
 ): EditSelfDeletingMessagesViewModel =
     conversationDetailsAssistedViewModel { editSelfDeletingMessagesViewModel(args) }
-
-@Composable
-fun updateAppsAccessViewModel(): UpdateAppsAccessViewModel =
-    wireMetroViewModel()
-
-@Composable
-fun updateAppsAccessViewModel(args: UpdateAppsAccessNavArgs): UpdateAppsAccessViewModel =
-    conversationDetailsAssistedViewModel { updateAppsAccessViewModel(args) }
 
 @Composable
 fun editGuestAccessViewModel(): EditGuestAccessViewModel =

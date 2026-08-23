@@ -250,6 +250,24 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun updateAppsAccessMetroFactoryIsFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, updateAppsAccessViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, updateAppsAccessViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object UpdateAppsAccessManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<UpdateAppsAccessViewModel, UpdateAppsAccessManualViewModelFactory>"
+            ),
+            "The apps-access gateway must keep its dedicated assisted factory type.",
+        )
+        assertFalse(graph.contains("object ConversationDetailsManualViewModelFactoryGroup"))
+        assertTrue(viewModel.contains("UpdateAppsAccessManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"updateAppsAccessViewModel\""))
+    }
+
+    @Test
     fun participantRendererPreviewsRemainAppOwned() {
         val previews = File(Konsist.projectRootPath, groupParticipantPreviewsRelativePath)
         val renderer = File(Konsist.projectRootPath, groupParticipantRendererRelativePath)
@@ -329,6 +347,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/createPasswordProtectedGuestLink/CreatePasswordGuestLinkViewModel.kt"
         const val createPasswordGuestLinkViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/CreatePasswordGuestLinkViewModelGraph.kt"
+        const val updateAppsAccessViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updateappsaccess/UpdateAppsAccessViewModel.kt"
+        const val updateAppsAccessViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/UpdateAppsAccessViewModelGraph.kt"
         const val groupParticipantRendererRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
         const val groupParticipantPreviewsRelativePath =
@@ -499,13 +521,19 @@ class ConversationModuleBoundaryTest {
             createPasswordGuestLinkViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val updateAppsAccessViewModelSources = mapOf(
+            updateAppsAccessViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.details.updateappsaccess",
+            updateAppsAccessViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
                     participantPresentationStateSources + conversationAssetPathSources + participantRendererSources +
                     participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources +
                     groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources + conversationDetailsContractSources +
-                    createPasswordGuestLinkViewModelSources
+                    createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -575,10 +603,13 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.UpdateChannelAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.CreatePasswordGuestLinkManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.UpdateAppsAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs",
             "com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel",
             "com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModelArgs",
+            "com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessViewModel",
+            "com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",

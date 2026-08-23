@@ -17,8 +17,8 @@
  */
 package com.wire.android.ui.common.bottomsheet.conversation
 
+import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.details.GroupDetailsViewModelTest.Companion.testGroup
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -154,11 +154,11 @@ class ConversationOptionsDataTest {
         blockingState: BlockingState = BlockingState.NOT_BLOCKED,
         isUserDeleted: Boolean = false,
     ): ConversationOptionsData {
-        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val conversation = TestConversation.GROUP().copy(teamId = TeamId("team_id"))
         return ConversationOptionsData(
             title = UIText.DynamicString("notEmpty"),
-            conversationId = details.conversation.id,
-            mutingConversationState = details.conversation.mutedStatus,
+            conversationId = conversation.id,
+            mutingConversationState = conversation.mutedStatus,
             conversationTypeDetail = ConversationTypeDetail.Private(
                 avatarAsset = null,
                 userId = TestUser.USER_ID,
@@ -166,7 +166,7 @@ class ConversationOptionsDataTest {
                 isUserDeleted = isUserDeleted
             ),
             selfRole = Conversation.Member.Role.Member,
-            isTeamConversation = details.conversation.isTeamGroup(),
+            isTeamConversation = conversation.isTeamGroup(),
             isArchived = false,
             protocol = Conversation.ProtocolInfo.Proteus,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,
@@ -181,14 +181,14 @@ class ConversationOptionsDataTest {
         title: String = "Conversation Name",
         selfRole: Conversation.Member.Role? = Conversation.Member.Role.Member,
     ): ConversationOptionsData {
-        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val conversation = TestConversation.GROUP().copy(teamId = TeamId("team_id"))
         return ConversationOptionsData(
             title = UIText.DynamicString(title),
-            conversationId = details.conversation.id,
-            mutingConversationState = details.conversation.mutedStatus,
-            conversationTypeDetail = ConversationTypeDetail.Group.Regular(details.conversation.id, false),
+            conversationId = conversation.id,
+            mutingConversationState = conversation.mutedStatus,
+            conversationTypeDetail = ConversationTypeDetail.Group.Regular(conversation.id, false),
             selfRole = selfRole,
-            isTeamConversation = details.conversation.isTeamGroup(),
+            isTeamConversation = conversation.isTeamGroup(),
             isArchived = false,
             protocol = Conversation.ProtocolInfo.Proteus,
             mlsVerificationStatus = Conversation.VerificationStatus.NOT_VERIFIED,

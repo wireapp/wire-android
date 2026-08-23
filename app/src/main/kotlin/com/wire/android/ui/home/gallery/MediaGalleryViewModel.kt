@@ -51,8 +51,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class MediaGalleryViewModel @AssistedInject constructor(
     @Assisted private val navigationArgs: MediaGalleryNavArgs,
     private val getConversationDetails: ObserveConversationDetailsUseCase,

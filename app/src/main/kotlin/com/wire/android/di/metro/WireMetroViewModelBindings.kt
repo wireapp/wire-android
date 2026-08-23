@@ -33,55 +33,17 @@ import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
 import com.wire.android.ui.home.appLock.unlock.EnterLockScreenViewModel
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactory
-import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactory
-import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
-import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
-import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavArgs
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessNavArgs
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModel
-import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
-import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel
-import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs
-import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesViewModel
-import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModel
-import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameNavArgs
-import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs
-import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
-import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs
-import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessViewModel
-import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
-import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
-import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel
-import com.wire.android.ui.home.conversations.media.ConversationMediaNavArgs
-import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavArgs
-import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModel
-import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs
-import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModel
-import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModel
-import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelImpl
-import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
-import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
-import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.conversations.ScopedMessageManualViewModelFactory
-import com.wire.android.ui.home.gallery.MediaGalleryNavArgs
-import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
 import com.wire.android.ui.home.settings.SettingsViewModel
-import com.wire.android.ui.home.settings.SettingsManualViewModelFactory
 import com.wire.android.ui.home.settings.account.MyAccountViewModel
 import com.wire.android.ui.home.settings.account.color.ChangeUserColorViewModel
 import com.wire.android.ui.home.settings.account.deleteAccount.DeleteAccountViewModel
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameViewModel
 import com.wire.android.ui.home.settings.account.email.updateEmail.ChangeEmailViewModel
-import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModel
-import com.wire.android.ui.home.settings.account.email.verifyEmail.VerifyEmailViewModelArgs
 import com.wire.android.ui.home.settings.account.handle.ChangeHandleViewModel
 import com.wire.android.ui.home.settings.appearance.CustomizationViewModel
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModel
@@ -92,10 +54,6 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModel
 import com.wire.android.ui.settings.devices.SelfDevicesViewModel
-import com.wire.android.ui.settings.devices.DeviceDetailsViewModel
-import com.wire.android.ui.settings.devices.DeviceDetailsViewModelArgs
-import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModel
-import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModelArgs
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
@@ -112,15 +70,8 @@ import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActio
 import com.wire.android.ui.home.messagecomposer.attachments.IsFileSharingEnabledViewModelImpl
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModel
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
-import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModel
-import com.wire.android.ui.userprofile.other.OtherUserProfileViewModelArgs
-import com.wire.android.ui.userprofile.qr.SelfQRCodeViewModel
-import com.wire.android.ui.userprofile.qr.SelfQrCodeViewModelArgs
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
-import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelArgs
-import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelImpl
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
@@ -262,78 +213,6 @@ object WireMetroViewModelBindings {
 
     @Provides
     @IntoMap
-    @ManualViewModelAssistedFactoryKey(ConversationCoreManualViewModelFactory::class)
-    @Suppress("LongParameterList")
-    fun conversationCoreManualViewModelFactory(
-        conversationMessagesFactory: ConversationMessagesViewModel.Factory,
-        messageComposerFactory: MessageComposerViewModel.Factory,
-        sendMessageFactory: SendMessageViewModel.Factory,
-        messageDraftFactory: MessageDraftViewModel.Factory,
-        messageAttachmentsFactory: MessageAttachmentsViewModel.Factory,
-        conversationMigrationFactory: ConversationMigrationViewModel.Factory,
-        conversationBannerFactory: ConversationBannerViewModel.Factory,
-        conversationInfoFactory: com.wire.android.ui.home.conversations.info.ConversationInfoViewModel.Factory,
-        multipartAttachmentsFactory: MultipartAttachmentsViewModelImpl.Factory,
-        mediaGalleryFactory: MediaGalleryViewModel.Factory,
-        conversationAssetMessagesFactory: ConversationAssetMessagesViewModel.Factory,
-        imagesPreviewFactory: ImagesPreviewViewModel.Factory,
-        messageDetailsFactory: MessageDetailsViewModel.Factory,
-    ): ManualViewModelAssistedFactory =
-        object : ConversationCoreManualViewModelFactory {
-            override fun conversationMessagesViewModel(args: ConversationNavArgs) =
-                conversationMessagesFactory.create(args)
-            override fun messageComposerViewModel(args: ConversationNavArgs) =
-                messageComposerFactory.create(args)
-            override fun sendMessageViewModel(args: ConversationNavArgs) =
-                sendMessageFactory.create(args)
-            override fun messageDraftViewModel(args: ConversationNavArgs) =
-                messageDraftFactory.create(args)
-            override fun messageAttachmentsViewModel(args: ConversationNavArgs) =
-                messageAttachmentsFactory.create(args)
-            override fun conversationMigrationViewModel(args: ConversationNavArgs) =
-                conversationMigrationFactory.create(args)
-            override fun conversationBannerViewModel(args: ConversationNavArgs) =
-                conversationBannerFactory.create(args)
-            override fun conversationInfoViewModel(args: ConversationNavArgs) =
-                conversationInfoFactory.create(args)
-            override fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModelImpl =
-                multipartAttachmentsFactory.create(conversationId)
-            override fun mediaGalleryViewModel(args: MediaGalleryNavArgs) = mediaGalleryFactory.create(args)
-            override fun conversationAssetMessagesViewModel(args: ConversationMediaNavArgs) =
-                conversationAssetMessagesFactory.create(args)
-            override fun imagesPreviewViewModel(args: ImagesPreviewNavArgs) = imagesPreviewFactory.create(args)
-            override fun messageDetailsViewModel(args: MessageDetailsNavArgs) = messageDetailsFactory.create(args)
-        }
-
-    @Provides
-    @IntoMap
-    @ManualViewModelAssistedFactoryKey(ConversationDetailsManualViewModelFactory::class)
-    @Suppress("LongParameterList")
-    fun conversationDetailsManualViewModelFactory(
-        groupDetailsFactory: GroupConversationDetailsViewModel.Factory,
-        participantsFactory: GroupConversationParticipantsViewModel.Factory,
-        metadataFactory: EditConversationMetadataViewModel.Factory,
-        selfDeletingFactory: EditSelfDeletingMessagesViewModel.Factory,
-        channelAccessFactory: UpdateChannelAccessViewModel.Factory,
-        appsAccessFactory: UpdateAppsAccessViewModel.Factory,
-        guestAccessFactory: EditGuestAccessViewModel.Factory,
-        guestLinkFactory: CreatePasswordGuestLinkViewModel.Factory,
-    ): ManualViewModelAssistedFactory = object : ConversationDetailsManualViewModelFactory {
-        override fun groupConversationDetailsViewModel(args: GroupConversationDetailsNavArgs) =
-            groupDetailsFactory.create(args)
-        override fun groupConversationParticipantsViewModel(args: GroupConversationAllParticipantsNavArgs) =
-            participantsFactory.create(args)
-        override fun editConversationMetadataViewModel(args: EditConversationNameNavArgs) = metadataFactory.create(args)
-        override fun editSelfDeletingMessagesViewModel(args: EditSelfDeletingMessagesNavArgs) =
-            selfDeletingFactory.create(args)
-        override fun updateChannelAccessViewModel(args: UpdateChannelAccessArgs) = channelAccessFactory.create(args)
-        override fun updateAppsAccessViewModel(args: UpdateAppsAccessNavArgs) = appsAccessFactory.create(args)
-        override fun editGuestAccessViewModel(args: EditGuestAccessNavArgs) = guestAccessFactory.create(args)
-        override fun createPasswordGuestLinkViewModel(args: CreatePasswordGuestLinkNavArgs) = guestLinkFactory.create(args)
-    }
-
-    @Provides
-    @IntoMap
     @ViewModelKey(CheckAssetRestrictionsViewModel::class)
     fun checkAssetRestrictionsViewModel(viewModel: CheckAssetRestrictionsViewModel): ViewModel = viewModel
 
@@ -431,26 +310,4 @@ object WireMetroViewModelBindings {
     @IntoMap
     @ViewModelKey(TeamMigrationViewModel::class)
     fun teamMigrationViewModel(viewModel: TeamMigrationViewModel): ViewModel = viewModel
-
-    @Provides
-    @IntoMap
-    @ManualViewModelAssistedFactoryKey(SettingsManualViewModelFactory::class)
-    @Suppress("LongParameterList")
-    fun settingsManualViewModelFactory(
-        verifyEmailFactory: VerifyEmailViewModel.Factory,
-        deviceDetailsFactory: DeviceDetailsViewModel.Factory,
-        certificateDetailsFactory: E2eiCertificateDetailsViewModel.Factory,
-        selfQrCodeFactory: SelfQRCodeViewModel.Factory,
-        otherUserProfileFactory: OtherUserProfileScreenViewModel.Factory,
-        serviceDetailsFactory: ServiceDetailsViewModelImpl.Factory,
-    ): ManualViewModelAssistedFactory = object : SettingsManualViewModelFactory {
-        override fun verifyEmailViewModel(arguments: VerifyEmailViewModelArgs) = verifyEmailFactory.create(arguments)
-        override fun deviceDetailsViewModel(arguments: DeviceDetailsViewModelArgs) = deviceDetailsFactory.create(arguments)
-        override fun e2eiCertificateDetailsViewModel(arguments: E2eiCertificateDetailsViewModelArgs) =
-            certificateDetailsFactory.create(arguments)
-        override fun selfQRCodeViewModel(arguments: SelfQrCodeViewModelArgs) = selfQrCodeFactory.create(arguments)
-        override fun otherUserProfileScreenViewModel(arguments: OtherUserProfileViewModelArgs) =
-            otherUserProfileFactory.create(arguments)
-        override fun serviceDetailsViewModel(arguments: ServiceDetailsViewModelArgs) = serviceDetailsFactory.create(arguments)
-    }
 }

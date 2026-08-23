@@ -32,7 +32,10 @@ import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class ImagesPreviewViewModel @AssistedInject constructor(
     @Assisted private val navigationArgs: ImagesPreviewNavArgs,
     private val handleUriAsset: HandleUriAssetUseCase,

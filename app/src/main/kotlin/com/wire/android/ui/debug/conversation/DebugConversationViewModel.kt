@@ -39,7 +39,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.debug.DebugInfoManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(DebugInfoManualViewModelFactoryGroup::class)
 class DebugConversationViewModel @AssistedInject constructor(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,

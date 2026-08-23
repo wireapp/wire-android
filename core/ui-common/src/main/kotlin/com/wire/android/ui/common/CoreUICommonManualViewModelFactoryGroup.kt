@@ -19,15 +19,14 @@ package com.wire.android.ui.common
 
 import androidx.compose.runtime.Composable
 import com.wire.android.di.CoreUICommonViewModelScopedPreviews
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 import com.wire.android.di.wireManualMetroViewModelScoped
 import com.wire.android.ui.common.connection.ConnectionActionButtonArgs
 import com.wire.android.ui.common.connection.ConnectionActionButtonViewModel
 import com.wire.android.ui.common.connection.ConnectionActionButtonViewModelImpl
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-internal interface CoreUICommonManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun connectionActionButtonViewModel(args: ConnectionActionButtonArgs): ConnectionActionButtonViewModelImpl
-}
+@WireAssistedViewModelFactoryGroup
+internal object CoreUICommonManualViewModelFactoryGroup
 
 @Composable
 fun connectionActionButtonViewModel(

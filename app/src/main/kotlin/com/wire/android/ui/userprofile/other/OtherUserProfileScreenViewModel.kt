@@ -61,7 +61,10 @@ import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class OtherUserProfileScreenViewModel @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeUserInfo: ObserveUserInfoUseCase,

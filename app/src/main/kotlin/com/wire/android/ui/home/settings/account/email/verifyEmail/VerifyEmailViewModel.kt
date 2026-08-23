@@ -26,6 +26,9 @@ import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class VerifyEmailViewModel @AssistedInject constructor(
     private val updateEmail: UpdateEmailUseCase,
     @Assisted navigationArgs: VerifyEmailViewModelArgs,

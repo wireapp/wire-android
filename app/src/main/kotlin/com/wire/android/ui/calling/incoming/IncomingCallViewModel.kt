@@ -46,8 +46,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList")
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
 class IncomingCallViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     @CurrentAccount val currentAccount: UserId,

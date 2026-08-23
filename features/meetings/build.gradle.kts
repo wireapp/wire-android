@@ -6,6 +6,7 @@ plugins {
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 dependencies {
@@ -45,4 +46,5 @@ dependencies {
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
     testImplementation(testFixtures(project(":core:ui-common")))
+    ksp(project(":ksp"))
 }

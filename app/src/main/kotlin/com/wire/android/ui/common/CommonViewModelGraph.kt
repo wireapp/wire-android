@@ -33,12 +33,10 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMe
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelImpl
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-internal interface CommonManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun commonTopAppBarViewModel(params: CommonTopAppBarParams): CommonTopAppBarViewModel
-    fun securityClassificationViewModel(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl
-}
+@WireAssistedViewModelFactoryGroup
+internal object CommonManualViewModelFactoryGroup
 
 @Composable
 fun commonTopAppBarViewModel(

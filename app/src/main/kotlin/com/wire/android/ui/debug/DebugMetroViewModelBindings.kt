@@ -10,8 +10,6 @@
 package com.wire.android.ui.debug
 
 import androidx.lifecycle.ViewModel
-import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
-import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModel
@@ -21,8 +19,6 @@ import com.wire.android.ui.settings.about.AboutThisAppViewModel
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 
 @BindingContainer
@@ -57,14 +53,4 @@ object DebugMetroViewModelBindings {
 
     @Provides @IntoMap @ViewModelKey(LicensesViewModel::class)
     fun licensesViewModel(viewModel: LicensesViewModel): ViewModel = viewModel
-
-    @Provides
-    @IntoMap
-    @ManualViewModelAssistedFactoryKey(DebugInfoManualViewModelFactory::class)
-    internal fun debugInfoManualViewModelFactory(
-        factory: DebugConversationViewModel.Factory,
-    ): ManualViewModelAssistedFactory = object : DebugInfoManualViewModelFactory {
-        override fun debugConversationViewModel(args: DebugConversationScreenNavArgs): DebugConversationViewModel =
-            factory.create(args)
-    }
 }

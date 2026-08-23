@@ -37,15 +37,10 @@ import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesNavArgs
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface ConversationSearchFolderManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun conversationFoldersViewModel(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
-    fun moveConversationToFolderViewModel(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
-    fun addMembersToConversationViewModel(args: AddMembersSearchNavArgs): AddMembersToConversationViewModel
-    fun searchConversationMessagesViewModel(args: SearchConversationMessagesNavArgs): SearchConversationMessagesViewModel
-    fun promoteAdminViewModel(args: PromoteAdminNavArgs): PromoteAdminViewModel
-}
+@WireAssistedViewModelFactoryGroup
+object ConversationSearchFolderManualViewModelFactoryGroup
 
 @Composable
 fun conversationFoldersViewModel(

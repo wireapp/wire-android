@@ -34,7 +34,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class ConversationMigrationViewModel @AssistedInject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     @Assisted navigationArgs: ConversationNavArgs,

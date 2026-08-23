@@ -33,7 +33,10 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
 class UpdateChannelAccessViewModel @AssistedInject constructor(
     @Assisted navigationArgs: UpdateChannelAccessArgs,
     val updateChannelAddPermission: UpdateChannelAddPermissionUseCase,

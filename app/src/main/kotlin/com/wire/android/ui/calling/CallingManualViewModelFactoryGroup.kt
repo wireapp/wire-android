@@ -19,29 +19,24 @@ package com.wire.android.ui.calling
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.incoming.IncomingCallViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.calling.outgoing.OutgoingCallViewModel
-import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelPreview
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.meetings.MeetingsCallViewModel
 import com.wire.kalium.logic.data.id.ConversationId
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface CallingManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel
-    fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel
-    fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel
-    fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewModel
-    fun conversationCallViewModel(args: ConversationNavArgs): ConversationCallViewModel
-}
+@WireAssistedViewModelFactoryGroup
+object CallingManualViewModelFactoryGroup
 
 @Composable
 fun incomingCallViewModel(conversationId: ConversationId): IncomingCallViewModel =

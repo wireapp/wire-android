@@ -33,13 +33,12 @@ import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewMode
 import com.wire.android.ui.home.settings.about.licenses.LicensesViewModel
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModel
 import com.wire.android.ui.settings.about.AboutThisAppViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
 interface DebugInfoViewModelGraph : MetroViewModelGraph
 
-interface DebugInfoManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun debugConversationViewModel(args: DebugConversationScreenNavArgs): DebugConversationViewModel
-}
+@WireAssistedViewModelFactoryGroup
+object DebugInfoManualViewModelFactoryGroup
 
 @Composable
 inline fun <reified VM> debugInfoViewModel(

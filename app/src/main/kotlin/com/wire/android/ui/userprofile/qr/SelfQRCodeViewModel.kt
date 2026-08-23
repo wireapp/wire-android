@@ -43,6 +43,9 @@ import java.io.FileOutputStream
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class SelfQRCodeViewModel @AssistedInject constructor(
     @Assisted private val navigationArgs: SelfQrCodeViewModelArgs,
     @ApplicationContext private val context: Context,

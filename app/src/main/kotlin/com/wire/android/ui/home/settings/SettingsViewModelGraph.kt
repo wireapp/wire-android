@@ -56,24 +56,10 @@ import com.wire.android.ui.userprofile.service.ServiceDetailsViewModel
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelImpl
 import com.wire.android.ui.userprofile.service.ServiceDetailsViewModelArgs
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface SettingsManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun verifyEmailViewModel(arguments: VerifyEmailViewModelArgs): VerifyEmailViewModel
-    fun deviceDetailsViewModel(arguments: DeviceDetailsViewModelArgs): DeviceDetailsViewModel
-    fun e2eiCertificateDetailsViewModel(
-        arguments: E2eiCertificateDetailsViewModelArgs,
-    ): E2eiCertificateDetailsViewModel
-
-    fun selfQRCodeViewModel(arguments: SelfQrCodeViewModelArgs): SelfQRCodeViewModel
-    fun otherUserProfileScreenViewModel(
-        arguments: OtherUserProfileViewModelArgs,
-    ): OtherUserProfileScreenViewModel
-
-    fun serviceDetailsViewModel(
-        arguments: ServiceDetailsViewModelArgs,
-    ): ServiceDetailsViewModelImpl
-}
+@WireAssistedViewModelFactoryGroup
+object SettingsManualViewModelFactoryGroup
 
 @Composable
 inline fun <reified VM> settingsViewModel(

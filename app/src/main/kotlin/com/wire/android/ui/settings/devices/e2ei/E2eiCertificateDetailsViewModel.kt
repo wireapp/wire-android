@@ -25,7 +25,10 @@ import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class E2eiCertificateDetailsViewModel @AssistedInject constructor(
     @Assisted private val navigationArgs: E2eiCertificateDetailsViewModelArgs,
     private val getSelfUser: GetSelfUserUseCase,

@@ -50,7 +50,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.annotations.VisibleForTesting
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.common.CommonManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(CommonManualViewModelFactoryGroup::class)
 class CommonTopAppBarViewModel @AssistedInject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,

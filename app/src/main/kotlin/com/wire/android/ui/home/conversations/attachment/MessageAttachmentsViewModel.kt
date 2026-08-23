@@ -62,8 +62,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import java.io.File
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("TooManyFunctions", "LongParameterList")
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class MessageAttachmentsViewModel @AssistedInject constructor(
     private val handleUriAsset: HandleUriAssetUseCase,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,

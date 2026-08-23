@@ -93,8 +93,11 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class ConversationMessagesViewModel @AssistedInject constructor(
     @Assisted navigationArgs: ConversationNavArgs,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,

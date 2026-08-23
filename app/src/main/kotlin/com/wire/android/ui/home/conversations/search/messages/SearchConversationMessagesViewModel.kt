@@ -35,7 +35,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class)
 class SearchConversationMessagesViewModel @AssistedInject constructor(
     private val getSearchMessagesForConversation: GetConversationMessagesFromSearchUseCase,
     private val dispatchers: DispatcherProvider,

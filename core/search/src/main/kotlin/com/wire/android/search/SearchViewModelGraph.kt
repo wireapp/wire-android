@@ -25,16 +25,10 @@ import com.wire.android.search.apps.SearchAppsViewModel
 import com.wire.android.search.users.SearchUserViewModel
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface SearchManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun searchUserViewModel(
-        conversationId: ConversationId? = null,
-        onlyConnectedContacts: Boolean = false,
-    ): SearchUserViewModel
-
-    fun searchAppsViewModel(protocolInfo: Conversation.ProtocolInfo? = null): SearchAppsViewModel
-}
+@WireAssistedViewModelFactoryGroup
+object SearchManualViewModelFactoryGroup
 
 @Composable
 fun searchUserViewModel(

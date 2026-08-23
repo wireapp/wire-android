@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.PreviewProvider
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 import com.wire.android.di.metro.wireAssistedMetroViewModelAs
 import com.wire.android.di.metro.wireMetroViewModelAs
 import com.wire.android.feature.meetings.ui.create.NewMeetingNavArgs
@@ -33,12 +34,9 @@ import com.wire.android.feature.meetings.ui.list.MeetingListViewModel
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface MeetingsManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModelImpl
-    fun newMeetingViewModel(navArgs: NewMeetingNavArgs): NewMeetingViewModelImpl
-}
+@WireAssistedViewModelFactoryGroup
+object MeetingsManualViewModelFactoryGroup
 
 @Composable
 fun meetingListViewModel(

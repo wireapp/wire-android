@@ -48,23 +48,10 @@ import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryNavArgs
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface ConversationCoreManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun conversationMessagesViewModel(args: ConversationNavArgs): ConversationMessagesViewModel
-    fun messageComposerViewModel(args: ConversationNavArgs): MessageComposerViewModel
-    fun sendMessageViewModel(args: ConversationNavArgs): SendMessageViewModel
-    fun messageDraftViewModel(args: ConversationNavArgs): MessageDraftViewModel
-    fun messageAttachmentsViewModel(args: ConversationNavArgs): MessageAttachmentsViewModel
-    fun conversationMigrationViewModel(args: ConversationNavArgs): ConversationMigrationViewModel
-    fun conversationBannerViewModel(args: ConversationNavArgs): ConversationBannerViewModel
-    fun conversationInfoViewModel(args: ConversationNavArgs): ConversationInfoViewModel
-    fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModelImpl
-    fun mediaGalleryViewModel(args: MediaGalleryNavArgs): MediaGalleryViewModel
-    fun conversationAssetMessagesViewModel(args: ConversationMediaNavArgs): ConversationAssetMessagesViewModel
-    fun imagesPreviewViewModel(args: ImagesPreviewNavArgs): ImagesPreviewViewModel
-    fun messageDetailsViewModel(args: MessageDetailsNavArgs): MessageDetailsViewModel
-}
+@WireAssistedViewModelFactoryGroup
+object ConversationCoreManualViewModelFactoryGroup
 
 @Composable
 fun conversationMessagesViewModel(): ConversationMessagesViewModel =

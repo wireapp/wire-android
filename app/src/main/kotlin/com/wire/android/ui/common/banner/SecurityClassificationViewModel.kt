@@ -35,11 +35,14 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.common.CommonManualViewModelFactoryGroup
 @ViewModelScopedPreview
 interface SecurityClassificationViewModel {
     fun state(): SecurityClassificationType = SecurityClassificationType.NONE
 }
 
+@WireAssistedViewModelBinding(CommonManualViewModelFactoryGroup::class)
 class SecurityClassificationViewModelImpl @AssistedInject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     @CurrentAccount private val currentAccount: UserId,

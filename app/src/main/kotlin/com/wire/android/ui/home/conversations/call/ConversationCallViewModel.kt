@@ -48,8 +48,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
 class ConversationCallViewModel @AssistedInject constructor(
     @CurrentAccount currentAccount: UserId,
     private val observeJoinableCalls: ObserveJoinableCallsUseCase,

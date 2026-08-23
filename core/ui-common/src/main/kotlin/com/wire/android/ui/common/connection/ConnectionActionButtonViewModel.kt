@@ -52,6 +52,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.common.CoreUICommonManualViewModelFactoryGroup
 
 @ViewModelScopedPreview
 interface ConnectionActionButtonViewModel : ActionsManager<ConnectionButtonAction> {
@@ -67,6 +69,7 @@ interface ConnectionActionButtonViewModel : ActionsManager<ConnectionButtonActio
 }
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(CoreUICommonManualViewModelFactoryGroup::class)
 internal class ConnectionActionButtonViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val sendConnectionRequest: SendConnectionRequestUseCase,

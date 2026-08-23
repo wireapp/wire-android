@@ -61,6 +61,8 @@ import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 @ViewModelScopedPreview
 interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
     fun serviceDetailsState(): ServiceDetailsState = ServiceDetailsState()
@@ -70,6 +72,7 @@ interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
 }
 
 @Suppress("LongParameterList")
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class ServiceDetailsViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     @CurrentAccount private val selfUserId: UserId,

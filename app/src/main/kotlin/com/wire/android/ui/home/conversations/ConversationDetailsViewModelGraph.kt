@@ -40,24 +40,10 @@ import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateApp
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface ConversationDetailsManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun groupConversationDetailsViewModel(args: GroupConversationDetailsNavArgs): GroupConversationDetailsViewModel
-    fun groupConversationParticipantsViewModel(
-        args: GroupConversationAllParticipantsNavArgs,
-    ): GroupConversationParticipantsViewModel
-
-    fun editConversationMetadataViewModel(args: EditConversationNameNavArgs): EditConversationMetadataViewModel
-    fun editSelfDeletingMessagesViewModel(
-        args: EditSelfDeletingMessagesNavArgs,
-    ): EditSelfDeletingMessagesViewModel
-
-    fun updateChannelAccessViewModel(args: UpdateChannelAccessArgs): UpdateChannelAccessViewModel
-    fun updateAppsAccessViewModel(args: UpdateAppsAccessNavArgs): UpdateAppsAccessViewModel
-    fun editGuestAccessViewModel(args: EditGuestAccessNavArgs): EditGuestAccessViewModel
-    fun createPasswordGuestLinkViewModel(args: CreatePasswordGuestLinkNavArgs): CreatePasswordGuestLinkViewModel
-}
+@WireAssistedViewModelFactoryGroup
+object ConversationDetailsManualViewModelFactoryGroup
 
 @Composable
 fun groupConversationDetailsViewModel(): GroupConversationDetailsViewModel =

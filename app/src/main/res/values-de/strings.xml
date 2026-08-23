@@ -571,7 +571,6 @@
     <string name="member_name_you_label_titlecase">Sie</string>
     <string name="member_name_you_label_lowercase">Sie</string>
     <string name="label_add_participants">Teilnehmer hinzufügen</string>
-    <string name="temporary_user_label">%s hat die Unterhaltung verlassen</string>
     <string name="conversation_unavailable_label">Unterhaltungsname nicht verfügbar</string>
     <string name="conversation_details_title">Unterhaltungsdetails</string>
     <string name="conversation_details_options_tab">OPTIONEN</string>
@@ -585,7 +584,6 @@
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
     <string name="conversation_details_participants_title">Teilnehmer</string>
     <string name="conversation_details_conversation_participants_add">Teilnehmer hinzufügen</string>
-    <string name="conversation_participant_you_label">(Sie)</string>
     <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
     <string name="conversation_options_self_deleting_messages_label">Selbstlöschende Nachrichten</string>

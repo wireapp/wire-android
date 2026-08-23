@@ -41,6 +41,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.buildPreviewParticipantsList
 import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -86,7 +87,7 @@ fun ParticipantItem(
                 )
                 if (participant.isSelfUser) {
                     Text(
-                        text = stringResource(R.string.conversation_participant_you_label),
+                        text = stringResource(commonR.string.conversation_participant_you_label),
                         style = MaterialTheme.wireTypography.title02,
                         color = MaterialTheme.wireColorScheme.secondaryText,
                     )

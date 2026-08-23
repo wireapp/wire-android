@@ -348,7 +348,6 @@
     <string name="conversation_details_options_tab">OPCIJE</string>
     <string name="conversation_details_participants_tab">SUDIONICI</string>
     <string name="conversation_details_options_group_name">NAZIV GRUPE</string>
-    <string name="conversation_participant_you_label">(Vi)</string>
     <string name="conversation_options_guests_label">Gosti</string>
     <string name="conversation_options_guest_not_editable_description">Ne možete onemogućiti opciju gosta u ovom razgovoru jer ju je kreirao netko iz drugog tima.</string>
     <!-- Import/Export External Media -->

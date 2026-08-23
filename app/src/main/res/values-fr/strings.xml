@@ -365,7 +365,6 @@
     <string name="conversation_details_options_group_name">NOM DU GROUPE</string>
     <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Afficher tous les participants (%d)</string>
-    <string name="conversation_participant_you_label">(Vous)</string>
     <string name="conversation_details_is_classified">NIVEAU DE SÉCURITÉ : VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEAU DE SÉCURITÉ : INCLASSIFIÉ</string>
     <string name="conversation_options_self_deleting_messages_label">Messages éphémères</string>

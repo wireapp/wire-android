@@ -387,7 +387,7 @@ fun QRCodeIcon(
 @Composable
 private fun processUsername(userName: String, membership: Membership, expiresAt: Instant?): String {
     return when {
-        expiresAt != null -> UIText.StringResource(R.string.temporary_user_label, userName).asString()
+        expiresAt != null -> UIText.StringResource(commonR.string.temporary_user_label, userName).asString()
         membership == Membership.Service -> userName
         else -> userName.ifNotEmpty { "@$userName" }
     }

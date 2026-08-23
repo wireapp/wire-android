@@ -94,7 +94,7 @@ fun ConversationParticipantItem(
                 )
                 if (uiParticipant.isSelf) {
                     Text(
-                        text = stringResource(R.string.conversation_participant_you_label),
+                        text = stringResource(commonR.string.conversation_participant_you_label),
                         style = MaterialTheme.wireTypography.title02.copy(
                             color = MaterialTheme.wireColorScheme.secondaryText
                         ),
@@ -151,7 +151,7 @@ fun ConversationParticipantItem(
                 ) {
                     ArrowRightIcon(
                         modifier = Modifier.align(Alignment.TopEnd),
-                        contentDescription = R.string.content_description_empty
+                        contentDescription = commonR.string.content_description_empty
                     )
                 }
             }
@@ -175,7 +175,7 @@ private fun processUsername(uiParticipant: UIParticipant): String {
         readReceiptDate != null -> readReceiptDate.uiReadReceiptDateTime()
         expiresAt != null -> {
             val expiresAtString = fromExpirationToHandle(expiresAt)
-            stringResource(R.string.temporary_user_label, expiresAtString)
+            stringResource(commonR.string.temporary_user_label, expiresAtString)
         }
 
         else -> uiParticipant.handle

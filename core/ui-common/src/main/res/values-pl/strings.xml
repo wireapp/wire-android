@@ -24,4 +24,5 @@
     <!--wire dropdown-->
     <!-- No Activity Errors -->
     <!-- Go to app settings permissions dialog -->
+    <string name="conversation_participant_you_label">(Ty)</string>
 </resources>

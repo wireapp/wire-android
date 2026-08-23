@@ -24,4 +24,6 @@
     <!--wire dropdown-->
     <!-- No Activity Errors -->
     <!-- Go to app settings permissions dialog -->
+    <string name="conversation_participant_you_label">(Você)</string>
+    <string name="temporary_user_label">%s restante(s)</string>
 </resources>

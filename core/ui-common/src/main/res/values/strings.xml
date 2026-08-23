@@ -167,4 +167,6 @@
     <string name="app_permission_dialog_title">App permissions</string>
     <string name="app_permission_dialog_settings_positive_button">Settings</string>
     <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="conversation_participant_you_label">(You)</string>
+    <string name="temporary_user_label">%s left</string>
 </resources>

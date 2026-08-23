@@ -116,4 +116,6 @@
     <string name="app_permission_dialog_title">App-Berechtigungen</string>
     <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
     <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
+    <string name="conversation_participant_you_label">(Sie)</string>
+    <string name="temporary_user_label">%s hat die Unterhaltung verlassen</string>
 </resources>

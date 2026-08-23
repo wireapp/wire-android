@@ -130,4 +130,6 @@
     <string name="app_permission_dialog_title">Разрешения приложения</string>
     <string name="app_permission_dialog_settings_positive_button">Настройки</string>
     <string name="app_permission_dialog_settings_negative_button">Не сейчас</string>
+    <string name="conversation_participant_you_label">(Вы)</string>
+    <string name="temporary_user_label">%s покинул(-а)</string>
 </resources>

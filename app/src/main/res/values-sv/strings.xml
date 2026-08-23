@@ -267,7 +267,6 @@
     <string name="conversation_details_options_group_name">GRUPPNAMN</string>
     <string name="conversation_details_participants_count">%s deltagare</string>
     <string name="conversation_details_show_all_participants">Visa alla deltagare (%d)</string>
-    <string name="conversation_participant_you_label">(Du)</string>
     <string name="conversation_options_guests_label">Gäster</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Dela med Wire</string>

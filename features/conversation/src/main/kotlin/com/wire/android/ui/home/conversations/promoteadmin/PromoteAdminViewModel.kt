@@ -18,9 +18,11 @@
 package com.wire.android.ui.home.conversations.promoteadmin
 
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.avatar
+import com.wire.android.ui.home.conversations.PromoteAdminManualViewModelFactoryGroup
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.user.OtherUser
@@ -38,10 +40,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
-
-@WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    PromoteAdminManualViewModelFactoryGroup::class,
+    factoryMethod = "promoteAdminViewModel",
+)
 class PromoteAdminViewModel @AssistedInject constructor(
     private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,

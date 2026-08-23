@@ -386,6 +386,29 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun promoteAdminMetroFactoryAndParcelableContractAreFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, promoteAdminViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, promoteAdminViewModelRelativePath).readText()
+        val navArgs = File(Konsist.projectRootPath, promoteAdminNavArgsRelativePath).readText()
+
+        assertTrue(featureBuildScriptText().contains("id(BuildPlugins.kotlinParcelize)"))
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object PromoteAdminManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<\n        PromoteAdminViewModel,\n        PromoteAdminManualViewModelFactory,"
+            ),
+            "The promote-admin gateway must keep its dedicated assisted factory type.",
+        )
+        assertTrue(graph.contains("fun promoteAdminViewModel(args: PromoteAdminNavArgs): PromoteAdminViewModel"))
+        assertFalse(graph.contains("object ConversationSearchFolderManualViewModelFactoryGroup"))
+        assertTrue(viewModel.contains("PromoteAdminManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"promoteAdminViewModel\""))
+        assertTrue(navArgs.contains("@Parcelize"))
+        assertTrue(navArgs.contains("@TypeParceler<QualifiedID, QualifiedIdParceler>()"))
+    }
+
+    @Test
     fun participantRendererPreviewsRemainAppOwned() {
         val previews = File(Konsist.projectRootPath, groupParticipantPreviewsRelativePath)
         val renderer = File(Konsist.projectRootPath, groupParticipantRendererRelativePath)
@@ -485,6 +508,12 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/folder/NewFolderViewModel.kt"
         const val newFolderViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/NewFolderViewModelGraph.kt"
+        const val promoteAdminViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/promoteadmin/PromoteAdminViewModel.kt"
+        const val promoteAdminNavArgsRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/promoteadmin/PromoteAdminNavArgs.kt"
+        const val promoteAdminViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/PromoteAdminViewModelGraph.kt"
         const val groupParticipantRendererRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
         const val groupParticipantPreviewsRelativePath =
@@ -685,6 +714,14 @@ class ConversationModuleBoundaryTest {
             newFolderViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val promoteAdminViewModelSources = mapOf(
+            promoteAdminViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.promoteadmin",
+            promoteAdminNavArgsRelativePath to
+                    "com.wire.android.ui.home.conversations.promoteadmin",
+            promoteAdminViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -692,7 +729,8 @@ class ConversationModuleBoundaryTest {
                     participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources +
                     groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources + conversationDetailsContractSources +
                     createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources +
-                    conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources
+                    conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources +
+                    promoteAdminViewModelSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -771,7 +809,11 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.MoveConversationToFolderManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.PromoteAdminManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.QualifiedIdParceler",
             "com.wire.android.ui.home.conversations.folder.NewFolderViewModel",
+            "com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs",
+            "com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs",
             "com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel",

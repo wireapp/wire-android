@@ -49,13 +49,17 @@ class ConversationAuxNavigation3SourceTest {
         listOf(
             "ui/home/conversations/search/adddembertoconversation/AddMembersToConversationViewModel.kt",
             "ui/home/conversations/search/messages/SearchConversationMessagesViewModel.kt",
-            "ui/home/conversations/promoteadmin/PromoteAdminViewModel.kt",
             "ui/debug/conversation/DebugConversationViewModel.kt",
         ).forEach { path ->
             val source = source(path)
             assertFalse(source.contains("SavedStateHandle"))
             assertFalse(source.contains("generated.app.navArgs"))
         }
+        val promoteAdminSource = featureSource(
+            "ui/home/conversations/promoteadmin/PromoteAdminViewModel.kt",
+        )
+        assertFalse(promoteAdminSource.contains("SavedStateHandle"))
+        assertFalse(promoteAdminSource.contains("generated.app.navArgs"))
     }
 
     @Test
@@ -73,6 +77,15 @@ class ConversationAuxNavigation3SourceTest {
         val root = generateSequence(File(userDir)) { it.parentFile }
             .first { File(it, "app/src/main/kotlin").isDirectory }
         return File(root, "app/src/main/kotlin/com/wire/android/$path")
+            .also { assertTrue(it.isFile) }
+            .readText()
+    }
+
+    private fun featureSource(path: String): String {
+        val userDir = requireNotNull(System.getProperty("user.dir"))
+        val root = generateSequence(File(userDir)) { it.parentFile }
+            .first { File(it, "app/src/main/kotlin").isDirectory }
+        return File(root, "features/conversation/src/main/kotlin/com/wire/android/$path")
             .also { assertTrue(it.isFile) }
             .readText()
     }

@@ -66,6 +66,7 @@ import com.wire.android.ui.home.conversations.UpdateAppsAccessManualViewModelFac
 import com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.MoveConversationToFolderManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversations.PromoteAdminManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversationslist.ConversationListCallMetroViewModelBindings
 import com.wire.android.ui.home.meetings.MeetingsCallMetroViewModelBindings
@@ -121,6 +122,7 @@ annotation class MetroSessionScope
         EditGuestAccessManualViewModelFactoryMetroBindings::class,
         ConversationFoldersManualViewModelFactoryMetroBindings::class,
         MoveConversationToFolderManualViewModelFactoryMetroBindings::class,
+        PromoteAdminManualViewModelFactoryMetroBindings::class,
         SettingsManualViewModelFactoryMetroBindings::class,
         CallingManualViewModelFactoryMetroBindings::class,
         CallingMetroViewModelBindings::class,

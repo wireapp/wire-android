@@ -21,8 +21,6 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
 import com.wire.android.di.metro.wireAssistedMetroViewModel
-import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
-import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesNavArgs
@@ -39,10 +37,6 @@ fun addMembersToConversationViewModel(args: AddMembersSearchNavArgs): AddMembers
 @Composable
 fun searchConversationMessagesViewModel(args: SearchConversationMessagesNavArgs): SearchConversationMessagesViewModel =
     conversationSearchFolderAssistedViewModel { searchConversationMessagesViewModel(args) }
-
-@Composable
-fun promoteAdminViewModel(args: PromoteAdminNavArgs): PromoteAdminViewModel =
-    conversationSearchFolderAssistedViewModel { promoteAdminViewModel(args) }
 
 @Composable
 private inline fun <reified VM> conversationSearchFolderAssistedViewModel(

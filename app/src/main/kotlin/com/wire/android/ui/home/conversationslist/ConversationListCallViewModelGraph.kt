@@ -15,20 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling
+package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModel
-import com.wire.android.ui.CallFeedbackViewModel
+import com.wire.android.di.metro.wireMetroViewModel
+import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 
 @BindingContainer
-object CallingMetroViewModelBindings {
+object ConversationListCallMetroViewModelBindings {
 
     @Provides
     @IntoMap
-    @ViewModelKey(CallFeedbackViewModel::class)
-    fun callFeedbackViewModel(viewModel: CallFeedbackViewModel): ViewModel = viewModel
+    @ViewModelKey(ConversationListCallViewModelImpl::class)
+    fun conversationListCallViewModel(viewModel: ConversationListCallViewModelImpl): ViewModel = viewModel
+}
+
+@Composable
+fun conversationListCallViewModel(conversationsSource: ConversationsSource): ConversationListCallViewModel = when {
+    LocalInspectionMode.current -> ConversationListCallViewModelPreview
+    else -> wireMetroViewModel<ConversationListCallViewModelImpl>(instanceKey = "call_$conversationsSource")
 }

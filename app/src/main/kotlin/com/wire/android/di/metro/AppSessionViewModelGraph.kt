@@ -53,10 +53,13 @@ import com.wire.android.ui.debug.DebugInfoManualViewModelFactoryMetroBindings
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
 import com.wire.android.ui.home.HomeMetroViewModelBindings
 import com.wire.android.ui.home.HomeViewModelGraph
+import com.wire.android.ui.home.conversations.call.ConversationCallManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationSearchFolderMetroViewModelBindings
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversationslist.ConversationListCallMetroViewModelBindings
+import com.wire.android.ui.home.meetings.MeetingsCallMetroViewModelBindings
 import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryMetroBindings
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
@@ -97,16 +100,19 @@ annotation class MetroSessionScope
         HomeMetroViewModelBindings::class,
         ConversationSearchFolderMetroViewModelBindings::class,
         ConversationSearchFolderManualViewModelFactoryMetroBindings::class,
+        ConversationCallManualViewModelFactoryMetroBindings::class,
         ConversationCoreManualViewModelFactoryMetroBindings::class,
         ConversationDetailsManualViewModelFactoryMetroBindings::class,
         SettingsManualViewModelFactoryMetroBindings::class,
         CallingManualViewModelFactoryMetroBindings::class,
         CallingMetroViewModelBindings::class,
+        ConversationListCallMetroViewModelBindings::class,
         CommonManualViewModelFactoryMetroBindings::class,
         CommonMetroViewModelBindings::class,
         CellsMetroViewModelBindings::class,
         MeetingsMetroViewModelBindings::class,
         MeetingsManualViewModelFactoryMetroBindings::class,
+        MeetingsCallMetroViewModelBindings::class,
         SketchMetroViewModelBindings::class,
         CoreUICommonManualViewModelFactoryMetroBindings::class,
         SearchManualViewModelFactoryMetroBindings::class,

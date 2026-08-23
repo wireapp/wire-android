@@ -25,7 +25,6 @@ import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
-import com.wire.android.ui.calling.meetingsCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversations.call.HandleActions

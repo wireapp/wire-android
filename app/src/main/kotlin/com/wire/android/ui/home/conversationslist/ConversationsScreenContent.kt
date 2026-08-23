@@ -42,7 +42,6 @@ import com.wire.android.ui.common.R as commonR
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.ui.calling.conversationListCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState

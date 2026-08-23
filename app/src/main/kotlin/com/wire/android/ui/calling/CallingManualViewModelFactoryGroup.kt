@@ -18,21 +18,12 @@
 package com.wire.android.ui.calling
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalInspectionMode
 import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 import com.wire.android.di.metro.wireAssistedMetroViewModel
-import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.calling.common.SharedCallingViewModel
 import com.wire.android.ui.calling.incoming.IncomingCallViewModel
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
 import com.wire.android.ui.calling.outgoing.OutgoingCallViewModel
-import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
-import com.wire.android.ui.home.conversationslist.ConversationListCallViewModel
-import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelImpl
-import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelPreview
-import com.wire.android.ui.home.conversationslist.model.ConversationsSource
-import com.wire.android.ui.home.meetings.MeetingsCallViewModel
 import com.wire.kalium.logic.data.id.ConversationId
 
 @WireAssistedViewModelFactoryGroup
@@ -69,22 +60,3 @@ fun sharedCallingViewModel(conversationId: ConversationId): SharedCallingViewMod
     ) { _ ->
         sharedCallingViewModel(conversationId)
     }
-
-@Composable
-fun conversationCallViewModel(): ConversationCallViewModel =
-    wireMetroViewModel()
-
-@Composable
-fun conversationCallViewModel(args: ConversationNavArgs): ConversationCallViewModel =
-    wireAssistedMetroViewModel<ConversationCallViewModel, CallingManualViewModelFactory> { _ ->
-        conversationCallViewModel(args)
-    }
-
-@Composable
-fun conversationListCallViewModel(conversationsSource: ConversationsSource): ConversationListCallViewModel = when {
-    LocalInspectionMode.current -> ConversationListCallViewModelPreview
-    else -> wireMetroViewModel<ConversationListCallViewModelImpl>(instanceKey = "call_$conversationsSource")
-}
-
-@Composable
-fun meetingsCallViewModel(): MeetingsCallViewModel = wireMetroViewModel()

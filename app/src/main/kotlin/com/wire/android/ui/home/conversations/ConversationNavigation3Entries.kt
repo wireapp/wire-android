@@ -32,7 +32,7 @@ import com.wire.android.navigation.routes.media.MediaGalleryRoute
 import com.wire.android.navigation.routes.media.VideoPlayerRoute
 import com.wire.android.navigation.routes.media.MessageDetailsRoute
 import com.wire.android.navigation.routes.media.toLegacy
-import com.wire.android.ui.calling.conversationCallViewModel
+import com.wire.android.ui.home.conversations.call.conversationCallViewModel
 import com.wire.android.ui.home.conversations.details.ConversationDetailsId
 import com.wire.android.ui.home.conversations.details.GroupConversationActionType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs

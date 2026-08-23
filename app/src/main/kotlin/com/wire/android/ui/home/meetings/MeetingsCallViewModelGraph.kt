@@ -15,20 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.ui.calling
+package com.wire.android.ui.home.meetings
 
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
-import com.wire.android.ui.CallFeedbackViewModel
+import com.wire.android.di.metro.wireMetroViewModel
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 
 @BindingContainer
-object CallingMetroViewModelBindings {
+object MeetingsCallMetroViewModelBindings {
 
     @Provides
     @IntoMap
-    @ViewModelKey(CallFeedbackViewModel::class)
-    fun callFeedbackViewModel(viewModel: CallFeedbackViewModel): ViewModel = viewModel
+    @ViewModelKey(MeetingsCallViewModel::class)
+    fun meetingsCallViewModel(viewModel: MeetingsCallViewModel): ViewModel = viewModel
 }
+
+@Composable
+fun meetingsCallViewModel(): MeetingsCallViewModel = wireMetroViewModel()

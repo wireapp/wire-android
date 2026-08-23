@@ -1516,7 +1516,6 @@
     <string name="new_device_dialog_other_user_btn">Сменить аккаунт</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s присоединился(-лась) к беседе</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s присоединился(-лась) к беседе</string>
-    <string name="label_client_verified">Верифицирован</string>
     <string name="label_client_unverified">Не верифицирован</string>
     <string name="label_self_client_verification_description">Для верификации собственного устройства сравните отпечаток ключа с тем же самым отпечатком ключа на другом устройстве.</string>
     <string name="label_client_verification_description">Убедитесь, что отпечаток этого устройства совпадает с отпечатком, отображаемым на устройстве %s.</string>

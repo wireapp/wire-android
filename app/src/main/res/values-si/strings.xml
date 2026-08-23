@@ -1254,7 +1254,6 @@
     <string name="new_device_dialog_other_user_btn">ගිණුම මාරුව</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s සංවාදයට එක්වුණා</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s සංවාදයට එක්වුණා</string>
-    <string name="label_client_verified">සත්‍යාපිතයි</string>
     <string name="label_client_unverified">සත්‍යාපිත නොවේ</string>
     <string name="label_self_client_verification_description">ඔබගේම උපාංගය සත්‍යාපනයට, මෙම යතුරේ ඇඟිලි සටහන අනෙක් උපාංගයක ඇති යතුරේ ඇඟිලි සටහන සමඟ සසඳන්න.</string>
     <string name="label_client_verification_description">මෙම උපාංගයේ ඇඟිලි සලකුණ %sගේ උපාංගයේ පෙන්වා ඇති ඇඟිලි සලකුණට ගැළපෙන බව තහවුරු කරන්න.</string>

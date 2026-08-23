@@ -55,6 +55,7 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.MLSVerificationIcon
 import com.wire.android.ui.common.ProteusVerifiedIcon
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -435,7 +436,7 @@ fun DeviceVerificationItem(
             sectionText = AnnotatedString(
                 stringResource(
                     id = when (state) {
-                        true -> R.string.label_client_verified
+                        true -> commonR.string.label_client_verified
                         false -> R.string.label_client_unverified
                     }
                 )

@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.settings.devices.button.GetE2eiCertificateButton
@@ -110,7 +111,7 @@ fun EndToEndIdentityCertificateItem(
                         E2EIStatusRow(
                             label = stringResource(id = R.string.e2ei_certificat_status_valid),
                             labelColor = colorsScheme().positive,
-                            icon = R.drawable.ic_certificate_valid_mls
+                            icon = commonR.drawable.ic_certificate_valid_mls
                         )
                         mlsClientIdentity.x509Identity?.serialNumber?.let { SerialNumberBlock(it) }
                     }

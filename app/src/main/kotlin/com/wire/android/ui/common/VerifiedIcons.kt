@@ -94,30 +94,6 @@ fun RowScope.MLSVerificationIcon(mlsVerificationStatus: MLSClientE2EIStatus?) {
 }
 
 @Composable
-fun ProteusVerifiedIcon(
-    modifier: Modifier = Modifier,
-    @StringRes contentDescriptionId: Int = R.string.label_client_verified
-) {
-    Image(
-        modifier = modifier.padding(start = dimensions().spacing4x),
-        painter = painterResource(id = R.drawable.ic_certificate_valid_proteus),
-        contentDescription = stringResource(contentDescriptionId)
-    )
-}
-
-@Composable
-fun MLSVerifiedIcon(
-    modifier: Modifier = Modifier,
-    @StringRes contentDescriptionId: Int = R.string.label_client_verified
-) {
-    Image(
-        modifier = modifier.padding(start = dimensions().spacing4x),
-        painter = painterResource(id = R.drawable.ic_certificate_valid_mls),
-        contentDescription = stringResource(contentDescriptionId)
-    )
-}
-
-@Composable
 fun MLSRevokedIcon(
     modifier: Modifier = Modifier,
     @StringRes contentDescriptionId: Int = R.string.e2ei_certificat_status_revoked

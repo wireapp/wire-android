@@ -863,7 +863,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="new_device_dialog_other_user_btn">Cambiar de cuenta</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s te uniste a la conversación</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s se uni&#243; a la conversaci&#243;n</string>
-    <string name="label_client_verified">Verificado</string>
     <string name="label_client_unverified">No verificado</string>
     <string name="label_self_client_verification_description">Para verificar tu propio dispositivo, compara esta huella digital con la misma huella digital en otro dispositivo.</string>
     <string name="label_self_fingerprint_description">Comparte esta huella digital con otros participantes en una conversación, para que puedan verificarla y asegurarse de que la conversación es segura.</string>

@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,21 @@
 
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import com.wire.android.ui.common.R as commonR
+import com.wire.android.ui.theme.wireColorScheme
 
-@PreviewMultipleThemes
 @Composable
-fun PreviewLegalHoldIndicator() {
-    WireTheme {
-        LegalHoldIndicator()
-    }
+fun LegalHoldIndicator(modifier: Modifier = Modifier.size(dimensions().spacing12x)) {
+    Icon(
+        painter = painterResource(id = commonR.drawable.ic_legal_hold),
+        contentDescription = null,
+        tint = MaterialTheme.wireColorScheme.error,
+        modifier = modifier,
+    )
 }

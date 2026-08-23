@@ -1244,7 +1244,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="new_device_dialog_other_user_btn">Fiók váltása</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s csatlakozott a beszélgetéshez</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s csatlakozott a beszélgetéshez</string>
-    <string name="label_client_verified">Ellenőrizve</string>
     <string name="label_client_unverified">Nincs ellenőrizve</string>
     <string name="label_self_client_verification_description">Saját eszköze ellenőrzéséhez vesse össze ezt a kulcs ujjlenyomatot egy másik eszközön található azonos kulcs ujjlenyomattal.</string>
     <string name="label_client_verification_description">Ellenőrizze, hogy ez az eszköz ujjlenyomat egyezik-e a(z) %s eszközén látható ujjlenyomattal.</string>

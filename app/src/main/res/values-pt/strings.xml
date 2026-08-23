@@ -1187,7 +1187,6 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="new_device_dialog_other_user_btn">Mudar de Conta</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s entrou na conversa</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s entrou na conversa</string>
-    <string name="label_client_verified">Verificado</string>
     <string name="label_client_unverified">Não Verificado</string>
     <string name="label_self_client_verification_description">Para verificar o seu próprio dispositivo, compare esta impressão digital com a mesma impressão digital em outro dispositivo.</string>
     <string name="label_client_verification_description">Confirme que a impressão digital deste dispositivo corresponde com a exibida no dispositivo de %s.</string>

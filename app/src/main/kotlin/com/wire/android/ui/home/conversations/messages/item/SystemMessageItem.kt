@@ -348,8 +348,8 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
 
     is SystemMessage.ConversationVerified -> buildContent(
         iconResId = when (protocol) {
-            Conversation.Protocol.MLS -> R.drawable.ic_certificate_valid_mls
-            else -> R.drawable.ic_certificate_valid_proteus
+            Conversation.Protocol.MLS -> commonR.drawable.ic_certificate_valid_mls
+            else -> commonR.drawable.ic_certificate_valid_proteus
         },
         iconTintColor = when (protocol) {
             Conversation.Protocol.MLS -> MaterialTheme.wireColorScheme.positive
@@ -463,7 +463,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.LegalHold -> buildContent(
-        iconResId = R.drawable.ic_legal_hold,
+        iconResId = commonR.drawable.ic_legal_hold,
         iconTintColor = MaterialTheme.wireColorScheme.error,
         learnMorePage = SupportPage.LEGAL_HOLD,
     ) {

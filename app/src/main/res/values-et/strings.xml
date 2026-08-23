@@ -364,7 +364,6 @@
     <string name="audio_not_available">Heli pole saadaval</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_btn">Halda seadmeid</string>
-    <string name="label_client_verified">Kinnitatud</string>
     <string name="label_client_unverified">Kinnitamata</string>
     <string name="device_name_unknown">Tundmatu seade</string>
     <string name="create_account_email_title">Sinu e-post</string>

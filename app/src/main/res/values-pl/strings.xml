@@ -762,7 +762,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <string name="new_device_dialog_other_user_btn">Prze&#322;&#261;cz konto</string>
     <string name="label_system_message_joined_the_conversation_by_self">%1$s do&#322;&#261;czy&#322; do rozmowy</string>
     <string name="label_system_message_joined_the_conversation_by_other">%1$s do&#322;&#261;czy&#322; do rozmowy</string>
-    <string name="label_client_verified">Zweryfikowane</string>
     <string name="label_client_unverified">Niezweryfikowane</string>
     <string name="label_self_client_verification_description">Aby zweryfikowa&#263; swoje urz&#261;dzenie, por&#243;wnaj ten odcisk klucza z tym samym odciskiem klucza na innym urz&#261;dzeniu.</string>
     <string name="unknown_user_name">nieznany</string>

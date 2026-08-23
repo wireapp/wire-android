@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -180,7 +181,7 @@ fun E2EISuccessDialog(
                     modifier = Modifier
                         .width(MaterialTheme.wireDimensions.spacing64x)
                         .height(MaterialTheme.wireDimensions.spacing64x),
-                    painter = painterResource(id = R.drawable.ic_certificate_valid_mls),
+                    painter = painterResource(id = commonR.drawable.ic_certificate_valid_mls),
                     contentDescription = "",
                 )
 

@@ -216,10 +216,10 @@ private fun EphemeralMessageExpiredLabel(
     val stringResource = if (!isSelfMessage) {
         stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
     } else if (conversationDetailsData is ConversationDetailsData.OneOne) {
-        conversationDetailsData.otherUserName?.let {
+        conversationDetailsData.otherUserName?.let { otherUserName ->
             stringResource(
                 R.string.label_information_waiting_for_recipient_timer_to_expire_one_to_one,
-                conversationDetailsData.otherUserName
+                otherUserName
             )
         } ?: stringResource(id = R.string.unknown_user_name)
     } else {

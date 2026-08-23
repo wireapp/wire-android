@@ -801,6 +801,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/image/VisualMediaParams.kt" to
                     "com.wire.android.ui.home.conversations.model.messagetypes.image",
         )
+        val conversationInfoStateSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/info/ConversationInfoViewState.kt" to
+                    "com.wire.android.ui.home.conversations.info",
+        )
         val messageItemTemplateSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
@@ -827,7 +831,8 @@ class ConversationModuleBoundaryTest {
                     editSelfDeletingMessagesViewModelSources +
                     conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
-                    visualMediaParamsSources + messageItemTemplateSources + interceptClickableSources + memberItemToMentionSources +
+                    visualMediaParamsSources + conversationInfoStateSources + messageItemTemplateSources + interceptClickableSources +
+                    memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
@@ -850,6 +855,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.model.Contact",
             "com.wire.android.model.SnackBarMessage",
             "com.wire.android.model.asSnackBarMessage",
+            "com.wire.android.model.ImageAsset",
             "com.wire.android.model.ImageAsset.UserAvatarAsset",
             "com.wire.android.model.NameBasedAvatar",
             "com.wire.android.model.UserAvatarData",

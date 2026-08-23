@@ -692,6 +692,8 @@ class ConversationModuleBoundaryTest {
         val groupConversationOptionsStateSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/options/GroupConversationOptionsState.kt" to
                     "com.wire.android.ui.home.conversations.details.options",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/options/LoadingGroupConversation.kt" to
+                    "com.wire.android.ui.home.conversations.details.options",
         )
         val groupConversationDetailsViewModelSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsNavArgs.kt" to
@@ -862,7 +864,9 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.common.avatar.UserProfileAvatarType",
             "com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators",
             "com.wire.android.ui.common.dimensions",
+            "com.wire.android.ui.common.preview.MultipleThemePreviews",
             "com.wire.android.ui.common.rememberTopBarElevationState",
+            "com.wire.android.ui.common.shimmerPlaceholder",
             "com.wire.android.ui.common.scaffold.WireScaffold",
             "com.wire.android.ui.common.topappbar.NavigationIconType",
             "com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar",

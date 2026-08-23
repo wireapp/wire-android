@@ -23,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryGroup
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -31,9 +33,11 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
-@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+
+@WireAssistedViewModelBinding(
+    group = MessageDetailsManualViewModelFactoryGroup::class,
+    factoryMethod = "messageDetailsViewModel",
+)
 class MessageDetailsViewModel @AssistedInject constructor(
     @Assisted navigationArgs: MessageDetailsNavArgs,
     private val observeReactionsForMessage: ObserveReactionsForMessageUseCase,

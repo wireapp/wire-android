@@ -26,6 +26,7 @@ dependencies {
     api(libs.ktx.serialization)
 
     implementation(projects.core.di)
+    implementation(libs.metrox.viewModelCompose)
     implementation(libs.okio.core)
 
     implementation(enforcedPlatform(libs.compose.bom))

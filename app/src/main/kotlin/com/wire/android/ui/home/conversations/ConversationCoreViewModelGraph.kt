@@ -33,8 +33,6 @@ import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesVie
 import com.wire.android.ui.home.conversations.media.ConversationMediaNavArgs
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModel
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavArgs
-import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModel
-import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModel
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
@@ -151,16 +149,6 @@ fun imagesPreviewViewModel(): ImagesPreviewViewModel =
 fun imagesPreviewViewModel(args: ImagesPreviewNavArgs): ImagesPreviewViewModel =
     wireAssistedMetroViewModel<ImagesPreviewViewModel, ConversationCoreManualViewModelFactory> { _ ->
         imagesPreviewViewModel(args)
-    }
-
-@Composable
-fun messageDetailsViewModel(): MessageDetailsViewModel =
-    conversationCoreViewModel()
-
-@Composable
-fun messageDetailsViewModel(args: MessageDetailsNavArgs): MessageDetailsViewModel =
-    wireAssistedMetroViewModel<MessageDetailsViewModel, ConversationCoreManualViewModelFactory> { _ ->
-        messageDetailsViewModel(args)
     }
 
 @Composable

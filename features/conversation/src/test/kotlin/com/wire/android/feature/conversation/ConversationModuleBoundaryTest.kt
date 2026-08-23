@@ -159,6 +159,24 @@ class ConversationModuleBoundaryTest {
         )
     }
 
+    @Test
+    fun messageDetailsMetroFactoryIsFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, messageDetailsViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, messageDetailsViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object MessageDetailsManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<MessageDetailsViewModel, MessageDetailsManualViewModelFactory>"
+            ),
+            "The MessageDetails gateway must keep its dedicated assisted factory type.",
+        )
+        assertFalse(graph.contains("ConversationCoreManualViewModelFactory"))
+        assertTrue(viewModel.contains("MessageDetailsManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"messageDetailsViewModel\""))
+    }
+
     private fun featureBuildScriptText(): String {
         assertTrue(featureBuildScript.isFile, "Missing :features:conversation build.gradle.kts.")
         return featureBuildScript.readText()
@@ -202,6 +220,10 @@ class ConversationModuleBoundaryTest {
             "core/ui-common/src/testFixtures/kotlin/com/wire/android/mapper/TestUserFactory.kt"
         const val featureParticipantFactoryRelativePath =
             "features/conversation/src/testFixtures/kotlin/com/wire/android/mapper/TestUIParticipantFactory.kt"
+        const val messageDetailsViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/MessageDetailsViewModel.kt"
+        const val messageDetailsViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/MessageDetailsViewModelGraph.kt"
         val forbiddenFeatureBuildScriptEntries = listOf(
             Regex("""projects\s*\.\s*app\b"""),
             Regex("""project\s*\(\s*(?:path\s*=\s*)?[\"']\s*:\s*app\s*[\"']"""),
@@ -284,6 +306,12 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/MessageDetailsState.kt" to
                     "com.wire.android.ui.home.conversations.messagedetails",
         )
+        val messageDetailsViewModelSources = mapOf(
+            messageDetailsViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.messagedetails",
+            messageDetailsViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val conversationAssetPathSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/ConversationAssetPathsViewModel.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
@@ -292,10 +320,15 @@ class ConversationModuleBoundaryTest {
         )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
-                    messageDetailsReceiptSources + messageDetailsStateSources + conversationAssetPathSources
+                    messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
+                    conversationAssetPathSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
+            "com.wire.android.di.metro.WireAssistedViewModelBinding",
+            "com.wire.android.di.metro.WireAssistedViewModelFactoryGroup",
+            "com.wire.android.di.metro.wireAssistedMetroViewModel",
+            "com.wire.android.di.metro.wireMetroViewModel",
             "com.wire.android.mapper.UIParticipantMapper",
             "com.wire.android.mapper.UserTypeMapper",
             "com.wire.android.model.ImageAsset.UserAvatarAsset",
@@ -306,6 +339,11 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData",
+            "com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs",
+            "com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModel",
+            "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase",
+            "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase",
+            "com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",

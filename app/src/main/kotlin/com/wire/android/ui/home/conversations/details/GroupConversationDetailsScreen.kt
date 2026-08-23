@@ -61,6 +61,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
+import com.wire.android.feature.conversation.config.LocalConversationHostConfiguration
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.LoadingWireTabRow
@@ -119,6 +120,7 @@ internal fun GroupConversationDetailsRouteScreen(
     actions: GroupConversationDetailsRouteScreenActions,
     renameResult: Boolean? = null,
 ) {
+    val runtimeCapabilities = LocalConversationHostConfiguration.current.runtime
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
     val snackbarHostState = LocalSnackbarHostState.current
@@ -204,6 +206,8 @@ internal fun GroupConversationDetailsRouteScreen(
         onPromoteAdmin = actions.onPromoteAdmin,
         openConversationDebugMenu = actions.onOpenConversationDebugMenu,
         isScreenLoading = viewModel.isFetchingInitialData,
+        mlsReadReceiptsEnabled = runtimeCapabilities.mlsReadReceiptsEnabled,
+        privateBuild = runtimeCapabilities.privateBuild,
     )
 }
 
@@ -252,6 +256,8 @@ private fun GroupConversationDetailsContent(
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
     isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false),
+    mlsReadReceiptsEnabled: Boolean,
+    privateBuild: Boolean,
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
@@ -411,7 +417,9 @@ private fun GroupConversationDetailsContent(
                             viewModel = requireNotNull(viewModel) {
                                 "GroupConversationDetailsContent requires GroupConversationDetailsViewModel outside preview"
                             },
-                            onEditGroupName = onEditGroupName
+                            onEditGroupName = onEditGroupName,
+                            mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,
+                            privateBuild = privateBuild,
                         )
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
@@ -530,7 +538,9 @@ fun PreviewGroupConversationDetails() {
             onMoveToFolder = {},
             onLeftConversation = {},
             onDeletedConversation = {},
-            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS
+            initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
+            mlsReadReceiptsEnabled = false,
+            privateBuild = false,
         )
     }
 }

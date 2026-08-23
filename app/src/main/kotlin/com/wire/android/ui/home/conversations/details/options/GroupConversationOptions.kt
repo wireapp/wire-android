@@ -38,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
@@ -71,7 +70,9 @@ fun GroupConversationOptions(
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     viewModel: GroupConversationDetailsViewModel,
-    onEditGroupName: () -> Unit
+    onEditGroupName: () -> Unit,
+    mlsReadReceiptsEnabled: Boolean,
+    privateBuild: Boolean,
 ) {
     val state by viewModel.groupOptionsState.collectAsStateWithLifecycle()
 
@@ -84,6 +85,8 @@ fun GroupConversationOptions(
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
         onEditGroupName = onEditGroupName,
+        mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,
+        privateBuild = privateBuild,
     )
 }
 
@@ -98,7 +101,8 @@ fun GroupConversationSettings(
     onEditGroupName: () -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
-    mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
+    mlsReadReceiptsEnabled: Boolean,
+    privateBuild: Boolean,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -219,7 +223,10 @@ fun GroupConversationSettings(
 
         folderWithItems(
             folderTitleResId = R.string.folder_label_protocol_details,
-            items = conversationProtocolDetailsItems(protocolInfo = state.protocolInfo),
+            items = conversationProtocolDetailsItems(
+                protocolInfo = state.protocolInfo,
+                privateBuild = privateBuild,
+            ),
         )
     }
 }
@@ -258,6 +265,7 @@ private fun <E> MutableList<E>.addIf(condition: Boolean, element: E) {
 
 private fun conversationProtocolDetailsItems(
     protocolInfo: Conversation.ProtocolInfo,
+    privateBuild: Boolean,
 ): List<@Composable () -> Unit> = buildList {
     add {
         ProtocolDetails(
@@ -274,7 +282,7 @@ private fun conversationProtocolDetailsItems(
             )
         }
 
-        if (BuildConfig.PRIVATE_BUILD) {
+        if (privateBuild) {
             add {
                 ProtocolDetails(
                     label = UIText.StringResource(R.string.last_key_material_update_label),
@@ -423,7 +431,8 @@ private fun PreviewGroupConversationOptions(state: GroupConversationOptionsState
         onEditGroupName = {},
         modifier = Modifier,
         lazyListState = rememberLazyListState(),
-        mlsReadReceiptsEnabled = false
+        mlsReadReceiptsEnabled = false,
+        privateBuild = false,
     )
 }
 

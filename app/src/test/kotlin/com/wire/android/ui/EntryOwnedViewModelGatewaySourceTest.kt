@@ -271,7 +271,7 @@ class EntryOwnedViewModelGatewaySourceTest {
 
     private fun featureSourceFile(relativePath: String): File {
         val root = repositoryRoot()
-        return File(root, "features/conversation/src/main/kotlin/$relativePath").also {
+        return File(root, "features/conversation/folders/src/main/kotlin/$relativePath").also {
             assertTrue(it.isFile, "Missing ${it.path}")
         }
     }

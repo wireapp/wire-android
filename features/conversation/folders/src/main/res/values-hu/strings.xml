@@ -1,0 +1,5 @@
+<resources>
+    <string name="move_to_folder_success">\"%1$s\" áthelyezve ide: \"%2$s\"</string>
+    <string name="move_to_folder_failed">\"%1$s\" áthelyezése nem sikerült</string>
+    <string name="new_folder_failure">\"%1$s\" mappa létrehozása nem sikerült</string>
+</resources>

@@ -32,7 +32,7 @@ class NewFolderViewModelAssemblyOwnershipSourceTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
         )
         val featureGraph = sourceFile(
-            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/NewFolderViewModelGraph.kt",
+            "features/conversation/folders/src/main/kotlin/com/wire/android/ui/home/conversations/NewFolderViewModelGraph.kt",
         )
         val sessionGraph = sourceFile("app/src/main/kotlin/com/wire/android/di/metro/AppSessionViewModelGraph.kt")
         val auxEntries = sourceFile(

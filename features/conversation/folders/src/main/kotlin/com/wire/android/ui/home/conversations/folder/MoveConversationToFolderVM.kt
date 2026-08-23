@@ -23,7 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.feature.conversation.R
+import com.wire.android.feature.conversation.folders.R
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.home.conversations.MoveConversationToFolderManualViewModelFactoryGroup

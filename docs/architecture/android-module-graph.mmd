@@ -1,6 +1,7 @@
 graph TD
     App[":app<br/>composition root and runtime adapters"]
     Conversation[":features:conversation"]
+    Folders[":features:conversation:folders"]
     Meetings[":features:meetings"]
     Calling[":core:calling"]
     Navigation[":core:navigation"]
@@ -27,10 +28,14 @@ graph TD
     Conversation --> Di
     Conversation --> UiCommon
     Conversation --> KaliumLogic
+    Conversation --> Folders
     Conversation -. proposed .-> Calling
     Conversation -. proposed .-> Analytics
     Conversation -. proposed .-> Navigation
     Conversation --> Search
+    Folders --> Di
+    Folders --> UiCommon
+    Folders --> KaliumLogic
     Meetings -. proposed .-> Calling
     Meetings --> Navigation
     Meetings --> Search

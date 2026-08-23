@@ -304,106 +304,6 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
-    fun conversationFoldersMetroFactoryIsFeatureOwned() {
-        val graph = File(Konsist.projectRootPath, conversationFoldersViewModelGraphRelativePath).readText()
-        val viewModel = File(Konsist.projectRootPath, conversationFoldersViewModelRelativePath).readText()
-
-        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
-        assertTrue(graph.contains("object ConversationFoldersManualViewModelFactoryGroup"))
-        assertTrue(
-            graph.contains(
-                "wireAssistedMetroViewModelAs<\n        ConversationFoldersVMImpl,\n        ConversationFoldersVM,\n        ConversationFoldersManualViewModelFactory,"
-            ),
-            "The folders gateway must preserve its assisted implementation and interface types.",
-        )
-        assertTrue(graph.contains("instanceKey = \"conversation_folders_\${args.selectedFolderId}\""))
-        assertTrue(graph.contains("previewProvider = ViewModelScopedPreviews"))
-        assertFalse(graph.contains("object ConversationSearchFolderManualViewModelFactoryGroup"))
-        assertTrue(viewModel.contains("ConversationFoldersManualViewModelFactoryGroup::class"))
-        assertTrue(viewModel.contains("factoryMethod = \"conversationFoldersViewModel\""))
-    }
-
-    @Test
-    fun moveConversationToFolderMetroFactoryAndResourcesAreFeatureOwned() {
-        val graph = File(Konsist.projectRootPath, moveConversationToFolderViewModelGraphRelativePath).readText()
-        val viewModel = File(Konsist.projectRootPath, moveConversationToFolderViewModelRelativePath).readText()
-
-        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
-        assertTrue(graph.contains("object MoveConversationToFolderManualViewModelFactoryGroup"))
-        assertTrue(
-            graph.contains(
-                "wireAssistedMetroViewModelAs<\n        MoveConversationToFolderVMImpl,\n        MoveConversationToFolderVM,\n        MoveConversationToFolderManualViewModelFactory,"
-            ),
-            "The move-to-folder gateway must preserve its assisted implementation and interface types.",
-        )
-        assertTrue(
-            graph.contains(
-                "instanceKey = \"move_conversation_to_folder_\${args.conversationId}_\${args.currentFolderId}\""
-            ),
-        )
-        assertTrue(graph.contains("previewProvider = ViewModelScopedPreviews"))
-        assertFalse(graph.contains("object ConversationSearchFolderManualViewModelFactoryGroup"))
-        assertTrue(viewModel.contains("MoveConversationToFolderManualViewModelFactoryGroup::class"))
-        assertTrue(viewModel.contains("factoryMethod = \"moveConversationToFolderViewModel\""))
-        assertTrue(viewModel.contains("com.wire.android.feature.conversation.R"))
-
-        moveConversationToFolderStringsByQualifier.forEach { (qualifier, expectedStrings) ->
-            val featureStrings = File(
-                Konsist.projectRootPath,
-                "features/conversation/src/main/res/$qualifier/strings.xml",
-            ).readText()
-            val appStrings = File(
-                Konsist.projectRootPath,
-                "app/src/main/res/$qualifier/strings.xml",
-            ).readText()
-
-            expectedStrings.forEach { expectedString ->
-                assertTrue(featureStrings.contains(expectedString), "Missing feature $qualifier string: $expectedString")
-            }
-            moveConversationToFolderStringNames.forEach { name ->
-                assertFalse(
-                    appStrings.contains("name=\"$name\""),
-                    "$name must not remain in app $qualifier resources.",
-                )
-            }
-        }
-    }
-
-    @Test
-    fun newFolderDirectMetroBindingAndResourcesAreFeatureOwned() {
-        val graph = File(Konsist.projectRootPath, newFolderViewModelGraphRelativePath).readText()
-        val viewModel = File(Konsist.projectRootPath, newFolderViewModelRelativePath).readText()
-
-        assertTrue(graph.contains("@BindingContainer"))
-        assertTrue(graph.contains("object NewFolderMetroViewModelBindings"))
-        assertTrue(graph.contains("@ViewModelKey(NewFolderViewModel::class)"))
-        assertTrue(
-            graph.contains("fun newFolderViewModel(viewModel: NewFolderViewModel): ViewModel = viewModel"),
-            "The feature must keep the direct ViewModel map binding.",
-        )
-        assertTrue(graph.contains("fun newFolderViewModel(): NewFolderViewModel ="))
-        assertTrue(graph.contains("wireMetroViewModel()"))
-        assertTrue(viewModel.contains("com.wire.android.feature.conversation.R"))
-
-        newFolderFailureStringsByQualifier.forEach { (qualifier, expectedString) ->
-            val featureStrings = File(
-                Konsist.projectRootPath,
-                "features/conversation/src/main/res/$qualifier/strings.xml",
-            ).readText()
-            val appStrings = File(
-                Konsist.projectRootPath,
-                "app/src/main/res/$qualifier/strings.xml",
-            ).readText()
-
-            assertTrue(featureStrings.contains(expectedString), "Missing feature $qualifier string: $expectedString")
-            assertFalse(
-                appStrings.contains("name=\"new_folder_failure\""),
-                "new_folder_failure must not remain in app $qualifier resources.",
-            )
-        }
-    }
-
-    @Test
     fun promoteAdminMetroFactoryAndParcelableContractAreFeatureOwned() {
         val graph = File(Konsist.projectRootPath, promoteAdminViewModelGraphRelativePath).readText()
         val viewModel = File(Konsist.projectRootPath, promoteAdminViewModelRelativePath).readText()
@@ -541,18 +441,6 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editselfdeletingmessages/EditSelfDeletingMessagesViewModel.kt"
         const val editSelfDeletingMessagesViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/EditSelfDeletingMessagesViewModelGraph.kt"
-        const val conversationFoldersViewModelRelativePath =
-            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/folder/ConversationFoldersVM.kt"
-        const val conversationFoldersViewModelGraphRelativePath =
-            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationFoldersViewModelGraph.kt"
-        const val moveConversationToFolderViewModelRelativePath =
-            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/folder/MoveConversationToFolderVM.kt"
-        const val moveConversationToFolderViewModelGraphRelativePath =
-            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/MoveConversationToFolderViewModelGraph.kt"
-        const val newFolderViewModelRelativePath =
-            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/folder/NewFolderViewModel.kt"
-        const val newFolderViewModelGraphRelativePath =
-            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/NewFolderViewModelGraph.kt"
         const val promoteAdminViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/promoteadmin/PromoteAdminViewModel.kt"
         const val promoteAdminNavArgsRelativePath =
@@ -759,24 +647,6 @@ class ConversationModuleBoundaryTest {
             editSelfDeletingMessagesViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
-        val conversationFoldersViewModelSources = mapOf(
-            conversationFoldersViewModelRelativePath to
-                    "com.wire.android.ui.home.conversations.folder",
-            conversationFoldersViewModelGraphRelativePath to
-                    "com.wire.android.ui.home.conversations",
-        )
-        val moveConversationToFolderViewModelSources = mapOf(
-            moveConversationToFolderViewModelRelativePath to
-                    "com.wire.android.ui.home.conversations.folder",
-            moveConversationToFolderViewModelGraphRelativePath to
-                    "com.wire.android.ui.home.conversations",
-        )
-        val newFolderViewModelSources = mapOf(
-            newFolderViewModelRelativePath to
-                    "com.wire.android.ui.home.conversations.folder",
-            newFolderViewModelGraphRelativePath to
-                    "com.wire.android.ui.home.conversations",
-        )
         val promoteAdminViewModelSources = mapOf(
             promoteAdminViewModelRelativePath to
                     "com.wire.android.ui.home.conversations.promoteadmin",
@@ -829,7 +699,6 @@ class ConversationModuleBoundaryTest {
                     groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources + conversationDetailsContractSources +
                     createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources +
                     editSelfDeletingMessagesViewModelSources +
-                    conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
                     visualMediaParamsSources + conversationInfoStateSources + messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
@@ -916,12 +785,9 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.UpdateAppsAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.EditSelfDeletingMessagesManualViewModelFactoryGroup",
-            "com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryGroup",
-            "com.wire.android.ui.home.conversations.MoveConversationToFolderManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.PromoteAdminManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.AddMembersToConversationManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.QualifiedIdParceler",
-            "com.wire.android.ui.home.conversations.folder.NewFolderViewModel",
             "com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs",
             "com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel",
             "com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs",
@@ -938,12 +804,6 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs",
             "com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration",
             "com.wire.android.ui.home.messagecomposer.SelfDeletionDuration",
-            "com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs",
-            "com.wire.android.ui.home.conversations.folder.ConversationFoldersVM",
-            "com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl",
-            "com.wire.android.ui.home.conversations.folder.MoveConversationToFolderArgs",
-            "com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVM",
-            "com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",
@@ -966,44 +826,6 @@ class ConversationModuleBoundaryTest {
         val kspProcessor = Regex("""ksp\s*\(\s*project\s*\(\s*["']:ksp["']\s*\)\s*\)""")
         val conversationPreviewAggregateName = Regex(
             """wire\.viewmodelScopedPreview\.aggregateName["']?\s*,\s*["']ConversationViewModelScopedPreviews["']""",
-        )
-        val moveConversationToFolderStringNames = setOf(
-            "move_to_folder_success",
-            "move_to_folder_failed",
-        )
-        val moveConversationToFolderStringsByQualifier = mapOf(
-            "values" to listOf(
-                "<string name=\"move_to_folder_success\">“%1\$s” was moved to “%2\$s”</string>",
-                "<string name=\"move_to_folder_failed\">“%1\$s” could not be moved</string>",
-            ),
-            "values-de" to listOf(
-                "<string name=\"move_to_folder_success\">„%1\$s“ wurde nach ‚%2\$s‘ verschoben</string>",
-                "<string name=\"move_to_folder_failed\">“%1\$s” konnte nicht verschoben werden</string>",
-            ),
-            "values-hu" to listOf(
-                "<string name=\"move_to_folder_success\">\\\"%1\$s\\\" áthelyezve ide: \\\"%2\$s\\\"</string>",
-                "<string name=\"move_to_folder_failed\">\\\"%1\$s\\\" áthelyezése nem sikerült</string>",
-            ),
-            "values-pt" to listOf(
-                "<string name=\"move_to_folder_success\">“%1\$s” foi movido para “%2\$s”</string>",
-                "<string name=\"move_to_folder_failed\">“%1\$s” não pôde ser movido</string>",
-            ),
-            "values-ru" to listOf(
-                "<string name=\"move_to_folder_success\">“%1\$s” был перемещен в “%2\$s”</string>",
-                "<string name=\"move_to_folder_failed\">“%1\$s” не может быть перемещен</string>",
-            ),
-            "values-si" to listOf(
-                "<string name=\"move_to_folder_success\">“%1\$s” “%2\$s” වෙත ගෙන යන ලදී.</string>",
-                "<string name=\"move_to_folder_failed\">“%1\$s” ගෙනයාමට නොහැකි විය</string>",
-            ),
-        )
-        val newFolderFailureStringsByQualifier = mapOf(
-            "values" to "<string name=\"new_folder_failure\">“%1\$s” folder could not be added</string>",
-            "values-de" to "<string name=\"new_folder_failure\">Ordner “%1\$s” konnte nicht hinzugefügt werden</string>",
-            "values-hu" to "<string name=\"new_folder_failure\">\\\"%1\$s\\\" mappa létrehozása nem sikerült</string>",
-            "values-pt" to "<string name=\"new_folder_failure\">A pasta “%1\$s” não pôde ser adicionada</string>",
-            "values-ru" to "<string name=\"new_folder_failure\">Папка “%1\$s” не может быть добавлена</string>",
-            "values-si" to "<string name=\"new_folder_failure\">“%1\$s” ෆෝල්ඩරය එක් කිරීමට නොහැකි විය.</string>",
         )
     }
 }

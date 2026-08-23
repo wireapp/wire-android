@@ -2,7 +2,6 @@ plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
     id(BuildPlugins.junit5)
-    id(BuildPlugins.kotlinParcelize)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
     alias(libs.plugins.kotlin.serialization)
@@ -10,49 +9,35 @@ plugins {
 }
 
 android {
-    namespace = "com.wire.android.feature.conversation"
-    testFixtures.enable = true
+    namespace = "com.wire.android.feature.conversation.folders"
 }
 
 ksp {
-    arg("wire.viewmodelScopedPreview.aggregateName", "ConversationViewModelScopedPreviews")
+    arg("wire.viewmodelScopedPreview.aggregateName", "ConversationFoldersViewModelScopedPreviews")
 }
 
 dependencies {
-    api(projects.features.conversation.folders)
-    kover(projects.features.conversation.folders)
-
     api(projects.core.uiCommon)
     api("com.wire.kalium:kalium-logic")
     api(libs.androidx.lifecycle.viewModel)
     api(libs.coroutines.android)
-    api(libs.ktx.dateTime)
     api(libs.ktx.immutableCollections)
     api(libs.ktx.serialization)
 
-    implementation(projects.core.di)
-    implementation(projects.core.search)
-    implementation(libs.metrox.viewModelCompose)
-    implementation(libs.okio.core)
+    api(enforcedPlatform(libs.compose.bom))
+    api(libs.androidx.compose.runtime)
+    api("androidx.compose.foundation:foundation")
 
-    implementation(enforcedPlatform(libs.compose.bom))
-    implementation(libs.androidx.compose.runtime)
-    implementation("androidx.compose.foundation:foundation")
-    implementation(libs.compose.material3)
-    implementation(libs.compose.ui.preview)
+    implementation(projects.core.di)
+    implementation(libs.metrox.viewModelCompose)
 
     testImplementation(libs.junit5.core)
-    testImplementation(libs.junit5.params)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.konsist)
     testImplementation(libs.mockk.core)
     testImplementation(libs.turbine)
     testImplementation(testFixtures(projects.core.uiCommon))
     testRuntimeOnly(libs.junit5.engine)
-
-    testFixturesImplementation("com.wire.kalium:kalium-logic")
-    testFixturesImplementation(enforcedPlatform(libs.compose.bom))
-    testFixturesImplementation(libs.androidx.compose.runtime)
 
     ksp(project(":ksp"))
 }

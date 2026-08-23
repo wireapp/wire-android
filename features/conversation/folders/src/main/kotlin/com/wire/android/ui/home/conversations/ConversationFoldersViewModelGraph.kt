@@ -21,27 +21,27 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.ConversationViewModelScopedPreviews as ViewModelScopedPreviews
+import com.wire.android.di.ConversationFoldersViewModelScopedPreviews as ViewModelScopedPreviews
 import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 import com.wire.android.di.metro.wireAssistedMetroViewModelAs
-import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderArgs
-import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVM
-import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
 
 @WireAssistedViewModelFactoryGroup
-object MoveConversationToFolderManualViewModelFactoryGroup
+object ConversationFoldersManualViewModelFactoryGroup
 
 @Composable
-fun moveConversationToFolderViewModel(
-    args: MoveConversationToFolderArgs,
-): MoveConversationToFolderVM =
+fun conversationFoldersViewModel(
+    args: ConversationFoldersStateArgs,
+): ConversationFoldersVM =
     wireAssistedMetroViewModelAs<
-        MoveConversationToFolderVMImpl,
-        MoveConversationToFolderVM,
-        MoveConversationToFolderManualViewModelFactory,
+        ConversationFoldersVMImpl,
+        ConversationFoldersVM,
+        ConversationFoldersManualViewModelFactory,
         >(
-        instanceKey = "move_conversation_to_folder_${args.conversationId}_${args.currentFolderId}",
+        instanceKey = "conversation_folders_${args.selectedFolderId}",
         previewProvider = ViewModelScopedPreviews,
     ) { _ ->
-        moveConversationToFolderViewModel(args)
+        conversationFoldersViewModel(args)
     }

@@ -19,7 +19,7 @@ package com.wire.android.ui.common.bottomsheet.folder
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import app.cash.turbine.test
-import com.wire.android.feature.conversation.R
+import com.wire.android.feature.conversation.folders.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.model.DefaultSnackBarMessage

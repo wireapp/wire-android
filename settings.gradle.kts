@@ -49,6 +49,9 @@ rootDir
         include(it)
     }
 
+// Internal conversation capabilities are nested below the one-level feature discovery above.
+include(":features:conversation:folders")
+
 dependencyResolutionManagement {
  repositories {
         google()

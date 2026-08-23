@@ -1,0 +1,5 @@
+<resources>
+    <string name="move_to_folder_success">“%1$s” “%2$s” වෙත ගෙන යන ලදී.</string>
+    <string name="move_to_folder_failed">“%1$s” ගෙනයාමට නොහැකි විය</string>
+    <string name="new_folder_failure">“%1$s” ෆෝල්ඩරය එක් කිරීමට නොහැකි විය.</string>
+</resources>

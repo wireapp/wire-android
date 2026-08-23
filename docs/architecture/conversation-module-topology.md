@@ -1,9 +1,9 @@
 # Conversation module topology
 
-**Status:** Proposed target architecture
+**Status:** Staged implementation; folders is the first live internal capability
 **Scope:** Conversation extraction after Navigation 3 migration
 
-> This is the target topology, not today’s Gradle layout. The current implementation remains one Android-first `:features:conversation` module while each seam is proved through small, package-preserving slices.
+> The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
 ## Purpose
 
@@ -47,14 +47,14 @@ The graph shows permitted direction, not mandatory dependencies. Every capabilit
 
 ## Current transition model
 
-Today `:features:conversation` is both the migration facade and temporary implementation owner. Each move proves one eventual seam without making the build harder to understand.
+Today `:features:conversation` is the migration facade and temporary owner for the capabilities not yet split. It re-exports `:features:conversation:folders` with an `api` edge, so `:app` continues to depend only on the facade. Folders owns its six package-preserving ViewModel/Metro sources, focused unit test, and 18 localized string entries; app retains folder screens, routes, Navigation 3 entries, and session binding installation.
 
 - Feature-owned ViewModels, immutable UI state, use cases, pure mappers, local resources, and Metro gateway code may move into the current module.
 - `:app` stays the composition root: Navigation 3 runtime registration, activities, services, providers, manifest declarations, flavor selection, app `BuildConfig`, and host-only side effects remain app-owned.
 - Shared code moves first to neutral core when it has independent consumers; it never creates a conversation-to-feature dependency.
 - Kotlin packages remain stable during moves to avoid import, navigation-identity, and review churn.
 
-A target submodule is created only after its seam is evidenced by source, resource, test, and dependency analysis. Package folders are not sufficient reason to create Gradle modules.
+A further target submodule is created only after its seam is evidenced by source, resource, test, and dependency analysis. Package folders are not sufficient reason to create Gradle modules.
 
 ## Target responsibilities
 
@@ -109,13 +109,13 @@ Do not create `common`, `shared`, `utils`, `base`, or a catch-all `contract` mod
 
 ## Staged sequence
 
-1. **Continue the single-module migration.** Make small package-preserving moves into `:features:conversation`; screens, routes, and runtime assembly stay app-owned until their full closure is clean.
-2. **Folders first.** Stabilise folder ViewModels, state, local resources, tests, and dedicated Metro wiring: ConversationFolders, NewFolder, then MoveConversationToFolder when its own closure is ready. This is the first candidate for `folders`.
+1. **Continue the facade migration.** Make small package-preserving moves into `:features:conversation`; screens, routes, and runtime assembly stay app-owned until their full closure is clean.
+2. **Folders first — live.** `:features:conversation:folders` owns ConversationFolders, NewFolder, MoveConversationToFolder, their Metro gateways, focused test, and resources. The facade re-exports it and remains the only app dependency.
 3. **Participants next.** Complete participant state/rendering and neutral shared label/type ownership. This becomes the candidate for `participants`; it is not exported to meetings.
 4. **Details after explicit contracts.** Details uses the narrow contract and neutral types, never a direct participants dependency just to reuse a renderer or mapper.
 5. **Messages and media later.** Treat messages, composer, conversation list, gallery/media, calling, and the app meetings host as a temporary source SCC. Break it through neutral ports and app adapters before creating `messages` or `media`; never replace the SCC with feature-to-feature chains.
 6. **Conversation calling last.** Move only conversation presentation/orchestration once it consumes `:core:calling` directly. Android call runtime stays in app.
-7. **Split facade and internals only after the seams are demonstrated.** Introduce one capability module at a time; the facade remains the only supported inbound surface.
+7. **Split further internals only after the seams are demonstrated.** Introduce one capability module at a time; the facade remains the only supported inbound surface.
 
 The order is capability-led, not directory-led. A smaller clean leaf may change the milestone, but never the dependency law.
 
@@ -148,7 +148,7 @@ A reviewer should primarily see source moves plus necessary import and assembly 
 Every slice provides evidence proportional to its boundary:
 
 - move and run focused unit tests from the destination owner;
-- extend `ConversationModuleBoundaryTest` for package preservation, no app implementation imports, and the dependency budget;
+- extend the owning module boundary test for package preservation, no app/parent implementation dependency, and the exact dependency budget;
 - add an app assembly-ownership source test showing the old gateway/binding is absent, the feature gateway is present, and the session graph installs it exactly once;
 - keep Navigation 3 source/contract tests green for app-owned routes and typed results;
 - verify resource ownership and exact locale qualifier coverage;

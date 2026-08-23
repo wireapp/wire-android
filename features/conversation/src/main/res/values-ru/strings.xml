@@ -3,7 +3,4 @@
     <string name="conversation_details_conversation_admins">АДМИНИСТРАТОРЫ (%d)</string>
     <string name="conversation_details_conversation_members">УЧАСТНИКИ (%d)</string>
     <string name="conversation_details_conversation_apps">ПРИЛОЖЕНИЯ (%d)</string>
-    <string name="move_to_folder_success">“%1$s” был перемещен в “%2$s”</string>
-    <string name="move_to_folder_failed">“%1$s” не может быть перемещен</string>
-    <string name="new_folder_failure">Папка “%1$s” не может быть добавлена</string>
 </resources>

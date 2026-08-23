@@ -54,6 +54,7 @@ import com.wire.android.ui.debug.DebugInfoViewModelGraph
 import com.wire.android.ui.home.HomeMetroViewModelBindings
 import com.wire.android.ui.home.HomeViewModelGraph
 import com.wire.android.ui.home.conversations.call.ConversationCallManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversations.AddMembersToConversationManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.NewFolderMetroViewModelBindings
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryMetroBindings
@@ -123,6 +124,7 @@ annotation class MetroSessionScope
         ConversationFoldersManualViewModelFactoryMetroBindings::class,
         MoveConversationToFolderManualViewModelFactoryMetroBindings::class,
         PromoteAdminManualViewModelFactoryMetroBindings::class,
+        AddMembersToConversationManualViewModelFactoryMetroBindings::class,
         SettingsManualViewModelFactoryMetroBindings::class,
         CallingManualViewModelFactoryMetroBindings::class,
         CallingMetroViewModelBindings::class,

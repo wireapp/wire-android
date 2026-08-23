@@ -47,7 +47,6 @@ class ConversationAuxNavigation3SourceTest {
     @Test
     fun givenArgumentOwningViewModels_whenInspectingSources_thenArgumentsAreTyped() {
         listOf(
-            "ui/home/conversations/search/adddembertoconversation/AddMembersToConversationViewModel.kt",
             "ui/home/conversations/search/messages/SearchConversationMessagesViewModel.kt",
             "ui/debug/conversation/DebugConversationViewModel.kt",
         ).forEach { path ->
@@ -60,6 +59,11 @@ class ConversationAuxNavigation3SourceTest {
         )
         assertFalse(promoteAdminSource.contains("SavedStateHandle"))
         assertFalse(promoteAdminSource.contains("generated.app.navArgs"))
+        val addMembersSource = featureSource(
+            "ui/home/conversations/search/adddembertoconversation/AddMembersToConversationViewModel.kt",
+        )
+        assertFalse(addMembersSource.contains("SavedStateHandle"))
+        assertFalse(addMembersSource.contains("generated.app.navArgs"))
     }
 
     @Test

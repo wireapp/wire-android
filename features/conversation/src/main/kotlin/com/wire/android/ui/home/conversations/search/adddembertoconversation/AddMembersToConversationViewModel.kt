@@ -23,8 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.model.Contact
+import com.wire.android.ui.home.conversations.AddMembersToConversationManualViewModelFactoryGroup
+import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
@@ -36,10 +38,10 @@ import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
-
-@WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    AddMembersToConversationManualViewModelFactoryGroup::class,
+    factoryMethod = "addMembersToConversationViewModel",
+)
 class AddMembersToConversationViewModel @AssistedInject constructor(
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val dispatchers: DispatcherProvider,

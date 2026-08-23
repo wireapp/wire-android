@@ -18,6 +18,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation(project(":core:ui-common"))
     implementation(projects.core.queryMatching)
+    implementation(projects.core.interactionModel)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.ktx.serialization)

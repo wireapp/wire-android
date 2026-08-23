@@ -21,6 +21,7 @@ ksp {
 dependencies {
     // WireTheme exposes these design-system types in its public API.
     api(projects.core.designSystem)
+    api(projects.core.interactionModel)
 
     implementation(project(":core:di"))
 

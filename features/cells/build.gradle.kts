@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":core:di"))
     implementation(project(":core:navigation"))
     implementation(project(":core:ui-common"))
+    implementation(projects.core.interactionModel)
     implementation(project(":core:media-player"))
     implementation(libs.compose.activity)
     implementation(libs.androidx.core)

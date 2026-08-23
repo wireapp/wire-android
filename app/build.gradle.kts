@@ -210,6 +210,7 @@ dependencies {
     }
     implementationWithCoverage(projects.core.uiCommon)
     implementation(projects.core.queryMatching)
+    implementation(projects.core.interactionModel)
     implementation(projects.core.designSystem)
     implementationWithCoverage(projects.core.di)
     implementationWithCoverage(projects.core.media)

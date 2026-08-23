@@ -1,6 +1,6 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is live and conversation calling, migration, and message-user resolution have facade-owned seams
+**Status:** Staged implementation; folders is live and conversation calling, migration, message-user resolution, and image-asset paging have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
@@ -56,6 +56,8 @@ Conversation call presentation orchestration is also facade-owned. `Conversation
 Conversation migration presentation follows the same narrow host seam. `ConversationMigrationViewModel`, its dedicated assisted Metro gateway, and focused test are facade-owned and accept only `ConversationId`. App retains the unchanged Navigation 3 call through a `ConversationNavArgs` adapter and installs the generated migration binding exactly once; no resource or dependency edge moved with it.
 
 Message-user resolution is facade-owned as well. `GetUsersForMessageUseCase` keeps its public package and FQN while resolving the sender and the exact additional-user sets carried by delivery failures, member changes, and legal-hold events. The projection is private to that capability, so the app-owned `MessageMapper` remains focused on UI-message mapping and no new module edge or shared mapper abstraction is introduced.
+
+The image-asset paging seam is now facade-owned. `ObserveImageAssetMessagesFromConversationUseCase`, `UIAssetMapper`, `TimeZoneProvider`, and the focused paging test keep their packages and FQNs in `:features:conversation`; Paging 3 runtime is a direct public-API dependency and paging-testing remains test-only. `:app` retains `ConversationAssetMessagesViewModel`, media screens and navigation, the file-asset pipeline, platform pickers and permissions, and Android runtime composition.
 
 - Feature-owned ViewModels, immutable UI state, use cases, pure mappers, local resources, and Metro gateway code may move into the current module.
 - `:app` stays the composition root: Navigation 3 runtime registration, activities, services, providers, manifest declarations, flavor selection, app `BuildConfig`, and host-only side effects remain app-owned.

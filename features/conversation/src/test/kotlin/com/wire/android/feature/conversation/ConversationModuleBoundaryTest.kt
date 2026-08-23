@@ -39,6 +39,26 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun imageAssetPagingUsesTheExactPagingDependencyBudget() {
+        val buildScript = featureBuildScriptText()
+
+        assertEquals(
+            1,
+            pagingRuntimeApiDependency.findAll(buildScript).count(),
+            ":features:conversation must expose exactly one Paging runtime API dependency.",
+        )
+        assertEquals(
+            1,
+            pagingTestingDependency.findAll(buildScript).count(),
+            ":features:conversation must declare exactly one Paging testing dependency.",
+        )
+        assertFalse(
+            pagingComposeDependency.containsMatchIn(buildScript),
+            "The image-asset paging seam must not add Paging Compose.",
+        )
+    }
+
+    @Test
     fun appDependsOnConversationThroughTheFeatureConvention() {
         val appBuildScript = appBuildScriptText()
 
@@ -119,6 +139,12 @@ class ConversationModuleBoundaryTest {
             File(Konsist.projectRootPath, appGetUsersForMessageUseCaseRelativePath).exists(),
             "GetUsersForMessageUseCase must not remain app-owned after its feature move.",
         )
+        appImageAssetPagingSourceRelativePaths.forEach { relativePath ->
+            assertFalse(
+                File(Konsist.projectRootPath, relativePath).exists(),
+                "$relativePath must not remain app-owned after the image-asset paging move.",
+            )
+        }
     }
 
     @Test
@@ -559,6 +585,11 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationMigrationViewModelGraph.kt"
         const val appGetUsersForMessageUseCaseRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase.kt"
+        val appImageAssetPagingSourceRelativePaths = listOf(
+            "app/src/main/kotlin/com/wire/android/mapper/UIAssetMapper.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/ObserveImageAssetMessagesFromConversationUseCase.kt",
+            "app/src/main/kotlin/com/wire/android/util/time/TimeZoneProvider.kt",
+        )
         const val groupConversationDetailsViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
         const val groupConversationDetailsViewModelGraphRelativePath =
@@ -881,6 +912,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase.kt" to
                     "com.wire.android.ui.home.conversations.usecase",
         )
+        val imageAssetPagingSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/UIAssetMapper.kt" to
+                    "com.wire.android.mapper",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/ObserveImageAssetMessagesFromConversationUseCase.kt" to
+                    "com.wire.android.ui.home.conversations.usecase",
+            "features/conversation/src/main/kotlin/com/wire/android/util/time/TimeZoneProvider.kt" to
+                    "com.wire.android.util.time",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -897,7 +936,7 @@ class ConversationModuleBoundaryTest {
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
-                    getUsersForMessageUseCaseSources
+                    getUsersForMessageUseCaseSources + imageAssetPagingSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -914,6 +953,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.feature.conversation.config.LocalConversationHostConfiguration",
             "com.wire.android.feature.conversation.config.ConversationHostConfiguration",
             "com.wire.android.mapper.UIParticipantMapper",
+            "com.wire.android.mapper.UIAssetMapper",
             "com.wire.android.mapper.UserTypeMapper",
             "com.wire.android.mapper.UsernameMapper",
             "com.wire.android.mapper.UsernameMapper.fromExpirationToHandle",
@@ -948,6 +988,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar",
             "com.wire.android.ui.common.textfield.textAsFlow",
             "com.wire.android.ui.common.maxTitleLines",
+            "com.wire.android.ui.common.monthYearHeader",
             "com.wire.android.ui.common.divider.WireDivider",
             "com.wire.android.ui.common.progress.WireLinearProgressIndicator",
             "com.wire.android.ui.common.rowitem.RowItemTemplate",
@@ -976,6 +1017,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.info.ConversationInfoViewModelArgs",
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase",
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase",
+            "com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage",
             "com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.CompositeMessageManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.model.CompositeMessageArgs",
@@ -1020,6 +1062,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.util.EMPTY",
             "com.wire.android.util.AppsUtil",
             "com.wire.android.util.dispatchers.DispatcherProvider",
+            "com.wire.android.util.time.TimeZoneProvider",
             "com.wire.android.util.ui.FolderType",
             "com.wire.android.util.ui.UIText",
             "com.wire.android.util.ui.toUIText",
@@ -1028,6 +1071,9 @@ class ConversationModuleBoundaryTest {
             "dev.zacsweers.metro.Inject",
         )
         val kspPlugin = Regex("""alias\s*\(\s*libs\.plugins\.ksp\s*\)""")
+        val pagingRuntimeApiDependency = Regex("""api\s*\(\s*libs\.androidx\.paging3\s*\)""")
+        val pagingTestingDependency = Regex("""testImplementation\s*\(\s*libs\.androidx\.paging\.testing\s*\)""")
+        val pagingComposeDependency = Regex("""libs\.androidx\.paging3Compose\b""")
         val kspProcessor = Regex("""ksp\s*\(\s*project\s*\(\s*["']:ksp["']\s*\)\s*\)""")
         val conversationPreviewAggregateName = Regex(
             """wire\.viewmodelScopedPreview\.aggregateName["']?\s*,\s*["']ConversationViewModelScopedPreviews["']""",

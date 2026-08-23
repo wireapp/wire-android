@@ -26,6 +26,7 @@ dependencies {
     api(projects.core.uiCommon)
     api("com.wire.kalium:kalium-logic")
     api(libs.androidx.lifecycle.viewModel)
+    api(libs.androidx.paging3)
     api(libs.coroutines.android)
     api(libs.ktx.dateTime)
     api(libs.ktx.immutableCollections)
@@ -44,6 +45,7 @@ dependencies {
 
     testImplementation(libs.junit5.core)
     testImplementation(libs.junit5.params)
+    testImplementation(libs.androidx.paging.testing)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.konsist)
     testImplementation(libs.mockk.core)

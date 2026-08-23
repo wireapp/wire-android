@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `82f90fbb8`.
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `a560794cf`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -79,6 +79,7 @@ graph TD
 | `:features:conversation` | `:core:di` | implementation | current | Feature-owned ViewModel markers and Metro gateway helpers | Feature to core only |
 | `:features:conversation` | `:core:search` | implementation | current | Participant renderers use neutral query highlighting widgets | Feature to core only |
 | `:features:conversation` | Kalium Logic | api | current | Public participant and typing contracts expose Kalium IDs and user types | Feature to third-party library only |
+| `:features:conversation` | Paging 3 runtime | api | current | The public image-asset paging seam exposes `PagingData` and paging transformations | Feature to third-party library only; public ABI requires `api` |
 | `:app` | `:features:meetings` | `implementationWithCoverage` | current | Composition | App may depend on a feature |
 | `:app` | `:core:calling`, `:core:navigation`, `:core:di`, `:core:ui-common` | implementation / coverage helper | current | Android runtime composition | Allowed |
 | `:app` | Kalium Logic | implementation coordinate | current | Application runtime | Allowed |
@@ -119,12 +120,12 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **183**, message composer **40**,
+Audited app production-file counts are: conversations **182**, message composer **40**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
-**27**. The strict app conversations directory has **55** unit tests and **1** Android
+**27**. The strict app conversations directory has **54** unit tests and **1** Android
 test; **80** files import app `R`, **419** distinct fully-qualified `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**84** production files and **28** unit-test files; the first live internal capability,
+**87** production files and **29** unit-test files; the first live internal capability,
 `:features:conversation:folders`, owns **6** production files and **2** unit-test files.
 The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
@@ -204,7 +205,9 @@ its contracts; it remains a third-party library, not a shared ownership module.
 Compose Foundation and Material 3 are likewise direct renderer implementation
 dependencies under the existing Compose BOM. Coroutines, Lifecycle ViewModel, kotlinx-datetime,
 and kotlinx-serialization are third-party library dependencies and are intentionally
-not separate Mermaid nodes. `:core:calling` depends on Kalium
+not separate Mermaid nodes. Paging 3 runtime is a direct feature API dependency because
+the image-asset paging seam exposes `PagingData`; paging-testing is test-only and Paging
+Compose is outside this leaf's dependency budget. `:core:calling` depends on Kalium
 common/logic and `:core:ui-common` only as proved by the moved coordinator. Its
 public ABI deliberately exposes `:core:ui-common`, Kalium Logic, and coroutines
 (`Flow`) with `api`; Kalium common, Compose, and AndroidX remain implementation

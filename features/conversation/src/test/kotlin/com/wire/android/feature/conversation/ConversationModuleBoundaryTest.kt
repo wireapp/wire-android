@@ -799,6 +799,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
         )
+        val interceptClickableSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/InterceptClickable.kt" to
+                    "com.wire.android.ui.home.conversations.messages.item",
+        )
         val memberItemToMentionSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/mention/MemberItemToMention.kt" to
                     "com.wire.android.ui.home.conversations.mention",
@@ -813,7 +817,7 @@ class ConversationModuleBoundaryTest {
                     editSelfDeletingMessagesViewModelSources +
                     conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
-                    messageItemTemplateSources + memberItemToMentionSources
+                    messageItemTemplateSources + interceptClickableSources + memberItemToMentionSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

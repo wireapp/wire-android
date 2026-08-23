@@ -286,6 +286,24 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun editSelfDeletingMessagesMetroFactoryIsFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, editSelfDeletingMessagesViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, editSelfDeletingMessagesViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object EditSelfDeletingMessagesManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<EditSelfDeletingMessagesViewModel, EditSelfDeletingMessagesManualViewModelFactory>"
+            ),
+            "The self-deletion gateway must keep its dedicated assisted factory type.",
+        )
+        assertFalse(graph.contains("object ConversationDetailsManualViewModelFactoryGroup"))
+        assertTrue(viewModel.contains("EditSelfDeletingMessagesManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"editSelfDeletingMessagesViewModel\""))
+    }
+
+    @Test
     fun conversationFoldersMetroFactoryIsFeatureOwned() {
         val graph = File(Konsist.projectRootPath, conversationFoldersViewModelGraphRelativePath).readText()
         val viewModel = File(Konsist.projectRootPath, conversationFoldersViewModelRelativePath).readText()
@@ -519,6 +537,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/EditGuestAccessViewModel.kt"
         const val editGuestAccessViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/EditGuestAccessViewModelGraph.kt"
+        const val editSelfDeletingMessagesViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editselfdeletingmessages/EditSelfDeletingMessagesViewModel.kt"
+        const val editSelfDeletingMessagesViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/EditSelfDeletingMessagesViewModelGraph.kt"
         const val conversationFoldersViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/folder/ConversationFoldersVM.kt"
         const val conversationFoldersViewModelGraphRelativePath =
@@ -725,6 +747,16 @@ class ConversationModuleBoundaryTest {
             editGuestAccessViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val editSelfDeletingMessagesViewModelSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editselfdeletingmessages/EditSelfDeletingMessagesNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.details.editselfdeletingmessages",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editselfdeletingmessages/EditSelfDeletingMessagesState.kt" to
+                    "com.wire.android.ui.home.conversations.details.editselfdeletingmessages",
+            editSelfDeletingMessagesViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.details.editselfdeletingmessages",
+            editSelfDeletingMessagesViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val conversationFoldersViewModelSources = mapOf(
             conversationFoldersViewModelRelativePath to
                     "com.wire.android.ui.home.conversations.folder",
@@ -770,6 +802,7 @@ class ConversationModuleBoundaryTest {
                     participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources +
                     groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources + conversationDetailsContractSources +
                     createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources +
+                    editSelfDeletingMessagesViewModelSources +
                     conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources
         val allowedMovedSourceImports = setOf(
@@ -849,6 +882,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.CreatePasswordGuestLinkManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.UpdateAppsAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.EditSelfDeletingMessagesManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.MoveConversationToFolderManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.PromoteAdminManualViewModelFactoryGroup",
@@ -867,6 +901,10 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessNavArgs",
             "com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModel",
             "com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessNavArgs",
+            "com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesViewModel",
+            "com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs",
+            "com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration",
+            "com.wire.android.ui.home.messagecomposer.SelfDeletionDuration",
             "com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs",
             "com.wire.android.ui.home.conversations.folder.ConversationFoldersVM",
             "com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl",

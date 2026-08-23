@@ -23,8 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
-import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesViewModel
-import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModel
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameNavArgs
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
@@ -40,16 +38,6 @@ fun editConversationMetadataViewModel(): EditConversationMetadataViewModel =
 @Composable
 fun editConversationMetadataViewModel(args: EditConversationNameNavArgs): EditConversationMetadataViewModel =
     conversationDetailsAssistedViewModel { editConversationMetadataViewModel(args) }
-
-@Composable
-fun editSelfDeletingMessagesViewModel(): EditSelfDeletingMessagesViewModel =
-    wireMetroViewModel()
-
-@Composable
-fun editSelfDeletingMessagesViewModel(
-    args: EditSelfDeletingMessagesNavArgs,
-): EditSelfDeletingMessagesViewModel =
-    conversationDetailsAssistedViewModel { editSelfDeletingMessagesViewModel(args) }
 
 @Composable
 fun checkAssetRestrictionsViewModel(): CheckAssetRestrictionsViewModel =

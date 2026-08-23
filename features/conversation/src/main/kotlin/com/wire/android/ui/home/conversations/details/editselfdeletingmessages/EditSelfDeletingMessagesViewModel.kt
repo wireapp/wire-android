@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.EditSelfDeletingMessagesManualViewModelFactoryGroup
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -43,11 +45,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = EditSelfDeletingMessagesManualViewModelFactoryGroup::class,
+    factoryMethod = "editSelfDeletingMessagesViewModel",
+)
 class EditSelfDeletingMessagesViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,

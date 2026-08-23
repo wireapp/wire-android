@@ -20,11 +20,12 @@ package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
-import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
@@ -82,6 +83,13 @@ class EditSelfDeletingMessagesViewModelTest {
 
     private class Arrangement {
 
+        private val regularGroup = ConversationDetails.Group.Regular(
+            conversation = TestConversation.GROUP(),
+            isSelfUserMember = true,
+            selfRole = Conversation.Member.Role.Member,
+            wireCell = null,
+        )
+
         @MockK
         private lateinit var observerConversationMembers: ObserveParticipantsForConversationUseCase
 
@@ -113,7 +121,7 @@ class EditSelfDeletingMessagesViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { selfUser() } returns flowOf(TestUser.SELF_USER)
             coEvery { conversationDetails(any()) } returns flowOf(
-                ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP)
+                ObserveConversationDetailsUseCase.Result.Success(regularGroup)
             )
 
             coEvery { observerConversationMembers(any()) } returns flowOf(ConversationParticipantsData(isSelfAnAdmin = true))

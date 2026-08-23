@@ -73,7 +73,7 @@ class ConversationDetailsNavigation3SourceTest {
         val viewModelPaths = listOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt",
             "metadata/EditConversationMetadataViewModel.kt",
-            "editselfdeletingmessages/EditSelfDeletingMessagesViewModel.kt",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editselfdeletingmessages/EditSelfDeletingMessagesViewModel.kt",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsViewModel.kt",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updateappsaccess/UpdateAppsAccessViewModel.kt",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updatechannelaccess/UpdateChannelAccessViewModel.kt",

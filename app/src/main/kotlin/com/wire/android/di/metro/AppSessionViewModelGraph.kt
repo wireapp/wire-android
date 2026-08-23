@@ -65,6 +65,7 @@ import com.wire.android.ui.home.conversations.UpdateChannelAccessManualViewModel
 import com.wire.android.ui.home.conversations.CreatePasswordGuestLinkManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.UpdateAppsAccessManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversations.EditSelfDeletingMessagesManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.MoveConversationToFolderManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.PromoteAdminManualViewModelFactoryMetroBindings
@@ -121,6 +122,7 @@ annotation class MetroSessionScope
         CreatePasswordGuestLinkManualViewModelFactoryMetroBindings::class,
         UpdateAppsAccessManualViewModelFactoryMetroBindings::class,
         EditGuestAccessManualViewModelFactoryMetroBindings::class,
+        EditSelfDeletingMessagesManualViewModelFactoryMetroBindings::class,
         ConversationFoldersManualViewModelFactoryMetroBindings::class,
         MoveConversationToFolderManualViewModelFactoryMetroBindings::class,
         PromoteAdminManualViewModelFactoryMetroBindings::class,

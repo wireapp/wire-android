@@ -683,6 +683,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIMention.kt" to
                     "com.wire.android.ui.home.conversations.model",
         )
+        val conversationScreenDialogTypeSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationScreenDialogType.kt" to
+                    "com.wire.android.ui.home.conversations",
+        )
         val messageItemTemplateSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
@@ -709,6 +713,7 @@ class ConversationModuleBoundaryTest {
                     editSelfDeletingMessagesViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
                     visualMediaParamsSources + conversationInfoStateSources + deleteMessageDialogStateSources + uiMentionSources +
+                    conversationScreenDialogTypeSources +
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources

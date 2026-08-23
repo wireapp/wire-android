@@ -797,6 +797,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/asset/UIAssetMessage.kt" to
                     "com.wire.android.ui.home.conversations.model.messagetypes.asset",
         )
+        val visualMediaParamsSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/image/VisualMediaParams.kt" to
+                    "com.wire.android.ui.home.conversations.model.messagetypes.image",
+        )
         val messageItemTemplateSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
@@ -823,7 +827,7 @@ class ConversationModuleBoundaryTest {
                     editSelfDeletingMessagesViewModelSources +
                     conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
-                    messageItemTemplateSources + interceptClickableSources + memberItemToMentionSources +
+                    visualMediaParamsSources + messageItemTemplateSources + interceptClickableSources + memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",

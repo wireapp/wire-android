@@ -149,6 +149,12 @@ class ConversationModuleBoundaryTest {
                 "$relativePath must not remain app-owned after the image-asset paging move.",
             )
         }
+        appConversationMediaSearchArgumentRelativePaths.forEach { relativePath ->
+            assertFalse(
+                File(Konsist.projectRootPath, relativePath).exists(),
+                "$relativePath must not remain app-owned after the conversation argument move.",
+            )
+        }
     }
 
     @Test
@@ -699,6 +705,11 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/ObserveImageAssetMessagesFromConversationUseCase.kt",
             "app/src/main/kotlin/com/wire/android/util/time/TimeZoneProvider.kt",
         )
+        val appConversationMediaSearchArgumentRelativePaths = listOf(
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/media/ConversationMediaNavArgs.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
+                    "SearchConversationMessagesNavArgs.kt",
+        )
         const val groupConversationDetailsViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
         const val groupConversationDetailsViewModelGraphRelativePath =
@@ -1038,6 +1049,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/util/time/TimeZoneProvider.kt" to
                     "com.wire.android.util.time",
         )
+        val conversationMediaSearchArgumentSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/media/" +
+                    "ConversationMediaNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.media",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
+                    "SearchConversationMessagesNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.search.messages",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -1054,7 +1073,8 @@ class ConversationModuleBoundaryTest {
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
-                    getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources
+                    getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
+                    conversationMediaSearchArgumentSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

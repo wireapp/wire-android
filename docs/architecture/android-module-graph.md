@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `3097074ec`.
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `5be88a96c`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -116,17 +116,18 @@ These are not Gradle edges and must not be mistaken for module ownership:
 |---|---|---|
 | Feature-owned conversation Metro assembly | Conversation info, call, migration, composite-message, and banner factory generation is feature-owned; app keeps route adapters and installs each generated binding container in the session graph | Preserve dedicated groups, generated binding FQNs, instance keys, scopes, narrow assisted contracts, and one-time app installation as the remaining owners move |
 | Conversation role projection | `ObserveConversationRoleForUserUseCase` and `ConversationRoleData` are feature-owned with package-preserved app profile consumers | Keep the projection in the facade; app retains `OtherUserProfileScreenViewModel`, `ServiceDetailsViewModel`, and their tests through the existing facade edge |
+| Conversation media and message-search arguments | `ConversationMediaNavArgs` and `SearchConversationMessagesNavArgs` are feature-owned, package-preserved data contracts | Keep Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors in app while consuming the unchanged FQNs through the facade edge |
 | Neutral participant count at call ViewModels | The conversation feature constructs `KaliumObserveConversationParticipantCount`; the meetings call ViewModel remains app-hosted | Keep the Kalium-only producer and port in `:core:calling`; meetings adds its own direct core edge when it moves, never a feature-to-feature edge |
 | Calling coordinator runtime adapters | `JoinOrStartCallRuntimeActions.kt` and `JoinOrStartCallRuntimeDialogs.kt` contain activity/analytics handling and app dialog rendering | App owns runtime adapters; core exposes only action/dialog-state contracts and dialog-response methods |
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **181**, message composer **40**,
+Audited app production-file counts are: conversations **179**, message composer **40**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **54** unit tests and **1** Android
 test; **79** files import app `R`, **404** distinct fully-qualified `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**90** production files and **31** unit-test files. Its **9** Crowdin-tracked `strings.xml` files span
+**92** production files and **31** unit-test files. Its **9** Crowdin-tracked `strings.xml` files span
 **9** values directories and contain **112** string definitions, including the exact
 **95** localized banner-state definitions. App retains the four banner span-label IDs
 with **23** localized definitions. The first live internal capability,

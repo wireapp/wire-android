@@ -24,10 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -68,12 +68,12 @@ class ConversationCallViewModel @AssistedInject constructor(
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase,
     private val observeSelf: ObserveSelfUserUseCase,
-    @Assisted navigationArgs: ConversationNavArgs,
+    @Assisted conversationId: ConversationId,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(navigationArgs: ConversationNavArgs): ConversationCallViewModel
+        fun create(conversationId: ConversationId): ConversationCallViewModel
     }
     val callManager = JoinOrStartCallManager(
         scope = viewModelScope,
@@ -89,8 +89,7 @@ class ConversationCallViewModel @AssistedInject constructor(
         observeSelf = observeSelf,
     )
 
-    private val conversationNavArgs = navigationArgs
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    val conversationId: QualifiedID = conversationId
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
         private set
     val callingEnabled = MutableSharedFlow<Unit>(replay = 1)

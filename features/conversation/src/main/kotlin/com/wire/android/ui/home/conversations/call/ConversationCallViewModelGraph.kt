@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.kalium.logic.data.id.ConversationId
 
 @WireAssistedViewModelFactoryGroup
 object ConversationCallManualViewModelFactoryGroup
@@ -31,7 +31,7 @@ fun conversationCallViewModel(): ConversationCallViewModel =
     wireMetroViewModel()
 
 @Composable
-fun conversationCallViewModel(args: ConversationNavArgs): ConversationCallViewModel =
+fun conversationCallViewModel(conversationId: ConversationId): ConversationCallViewModel =
     wireAssistedMetroViewModel<ConversationCallViewModel, ConversationCallManualViewModelFactory> { _ ->
-        conversationCallViewModel(args)
+        conversationCallViewModel(conversationId)
     }

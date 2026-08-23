@@ -233,6 +233,49 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun conversationCallMetroFactoryAndConversationIdContractAreFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, conversationCallViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, conversationCallViewModelRelativePath).readText()
+        val buildScript = featureBuildScriptText()
+
+        assertTrue(graph.contains("object ConversationCallManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<ConversationCallViewModel, ConversationCallManualViewModelFactory>"
+            ),
+        )
+        assertTrue(graph.contains("fun conversationCallViewModel(conversationId: ConversationId)"))
+        assertTrue(viewModel.contains("ConversationCallManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("@Assisted conversationId: ConversationId"))
+        assertTrue(viewModel.contains("fun create(conversationId: ConversationId): ConversationCallViewModel"))
+        assertTrue(viewModel.contains("val conversationId: QualifiedID = conversationId"))
+        assertFalse(graph.contains("ConversationNavArgs"))
+        assertFalse(viewModel.contains("ConversationNavArgs"))
+        assertEquals(
+            1,
+            Regex("""api\s*\(\s*projects\.core\.calling\s*\)""").findAll(buildScript).count(),
+            ":features:conversation must expose exactly one :core:calling API edge for callManager's public ABI.",
+        )
+
+        val allowedAndroidImports = setOf(
+            "com.wire.android.di.CurrentAccount",
+            "com.wire.android.di.metro.WireAssistedViewModelBinding",
+            "com.wire.android.di.metro.WireAssistedViewModelFactoryGroup",
+            "com.wire.android.di.metro.wireAssistedMetroViewModel",
+            "com.wire.android.di.metro.wireMetroViewModel",
+            "com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase",
+        )
+        listOf(graph, viewModel).flatMap { source ->
+            Regex("""^import\s+(com\.wire\.android\.[^\s]+)$""", RegexOption.MULTILINE)
+                .findAll(source)
+                .map { it.groupValues[1] }
+                .toList()
+        }.forEach { importName ->
+            assertTrue(importName in allowedAndroidImports, "Unexpected Android import: $importName")
+        }
+    }
+
+    @Test
     fun groupConversationParticipantsMetroFactoryIsFeatureOwned() {
         val graph = File(Konsist.projectRootPath, groupConversationParticipantsViewModelGraphRelativePath).readText()
         val viewModel = File(Konsist.projectRootPath, groupConversationParticipantsViewModelRelativePath).readText()
@@ -478,6 +521,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsViewModel.kt"
         const val groupConversationParticipantsViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/GroupConversationParticipantsViewModelGraph.kt"
+        const val conversationCallViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/call/ConversationCallViewModel.kt"
+        const val conversationCallViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/call/ConversationCallViewModelGraph.kt"
         const val groupConversationDetailsViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
         const val groupConversationDetailsViewModelGraphRelativePath =
@@ -760,6 +807,12 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/call/ConversationCallViewState.kt" to
                     "com.wire.android.ui.home.conversations.call",
         )
+        val conversationCallViewModelSources = mapOf(
+            conversationCallViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.call",
+            conversationCallViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations.call",
+        )
         val messageItemTemplateSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
@@ -795,7 +848,7 @@ class ConversationModuleBoundaryTest {
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
                     visualMediaParamsSources + conversationInfoStateSources + conversationInfoViewModelSources +
                     deleteMessageDialogStateSources + uiMentionSources +
-                    conversationScreenDialogTypeSources + conversationCallViewStateSources +
+                    conversationScreenDialogTypeSources + conversationCallViewStateSources + conversationCallViewModelSources +
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources

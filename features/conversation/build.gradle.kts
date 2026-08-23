@@ -22,6 +22,7 @@ dependencies {
     api(projects.features.conversation.folders)
     kover(projects.features.conversation.folders)
 
+    api(projects.core.calling)
     api(projects.core.uiCommon)
     api("com.wire.kalium:kalium-logic")
     api(libs.androidx.lifecycle.viewModel)

@@ -19,14 +19,14 @@ package com.wire.android.ui.home.conversations.call
 
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.framework.TestConversationDetails
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.framework.TestConversation
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
@@ -101,7 +101,7 @@ class ConversationCallViewModelTest {
     fun `given ongoing call in valid conversation, when observing calls, then set ongoing call state`() = runTest {
         val (_, viewModel) = Arrangement()
             .withOngoingCalls(listOf(ongoingCall))
-            .withConversationDetails(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP))
+            .withConversationDetails(ObserveConversationDetailsUseCase.Result.Success(groupConversationDetails()))
             .arrange()
 
         advanceUntilIdle()
@@ -113,7 +113,7 @@ class ConversationCallViewModelTest {
     fun `given ongoing call in another conversation, when observing calls, then keep ongoing call state false`() = runTest {
         val (_, viewModel) = Arrangement()
             .withOngoingCalls(listOf(otherConversationOngoingCall))
-            .withConversationDetails(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP))
+            .withConversationDetails(ObserveConversationDetailsUseCase.Result.Success(groupConversationDetails()))
             .arrange()
 
         advanceUntilIdle()
@@ -127,7 +127,7 @@ class ConversationCallViewModelTest {
             .withOngoingCalls(listOf(ongoingCall))
             .withConversationDetails(
                 ObserveConversationDetailsUseCase.Result.Success(
-                    TestConversationDetails.GROUP.copy(isSelfUserMember = false)
+                    groupConversationDetails(isSelfUserMember = false)
                 )
             )
             .arrange()
@@ -226,7 +226,7 @@ class ConversationCallViewModelTest {
         }
 
         fun arrange(): Pair<Arrangement, ConversationCallViewModel> = this to ConversationCallViewModel(
-            navigationArgs = ConversationNavArgs(conversationId),
+            conversationId = conversationId,
             observeJoinableCalls = observeJoinableCalls,
             observeEstablishedCalls = observeEstablishedCalls,
             answerCall = joinCall,
@@ -249,6 +249,13 @@ class ConversationCallViewModelTest {
         private val otherConversationId = ConversationId("other-conversation-id", "some.dummy.domain")
         private val ongoingCall = call()
         private val otherConversationOngoingCall = call(conversationId = otherConversationId)
+
+        private fun groupConversationDetails(isSelfUserMember: Boolean = true) = ConversationDetails.Group.Regular(
+            conversation = TestConversation.GROUP(),
+            isSelfUserMember = isSelfUserMember,
+            selfRole = Conversation.Member.Role.Member,
+            wireCell = null,
+        )
 
         private fun call(conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")) = Call(
             conversationId = conversationId,

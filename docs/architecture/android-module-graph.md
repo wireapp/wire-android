@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `4a0dfdafe`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `09c23398d`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -41,7 +41,7 @@ graph TD
     Conversation --> UiCommon
     Conversation --> KaliumLogic
     Conversation --> Folders
-    Conversation -. proposed .-> Calling
+    Conversation --> Calling
     Conversation -. proposed .-> Analytics
     Conversation -. proposed .-> Navigation
     Conversation --> Search
@@ -75,6 +75,7 @@ graph TD
 | `:features:conversation:folders` | `:core:di` | implementation | current | Folder ViewModel markers and Metro gateway helpers | Internal capability to neutral core only |
 | `:features:conversation:folders` | Kalium Logic | api | current | Folder state, IDs, and use cases expose Kalium types | Internal capability to Kalium only |
 | `:features:conversation` | `:core:ui-common` | api | current | Public participant projection exposes UI-common avatar and membership types | Feature to core only |
+| `:features:conversation` | `:core:calling` | api | current | The public `ConversationCallViewModel.callManager` surface exposes the neutral calling coordinator | Feature to core only; public ABI requires `api` |
 | `:features:conversation` | `:core:di` | implementation | current | Feature-owned ViewModel markers and Metro gateway helpers | Feature to core only |
 | `:features:conversation` | `:core:search` | implementation | current | Participant renderers use neutral query highlighting widgets | Feature to core only |
 | `:features:conversation` | Kalium Logic | api | current | Public participant and typing contracts expose Kalium IDs and user types | Feature to third-party library only |
@@ -112,18 +113,18 @@ These are not Gradle edges and must not be mistaken for module ownership:
 
 | Seam | Evidence | Required disposition |
 |---|---|---|
-| Conversation/calling/meetings host Metro hub | `ui/calling/CallingManualViewModelFactoryGroup.kt` imports conversation, list, and app meetings-host view models; `CallingMetroViewModelBindings.kt` binds the latter two | Split assembly ownership before terminal move; preserve Metro groups, keys, and scopes |
-| Neutral participant count at app-hosted call ViewModels | Conversation and meetings construct `KaliumObserveConversationParticipantCount`; only conversation retains its feature-owned participant aggregation for conversation UI state | Keep the Kalium-only producer and port in `:core:calling`; when ViewModels move, each feature gets its own core edge, never a feature-to-feature edge |
+| Owner-specific call Metro assembly | Conversation call factory generation is feature-owned; conversation-list and meetings call presentation still have their existing owners; app installs each binding container in the session graph | Preserve dedicated groups, generated binding FQNs, instance keys, scopes, and one-time app installation as the remaining owners move |
+| Neutral participant count at call ViewModels | The conversation feature constructs `KaliumObserveConversationParticipantCount`; the meetings call ViewModel remains app-hosted | Keep the Kalium-only producer and port in `:core:calling`; meetings adds its own direct core edge when it moves, never a feature-to-feature edge |
 | Calling coordinator runtime adapters | `JoinOrStartCallRuntimeActions.kt` and `JoinOrStartCallRuntimeDialogs.kt` contain activity/analytics handling and app dialog rendering | App owns runtime adapters; core exposes only action/dialog-state contracts and dialog-response methods |
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **185**, message composer **40**,
+Audited app production-file counts are: conversations **184**, message composer **40**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
-**27**. The strict app conversations directory has **57** unit tests and **1** Android
+**27**. The strict app conversations directory has **56** unit tests and **1** Android
 test; **80** files import app `R`, **419** distinct fully-qualified `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**79** production files and **25** unit-test files; the first live internal capability,
+**81** production files and **26** unit-test files; the first live internal capability,
 `:features:conversation:folders`, owns **6** production files and **2** unit-test files.
 The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
@@ -149,7 +150,7 @@ find features/conversation/folders/src/test -type f -name '*.kt' | wc -l
 | From | To | Scope | Status | Reason | Allowed rule |
 |---|---|---|---|---|---|
 | `:app` | `:core:calling` | implementation | current | App consumes the shared coordinator | Allowed |
-| `:features:conversation` | `:core:calling` | implementation; `api` only for public Kalium types | proposed | Shared call coordinator/contracts | Allowed when the module exists |
+| `:features:conversation` | `:core:calling` | api | current | `ConversationCallViewModel` publicly exposes `JoinOrStartCallManager` through `callManager` | Feature to core only; public ABI requires `api` |
 | `:features:conversation` | `:core:analytics` | implementation | proposed | Feature consumes analytics interface/event model | Allowed |
 | `:features:conversation` | `:core:search` | implementation | current | Participant renderers consume shared search highlighting | Feature to core only |
 | `:core:calling` | `:core:ui-common`, Kalium Logic, coroutines | api | current | Public coordinator API exposes `ActionsManager`, Kalium and `Flow` types | No app/feature/navigation edge |
@@ -167,7 +168,7 @@ third-party dependency alone does not justify a wrapper.
 
 | Shared concern | Independent consumers | Neutral owner | Edge state | Ownership boundary |
 |---|---|---|---|---|
-| Calling coordination and participant count | conversation, meetings | `:core:calling` | Core exists; direct feature edges are proposed until the app-hosted call ViewModels move | Activities, services, dialogs, AVS renderers, and analytics side effects remain app runtime adapters |
+| Calling coordination and participant count | conversation, meetings | `:core:calling` | Core exists; conversation has a current direct API edge, while the meetings edge remains proposed until its app-hosted ViewModel moves | Activities, services, dialogs, AVS renderers, and analytics side effects remain app runtime adapters |
 | Channel-access presentation types and labels | new-conversation creation, conversation details, channel-access editing | `:core:ui-common` | current | Package-preserving shared UI contract; no new-conversation-to-conversation dependency |
 | Participant security indicators and common participant labels | app-hosted participant UI, conversation feature, meetings-compatible UI | `:core:ui-common` | current | Kalium-aware adapters and app-only previews stay in app |
 | Search highlighting and shared contact/app search | conversation, meetings, app hosts | `:core:search` | current | Feature renderers depend on search directly; never through another feature |

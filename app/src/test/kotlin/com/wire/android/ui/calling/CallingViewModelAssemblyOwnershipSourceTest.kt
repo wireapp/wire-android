@@ -40,11 +40,14 @@ class CallingViewModelAssemblyOwnershipSourceTest {
 
     @Test
     fun ownerSpecificFactoriesAndBindingsStayInTheSessionGraph() {
-        val conversationCall = sourceFile(
+        val conversationCall = conversationFeatureSourceFile(
             "com/wire/android/ui/home/conversations/call/ConversationCallViewModelGraph.kt",
         ).readText()
-        val conversationCallViewModel = sourceFile(
+        val conversationCallViewModel = conversationFeatureSourceFile(
             "com/wire/android/ui/home/conversations/call/ConversationCallViewModel.kt",
+        ).readText()
+        val conversationCallAppAdapter = sourceFile(
+            "com/wire/android/ui/home/conversations/call/ConversationCallViewModelAppAdapter.kt",
         ).readText()
         val conversationList = sourceFile(
             "com/wire/android/ui/home/conversationslist/ConversationListCallViewModelGraph.kt",
@@ -54,6 +57,12 @@ class CallingViewModelAssemblyOwnershipSourceTest {
 
         assertTrue(conversationCall.contains("ConversationCallManualViewModelFactoryGroup"))
         assertTrue(conversationCallViewModel.contains("ConversationCallManualViewModelFactoryGroup::class"))
+        assertTrue(conversationCall.contains("conversationCallViewModel(conversationId: ConversationId)"))
+        assertFalse(conversationCall.contains("ConversationNavArgs"))
+        assertFalse(conversationCallViewModel.contains("ConversationNavArgs"))
+        assertTrue(conversationCallAppAdapter.contains("conversationCallViewModel(args: ConversationNavArgs)"))
+        assertTrue(conversationCallAppAdapter.contains("conversationCallViewModel(args.conversationId)"))
+        assertFalse(conversationCallAppAdapter.contains("@WireAssistedViewModelFactoryGroup"))
         assertTrue(conversationList.contains("instanceKey = \"call_\$conversationsSource\""))
         assertTrue(meetings.contains("fun meetingsCallViewModel(): MeetingsCallViewModel = wireMetroViewModel()"))
 
@@ -66,6 +75,30 @@ class CallingViewModelAssemblyOwnershipSourceTest {
         ).forEach { bindingContainer ->
             assertEquals(1, Regex("\\b$bindingContainer::class\\b").findAll(sessionGraph).count(), bindingContainer)
         }
+    }
+
+    @Test
+    fun conversationCallImplementationIsFeatureOwnedWhileRuntimeAdaptersStayInApp() {
+        val repositoryRoot = repositoryRoot()
+
+        assertFalse(
+            File(
+                repositoryRoot,
+                "app/src/main/kotlin/com/wire/android/ui/home/conversations/call/ConversationCallViewModel.kt",
+            ).exists(),
+        )
+        assertFalse(
+            File(
+                repositoryRoot,
+                "app/src/main/kotlin/com/wire/android/ui/home/conversations/call/ConversationCallViewModelGraph.kt",
+            ).exists(),
+        )
+        assertTrue(
+            sourceFile("com/wire/android/ui/home/conversations/call/JoinOrStartCallRuntimeActions.kt").isFile,
+        )
+        assertTrue(
+            sourceFile("com/wire/android/ui/home/conversations/call/JoinOrStartCallRuntimeDialogs.kt").isFile,
+        )
     }
 
     @Test
@@ -82,6 +115,11 @@ class CallingViewModelAssemblyOwnershipSourceTest {
 
     private fun sourceFile(relativePath: String): File =
         File(repositoryRoot(), "app/src/main/kotlin/$relativePath").also {
+            assertTrue(it.isFile, "Missing ${it.path}")
+        }
+
+    private fun conversationFeatureSourceFile(relativePath: String): File =
+        File(repositoryRoot(), "features/conversation/src/main/kotlin/$relativePath").also {
             assertTrue(it.isFile, "Missing ${it.path}")
         }
 

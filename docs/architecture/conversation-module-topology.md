@@ -1,6 +1,6 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is the first live internal capability
+**Status:** Staged implementation; folders is live and conversation calling has a facade-owned seam
 **Scope:** Conversation extraction after Navigation 3 migration
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
@@ -50,6 +50,8 @@ The graph shows permitted direction, not mandatory dependencies. Every capabilit
 Today `:features:conversation` is the migration facade and temporary owner for the capabilities not yet split. It re-exports `:features:conversation:folders` with an `api` edge, so `:app` continues to depend only on the facade. Folders owns its six package-preserving ViewModel/Metro sources, focused unit test, and 18 localized string entries; app retains folder screens, routes, Navigation 3 entries, and session binding installation.
 
 Conversation info state and its ViewModel now belong to the facade. The feature accepts a platform-suitable `ConversationInfoViewModelArgs`; app keeps the `ConversationNavArgs` adapter, localized deleted-account label selection, unchanged Navigation 3 call, and one-time session binding installation. The `CurrentAccount` qualifier keeps its FQN but is physically owned by `:core:di`, allowing feature ViewModels to consume the composition qualifier without an app dependency.
+
+Conversation call presentation orchestration is also facade-owned. `ConversationCallViewModel`, its dedicated assisted Metro gateway, and focused test live in `:features:conversation`; the assisted contract accepts only `ConversationId`. The facade has a direct `api` edge to `:core:calling` because the public `callManager` property exposes `JoinOrStartCallManager`. App keeps the route-facing `ConversationNavArgs` adapter, session binding installation, `JoinOrStartCallRuntimeActions`, and `JoinOrStartCallRuntimeDialogs`.
 
 - Feature-owned ViewModels, immutable UI state, use cases, pure mappers, local resources, and Metro gateway code may move into the current module.
 - `:app` stays the composition root: Navigation 3 runtime registration, activities, services, providers, manifest declarations, flavor selection, app `BuildConfig`, and host-only side effects remain app-owned.
@@ -116,7 +118,7 @@ Do not create `common`, `shared`, `utils`, `base`, or a catch-all `contract` mod
 3. **Participants next.** Complete participant state/rendering and neutral shared label/type ownership. This becomes the candidate for `participants`; it is not exported to meetings.
 4. **Details after explicit contracts.** Details uses the narrow contract and neutral types, never a direct participants dependency just to reuse a renderer or mapper.
 5. **Messages and media later.** Treat messages, composer, conversation list, gallery/media, calling, and the app meetings host as a temporary source SCC. Break it through neutral ports and app adapters before creating `messages` or `media`; never replace the SCC with feature-to-feature chains.
-6. **Conversation calling last.** Move only conversation presentation/orchestration once it consumes `:core:calling` directly. Android call runtime stays in app.
+6. **Conversation calling facade seam — live; internal split deferred.** The ViewModel and Metro gateway now consume `:core:calling` directly from the facade, while Android runtime adapters stay in app. Do not create `:features:conversation:calling` yet: the ViewModel also consumes the facade-owned `ObserveParticipantsForConversationUseCase`. First establish a participant capability/port that avoids an internal-module-to-facade dependency, then reassess the split.
 7. **Split further internals only after the seams are demonstrated.** Introduce one capability module at a time; the facade remains the only supported inbound surface.
 
 The order is capability-led, not directory-led. A smaller clean leaf may change the milestone, but never the dependency law.

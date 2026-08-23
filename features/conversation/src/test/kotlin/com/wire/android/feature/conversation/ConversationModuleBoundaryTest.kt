@@ -266,7 +266,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/banner/usecase/ObserveConversationMembersByTypesUseCase.kt" to
                     "com.wire.android.ui.home.conversations.banner.usecase",
         )
-        val movedConversationSources = participantTypingSources + participantAggregationSources + conversationBannerSources
+        val messageDetailsReactionSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/model/MessageDetailsReactionsData.kt" to
+                    "com.wire.android.ui.home.conversations.messagedetails.model",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/usecase/ObserveReactionsForMessageUseCase.kt" to
+                    "com.wire.android.ui.home.conversations.messagedetails.usecase",
+        )
+        val movedConversationSources =
+            participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ViewModelScopedPreview",
             "com.wire.android.mapper.UIParticipantMapper",
@@ -277,6 +284,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.avatar",
             "com.wire.android.ui.home.conversations.details.participants.model.UIParticipant",
             "com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData",
+            "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",

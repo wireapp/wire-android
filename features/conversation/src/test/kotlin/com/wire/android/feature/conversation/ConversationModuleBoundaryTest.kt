@@ -387,11 +387,15 @@ class ConversationModuleBoundaryTest {
             groupConversationParticipantsViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val groupConversationOptionsStateSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/options/GroupConversationOptionsState.kt" to
+                    "com.wire.android.ui.home.conversations.details.options",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
                     participantPresentationStateSources + conversationAssetPathSources + participantRendererSources +
-                    participantRendererContainerSources + allParticipantsSources
+                    participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -438,6 +442,8 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase",
             "com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsNavArgs",
             "com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel",
+            "com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType",
+            "com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData",
             "com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs",

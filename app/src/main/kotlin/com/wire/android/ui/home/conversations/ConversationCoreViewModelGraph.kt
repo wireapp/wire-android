@@ -38,7 +38,6 @@ import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewMod
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModel
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelPreview
-import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
@@ -98,16 +97,6 @@ fun messageAttachmentsViewModel(): MessageAttachmentsViewModel =
 fun messageAttachmentsViewModel(args: ConversationNavArgs): MessageAttachmentsViewModel =
     wireAssistedMetroViewModel<MessageAttachmentsViewModel, ConversationCoreManualViewModelFactory> { _ ->
         messageAttachmentsViewModel(args)
-    }
-
-@Composable
-fun conversationMigrationViewModel(): ConversationMigrationViewModel =
-    conversationCoreViewModel()
-
-@Composable
-fun conversationMigrationViewModel(args: ConversationNavArgs): ConversationMigrationViewModel =
-    wireAssistedMetroViewModel<ConversationMigrationViewModel, ConversationCoreManualViewModelFactory> { _ ->
-        conversationMigrationViewModel(args)
     }
 
 @Composable

@@ -17,11 +17,9 @@
  */
 package com.wire.android.ui.home.conversations.migration
 
-import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -32,6 +30,8 @@ import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -50,7 +50,7 @@ class ConversationMigrationViewModelTest {
             )
         }
 
-        conversationMigrationViewModel.migratedConversationId shouldBeEqualTo null
+        assertNull(conversationMigrationViewModel.migratedConversationId)
     }
 
     @Test
@@ -66,7 +66,7 @@ class ConversationMigrationViewModelTest {
             )
         }
 
-        conversationMigrationViewModel.migratedConversationId shouldBeEqualTo expectedActiveOneOnOneId
+        assertEquals(expectedActiveOneOnOneId, conversationMigrationViewModel.migratedConversationId)
     }
 
     private class Arrangement(private val configure: Arrangement.() -> Unit) {
@@ -87,7 +87,7 @@ class ConversationMigrationViewModelTest {
             configure()
             this@Arrangement to ConversationMigrationViewModel(
                 observeConversationDetails = observeConversationDetailsUseCase,
-                navigationArgs = ConversationNavArgs(conversationId),
+                conversationId = conversationId,
             )
         }
     }

@@ -276,6 +276,30 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun conversationMigrationMetroFactoryAndConversationIdContractAreFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, conversationMigrationViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, conversationMigrationViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("object ConversationMigrationManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<ConversationMigrationViewModel, " +
+                    "ConversationMigrationManualViewModelFactory>"
+            ),
+        )
+        assertTrue(graph.contains("fun conversationMigrationViewModel(conversationId: ConversationId)"))
+        assertTrue(viewModel.contains("ConversationMigrationManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"conversationMigrationViewModel\""))
+        assertTrue(viewModel.contains("@Assisted conversationId: ConversationId"))
+        assertTrue(viewModel.contains("fun create(conversationId: ConversationId): ConversationMigrationViewModel"))
+        assertTrue(viewModel.contains("private val conversationId: QualifiedID = conversationId"))
+        assertFalse(graph.contains("ConversationNavArgs"))
+        assertFalse(viewModel.contains("ConversationNavArgs"))
+        assertFalse(graph.contains("ConversationCoreManualViewModelFactory"))
+        assertFalse(viewModel.contains("ConversationCoreManualViewModelFactoryGroup"))
+    }
+
+    @Test
     fun groupConversationParticipantsMetroFactoryIsFeatureOwned() {
         val graph = File(Konsist.projectRootPath, groupConversationParticipantsViewModelGraphRelativePath).readText()
         val viewModel = File(Konsist.projectRootPath, groupConversationParticipantsViewModelRelativePath).readText()
@@ -525,6 +549,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/call/ConversationCallViewModel.kt"
         const val conversationCallViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/call/ConversationCallViewModelGraph.kt"
+        const val conversationMigrationViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/migration/ConversationMigrationViewModel.kt"
+        const val conversationMigrationViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationMigrationViewModelGraph.kt"
         const val groupConversationDetailsViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
         const val groupConversationDetailsViewModelGraphRelativePath =
@@ -813,6 +841,12 @@ class ConversationModuleBoundaryTest {
             conversationCallViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations.call",
         )
+        val conversationMigrationViewModelSources = mapOf(
+            conversationMigrationViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.migration",
+            conversationMigrationViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val messageItemTemplateSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
@@ -849,6 +883,7 @@ class ConversationModuleBoundaryTest {
                     visualMediaParamsSources + conversationInfoStateSources + conversationInfoViewModelSources +
                     deleteMessageDialogStateSources + uiMentionSources +
                     conversationScreenDialogTypeSources + conversationCallViewStateSources + conversationCallViewModelSources +
+                    conversationMigrationViewModelSources +
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources
@@ -934,6 +969,8 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.CompositeMessageManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.model.CompositeMessageArgs",
             "com.wire.android.ui.home.conversations.ConversationInfoManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.ConversationMigrationManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel",
             "com.wire.android.ui.home.conversations.GroupConversationParticipantsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.UpdateChannelAccessManualViewModelFactoryGroup",

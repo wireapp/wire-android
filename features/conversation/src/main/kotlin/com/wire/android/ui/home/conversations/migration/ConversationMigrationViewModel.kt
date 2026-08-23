@@ -22,7 +22,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationMigrationManualViewModelFactoryGroup
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -34,18 +35,19 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
-@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = ConversationMigrationManualViewModelFactoryGroup::class,
+    factoryMethod = "conversationMigrationViewModel",
+)
 class ConversationMigrationViewModel @AssistedInject constructor(
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    @Assisted navigationArgs: ConversationNavArgs,
+    @Assisted conversationId: ConversationId,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(navigationArgs: ConversationNavArgs): ConversationMigrationViewModel
+        fun create(conversationId: ConversationId): ConversationMigrationViewModel
     }
 
     /**
@@ -57,8 +59,7 @@ class ConversationMigrationViewModel @AssistedInject constructor(
     var migratedConversationId by mutableStateOf<ConversationId?>(null)
         private set
 
-    private val conversationNavArgs = navigationArgs
-    private val conversationId: QualifiedID = conversationNavArgs.conversationId
+    private val conversationId: QualifiedID = conversationId
 
     init {
         viewModelScope.launch {

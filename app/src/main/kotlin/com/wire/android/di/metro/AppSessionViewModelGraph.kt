@@ -59,6 +59,7 @@ import com.wire.android.ui.home.conversations.NewFolderMetroViewModelBindings
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.CompositeMessageManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationInfoManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversations.ConversationMigrationManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryMetroBindings
@@ -118,6 +119,7 @@ annotation class MetroSessionScope
         ConversationCoreManualViewModelFactoryMetroBindings::class,
         CompositeMessageManualViewModelFactoryMetroBindings::class,
         ConversationInfoManualViewModelFactoryMetroBindings::class,
+        ConversationMigrationManualViewModelFactoryMetroBindings::class,
         ConversationDetailsManualViewModelFactoryMetroBindings::class,
         GroupConversationDetailsManualViewModelFactoryMetroBindings::class,
         MessageDetailsManualViewModelFactoryMetroBindings::class,

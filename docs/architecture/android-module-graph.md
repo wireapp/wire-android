@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `696d95865`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `b1d22c9bf`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -118,12 +118,12 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **190**, message composer **40**,
+Audited app production-file counts are: conversations **189**, message composer **40**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **58** unit tests and **1** Android
 test; **80** files import app `R`, **419** distinct fully-qualified `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**70** production files and **22** unit-test files; the first live internal capability,
+**71** production files and **22** unit-test files; the first live internal capability,
 `:features:conversation:folders`, owns **6** production files and **2** unit-test files.
 The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;

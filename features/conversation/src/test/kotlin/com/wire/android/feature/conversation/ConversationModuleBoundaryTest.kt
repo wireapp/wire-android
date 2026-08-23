@@ -799,6 +799,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
         )
+        val memberItemToMentionSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/mention/MemberItemToMention.kt" to
+                    "com.wire.android.ui.home.conversations.mention",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -809,7 +813,7 @@ class ConversationModuleBoundaryTest {
                     editSelfDeletingMessagesViewModelSources +
                     conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
-                    messageItemTemplateSources
+                    messageItemTemplateSources + memberItemToMentionSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -844,6 +848,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.common.ProtocolLabel",
             "com.wire.android.ui.common.R",
             "com.wire.android.ui.common.UserBadge",
+            "com.wire.android.ui.common.colorsScheme",
             "com.wire.android.ui.common.avatar.UserProfileAvatar",
             "com.wire.android.ui.common.avatar.UserProfileAvatarType",
             "com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators",

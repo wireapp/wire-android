@@ -10,6 +10,7 @@ plugins {
 
 dependencies {
     implementation(project(":core:di"))
+    implementation(projects.core.designSystem)
     implementation(project(":core:ui-common"))
     implementation(projects.core.navigation)
     implementation(libs.androidx.core)

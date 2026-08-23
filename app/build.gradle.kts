@@ -209,6 +209,7 @@ dependencies {
         kover(dependency)
     }
     implementationWithCoverage(projects.core.uiCommon)
+    implementation(projects.core.designSystem)
     implementationWithCoverage(projects.core.di)
     implementationWithCoverage(projects.core.media)
     implementationWithCoverage(projects.core.mediaPlayer)

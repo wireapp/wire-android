@@ -19,6 +19,9 @@ ksp {
 }
 
 dependencies {
+    // WireTheme exposes these design-system types in its public API.
+    api(projects.core.designSystem)
+
     implementation(project(":core:di"))
 
     implementation("com.wire.kalium:kalium-logic")

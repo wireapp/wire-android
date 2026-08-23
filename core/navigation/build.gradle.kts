@@ -12,6 +12,7 @@ android {
 
 dependencies {
     api(projects.core.navigationKmp)
+    implementation(projects.core.designSystem)
     implementation(projects.core.uiCommon)
     implementation(libs.visibilityModifiers)
     implementation(libs.jetbrains.compose.foundation)

@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `6615392c5`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `55bcbac0c`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -101,13 +101,13 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **227**, message composer **41**,
+Audited app production-file counts are: conversations **225**, message composer **41**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
-**27**. The strict app conversations directory has **54** unit tests and **1** Android
+**27**. The strict app conversations directory has **53** unit tests and **1** Android
 test; **82** files import app `R`, **422** distinct fully-qualified `R.type.name`
 IDs occur there, and only the app host configuration adapter still uses
-`BuildConfig`. `:features:conversation` now owns **29** production files and
-**14** unit-test files. The temporary source SCC is conversation,
+`BuildConfig`. `:features:conversation` now owns **33** production files and
+**16** unit-test files. The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
 the existing `:features:meetings` module is not in that SCC.
 
@@ -144,6 +144,20 @@ find features/conversation/src/test -type f -name '*.kt' | wc -l
 Place a declaration in a neutral core/platform module only when a stable source
 contract or implementation has at least two independent consumers. A common
 third-party dependency alone does not justify a wrapper.
+
+| Shared concern | Independent consumers | Neutral owner | Edge state | Ownership boundary |
+|---|---|---|---|---|
+| Calling coordination and participant count | conversation, meetings | `:core:calling` | Core exists; direct feature edges are proposed until the app-hosted call ViewModels move | Activities, services, dialogs, AVS renderers, and analytics side effects remain app runtime adapters |
+| Channel-access presentation types and labels | new-conversation creation, conversation details, channel-access editing | `:core:ui-common` | current | Package-preserving shared UI contract; no new-conversation-to-conversation dependency |
+| Participant security indicators and common participant labels | app-hosted participant UI, conversation feature, meetings-compatible UI | `:core:ui-common` | current | Kalium-aware adapters and app-only previews stay in app |
+| Search highlighting and shared contact/app search | conversation, meetings, app hosts | `:core:search` | current | Feature renderers depend on search directly; never through another feature |
+| Analytics contracts | app and feature producers | `:core:analytics` | current for app; conversation edge proposed when producers move | Flavor-specific implementation selection remains in app |
+| Navigation primitives | multiple features and app host | `:core:navigation` | current where consumed | Navigation3 route registration, result bridging, and runtime composition remain app-owned |
+
+No row authorizes a feature-to-feature dependency. When a second independent
+consumer appears, first extract the smallest stable contract or implementation
+to the listed neutral owner, then add direct consumer-to-core edges. Do not move
+host-only Android side effects into core merely to make a source file movable.
 
 - `JoinOrStartCall*` is used by conversation and the meetings flow: the neutral
   coordinator, participant-count port, and Kalium-only count producer live in

@@ -34,7 +34,7 @@ class SharedParticipantStringResourceOwnershipSourceTest {
     @Test
     fun independentConsumersUseTheNeutralCoreUiCommonResources() {
         val conversationParticipantItem = sourceFile(
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/ConversationParticipantItem.kt",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/ConversationParticipantItem.kt",
         )
         val callingParticipantItem = sourceFile(
             "app/src/main/kotlin/com/wire/android/ui/calling/ongoing/participantslist/ParticipantItem.kt",

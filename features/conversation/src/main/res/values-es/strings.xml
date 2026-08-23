@@ -1,0 +1,5 @@
+<resources>
+    <string name="conversation_details_conversation_admins">ADMINISTRADORES (%d)</string>
+    <string name="conversation_details_conversation_members">MIEMBROS (%d)</string>
+    <string name="conversation_details_conversation_apps">APLICACIONES (%d)</string>
+</resources>

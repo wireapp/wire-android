@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, HEAD `c886872d2ecf60e0a401f7480c424eec631e11e6`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `5a1eec28f`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -39,7 +39,7 @@ graph TD
     Conversation -. proposed .-> Calling
     Conversation -. proposed .-> Analytics
     Conversation -. proposed .-> Navigation
-    Conversation -. proposed .-> Search
+    Conversation --> Search
     Meetings -. proposed .-> Calling
     Meetings --> Navigation
     Meetings --> Search
@@ -61,6 +61,7 @@ graph TD
 | `:app` | `:features:conversation` | `implementationWithCoverage` | current | Composition and runtime assembly | App may depend on a feature |
 | `:features:conversation` | `:core:ui-common` | api | current | Public participant projection exposes UI-common avatar and membership types | Feature to core only |
 | `:features:conversation` | `:core:di` | implementation | current | Feature-owned ViewModel markers and Metro gateway helpers | Feature to core only |
+| `:features:conversation` | `:core:search` | implementation | current | Participant renderers use neutral query highlighting widgets | Feature to core only |
 | `:features:conversation` | Kalium Logic | api | current | Public participant and typing contracts expose Kalium IDs and user types | Feature to third-party library only |
 | `:app` | `:features:meetings` | `implementationWithCoverage` | current | Composition | App may depend on a feature |
 | `:app` | `:core:calling`, `:core:navigation`, `:core:di`, `:core:ui-common` | implementation / coverage helper | current | Android runtime composition | Allowed |
@@ -100,13 +101,13 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **231**, message composer **41**,
+Audited app production-file counts are: conversations **230**, message composer **41**,
 conversations list **27**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **54** unit tests and **1** Android
-test; **85** files import app `R`, **428** distinct fully-qualified `R.type.name`
+test; **83** files import app `R`, **423** distinct fully-qualified `R.type.name`
 IDs occur there, and only the app host configuration adapter still uses
-`BuildConfig`. `:features:conversation` now owns **22** production files and
-**12** unit-test files. The temporary source SCC is conversation,
+`BuildConfig`. `:features:conversation` now owns **24** production files and
+**13** unit-test files. The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
 the existing `:features:meetings` module is not in that SCC.
 
@@ -130,7 +131,7 @@ find features/conversation/src/test -type f -name '*.kt' | wc -l
 | `:app` | `:core:calling` | implementation | current | App consumes the shared coordinator | Allowed |
 | `:features:conversation` | `:core:calling` | implementation; `api` only for public Kalium types | proposed | Shared call coordinator/contracts | Allowed when the module exists |
 | `:features:conversation` | `:core:analytics` | implementation | proposed | Feature consumes analytics interface/event model | Allowed |
-| `:features:conversation` | `:core:search` | implementation | proposed | Participant search/rendering closure consumes shared search contracts | Feature to core only |
+| `:features:conversation` | `:core:search` | implementation | current | Participant renderers consume shared search highlighting | Feature to core only |
 | `:core:calling` | `:core:ui-common`, Kalium Logic, coroutines | api | current | Public coordinator API exposes `ActionsManager`, Kalium and `Flow` types | No app/feature/navigation edge |
 | `:core:calling` | Kalium common, Compose Runtime, AndroidX | implementation | current | Neutral coordinator implementation and `VisibleForTesting` | No app/feature/navigation edge |
 | `:features:meetings` | `:core:calling` | implementation | proposed | Meetings will consume the shared calling coordinator and participant-count port when its app-hosted call state moves | Never route via conversation |
@@ -165,7 +166,8 @@ uses `:core:ui-common` and Kalium Logic as public-ABI dependencies and `:core:di
 as an implementation dependency. MetroX ViewModel Compose is also a direct
 implementation dependency because feature-generated assisted factories implement
 its contracts; it remains a third-party library, not a shared ownership module.
-Coroutines, Lifecycle ViewModel, kotlinx-datetime,
+Compose Foundation and Material 3 are likewise direct renderer implementation
+dependencies under the existing Compose BOM. Coroutines, Lifecycle ViewModel, kotlinx-datetime,
 and kotlinx-serialization are third-party library dependencies and are intentionally
 not separate Mermaid nodes. `:core:calling` depends on Kalium
 common/logic and `:core:ui-common` only as proved by the moved coordinator. Its

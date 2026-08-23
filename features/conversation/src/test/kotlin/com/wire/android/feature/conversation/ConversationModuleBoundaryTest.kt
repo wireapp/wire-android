@@ -324,10 +324,16 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/AssetLocalPathViewModel.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
         )
+        val participantRendererSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/ConversationParticipantItem.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantList.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
-                    participantPresentationStateSources + conversationAssetPathSources
+                    participantPresentationStateSources + conversationAssetPathSources + participantRendererSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -335,13 +341,35 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.di.metro.WireAssistedViewModelFactoryGroup",
             "com.wire.android.di.metro.wireAssistedMetroViewModel",
             "com.wire.android.di.metro.wireMetroViewModel",
+            "com.wire.android.feature.conversation.R",
             "com.wire.android.mapper.UIParticipantMapper",
             "com.wire.android.mapper.UserTypeMapper",
+            "com.wire.android.mapper.UsernameMapper",
+            "com.wire.android.mapper.UsernameMapper.fromExpirationToHandle",
+            "com.wire.android.model.Clickable",
             "com.wire.android.model.ImageAsset.UserAvatarAsset",
             "com.wire.android.model.NameBasedAvatar",
             "com.wire.android.model.UserAvatarData",
+            "com.wire.android.search.widget.HighlightName",
+            "com.wire.android.search.widget.HighlightSubtitle",
+            "com.wire.android.ui.common.ArrowRightIcon",
+            "com.wire.android.ui.common.LegalHoldIndicator",
+            "com.wire.android.ui.common.MLSVerifiedIcon",
+            "com.wire.android.ui.common.ProteusVerifiedIcon",
+            "com.wire.android.ui.common.ProtocolLabel",
+            "com.wire.android.ui.common.R",
+            "com.wire.android.ui.common.UserBadge",
+            "com.wire.android.ui.common.avatar.UserProfileAvatar",
+            "com.wire.android.ui.common.avatar.UserProfileAvatarType",
+            "com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators",
+            "com.wire.android.ui.common.dimensions",
+            "com.wire.android.ui.common.maxTitleLines",
+            "com.wire.android.ui.common.divider.WireDivider",
+            "com.wire.android.ui.common.rowitem.RowItemTemplate",
             "com.wire.android.ui.home.conversations.avatar",
             "com.wire.android.ui.home.conversations.details.participants.model.UIParticipant",
+            "com.wire.android.ui.home.conversations.details.participants.model.MemberSectionActions",
+            "com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState",
             "com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData",
             "com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData",
@@ -355,7 +383,14 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.userId",
             "com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase",
             "com.wire.android.ui.home.conversationslist.model.Membership",
+            "com.wire.android.ui.theme.wireColorScheme",
+            "com.wire.android.ui.theme.wireDimensions",
+            "com.wire.android.ui.theme.wireTypography",
+            "com.wire.android.util.EMPTY",
             "com.wire.android.util.dispatchers.DispatcherProvider",
+            "com.wire.android.util.ui.FolderType",
+            "com.wire.android.util.ui.sectionWithElements",
+            "com.wire.android.util.uiReadReceiptDateTime",
             "dev.zacsweers.metro.Inject",
         )
         val kspPlugin = Regex("""alias\s*\(\s*libs\.plugins\.ksp\s*\)""")

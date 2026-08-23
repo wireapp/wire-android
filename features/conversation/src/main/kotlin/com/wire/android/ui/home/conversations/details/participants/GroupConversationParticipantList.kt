@@ -22,7 +22,7 @@ import android.content.Context
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.divider.WireDivider
@@ -40,14 +40,14 @@ fun LazyListScope.participantsFoldersWithElements(
     developerFeaturesEnabled: Boolean,
 ) {
     sectionWithElements(
-        header = context.getString(R.string.conversation_details_conversation_admins, state.data.allAdminsCount),
+        header = context.getString(conversationR.string.conversation_details_conversation_admins, state.data.allAdminsCount),
         items = state.data.admins,
         onRowItemClicked = onRowItemClicked,
         sectionActions = participantsExpansionState.adminsActions,
         developerFeaturesEnabled = developerFeaturesEnabled,
     )
     sectionWithElements(
-        header = context.getString(R.string.conversation_details_conversation_members, state.data.allParticipantsCount),
+        header = context.getString(conversationR.string.conversation_details_conversation_members, state.data.allParticipantsCount),
         items = state.data.participants,
         onRowItemClicked = onRowItemClicked,
         sectionActions = participantsExpansionState.membersActions,
@@ -56,7 +56,7 @@ fun LazyListScope.participantsFoldersWithElements(
     if (state.data.allAppsCount > 0) {
         sectionWithElements(
             header = context.getString(
-                R.string.conversation_details_conversation_apps,
+                conversationR.string.conversation_details_conversation_apps,
                 state.data.allAppsCount
             ),
             items = state.data.apps,

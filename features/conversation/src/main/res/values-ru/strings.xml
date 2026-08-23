@@ -1,0 +1,5 @@
+<resources>
+    <string name="conversation_details_conversation_admins">АДМИНИСТРАТОРЫ (%d)</string>
+    <string name="conversation_details_conversation_members">УЧАСТНИКИ (%d)</string>
+    <string name="conversation_details_conversation_apps">ПРИЛОЖЕНИЯ (%d)</string>
+</resources>

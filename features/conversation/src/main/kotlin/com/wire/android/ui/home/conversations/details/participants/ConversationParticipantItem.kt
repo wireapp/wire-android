@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.R as commonR
@@ -47,21 +46,13 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.search.widget.HighlightName
 import com.wire.android.search.widget.HighlightSubtitle
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.mapper.UsernameMapper.fromExpirationToHandle
 import com.wire.android.ui.common.maxTitleLines
 import com.wire.android.util.EMPTY
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.uiReadReceiptDateTime
-import com.wire.kalium.logic.data.user.SupportedProtocol
-import com.wire.kalium.logic.data.user.UserId
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.plus
 
 @Composable
 fun ConversationParticipantItem(
@@ -179,79 +170,5 @@ private fun processUsername(uiParticipant: UIParticipant): String {
         }
 
         else -> uiParticipant.handle
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewGroupConversationParticipantItem() {
-    WireTheme {
-        ConversationParticipantItem(
-            UIParticipant(
-                UserId("0", ""),
-                "name",
-                "handle",
-                false,
-                false,
-                UserAvatarData(),
-                Membership.Guest,
-                isMLSVerified = true,
-                isProteusVerified = true,
-                isUnderLegalHold = true,
-                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)
-            ),
-            clickable = Clickable(enabled = true) {},
-            developerFeaturesEnabled = true,
-        )
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewGroupConversationTemporaryParticipantItem() {
-    WireTheme {
-        ConversationParticipantItem(
-            UIParticipant(
-                UserId("0", ""),
-                "name",
-                "handle",
-                false,
-                false,
-                UserAvatarData(),
-                Membership.Guest,
-                isMLSVerified = true,
-                isProteusVerified = true,
-                isUnderLegalHold = true,
-                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS),
-                expiresAt = Clock.System.now().plus(23, DateTimeUnit.HOUR)
-            ),
-            clickable = Clickable(enabled = true) {},
-            developerFeaturesEnabled = true,
-        )
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewGroupConversationReadReceiptItem() {
-    WireTheme {
-        ConversationParticipantItem(
-            UIParticipant(
-                UserId("0", ""),
-                "name",
-                "handle",
-                false,
-                false,
-                UserAvatarData(),
-                Membership.Guest,
-                isMLSVerified = true,
-                isProteusVerified = true,
-                isUnderLegalHold = true,
-                supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS),
-                readReceiptDate = Clock.System.now()
-            ),
-            clickable = Clickable(enabled = true) {},
-            developerFeaturesEnabled = true,
-        )
     }
 }

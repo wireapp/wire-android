@@ -26,11 +26,14 @@ dependencies {
     api(libs.ktx.serialization)
 
     implementation(projects.core.di)
+    implementation(projects.core.search)
     implementation(libs.metrox.viewModelCompose)
     implementation(libs.okio.core)
 
     implementation(enforcedPlatform(libs.compose.bom))
     implementation(libs.androidx.compose.runtime)
+    implementation("androidx.compose.foundation:foundation")
+    implementation(libs.compose.material3)
 
     testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)

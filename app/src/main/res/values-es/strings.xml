@@ -347,9 +347,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_details_options_tab">OPCIONES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
     <string name="conversation_details_options_group_name">NOMBRE DEL GRUPO</string>
-    <string name="conversation_details_conversation_admins">ADMINISTRADORES (%d)</string>
-    <string name="conversation_details_conversation_members">MIEMBROS (%d)</string>
-    <string name="conversation_details_conversation_apps">APLICACIONES (%d)</string>
     <string name="conversation_details_participants_count">%s participantes</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>

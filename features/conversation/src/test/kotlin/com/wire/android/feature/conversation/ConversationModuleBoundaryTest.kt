@@ -451,12 +451,32 @@ class ConversationModuleBoundaryTest {
             updateChannelAccessViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val conversationDetailsContractSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/metadata/EditConversationNameNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.details.metadata",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updateappsaccess/UpdateAppsAccessNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.details.updateappsaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updateappsaccess/UpdateAppsAccessParams.kt" to
+                    "com.wire.android.ui.home.conversations.details.updateappsaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/updateappsaccess/UpdateAppsAccessState.kt" to
+                    "com.wire.android.ui.home.conversations.details.updateappsaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/EditGuestAccessNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.details.editguestaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/EditGuestAccessParams.kt" to
+                    "com.wire.android.ui.home.conversations.details.editguestaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/EditGuestAccessState.kt" to
+                    "com.wire.android.ui.home.conversations.details.editguestaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/createPasswordProtectedGuestLink/CreatePasswordGuestLinkNavArgs.kt" to
+                    "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/createPasswordProtectedGuestLink/CreatePasswordGuestLinkState.kt" to
+                    "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
                     participantPresentationStateSources + conversationAssetPathSources + participantRendererSources +
                     participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources +
-                    groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources
+                    groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources + conversationDetailsContractSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

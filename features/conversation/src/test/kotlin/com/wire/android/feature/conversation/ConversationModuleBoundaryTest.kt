@@ -795,6 +795,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/messagetypes/asset/UIAssetMessage.kt" to
                     "com.wire.android.ui.home.conversations.model.messagetypes.asset",
         )
+        val messageItemTemplateSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
+                    "com.wire.android.ui.home.conversations.messages.item",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -804,7 +808,8 @@ class ConversationModuleBoundaryTest {
                     createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources +
                     editSelfDeletingMessagesViewModelSources +
                     conversationFoldersViewModelSources + moveConversationToFolderViewModelSources + newFolderViewModelSources +
-                    promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources
+                    promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
+                    messageItemTemplateSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

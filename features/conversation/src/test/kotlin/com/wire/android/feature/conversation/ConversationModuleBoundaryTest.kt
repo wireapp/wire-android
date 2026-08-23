@@ -177,6 +177,23 @@ class ConversationModuleBoundaryTest {
         assertTrue(viewModel.contains("factoryMethod = \"messageDetailsViewModel\""))
     }
 
+    @Test
+    fun participantRendererPreviewsRemainAppOwned() {
+        val previews = File(Konsist.projectRootPath, groupParticipantPreviewsRelativePath)
+        val renderer = File(Konsist.projectRootPath, groupParticipantRendererRelativePath)
+
+        assertTrue(previews.isFile, "Group participant previews must remain an app-owned source.")
+        assertEquals(
+            3,
+            Regex("@PreviewMultipleThemes").findAll(previews.readText()).count(),
+            "The app preview source must preserve all three multi-theme previews.",
+        )
+        assertFalse(
+            renderer.readText().contains("PreviewMultipleThemes"),
+            "The feature renderer must not import the app-internal preview annotation.",
+        )
+    }
+
     private fun featureBuildScriptText(): String {
         assertTrue(featureBuildScript.isFile, "Missing :features:conversation build.gradle.kts.")
         return featureBuildScript.readText()
@@ -224,6 +241,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/MessageDetailsViewModel.kt"
         const val messageDetailsViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/MessageDetailsViewModelGraph.kt"
+        const val groupParticipantRendererRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
+        const val groupParticipantPreviewsRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsPreviews.kt"
         val forbiddenFeatureBuildScriptEntries = listOf(
             Regex("""projects\s*\.\s*app\b"""),
             Regex("""project\s*\(\s*(?:path\s*=\s*)?[\"']\s*:\s*app\s*[\"']"""),
@@ -330,10 +351,15 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantList.kt" to
                     "com.wire.android.ui.home.conversations.details.participants",
         )
+        val participantRendererContainerSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
-                    participantPresentationStateSources + conversationAssetPathSources + participantRendererSources
+                    participantPresentationStateSources + conversationAssetPathSources + participantRendererSources +
+                    participantRendererContainerSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -365,6 +391,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.common.dimensions",
             "com.wire.android.ui.common.maxTitleLines",
             "com.wire.android.ui.common.divider.WireDivider",
+            "com.wire.android.ui.common.progress.WireLinearProgressIndicator",
             "com.wire.android.ui.common.rowitem.RowItemTemplate",
             "com.wire.android.ui.home.conversations.avatar",
             "com.wire.android.ui.home.conversations.details.participants.model.UIParticipant",

@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,11 +38,9 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.SupportedProtocol
 
 @Composable
@@ -113,32 +110,4 @@ fun MLSProgressIndicator(
             modifier = Modifier.fillMaxWidth(),
         )
     }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewGroupConversationParticipants() = WireTheme {
-    GroupConversationParticipants(
-        onProfilePressed = {},
-        groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
-        developerFeaturesEnabled = true,
-        lazyListState = rememberLazyListState(),
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewGroupConversationParticipantsAdandonedOneOnOne() = WireTheme {
-    GroupConversationParticipants(
-        onProfilePressed = {},
-        groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
-        developerFeaturesEnabled = true,
-        lazyListState = rememberLazyListState(),
-    )
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewMLSProgressIndicator() = WireTheme {
-    MLSProgressIndicator(0.25F)
 }

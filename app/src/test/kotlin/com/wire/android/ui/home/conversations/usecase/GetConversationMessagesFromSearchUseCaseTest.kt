@@ -74,7 +74,6 @@ class GetConversationMessagesFromSearchUseCaseTest {
         // given
         val (arrangement, useCase) = Arrangement()
             .withSearchSuccess()
-            .withMemberIdList()
             .withMemberDetails()
             .withMappedMessage(
                 user = Arrangement.user1,
@@ -133,20 +132,6 @@ class GetConversationMessagesFromSearchUseCaseTest {
                 PagingData.from(
                     messages
                 )
-            )
-        }
-
-        fun withMemberIdList() = apply {
-            every { messageMapper.memberIdList(messages) } returns listOf(
-                message1.senderUserId,
-                message2.senderUserId
-            )
-            every { messageMapper.memberIdList(listOf(message1)) } returns listOf(
-                message1.senderUserId,
-            )
-
-            every { messageMapper.memberIdList(listOf(message2)) } returns listOf(
-                message2.senderUserId,
             )
         }
 

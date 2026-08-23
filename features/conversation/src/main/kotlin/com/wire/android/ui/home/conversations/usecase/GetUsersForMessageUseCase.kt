@@ -18,24 +18,25 @@
 
 package com.wire.android.ui.home.conversations.usecase
 
-import com.wire.android.mapper.MessageMapper
+import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.User
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
-import dev.zacsweers.metro.Inject
 
 class GetUsersForMessageUseCase @Inject constructor(
     private val observeMemberDetailsByIds: ObserveUserListByIdUseCase,
-    private val messageMapper: MessageMapper
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend operator fun invoke(message: Message): List<User> {
         val listWithSender: List<User> = message.sender?.let { listOf(it) } ?: listOf()
-        val otherUserIdList = messageMapper.memberIdList(listOf(message))
+        val otherUserIdList = message.relatedUserIds()
 
         return if (otherUserIdList.isNotEmpty()) {
             observeMemberDetailsByIds(otherUserIdList)
@@ -47,3 +48,19 @@ class GetUsersForMessageUseCase @Inject constructor(
         }
     }
 }
+
+private fun Message.relatedUserIds(): List<UserId> = when (this) {
+    is Message.Regular -> when (val deliveryStatus = deliveryStatus) {
+        is DeliveryStatus.CompleteDelivery -> emptyList()
+        is DeliveryStatus.PartialDelivery ->
+            deliveryStatus.recipientsFailedDelivery + deliveryStatus.recipientsFailedWithNoClients
+    }
+
+    is Message.System -> when (val content = content) {
+        is MessageContent.MemberChange -> content.members
+        is MessageContent.LegalHold.ForMembers -> content.members
+        else -> emptyList()
+    }
+
+    is Message.Signaling -> emptyList()
+}.distinct()

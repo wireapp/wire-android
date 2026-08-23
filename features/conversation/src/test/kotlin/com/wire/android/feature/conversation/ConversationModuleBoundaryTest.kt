@@ -115,6 +115,10 @@ class ConversationModuleBoundaryTest {
             assertFalse(source.contains("BuildConfig"), "$relativePath must not use app BuildConfig.")
             assertFalse(source.contains("com.wire.android.R"), "$relativePath must not use app resources.")
         }
+        assertFalse(
+            File(Konsist.projectRootPath, appGetUsersForMessageUseCaseRelativePath).exists(),
+            "GetUsersForMessageUseCase must not remain app-owned after its feature move.",
+        )
     }
 
     @Test
@@ -553,6 +557,8 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/migration/ConversationMigrationViewModel.kt"
         const val conversationMigrationViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationMigrationViewModelGraph.kt"
+        const val appGetUsersForMessageUseCaseRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase.kt"
         const val groupConversationDetailsViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
         const val groupConversationDetailsViewModelGraphRelativePath =
@@ -871,6 +877,10 @@ class ConversationModuleBoundaryTest {
             compositeMessageViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val getUsersForMessageUseCaseSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase.kt" to
+                    "com.wire.android.ui.home.conversations.usecase",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -886,7 +896,8 @@ class ConversationModuleBoundaryTest {
                     conversationMigrationViewModelSources +
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
-                    messageDetailsEmptyScreenTextSources + compositeMessageSources
+                    messageDetailsEmptyScreenTextSources + compositeMessageSources +
+                    getUsersForMessageUseCaseSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

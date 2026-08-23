@@ -39,14 +39,12 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.message.DeliveryStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import dev.zacsweers.metro.Inject
 
@@ -55,28 +53,6 @@ class MessageMapper @Inject constructor(
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
 ) {
-
-    fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
-        when (message) {
-            is Message.Regular -> {
-                when (val failureType = message.deliveryStatus) {
-                    is DeliveryStatus.CompleteDelivery -> listOf()
-                    is DeliveryStatus.PartialDelivery ->
-                        failureType.recipientsFailedDelivery + failureType.recipientsFailedWithNoClients
-                }
-            }
-
-            is Message.System -> {
-                when (val content = message.content) {
-                    is MessageContent.MemberChange -> content.members
-                    is MessageContent.LegalHold.ForMembers -> content.members
-                    else -> listOf()
-                }
-            }
-
-            is Message.Signaling -> listOf()
-        }
-    }.distinct()
 
     @Suppress("LongMethod")
     fun toUIMessage(userList: List<User>, message: Message.Standalone): UIMessage? {

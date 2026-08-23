@@ -35448,12 +35448,12 @@ SPLcom/wire/android/ui/home/conversations/usecase/GetQuoteMessageForConversation
 SPLcom/wire/android/ui/home/conversations/usecase/GetQuoteMessageForConversationUseCase$MetroFactory$Companion;->create(Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;)Lcom/wire/android/ui/home/conversations/usecase/GetQuoteMessageForConversationUseCase$MetroFactory;
 Lcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory;
 SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory;-><clinit>()V
-SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory;-><init>(Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;)V
-SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory;-><init>(Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory;-><init>(Ldev/zacsweers/metro/Provider;)V
+SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory;-><init>(Ldev/zacsweers/metro/Provider;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 Lcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory$Companion;
 SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory$Companion;-><init>()V
 SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory$Companion;->create(Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;)Lcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory;
+SPLcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory$Companion;->create(Ldev/zacsweers/metro/Provider;)Lcom/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase$MetroFactory;
 Lcom/wire/android/ui/home/conversations/usecase/HandleUriAssetUseCase$MetroFactory;
 SPLcom/wire/android/ui/home/conversations/usecase/HandleUriAssetUseCase$MetroFactory;-><clinit>()V
 SPLcom/wire/android/ui/home/conversations/usecase/HandleUriAssetUseCase$MetroFactory;-><init>(Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;)V

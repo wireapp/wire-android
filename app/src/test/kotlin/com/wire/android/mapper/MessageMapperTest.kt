@@ -44,7 +44,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
-import com.wire.android.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.text.SimpleDateFormat
@@ -56,24 +55,6 @@ import kotlin.time.Duration.Companion.days
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class MessageMapperTest {
-
-    @Test
-    fun givenMessagesList_whenGettingMemberIdList_thenReturnCorrectList() = runTest {
-        // Given
-        val (_, mapper) = Arrangement().arrange()
-        val removedUserId = UserId("server-id", "server-domain")
-        val messages = listOf(
-            TestMessage.TEXT_MESSAGE,
-            TestMessage.MEMBER_REMOVED_MESSAGE.copy(
-                content = MessageContent.MemberChange.Removed(listOf(removedUserId))
-            )
-        )
-        val expected = listOf(removedUserId)
-        // When
-        val list = mapper.memberIdList(messages)
-        // Then
-        list shouldBeEqualTo expected
-    }
 
     @Test
     @Suppress("LongMethod")

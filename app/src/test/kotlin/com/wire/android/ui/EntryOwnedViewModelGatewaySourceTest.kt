@@ -32,7 +32,7 @@ class EntryOwnedViewModelGatewaySourceTest {
             "core/di/src/main/kotlin/com/wire/android/di/ViewModelScoped.kt",
             "app/src/main/kotlin/com/wire/android/media/audiomessage/AudioMessageViewModel.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/ScopedMessageViewModelGraph.kt",
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/model/CompositeMessageArgs.kt",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/CompositeMessageArgs.kt",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/AssetLocalPathViewModel.kt",
             "core/ui-common/src/main/kotlin/com/wire/android/ui/common/connection/ConnectionActionButtonArgs.kt",
         )

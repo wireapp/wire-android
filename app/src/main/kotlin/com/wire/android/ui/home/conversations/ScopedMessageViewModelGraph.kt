@@ -38,7 +38,6 @@ import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModelIm
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModel
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelImpl
-import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModel
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelImpl
@@ -52,7 +51,6 @@ import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import kotlin.time.Duration
 
 internal interface ScopedMessageManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun compositeMessageViewModel(args: CompositeMessageArgs): CompositeMessageViewModelImpl
     fun messageOptionsMenuViewModel(args: MessageOptionsMenuArgs): MessageOptionsMenuViewModelImpl
     fun typingIndicatorViewModel(args: TypingIndicatorArgs): TypingIndicatorViewModelImpl
     fun assetLocalPathViewModel(args: AssetLocalPathArgs): AssetLocalPathViewModelImpl
@@ -94,16 +92,6 @@ private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessage
         clearDelay = clearDelay,
     ) { scopedArgs ->
         create(scopedArgs)
-    }
-
-@Composable
-fun compositeMessageViewModel(
-    args: CompositeMessageArgs,
-): CompositeMessageViewModel =
-    scopedMessageViewModel<CompositeMessageViewModelImpl, CompositeMessageViewModel, CompositeMessageArgs>(
-        arguments = args,
-    ) { scopedArgs ->
-        compositeMessageViewModel(scopedArgs)
     }
 
 @Composable

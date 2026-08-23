@@ -121,6 +121,7 @@ class ConversationModuleBoundaryTest {
     fun featureScopedPreviewGenerationUsesTheConversationSpecificAggregate() {
         val buildScript = featureBuildScriptText()
         val appScopedMessageGraph = File(Konsist.projectRootPath, appScopedMessageGraphRelativePath).readText()
+        val compositeMessageGraph = File(Konsist.projectRootPath, compositeMessageViewModelGraphRelativePath).readText()
 
         assertTrue(kspPlugin.containsMatchIn(buildScript), ":features:conversation must apply KSP for @ViewModelScopedPreview.")
         assertTrue(kspProcessor.containsMatchIn(buildScript), ":features:conversation must run the preview KSP processor.")
@@ -136,6 +137,10 @@ class ConversationModuleBoundaryTest {
             3,
             Regex("previewProvider = ConversationViewModelScopedPreviews").findAll(appScopedMessageGraph).count(),
             "Typing and both asset-local-path branches must use the conversation aggregate.",
+        )
+        assertTrue(
+            compositeMessageGraph.contains("previewProvider = ConversationViewModelScopedPreviews"),
+            "The feature-owned CompositeMessage Resaca gateway must use the conversation preview aggregate.",
         )
     }
 
@@ -175,6 +180,24 @@ class ConversationModuleBoundaryTest {
         assertFalse(graph.contains("ConversationCoreManualViewModelFactory"))
         assertTrue(viewModel.contains("MessageDetailsManualViewModelFactoryGroup::class"))
         assertTrue(viewModel.contains("factoryMethod = \"messageDetailsViewModel\""))
+    }
+
+    @Test
+    fun compositeMessageArgsViewModelAndMetroFactoryAreFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, compositeMessageViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, compositeMessageViewModelRelativePath).readText()
+        val args = File(Konsist.projectRootPath, compositeMessageArgsRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object CompositeMessageManualViewModelFactoryGroup"))
+        assertTrue(graph.contains("CompositeMessageManualViewModelFactory"))
+        assertTrue(graph.contains("wireManualMetroViewModelScoped<"))
+        assertTrue(graph.contains("previewProvider = ConversationViewModelScopedPreviews"))
+        assertTrue(viewModel.contains("CompositeMessageManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"compositeMessageViewModel\""))
+        assertTrue(args.contains("@Serializable"))
+        assertTrue(args.contains("const val ARGS_KEY = \"CompositeMessageArgsKey\""))
+        assertTrue(args.contains("override val key = \"\$ARGS_KEY:\$conversationId:\$messageId\""))
     }
 
     @Test
@@ -437,6 +460,12 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/feature/conversation/config/ConversationHostConfiguration.kt"
         const val appScopedMessageGraphRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/ScopedMessageViewModelGraph.kt"
+        const val compositeMessageViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/CompositeMessageViewModel.kt"
+        const val compositeMessageArgsRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/CompositeMessageArgs.kt"
+        const val compositeMessageViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/CompositeMessageViewModelGraph.kt"
         const val coreUserFactoryRelativePath =
             "core/ui-common/src/testFixtures/kotlin/com/wire/android/mapper/TestUserFactory.kt"
         const val featureParticipantFactoryRelativePath =
@@ -747,6 +776,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/MessageDetailsEmptyScreenText.kt" to
                     "com.wire.android.ui.home.conversations.messagedetails",
         )
+        val compositeMessageSources = mapOf(
+            compositeMessageViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations",
+            compositeMessageArgsRelativePath to
+                    "com.wire.android.ui.home.conversations.model",
+            compositeMessageViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -761,7 +798,7 @@ class ConversationModuleBoundaryTest {
                     conversationScreenDialogTypeSources + conversationCallViewStateSources +
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
-                    messageDetailsEmptyScreenTextSources
+                    messageDetailsEmptyScreenTextSources + compositeMessageSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -772,6 +809,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.di.metro.wireAssistedMetroViewModel",
             "com.wire.android.di.metro.wireAssistedMetroViewModelAs",
             "com.wire.android.di.metro.wireMetroViewModel",
+            "com.wire.android.di.wireManualMetroViewModelScoped",
             "com.wire.android.appLogger",
             "com.wire.android.feature.conversation.R",
             "com.wire.android.feature.conversation.config.LocalConversationHostConfiguration",
@@ -840,6 +878,8 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase",
             "com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReceiptsForMessageUseCase",
             "com.wire.android.ui.home.conversations.MessageDetailsManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.CompositeMessageManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.model.CompositeMessageArgs",
             "com.wire.android.ui.home.conversations.ConversationInfoManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationParticipantsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryGroup",

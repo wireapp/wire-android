@@ -57,12 +57,10 @@ import com.wire.android.ui.settings.devices.SelfDevicesViewModel
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
-import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuArgs
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelImpl
-import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelImpl
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
@@ -89,7 +87,6 @@ object WireMetroViewModelBindings {
     @ManualViewModelAssistedFactoryKey(ScopedMessageManualViewModelFactory::class)
     @Suppress("LongParameterList")
     internal fun scopedMessageManualViewModelFactory(
-        compositeMessageFactory: CompositeMessageViewModelImpl.Factory,
         messageOptionsMenuFactory: MessageOptionsMenuViewModelImpl.Factory,
         typingIndicatorFactory: TypingIndicatorViewModelImpl.Factory,
         assetLocalPathFactory: AssetLocalPathViewModelImpl.Factory,
@@ -99,11 +96,6 @@ object WireMetroViewModelBindings {
         audioMessageFactory: AudioMessageViewModelImpl.Factory,
     ): ManualViewModelAssistedFactory =
         object : ScopedMessageManualViewModelFactory {
-            override fun compositeMessageViewModel(
-                args: CompositeMessageArgs
-            ): CompositeMessageViewModelImpl =
-                compositeMessageFactory.create(args)
-
             override fun messageOptionsMenuViewModel(args: MessageOptionsMenuArgs): MessageOptionsMenuViewModelImpl =
                 messageOptionsMenuFactory.create(args)
 

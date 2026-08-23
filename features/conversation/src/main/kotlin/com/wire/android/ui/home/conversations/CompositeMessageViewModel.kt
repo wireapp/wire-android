@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.kalium.logic.data.id.MessageButtonId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -40,6 +41,10 @@ interface CompositeMessageViewModel {
     fun sendButtonActionMessage(buttonId: String) {}
 }
 
+@WireAssistedViewModelBinding(
+    group = CompositeMessageManualViewModelFactoryGroup::class,
+    factoryMethod = "compositeMessageViewModel",
+)
 class CompositeMessageViewModelImpl @AssistedInject constructor(
     private val sendButtonActionMessageUseCase: SendButtonActionMessageUseCase,
     @Assisted scopedArgs: CompositeMessageArgs,

@@ -19,13 +19,11 @@ package com.wire.android.di.metro
 
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
-import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
 import com.wire.android.ui.home.conversations.ScopedMessageManualViewModelFactory
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuArgs
 import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelImpl
-import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorArgs
 import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelImpl
 import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
@@ -42,22 +40,6 @@ import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 
 class ScopedMessageManualViewModelFactoryTest {
-
-    @Test
-    fun givenCompositeArguments_whenCreatingViewModel_thenDelegatesExactArguments() {
-        val (arrangement, factory) = Arrangement().arrange()
-        val args = mockk<CompositeMessageArgs>()
-        every {
-            arrangement.compositeMessageFactory.create(args)
-        } returns arrangement.compositeMessageViewModel
-
-        val result = factory.compositeMessageViewModel(args)
-
-        assertSame(arrangement.compositeMessageViewModel, result)
-        verify(exactly = 1) {
-            arrangement.compositeMessageFactory.create(args)
-        }
-    }
 
     @Test
     fun givenMessageOptionsArguments_whenCreatingViewModel_thenDelegatesExactArguments() {
@@ -145,9 +127,6 @@ class ScopedMessageManualViewModelFactoryTest {
 
     private class Arrangement {
         @MockK
-        lateinit var compositeMessageFactory: CompositeMessageViewModelImpl.Factory
-
-        @MockK
         lateinit var messageOptionsMenuFactory: MessageOptionsMenuViewModelImpl.Factory
 
         @MockK
@@ -168,7 +147,6 @@ class ScopedMessageManualViewModelFactoryTest {
         @MockK
         lateinit var audioMessageFactory: AudioMessageViewModelImpl.Factory
 
-        val compositeMessageViewModel = mockk<CompositeMessageViewModelImpl>()
         val messageOptionsMenuViewModel = mockk<MessageOptionsMenuViewModelImpl>()
         val typingIndicatorViewModel = mockk<TypingIndicatorViewModelImpl>()
         val assetLocalPathViewModel = mockk<AssetLocalPathViewModelImpl>()
@@ -183,7 +161,6 @@ class ScopedMessageManualViewModelFactoryTest {
 
         fun arrange(): Pair<Arrangement, ScopedMessageManualViewModelFactory> =
             this to WireMetroViewModelBindings.scopedMessageManualViewModelFactory(
-                compositeMessageFactory = compositeMessageFactory,
                 messageOptionsMenuFactory = messageOptionsMenuFactory,
                 typingIndicatorFactory = typingIndicatorFactory,
                 assetLocalPathFactory = assetLocalPathFactory,

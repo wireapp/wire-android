@@ -25,14 +25,9 @@ import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.userId
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.UserSummary
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
-import com.wire.kalium.logic.data.user.SupportedProtocol
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import io.mockk.MockKAnnotations
@@ -125,47 +120,3 @@ class UIParticipantMapperTest {
         fun arrange() = this to mapper
     }
 }
-
-fun testSelfUser(i: Int): SelfUser = SelfUser(
-    id = UserId(value = "value$i", domain = "domain$i"),
-    name = "name$i",
-    handle = "handle$i",
-    email = "email$i",
-    phone = "phone$i",
-    accentId = i,
-    teamId = TeamId("team$i"),
-    connectionStatus = ConnectionState.NOT_CONNECTED,
-    previewPicture = null,
-    completePicture = null,
-    availabilityStatus = UserAvailabilityStatus.NONE,
-    supportedProtocols = setOf(SupportedProtocol.PROTEUS),
-    userType = UserTypeInfo.Regular(UserType.INTERNAL),
-)
-
-fun testOtherUser(i: Int): OtherUser = OtherUser(
-    id = UserId(value = "value$i", domain = "domain$i"),
-    name = "name$i",
-    handle = "handle$i",
-    email = "email$i",
-    phone = "phone$i",
-    accentId = i,
-    teamId = TeamId("team$i"),
-    connectionStatus = ConnectionState.NOT_CONNECTED,
-    previewPicture = null,
-    completePicture = null,
-    availabilityStatus = UserAvailabilityStatus.NONE,
-    userType = UserTypeInfo.Regular(UserType.INTERNAL),
-    botService = null,
-    deleted = false,
-    defederated = false,
-    isProteusVerified = false,
-    supportedProtocols = setOf(SupportedProtocol.PROTEUS),
-    isUnderLegalHold = false
-)
-
-fun testUIParticipant(i: Int): UIParticipant = UIParticipant(
-    id = UserId(value = "value$i", domain = "domain$i"),
-    name = "name$i",
-    handle = "handle$i",
-    isSelf = false
-)

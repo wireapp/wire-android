@@ -22,6 +22,7 @@ package com.wire.android.ui.home.conversations
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import com.sebaslogen.resaca.KeyInScopeResolver
+import com.wire.android.di.ConversationViewModelScopedPreviews
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreviews
 import com.wire.android.di.metro.wireAssistedMetroViewModel
@@ -126,7 +127,7 @@ fun typingIndicatorViewModel(
         ScopedMessageManualViewModelFactory,
         >(
         instanceKey = args.key,
-        previewProvider = ViewModelScopedPreviews,
+        previewProvider = ConversationViewModelScopedPreviews,
     ) { _ ->
         typingIndicatorViewModel(args)
     }

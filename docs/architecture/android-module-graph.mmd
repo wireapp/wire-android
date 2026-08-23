@@ -19,11 +19,12 @@ graph TD
     App --> UiCommon
     App --> Analytics
     App --> KaliumLogic
+    Conversation --> Di
+    Conversation --> UiCommon
+    Conversation --> KaliumLogic
     Conversation -. proposed .-> Calling
     Conversation -. proposed .-> Analytics
     Conversation -. proposed .-> Navigation
-    Conversation -. proposed .-> Di
-    Conversation -. proposed .-> UiCommon
     Meetings --> Navigation
     Meetings --> Di
     Meetings --> UiCommon

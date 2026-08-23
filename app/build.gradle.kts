@@ -380,4 +380,5 @@ dependencies {
     ksp(project(":ksp"))
 
     testImplementation(testFixtures(projects.core.uiCommon))
+    testImplementation(testFixtures(projects.features.conversation))
 }

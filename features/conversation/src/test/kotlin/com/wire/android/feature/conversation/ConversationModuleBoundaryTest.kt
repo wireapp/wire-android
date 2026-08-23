@@ -91,6 +91,74 @@ class ConversationModuleBoundaryTest {
         )
     }
 
+    @Test
+    fun participantTypingSourcesPreserveLegacyPackagesWithoutAppImplementationImports() {
+        val sourceFiles = participantTypingSources.map { (relativePath, packageName) ->
+            val source = Konsist.scopeFromFile(relativePath).files
+
+            assertEquals(1, source.size, "Missing moved source $relativePath.")
+            assertTrue(source.single().hasPackage(packageName), "$relativePath must preserve $packageName.")
+            source.single()
+        }
+
+        sourceFiles.assertFalse { sourceFile ->
+            sourceFile.hasImport { importedDeclaration ->
+                val importName = importedDeclaration.name
+                importName == "com.wire.android.R" ||
+                        importName == "com.wire.android.BuildConfig" ||
+                        (importName.startsWith("com.wire.android.") && importName !in allowedMovedSourceImports)
+            }
+        }
+        participantTypingSources.keys.forEach { relativePath ->
+            val source = File(Konsist.projectRootPath, relativePath).readText()
+
+            assertFalse(source.contains("BuildConfig"), "$relativePath must not use app BuildConfig.")
+            assertFalse(source.contains("com.wire.android.R"), "$relativePath must not use app resources.")
+        }
+    }
+
+    @Test
+    fun participantTypingScopedPreviewGenerationUsesAFeatureSpecificAggregate() {
+        val buildScript = featureBuildScriptText()
+        val appScopedMessageGraph = File(Konsist.projectRootPath, appScopedMessageGraphRelativePath).readText()
+
+        assertTrue(kspPlugin.containsMatchIn(buildScript), ":features:conversation must apply KSP for @ViewModelScopedPreview.")
+        assertTrue(kspProcessor.containsMatchIn(buildScript), ":features:conversation must run the preview KSP processor.")
+        assertTrue(
+            conversationPreviewAggregateName.containsMatchIn(buildScript),
+            ":features:conversation must avoid the app ViewModelScopedPreviews aggregate name.",
+        )
+        assertTrue(
+            appScopedMessageGraph.contains("import com.wire.android.di.ConversationViewModelScopedPreviews"),
+            "The app typing gateway must import the feature-owned preview aggregate.",
+        )
+        assertEquals(
+            1,
+            Regex("previewProvider = ConversationViewModelScopedPreviews").findAll(appScopedMessageGraph).count(),
+            "Only the feature-owned typing preview must use the conversation aggregate.",
+        )
+    }
+
+    @Test
+    fun sharedParticipantTestFactoriesHaveAcyclicOwners() {
+        val coreUserFactory = File(Konsist.projectRootPath, coreUserFactoryRelativePath).readText()
+        val featureParticipantFactory = File(Konsist.projectRootPath, featureParticipantFactoryRelativePath).readText()
+        val appBuildScript = appBuildScriptText()
+
+        assertTrue(coreUserFactory.contains("fun testSelfUser("))
+        assertTrue(coreUserFactory.contains("fun testOtherUser("))
+        assertFalse(
+            coreUserFactory.contains("UIParticipant"),
+            ":core:ui-common test fixtures must not depend on the conversation feature.",
+        )
+        assertTrue(featureParticipantFactory.contains("fun testUIParticipant("))
+        assertEquals(
+            1,
+            featureTestFixturesEdge.findAll(appBuildScript).count(),
+            ":app tests must consume the conversation-specific participant fixture exactly once.",
+        )
+    }
+
     private fun featureBuildScriptText(): String {
         assertTrue(featureBuildScript.isFile, "Missing :features:conversation build.gradle.kts.")
         return featureBuildScript.readText()
@@ -128,6 +196,12 @@ class ConversationModuleBoundaryTest {
         )
         const val conversationHostConfigurationRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/feature/conversation/config/ConversationHostConfiguration.kt"
+        const val appScopedMessageGraphRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ScopedMessageViewModelGraph.kt"
+        const val coreUserFactoryRelativePath =
+            "core/ui-common/src/testFixtures/kotlin/com/wire/android/mapper/TestUserFactory.kt"
+        const val featureParticipantFactoryRelativePath =
+            "features/conversation/src/testFixtures/kotlin/com/wire/android/mapper/TestUIParticipantFactory.kt"
         val forbiddenFeatureBuildScriptEntries = listOf(
             Regex("""projects\s*\.\s*app\b"""),
             Regex("""project\s*\(\s*(?:path\s*=\s*)?[\"']\s*:\s*app\s*[\"']"""),
@@ -136,6 +210,9 @@ class ConversationModuleBoundaryTest {
         )
         val inboundFeatureEdge = Regex(
             """implementationWithCoverage\s*\(\s*projects\s*\.\s*features\s*\.\s*conversation\s*\)""",
+        )
+        val featureTestFixturesEdge = Regex(
+            """testImplementation\s*\(\s*testFixtures\s*\(\s*projects\s*\.\s*features\s*\.\s*conversation\s*\)\s*\)""",
         )
         val forbiddenImportPrefixes = listOf(
             "com.wire.android.BuildConfig",
@@ -164,6 +241,38 @@ class ConversationModuleBoundaryTest {
         )
         val staticCompositionLocalDeclaration = Regex(
             """staticCompositionLocalOf\s*<\s*ConversationHostConfiguration\s*>\s*\{(?s:.*?)error\s*\(""",
+        )
+        val participantTypingSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationMemberExt.kt" to
+                    "com.wire.android.ui.home.conversations",
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/UIParticipantMapper.kt" to
+                    "com.wire.android.mapper",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/model/UIParticipant.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants.model",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/ObserveUsersTypingInConversationUseCase.kt" to
+                    "com.wire.android.ui.home.conversations.usecase",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/typing/TypingIndicatorViewModel.kt" to
+                    "com.wire.android.ui.home.conversations.typing",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/typing/UsersTypingViewState.kt" to
+                    "com.wire.android.ui.home.conversations.typing",
+        )
+        val allowedMovedSourceImports = setOf(
+            "com.wire.android.di.ViewModelScopedPreview",
+            "com.wire.android.mapper.UIParticipantMapper",
+            "com.wire.android.mapper.UserTypeMapper",
+            "com.wire.android.model.ImageAsset.UserAvatarAsset",
+            "com.wire.android.model.NameBasedAvatar",
+            "com.wire.android.model.UserAvatarData",
+            "com.wire.android.ui.home.conversations.avatar",
+            "com.wire.android.ui.home.conversations.details.participants.model.UIParticipant",
+            "com.wire.android.ui.home.conversations.previewAsset",
+            "com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase",
+            "com.wire.android.ui.home.conversationslist.model.Membership",
+        )
+        val kspPlugin = Regex("""alias\s*\(\s*libs\.plugins\.ksp\s*\)""")
+        val kspProcessor = Regex("""ksp\s*\(\s*project\s*\(\s*["']:ksp["']\s*\)\s*\)""")
+        val conversationPreviewAggregateName = Regex(
+            """wire\.viewmodelScopedPreview\.aggregateName["']?\s*,\s*["']ConversationViewModelScopedPreviews["']""",
         )
     }
 }

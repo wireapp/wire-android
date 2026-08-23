@@ -2,11 +2,10 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, HEAD `cc124ec0d`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, HEAD `afdd31920c1863bc03cd71357e52c0281ab5f681`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
-declared edges. Dashed edges are proposed, including all current-empty
-`:features:conversation` outbound edges. The canonical target diagram source is
+declared edges. Dashed edges are proposed. The canonical target diagram source is
 [`android-module-graph.mmd`](android-module-graph.mmd); its body is embedded
 verbatim below.
 
@@ -32,11 +31,12 @@ graph TD
     App --> UiCommon
     App --> Analytics
     App --> KaliumLogic
+    Conversation --> Di
+    Conversation --> UiCommon
+    Conversation --> KaliumLogic
     Conversation -. proposed .-> Calling
     Conversation -. proposed .-> Analytics
     Conversation -. proposed .-> Navigation
-    Conversation -. proposed .-> Di
-    Conversation -. proposed .-> UiCommon
     Meetings --> Navigation
     Meetings --> Di
     Meetings --> UiCommon
@@ -50,7 +50,10 @@ graph TD
 
 | From | To | Scope | Status | Reason | Allowed rule |
 |---|---|---|---|---|---|
-| `:app` | `:features:conversation` | `implementationWithCoverage` | current | Composition of the empty conversation spine | App may depend on a feature |
+| `:app` | `:features:conversation` | `implementationWithCoverage` | current | Composition and runtime assembly | App may depend on a feature |
+| `:features:conversation` | `:core:ui-common` | api | current | Public participant projection exposes UI-common avatar and membership types | Feature to core only |
+| `:features:conversation` | `:core:di` | implementation | current | `ViewModelScopedPreview` marker for the typing entry ViewModel | Feature to core only |
+| `:features:conversation` | Kalium Logic | api | current | Public participant and typing contracts expose Kalium IDs and user types | Feature to third-party library only |
 | `:app` | `:features:meetings` | `implementationWithCoverage` | current | Composition | App may depend on a feature |
 | `:app` | `:core:calling`, `:core:navigation`, `:core:di`, `:core:ui-common` | implementation / coverage helper | current | Android runtime composition | Allowed |
 | `:app` | Kalium Logic | implementation coordinate | current | Application runtime | Allowed |
@@ -142,7 +145,11 @@ third-party dependency alone does not justify a wrapper.
   or feature APIs.
 
 Dependency budgets: a feature may depend on the smallest required core modules and
-Kalium APIs, never app or another feature. `:core:calling` depends on Kalium
+Kalium APIs, never app or another feature. The current conversation typing slice
+uses `:core:ui-common` and Kalium Logic as public-ABI dependencies and `:core:di`
+as an implementation dependency. Coroutines, Lifecycle ViewModel, kotlinx-datetime,
+and kotlinx-serialization are third-party library dependencies and are intentionally
+not separate Mermaid nodes. `:core:calling` depends on Kalium
 common/logic and `:core:ui-common` only as proved by the moved coordinator. Its
 public ABI deliberately exposes `:core:ui-common`, Kalium Logic, and coroutines
 (`Flow`) with `api`; Kalium common, Compose, and AndroidX remain implementation

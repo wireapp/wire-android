@@ -167,15 +167,19 @@ private fun processUsernamePrefix(uiParticipant: UIParticipant) = when {
 }
 
 @Composable
-private fun processUsername(uiParticipant: UIParticipant) = when {
-    uiParticipant.unavailable -> uiParticipant.id.domain
-    uiParticipant.readReceiptDate != null -> uiParticipant.readReceiptDate.uiReadReceiptDateTime()
-    uiParticipant.expiresAt != null -> {
-        val expiresAtString = fromExpirationToHandle(uiParticipant.expiresAt)
-        stringResource(R.string.temporary_user_label, expiresAtString)
-    }
+private fun processUsername(uiParticipant: UIParticipant): String {
+    val readReceiptDate = uiParticipant.readReceiptDate
+    val expiresAt = uiParticipant.expiresAt
+    return when {
+        uiParticipant.unavailable -> uiParticipant.id.domain
+        readReceiptDate != null -> readReceiptDate.uiReadReceiptDateTime()
+        expiresAt != null -> {
+            val expiresAtString = fromExpirationToHandle(expiresAt)
+            stringResource(R.string.temporary_user_label, expiresAtString)
+        }
 
-    else -> uiParticipant.handle
+        else -> uiParticipant.handle
+    }
 }
 
 @PreviewMultipleThemes

@@ -96,6 +96,7 @@ class CallingModuleBoundaryTest {
             "com/wire/android/ui/home/conversations/call/JoinOrStartCallScreenDialogs.kt",
             "com/wire/android/ui/home/conversations/call/JoinOrStartCallViewActions.kt",
             "com/wire/android/ui/home/conversations/call/JoinOrStartCallViewState.kt",
+            "com/wire/android/ui/home/conversations/call/KaliumObserveConversationParticipantCount.kt",
             "com/wire/android/ui/home/conversations/call/ObserveConversationParticipantCount.kt",
         )
         val forbiddenSourceImports = listOf(

@@ -306,6 +306,52 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun moveConversationToFolderMetroFactoryAndResourcesAreFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, moveConversationToFolderViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, moveConversationToFolderViewModelRelativePath).readText()
+
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("object MoveConversationToFolderManualViewModelFactoryGroup"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModelAs<\n        MoveConversationToFolderVMImpl,\n        MoveConversationToFolderVM,\n        MoveConversationToFolderManualViewModelFactory,"
+            ),
+            "The move-to-folder gateway must preserve its assisted implementation and interface types.",
+        )
+        assertTrue(
+            graph.contains(
+                "instanceKey = \"move_conversation_to_folder_\${args.conversationId}_\${args.currentFolderId}\""
+            ),
+        )
+        assertTrue(graph.contains("previewProvider = ViewModelScopedPreviews"))
+        assertFalse(graph.contains("object ConversationSearchFolderManualViewModelFactoryGroup"))
+        assertTrue(viewModel.contains("MoveConversationToFolderManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"moveConversationToFolderViewModel\""))
+        assertTrue(viewModel.contains("com.wire.android.feature.conversation.R"))
+
+        moveConversationToFolderStringsByQualifier.forEach { (qualifier, expectedStrings) ->
+            val featureStrings = File(
+                Konsist.projectRootPath,
+                "features/conversation/src/main/res/$qualifier/strings.xml",
+            ).readText()
+            val appStrings = File(
+                Konsist.projectRootPath,
+                "app/src/main/res/$qualifier/strings.xml",
+            ).readText()
+
+            expectedStrings.forEach { expectedString ->
+                assertTrue(featureStrings.contains(expectedString), "Missing feature $qualifier string: $expectedString")
+            }
+            moveConversationToFolderStringNames.forEach { name ->
+                assertFalse(
+                    appStrings.contains("name=\"$name\""),
+                    "$name must not remain in app $qualifier resources.",
+                )
+            }
+        }
+    }
+
+    @Test
     fun participantRendererPreviewsRemainAppOwned() {
         val previews = File(Konsist.projectRootPath, groupParticipantPreviewsRelativePath)
         val renderer = File(Konsist.projectRootPath, groupParticipantRendererRelativePath)
@@ -397,6 +443,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/folder/ConversationFoldersVM.kt"
         const val conversationFoldersViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationFoldersViewModelGraph.kt"
+        const val moveConversationToFolderViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/folder/MoveConversationToFolderVM.kt"
+        const val moveConversationToFolderViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/MoveConversationToFolderViewModelGraph.kt"
         const val groupParticipantRendererRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
         const val groupParticipantPreviewsRelativePath =
@@ -585,6 +635,12 @@ class ConversationModuleBoundaryTest {
             conversationFoldersViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val moveConversationToFolderViewModelSources = mapOf(
+            moveConversationToFolderViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.folder",
+            moveConversationToFolderViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -592,7 +648,7 @@ class ConversationModuleBoundaryTest {
                     participantRendererContainerSources + allParticipantsSources + groupConversationOptionsStateSources +
                     groupConversationDetailsViewModelSources + updateChannelAccessViewModelSources + conversationDetailsContractSources +
                     createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources +
-                    conversationFoldersViewModelSources
+                    conversationFoldersViewModelSources + moveConversationToFolderViewModelSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -668,6 +724,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.UpdateAppsAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.EditGuestAccessManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.MoveConversationToFolderManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs",
             "com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel",
@@ -679,6 +736,9 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs",
             "com.wire.android.ui.home.conversations.folder.ConversationFoldersVM",
             "com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl",
+            "com.wire.android.ui.home.conversations.folder.MoveConversationToFolderArgs",
+            "com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVM",
+            "com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",
@@ -701,6 +761,36 @@ class ConversationModuleBoundaryTest {
         val kspProcessor = Regex("""ksp\s*\(\s*project\s*\(\s*["']:ksp["']\s*\)\s*\)""")
         val conversationPreviewAggregateName = Regex(
             """wire\.viewmodelScopedPreview\.aggregateName["']?\s*,\s*["']ConversationViewModelScopedPreviews["']""",
+        )
+        val moveConversationToFolderStringNames = setOf(
+            "move_to_folder_success",
+            "move_to_folder_failed",
+        )
+        val moveConversationToFolderStringsByQualifier = mapOf(
+            "values" to listOf(
+                "<string name=\"move_to_folder_success\">“%1\$s” was moved to “%2\$s”</string>",
+                "<string name=\"move_to_folder_failed\">“%1\$s” could not be moved</string>",
+            ),
+            "values-de" to listOf(
+                "<string name=\"move_to_folder_success\">„%1\$s“ wurde nach ‚%2\$s‘ verschoben</string>",
+                "<string name=\"move_to_folder_failed\">“%1\$s” konnte nicht verschoben werden</string>",
+            ),
+            "values-hu" to listOf(
+                "<string name=\"move_to_folder_success\">\\\"%1\$s\\\" áthelyezve ide: \\\"%2\$s\\\"</string>",
+                "<string name=\"move_to_folder_failed\">\\\"%1\$s\\\" áthelyezése nem sikerült</string>",
+            ),
+            "values-pt" to listOf(
+                "<string name=\"move_to_folder_success\">“%1\$s” foi movido para “%2\$s”</string>",
+                "<string name=\"move_to_folder_failed\">“%1\$s” não pôde ser movido</string>",
+            ),
+            "values-ru" to listOf(
+                "<string name=\"move_to_folder_success\">“%1\$s” был перемещен в “%2\$s”</string>",
+                "<string name=\"move_to_folder_failed\">“%1\$s” не может быть перемещен</string>",
+            ),
+            "values-si" to listOf(
+                "<string name=\"move_to_folder_success\">“%1\$s” “%2\$s” වෙත ගෙන යන ලදී.</string>",
+                "<string name=\"move_to_folder_failed\">“%1\$s” ගෙනයාමට නොහැකි විය</string>",
+            ),
         )
     }
 }

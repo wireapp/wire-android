@@ -20,13 +20,8 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.ViewModelScopedPreviews
 import com.wire.android.di.metro.wireAssistedMetroViewModel
-import com.wire.android.di.metro.wireAssistedMetroViewModelAs
 import com.wire.android.di.metro.wireMetroViewModel
-import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderArgs
-import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVM
-import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModel
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
@@ -38,21 +33,6 @@ import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
 @WireAssistedViewModelFactoryGroup
 object ConversationSearchFolderManualViewModelFactoryGroup
-
-@Composable
-fun moveConversationToFolderViewModel(
-    args: MoveConversationToFolderArgs
-): MoveConversationToFolderVM =
-    wireAssistedMetroViewModelAs<
-        MoveConversationToFolderVMImpl,
-        MoveConversationToFolderVM,
-        ConversationSearchFolderManualViewModelFactory,
-        >(
-        instanceKey = "move_conversation_to_folder_${args.conversationId}_${args.currentFolderId}",
-        previewProvider = ViewModelScopedPreviews,
-    ) { _ ->
-        moveConversationToFolderViewModel(args)
-    }
 
 @Composable
 fun newFolderViewModel(): NewFolderViewModel =

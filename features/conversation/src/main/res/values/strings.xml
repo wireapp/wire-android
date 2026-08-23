@@ -3,4 +3,6 @@
     <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
     <string name="conversation_details_conversation_members">MEMBERS (%d)</string>
     <string name="conversation_details_conversation_apps">APPS (%d)</string>
+    <string name="move_to_folder_success">“%1$s” was moved to “%2$s”</string>
+    <string name="move_to_folder_failed">“%1$s” could not be moved</string>
 </resources>

@@ -1535,8 +1535,6 @@
     <string name="emoji_picker_select_reaction">ප්‍රතිචාරය තෝරන්න</string>
     <string name="label_user_database_profile">දත්ත සමුදා ලොගර්</string>
     <!-- Move to Folder -->
-    <string name="move_to_folder_success">“%1$s” “%2$s” වෙත ගෙන යන ලදී.</string>
-    <string name="move_to_folder_failed">“%1$s” ගෙනයාමට නොහැකි විය</string>
     <string name="remove_from_folder_success">“%1$s” “%2$s” වෙතින් ඉවත් කරන ලදී.</string>
     <string name="remove_from_folder_failed">“%1$s” ඉවත් කළ නොහැකි විය.</string>
     <string name="new_folder_folder_name">ෆෝල්ඩරයේ නම</string>

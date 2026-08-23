@@ -1,0 +1,4 @@
+<resources>
+    <string name="move_to_folder_success">“%1$s” foi movido para “%2$s”</string>
+    <string name="move_to_folder_failed">“%1$s” não pôde ser movido</string>
+</resources>

@@ -184,8 +184,11 @@ class EntryOwnedViewModelGatewaySourceTest {
         val core = sourceFile(
             "com/wire/android/ui/home/conversations/ConversationCoreViewModelGraph.kt"
         ).readText()
-        val folders = sourceFile(
-            "com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt"
+        val folders = featureSourceFile(
+            "com/wire/android/ui/home/conversations/ConversationFoldersViewModelGraph.kt"
+        ).readText()
+        val moveToFolder = featureSourceFile(
+            "com/wire/android/ui/home/conversations/MoveConversationToFolderViewModelGraph.kt"
         ).readText()
 
         assertTrue(home.contains("instanceKey = \"list_\$conversationsSource\""))
@@ -201,7 +204,7 @@ class EntryOwnedViewModelGatewaySourceTest {
         assertTrue(core.contains("instanceKey = conversationId.value"))
         assertTrue(folders.contains("instanceKey = \"conversation_folders_\${args.selectedFolderId}\""))
         assertTrue(
-            folders.contains(
+            moveToFolder.contains(
                 "instanceKey = \"move_conversation_to_folder_\${args.conversationId}_\${args.currentFolderId}\""
             )
         )
@@ -262,6 +265,13 @@ class EntryOwnedViewModelGatewaySourceTest {
     private fun sourceFile(relativePath: String): File {
         val root = repositoryRoot()
         return File(root, "app/src/main/kotlin/$relativePath").also {
+            assertTrue(it.isFile, "Missing ${it.path}")
+        }
+    }
+
+    private fun featureSourceFile(relativePath: String): File {
+        val root = repositoryRoot()
+        return File(root, "features/conversation/src/main/kotlin/$relativePath").also {
             assertTrue(it.isFile, "Missing ${it.path}")
         }
     }

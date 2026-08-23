@@ -1,3 +1,5 @@
 <resources>
     <string name="conversation_details_participants_title">A beszélgetés résztvevői</string>
+    <string name="move_to_folder_success">\"%1$s\" áthelyezve ide: \"%2$s\"</string>
+    <string name="move_to_folder_failed">\"%1$s\" áthelyezése nem sikerült</string>
 </resources>

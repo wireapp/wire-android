@@ -1002,13 +1002,6 @@ registrato. Sei pregato di riprovare.</string>
         <item quantity="one">1 secondo rimanente</item>
         <item quantity="other">%1$d secondi rimanenti</item>
     </plurals>
-    <string name="four_weeks_short_label">4w</string>
-    <string name="one_week_short_label">1w</string>
-    <string name="one_day_short_label">1g</string>
-    <string name="one_hour_short_label">1h</string>
-    <string name="five_minutes_short_label">5m</string>
-    <string name="one_minute_short_label">1m</string>
-    <string name="ten_seconds_short_label">10s</string>
     <string name="label_debug_data">Dati di debug</string>
     <string name="title_internal_debugging">Debug interno</string>
     <string name="label_log_options_description">"Questo memorizza localmente le informazioni anonime di risoluzione dei problemi. "</string>

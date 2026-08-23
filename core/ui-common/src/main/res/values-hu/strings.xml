@@ -51,4 +51,11 @@
         <item quantity="one">1 hét</item>
         <item quantity="other">%1$d hét</item>
     </plurals>
+    <string name="four_weeks_short_label">4h</string>
+    <string name="one_week_short_label">1h</string>
+    <string name="one_day_short_label">1n</string>
+    <string name="one_hour_short_label">1ó</string>
+    <string name="five_minutes_short_label">5p</string>
+    <string name="one_minute_short_label">1p</string>
+    <string name="ten_seconds_short_label">10mp</string>
 </resources>

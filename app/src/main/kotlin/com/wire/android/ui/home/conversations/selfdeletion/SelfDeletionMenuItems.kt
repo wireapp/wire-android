@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.selfdeletion
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import com.wire.android.BuildConfig
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
@@ -30,7 +31,7 @@ fun selfDeletionMenuItems(
     currentlySelected: SelfDeletionDuration,
     onSelfDeletionDurationChanged: (SelfDeletionDuration) -> Unit,
 ): List<@Composable () -> Unit> = buildList {
-    SelfDeletionDuration.customValues().forEach { duration ->
+    SelfDeletionDuration.customValues(BuildConfig.DEVELOPER_FEATURES_ENABLED).forEach { duration ->
         add {
             SelfDeletionDurationMenuItem(
                 duration = duration,

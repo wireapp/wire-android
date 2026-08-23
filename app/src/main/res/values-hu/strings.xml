@@ -1295,13 +1295,6 @@ Kérjük, próbálja meg újra.</string>
         <item quantity="one">1 másodperc van hátra</item>
         <item quantity="other">%1$d másodperc van hátra</item>
     </plurals>
-    <string name="four_weeks_short_label">4h</string>
-    <string name="one_week_short_label">1h</string>
-    <string name="one_day_short_label">1n</string>
-    <string name="one_hour_short_label">1ó</string>
-    <string name="five_minutes_short_label">5p</string>
-    <string name="one_minute_short_label">1p</string>
-    <string name="ten_seconds_short_label">10mp</string>
     <string name="label_debug_data">Hibakeresési információ</string>
     <string name="title_internal_debugging">Belső hibakeresés</string>
     <string name="label_log_options_description">"Ez helyileg tárolja az anonimizált hibaelhárítási információkat. "</string>

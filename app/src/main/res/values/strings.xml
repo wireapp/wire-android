@@ -1580,13 +1580,6 @@ In group conversations, the group admin can overwrite this setting.</string>
         <item quantity="one">month</item>
         <item quantity="other">months</item>
     </plurals>
-    <string name="four_weeks_short_label">4w</string>
-    <string name="one_week_short_label">1w</string>
-    <string name="one_day_short_label">1d</string>
-    <string name="one_hour_short_label">1h</string>
-    <string name="five_minutes_short_label">5m</string>
-    <string name="one_minute_short_label">1m</string>
-    <string name="ten_seconds_short_label">10s</string>
     <string name="label_debug_data">Debug data</string>
     <string name="title_internal_debugging">Internal debugging</string>
     <string name="label_log_options_description">"This stores anonymized troubleshooting information locally. "</string>

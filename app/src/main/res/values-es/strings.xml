@@ -910,9 +910,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
         <item quantity="one">Falta 1 segundo</item>
         <item quantity="other">Faltan %1$d segundos</item>
     </plurals>
-    <string name="four_weeks_short_label">4sem</string>
-    <string name="one_week_short_label">1sem</string>
-    <string name="five_minutes_short_label">5min</string>
     <string name="label_debug_data">Datos de depuración</string>
     <string name="title_internal_debugging">Depuración interna</string>
     <string name="label_log_options_description">"Esto almacena información anónima de solución de problemas localmente. "</string>

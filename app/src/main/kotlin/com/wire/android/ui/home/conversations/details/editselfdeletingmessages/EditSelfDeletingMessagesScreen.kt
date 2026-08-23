@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.button.WireButton
@@ -97,7 +98,7 @@ internal fun EditSelfDeletingMessagesRouteScreen(
                     if (state.isEnabled) {
                         sectionWithElements(
                             header = context.resources.getString(R.string.self_deleting_messages_folder_timer),
-                            items = SelfDeletionDuration.customValues()
+                            items = SelfDeletionDuration.customValues(BuildConfig.DEVELOPER_FEATURES_ENABLED)
                                 .associateBy { it.name },
                             divider = { WireDivider(color = MaterialTheme.wireColorScheme.outline) }
                         ) { duration ->

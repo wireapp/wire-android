@@ -1304,13 +1304,6 @@
         <item quantity="one">තත්පරයක් ඉතිරිය</item>
         <item quantity="other">තත්. %1$d ක් ඉතිරිය</item>
     </plurals>
-    <string name="four_weeks_short_label">ස. 4</string>
-    <string name="one_week_short_label">ස. 1</string>
-    <string name="one_day_short_label">ද. 1</string>
-    <string name="one_hour_short_label">පැ. 1</string>
-    <string name="five_minutes_short_label">වි. 5</string>
-    <string name="one_minute_short_label">වි. 1</string>
-    <string name="ten_seconds_short_label">ත. 10</string>
     <string name="label_debug_data">නිදෝස්කරණ දත්ත</string>
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"මෙය නිර්නාමික දෝෂ නිරාකරණ තොරතුරු ස්ථානීයව ගබඩා කරයි. "</string>

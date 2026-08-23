@@ -388,10 +388,6 @@
         <item quantity="one">1 sekund jäänud</item>
         <item quantity="other">%1$d sekundit jäänud</item>
     </plurals>
-    <string name="four_weeks_short_label">4ndl</string>
-    <string name="one_week_short_label">1ndl</string>
-    <string name="one_day_short_label">1p</string>
-    <string name="one_hour_short_label">1t</string>
     <!-- Record Audio -->
     <!--    biometrics-->
     <!--    e2ei-->

@@ -51,4 +51,11 @@
         <item quantity="one">සති 1</item>
         <item quantity="other">සතිි %1$d</item>
     </plurals>
+    <string name="four_weeks_short_label">ස. 4</string>
+    <string name="one_week_short_label">ස. 1</string>
+    <string name="one_day_short_label">ද. 1</string>
+    <string name="one_hour_short_label">පැ. 1</string>
+    <string name="five_minutes_short_label">වි. 5</string>
+    <string name="one_minute_short_label">වි. 1</string>
+    <string name="ten_seconds_short_label">ත. 10</string>
 </resources>

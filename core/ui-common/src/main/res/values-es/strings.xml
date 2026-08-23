@@ -46,4 +46,7 @@
         <item quantity="one">1 semana</item>
         <item quantity="other">%1$d semanas</item>
     </plurals>
+    <string name="four_weeks_short_label">4sem</string>
+    <string name="one_week_short_label">1sem</string>
+    <string name="five_minutes_short_label">5min</string>
 </resources>

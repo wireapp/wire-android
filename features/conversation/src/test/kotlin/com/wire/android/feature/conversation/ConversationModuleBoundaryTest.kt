@@ -312,6 +312,12 @@ class ConversationModuleBoundaryTest {
             messageDetailsViewModelGraphRelativePath to
                     "com.wire.android.ui.home.conversations",
         )
+        val participantPresentationStateSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsState.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/model/ParticipantsExpansionState.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants.model",
+        )
         val conversationAssetPathSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/ConversationAssetPathsViewModel.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
@@ -321,7 +327,7 @@ class ConversationModuleBoundaryTest {
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
-                    conversationAssetPathSources
+                    participantPresentationStateSources + conversationAssetPathSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

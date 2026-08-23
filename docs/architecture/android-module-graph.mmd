@@ -4,6 +4,7 @@ graph TD
     Meetings[":features:meetings"]
     Calling[":core:calling"]
     Navigation[":core:navigation"]
+    Search[":core:search"]
     Di[":core:di"]
     UiCommon[":core:ui-common"]
     Analytics[":core:analytics"]
@@ -15,6 +16,7 @@ graph TD
     App --> Meetings
     App --> Calling
     App --> Navigation
+    App --> Search
     App --> Di
     App --> UiCommon
     App --> Analytics
@@ -25,11 +27,16 @@ graph TD
     Conversation -. proposed .-> Calling
     Conversation -. proposed .-> Analytics
     Conversation -. proposed .-> Navigation
-    Meetings -. conditional .-> Calling
+    Conversation -. proposed .-> Search
+    Meetings -. proposed .-> Calling
     Meetings --> Navigation
+    Meetings --> Search
     Meetings --> Di
     Meetings --> UiCommon
     Calling --> UiCommon
     Calling --> KaliumLogic
+    Search --> Di
+    Search --> UiCommon
+    Search --> KaliumLogic
     KaliumLogic --> KaliumCalling
     KaliumCalling --> Avs

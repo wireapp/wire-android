@@ -262,7 +262,11 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/usecase/ObserveParticipantsForConversationUseCase.kt" to
                     "com.wire.android.ui.home.conversations.details.participants.usecase",
         )
-        val movedConversationSources = participantTypingSources + participantAggregationSources
+        val conversationBannerSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/banner/usecase/ObserveConversationMembersByTypesUseCase.kt" to
+                    "com.wire.android.ui.home.conversations.banner.usecase",
+        )
+        val movedConversationSources = participantTypingSources + participantAggregationSources + conversationBannerSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ViewModelScopedPreview",
             "com.wire.android.mapper.UIParticipantMapper",
@@ -279,6 +283,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase",
             "com.wire.android.ui.home.conversationslist.model.Membership",
             "com.wire.android.util.dispatchers.DispatcherProvider",
+            "dev.zacsweers.metro.Inject",
         )
         val kspPlugin = Regex("""alias\s*\(\s*libs\.plugins\.ksp\s*\)""")
         val kspProcessor = Regex("""ksp\s*\(\s*project\s*\(\s*["']:ksp["']\s*\)\s*\)""")

@@ -19,7 +19,7 @@ package com.wire.android.ui.home.newconversation.channelaccess
 
 import android.os.Parcelable
 import androidx.annotation.StringRes
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAccess
 import kotlinx.parcelize.Parcelize
 

@@ -118,4 +118,8 @@
     <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
     <string name="conversation_participant_you_label">(Sie)</string>
     <string name="temporary_user_label">%s hat die Unterhaltung verlassen</string>
+    <string name="channel_private_label">Privat</string>
+    <string name="channel_public_label">Öffentlich</string>
+    <string name="channel_add_permission_admin_label">Admins</string>
+    <string name="channel_add_permission_admin_members_label">Admins und Mitglieder</string>
 </resources>

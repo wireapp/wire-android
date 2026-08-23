@@ -26,4 +26,8 @@
     <!-- Go to app settings permissions dialog -->
     <string name="conversation_participant_you_label">(ඔබ)</string>
     <string name="temporary_user_label">%s ඉතිරියි</string>
+    <string name="channel_private_label">පුද්ගලික</string>
+    <string name="channel_public_label">පොදු</string>
+    <string name="channel_add_permission_admin_label">පරිපාලකයින්</string>
+    <string name="channel_add_permission_admin_members_label">පරිපාලකයින් සහ සාමාජිකයින්</string>
 </resources>

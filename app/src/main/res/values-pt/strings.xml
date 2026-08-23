@@ -439,13 +439,9 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="new_group_title">Novo Grupo</string>
     <string name="new_channel_title">Novo Canal</string>
     <string name="channel_access_label">Acesso</string>
-    <string name="channel_private_label">Privado</string>
-    <string name="channel_public_label">Público</string>
     <string name="channel_access_description">Todos os membros da equipe podem se juntar a canais públicos. Mas, somente administradores ou membros do canal podem adicionar pessoas a um canal privado.\nUm canal privado não pode ser alterado para público mais tarde.</string>
     <string name="channel_access_short_description">Todos os membros da equipe podem se juntar a canais públicos. Mas, somente administradores ou membros do canal podem adicionar pessoas a um canal privado.</string>
     <string name="channel_add_permission_description">Selecione quem pode adicionar participantes a um canal privado</string>
-    <string name="channel_add_permission_admin_label">Administradores</string>
-    <string name="channel_add_permission_admin_members_label">Administradores e membros</string>
     <string name="create_regular_group_button_label">Criar Grupo</string>
     <string name="create_channel_button_label">Criar canal</string>
     <string name="new_group_description">Até 500 pessoas podem participar de uma conversa.</string>

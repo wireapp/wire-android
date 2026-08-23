@@ -441,13 +441,9 @@
     <string name="new_group_title">නව සමූහය</string>
     <string name="new_channel_title">නව නාලිකාව</string>
     <string name="channel_access_label">ප්‍රවේශය</string>
-    <string name="channel_private_label">පුද්ගලික</string>
-    <string name="channel_public_label">පොදු</string>
     <string name="channel_access_description">සියලුම කණ්ඩායම් සාමාජිකයින්ට පොදු නාලිකාවලට සම්බන්ධ විය හැකිය. නමුත්, නාලිකා පරිපාලකයින්ට හෝ සාමාජිකයින්ට පමණක් පුද්ගලික නාලිකාවකට පුද්ගලයින් එක් කළ හැකිය.\nපුද්ගලික නාලිකාවක් පසුව පොදු ලෙස වෙනස් කළ නොහැක.</string>
     <string name="channel_access_short_description">සියලුම කණ්ඩායම් සාමාජිකයින්ට පොදු නාලිකාවලට සම්බන්ධ විය හැක. නමුත්, නාලිකා පරිපාලකයින්ට හෝ සාමාජිකයින්ට පමණක් පුද්ගලික නාලිකාවකට පුද්ගලයින් එක් කළ හැක.</string>
     <string name="channel_add_permission_description">පුද්ගලික නාලිකාවකට සහභාගිවන්නන් එක් කළ හැක්කේ කාටද යන්න තෝරන්න</string>
-    <string name="channel_add_permission_admin_label">පරිපාලකයින්</string>
-    <string name="channel_add_permission_admin_members_label">පරිපාලකයින් සහ සාමාජිකයින්</string>
     <string name="create_regular_group_button_label">කණ්ඩායමක් සාදන්න</string>
     <string name="create_channel_button_label">නාලිකාව සාදන්න</string>
     <string name="new_group_description">සමූහ සංවාදයකට {{count}} දෙනෙකුට එක්විය හැකිය.</string>

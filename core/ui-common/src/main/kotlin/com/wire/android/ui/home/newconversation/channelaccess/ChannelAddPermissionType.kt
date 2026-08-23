@@ -18,7 +18,7 @@
 package com.wire.android.ui.home.newconversation.channelaccess
 
 import androidx.annotation.StringRes
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group.Channel.ChannelAddPermission
 
 enum class ChannelAddPermissionType(@StringRes val labelResId: Int) {

@@ -447,13 +447,9 @@
     <string name="new_group_title">Új csoport</string>
     <string name="new_channel_title">Új csatorna</string>
     <string name="channel_access_label">Hozzáférés</string>
-    <string name="channel_private_label">Magán</string>
-    <string name="channel_public_label">Nyilvános</string>
     <string name="channel_access_description">Minden csapattag csatlakozhat a nyilvános csatornákhoz. De csak csatornaadminok vagy tagok adhatnak hozzá felhasználókat egy magán csatornához.\nEgy magán csatornát nem lehet később nyilvánossá tenni.</string>
     <string name="channel_access_short_description">Minden csapattag csatlakozhat a nyilvános csatornákhoz. De csak csatornaadminok vagy tagok adhatnak hozzá felhasználókat egy magán csatornához.</string>
     <string name="channel_add_permission_description">Válassza ki, ki adhat hozzá résztvevőket egy magán csatornához</string>
-    <string name="channel_add_permission_admin_label">Adminok</string>
-    <string name="channel_add_permission_admin_members_label">Adminok és tagok</string>
     <string name="create_regular_group_button_label">Csoport létrehozása</string>
     <string name="create_channel_button_label">Csatorna létrehozása</string>
     <string name="new_group_description">Akár 500 személy csatlakozhat egy csoportos beszélgetéshez.</string>

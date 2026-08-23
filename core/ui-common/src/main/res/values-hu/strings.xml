@@ -26,4 +26,8 @@
     <!-- Go to app settings permissions dialog -->
     <string name="conversation_participant_you_label">(Ön)</string>
     <string name="temporary_user_label">%s kilépett</string>
+    <string name="channel_private_label">Magán</string>
+    <string name="channel_public_label">Nyilvános</string>
+    <string name="channel_add_permission_admin_label">Adminok</string>
+    <string name="channel_add_permission_admin_members_label">Adminok és tagok</string>
 </resources>

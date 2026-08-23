@@ -132,4 +132,8 @@
     <string name="app_permission_dialog_settings_negative_button">Не сейчас</string>
     <string name="conversation_participant_you_label">(Вы)</string>
     <string name="temporary_user_label">%s покинул(-а)</string>
+    <string name="channel_private_label">Приватный</string>
+    <string name="channel_public_label">Публичный</string>
+    <string name="channel_add_permission_admin_label">Администраторы</string>
+    <string name="channel_add_permission_admin_members_label">Администраторы и члены</string>
 </resources>

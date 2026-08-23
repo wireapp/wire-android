@@ -19,15 +19,12 @@
 package com.wire.android.ui.common.groupname
 
 object GroupNameValidator {
-    private const val GROUP_NAME_MAX_COUNT = 64
-
     /**
      * Receives a group field and state and returns the new state after validation
      */
     fun onGroupNameChange(newText: String, currentGroupState: GroupMetadataState): GroupMetadataState {
-        val cleanText = newText.trim()
-        return when {
-            cleanText.isEmpty() -> {
+        return when (GroupNamePolicy.evaluate(newText, currentGroupState.originalGroupName)) {
+            GroupNamePolicyResult.Empty -> {
                 currentGroupState.copy(
                     animatedGroupNameError = true,
                     continueEnabled = false,
@@ -35,7 +32,7 @@ object GroupNameValidator {
                 )
             }
 
-            cleanText.count() > GROUP_NAME_MAX_COUNT -> {
+            GroupNamePolicyResult.TooLong -> {
                 currentGroupState.copy(
                     animatedGroupNameError = true,
                     continueEnabled = false,
@@ -43,7 +40,7 @@ object GroupNameValidator {
                 )
             }
 
-            cleanText == currentGroupState.originalGroupName -> {
+            GroupNamePolicyResult.Unchanged -> {
                 currentGroupState.copy(
                     animatedGroupNameError = false,
                     continueEnabled = false,
@@ -51,7 +48,7 @@ object GroupNameValidator {
                 )
             }
 
-            else -> {
+            GroupNamePolicyResult.Valid -> {
                 currentGroupState.copy(
                     animatedGroupNameError = false,
                     continueEnabled = true,

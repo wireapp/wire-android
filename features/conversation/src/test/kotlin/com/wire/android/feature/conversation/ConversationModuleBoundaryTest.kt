@@ -92,8 +92,8 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
-    fun participantTypingSourcesPreserveLegacyPackagesWithoutAppImplementationImports() {
-        val sourceFiles = participantTypingSources.map { (relativePath, packageName) ->
+    fun movedConversationSourcesPreserveLegacyPackagesWithoutAppImplementationImports() {
+        val sourceFiles = movedConversationSources.map { (relativePath, packageName) ->
             val source = Konsist.scopeFromFile(relativePath).files
 
             assertEquals(1, source.size, "Missing moved source $relativePath.")
@@ -109,7 +109,7 @@ class ConversationModuleBoundaryTest {
                         (importName.startsWith("com.wire.android.") && importName !in allowedMovedSourceImports)
             }
         }
-        participantTypingSources.keys.forEach { relativePath ->
+        movedConversationSources.keys.forEach { relativePath ->
             val source = File(Konsist.projectRootPath, relativePath).readText()
 
             assertFalse(source.contains("BuildConfig"), "$relativePath must not use app BuildConfig.")
@@ -256,6 +256,13 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/typing/UsersTypingViewState.kt" to
                     "com.wire.android.ui.home.conversations.typing",
         )
+        val participantAggregationSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/model/ConversationParticipantsData.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants.model",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/usecase/ObserveParticipantsForConversationUseCase.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants.usecase",
+        )
+        val movedConversationSources = participantTypingSources + participantAggregationSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ViewModelScopedPreview",
             "com.wire.android.mapper.UIParticipantMapper",
@@ -265,9 +272,13 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.model.UserAvatarData",
             "com.wire.android.ui.home.conversations.avatar",
             "com.wire.android.ui.home.conversations.details.participants.model.UIParticipant",
+            "com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData",
+            "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
+            "com.wire.android.ui.home.conversations.userId",
             "com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase",
             "com.wire.android.ui.home.conversationslist.model.Membership",
+            "com.wire.android.util.dispatchers.DispatcherProvider",
         )
         val kspPlugin = Regex("""alias\s*\(\s*libs\.plugins\.ksp\s*\)""")
         val kspProcessor = Regex("""ksp\s*\(\s*project\s*\(\s*["']:ksp["']\s*\)\s*\)""")

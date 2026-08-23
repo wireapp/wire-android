@@ -675,6 +675,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/info/ConversationInfoViewState.kt" to
                     "com.wire.android.ui.home.conversations.info",
         )
+        val deleteMessageDialogStateSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/delete/DeleteMessageDialogState.kt" to
+                    "com.wire.android.ui.home.conversations.delete",
+        )
         val messageItemTemplateSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageItemTemplate.kt" to
                     "com.wire.android.ui.home.conversations.messages.item",
@@ -700,7 +704,8 @@ class ConversationModuleBoundaryTest {
                     createPasswordGuestLinkViewModelSources + updateAppsAccessViewModelSources + editGuestAccessViewModelSources +
                     editSelfDeletingMessagesViewModelSources +
                     promoteAdminViewModelSources + addMembersToConversationViewModelSources + uiAssetMessageSources +
-                    visualMediaParamsSources + conversationInfoStateSources + messageItemTemplateSources + interceptClickableSources +
+                    visualMediaParamsSources + conversationInfoStateSources + deleteMessageDialogStateSources +
+                    messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources
         val allowedMovedSourceImports = setOf(

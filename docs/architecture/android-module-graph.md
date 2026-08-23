@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `55bcbac0c`.
+**Last verified:** 2026-08-23, `chore/android-modularization`, baseline HEAD `9307a9046`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -20,6 +20,8 @@ graph TD
     Di[":core:di"]
     UiCommon[":core:ui-common"]
     Analytics[":core:analytics"]
+    AnalyticsEnabled[":core:analytics-enabled"]
+    AnalyticsDisabled[":core:analytics-disabled"]
     KaliumLogic["Kalium Logic"]
     KaliumCalling["Kalium Domain Calling"]
     Avs["AVS Android runtime"]
@@ -31,7 +33,8 @@ graph TD
     App --> Search
     App --> Di
     App --> UiCommon
-    App --> Analytics
+    App -->|enabled flavor| AnalyticsEnabled
+    App -->|disabled flavor| AnalyticsDisabled
     App --> KaliumLogic
     Conversation --> Di
     Conversation --> UiCommon
@@ -45,11 +48,14 @@ graph TD
     Meetings --> Search
     Meetings --> Di
     Meetings --> UiCommon
+    Meetings --> KaliumLogic
     Calling --> UiCommon
     Calling --> KaliumLogic
     Search --> Di
     Search --> UiCommon
     Search --> KaliumLogic
+    AnalyticsEnabled --> Analytics
+    AnalyticsDisabled --> Analytics
     KaliumLogic --> KaliumCalling
     KaliumCalling --> Avs
 ```
@@ -67,6 +73,7 @@ graph TD
 | `:app` | `:core:calling`, `:core:navigation`, `:core:di`, `:core:ui-common` | implementation / coverage helper | current | Android runtime composition | Allowed |
 | `:app` | Kalium Logic | implementation coordinate | current | Application runtime | Allowed |
 | `:features:meetings` | `:core:di`, `:core:navigation`, `:core:ui-common`, `:core:search` | implementation | current | Existing feature dependencies | Feature to core only |
+| `:features:meetings` | Kalium Logic | implementation coordinate | current | Meeting state and actions use Kalium APIs directly | Feature to third-party library only |
 | `:core:search` | `:core:di`, `:core:ui-common`, `:core:query-matching`, `:core:interaction-model` | implementation | current | Shared contact/app search UI and matching primitives | Core to core only |
 | `:core:search` | Kalium Logic | implementation | current | Search data/use-case access | Core to third-party library only |
 | `:core:navigation` | `:core:navigation-kmp`, `:core:design-system`, `:core:ui-common` | api / implementation | current | Navigation primitives | Core to core only |
@@ -75,7 +82,8 @@ graph TD
 | `:core:calling` | Kalium common, Compose Runtime, AndroidX | implementation | current | Coordinator implementation and `VisibleForTesting` | No app/feature/navigation edge |
 | Kalium Logic | Kalium Domain Calling | api | current | Kalium calling domain | Kalium-owned edge |
 | Kalium Domain Calling | AVS Android runtime | Android `api` | current | AVS platform binding | Kalium-owned edge |
-| `:app` | `:core:analytics-enabled` or `:core:analytics-disabled` | flavor implementation | current | App selects analytics runtime by flavor | Runtime adapter only |
+| `:app` | `:core:analytics-enabled` or `:core:analytics-disabled` | flavor implementation | current | App selects one analytics runtime adapter per flavor | Runtime adapter only |
+| `:core:analytics-enabled`, `:core:analytics-disabled` | `:core:analytics` | api | current | Both runtime adapters implement and re-export the neutral analytics contract | Core to core only |
 
 The source paths and Gradle declarations above were verified with:
 
@@ -101,13 +109,13 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **225**, message composer **41**,
+Audited app production-file counts are: conversations **213**, message composer **41**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
-**27**. The strict app conversations directory has **53** unit tests and **1** Android
+**27**. The strict app conversations directory has **54** unit tests and **1** Android
 test; **82** files import app `R`, **422** distinct fully-qualified `R.type.name`
 IDs occur there, and only the app host configuration adapter still uses
-`BuildConfig`. `:features:conversation` now owns **33** production files and
-**16** unit-test files. The temporary source SCC is conversation,
+`BuildConfig`. `:features:conversation` now owns **49** production files and
+**18** unit-test files. The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
 the existing `:features:meetings` module is not in that SCC.
 

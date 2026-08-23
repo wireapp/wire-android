@@ -8,6 +8,8 @@ graph TD
     Di[":core:di"]
     UiCommon[":core:ui-common"]
     Analytics[":core:analytics"]
+    AnalyticsEnabled[":core:analytics-enabled"]
+    AnalyticsDisabled[":core:analytics-disabled"]
     KaliumLogic["Kalium Logic"]
     KaliumCalling["Kalium Domain Calling"]
     Avs["AVS Android runtime"]
@@ -19,7 +21,8 @@ graph TD
     App --> Search
     App --> Di
     App --> UiCommon
-    App --> Analytics
+    App -->|enabled flavor| AnalyticsEnabled
+    App -->|disabled flavor| AnalyticsDisabled
     App --> KaliumLogic
     Conversation --> Di
     Conversation --> UiCommon
@@ -33,10 +36,13 @@ graph TD
     Meetings --> Search
     Meetings --> Di
     Meetings --> UiCommon
+    Meetings --> KaliumLogic
     Calling --> UiCommon
     Calling --> KaliumLogic
     Search --> Di
     Search --> UiCommon
     Search --> KaliumLogic
+    AnalyticsEnabled --> Analytics
+    AnalyticsDisabled --> Analytics
     KaliumLogic --> KaliumCalling
     KaliumCalling --> Avs

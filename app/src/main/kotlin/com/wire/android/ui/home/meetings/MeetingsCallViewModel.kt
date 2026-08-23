@@ -23,8 +23,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.call.JoinOrStartCallManager
-import com.wire.android.ui.home.conversations.call.ObserveConversationParticipantCount
-import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.home.conversations.call.KaliumObserveConversationParticipantCount
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -32,20 +31,20 @@ import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class MeetingsCallViewModel @Inject constructor(
     @CurrentAccount currentAccount: UserId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
@@ -61,9 +60,7 @@ class MeetingsCallViewModel @Inject constructor(
         scope = viewModelScope,
         currentAccount = currentAccount,
         observeEstablishedCalls = observeEstablishedCalls,
-        observeConversationParticipantCount = ObserveConversationParticipantCount { conversationId ->
-            observeParticipantsForConversation(conversationId).map { it.allCount }
-        },
+        observeConversationParticipantCount = KaliumObserveConversationParticipantCount(observeConversationMembers),
         answerCall = answerCall,
         endCall = endCall,
         observeSyncState = observeSyncState,

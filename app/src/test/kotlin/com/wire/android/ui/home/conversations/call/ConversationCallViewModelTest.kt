@@ -39,6 +39,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnable
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -174,6 +175,9 @@ class ConversationCallViewModelTest {
         lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
 
         @MockK
+        lateinit var observeConversationMembers: ObserveConversationMembersUseCase
+
+        @MockK
         lateinit var setUserInformedAboutVerificationUseCase: SetUserInformedAboutVerificationUseCase
 
         @MockK
@@ -194,6 +198,7 @@ class ConversationCallViewModelTest {
             coEvery { observeJoinableCalls.invoke() } returns emptyFlow()
             coEvery { observeConversationDetails(any()) } returns flowOf()
             coEvery { observeParticipantsForConversation(any()) } returns flowOf()
+            coEvery { observeConversationMembers(any()) } returns flowOf()
             every { observeSyncState() } returns flowOf(SyncState.Live)
             coEvery { isConferenceCallingEnabled(any(), any()) } returns ConferenceCallingResult.Enabled
             coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
@@ -230,6 +235,7 @@ class ConversationCallViewModelTest {
             isConferenceCallingEnabled = isConferenceCallingEnabled,
             observeConversationDetails = observeConversationDetails,
             observeParticipantsForConversation = observeParticipantsForConversation,
+            observeConversationMembers = observeConversationMembers,
             setUserInformedAboutVerification = setUserInformedAboutVerificationUseCase,
             observeDegradedConversationNotified = observeDegradedConversationNotifiedUseCase,
             observeConferenceCallingEnabled = observeConferenceCallingEnabled,

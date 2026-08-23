@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveConferenceCallingEnable
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -47,7 +48,6 @@ import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 
@@ -58,6 +58,7 @@ class ConversationCallViewModel @AssistedInject constructor(
     private val observeJoinableCalls: ObserveJoinableCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
+    private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
@@ -78,9 +79,7 @@ class ConversationCallViewModel @AssistedInject constructor(
         scope = viewModelScope,
         currentAccount = currentAccount,
         observeEstablishedCalls = observeEstablishedCalls,
-        observeConversationParticipantCount = ObserveConversationParticipantCount { conversationId ->
-            observeParticipantsForConversation(conversationId).map { it.allCount }
-        },
+        observeConversationParticipantCount = KaliumObserveConversationParticipantCount(observeConversationMembers),
         answerCall = answerCall,
         endCall = endCall,
         observeSyncState = observeSyncState,

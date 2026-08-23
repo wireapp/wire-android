@@ -23,8 +23,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.call.JoinOrStartCallViewActions
-import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
-import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.type.UserType
@@ -34,6 +32,7 @@ import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
@@ -72,7 +71,7 @@ class MeetingsCallViewModelTest {
             assertFalse(viewModel.notEstablishedDialogState.isVisible)
             coVerify(exactly = 1) { arrangement.ensureMeetingIsMLSEstablished(TestConversation.ID) }
             coVerify(exactly = 1) { arrangement.isConferenceCallingEnabled(TestConversation.ID, Conversation.Type.Group.Meeting) }
-            coVerify(exactly = 0) { arrangement.observeParticipantsForConversation(any()) }
+            coVerify(exactly = 0) { arrangement.observeConversationMembers(any()) }
         }
     }
 
@@ -132,7 +131,7 @@ class MeetingsCallViewModelTest {
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
         @MockK
-        lateinit var observeParticipantsForConversation: ObserveParticipantsForConversationUseCase
+        lateinit var observeConversationMembers: ObserveConversationMembersUseCase
 
         @MockK
         lateinit var answerCall: AnswerCallUseCase
@@ -161,7 +160,7 @@ class MeetingsCallViewModelTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { observeEstablishedCalls() } returns emptyFlow()
-            coEvery { observeParticipantsForConversation(any()) } returns flowOf(ConversationParticipantsData())
+            coEvery { observeConversationMembers(any()) } returns flowOf()
             coEvery { answerCall(conversationId = any()) } returns Unit
             coEvery { endCall(any()) } returns Unit
             every { observeSyncState() } returns flowOf(SyncState.Live)
@@ -181,7 +180,7 @@ class MeetingsCallViewModelTest {
         fun arrange() = this to MeetingsCallViewModel(
             currentAccount = TestUser.SELF_USER_ID,
             observeEstablishedCalls = observeEstablishedCalls,
-            observeParticipantsForConversation = observeParticipantsForConversation,
+            observeConversationMembers = observeConversationMembers,
             answerCall = answerCall,
             endCall = endCall,
             observeSyncState = observeSyncState,

@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -68,6 +67,7 @@ import kotlinx.datetime.plus
 fun ConversationParticipantItem(
     uiParticipant: UIParticipant,
     clickable: Clickable,
+    developerFeaturesEnabled: Boolean,
     modifier: Modifier = Modifier,
     searchQuery: String = String.EMPTY,
     showRightArrow: Boolean = true
@@ -114,7 +114,7 @@ fun ConversationParticipantItem(
 
                 if (uiParticipant.isMLSVerified) MLSVerifiedIcon()
                 if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
-                if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                if (developerFeaturesEnabled) {
                     uiParticipant.supportedProtocolList.map {
                         ProtocolLabel(
                             protocolName = it.name,
@@ -200,7 +200,8 @@ fun PreviewGroupConversationParticipantItem() {
                 isUnderLegalHold = true,
                 supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS)
             ),
-            clickable = Clickable(enabled = true) {}
+            clickable = Clickable(enabled = true) {},
+            developerFeaturesEnabled = true,
         )
     }
 }
@@ -224,7 +225,8 @@ fun PreviewGroupConversationTemporaryParticipantItem() {
                 supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS),
                 expiresAt = Clock.System.now().plus(23, DateTimeUnit.HOUR)
             ),
-            clickable = Clickable(enabled = true) {}
+            clickable = Clickable(enabled = true) {},
+            developerFeaturesEnabled = true,
         )
     }
 }
@@ -248,7 +250,8 @@ fun PreviewGroupConversationReadReceiptItem() {
                 supportedProtocolList = listOf(SupportedProtocol.PROTEUS, SupportedProtocol.MLS),
                 readReceiptDate = Clock.System.now()
             ),
-            clickable = Clickable(enabled = true) {}
+            clickable = Clickable(enabled = true) {},
+            developerFeaturesEnabled = true,
         )
     }
 }

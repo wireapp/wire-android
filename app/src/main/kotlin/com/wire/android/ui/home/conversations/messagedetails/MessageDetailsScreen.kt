@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.feature.conversation.config.LocalConversationHostConfiguration
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
@@ -63,6 +64,7 @@ internal fun MessageDetailsRouteScreen(
     viewModel: MessageDetailsViewModel,
     onNavigateBack: () -> Unit,
 ) {
+    val runtimeCapabilities = LocalConversationHostConfiguration.current.runtime
     val context = LocalContext.current
 
     val reactionsLearnMoreUrl = supportUrlResource(SupportPage.REACTIONS)
@@ -89,7 +91,8 @@ internal fun MessageDetailsRouteScreen(
         messageDetailsState = viewModel.messageDetailsState,
         onBackPressed = onNavigateBack,
         onReactionsLearnMore = onReactionsLearnMore,
-        onReadReceiptsLearnMore = onReadReceiptsLearnMore
+        onReadReceiptsLearnMore = onReadReceiptsLearnMore,
+        developerFeaturesEnabled = runtimeCapabilities.developerFeaturesEnabled,
     )
 }
 
@@ -99,7 +102,8 @@ private fun MessageDetailsScreenContent(
     messageDetailsState: MessageDetailsState,
     onBackPressed: () -> Unit,
     onReactionsLearnMore: () -> Unit,
-    onReadReceiptsLearnMore: () -> Unit
+    onReadReceiptsLearnMore: () -> Unit,
+    developerFeaturesEnabled: Boolean,
 ) {
     val tabItems by remember(messageDetailsState) {
         derivedStateOf {
@@ -151,13 +155,15 @@ private fun MessageDetailsScreenContent(
                     is MessageDetailsTabItem.Reactions -> MessageDetailsReactions(
                         reactionsData = messageDetailsState.reactionsData,
                         lazyListState = lazyListStates[pageIndex],
-                        onReactionsLearnMore = onReactionsLearnMore
+                        onReactionsLearnMore = onReactionsLearnMore,
+                        developerFeaturesEnabled = developerFeaturesEnabled,
                     )
 
                     is MessageDetailsTabItem.ReadReceipts -> MessageDetailsReadReceipts(
                         readReceiptsData = messageDetailsState.readReceiptsData,
                         lazyListState = lazyListStates[pageIndex],
-                        onReadReceiptsLearnMore = onReadReceiptsLearnMore
+                        onReadReceiptsLearnMore = onReadReceiptsLearnMore,
+                        developerFeaturesEnabled = developerFeaturesEnabled,
                     )
                 }
             }

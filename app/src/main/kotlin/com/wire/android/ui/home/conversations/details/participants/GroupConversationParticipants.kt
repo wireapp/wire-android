@@ -35,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.BuildConfig
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.home.conversations.details.participants.model.ParticipantsExpansionState
@@ -51,6 +50,7 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 fun GroupConversationParticipants(
     onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
+    developerFeaturesEnabled: Boolean,
     lazyListState: LazyListState,
     modifier: Modifier = Modifier
 ) {
@@ -61,7 +61,7 @@ fun GroupConversationParticipants(
             state = lazyListState,
             modifier = Modifier.fillMaxSize()
         ) {
-            if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+            if (developerFeaturesEnabled) {
                 item(key = "participants_list_header") {
                     Column(
                         modifier = Modifier
@@ -85,6 +85,7 @@ fun GroupConversationParticipants(
                 state = groupParticipantsState,
                 onRowItemClicked = onProfilePressed,
                 participantsExpansionState = participantsExpansionState,
+                developerFeaturesEnabled = developerFeaturesEnabled,
             )
         }
     }
@@ -117,13 +118,23 @@ fun MLSProgressIndicator(
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipants() = WireTheme {
-    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW, rememberLazyListState())
+    GroupConversationParticipants(
+        onProfilePressed = {},
+        groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
+        developerFeaturesEnabled = true,
+        lazyListState = rememberLazyListState(),
+    )
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewGroupConversationParticipantsAdandonedOneOnOne() = WireTheme {
-    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW, rememberLazyListState())
+    GroupConversationParticipants(
+        onProfilePressed = {},
+        groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
+        developerFeaturesEnabled = true,
+        lazyListState = rememberLazyListState(),
+    )
 }
 
 @PreviewMultipleThemes

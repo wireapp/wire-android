@@ -37,18 +37,21 @@ fun LazyListScope.participantsFoldersWithElements(
     state: GroupConversationParticipantsState,
     onRowItemClicked: (UIParticipant) -> Unit,
     participantsExpansionState: ParticipantsExpansionState,
+    developerFeaturesEnabled: Boolean,
 ) {
     sectionWithElements(
         header = context.getString(R.string.conversation_details_conversation_admins, state.data.allAdminsCount),
         items = state.data.admins,
         onRowItemClicked = onRowItemClicked,
-        sectionActions = participantsExpansionState.adminsActions
+        sectionActions = participantsExpansionState.adminsActions,
+        developerFeaturesEnabled = developerFeaturesEnabled,
     )
     sectionWithElements(
         header = context.getString(R.string.conversation_details_conversation_members, state.data.allParticipantsCount),
         items = state.data.participants,
         onRowItemClicked = onRowItemClicked,
-        sectionActions = participantsExpansionState.membersActions
+        sectionActions = participantsExpansionState.membersActions,
+        developerFeaturesEnabled = developerFeaturesEnabled,
     )
     if (state.data.allAppsCount > 0) {
         sectionWithElements(
@@ -58,7 +61,8 @@ fun LazyListScope.participantsFoldersWithElements(
             ),
             items = state.data.apps,
             onRowItemClicked = onRowItemClicked,
-            sectionActions = participantsExpansionState.appsActions
+            sectionActions = participantsExpansionState.appsActions,
+            developerFeaturesEnabled = developerFeaturesEnabled,
         )
     }
 }
@@ -67,8 +71,9 @@ fun LazyListScope.sectionWithElements(
     header: String,
     items: List<UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
+    sectionActions: MemberSectionActions,
+    developerFeaturesEnabled: Boolean,
     showRightArrow: Boolean = true,
-    sectionActions: MemberSectionActions
 ) = sectionWithElements(
     header = header,
     items = items.associateBy { it.id.toString() },
@@ -78,6 +83,7 @@ fun LazyListScope.sectionWithElements(
         ConversationParticipantItem(
             uiParticipant = it,
             clickable = remember { Clickable(enabled = true, onClickDescription = onClickDescription) { onRowItemClicked(it) } },
+            developerFeaturesEnabled = developerFeaturesEnabled,
             showRightArrow = showRightArrow
         )
     },
@@ -97,6 +103,7 @@ fun LazyListScope.sectionWithElements(
     header: String,
     items: Map<String, UIParticipant>,
     onRowItemClicked: (UIParticipant) -> Unit,
+    developerFeaturesEnabled: Boolean,
     showRightArrow: Boolean = true
 ) = sectionWithElements(
     header = header,
@@ -107,6 +114,7 @@ fun LazyListScope.sectionWithElements(
         ConversationParticipantItem(
             uiParticipant = it,
             clickable = remember { Clickable(enabled = true, onClickDescription = onClickDescription) { onRowItemClicked(it) } },
+            developerFeaturesEnabled = developerFeaturesEnabled,
             showRightArrow = showRightArrow
         )
     },

@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.feature.conversation.config.LocalConversationHostConfiguration
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -48,10 +49,12 @@ internal fun GroupConversationAllParticipantsRouteScreen(
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
 ) {
+    val runtimeCapabilities = LocalConversationHostConfiguration.current.runtime
     GroupConversationAllParticipantsContent(
         onBackPressed = onBackPressed,
         groupParticipantsState = viewModel.groupParticipantsState,
         onProfilePressed = onProfilePressed,
+        developerFeaturesEnabled = runtimeCapabilities.developerFeaturesEnabled,
     )
 }
 
@@ -60,7 +63,8 @@ internal fun GroupConversationAllParticipantsRouteScreen(
 private fun GroupConversationAllParticipantsContent(
     onBackPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
-    groupParticipantsState: GroupConversationParticipantsState
+    groupParticipantsState: GroupConversationParticipantsState,
+    developerFeaturesEnabled: Boolean,
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
     val participantsExpansionState = remember { ParticipantsExpansionState() }
@@ -86,10 +90,11 @@ private fun GroupConversationAllParticipantsContent(
                     .padding(internalPadding)
             ) {
                 participantsFoldersWithElements(
-                    context,
-                    groupParticipantsState,
-                    onProfilePressed,
-                    participantsExpansionState,
+                    context = context,
+                    state = groupParticipantsState,
+                    onRowItemClicked = onProfilePressed,
+                    participantsExpansionState = participantsExpansionState,
+                    developerFeaturesEnabled = developerFeaturesEnabled,
                 )
             }
         }
@@ -100,6 +105,11 @@ private fun GroupConversationAllParticipantsContent(
 @Composable
 fun PreviewGroupConversationAllParticipants() {
     WireTheme {
-        GroupConversationAllParticipantsContent({}, {}, GroupConversationParticipantsState.PREVIEW)
+        GroupConversationAllParticipantsContent(
+            onBackPressed = {},
+            onProfilePressed = {},
+            groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
+            developerFeaturesEnabled = true,
+        )
     }
 }

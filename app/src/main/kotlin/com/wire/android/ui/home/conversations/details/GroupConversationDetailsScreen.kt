@@ -208,6 +208,7 @@ internal fun GroupConversationDetailsRouteScreen(
         isScreenLoading = viewModel.isFetchingInitialData,
         mlsReadReceiptsEnabled = runtimeCapabilities.mlsReadReceiptsEnabled,
         privateBuild = runtimeCapabilities.privateBuild,
+        developerFeaturesEnabled = runtimeCapabilities.developerFeaturesEnabled,
     )
 }
 
@@ -258,6 +259,7 @@ private fun GroupConversationDetailsContent(
     isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false),
     mlsReadReceiptsEnabled: Boolean,
     privateBuild: Boolean,
+    developerFeaturesEnabled: Boolean,
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
@@ -425,6 +427,7 @@ private fun GroupConversationDetailsContent(
                         GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                             groupParticipantsState = groupParticipantsState,
                             onProfilePressed = onProfilePressed,
+                            developerFeaturesEnabled = developerFeaturesEnabled,
                             lazyListState = lazyListStates[pageIndex],
                         )
                     }
@@ -541,6 +544,7 @@ fun PreviewGroupConversationDetails() {
             initialPageIndex = GroupConversationDetailsTabItem.PARTICIPANTS,
             mlsReadReceiptsEnabled = false,
             privateBuild = false,
+            developerFeaturesEnabled = true,
         )
     }
 }

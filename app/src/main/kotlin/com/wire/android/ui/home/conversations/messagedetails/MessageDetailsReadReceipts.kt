@@ -36,6 +36,7 @@ import com.wire.android.ui.theme.WireTheme
 @Composable
 fun MessageDetailsReadReceipts(
     readReceiptsData: MessageDetailsReadReceiptsData,
+    developerFeaturesEnabled: Boolean,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     onReadReceiptsLearnMore: () -> Unit
@@ -59,8 +60,9 @@ fun MessageDetailsReadReceipts(
                     header = "",
                     items = readReceiptsData.readReceipts,
                     onRowItemClicked = { },
+                    sectionActions = MemberSectionActions.NoActions,
+                    developerFeaturesEnabled = developerFeaturesEnabled,
                     showRightArrow = false,
-                    sectionActions = MemberSectionActions.NoActions
                 )
             }
         }
@@ -73,7 +75,8 @@ fun PreviewMessageDetailsReadReceipts() {
     WireTheme {
         MessageDetailsReadReceipts(
             readReceiptsData = MessageDetailsReadReceiptsData(),
-            onReadReceiptsLearnMore = {}
+            onReadReceiptsLearnMore = {},
+            developerFeaturesEnabled = true,
         )
     }
 }

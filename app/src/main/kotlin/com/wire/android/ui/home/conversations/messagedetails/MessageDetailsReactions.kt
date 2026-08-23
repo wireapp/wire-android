@@ -36,6 +36,7 @@ import com.wire.android.ui.theme.WireTheme
 fun MessageDetailsReactions(
     reactionsData: MessageDetailsReactionsData,
     onReactionsLearnMore: () -> Unit,
+    developerFeaturesEnabled: Boolean,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
@@ -59,6 +60,7 @@ fun MessageDetailsReactions(
                         header = "${entry.key} ${entry.value.size}",
                         items = entry.value.associateBy { "${entry.key}_${it.id}" },
                         onRowItemClicked = { },
+                        developerFeaturesEnabled = developerFeaturesEnabled,
                         showRightArrow = false
                     )
                 }
@@ -73,7 +75,8 @@ fun PreviewMessageDetailsReactions() {
     WireTheme {
         MessageDetailsReactions(
             reactionsData = MessageDetailsReactionsData(),
-            onReactionsLearnMore = {}
+            onReactionsLearnMore = {},
+            developerFeaturesEnabled = true,
         )
     }
 }

@@ -22,6 +22,9 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.feature.conversation.config.ConversationHostConfiguration
+import com.wire.android.feature.conversation.config.ConversationRuntimeCapabilities
+import com.wire.android.feature.conversation.config.ConversationUiVisibility
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
@@ -54,6 +57,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -63,6 +67,32 @@ import org.junit.jupiter.params.provider.EnumSource
 @ExtendWith(CoroutineTestExtension::class)
 class EditGuestAccessViewModelTest {
     private val dispatcher = TestDispatcherProvider()
+
+    @Test
+    fun `given password protected links enabled, when initializing, then use case result is exposed`() =
+        runTest(dispatcher.default()) {
+            val (arrangement, viewModel) = Arrangement(dispatcher)
+                .withPasswordProtectedGuestLinksEnabled(true)
+                .arrange()
+
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.canCreatePasswordProtectedLinks() }
+            assertEquals(true, viewModel.editGuestAccessState.isPasswordProtectedLinksAllowed)
+        }
+
+    @Test
+    fun `given password protected links disabled, when initializing, then use case is not invoked`() =
+        runTest(dispatcher.default()) {
+            val (arrangement, viewModel) = Arrangement(dispatcher)
+                .withPasswordProtectedGuestLinksEnabled(false)
+                .arrange()
+
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { arrangement.canCreatePasswordProtectedLinks() }
+            assertFalse(viewModel.editGuestAccessState.isPasswordProtectedLinksAllowed)
+        }
 
     @Test
     fun `given updateConversationAccessRole use case runs successfully, when trying to enable guest access, then enable guest access`() =
@@ -285,6 +315,8 @@ class EditGuestAccessViewModelTest {
         @MockK
         lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
 
+        private var passwordProtectedGuestLinksEnabled = true
+
         val editGuestAccessViewModel: EditGuestAccessViewModel by lazy {
             EditGuestAccessViewModel(
                 navigationArgs = EditGuestAccessNavArgs(
@@ -306,7 +338,8 @@ class EditGuestAccessViewModelTest {
                 dispatcher = dispatcherProvider,
                 syncConversationCode = syncConversationCodeUseCase,
                 getDefaultProtocol = getDefaultProtocolUseCase,
-                selfUser = observeSelfUserUseCase
+                selfUser = observeSelfUserUseCase,
+                hostConfiguration = testConversationHostConfiguration(passwordProtectedGuestLinksEnabled),
             )
         }
 
@@ -323,6 +356,10 @@ class EditGuestAccessViewModelTest {
 
         fun withSyncConversationCodeSuccess() = apply {
             coEvery { syncConversationCodeUseCase.invoke(any()) }
+        }
+
+        fun withPasswordProtectedGuestLinksEnabled(enabled: Boolean) = apply {
+            passwordProtectedGuestLinksEnabled = enabled
         }
 
         fun withConversationMembers(result: Flow<ConversationParticipantsData>) = apply {
@@ -366,3 +403,25 @@ class EditGuestAccessViewModelTest {
         SERVICES(false, false, true, true)
     }
 }
+
+private fun testConversationHostConfiguration(passwordProtectedGuestLinksEnabled: Boolean): ConversationHostConfiguration =
+    object : ConversationHostConfiguration {
+        override val runtime = ConversationRuntimeCapabilities(
+            bubbleUiEnabled = false,
+            pendingMessagesEnabled = false,
+            developerFeaturesEnabled = false,
+            mlsReadReceiptsEnabled = false,
+            privateBuild = false,
+            passwordProtectedGuestLinksEnabled = passwordProtectedGuestLinksEnabled,
+        )
+        override val visibility = ConversationUiVisibility(
+            audioMessages = false,
+            shareLocation = false,
+            drawing = false,
+            emoji = false,
+            gif = false,
+            ping = false,
+            topBarConversationSearch = false,
+            messageSearch = false,
+        )
+    }

@@ -25,9 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.conversation.config.ConversationHostConfiguration
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.visbility.VisibilityState
@@ -118,6 +118,7 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private val deleteMessage: DeleteMessageUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     private val networkStateObserver: NetworkStateObserver,
+    private val hostConfiguration: ConversationHostConfiguration,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -238,7 +239,7 @@ class ConversationMessagesViewModel @AssistedInject constructor(
             }
         }
 
-        val paginatedMessagesFlow = if (BuildConfig.PENDING_MESSAGES) {
+        val paginatedMessagesFlow = if (hostConfiguration.runtime.pendingMessagesEnabled) {
             networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
                 getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
                     pagingData.withOfflineIndicator(

@@ -21,6 +21,9 @@ package com.wire.android.ui.home.conversations.messages
 import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.feature.conversation.config.ConversationHostConfiguration
+import com.wire.android.feature.conversation.config.ConversationRuntimeCapabilities
+import com.wire.android.feature.conversation.config.ConversationUiVisibility
 import com.wire.android.media.audiomessage.AudioSpeed
 import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
@@ -79,6 +82,7 @@ class ConversationMessagesViewModelArrangement {
 
     private val messagesFlow = MutableSharedFlow<PagingData<UIMessage>>(replay = 1, extraBufferCapacity = 10)
     val networkState = MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet)
+    private var pendingMessagesEnabled = true
 
     @MockK
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
@@ -152,6 +156,7 @@ class ConversationMessagesViewModelArrangement {
             deleteMessage,
             isWireCellFeatureEnabled,
             networkStateObserver,
+            testConversationHostConfiguration(pendingMessagesEnabled),
         )
     }
 
@@ -180,6 +185,10 @@ class ConversationMessagesViewModelArrangement {
 
     fun withSuccessfulViewModelInit() = apply {
         coEvery { conversationAudioMessagePlayer.observableAudioMessagesState } returns flowOf()
+    }
+
+    fun withPendingMessagesEnabled(enabled: Boolean) = apply {
+        pendingMessagesEnabled = enabled
     }
 
     fun withSuccessfulOpenAssetMessage(
@@ -285,6 +294,28 @@ class ConversationMessagesViewModelArrangement {
 
     fun arrange() = this to viewModel
 }
+
+private fun testConversationHostConfiguration(pendingMessagesEnabled: Boolean): ConversationHostConfiguration =
+    object : ConversationHostConfiguration {
+        override val runtime = ConversationRuntimeCapabilities(
+            bubbleUiEnabled = false,
+            pendingMessagesEnabled = pendingMessagesEnabled,
+            developerFeaturesEnabled = false,
+            mlsReadReceiptsEnabled = false,
+            privateBuild = false,
+            passwordProtectedGuestLinksEnabled = false,
+        )
+        override val visibility = ConversationUiVisibility(
+            audioMessages = false,
+            shareLocation = false,
+            drawing = false,
+            emoji = false,
+            gif = false,
+            ping = false,
+            topBarConversationSearch = false,
+            messageSearch = false,
+        )
+    }
 
 private val conversationStub = Conversation(
     id = ConversationId("some-dummy-value", "some.dummy.domain"),

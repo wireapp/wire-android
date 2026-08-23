@@ -23,8 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.feature.conversation.config.ConversationHostConfiguration
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -77,6 +77,7 @@ class EditGuestAccessViewModel @AssistedInject constructor(
     private val syncConversationCode: SyncConversationCodeUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val selfUser: ObserveSelfUserUseCase,
+    private val hostConfiguration: ConversationHostConfiguration,
     @Assisted navigationArgs: EditGuestAccessNavArgs,
 ) : ViewModel() {
     @AssistedFactory
@@ -119,7 +120,7 @@ class EditGuestAccessViewModel @AssistedInject constructor(
     private fun checkIfUserCanCreatePasswordProtectedLinks() {
         viewModelScope.launch {
             val canCreatePasswordProtectedLinks = when {
-                !BuildConfig.IS_PASSWORD_PROTECTED_GUEST_LINK_ENABLED -> false
+                !hostConfiguration.runtime.passwordProtectedGuestLinksEnabled -> false
                 else -> canCreatePasswordProtectedLinks()
             }
             editGuestAccessState = editGuestAccessState.copy(isPasswordProtectedLinksAllowed = canCreatePasswordProtectedLinks)

@@ -354,7 +354,7 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
-    fun `given network becomes disconnected with no pending messages, when observing messages, then offline message is shown`() = runTest {
+    fun `given pending messages enabled and network becomes disconnected, when observing messages, then offline message is shown`() = runTest {
         val message = regularMessage(id = "sent")
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
@@ -371,6 +371,23 @@ class ConversationMessagesViewModelTest {
             awaitMessageIds(
                 expectedMessageIds = listOf("offline-message:${arrangement.conversationId}:before:sent", "sent")
             )
+        }
+    }
+
+    @Test
+    fun `given pending messages disabled and network becomes disconnected, when observing messages, then offline message is not shown`() = runTest {
+        val message = regularMessage(id = "sent")
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withPendingMessagesEnabled(false)
+            .withSuccessfulViewModelInit()
+            .arrange()
+
+        arrangement.networkState.value = NetworkState.NotConnected
+
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(PagingData.from(listOf(message)))
+
+            assertEquals(listOf("sent"), flowOf(awaitItem()).asSnapshot().map { it.header.messageId })
         }
     }
 

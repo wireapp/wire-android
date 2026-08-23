@@ -1,7 +1,8 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, and image-asset paging have facade-owned seams
+**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, image-asset paging, and role projection have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `3097074ec`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -58,6 +59,8 @@ Conversation migration presentation follows the same narrow host seam. `Conversa
 Conversation banner state follows that narrow host seam while keeping rendering in its existing owner. `ConversationBannerViewModel`, its dedicated assisted Metro gateway, focused test, and 95 localized state-message definitions are facade-owned; the assisted contract accepts only `ConversationId` and uses feature `R`. The definitions live in the feature's standard `strings.xml` files so the existing Crowdin source mapping covers every qualifier. App retains the `ConversationNavArgs` adapter, unchanged Navigation 3 call, one-time session binding installation, `ConversationScreen`, `ConversationBanner`, theme/runtime styling, and the four span-label IDs with their 23 localized definitions. Default, German, Spanish, and Russian carry all 15 state variants; Hungarian, Italian, Polish, Portuguese, and Sinhala carry the existing seven non-service variants, with no Swedish state entry.
 
 Message-user resolution is facade-owned as well. `GetUsersForMessageUseCase` keeps its public package and FQN while resolving the sender and the exact additional-user sets carried by delivery failures, member changes, and legal-hold events. The projection is private to that capability, so the app-owned `MessageMapper` remains focused on UI-message mapping and no new module edge or shared mapper abstraction is introduced.
+
+Conversation role projection is facade-owned. `ObserveConversationRoleForUserUseCase` and `ConversationRoleData` keep their package and FQNs while projecting ordinary member roles and the same-team channel team-admin override from Kalium flows. `OtherUserProfileScreenViewModel`, `ServiceDetailsViewModel`, and their tests remain app-owned consumers through the existing facade edge; failed conversation details still produce no projection. No Gradle edge, resource, Metro contract, profile, navigation, or KMP source-set changes with this seam.
 
 The image-asset paging seam is now facade-owned. `ObserveImageAssetMessagesFromConversationUseCase`, `UIAssetMapper`, `TimeZoneProvider`, and the focused paging test keep their packages and FQNs in `:features:conversation`; Paging 3 runtime is a direct public-API dependency and paging-testing remains test-only. `:app` retains `ConversationAssetMessagesViewModel`, media screens and navigation, the file-asset pipeline, platform pickers and permissions, and Android runtime composition.
 

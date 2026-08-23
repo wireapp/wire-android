@@ -139,6 +139,10 @@ class ConversationModuleBoundaryTest {
             File(Konsist.projectRootPath, appGetUsersForMessageUseCaseRelativePath).exists(),
             "GetUsersForMessageUseCase must not remain app-owned after its feature move.",
         )
+        assertFalse(
+            File(Konsist.projectRootPath, appConversationRoleProjectionRelativePath).exists(),
+            "ObserveConversationRoleForUserUseCase must not remain app-owned after its feature move.",
+        )
         appImageAssetPagingSourceRelativePaths.forEach { relativePath ->
             assertFalse(
                 File(Konsist.projectRootPath, relativePath).exists(),
@@ -687,6 +691,9 @@ class ConversationModuleBoundaryTest {
         const val crowdinConfigurationRelativePath = "crowdin.yml"
         const val appGetUsersForMessageUseCaseRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase.kt"
+        const val appConversationRoleProjectionRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/usecase/" +
+                    "ObserveConversationRoleForUserUseCase.kt"
         val appImageAssetPagingSourceRelativePaths = listOf(
             "app/src/main/kotlin/com/wire/android/mapper/UIAssetMapper.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/ObserveImageAssetMessagesFromConversationUseCase.kt",
@@ -1018,6 +1025,11 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase.kt" to
                     "com.wire.android.ui.home.conversations.usecase",
         )
+        val conversationRoleProjectionSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/usecase/" +
+                    "ObserveConversationRoleForUserUseCase.kt" to
+                    "com.wire.android.ui.home.conversations.details.participants.usecase",
+        )
         val imageAssetPagingSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/mapper/UIAssetMapper.kt" to
                     "com.wire.android.mapper",
@@ -1042,7 +1054,7 @@ class ConversationModuleBoundaryTest {
                     messageItemTemplateSources + interceptClickableSources +
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
-                    getUsersForMessageUseCaseSources + imageAssetPagingSources
+                    getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

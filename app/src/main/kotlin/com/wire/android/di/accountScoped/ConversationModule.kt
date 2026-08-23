@@ -19,6 +19,8 @@ package com.wire.android.di.accountScoped
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.feature.conversation.config.ConversationHostConfiguration
+import com.wire.android.ui.home.conversations.config.AppConversationHostConfiguration
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
@@ -93,6 +95,9 @@ import dev.zacsweers.metro.Provides
 @BindingContainer
 @Suppress("TooManyFunctions")
 class ConversationModule {
+
+    @Provides
+    fun provideConversationHostConfiguration(): ConversationHostConfiguration = AppConversationHostConfiguration
 
     @Provides
     fun provideConversationScope(

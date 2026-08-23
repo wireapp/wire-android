@@ -19,7 +19,9 @@
 package com.wire.android.feature.conversation
 
 import com.lemonappdev.konsist.api.Konsist
+import com.lemonappdev.konsist.api.verify.assertFalse
 import java.io.File
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -31,8 +33,8 @@ class ConversationModuleBoundaryTest {
         val buildScript = featureBuildScriptText()
 
         assertFalse(
-            forbiddenAppProjectEdges.any { it.containsMatchIn(buildScript) },
-            ":features:conversation must not depend on :app.",
+            forbiddenFeatureBuildScriptEntries.any { it.containsMatchIn(buildScript) },
+            ":features:conversation must not declare app, flavor, BuildConfig, or Metro configuration.",
         )
     }
 
@@ -50,6 +52,45 @@ class ConversationModuleBoundaryTest {
         )
     }
 
+    @Test
+    fun conversationHostConfigurationContractIsPure() {
+        val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
+
+        assertEquals(1, configurationSource.size, "The host configuration must have one source file.")
+        assertTrue(
+            configurationSource.single().hasPackage(configurationPackage),
+            "ConversationHostConfiguration must declare $configurationPackage.",
+        )
+        configurationSource.assertFalse { sourceFile ->
+            sourceFile.hasImport { importedDeclaration ->
+                forbiddenImportPrefixes.any { forbiddenPrefix ->
+                    importedDeclaration.name == forbiddenPrefix ||
+                            importedDeclaration.name.startsWith("$forbiddenPrefix.")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun conversationHostConfigurationHasTheExactHostOwnedFieldBudget() {
+        val source = conversationHostConfigurationSourceText()
+
+        assertEquals(
+            runtimeCapabilityFields,
+            dataClassPropertyNames(source, "ConversationRuntimeCapabilities"),
+            "Runtime capabilities must remain the six host-owned BuildConfig projections.",
+        )
+        assertEquals(
+            visibilityFields,
+            dataClassPropertyNames(source, "ConversationUiVisibility"),
+            "UI visibility must remain the eight host-owned visibility projections.",
+        )
+        assertTrue(
+            staticCompositionLocalDeclaration.containsMatchIn(source),
+            "ConversationHostConfiguration must use a fail-fast static CompositionLocal.",
+        )
+    }
+
     private fun featureBuildScriptText(): String {
         assertTrue(featureBuildScript.isFile, "Missing :features:conversation build.gradle.kts.")
         return featureBuildScript.readText()
@@ -60,15 +101,69 @@ class ConversationModuleBoundaryTest {
         return appBuildScript.readText()
     }
 
+    private fun conversationHostConfigurationSourceText(): String {
+        assertTrue(conversationHostConfigurationSource.isFile, "Missing ConversationHostConfiguration.kt.")
+        return conversationHostConfigurationSource.readText()
+    }
+
+    private fun dataClassPropertyNames(source: String, className: String): Set<String> {
+        val declaration = Regex(
+            """data class $className\((.*?)\n\)""",
+            setOf(RegexOption.DOT_MATCHES_ALL),
+        ).find(source)
+        assertTrue(declaration != null, "Missing $className data class.")
+        return Regex("""val\s+(\w+)\s*:""")
+            .findAll(requireNotNull(declaration).groupValues[1])
+            .map { it.groupValues[1] }
+            .toSet()
+    }
+
     private companion object {
+        const val configurationPackage = "com.wire.android.feature.conversation.config"
         val featureBuildScript = File(Konsist.projectRootPath, "features/conversation/build.gradle.kts")
         val appBuildScript = File(Konsist.projectRootPath, "app/build.gradle.kts")
-        val forbiddenAppProjectEdges = listOf(
+        val conversationHostConfigurationSource = File(
+            Konsist.projectRootPath,
+            conversationHostConfigurationRelativePath,
+        )
+        const val conversationHostConfigurationRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/feature/conversation/config/ConversationHostConfiguration.kt"
+        val forbiddenFeatureBuildScriptEntries = listOf(
             Regex("""projects\s*\.\s*app\b"""),
             Regex("""project\s*\(\s*(?:path\s*=\s*)?[\"']\s*:\s*app\s*[\"']"""),
+            Regex("""\bbuildConfigField\s*\("""),
+            Regex("""\bproductFlavors\s*\{"""),
         )
         val inboundFeatureEdge = Regex(
             """implementationWithCoverage\s*\(\s*projects\s*\.\s*features\s*\.\s*conversation\s*\)""",
+        )
+        val forbiddenImportPrefixes = listOf(
+            "com.wire.android.BuildConfig",
+            "com.wire.android.di",
+            "com.wire.android.util.debug",
+            "com.wire.kalium",
+            "dev.zacsweers.metro",
+        )
+        val runtimeCapabilityFields = setOf(
+            "bubbleUiEnabled",
+            "pendingMessagesEnabled",
+            "developerFeaturesEnabled",
+            "mlsReadReceiptsEnabled",
+            "privateBuild",
+            "passwordProtectedGuestLinksEnabled",
+        )
+        val visibilityFields = setOf(
+            "audioMessages",
+            "shareLocation",
+            "drawing",
+            "emoji",
+            "gif",
+            "ping",
+            "topBarConversationSearch",
+            "messageSearch",
+        )
+        val staticCompositionLocalDeclaration = Regex(
+            """staticCompositionLocalOf\s*<\s*ConversationHostConfiguration\s*>\s*\{(?s:.*?)error\s*\(""",
         )
     }
 }

@@ -45,6 +45,7 @@ import com.wire.android.di.metro.AppAuthenticationViewModelGraph
 import com.wire.android.di.metro.WireApplicationGraph
 import com.wire.android.di.metro.WireViewModelDiagnostics
 import com.wire.android.feature.SwitchAccountActions
+import com.wire.android.feature.conversation.config.LocalConversationHostConfiguration
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import androidx.lifecycle.viewmodel.ViewModelStoreProvider
@@ -84,6 +85,7 @@ import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.WireTopAppBar
+import com.wire.android.ui.home.conversations.config.AppConversationHostConfiguration
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
@@ -141,6 +143,7 @@ internal fun WireActivityNavigation3Host(
     CompositionLocalProvider(
         LocalMetroViewModelFactory provides dependencies.appGraph.metroViewModelFactory,
         LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
+        LocalConversationHostConfiguration provides AppConversationHostConfiguration,
         LocalSyncStateObserver provides SyncStateObserver(dependencies.viewModel.observeSyncFlowState),
         LocalCustomUiConfigurationProvider provides CustomUiConfigurationProvider,
         LocalSnackbarHostState provides snackbarHostState,

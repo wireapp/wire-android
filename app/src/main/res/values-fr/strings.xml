@@ -61,7 +61,6 @@
     <string name="label_hide_details">Masquer les détails</string>
     <string name="label_message_status_edited_with_date">Modifié le %s</string>
     <string name="label_on">ON</string>
-    <string name="label_off">OFF</string>
     <string name="label_value_copied">%s copié</string>
     <string name="label_disable">Désactiver</string>
     <string name="folder_label_access">Accès</string>

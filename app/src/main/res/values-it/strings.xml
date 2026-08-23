@@ -65,7 +65,6 @@
     <string name="label_hide_details">Nascondi i dettagli</string>
     <string name="label_message_status_edited_with_date">Modificato il %s</string>
     <string name="label_on">ACCESO</string>
-    <string name="label_off">SPENTO</string>
     <string name="label_value_copied">%s copiato</string>
     <string name="label_disable">Disabilita</string>
     <string name="folder_label_access">Accesso</string>
@@ -1002,26 +1001,6 @@ registrato. Sei pregato di riprovare.</string>
     <plurals name="seconds_left">
         <item quantity="one">1 secondo rimanente</item>
         <item quantity="other">%1$d secondi rimanenti</item>
-    </plurals>
-    <plurals name="weeks_long_label">
-        <item quantity="one">1 settimana</item>
-        <item quantity="other">%1$d settimane</item>
-    </plurals>
-    <plurals name="days_long_label">
-        <item quantity="one">1 giorno</item>
-        <item quantity="other">%1$d giorni</item>
-    </plurals>
-    <plurals name="hours_long_label">
-        <item quantity="one">1 ora</item>
-        <item quantity="other">%1$d ore</item>
-    </plurals>
-    <plurals name="minutes_long_label">
-        <item quantity="one">1 minuto</item>
-        <item quantity="other">%1$d minuti</item>
-    </plurals>
-    <plurals name="seconds_long_label">
-        <item quantity="one">1 secondo</item>
-        <item quantity="other">%1$d secondi</item>
     </plurals>
     <string name="four_weeks_short_label">4w</string>
     <string name="one_week_short_label">1w</string>

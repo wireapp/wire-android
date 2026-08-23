@@ -44,7 +44,6 @@
     <string name="label_show_all">Kuva kõik</string>
     <string name="label_message_status_edited_with_date">Muudetud: %s</string>
     <string name="label_on">SEES</string>
-    <string name="label_off">VÄLJAS</string>
     <string name="label_value_copied">%s kopeeritud</string>
     <string name="label_disable">Keela</string>
     <string name="folder_label_access">Juurdepääs</string>
@@ -388,26 +387,6 @@
     <plurals name="seconds_left">
         <item quantity="one">1 sekund jäänud</item>
         <item quantity="other">%1$d sekundit jäänud</item>
-    </plurals>
-    <plurals name="weeks_long_label">
-        <item quantity="one">1 nädal</item>
-        <item quantity="other">%1$d nädalat</item>
-    </plurals>
-    <plurals name="days_long_label">
-        <item quantity="one">1 päev</item>
-        <item quantity="other">%1$d päeva</item>
-    </plurals>
-    <plurals name="hours_long_label">
-        <item quantity="one">1 tund</item>
-        <item quantity="other">%1$d tundi</item>
-    </plurals>
-    <plurals name="minutes_long_label">
-        <item quantity="one">1 minut</item>
-        <item quantity="other">%1$d minutit</item>
-    </plurals>
-    <plurals name="seconds_long_label">
-        <item quantity="one">1 sekund</item>
-        <item quantity="other">%1$d sekundit</item>
     </plurals>
     <string name="four_weeks_short_label">4ndl</string>
     <string name="one_week_short_label">1ndl</string>

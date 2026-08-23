@@ -36,4 +36,5 @@
     <!--wire dropdown-->
     <!-- No Activity Errors -->
     <!-- Go to app settings permissions dialog -->
+    <string name="label_off">KAPALI</string>
 </resources>

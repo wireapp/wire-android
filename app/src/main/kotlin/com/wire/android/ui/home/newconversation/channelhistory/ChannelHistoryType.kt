@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import kotlinx.parcelize.Parcelize
 
 sealed interface ChannelHistoryType : Parcelable {
@@ -40,8 +41,8 @@ sealed interface ChannelHistoryType : Parcelable {
 
             @Parcelize
             enum class AmountType(@PluralsRes val nameResId: Int, @PluralsRes val nameWithAmountResId: Int) : Parcelable {
-                Days(R.plurals.days_label, R.plurals.days_long_label),
-                Weeks(R.plurals.weeks_label, R.plurals.weeks_long_label),
+                Days(R.plurals.days_label, commonR.plurals.days_long_label),
+                Weeks(R.plurals.weeks_label, commonR.plurals.weeks_long_label),
                 Months(R.plurals.months_label, R.plurals.months_long_label)
             }
         }

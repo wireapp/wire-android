@@ -70,7 +70,6 @@
     <string name="label_hide_details">Details ausblenden</string>
     <string name="label_message_status_edited_with_date">Bearbeitet am %s</string>
     <string name="label_on">EIN</string>
-    <string name="label_off">AUS</string>
     <string name="label_value_copied">%s kopiert</string>
     <string name="label_disable">Deaktivieren</string>
     <string name="folder_label_access">Zugang</string>
@@ -1508,29 +1507,9 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="one">Noch 1 Sekunde</item>
         <item quantity="other">Noch %1$d Sekunden</item>
     </plurals>
-    <plurals name="weeks_long_label">
-        <item quantity="one">1 Woche</item>
-        <item quantity="other">%1$d Wochen</item>
-    </plurals>
     <plurals name="months_long_label">
         <item quantity="one">1 Monat</item>
         <item quantity="other">%1$d Monate</item>
-    </plurals>
-    <plurals name="days_long_label">
-        <item quantity="one">1 Tag</item>
-        <item quantity="other">%1$d Tage</item>
-    </plurals>
-    <plurals name="hours_long_label">
-        <item quantity="one">1 Stunde</item>
-        <item quantity="other">%1$d Stunden</item>
-    </plurals>
-    <plurals name="minutes_long_label">
-        <item quantity="one">1 Minute</item>
-        <item quantity="other">%1$d Minuten</item>
-    </plurals>
-    <plurals name="seconds_long_label">
-        <item quantity="one">1 Sekunde</item>
-        <item quantity="other">%1$d Sekunden</item>
     </plurals>
     <plurals name="days_label">
         <item quantity="one">Tag</item>

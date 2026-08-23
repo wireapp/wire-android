@@ -53,7 +53,6 @@
     <string name="label_hide_details">Приховати деталі</string>
     <string name="label_message_status_edited_with_date">Відредаговано %s</string>
     <string name="label_on">УВІМКНУТИ</string>
-    <string name="label_off">ВИМКНУТИ</string>
     <string name="label_value_copied">%s скопійовано</string>
     <string name="label_disable">Вимкнути</string>
     <string name="folder_label_access">Доступ</string>

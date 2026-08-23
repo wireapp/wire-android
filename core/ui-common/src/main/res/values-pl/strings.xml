@@ -25,4 +25,5 @@
     <!-- No Activity Errors -->
     <!-- Go to app settings permissions dialog -->
     <string name="conversation_participant_you_label">(Ty)</string>
+    <string name="label_off">Wy&#322;&#261;czone</string>
 </resources>

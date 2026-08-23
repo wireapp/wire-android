@@ -61,7 +61,6 @@
     <string name="label_hide_details">Sakrij detalje</string>
     <string name="label_message_status_edited_with_date">Uređeno %s</string>
     <string name="label_on">UKLJUČENO</string>
-    <string name="label_off">ISKLJUČENO</string>
     <string name="label_value_copied">%s kopirano</string>
     <string name="label_disable">Onemogući</string>
     <string name="folder_label_access">Pristup</string>

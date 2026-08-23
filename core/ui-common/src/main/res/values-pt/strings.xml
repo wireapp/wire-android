@@ -30,4 +30,25 @@
     <string name="channel_public_label">Público</string>
     <string name="channel_add_permission_admin_label">Administradores</string>
     <string name="channel_add_permission_admin_members_label">Administradores e membros</string>
+    <string name="label_off">Desativado</string>
+    <plurals name="seconds_long_label">
+        <item quantity="one">1 segundo</item>
+        <item quantity="other">%1$d segundos</item>
+    </plurals>
+    <plurals name="minutes_long_label">
+        <item quantity="one">1 minuto</item>
+        <item quantity="other">%1$d minutos</item>
+    </plurals>
+    <plurals name="hours_long_label">
+        <item quantity="one">1 hora</item>
+        <item quantity="other">%1$d horas</item>
+    </plurals>
+    <plurals name="days_long_label">
+        <item quantity="one">1 dia</item>
+        <item quantity="other">%1$d dias</item>
+    </plurals>
+    <plurals name="weeks_long_label">
+        <item quantity="one">1 semana</item>
+        <item quantity="other">%1$d semanas</item>
+    </plurals>
 </resources>

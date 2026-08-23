@@ -64,7 +64,6 @@
     <string name="label_hide_details">詳細を非表示</string>
     <string name="label_message_status_edited_with_date">%sに編集済み</string>
     <string name="label_on">オン</string>
-    <string name="label_off">オフ</string>
     <string name="label_value_copied">%sをコピーしました</string>
     <string name="label_disable">無効</string>
     <string name="folder_label_access">アクセス</string>

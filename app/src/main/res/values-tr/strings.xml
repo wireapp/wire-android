@@ -68,7 +68,6 @@
     <string name="label_hide_details">Detayları Gizle</string>
     <string name="label_message_status_edited_with_date">%s\'de düzenlenmiş</string>
     <string name="label_on">AÇIK</string>
-    <string name="label_off">KAPALI</string>
     <string name="label_value_copied">%s kopyalandı</string>
     <string name="label_disable">Kapalı</string>
     <string name="folder_label_access">Erişim</string>

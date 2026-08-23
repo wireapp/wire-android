@@ -30,4 +30,25 @@
     <string name="channel_public_label">Nyilvános</string>
     <string name="channel_add_permission_admin_label">Adminok</string>
     <string name="channel_add_permission_admin_members_label">Adminok és tagok</string>
+    <string name="label_off">KI</string>
+    <plurals name="seconds_long_label">
+        <item quantity="one">1 másodperc</item>
+        <item quantity="other">%1$d másodperc</item>
+    </plurals>
+    <plurals name="minutes_long_label">
+        <item quantity="one">1 perc</item>
+        <item quantity="other">%1$d perc</item>
+    </plurals>
+    <plurals name="hours_long_label">
+        <item quantity="one">1 óra</item>
+        <item quantity="other">%1$d óra</item>
+    </plurals>
+    <plurals name="days_long_label">
+        <item quantity="one">1 nap</item>
+        <item quantity="other">%1$d nap</item>
+    </plurals>
+    <plurals name="weeks_long_label">
+        <item quantity="one">1 hét</item>
+        <item quantity="other">%1$d hét</item>
+    </plurals>
 </resources>

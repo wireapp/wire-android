@@ -17,7 +17,7 @@
  */
 package com.wire.android.util
 
-import com.wire.android.R
+import com.wire.android.ui.common.R
 import com.wire.android.util.ui.UIText
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days

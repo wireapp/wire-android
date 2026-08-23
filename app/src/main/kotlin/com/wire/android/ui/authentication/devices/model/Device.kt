@@ -23,6 +23,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -86,7 +87,7 @@ fun Device.lastActiveDescription(): String? =
         } else {
             stringResource(
                 R.string.label_client_last_active_time,
-                pluralStringResource(R.plurals.weeks_long_label, it, it)
+                pluralStringResource(commonR.plurals.weeks_long_label, it, it)
             )
         }
     }

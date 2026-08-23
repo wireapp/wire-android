@@ -68,7 +68,6 @@
     <string name="label_hide_details">Ocultar Detalhes</string>
     <string name="label_message_status_edited_with_date">Editado em %s</string>
     <string name="label_on">Ativado</string>
-    <string name="label_off">Desativado</string>
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desabilitar</string>
     <string name="folder_label_access">Acesso</string>
@@ -1239,26 +1238,6 @@ registrado. Tente novamente.</string>
     <plurals name="seconds_left">
         <item quantity="one">1 segundo restante</item>
         <item quantity="other">%1$d segundos restantes</item>
-    </plurals>
-    <plurals name="weeks_long_label">
-        <item quantity="one">1 semana</item>
-        <item quantity="other">%1$d semanas</item>
-    </plurals>
-    <plurals name="days_long_label">
-        <item quantity="one">1 dia</item>
-        <item quantity="other">%1$d dias</item>
-    </plurals>
-    <plurals name="hours_long_label">
-        <item quantity="one">1 hora</item>
-        <item quantity="other">%1$d horas</item>
-    </plurals>
-    <plurals name="minutes_long_label">
-        <item quantity="one">1 minuto</item>
-        <item quantity="other">%1$d minutos</item>
-    </plurals>
-    <plurals name="seconds_long_label">
-        <item quantity="one">1 segundo</item>
-        <item quantity="other">%1$d segundos</item>
     </plurals>
     <string name="four_weeks_short_label">4sem</string>
     <string name="one_week_short_label">1sem</string>

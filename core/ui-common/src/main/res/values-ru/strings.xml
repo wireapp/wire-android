@@ -136,4 +136,35 @@
     <string name="channel_public_label">Публичный</string>
     <string name="channel_add_permission_admin_label">Администраторы</string>
     <string name="channel_add_permission_admin_members_label">Администраторы и члены</string>
+    <string name="label_off">ВЫКЛ</string>
+    <plurals name="seconds_long_label">
+        <item quantity="one">1 секунда</item>
+        <item quantity="few">%1$d секунды</item>
+        <item quantity="many">%1$d секунд</item>
+        <item quantity="other">%1$d секунды</item>
+    </plurals>
+    <plurals name="minutes_long_label">
+        <item quantity="one">1 минуту</item>
+        <item quantity="few">%1$d минуты</item>
+        <item quantity="many">%1$d минут</item>
+        <item quantity="other">%1$d минуты</item>
+    </plurals>
+    <plurals name="hours_long_label">
+        <item quantity="one">1 час</item>
+        <item quantity="few">%1$d часа</item>
+        <item quantity="many">%1$d часов</item>
+        <item quantity="other">%1$d часа</item>
+    </plurals>
+    <plurals name="days_long_label">
+        <item quantity="one">1 день</item>
+        <item quantity="few">%1$d дня</item>
+        <item quantity="many">%1$d дней</item>
+        <item quantity="other">%1$d дня</item>
+    </plurals>
+    <plurals name="weeks_long_label">
+        <item quantity="one">1 неделя</item>
+        <item quantity="few">%1$d недели</item>
+        <item quantity="many">%1$d недель</item>
+        <item quantity="other">%1$d недели</item>
+    </plurals>
 </resources>

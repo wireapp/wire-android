@@ -17,8 +17,6 @@
  */
 package com.wire.android.feature.cells.domain.model
 
-import com.wire.android.feature.cells.R
-
 enum class AttachmentFileType(val extensions: List<String>) {
     IMAGE(listOf("jpg", "jpeg", "png", "gif", "webp")),
     VIDEO(listOf("mp4", "mov", "m4v", "ogv", "webm")),
@@ -100,21 +98,3 @@ enum class AttachmentFileType(val extensions: List<String>) {
         }
     }
 }
-
-fun AttachmentFileType.icon(): Int =
-    when (this) {
-        AttachmentFileType.IMAGE -> R.drawable.ic_file_type_image
-        AttachmentFileType.VIDEO -> R.drawable.ic_file_type_video
-        AttachmentFileType.AUDIO -> R.drawable.ic_file_type_audio
-        AttachmentFileType.PDF -> R.drawable.ic_file_type_pdf
-        AttachmentFileType.DOC -> R.drawable.ic_file_type_doc
-        AttachmentFileType.SPREADSHEET -> R.drawable.ic_file_type_spreadsheet
-        AttachmentFileType.PRESENTATION -> R.drawable.ic_file_type_presentation
-        AttachmentFileType.ARCHIVE -> R.drawable.ic_file_type_archive
-        AttachmentFileType.CODE -> R.drawable.ic_file_type_code
-        AttachmentFileType.TEXT -> R.drawable.ic_file_type_text
-        AttachmentFileType.OTHER -> R.drawable.ic_file_type_other
-    }
-
-fun AttachmentFileType.previewSupported(): Boolean =
-    this in listOf(AttachmentFileType.IMAGE, AttachmentFileType.VIDEO)

@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import com.sebaslogen.resaca.KeyInScopeResolver
 import com.wire.android.di.ConversationViewModelScopedPreviews
+import com.wire.android.di.PreviewProvider
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreviews
 import com.wire.android.di.metro.wireAssistedMetroViewModel
@@ -65,12 +66,13 @@ internal interface ScopedMessageManualViewModelFactory : ManualViewModelAssisted
 @Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
 private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessageViewModel(
     arguments: R,
+    previewProvider: PreviewProvider = ViewModelScopedPreviews,
     clearDelay: Duration? = null,
     noinline create: ScopedMessageManualViewModelFactory.(R) -> VM,
 ): S where VM : ViewModel, VM : S =
     wireManualMetroViewModelScoped<VM, S, R, ScopedMessageManualViewModelFactory>(
         arguments = arguments,
-        previewProvider = ViewModelScopedPreviews,
+        previewProvider = previewProvider,
         clearDelay = clearDelay,
     ) { scopedArgs ->
         create(scopedArgs)
@@ -81,12 +83,13 @@ private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessage
 private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessageViewModel(
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
+    previewProvider: PreviewProvider = ViewModelScopedPreviews,
     clearDelay: Duration? = null,
     noinline create: ScopedMessageManualViewModelFactory.(R) -> VM,
 ): S where VM : ViewModel, VM : S =
     wireManualMetroViewModelScoped<VM, S, R, ScopedMessageManualViewModelFactory>(
         arguments = arguments,
-        previewProvider = ViewModelScopedPreviews,
+        previewProvider = previewProvider,
         keyInScopeResolver = keyInScopeResolver,
         clearDelay = clearDelay,
     ) { scopedArgs ->
@@ -141,11 +144,15 @@ fun assetLocalPathViewModel(
         scopedMessageViewModel<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
             arguments = args,
             keyInScopeResolver = keyInScopeResolver,
+            previewProvider = ConversationViewModelScopedPreviews,
         ) { scopedArgs ->
             assetLocalPathViewModel(scopedArgs)
         }
     } else {
-        scopedMessageViewModel<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(args) { scopedArgs ->
+        scopedMessageViewModel<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
+            arguments = args,
+            previewProvider = ConversationViewModelScopedPreviews,
+        ) { scopedArgs ->
             assetLocalPathViewModel(scopedArgs)
         }
     }

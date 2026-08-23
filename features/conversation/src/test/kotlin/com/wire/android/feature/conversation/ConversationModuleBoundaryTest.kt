@@ -118,7 +118,7 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
-    fun participantTypingScopedPreviewGenerationUsesAFeatureSpecificAggregate() {
+    fun featureScopedPreviewGenerationUsesTheConversationSpecificAggregate() {
         val buildScript = featureBuildScriptText()
         val appScopedMessageGraph = File(Konsist.projectRootPath, appScopedMessageGraphRelativePath).readText()
 
@@ -130,12 +130,12 @@ class ConversationModuleBoundaryTest {
         )
         assertTrue(
             appScopedMessageGraph.contains("import com.wire.android.di.ConversationViewModelScopedPreviews"),
-            "The app typing gateway must import the feature-owned preview aggregate.",
+            "The app scoped-message gateway must import the feature-owned preview aggregate.",
         )
         assertEquals(
-            1,
+            3,
             Regex("previewProvider = ConversationViewModelScopedPreviews").findAll(appScopedMessageGraph).count(),
-            "Only the feature-owned typing preview must use the conversation aggregate.",
+            "Typing and both asset-local-path branches must use the conversation aggregate.",
         )
     }
 
@@ -278,10 +278,17 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/usecase/ObserveReceiptsForMessageUseCase.kt" to
                     "com.wire.android.ui.home.conversations.messagedetails.usecase",
         )
+        val conversationAssetPathSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/ConversationAssetPathsViewModel.kt" to
+                    "com.wire.android.ui.home.conversations.messages.item",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/AssetLocalPathViewModel.kt" to
+                    "com.wire.android.ui.home.conversations.messages.item",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
-                    messageDetailsReceiptSources
+                    messageDetailsReceiptSources + conversationAssetPathSources
         val allowedMovedSourceImports = setOf(
+            "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
             "com.wire.android.mapper.UIParticipantMapper",
             "com.wire.android.mapper.UserTypeMapper",

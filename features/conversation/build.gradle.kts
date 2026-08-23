@@ -26,6 +26,7 @@ dependencies {
     api(libs.ktx.serialization)
 
     implementation(projects.core.di)
+    implementation(libs.okio.core)
 
     implementation(enforcedPlatform(libs.compose.bom))
     implementation(libs.androidx.compose.runtime)

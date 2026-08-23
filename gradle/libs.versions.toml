@@ -321,6 +321,7 @@ junit5-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", ver
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-core = { module = "io.mockk:mockk", version.ref = "mockk" }
+okio-core = { module = "com.squareup.okio:okio", version.ref = "okio" }
 okio-fakeFileSystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }

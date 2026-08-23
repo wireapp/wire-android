@@ -56,7 +56,7 @@ interface AssetLocalPathViewModel {
     ) {}
 }
 
-internal class AssetLocalPathViewModelImpl @AssistedInject constructor(
+class AssetLocalPathViewModelImpl @AssistedInject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val dispatchers: DispatcherProvider,
     @Assisted private val args: AssetLocalPathArgs,

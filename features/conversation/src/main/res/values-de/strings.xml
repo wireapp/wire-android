@@ -3,4 +3,19 @@
     <string name="conversation_details_conversation_admins">ADMINS (%d)</string>
     <string name="conversation_details_conversation_members">MITGLIEDER (%d)</string>
     <string name="conversation_details_conversation_apps">APPS (%d)</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Föderierte Benutzer, Externe und Gäste anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_externals_guests_present">Föderierte Benutzer, Externe und Gäste anwesend</string>
+    <string name="conversation_banner_federated_externals_services_present">Föderierte Benutzer und Externe anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_guests_services_present">Föderierte Benutzer und Gäste anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_services_present">Föderierte Benutzer anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_guests_present">Föderierte Benutzer und Gäste anwesend</string>
+    <string name="conversation_banner_federated_externals_present">Föderierte Benutzer und Externe anwesend</string>
+    <string name="conversation_banner_externals_guests_services_present">Externe und Gäste anwesend, Apps aktiv</string>
+    <string name="conversation_banner_externals_services_present">Externe anwesend, Apps aktiv</string>
+    <string name="conversation_banner_externals_guests_present">Externe und Gäste anwesend</string>
+    <string name="conversation_banner_guests_services_present">Gäste anwesend, Apps aktiv</string>
+    <string name="conversation_banner_federated_present">Föderierte Benutzer anwesend</string>
+    <string name="conversation_banner_guests_present">Gäste anwesend</string>
+    <string name="conversation_banner_externals_present">Externe anwesend</string>
+    <string name="conversation_banner_services_active">Apps sind aktiv</string>
 </resources>

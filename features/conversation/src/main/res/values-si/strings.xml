@@ -1,3 +1,10 @@
 <resources>
     <string name="conversation_details_participants_title">සංවාද සහභාගිවන්නන්</string>
+    <string name="conversation_banner_federated_externals_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
+    <string name="conversation_banner_federated_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ අමුත්තන් සිටියි</string>
+    <string name="conversation_banner_federated_externals_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ පිටස්තරයින් සිටියි</string>
+    <string name="conversation_banner_externals_guests_present">පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
+    <string name="conversation_banner_federated_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සිටියි</string>
+    <string name="conversation_banner_guests_present">අමුත්තන් සිටියි</string>
+    <string name="conversation_banner_externals_present">පිටස්තරයින් සිටියි</string>
 </resources>

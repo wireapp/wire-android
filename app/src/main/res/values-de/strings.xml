@@ -737,21 +737,6 @@
     <string name="conversation_banner_externals">Externe</string>
     <string name="conversation_banner_guests">Gäste</string>
     <string name="conversation_banner_services">Apps</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Föderierte Benutzer, Externe und Gäste anwesend, Apps aktiv</string>
-    <string name="conversation_banner_federated_externals_guests_present">Föderierte Benutzer, Externe und Gäste anwesend</string>
-    <string name="conversation_banner_federated_externals_services_present">Föderierte Benutzer und Externe anwesend, Apps aktiv</string>
-    <string name="conversation_banner_federated_guests_services_present">Föderierte Benutzer und Gäste anwesend, Apps aktiv</string>
-    <string name="conversation_banner_federated_services_present">Föderierte Benutzer anwesend, Apps aktiv</string>
-    <string name="conversation_banner_federated_guests_present">Föderierte Benutzer und Gäste anwesend</string>
-    <string name="conversation_banner_federated_externals_present">Föderierte Benutzer und Externe anwesend</string>
-    <string name="conversation_banner_externals_guests_services_present">Externe und Gäste anwesend, Apps aktiv</string>
-    <string name="conversation_banner_externals_services_present">Externe anwesend, Apps aktiv</string>
-    <string name="conversation_banner_externals_guests_present">Externe und Gäste anwesend</string>
-    <string name="conversation_banner_guests_services_present">Gäste anwesend, Apps aktiv</string>
-    <string name="conversation_banner_federated_present">Föderierte Benutzer anwesend</string>
-    <string name="conversation_banner_guests_present">Gäste anwesend</string>
-    <string name="conversation_banner_externals_present">Externe anwesend</string>
-    <string name="conversation_banner_services_active">Apps sind aktiv</string>
     <string name="conversation_history_loading">Gesprächsverlauf wird geladen…</string>
     <string name="conversation_history_loaded">🥳 Sie können jetzt alle verfügbaren Nachrichten lesen.</string>
     <!-- System messages -->

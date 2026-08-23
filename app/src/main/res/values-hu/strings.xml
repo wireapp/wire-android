@@ -636,13 +636,6 @@
     <string name="conversation_banner_federated">szövetséges felhasználók</string>
     <string name="conversation_banner_externals">külsősök</string>
     <string name="conversation_banner_guests">vendégek</string>
-    <string name="conversation_banner_federated_externals_guests_present">Szövetségesek, külsősök és vendégek is vannak itt</string>
-    <string name="conversation_banner_federated_guests_present">Szövetségesek és vendégek is vannak itt</string>
-    <string name="conversation_banner_federated_externals_present">Szövetségesek és külsősök is vannak itt</string>
-    <string name="conversation_banner_externals_guests_present">Külsősök és vendégek is vannak itt</string>
-    <string name="conversation_banner_federated_present">Szövetségesek is vannak itt</string>
-    <string name="conversation_banner_guests_present">Vendégek is vannak itt</string>
-    <string name="conversation_banner_externals_present">Külsősök is vannak itt</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s hozzáadta %2$s személyt a beszélgetéshez</string>
     <string name="label_system_message_removed_by_self">%1$s eltávolította %2$s személyt a beszélgetésből</string>

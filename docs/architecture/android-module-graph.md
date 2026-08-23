@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `a560794cf`.
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `3855855c560be280476f514d13495ab5065152e4`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -114,7 +114,7 @@ These are not Gradle edges and must not be mistaken for module ownership:
 
 | Seam | Evidence | Required disposition |
 |---|---|---|
-| Owner-specific call Metro assembly | Conversation call factory generation is feature-owned; conversation-list and meetings call presentation still have their existing owners; app installs each binding container in the session graph | Preserve dedicated groups, generated binding FQNs, instance keys, scopes, and one-time app installation as the remaining owners move |
+| Feature-owned conversation Metro assembly | Conversation info, call, migration, composite-message, and banner factory generation is feature-owned; app keeps route adapters and installs each generated binding container in the session graph | Preserve dedicated groups, generated binding FQNs, instance keys, scopes, narrow assisted contracts, and one-time app installation as the remaining owners move |
 | Neutral participant count at call ViewModels | The conversation feature constructs `KaliumObserveConversationParticipantCount`; the meetings call ViewModel remains app-hosted | Keep the Kalium-only producer and port in `:core:calling`; meetings adds its own direct core edge when it moves, never a feature-to-feature edge |
 | Calling coordinator runtime adapters | `JoinOrStartCallRuntimeActions.kt` and `JoinOrStartCallRuntimeDialogs.kt` contain activity/analytics handling and app dialog rendering | App owns runtime adapters; core exposes only action/dialog-state contracts and dialog-response methods |
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
@@ -123,9 +123,12 @@ These are not Gradle edges and must not be mistaken for module ownership:
 Audited app production-file counts are: conversations **182**, message composer **40**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **54** unit tests and **1** Android
-test; **80** files import app `R`, **419** distinct fully-qualified `R.type.name`
+test; **79** files import app `R`, **404** distinct fully-qualified `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**87** production files and **29** unit-test files; the first live internal capability,
+**89** production files and **30** unit-test files. Its **9** Crowdin-tracked `strings.xml` files span
+**9** values directories and contain **112** string definitions, including the exact
+**95** localized banner-state definitions. App retains the four banner span-label IDs
+with **23** localized definitions. The first live internal capability,
 `:features:conversation:folders`, owns **6** production files and **2** unit-test files.
 The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
@@ -142,6 +145,11 @@ rg --no-filename -o 'R\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+' app/src/main/kotlin/com/wi
 rg -l 'BuildConfig' app/src/main/kotlin/com/wire/android/ui/home/conversations --glob '*.kt' | wc -l
 find features/conversation/src/main -type f -name '*.kt' | wc -l
 find features/conversation/src/test -type f -name '*.kt' | wc -l
+find features/conversation/src/main/res -type f -name '*.xml' | wc -l
+find features/conversation/src/main/res -mindepth 1 -maxdepth 1 -type d | wc -l
+rg -o '<string\b' features/conversation/src/main/res | wc -l
+rg -n 'name="conversation_banner_[^"]+(present|active)"' features/conversation/src/main/res | wc -l
+rg -n 'name="conversation_banner_(federated|externals|guests|services)"' app/src/main/res | wc -l
 find features/conversation/folders/src/main -type f -name '*.kt' | wc -l
 find features/conversation/folders/src/test -type f -name '*.kt' | wc -l
 ```

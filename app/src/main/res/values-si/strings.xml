@@ -629,13 +629,6 @@
     <string name="conversation_banner_federated">ඒකාබද්ධ පරිශීලකයින්</string>
     <string name="conversation_banner_externals">බාහිර</string>
     <string name="conversation_banner_guests">අමුත්තන්</string>
-    <string name="conversation_banner_federated_externals_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
-    <string name="conversation_banner_federated_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ අමුත්තන් සිටියි</string>
-    <string name="conversation_banner_federated_externals_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ පිටස්තරයින් සිටියි</string>
-    <string name="conversation_banner_externals_guests_present">පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
-    <string name="conversation_banner_federated_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සිටියි</string>
-    <string name="conversation_banner_guests_present">අමුත්තන් සිටියි</string>
-    <string name="conversation_banner_externals_present">පිටස්තරයින් සිටියි</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s සංවාදයට %2$s එක් කර ඇත</string>
     <string name="label_system_message_removed_by_self">%1$s සංවාදයෙන් %2$s ඉවත් කළා</string>

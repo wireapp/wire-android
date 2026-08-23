@@ -753,21 +753,6 @@
     <string name="conversation_banner_externals">внешние</string>
     <string name="conversation_banner_guests">гости</string>
     <string name="conversation_banner_services">приложения</string>
-    <string name="conversation_banner_federated_externals_guests_services_present">Присутствуют федеративные пользователи, внешние пользователи, гости и приложения</string>
-    <string name="conversation_banner_federated_externals_guests_present">Присутствуют федеративные пользователи, внешние пользователи и гости</string>
-    <string name="conversation_banner_federated_externals_services_present">Присутствуют федеративные пользователи, внешние пользователи и приложения</string>
-    <string name="conversation_banner_federated_guests_services_present">Присутствуют федеративные пользователи, гости и приложения</string>
-    <string name="conversation_banner_federated_services_present">Присутствуют федеративные пользователи и приложения</string>
-    <string name="conversation_banner_federated_guests_present">Присутствуют федеративные пользователи и гости</string>
-    <string name="conversation_banner_federated_externals_present">Присутствуют федеративные и внешние пользователи</string>
-    <string name="conversation_banner_externals_guests_services_present">Присутствуют внешние участники, гости и приложения</string>
-    <string name="conversation_banner_externals_services_present">Присутствуют внешние участники и приложения</string>
-    <string name="conversation_banner_externals_guests_present">Присутствуют внешние участники и гости</string>
-    <string name="conversation_banner_guests_services_present">Присутствуют гости и приложения</string>
-    <string name="conversation_banner_federated_present">Присутствуют федеративные пользователи</string>
-    <string name="conversation_banner_guests_present">Присутствуют гости</string>
-    <string name="conversation_banner_externals_present">Присутствуют внешние участники</string>
-    <string name="conversation_banner_services_active">Приложения активны</string>
     <string name="conversation_history_loading">Загрузка истории бесед...</string>
     <string name="conversation_history_loaded">Вы попали в топ 🥳\nВы видите все доступные сообщения.</string>
     <!-- System messages -->

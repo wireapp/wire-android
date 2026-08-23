@@ -1,0 +1,9 @@
+<resources>
+    <string name="conversation_banner_federated_externals_guests_present">Usuários federados, externos e convidados estão presentes</string>
+    <string name="conversation_banner_federated_guests_present">Usuários federados e convidados estão presentes</string>
+    <string name="conversation_banner_federated_externals_present">Usuários federados e externos estão presentes</string>
+    <string name="conversation_banner_externals_guests_present">Externos e convidados estão presentes</string>
+    <string name="conversation_banner_federated_present">Usuários federados estão presentes</string>
+    <string name="conversation_banner_guests_present">Convidados estão presentes</string>
+    <string name="conversation_banner_externals_present">Externos estão presentes</string>
+</resources>

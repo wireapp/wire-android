@@ -1,3 +1,10 @@
 <resources>
     <string name="conversation_details_participants_title">A beszélgetés résztvevői</string>
+    <string name="conversation_banner_federated_externals_guests_present">Szövetségesek, külsősök és vendégek is vannak itt</string>
+    <string name="conversation_banner_federated_guests_present">Szövetségesek és vendégek is vannak itt</string>
+    <string name="conversation_banner_federated_externals_present">Szövetségesek és külsősök is vannak itt</string>
+    <string name="conversation_banner_externals_guests_present">Külsősök és vendégek is vannak itt</string>
+    <string name="conversation_banner_federated_present">Szövetségesek is vannak itt</string>
+    <string name="conversation_banner_guests_present">Vendégek is vannak itt</string>
+    <string name="conversation_banner_externals_present">Külsősök is vannak itt</string>
 </resources>

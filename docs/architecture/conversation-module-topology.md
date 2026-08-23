@@ -1,6 +1,6 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is live and conversation calling, migration, message-user resolution, and image-asset paging have facade-owned seams
+**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, and image-asset paging have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
@@ -54,6 +54,8 @@ Conversation info state and its ViewModel now belong to the facade. The feature 
 Conversation call presentation orchestration is also facade-owned. `ConversationCallViewModel`, its dedicated assisted Metro gateway, and focused test live in `:features:conversation`; the assisted contract accepts only `ConversationId`. The facade has a direct `api` edge to `:core:calling` because the public `callManager` property exposes `JoinOrStartCallManager`. App keeps the route-facing `ConversationNavArgs` adapter, session binding installation, `JoinOrStartCallRuntimeActions`, and `JoinOrStartCallRuntimeDialogs`.
 
 Conversation migration presentation follows the same narrow host seam. `ConversationMigrationViewModel`, its dedicated assisted Metro gateway, and focused test are facade-owned and accept only `ConversationId`. App retains the unchanged Navigation 3 call through a `ConversationNavArgs` adapter and installs the generated migration binding exactly once; no resource or dependency edge moved with it.
+
+Conversation banner state follows that narrow host seam while keeping rendering in its existing owner. `ConversationBannerViewModel`, its dedicated assisted Metro gateway, focused test, and 95 localized state-message definitions are facade-owned; the assisted contract accepts only `ConversationId` and uses feature `R`. The definitions live in the feature's standard `strings.xml` files so the existing Crowdin source mapping covers every qualifier. App retains the `ConversationNavArgs` adapter, unchanged Navigation 3 call, one-time session binding installation, `ConversationScreen`, `ConversationBanner`, theme/runtime styling, and the four span-label IDs with their 23 localized definitions. Default, German, Spanish, and Russian carry all 15 state variants; Hungarian, Italian, Polish, Portuguese, and Sinhala carry the existing seven non-service variants, with no Swedish state entry.
 
 Message-user resolution is facade-owned as well. `GetUsersForMessageUseCase` keeps its public package and FQN while resolving the sender and the exact additional-user sets carried by delivery failures, member changes, and legal-hold events. The projection is private to that capability, so the app-owned `MessageMapper` remains focused on UI-message mapping and no new module edge or shared mapper abstraction is introduced.
 

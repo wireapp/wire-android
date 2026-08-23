@@ -600,13 +600,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="conversation_banner_federated">usuários federados</string>
     <string name="conversation_banner_externals">externos</string>
     <string name="conversation_banner_guests">convidados</string>
-    <string name="conversation_banner_federated_externals_guests_present">Usuários federados, externos e convidados estão presentes</string>
-    <string name="conversation_banner_federated_guests_present">Usuários federados e convidados estão presentes</string>
-    <string name="conversation_banner_federated_externals_present">Usuários federados e externos estão presentes</string>
-    <string name="conversation_banner_externals_guests_present">Externos e convidados estão presentes</string>
-    <string name="conversation_banner_federated_present">Usuários federados estão presentes</string>
-    <string name="conversation_banner_guests_present">Convidados estão presentes</string>
-    <string name="conversation_banner_externals_present">Externos estão presentes</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s adicionou %2$s à conversa</string>
     <string name="label_system_message_removed_by_self">%1$s removeu %2$s da conversa</string>

@@ -23,11 +23,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.feature.conversation.R
+import com.wire.android.ui.home.conversations.ConversationBannerManualViewModelFactoryGroup
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.data.user.type.isAppOrBot
@@ -43,27 +45,27 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = ConversationBannerManualViewModelFactoryGroup::class,
+    factoryMethod = "conversationBannerViewModel",
+)
 class ConversationBannerViewModel @AssistedInject constructor(
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val notifyConversationIsOpen: NotifyConversationIsOpenUseCase,
-    @Assisted navigationArgs: ConversationNavArgs,
+    @Assisted conversationId: ConversationId,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(navigationArgs: ConversationNavArgs): ConversationBannerViewModel
+        fun create(conversationId: ConversationId): ConversationBannerViewModel
     }
 
     var bannerState by mutableStateOf<UIText?>(null)
 
-    private val conversationNavArgs = navigationArgs
-    val conversationId: QualifiedID = conversationNavArgs.conversationId
+    val conversationId: QualifiedID = conversationId
 
     init {
         viewModelScope.launch {

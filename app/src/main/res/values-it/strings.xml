@@ -451,13 +451,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="label_share">Condividi</string>
     <string name="label_delete">Elimina</string>
     <string name="info_message_copied">Messaggio copiato</string>
-    <string name="conversation_banner_federated_externals_guests_present">Sono presenti utenti federati, esterni e ospiti</string>
-    <string name="conversation_banner_federated_guests_present">Sono presenti utenti federati e ospiti</string>
-    <string name="conversation_banner_federated_externals_present">Sono presenti utenti federati ed esterni</string>
-    <string name="conversation_banner_externals_guests_present">Sono presenti esterni e ospiti</string>
-    <string name="conversation_banner_federated_present">Sono presenti utenti federati</string>
-    <string name="conversation_banner_guests_present">Sono presenti ospiti</string>
-    <string name="conversation_banner_externals_present">Sono presenti utenti esterni</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s ha aggiunto %2$s alla conversazione</string>
     <string name="label_system_message_removed_by_self">%1$s ha rimosso %2$s dalla conversazione</string>

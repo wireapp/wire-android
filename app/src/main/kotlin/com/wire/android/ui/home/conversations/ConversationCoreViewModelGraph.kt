@@ -26,7 +26,6 @@ import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
-import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel
 import com.wire.android.ui.home.conversations.media.ConversationMediaNavArgs
@@ -142,16 +141,6 @@ fun imagesPreviewViewModel(args: ImagesPreviewNavArgs): ImagesPreviewViewModel =
 @Composable
 fun quotedMultipartMessageViewModel(conversationKey: String): QuotedMultipartMessageViewModel =
     conversationCoreViewModel(key = conversationKey)
-
-@Composable
-fun conversationBannerViewModel(): ConversationBannerViewModel =
-    conversationCoreViewModel()
-
-@Composable
-fun conversationBannerViewModel(args: ConversationNavArgs): ConversationBannerViewModel =
-    wireAssistedMetroViewModel<ConversationBannerViewModel, ConversationCoreManualViewModelFactory> { _ ->
-        conversationBannerViewModel(args)
-    }
 
 @Composable
 fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =

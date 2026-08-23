@@ -21,9 +21,11 @@ package com.wire.android.ui.home.conversations.banner
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
-import com.wire.android.framework.TestConversationDetails
-import com.wire.android.ui.home.conversations.ConversationNavArgs
+import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
@@ -138,7 +140,7 @@ private class Arrangement {
             observeConversationMembersByTypes = observeConversationMembersByTypesUseCase,
             observeConversationDetails = observeConversationDetailsUseCase,
             notifyConversationIsOpen = notifyConversationIsOpenUseCase,
-            navigationArgs = ConversationNavArgs(conversationId),
+            conversationId = conversationId,
         )
     }
     val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
@@ -158,12 +160,33 @@ private class Arrangement {
 
     suspend fun withGroupConversation() = apply {
         coEvery { observeConversationDetailsUseCase(any()) }
-            .returns(flowOf(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP)))
+            .returns(
+                flowOf(
+                    ObserveConversationDetailsUseCase.Result.Success(
+                        ConversationDetails.Group.Regular(
+                            conversation = TestConversation.GROUP(),
+                            isSelfUserMember = true,
+                            selfRole = Conversation.Member.Role.Member,
+                            wireCell = null,
+                        ),
+                    ),
+                ),
+            )
     }
 
     suspend fun withOneOnOneConversation() = apply {
         coEvery { observeConversationDetailsUseCase(any()) }
-            .returns(flowOf(ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.CONVERSATION_ONE_ONE)))
+            .returns(
+                flowOf(
+                    ObserveConversationDetailsUseCase.Result.Success(
+                        ConversationDetails.OneOne(
+                            conversation = TestConversation.ONE_ON_ONE,
+                            otherUser = TestUser.OTHER_USER,
+                            userType = UserTypeInfo.Regular(UserType.EXTERNAL),
+                        ),
+                    ),
+                ),
+            )
     }
 
     fun arrange() = this to viewModel

@@ -2,4 +2,19 @@
     <string name="conversation_details_conversation_admins">ADMINISTRADORES (%d)</string>
     <string name="conversation_details_conversation_members">MIEMBROS (%d)</string>
     <string name="conversation_details_conversation_apps">APLICACIONES (%d)</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Usuarios Federados, externos, invitados y aplicaciones están presentes</string>
+    <string name="conversation_banner_federated_externals_guests_present">Usuarios federados, externos e invitados est&#225;n presentes</string>
+    <string name="conversation_banner_federated_externals_services_present">Usuarios Federados, externos y aplicaciones están presentes</string>
+    <string name="conversation_banner_federated_guests_services_present">Usuarios Federados, invitados y aplicaciones están presentes</string>
+    <string name="conversation_banner_federated_services_present">Usuarios Federados y aplicaciones están presentes</string>
+    <string name="conversation_banner_federated_guests_present">Usuarios federados e invitados est&#225;n presentes</string>
+    <string name="conversation_banner_federated_externals_present">Usuarios federados y externos est&#225;n presentes</string>
+    <string name="conversation_banner_externals_guests_services_present">Externos, invitados y aplicaciones están presentes</string>
+    <string name="conversation_banner_externals_services_present">Externos y aplicaciones están presentes</string>
+    <string name="conversation_banner_externals_guests_present">Externos e invitados est&#225;n presentes</string>
+    <string name="conversation_banner_guests_services_present">Invitados y aplicaciones están presentes</string>
+    <string name="conversation_banner_federated_present">Usuarios federados est&#225;n presentes</string>
+    <string name="conversation_banner_guests_present">Invitados est&#225;n presentes</string>
+    <string name="conversation_banner_externals_present">Externos est&#225;n presentes</string>
+    <string name="conversation_banner_services_active">Aplicaciones están activas</string>
 </resources>

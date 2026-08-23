@@ -390,13 +390,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="label_share">Udost&#281;pnij</string>
     <string name="label_delete">Usu&#324;</string>
     <string name="info_message_copied">Wiadomo&#347;&#263; skopiowana</string>
-    <string name="conversation_banner_federated_externals_guests_present">Obecni s&#261; u&#380;ytkownicy federowani, zewn&#281;trzni oraz go&#347;cie.</string>
-    <string name="conversation_banner_federated_guests_present">Obecni s&#261; u&#380;ytkownicy federowani oraz go&#347;cie.</string>
-    <string name="conversation_banner_federated_externals_present">Obecni s&#261; u&#380;ytkownicy federowani oraz zewn&#281;trzni.</string>
-    <string name="conversation_banner_externals_guests_present">Obecni s&#261; zewn&#281;trzni oraz go&#347;cie.</string>
-    <string name="conversation_banner_federated_present">Obecni s&#261; u&#380;ytkownicy federowani.</string>
-    <string name="conversation_banner_guests_present">Obecni s&#261; go&#347;cie.</string>
-    <string name="conversation_banner_externals_present">Obecni s&#261; zewn&#281;trzni.</string>
     <!-- System messages -->
     <string name="label_system_message_added_by_self">%1$s doda&#322;(a) %2$s do konwersacji.</string>
     <string name="label_system_message_removed_by_self">%1$s usun&#261;&#322;(a) %2$s z konwersacji.</string>

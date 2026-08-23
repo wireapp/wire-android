@@ -330,6 +330,87 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun conversationBannerViewModelFactoryAndResourcesAreFeatureOwned() {
+        val graph = File(Konsist.projectRootPath, conversationBannerViewModelGraphRelativePath).readText()
+        val viewModel = File(Konsist.projectRootPath, conversationBannerViewModelRelativePath).readText()
+
+        assertFalse(
+            File(Konsist.projectRootPath, appConversationBannerViewModelRelativePath).exists(),
+            "ConversationBannerViewModel must not remain app-owned.",
+        )
+        listOf(graph, viewModel).forEach { source ->
+            assertFalse(source.contains("ConversationNavArgs"), "The feature banner factory accepts only ConversationId.")
+            assertFalse(source.contains("com.wire.android.R"), "The feature banner ViewModel must not use app resources.")
+            assertFalse(
+                source.contains("ConversationCoreManualViewModelFactory"),
+                "The banner ViewModel must not leak back into the app core factory group.",
+            )
+        }
+        assertTrue(graph.contains("object ConversationBannerManualViewModelFactoryGroup"))
+        assertTrue(graph.contains("fun conversationBannerViewModel(): ConversationBannerViewModel"))
+        assertTrue(graph.contains("fun conversationBannerViewModel(conversationId: ConversationId)"))
+        assertTrue(
+            graph.contains(
+                "wireAssistedMetroViewModel<ConversationBannerViewModel, ConversationBannerManualViewModelFactory>"
+            ),
+        )
+        assertTrue(viewModel.contains("ConversationBannerManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"conversationBannerViewModel\""))
+        assertTrue(viewModel.contains("@Assisted conversationId: ConversationId"))
+        assertTrue(viewModel.contains("fun create(conversationId: ConversationId): ConversationBannerViewModel"))
+        assertTrue(viewModel.contains("val conversationId: QualifiedID = conversationId"))
+        assertTrue(viewModel.contains("import com.wire.android.feature.conversation.R"))
+
+        val featureResources = File(Konsist.projectRootPath, conversationFeatureResourcesRelativePath)
+        val appResources = File(Konsist.projectRootPath, appResourcesRelativePath)
+        val crowdinConfiguration = File(Konsist.projectRootPath, crowdinConfigurationRelativePath).readText()
+        val expectedBannerResourceFiles = conversationBannerResourceCountsByQualifier.keys
+            .map { "$it/strings.xml" }
+            .toSet()
+        val actualBannerResourceFiles = featureResources.walkTopDown()
+            .filter { it.isFile && it.name == "strings.xml" }
+            .map { it.relativeTo(featureResources).invariantSeparatorsPath }
+            .toSet()
+
+        assertEquals(expectedBannerResourceFiles, actualBannerResourceFiles)
+        conversationBannerResourceCountsByQualifier.forEach { (qualifier, expectedCount) ->
+            val resourceFile = File(featureResources, "$qualifier/strings.xml")
+            val expectedIds = if (expectedCount == conversationBannerStateMessageIds.size) {
+                conversationBannerStateMessageIds
+            } else {
+                conversationBannerNonServiceStateMessageIds
+            }
+            val actualBannerIds = stringResourceIds(resourceFile)
+                .filter { it in conversationBannerStateMessageIds }
+
+            assertEquals(expectedCount, actualBannerIds.size, "Unexpected $qualifier banner count.")
+            assertEquals(expectedIds, actualBannerIds.toSet(), "Unexpected $qualifier banner IDs.")
+        }
+
+        val featureDefinitions = stringResourceIds(featureResources)
+        val featureStateDefinitions = featureDefinitions.filter { it in conversationBannerStateMessageIds }
+        val appDefinitions = stringResourceIds(appResources)
+
+        assertEquals(9, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
+        assertEquals(9, featureResources.listFiles().orEmpty().count { it.isDirectory })
+        assertEquals(112, featureDefinitions.size)
+        assertEquals(95, featureStateDefinitions.size)
+        assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
+        assertTrue(
+            crowdinConfiguration.contains("\"source\": \"/features/conversation/src/main/res/values/strings.xml\"") &&
+                    crowdinConfiguration.contains(
+                        "\"translation\": \"/features/conversation/src/main/res/values-%two_letters_code%/%original_file_name%\""
+                    ),
+            "Conversation resources must remain registered through the standard Crowdin strings.xml mapping.",
+        )
+        assertTrue(
+            appDefinitions.none { it in conversationBannerStateMessageIds },
+            "App resources must define zero banner state messages after the ownership move.",
+        )
+        assertEquals(23, appDefinitions.count { it in conversationBannerSpanLabelIds })
+    }
+
+    @Test
     fun groupConversationParticipantsMetroFactoryIsFeatureOwned() {
         val graph = File(Konsist.projectRootPath, groupConversationParticipantsViewModelGraphRelativePath).readText()
         val viewModel = File(Konsist.projectRootPath, groupConversationParticipantsViewModelRelativePath).readText()
@@ -545,6 +626,18 @@ class ConversationModuleBoundaryTest {
             .toSet()
     }
 
+    private fun stringResourceIds(resourceFile: File): List<String> {
+        assertTrue(resourceFile.exists(), "Missing resource owner ${resourceFile.path}.")
+        return if (resourceFile.isDirectory) {
+            resourceFile.walkTopDown()
+                .filter { it.isFile && it.extension == "xml" }
+                .flatMap { stringResourceIds(it).asSequence() }
+                .toList()
+        } else {
+            stringResourceName.findAll(resourceFile.readText()).map { it.groupValues[1] }.toList()
+        }
+    }
+
     private companion object {
         const val configurationPackage = "com.wire.android.feature.conversation.config"
         val featureBuildScript = File(Konsist.projectRootPath, "features/conversation/build.gradle.kts")
@@ -583,6 +676,15 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/migration/ConversationMigrationViewModel.kt"
         const val conversationMigrationViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationMigrationViewModelGraph.kt"
+        const val conversationBannerViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/banner/ConversationBannerViewModel.kt"
+        const val conversationBannerViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationBannerViewModelGraph.kt"
+        const val appConversationBannerViewModelRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/banner/ConversationBannerViewModel.kt"
+        const val conversationFeatureResourcesRelativePath = "features/conversation/src/main/res"
+        const val appResourcesRelativePath = "app/src/main/res"
+        const val crowdinConfigurationRelativePath = "crowdin.yml"
         const val appGetUsersForMessageUseCaseRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetUsersForMessageUseCase.kt"
         val appImageAssetPagingSourceRelativePaths = listOf(
@@ -693,6 +795,10 @@ class ConversationModuleBoundaryTest {
         val conversationBannerSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/banner/usecase/ObserveConversationMembersByTypesUseCase.kt" to
                     "com.wire.android.ui.home.conversations.banner.usecase",
+            conversationBannerViewModelRelativePath to
+                    "com.wire.android.ui.home.conversations.banner",
+            conversationBannerViewModelGraphRelativePath to
+                    "com.wire.android.ui.home.conversations",
         )
         val messageDetailsReactionSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messagedetails/model/MessageDetailsReactionsData.kt" to
@@ -1024,6 +1130,9 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.ConversationInfoManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.ConversationMigrationManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel",
+            "com.wire.android.ui.home.conversations.ConversationBannerManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel",
+            "com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase",
             "com.wire.android.ui.home.conversations.GroupConversationParticipantsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.GroupConversationDetailsManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.UpdateChannelAccessManualViewModelFactoryGroup",
@@ -1077,6 +1186,44 @@ class ConversationModuleBoundaryTest {
         val kspProcessor = Regex("""ksp\s*\(\s*project\s*\(\s*["']:ksp["']\s*\)\s*\)""")
         val conversationPreviewAggregateName = Regex(
             """wire\.viewmodelScopedPreview\.aggregateName["']?\s*,\s*["']ConversationViewModelScopedPreviews["']""",
+        )
+        val stringResourceName = Regex("<string\\b[^>]*\\bname=\"([^\"]+)\"")
+        val conversationBannerStateMessageIds = setOf(
+            "conversation_banner_federated_externals_guests_services_present",
+            "conversation_banner_federated_externals_guests_present",
+            "conversation_banner_federated_externals_services_present",
+            "conversation_banner_federated_guests_services_present",
+            "conversation_banner_externals_guests_services_present",
+            "conversation_banner_federated_services_present",
+            "conversation_banner_federated_guests_present",
+            "conversation_banner_federated_externals_present",
+            "conversation_banner_externals_services_present",
+            "conversation_banner_externals_guests_present",
+            "conversation_banner_guests_services_present",
+            "conversation_banner_federated_present",
+            "conversation_banner_guests_present",
+            "conversation_banner_externals_present",
+            "conversation_banner_services_active",
+        )
+        val conversationBannerNonServiceStateMessageIds = conversationBannerStateMessageIds
+            .filterNot { it.contains("services") }
+            .toSet()
+        val conversationBannerSpanLabelIds = setOf(
+            "conversation_banner_federated",
+            "conversation_banner_externals",
+            "conversation_banner_guests",
+            "conversation_banner_services",
+        )
+        val conversationBannerResourceCountsByQualifier = linkedMapOf(
+            "values" to 15,
+            "values-de" to 15,
+            "values-es" to 15,
+            "values-ru" to 15,
+            "values-hu" to 7,
+            "values-it" to 7,
+            "values-pl" to 7,
+            "values-pt" to 7,
+            "values-si" to 7,
         )
     }
 }

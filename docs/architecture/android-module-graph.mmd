@@ -1,0 +1,33 @@
+graph TD
+    App[":app<br/>composition root and runtime adapters"]
+    Conversation[":features:conversation"]
+    Meetings[":features:meetings"]
+    Calling[":core:calling<br/>proposed; not created"]
+    Navigation[":core:navigation"]
+    Di[":core:di"]
+    UiCommon[":core:ui-common"]
+    Analytics[":core:analytics"]
+    KaliumLogic["Kalium Logic"]
+    KaliumCalling["Kalium Domain Calling"]
+    Avs["AVS Android runtime"]
+
+    App --> Conversation
+    App --> Meetings
+    App -. proposed .-> Calling
+    App --> Navigation
+    App --> Di
+    App --> UiCommon
+    App --> Analytics
+    App --> KaliumLogic
+    Conversation -. proposed .-> Calling
+    Conversation -. proposed .-> Analytics
+    Conversation -. proposed .-> Navigation
+    Conversation -. proposed .-> Di
+    Conversation -. proposed .-> UiCommon
+    Meetings --> Navigation
+    Meetings --> Di
+    Meetings --> UiCommon
+    Calling -. proposed .-> UiCommon
+    Calling -. proposed .-> KaliumLogic
+    KaliumLogic --> KaliumCalling
+    KaliumCalling --> Avs

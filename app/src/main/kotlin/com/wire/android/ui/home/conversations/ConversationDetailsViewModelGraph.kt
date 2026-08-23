@@ -25,8 +25,6 @@ import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessViewModel
 import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessNavArgs
-import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
-import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel
 import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesViewModel
 import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModel
@@ -72,16 +70,6 @@ fun editGuestAccessViewModel(): EditGuestAccessViewModel =
 @Composable
 fun editGuestAccessViewModel(args: EditGuestAccessNavArgs): EditGuestAccessViewModel =
     conversationDetailsAssistedViewModel { editGuestAccessViewModel(args) }
-
-@Composable
-fun createPasswordGuestLinkViewModel(): CreatePasswordGuestLinkViewModel =
-    wireMetroViewModel()
-
-@Composable
-fun createPasswordGuestLinkViewModel(
-    args: CreatePasswordGuestLinkNavArgs,
-): CreatePasswordGuestLinkViewModel =
-    conversationDetailsAssistedViewModel { createPasswordGuestLinkViewModel(args) }
 
 @Composable
 fun checkAssetRestrictionsViewModel(): CheckAssetRestrictionsViewModel =

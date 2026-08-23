@@ -38,9 +38,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
+import com.wire.android.ui.home.conversations.CreatePasswordGuestLinkManualViewModelFactoryGroup
 
-@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = CreatePasswordGuestLinkManualViewModelFactoryGroup::class,
+    factoryMethod = "createPasswordGuestLinkViewModel",
+)
 class CreatePasswordGuestLinkViewModel @AssistedInject constructor(
     private val generateGuestRoomLink: GenerateGuestRoomLinkUseCase,
     private val validatePassword: ValidatePasswordUseCase,

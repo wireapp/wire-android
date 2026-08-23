@@ -49,9 +49,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.conversation.config.LocalConversationHostConfiguration
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -144,6 +144,7 @@ internal fun ConversationScreenRouteContent(
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val resources = context.resources
+    val runtimeCapabilities = LocalConversationHostConfiguration.current.runtime
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
     val messageComposerViewState = messageComposerViewModel.messageComposerViewState
     val messageComposerStateHolder = rememberMessageComposerStateHolder(
@@ -337,6 +338,8 @@ internal fun ConversationScreenRouteContent(
     conversationCallViewModel.callManager.HandleJoinOrStartCallScreenDialogs()
 
     ConversationScreenContent(
+        isBubbleUiEnabled = runtimeCapabilities.bubbleUiEnabled,
+        pendingMessagesEnabled = runtimeCapabilities.pendingMessagesEnabled,
         bannerMessage = conversationBannerViewModel.bannerState,
         messageComposerViewState = messageComposerViewState.value,
         bottomSheetVisible = conversationScreenState.isAnySheetVisible,
@@ -668,6 +671,8 @@ private fun ConversationScreenContent(
     openDrawingCanvas: () -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
+    isBubbleUiEnabled: Boolean,
+    pendingMessagesEnabled: Boolean,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},
     isFetchingOlderMessages: Boolean = false,
@@ -679,7 +684,7 @@ private fun ConversationScreenContent(
     Box(modifier = Modifier) {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
-            contentColor = if (IS_BUBBLE_UI_ENABLED) {
+            contentColor = if (isBubbleUiEnabled) {
                 colorsScheme().primary
             } else {
                 colorsScheme().background
@@ -778,7 +783,7 @@ private fun ConversationScreenContent(
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
                         isFetchingOlderMessages = conversationMessagesViewState.isFetchingOlderMessages,
                         hasMoreRemoteMessages = conversationMessagesViewState.hasMoreRemoteMessages,
-                        isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
+                        isBubbleUiEnabled = isBubbleUiEnabled,
                         isWireCellsEnabled = isWireCellsEnabled,
                     )
                 }
@@ -789,6 +794,7 @@ private fun ConversationScreenContent(
             conversationId = conversationInfoViewState.conversationId,
             sheetState = conversationScreenState.editSheetState,
             isNetworkAvailable = conversationMessagesViewState.isNetworkAvailable,
+            pendingMessagesEnabled = pendingMessagesEnabled,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,
             onReactionClick = onReactionClick,
@@ -877,6 +883,8 @@ fun PreviewConversationScreen() = WireTheme {
         onClearMentionSearchResult = {},
     )
     ConversationScreenContent(
+        isBubbleUiEnabled = true,
+        pendingMessagesEnabled = false,
         bannerMessage = null,
         bottomSheetVisible = false,
         messageComposerViewState = messageComposerViewState.value,

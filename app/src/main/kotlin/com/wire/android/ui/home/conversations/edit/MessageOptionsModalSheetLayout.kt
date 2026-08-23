@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
@@ -54,6 +53,7 @@ fun MessageOptionsModalSheetLayout(
     conversationId: ConversationId,
     sheetState: WireModalSheetState<String>,
     isNetworkAvailable: Boolean,
+    pendingMessagesEnabled: Boolean,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -79,6 +79,7 @@ fun MessageOptionsModalSheetLayout(
                     message = state.message,
                     sheetState = sheetState,
                     isNetworkAvailable = isNetworkAvailable,
+                    pendingMessagesEnabled = pendingMessagesEnabled,
                     onCopyClick = onCopyClick,
                     onDeleteClick = onDeleteClick,
                     onReactionClick = onReactionClick,
@@ -114,6 +115,7 @@ private fun MessageOptionsModalContent(
     message: UIMessage.Regular,
     sheetState: WireModalSheetState<String>,
     isNetworkAvailable: Boolean,
+    pendingMessagesEnabled: Boolean,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -144,7 +146,7 @@ private fun MessageOptionsModalContent(
                 isMyMessage = isMyMessage,
                 isPending = isPending,
                 isNetworkAvailable = isNetworkAvailable,
-                pendingMessagesEnabled = BuildConfig.PENDING_MESSAGES
+                pendingMessagesEnabled = pendingMessagesEnabled,
             ),
             isCopyable = message.isCopyable(),
             isOpenable = true,
@@ -288,6 +290,7 @@ fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
         conversationId = ConversationId("cid", "domain"),
         sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded("id")),
         isNetworkAvailable = true,
+        pendingMessagesEnabled = false,
         onCopyClick = {},
         onDeleteClick = { _, _ -> },
         onReactionClick = { _, _ -> },

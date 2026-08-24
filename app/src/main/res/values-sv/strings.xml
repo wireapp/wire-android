@@ -188,7 +188,6 @@
     <string name="conversation_history_wipe_explanation">Enligt dina team\'s säkerhets-
         inställningar, din konversationshistorik har också tagits bort.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Bekräfta ditt konto</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Ta bort en enhet</string>
     <string name="remove_device_label">DINA ENHETER</string>

@@ -212,7 +212,6 @@
     <string name="conversation_history_wipe_explanation">Prema postavkama sigurnosti
          vašeg tima, vaša povijest razgovora također je izbrisana.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Potvrdite svoj račun</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Ukloni uređaj</string>
     <string name="remove_device_message">Uklonite jedan od Vaših ostalih uređaja kako bi ste počeli koristiti Wire na ovom.    </string>

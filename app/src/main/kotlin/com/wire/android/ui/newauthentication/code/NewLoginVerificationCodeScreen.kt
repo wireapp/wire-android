@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.LoginButton
@@ -93,7 +94,10 @@ private fun LoginVerificationCodeContent(
                         modifier = Modifier.padding(bottom = dimensions().spacing24x)
                     )
                     NewAuthSubtitle(
-                        title = stringResource(R.string.second_factor_authentication_instructions_label, codeState.emailUsed),
+                        title = stringResource(
+                            AuthenticationR.string.second_factor_authentication_instructions_label,
+                            codeState.emailUsed,
+                        ),
                     )
                 },
                 canNavigateBack = canNavigateBack,

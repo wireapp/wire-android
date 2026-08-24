@@ -1,4 +1,5 @@
 <resources>
     <string name="create_account_code_resend">Reenviar c&#243;digo</string>
+    <string name="second_factor_authentication_title">Verifica tu cuenta</string>
     <string name="second_factor_code_error">C&#243;digo inv&#225;lido o n&#250;mero m&#225;ximo de intentos ha sido alcanzado. Por favor, int&#233;ntalo de nuevo o solicita otro c&#243;digo.</string>
 </resources>

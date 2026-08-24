@@ -216,7 +216,6 @@
     <string name="session_expired_error_message">La aplicaci&#243;n no se ha comunicado con el servidor por un per&#237;odo prolongado de tiempo, o tu sesi&#243;n ha sido invalidada remotamente.</string>
     <string name="conversation_history_wipe_explanation">De acuerdo con la configuraci&#243;n de seguridad de tu equipo, tu historial de conversaci&#243;n tambi&#233;n ha sido eliminado.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Verifica tu cuenta</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Eliminar un dispositivo</string>
     <string name="remove_device_message">Elimina uno de tus otros dispositivos para empezar a usar Wire en &#233;ste.</string>

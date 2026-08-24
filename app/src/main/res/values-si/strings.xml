@@ -316,8 +316,6 @@
     <string name="session_expired_error_message">යෙදුම දීර්ඝ කාලයක් සේවාදායකය සමඟ සන්නිවේදනය කර නැත හෝ ඔබගේ වාරය දුරස්ථව අවලංගු කර ඇත.</string>
     <string name="conversation_history_wipe_explanation">ඔබගේ කණ්ඩායමේ ආරක්‍ෂණ සැකසුම් වලට අනුව, ඔබගේ සංවාද ඉතිහාසය ද මකා ඇත.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">ගිණුම සත්‍යාපනය කරන්න</string>
-    <string name="second_factor_authentication_instructions_label">සත්‍යාපන කේතය සඳහා ඔබගේ %1$s වි-තැපෑල පරීක්‍ෂා කර එය පහතින් යොදන්න.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">උපාංගයක් ඉවත් කරන්න</string>
     <string name="remove_device_message">මෙහි වයර් භාවිතා කිරීම ඇරඹීමට ඔබගේ අනෙක් උපාංග වලින් එකක් ඉවත් කරන්න.</string>

@@ -218,8 +218,6 @@
     <string name="session_expired_error_message">アプリがサーバーと長期間通信しなかったか、セッションが遠隔で無効化されました。</string>
     <string name="conversation_history_wipe_explanation">チームのセキュリティ設定により、会話の履歴も削除されました。</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">アカウントを確認</string>
-    <string name="second_factor_authentication_instructions_label">メール%1$sを確認し、確認コードを以下に入力してください。</string>
     <!-- Remove Device -->
     <string name="remove_device_title">デバイスの削除</string>
     <string name="remove_device_message">このデバイスでWireを使用するには、他のデバイスを 1 つ削除してください。</string>

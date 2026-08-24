@@ -362,8 +362,6 @@
     <string name="conversation_history_wipe_explanation">Den Sicherheitseinstellungen Ihres Teams entsprechend
         wurde auch Ihr Gesprächsverlauf gelöscht.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Überprüfen Sie Ihr Benutzerkonto</string>
-    <string name="second_factor_authentication_instructions_label">Bitte prüfen Sie Ihren Posteingang %1$s und geben Sie den Bestätigungscode ein.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Bitte ein Gerät entfernen</string>
     <string name="remove_device_message">Entfernen Sie eines Ihrer anderen Geräte, um Wire

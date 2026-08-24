@@ -59,8 +59,15 @@ class VerificationCodePrimitiveOwnershipTest {
         )
 
         assertTrue(appDefinitions.isEmpty(), "App still owns definitions: $appDefinitions")
-        assertEquals(25, featureDefinitions.size)
-        assertEquals(expectedQualifiers, featureDefinitions.map { it.substringBefore('|') }.toSet())
+        assertEquals(47, featureDefinitions.size)
+        assertEquals(
+            expectedQualifiersByResource,
+            featureDefinitions
+                .groupBy { definition ->
+                    resourceNames.single { resourceName -> definition.contains("name=\"$resourceName\"") }
+                }
+                .mapValues { (_, definitions) -> definitions.map { it.substringBefore('|') }.toSet() }
+        )
         assertEquals(expectedResourceFingerprint, sha256(featureDefinitions.joinToString("\n") + "\n"))
     }
 
@@ -93,24 +100,36 @@ class VerificationCodePrimitiveOwnershipTest {
     private companion object {
         const val packageName = "com.wire.android.ui.authentication.verificationcode"
         const val packagePath = "com/wire/android/ui/authentication/verificationcode"
-        const val expectedResourceFingerprint = "05f79c51e84cf070945fe1856e400545e4b9a930dc85d1527535e636fdb9bb95"
+        const val expectedResourceFingerprint = "a0037151b3a0eb5819351ef87c1ff6998028a83e2f1123aa38ac31babdc60e69"
 
-        val sourceNames = listOf("ResendCodeText.kt", "VerificationCode.kt")
-        val resourceNames = setOf("create_account_code_resend", "second_factor_code_error")
-        val expectedQualifiers = setOf(
-            "values",
-            "values-de",
-            "values-es",
-            "values-fr",
-            "values-hr",
-            "values-hu",
-            "values-it",
-            "values-ja",
-            "values-pl",
-            "values-pt",
-            "values-ru",
-            "values-si",
-            "values-sv",
+        val sourceNames = listOf(
+            "ResendCodeText.kt",
+            "VerificationCode.kt",
+            "VerificationCodeScreenContent.kt",
+        )
+        val resourceNames = setOf(
+            "create_account_code_resend",
+            "second_factor_code_error",
+            "second_factor_authentication_title",
+            "second_factor_authentication_instructions_label",
+        )
+        val expectedQualifiersByResource = mapOf(
+            "create_account_code_resend" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it",
+                "values-pl", "values-pt", "values-ru", "values-si", "values-sv",
+            ),
+            "second_factor_code_error" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it",
+                "values-ja", "values-pl", "values-pt", "values-ru", "values-si", "values-sv",
+            ),
+            "second_factor_authentication_title" to setOf(
+                "values", "values-de", "values-es", "values-et", "values-fr", "values-hr", "values-hu",
+                "values-it", "values-ja", "values-pl", "values-pt", "values-ru", "values-si", "values-sv",
+            ),
+            "second_factor_authentication_instructions_label" to setOf(
+                "values", "values-de", "values-fr", "values-hu", "values-ja", "values-pt", "values-ru",
+                "values-si",
+            ),
         )
     }
 }

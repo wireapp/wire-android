@@ -216,8 +216,6 @@
     <string name="conversation_history_wipe_explanation">Selon les paramètres de sécurité
         de votre équipe, votre historique de conversation a également été supprimé.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Vérifiez votre compte</string>
-    <string name="second_factor_authentication_instructions_label">Veuillez vérifier votre email %1$s pour obtenir le code de confirmation et saisissez-le ci-dessous.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Supprimer un appareil</string>
     <string name="remove_device_message">Supprimez un de vos autres appareils pour commencer à utiliser Wire sur celui-ci.    </string>

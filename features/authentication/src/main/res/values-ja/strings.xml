@@ -1,3 +1,5 @@
 <resources>
+    <string name="second_factor_authentication_title">アカウントを確認</string>
+    <string name="second_factor_authentication_instructions_label">メール%1$sを確認し、確認コードを以下に入力してください。</string>
     <string name="second_factor_code_error">無効なコードであるか、最大試行回数を超えました。再試行するか、別のコードをリクエストしてください。</string>
 </resources>

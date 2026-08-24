@@ -18,6 +18,7 @@ dependencies {
 
     val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
+    implementation(libs.compose.activity)
     implementation("androidx.compose.animation:animation")
     implementation("androidx.compose.foundation:foundation")
     implementation(libs.compose.material3)

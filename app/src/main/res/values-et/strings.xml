@@ -128,7 +128,6 @@
     <string name="login_tab_sso">SSO SISSELOGIMINE</string>
     <string name="deleted_user_error_title">Kustutatud konto</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Kinnita oma konto</string>
     <!-- Remove Device -->
     <string name="remove_device_label">SINU SEADMED</string>
     <string name="remove_device_invalid_password">Vale parool</string>

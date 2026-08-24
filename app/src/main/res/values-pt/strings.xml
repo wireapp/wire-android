@@ -308,8 +308,6 @@ URL do Backend:
     <string name="session_expired_error_message">O aplicativo não se comunicou com o servidor por um longo período de tempo, ou sua sessão foi invalidada remotamente.</string>
     <string name="conversation_history_wipe_explanation">De acordo com as configurações de segurança da sua equipe, seu histórico de conversas também foi excluído.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Verifique sua conta</string>
-    <string name="second_factor_authentication_instructions_label">Por favor, verifique seu email %1$s para o código de verificação e insira-o abaixo.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Remover um dispositivo</string>
     <string name="remove_device_message">Remova um dos seus outros dispositivos para começar a usar o Wire neste aparelho.</string>

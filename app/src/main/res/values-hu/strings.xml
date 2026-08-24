@@ -320,8 +320,6 @@
     <string name="conversation_history_wipe_explanation">A csapata biztonsági beállításainak
         megfelelően, beszélgetési előzményei szintén törlésre kerültek.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Fiók hitelesítése</string>
-    <string name="second_factor_authentication_instructions_label">Kérjük, adja meg a(z) %1$s e-mail címére küldött azonosító kódot.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Eszköz eltávolítása</string>
     <string name="remove_device_message">Ahhoz, hogy használni tudja a Wire-t ezen az eszközön, először távolítsa el

@@ -372,8 +372,6 @@
     <string name="conversation_history_wipe_explanation">В соответствии с настройками безопасности
         вашей команды история бесед также была удалена.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Подтвердите учетную запись</string>
-    <string name="second_factor_authentication_instructions_label">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Удалить устройство</string>
     <string name="remove_device_message">Удалите одно из ваших устройств, чтобы начать использовать Wire

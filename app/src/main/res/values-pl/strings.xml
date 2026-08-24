@@ -187,7 +187,6 @@ URL &#347;rodowiska:
     <string name="session_expired_error_message">Aplikacja nie komunikowa&#322;a si&#281; z serwerem przez d&#322;ugi czas lub Twoja sesja zosta&#322;a zdalnie uniewa&#380;niona.</string>
     <string name="conversation_history_wipe_explanation">Zgodnie z ustawieniami bezpiecze&#324;stwa Twojego zespo&#322;u historia rozm&#243;w zosta&#322;a r&#243;wnie&#380; usuni&#281;ta.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Zweryfikuj swoje konto</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Usu&#324; urz&#261;dzenie</string>
     <string name="remove_device_message">Usu&#324; jedno ze swoich innych urz&#261;dze&#324;, aby zacz&#261;&#263; u&#380;ywa&#263; Wire na tym.</string>

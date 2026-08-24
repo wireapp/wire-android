@@ -216,7 +216,6 @@ URL backend:
     <string name="session_expired_error_message">L\'applicazione non ha comunicato con il server per un lungo periodo di tempo, o la tua sessione &#232; stata invalidata a distanza.</string>
     <string name="conversation_history_wipe_explanation">In base alle impostazioni di sicurezza del tuo team, anche la cronologia delle conversazioni &#232; stata eliminata.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Verifica il tuo account</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Rimuovi un dispositivo</string>
     <string name="remove_device_message">Rimuovi un altro dispositivo per iniziare ad usare Wire su questo.</string>

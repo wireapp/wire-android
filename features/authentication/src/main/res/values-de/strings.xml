@@ -1,4 +1,6 @@
 <resources>
     <string name="create_account_code_resend">Code erneut senden</string>
+    <string name="second_factor_authentication_title">Überprüfen Sie Ihr Benutzerkonto</string>
+    <string name="second_factor_authentication_instructions_label">Bitte prüfen Sie Ihren Posteingang %1$s und geben Sie den Bestätigungscode ein.</string>
     <string name="second_factor_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
 </resources>

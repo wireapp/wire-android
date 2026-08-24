@@ -31,14 +31,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.R
+import com.wire.android.feature.authentication.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 
 @Composable
@@ -115,7 +115,7 @@ private fun MainContent(
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 internal fun VerificationCodeScreenPreview() = WireTheme {
     VerificationCodeScreenContent(
@@ -131,7 +131,7 @@ internal fun VerificationCodeScreenPreview() = WireTheme {
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 internal fun VerificationCodeScreenPreviewTimer() = WireTheme {
     VerificationCodeScreenContent(

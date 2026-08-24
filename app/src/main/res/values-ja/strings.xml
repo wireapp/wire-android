@@ -148,9 +148,7 @@
     <string name="settings_backup_create">バックアップを作成</string>
     <string name="settings_backup_restore">バックアップから復元</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">友人や家族とチャットしたいですか？</string>
     <string name="welcome_footer_link">無料でプライベートアカウントを作成する</string>
-    <string name="welcome_button_create_personal_account">個人アカウントを作成</string>
     <string name="server_details_dialog_body">バックエンド名:\n%1$s\n\nバックエンドURL:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">バックエンド名:\n%1$s\n\nバックエンドURL:\n%2$s\n\nプロキシURL:\n%3$s\n\nプロキシ認証:\n%4$s</string>
     <string name="server_details_dialog_title">オンプレミスのバックエンド</string>
@@ -176,9 +174,6 @@
     <string name="migration_cancel_message">アプリを閉じて進行中の移行をキャンセルしてもよろしいですか？</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_title">ログイン</string>
-    <string name="login_forgot_password">パスワードをお忘れですか？</string>
-    <string name="login_user_identifier_label">メールアドレスまたはユーザー名</string>
     <string name="login_password_placeholder">パスワード</string>
     <string name="login_password_label">パスワード</string>
     <string name="deleted_user_error_title">削除されたアカウント</string>

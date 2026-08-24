@@ -39,6 +39,7 @@ import com.wire.android.ui.common.textfield.maxLengthWithCallback
 import com.wire.android.ui.common.textfield.patternWithCallback
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.Patterns
+import com.wire.android.feature.authentication.R as AuthenticationR
 
 @Composable
 fun UsernameTextField(
@@ -55,8 +56,8 @@ fun UsernameTextField(
     ShakeAnimation { animate ->
         WireTextField(
             textState = username,
-            placeholderText = stringResource(R.string.create_account_username_placeholder),
-            labelText = stringResource(R.string.create_account_username_label),
+            placeholderText = stringResource(AuthenticationR.string.create_account_username_placeholder),
+            labelText = stringResource(AuthenticationR.string.create_account_username_label),
             inputTransformation = InputTransformation
                 .forceLowercase()
                 .patternWithCallback(Patterns.HANDLE, animate)
@@ -74,15 +75,15 @@ fun UsernameTextField(
             state = if (errorState is HandleUpdateErrorState.TextFieldError) {
                 when (errorState) {
                 HandleUpdateErrorState.TextFieldError.UsernameTakenError ->
-                    WireTextFieldState.Error(stringResource(id = R.string.create_account_username_taken_error))
+                    WireTextFieldState.Error(stringResource(id = AuthenticationR.string.create_account_username_taken_error))
 
                 HandleUpdateErrorState.TextFieldError.UsernameInvalidError ->
-                    WireTextFieldState.Error(stringResource(id = R.string.create_account_username_description))
+                    WireTextFieldState.Error(stringResource(id = AuthenticationR.string.create_account_username_description))
             }
             } else {
                 WireTextFieldState.Default
             },
-            descriptionText = stringResource(id = R.string.create_account_username_description),
+            descriptionText = stringResource(id = AuthenticationR.string.create_account_username_description),
             keyboardOptions = KeyboardOptions.DefaultEmailDone,
             onKeyboardAction = { keyboardController?.hide() },
             modifier = modifier.then(Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x))

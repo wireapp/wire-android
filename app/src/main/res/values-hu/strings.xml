@@ -177,10 +177,6 @@
     <string name="content_description_self_profile_new_account_btn">Hozzon létre új csapatot vagy személyes fiókot vagy jelentkezzen be</string>
     <string name="content_description_self_profile_manage_team_btn">Csapat kezelése</string>
     <string name="content_description_change_picture_back_btn">Vissza a saját profil áttekintéséhez</string>
-    <string name="content_description_welcome_screen_close_btn">Az új csapat létrehozása és bejelentkezés lap bezárása</string>
-    <string name="content_description_login_back_btn">Vissza az új csapat létrehozása és bejelentkezés lapra</string>
-    <string name="content_description_login_user_identifier_field">adja meg e-mail-címét vagy felhasználónevét</string>
-    <string name="content_description_login_password_field">adja meg jelszavát</string>
     <string name="content_description_whats_new_welcome_item">Üdvözöljük a Wire új androidos appjában, link a támogatási oldalhoz</string>
     <string name="content_description_whats_new_all_releases_item">Az összes androidos verzióismertető, link a verzióismertetők áttekintéséhez</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, link a verzió részleteihez</string>
@@ -223,9 +219,7 @@
     <string name="settings_backup_create">Biztonsági másolat készítése</string>
     <string name="settings_backup_restore">Visszaállítás biztonsági másolatból</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Szeretne csevegni barátokkal és családtagokkal?</string>
     <string name="welcome_footer_link">Készítsen ingyenes magánfiókot</string>
-    <string name="welcome_button_create_personal_account">Készítsen személyes fiókot</string>
     <string name="server_details_dialog_body">Kiszolgáló neve:\n%1$s\n\nKiszolgáló címe:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Kiszolgáló neve:\n%1$s\n\nKiszolgáló URL-jre:\n%2$s\n\nProxy URL-je:\n%3$s\n\nProxy hitelesítés:\n%4$s</string>
     <string name="server_details_dialog_title">Helyszíni kiszolgáló</string>
@@ -253,10 +247,6 @@
     <!-- Enterprise Login -->
     <string name="enterprise_login_on_prem_welcome_title">Üdvözöljük a(z) %s számára nyújtott Wire Vállalati szolgáltatásban!</string>
     <!-- Login -->
-    <string name="login_title">Bejelentkezés</string>
-    <string name="login_forgot_password">Elfelejtette a jelszavát?</string>
-    <string name="login_user_identifier_label">E-MAIL VAGY FELHASZNÁLÓNÉV</string>
-    <string name="login_error_invalid_user_identifier">Ez az e-mail-cím vagy felhasználónév érvénytelen. Ellenőrizze a beírtakat, és próbálja újra.</string>
     <string name="login_password_placeholder">Jelszó</string>
     <string name="login_password_label">JELSZÓ</string>
     <string name="deleted_user_error_title">Törölt fiók</string>
@@ -308,10 +298,6 @@
     <string name="create_team_details_text">Adja meg e-mail címét csapata létrehozásához:</string>
     <string name="create_account_details_password_description">Használjon legalább 8 karaktert, legyen benne minimum 1 kisbetű, 1 nagybetű, 1 szám és 1 speciális karakter is.</string>
     <string name="create_account_username_title">Felhasználóneve</string>
-    <string name="create_account_username_placeholder">minta.katalin</string>
-    <string name="create_account_username_label">FELHASZNÁLÓNÉV</string>
-    <string name="create_account_username_taken_error">Ez a Felhasználónév már foglalt. Kérjük, válasszon egy másikat.</string>
-    <string name="create_account_username_description">Legalább 2 karakter, a-z, 0-9, \"_\", \"-\" és \".\"</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">NEM FOGADOTT HÍVÁSOK</string>
     <string name="calls_label_calls_history">HÍVÁSNAPLÓ</string>
@@ -961,16 +947,10 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="conversation_content_delete_failure">A beszélgetés tartalmát nem sikerült törölni</string>
     <string name="group_label">csoport</string>
     <string name="conversation_label">beszélgetés</string>
-    <string name="proxy_credential_description">Ez a kiszolgáló a következő proxyszerver használatára van beállítva: %1$s</string>
-    <string name="label_proxy_credentials">PROXY AZONOSÍTÓK</string>
-    <string name="label_wire_credentials">WIRE AZONOSÍTÓK</string>
     <string name="dialog_clear_content_title">Törli a tartalmat?</string>
     <string name="dialog_clear_content_option">Tartalom törlése</string>
     <string name="dialog_clear_content_text">\"Ez törli a beszélgetés eddigi előzményeit az összes eszközén. Ön benne marad a(z) %1$s beszélgetésben, és hozzáfér majd %1$s összes új történéséhez</string>
     <string name="not_supported_dialog_title">Nem támogatott</string>
-    <string name="sso_not_supported_dialog_description">Nem jelentkezhet be SSO-val proxyt támogató helyi kiszolgálón.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Nem hozhat létre személyes fiókot proxyt támogató helyi kiszolgálón.</string>
-    <string name="create_team_not_supported_dialog_description">Az alkalmazásban nem hozhat létre új csapatot proxyt támogató helyi kiszolgálón.\nHasználja a csapatmenedzsmentet (%1$s) e kiszolgáló helyett.</string>
     <string name="to_team_management_action">Csapatmenedzsment megnyitása</string>
     <!-- Claimed Domain dialog -->
     <string name="claimed_domain_email_already_in_use_dialog_title">Az e-mail-cím már használatban van egy helyi kiszolgálónál</string>

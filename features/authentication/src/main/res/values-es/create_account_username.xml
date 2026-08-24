@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="create_account_username_text">Introduce tu nombre de usuario. Ayuda a otros a encontrarte en Wire y conectarse contigo.</string>
+    <string name="create_account_username_placeholder">julia.martinez</string>
+    <string name="create_account_username_label">NOMBRE DE USUARIO</string>
+    <string name="create_account_username_taken_error">Este nombre de usuario ya est&#225; registrado. Por favor, elije otro.</string>
 </resources>

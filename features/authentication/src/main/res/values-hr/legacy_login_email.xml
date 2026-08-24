@@ -2,4 +2,6 @@
 <resources>
 <string name="login_user_identifier_placeholder">marta@primjer.hr ili marta.horvat</string>
 <string name="login_proxy_identifier_label">PROXY EMAIL ILI KORISNIČKO IME</string>
+    <string name="login_user_identifier_label">EMAIL ILI KORISNIČKO IME</string>
+    <string name="login_forgot_password">Zaboravili ste lozinku?</string>
 </resources>

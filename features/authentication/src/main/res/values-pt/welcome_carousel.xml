@@ -5,4 +5,10 @@
 <string name="welcome_screen_carousel_item_message_3">Áudio e videoconferencias com até 50 participantes</string>
 <string name="welcome_screen_carousel_item_message_4">Compartilhamento seguro de arquivos com equipes e clientes</string>
 <string name="welcome_screen_carousel_item_message_5">Wire é auditado independentemente e compatível com ISO, CCPA, GDPR, SOX</string>
+    <string name="welcome_footer_text">Quer conversar com amigos e familiares?</string>
+    <string name="welcome_button_create_personal_account">Criar uma conta pessoal</string>
+    <string name="content_description_welcome_screen_close_btn">Fechar nova visualização de criação de nova equipe e “login”</string>
+    <string name="create_team_not_supported_dialog_description">Você não pode criar uma nova equipe em um backend local com suporte de proxy no aplicativo.
+Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
+    <string name="create_personal_account_not_supported_dialog_description">Não é possível criar uma conta pessoal em um backend local com suporte de proxy.</string>
 </resources>

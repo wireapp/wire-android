@@ -110,7 +110,6 @@
     <string name="content_description_self_profile_avatar">Din profilbild</string>
     <string name="content_description_self_profile_profile_name">Profilnamn, %s</string>
     <string name="content_description_self_profile_username">Användarnamn, %s</string>
-    <string name="content_description_login_password_field">ange ditt lösenord</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -130,8 +129,6 @@
     <string name="settings_backup_create">Skapa en säkerhetskopia</string>
     <string name="settings_backup_restore">Återställ från säkerhetskopia</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Vill du chatta med vänner och familj?</string>
-    <string name="welcome_button_create_personal_account">Skapa ett personligt konto</string>
     <string name="welcome_migration_dialog_continue">Börja använda Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Uppdatering behövs</string>
@@ -152,9 +149,6 @@
     <string name="migration_cancel_message">Är du säker på att du vill stänga ner applikationen och avbryta den pågående migreringen?</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_title">Logga in</string>
-    <string name="login_forgot_password">Glömt lösenord?</string>
-    <string name="login_user_identifier_label">E-POSTADRESS ELLER ANVÄNDARNAMN</string>
     <string name="login_password_placeholder">Lösenord</string>
     <string name="login_password_label">LÖSENORD</string>
     <string name="deleted_user_error_title">Kontot togs bort</string>
@@ -183,9 +177,6 @@
     <!-- Create Account -->
 <string name="create_account_details_password_description">Använd minst 8 tecken, med en gemen bokstav, en versal bokstav, en siffra och ett specialtecken.</string>
     <string name="create_account_username_title">Ditt användarnamn</string>
-    <string name="create_account_username_label">ANVÄNDARNAMN</string>
-    <string name="create_account_username_taken_error">Det här användarnamnet är redan upptaget. Vänligen välj ett annat.</string>
-    <string name="create_account_username_description">Minst 2 tecken, a-z, 0-9, “_”, “-” och “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSADE SAMTAL</string>
     <string name="calls_label_calls_history">SAMTALSHISTORIK</string>

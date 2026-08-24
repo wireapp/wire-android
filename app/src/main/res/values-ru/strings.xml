@@ -221,11 +221,7 @@
     <string name="content_description_self_profile_new_account_btn">Создать новую команду или личный аккаунт или авторизоваться</string>
     <string name="content_description_self_profile_manage_team_btn">Управлять командой</string>
     <string name="content_description_change_picture_back_btn">Вернуться к обзору вашего профиля</string>
-    <string name="content_description_welcome_screen_close_btn">Закрыть просмотр создания новой команды и авторизации</string>
-    <string name="content_description_login_back_btn">Вернуться к просмотру создания новой команды и авторизации</string>
-    <string name="content_description_login_user_identifier_field">введите свой email или псевдоним</string>
     <string name="content_description_backend_config_camera_button">Сканировать QR-код</string>
-    <string name="content_description_login_password_field">введите свой пароль</string>
     <string name="content_description_whats_new_welcome_item">Добро пожаловать в новое приложение Wire для Android, ссылка на страницу поддержки</string>
     <string name="content_description_whats_new_all_releases_item">Все заметки о выпуске для Android, ссылка на обзор заметок о выпуске</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, ссылка на подробности о релизе</string>
@@ -271,9 +267,7 @@
     <string name="settings_backup_create">Создать резервную копию</string>
     <string name="settings_backup_restore">Восстановить из резервной копии</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Хотите пообщаться с друзьями и близкими?</string>
     <string name="welcome_footer_link">Создайте личный аккаунт бесплатно</string>
-    <string name="welcome_button_create_personal_account">Создать личный аккаунт</string>
     <string name="server_details_dialog_body">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s\n\nURL прокси:\n%3$s\n\nПрокси аутентификации:\n%4$s</string>
     <string name="server_details_dialog_title">Внутренний бэкэнд</string>
@@ -301,10 +295,6 @@
     <!-- Enterprise Login -->
     <string name="enterprise_login_on_prem_welcome_title">Приветствуем вас в Wire Enterprise для %s!</string>
     <!-- Login -->
-    <string name="login_title">Войти</string>
-    <string name="login_forgot_password">Забыли пароль?</string>
-    <string name="login_user_identifier_label">EMAIL ИЛИ ПСЕВДОНИМ</string>
-    <string name="login_error_invalid_user_identifier">Адрес email или псевдоним неверны. Пожалуйста, проверьте и повторите попытку.</string>
     <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">ПАРОЛЬ</string>
     <string name="deleted_user_error_title">Удаленный аккаунт</string>
@@ -358,10 +348,6 @@
     <string name="create_team_details_text">Введите свой email для создания команды:</string>
     <string name="create_account_details_password_description">Используйте как минимум 8 символов, включая одну строчную букву, одну заглавную букву, цифру и специальный символ.</string>
     <string name="create_account_username_title">Ваш псевдоним</string>
-    <string name="create_account_username_placeholder">maria.ivanova</string>
-    <string name="create_account_username_label">ПСЕВДОНИМ</string>
-    <string name="create_account_username_taken_error">Этот псевдоним уже занят. Пожалуйста, выберите другой.</string>
-    <string name="create_account_username_description">Минимум 2 символа. Только a-z, 0-9, “_”, “-” и “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">ПРОПУЩЕННЫЕ ВЫЗОВЫ</string>
     <string name="calls_label_calls_history">ИСТОРИЯ ЗВОНКОВ</string>
@@ -1170,16 +1156,10 @@
     <string name="conversation_content_delete_failure">Не удалось удалить контент беседы</string>
     <string name="group_label">группы</string>
     <string name="conversation_label">беседа</string>
-    <string name="proxy_credential_description">Этот бэкэнд настроен на использование следующего прокси: %1$s</string>
-    <string name="label_proxy_credentials">НАСТРОЙКИ PROXY</string>
-    <string name="label_wire_credentials">НАСТРОЙКИ WIRE</string>
     <string name="dialog_clear_content_title">Очистить контент?</string>
     <string name="dialog_clear_content_option">Очистить контент</string>
     <string name="dialog_clear_content_text">Будет выполнена очистка беседы на всех ваших устройствах. Вы по-прежнему будете участником %1$s и будете иметь доступ ко всем новым действиям %1$s</string>
     <string name="not_supported_dialog_title">Не поддерживается</string>
-    <string name="sso_not_supported_dialog_description">Нельзя авторизоваться через SSO во внутреннем бэкэнде с поддержкой прокси.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Нельзя создать личный аккаунт во внутреннем бэкэнде с поддержкой прокси.</string>
-    <string name="create_team_not_supported_dialog_description">Вы не можете создать новую команду на локальном бэкэнде с поддержкой прокси в приложении.\nИспользуйте управление командой (%1$s) на этом бэкэнде.</string>
     <string name="to_team_management_action">Открыть управление командой</string>
     <!-- Claimed Domain dialog -->
     <string name="claimed_domain_email_already_in_use_dialog_title">Email, заявленный в локальном бэкенде</string>
@@ -1527,12 +1507,10 @@
     <string name="restriction_keep_websocket_description">Принудительное подключение к WebSocket для всех пользователей</string>
     <string name="settings_keep_websocket_enforced_by_organization">Этот параметр управляется вашей организацией.</string>
     <string name="enterprise_login_error_missing_backend_config">Требуется настройка бэкенда. Перейдите по ссылке для настройки или обратитесь к администратору.</string>
-    <string name="missing_backend_config_title">Настройте приложение</string>
     <string name="missing_backend_config_description">Чтобы начать, введите ссылку или сосканируйте QR-код, предоставленный вашей администрацией.</string>
     <string name="missing_backend_config_input_label">Конфигурационная ссылка</string>
     <string name="missing_backend_config_input_placeholder">Введите ссылку или сосканируйте QR-код</string>
     <string name="missing_backend_config_button_setup">Настроить</string>
-    <string name="missing_backend_config_error">Произошла ошибка. Проверьте ссылку и подключение, а затем попробуйте еще раз.</string>
     <string name="backend_config_success_title">Приложение настроено</string>
     <string name="backend_config_success_description">На следующем шаге вы можете войти</string>
     <!--    channel not available dialog-->

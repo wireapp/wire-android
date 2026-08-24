@@ -3,4 +3,10 @@
 <string name="login_user_identifier_placeholder">max@example.com oder max.müller</string>
 <string name="login_proxy_identifier_label">PROXY E-MAIL-ADRESSE ODER BENUTZERNAME</string>
 <string name="label_proxy_password">PROXY-PASSWORT</string>
+    <string name="label_wire_credentials">WIRE-ZUGANGSDATEN</string>
+    <string name="login_user_identifier_label">E-MAIL ODER BENUTZERNAME</string>
+    <string name="login_error_invalid_user_identifier">E-Mail-Adresse oder Benutzername ist ungültig. Bitte überprüfen Sie Ihre Daten und versuchen Sie es erneut.</string>
+    <string name="login_forgot_password">Passwort vergessen?</string>
+    <string name="label_proxy_credentials">PROXY-ZUGANGSDATEN</string>
+    <string name="proxy_credential_description">Dieses Backend ist für die Verwendung des folgenden Proxy-Servers konfiguriert: %1$s</string>
 </resources>

@@ -174,9 +174,6 @@
     <string name="content_description_self_profile_new_account_btn">Criar uma nova equipe ou conta pessoal ou entrar</string>
     <string name="content_description_self_profile_manage_team_btn">Gerenciar equipe</string>
     <string name="content_description_change_picture_back_btn">Voltar para a visão geral do seu perfil</string>
-    <string name="content_description_welcome_screen_close_btn">Fechar nova visualização de criação de nova equipe e “login”</string>
-    <string name="content_description_login_back_btn">Voltar para a visualização de criação de nova equipe e login</string>
-    <string name="content_description_login_password_field">digite sua senha</string>
     <string name="content_description_whats_new_welcome_item">Bem-vindo ao Novo Aplicativo Android do Wire, link para a página de suporte</string>
     <string name="content_description_whats_new_all_releases_item">Todas as notas de lançamento do Android, link para a publicação da nota</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, link para os detalhes do lançamento</string>
@@ -221,9 +218,7 @@ Escolha uma senha forte para proteger o arquivo de backup.</string>
     <string name="settings_backup_create">Criar um backup</string>
     <string name="settings_backup_restore">Restaurar de um backup</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Quer conversar com amigos e familiares?</string>
     <string name="welcome_footer_link">Crie uma conta privada gratuitamente</string>
-    <string name="welcome_button_create_personal_account">Criar uma conta pessoal</string>
     <string name="server_details_dialog_body">Nome do Backend:
 %1$s
 
@@ -255,9 +250,6 @@ URL do Backend:
     <!-- Enterprise Login -->
     <string name="enterprise_login_on_prem_welcome_title">Bem-vindo ao Wire Enterprise para %s!</string>
     <!-- Login -->
-    <string name="login_title">Entrar</string>
-    <string name="login_forgot_password">Esqueceu a senha?</string>
-    <string name="login_user_identifier_label">E-MAIL OU USUÁRIO</string>
     <string name="login_password_placeholder">Senha</string>
     <string name="login_password_label">SENHA</string>
     <string name="deleted_user_error_title">Conta excluída</string>
@@ -308,10 +300,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="create_team_details_text">Digite seu email para criar sua equipe:</string>
     <string name="create_account_details_password_description">Use pelo menos 8 caracteres, com uma letra minúscula, uma letra maiúscula, um número e um caractere especial.</string>
     <string name="create_account_username_title">Seu nome de usuário</string>
-    <string name="create_account_username_placeholder">maria.silva</string>
-    <string name="create_account_username_label">NOME DE USUÁRIO</string>
-    <string name="create_account_username_taken_error">Esse nome de usuário já está sendo usado. Por favor escolha outro.</string>
-    <string name="create_account_username_description">Pelo menos 2 caracteres, a-z, 0-9, \"_\", \"-\" e \".\"</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">CHAMADAS PERDIDAS</string>
     <string name="calls_label_calls_history">HISTÓRICO DE CHAMADAS</string>
@@ -918,17 +906,10 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="conversation_content_delete_failure">Não foi possível excluir o conteúdo da conversa</string>
     <string name="group_label">grupo</string>
     <string name="conversation_label">conversa</string>
-    <string name="proxy_credential_description">Este backend está configurado para utilizar o seguinte servidor proxy: %1$s</string>
-    <string name="label_proxy_credentials">CREDENCIAIS DE PROXY</string>
-    <string name="label_wire_credentials">CREDENCIAIS DO WIRE</string>
     <string name="dialog_clear_content_title">Apagar conteúdo?</string>
     <string name="dialog_clear_content_option">Apagar conteúdo</string>
     <string name="dialog_clear_content_text">Isso apagará o histórico da conversa anterior em todos os seus dispositivos. Você permanecerá no %1$s e terá acesso a toda nova atividade do %1$s.</string>
     <string name="not_supported_dialog_title">Não suportado</string>
-    <string name="sso_not_supported_dialog_description">Você não pode entrar via SSO em um backend local com suporte de proxy.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Não é possível criar uma conta pessoal em um backend local com suporte de proxy.</string>
-    <string name="create_team_not_supported_dialog_description">Você não pode criar uma nova equipe em um backend local com suporte de proxy no aplicativo.
-Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="to_team_management_action">Abrir Gerenciamento de Equipe</string>
     <!-- Claimed Domain dialog -->
     <string name="claimed_domain_email_already_in_use_dialog_title">Email recebido por um backend local</string>

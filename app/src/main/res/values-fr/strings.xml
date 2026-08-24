@@ -154,9 +154,7 @@
     <string name="settings_backup_create">Créer une sauvegarde</string>
     <string name="settings_backup_restore">Restaurer depuis une sauvegarde</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Vous voulez discuter avec vos amis et votre famille?</string>
     <string name="welcome_footer_link">Créez un compte privé gratuitement</string>
-    <string name="welcome_button_create_personal_account">Créer un compte personnel</string>
     <string name="server_details_dialog_title">Serveur dédié</string>
     <string name="welcome_migration_dialog_title">Bienvenue sur notre nouvelle application Android 👋</string>
     <string name="welcome_migration_dialog_continue">Commencez à utiliser Wire</string>
@@ -180,9 +178,6 @@
     <string name="migration_cancel_message">Êtes-vous sûr de vouloir fermer l\'application et annuler la migration en cours ?</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_title">Se connecter</string>
-    <string name="login_forgot_password">Mot de passe oublié ?</string>
-    <string name="login_user_identifier_label">EMAIL OU NOM D\'UTILISATEUR</string>
     <string name="login_password_placeholder">Mot de passe</string>
     <string name="login_password_label">MOT DE PASSE</string>
     <string name="deleted_user_error_title">Compte supprimé</string>
@@ -228,10 +223,6 @@
     <string name="create_team_details_text">Entrez votre adresse e-mail pour créer votre équipe:</string>
     <string name="create_account_details_password_description">Utilisez au moins 8 caractères, dont un minuscule, un majuscule, un nombre et un caractère spécial.</string>
     <string name="create_account_username_title">Votre nom d\'utilisateur</string>
-    <string name="create_account_username_placeholder">jane.doe</string>
-    <string name="create_account_username_label">NOM D\'UTILISATEUR</string>
-    <string name="create_account_username_taken_error">Ce nom d\'utilisateur est déjà utilisé. Veuillez en choisir un autre.</string>
-    <string name="create_account_username_description">Au moins 2 characters, a-z, 0-9, “_”, “-” et “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">APPELS MANQUÉS</string>
     <string name="calls_label_calls_history">HISTORIQUE DES APPELS</string>

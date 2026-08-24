@@ -149,9 +149,7 @@
     <string name="settings_backup_create">Crea un Backup</string>
     <string name="settings_backup_restore">Ripristina da Backup</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Vuoi chattare con amici e familiari?</string>
     <string name="welcome_footer_link">Crea un account privato gratuitamente</string>
-    <string name="welcome_button_create_personal_account">Crea un Account Personale</string>
     <string name="server_details_dialog_body">Nome backend:
 %1$s
 
@@ -180,9 +178,6 @@ URL backend:
     <string name="migration_cancel_message">Sei sicuro di voler chiudere l\'applicazione e annullare la migrazione in corso?</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_title">Accedi</string>
-    <string name="login_forgot_password">Hai dimenticato la password?</string>
-    <string name="login_user_identifier_label">EMAIL O USERNAME</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="deleted_user_error_title">Account eliminato</string>
@@ -233,10 +228,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="create_team_details_text">Inserisci la tua email per creare il tuo team:</string>
     <string name="create_account_details_password_description">Usa almeno 8 caratteri, di cui una lettera minuscola, una maiuscola, un numero e un carattere speciale.</string>
     <string name="create_account_username_title">Il tuo Nome Utente</string>
-    <string name="create_account_username_placeholder">jane.doe</string>
-    <string name="create_account_username_label">NOME UTENTE</string>
-    <string name="create_account_username_taken_error">Questo nome utente &#232; gi&#224; in uso. Scegline un altro, per favore.</string>
-    <string name="create_account_username_description">Almeno 2 caratteri, dalla a alla z, da 0 a 9, \"_\", \"-\" e \".\"</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">CHIAMATE PERSE</string>
     <string name="calls_label_calls_history">CRONOLOGIA DELLE CHIAMATE</string>
@@ -732,16 +723,10 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="conversation_content_delete_failure">Impossibile eliminare il contenuto della conversazione.</string>
     <string name="group_label">gruppo</string>
     <string name="conversation_label">conversazione</string>
-    <string name="proxy_credential_description">Questo backend &#232; configurato per utilizzare il seguente server proxy: %1$s</string>
-    <string name="label_proxy_credentials">Credenziali proxy</string>
-    <string name="label_wire_credentials">Credenziali Wire</string>
     <string name="dialog_clear_content_title">Eliminare il contenuto?</string>
     <string name="dialog_clear_content_option">Elimina contenuto</string>
     <string name="dialog_clear_content_text">Questo eliminer&#224; la cronologia della conversazione su tutti i tuoi dispositivi. Rimarrai nel gruppo %1$s e avrai accesso a tutte le nuove attivit&#224; del %1$s.</string>
     <string name="not_supported_dialog_title">Non supportato</string>
-    <string name="sso_not_supported_dialog_description">Non puoi effettuare l\'accesso tramite SSO su un backend in loco con supporto proxy.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Non puoi creare un account personale su un backend in loco con supporto proxy.</string>
-    <string name="create_team_not_supported_dialog_description">Non puoi creare un nuovo team su un backend in loco con supporto proxy nell\'app. Utilizza invece la gestione del team (%1$s) su questo backend.</string>
     <string name="to_team_management_action">Apri la gestione del team</string>
     <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->

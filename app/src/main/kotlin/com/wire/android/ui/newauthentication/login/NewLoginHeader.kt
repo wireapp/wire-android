@@ -61,7 +61,7 @@ private fun CloudTitle(presentation: NewLoginContentPresentation) {
     )
     NewAuthSubtitle(
         title = when (presentation.mode) {
-            NewLoginContentMode.BackendConfiguration -> stringResource(R.string.missing_backend_config_title)
+            NewLoginContentMode.BackendConfiguration -> stringResource(AuthenticationR.string.missing_backend_config_title)
             NewLoginContentMode.BackendConfigurationSuccess -> ""
             NewLoginContentMode.Identifier -> stringResource(AuthenticationR.string.enterprise_login_welcome)
         },

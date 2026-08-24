@@ -3,4 +3,10 @@
 <string name="login_user_identifier_placeholder">maria@example.com или maria.ivanova</string>
 <string name="login_proxy_identifier_label">PROXY EMAIL ИЛИ ПСЕВДОНИМ</string>
 <string name="label_proxy_password">ПАРОЛЬ PROXY</string>
+    <string name="label_wire_credentials">НАСТРОЙКИ WIRE</string>
+    <string name="login_user_identifier_label">EMAIL ИЛИ ПСЕВДОНИМ</string>
+    <string name="login_error_invalid_user_identifier">Адрес email или псевдоним неверны. Пожалуйста, проверьте и повторите попытку.</string>
+    <string name="login_forgot_password">Забыли пароль?</string>
+    <string name="label_proxy_credentials">НАСТРОЙКИ PROXY</string>
+    <string name="proxy_credential_description">Этот бэкэнд настроен на использование следующего прокси: %1$s</string>
 </resources>

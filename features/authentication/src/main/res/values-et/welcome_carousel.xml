@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <string name="welcome_screen_carousel_item_message_1">Tere tulemast Wire\'i - kõige turvalisemasse koostööplatvormi!</string>
+    <string name="welcome_button_create_personal_account">Loo isiklik konto</string>
 </resources>

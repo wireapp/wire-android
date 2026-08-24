@@ -5,4 +5,8 @@
 <string name="welcome_screen_carousel_item_message_3">Conferencias de audio y video cifradas con hasta \u00A050\u00A0 participantes</string>
 <string name="welcome_screen_carousel_item_message_4">Compartir archivos de forma segura con equipos y clientes</string>
 <string name="welcome_screen_carousel_item_message_5">Wire es auditado independientemente y cumple con ISO, CCPA, GDPR y SOX</string>
+    <string name="welcome_footer_text">¿Quieres chatear con amigos y familias?</string>
+    <string name="welcome_button_create_personal_account">Crear una cuenta personal</string>
+    <string name="create_team_not_supported_dialog_description">No puedes crear un nuevo equipo en una informa local con soporte de proxy en la aplicaci&#243;n. Por favor utiliza la administraci&#243;n de equipos (%1$s) en esta informa.</string>
+    <string name="create_personal_account_not_supported_dialog_description">No puedes crear una cuenta personal en una informa local con soporte de proxy.</string>
 </resources>

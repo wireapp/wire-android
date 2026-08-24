@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="create_account_username_text">Wprowad&#378; swoj&#261; nazw&#281; u&#380;ytkownika. Pomaga to innym u&#380;ytkownikom odnale&#378;&#263; Ci&#281; w Wire i po&#322;&#261;czy&#263; si&#281; z Tob&#261;.</string>
+    <string name="create_account_username_placeholder">adam.nowak</string>
+    <string name="create_account_username_label">NAZWA U&#379;YTKOWNIKA</string>
+    <string name="create_account_username_taken_error">Ta nazwa u&#380;ytkownika jest ju&#380; zaj&#281;ta. Prosz&#281; wybra&#263; inny.</string>
 </resources>

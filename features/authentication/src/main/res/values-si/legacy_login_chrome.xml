@@ -5,4 +5,9 @@
 <string name="login_tab_sso">SSO පිවිසුම</string>
 <string name="login_sso_code_label">SSO කේතය හෝ වි-තැපෑල</string>
 <string name="login_error_invalid_sso_code_format">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
+    <string name="login_title">පිවිසෙන්න</string>
+    <string name="content_description_login_back_btn">නව කණ්ඩායම් නිර්මාණය සහ පිවිසුම් දසුන වෙත ආපසු යන්න.</string>
+    <string name="content_description_login_user_identifier_field">ඔබගේ විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය ඇතුළත් කරන්න.</string>
+    <string name="content_description_login_password_field">ඔබගේ මුරපදය ඇතුළත් කරන්න.</string>
+    <string name="sso_not_supported_dialog_description">ඔබට ප්‍රතියුක්ත සහාය සහිත පරිශ්‍රයක සේවාදායකයකට තනි-පිවිසුමකින් (SSO) පිවිසීමට නොහැකිය.</string>
 </resources>

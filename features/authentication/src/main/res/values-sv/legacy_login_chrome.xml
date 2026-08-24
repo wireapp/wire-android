@@ -4,4 +4,6 @@
 <string name="login_tab_sso">SSO-INLOGGNING</string>
 <string name="login_sso_code_label">SSO-KOD ELLER E-POSTADRESS</string>
 <string name="login_error_invalid_sso_code_format">Ange en giltig SSO-kod</string>
+    <string name="login_title">Logga in</string>
+    <string name="content_description_login_password_field">ange ditt lösenord</string>
 </resources>

@@ -144,9 +144,7 @@
     <string name="settings_backup_create">Kreiraj sigurnosnu kopiju</string>
     <string name="settings_backup_restore">Učitaj podatke iz sigurnosne kopije</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Želite razgovarati s obitelji i prijateljima?</string>
     <string name="welcome_footer_link">Stvorite privatni račun besplatno</string>
-    <string name="welcome_button_create_personal_account">Stvorite privatni račun</string>
     <string name="server_details_dialog_body">Backend ime:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">Lokalni Backend</string>
     <string name="welcome_migration_dialog_title">Dobro došli u našu novu Android aplikaciju 👋</string>
@@ -171,9 +169,6 @@
     <string name="migration_cancel_message">Jeste li sigurni da želite zatvoriti aplikaciju i otkazati migraciju koja je u tijeku?</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_title">Prijava</string>
-    <string name="login_forgot_password">Zaboravili ste lozinku?</string>
-    <string name="login_user_identifier_label">EMAIL ILI KORISNIČKO IME</string>
     <string name="login_password_placeholder">Lozinka</string>
     <string name="login_password_label">LOZINKA</string>
     <string name="deleted_user_error_title">Obrisan kontakt</string>
@@ -220,9 +215,6 @@
     <string name="create_team_details_text">Unesite svoj email kako biste stvorili svoj tim:</string>
     <string name="create_account_details_password_description">Koristite najmanje 8 znakova, s jednim malim slovom, jednim velikim slovom, brojem i posebnim znakom.</string>
     <string name="create_account_username_title">Vaše korisničko ime</string>
-    <string name="create_account_username_placeholder">ivana.ivanović</string>
-    <string name="create_account_username_label">KORISNIČKO IME</string>
-    <string name="create_account_username_taken_error">Ovo korisničko ime je zauzeto. Molimo odaberite drugo.</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">PROPUŠTENI POZIVI</string>
     <string name="calls_label_calls_history">POVIJEST POZIVA</string>

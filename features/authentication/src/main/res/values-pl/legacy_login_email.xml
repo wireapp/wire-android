@@ -3,4 +3,9 @@
 <string name="login_user_identifier_placeholder">adam@email.com lub adam.nowak</string>
 <string name="login_proxy_identifier_label">PROXY ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
 <string name="label_proxy_password">HAS&#321;O DO PROXY</string>
+    <string name="label_wire_credentials">DANE DOST&#280;POWE DO WIRE</string>
+    <string name="login_user_identifier_label">ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
+    <string name="login_forgot_password">Zapomnia&#322;e&#347; has&#322;a?</string>
+    <string name="label_proxy_credentials">DANE DOST&#280;POWE DO PROXY</string>
+    <string name="proxy_credential_description">To &#347;rodowisko jest skonfigurowane do u&#380;ycia nast&#281;puj&#261;cego serwera proxy: %1$s</string>
 </resources>

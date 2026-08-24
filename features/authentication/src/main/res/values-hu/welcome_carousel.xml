@@ -5,4 +5,9 @@
 <string name="welcome_screen_carousel_item_message_3">Titkosított hang- &amp; videókonferencia \u00A0akár 50\u00A0résztvevővel</string>
 <string name="welcome_screen_carousel_item_message_4">Biztonságos fájlmegosztás csapattagokkal és\u00A0ügyfelekkel</string>
 <string name="welcome_screen_carousel_item_message_5">A Wire külsőleg auditált és megfelel az ISO, CCPA, GDPR, SOX szabványoknak</string>
+    <string name="welcome_footer_text">Szeretne csevegni barátokkal és családtagokkal?</string>
+    <string name="welcome_button_create_personal_account">Készítsen személyes fiókot</string>
+    <string name="content_description_welcome_screen_close_btn">Az új csapat létrehozása és bejelentkezés lap bezárása</string>
+    <string name="create_team_not_supported_dialog_description">Az alkalmazásban nem hozhat létre új csapatot proxyt támogató helyi kiszolgálón.\nHasználja a csapatmenedzsmentet (%1$s) e kiszolgáló helyett.</string>
+    <string name="create_personal_account_not_supported_dialog_description">Nem hozhat létre személyes fiókot proxyt támogató helyi kiszolgálón.</string>
 </resources>

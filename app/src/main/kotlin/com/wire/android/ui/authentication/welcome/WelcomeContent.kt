@@ -45,10 +45,10 @@ internal fun WelcomeContent(
         state = welcomePresentation(activeSession),
         loginLabel = stringResource(R.string.label_login),
         createTeamLabel = stringResource(AuthenticationR.string.welcome_button_create_team),
-        footerText = stringResource(R.string.welcome_footer_text),
-        createPersonalLabel = stringResource(R.string.welcome_button_create_personal_account),
+        footerText = stringResource(AuthenticationR.string.welcome_footer_text),
+        createPersonalLabel = stringResource(AuthenticationR.string.welcome_button_create_personal_account),
         openLinkDescription = stringResource(CommonR.string.content_description_open_link_label),
-        closeContentDescription = R.string.content_description_welcome_screen_close_btn,
+        closeContentDescription = AuthenticationR.string.content_description_welcome_screen_close_btn,
         onClose = navigateBack,
         onLogin = { onAction(WelcomeScreenAction.Login(links)) },
         onCreateTeam = { handleTeamDecision(links, teamRegistrationUrl, enterpriseDialog, onAction) },
@@ -85,7 +85,7 @@ private fun handleTeamDecision(
     when (val result = welcomeTeamDecision(policy)) {
         is WelcomeDecision.Action -> onAction(result.value.toRouteAction())
         is WelcomeDecision.Dialog -> dialog.show(dialog.savedState ?: FeatureDisabledWithProxyDialogState(
-            R.string.create_team_not_supported_dialog_description, (result.value as WelcomeDialog.TeamBlockedByProxy).url,
+            AuthenticationR.string.create_team_not_supported_dialog_description, (result.value as WelcomeDialog.TeamBlockedByProxy).url,
         ))
     }
 }
@@ -105,7 +105,7 @@ private fun handlePersonalDecision(
     when (val result = welcomePersonalDecision(policy)) {
         is WelcomeDecision.Action -> onAction(result.value.toRouteAction())
         is WelcomeDecision.Dialog -> dialog.show(dialog.savedState ?: FeatureDisabledWithProxyDialogState(
-            R.string.create_personal_account_not_supported_dialog_description,
+            AuthenticationR.string.create_personal_account_not_supported_dialog_description,
         ))
     }
 }

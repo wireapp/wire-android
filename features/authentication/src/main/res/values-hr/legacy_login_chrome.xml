@@ -4,4 +4,5 @@
 <string name="login_tab_sso">SSO PRIJAVA</string>
 <string name="login_sso_code_label">SSO KOD ILI EMAIL</string>
 <string name="login_error_invalid_sso_code_format">Unesite važeći kod za jedinstvenu prijavu</string>
+    <string name="login_title">Prijava</string>
 </resources>

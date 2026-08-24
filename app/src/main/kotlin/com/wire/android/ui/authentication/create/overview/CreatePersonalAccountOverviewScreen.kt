@@ -28,6 +28,7 @@ import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.android.feature.authentication.R as AuthenticationR
 
 @Composable
 internal fun CreateAccountOverviewRouteScreen(
@@ -49,7 +50,7 @@ internal fun CreateAccountOverviewRouteScreen(
             learnMoreUrl = viewModel.learnMoreUrl(),
         ),
         continueText = stringResource(com.wire.android.R.string.label_continue),
-        backContentDescription = com.wire.android.R.string.content_description_login_back_btn,
+        backContentDescription = AuthenticationR.string.content_description_login_back_btn,
         onBackPressed = onNavigateBack,
         onContinuePressed = onContinue,
         onLearnMorePressed = { url -> CustomTabsHelper.launchUrl(context, url) },

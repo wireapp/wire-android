@@ -6,6 +6,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.android.feature.authentication.R as AuthenticationR
 
 internal fun ServerConfig.Links.createTeam(
     url: String,
@@ -15,7 +16,7 @@ internal fun ServerConfig.Links.createTeam(
     if (apiProxy != null) {
         dialog.show(
             dialog.savedState ?: FeatureDisabledWithProxyDialogState(
-                R.string.create_team_not_supported_dialog_description,
+                AuthenticationR.string.create_team_not_supported_dialog_description,
                 teams,
             ),
         )
@@ -33,7 +34,7 @@ internal fun ServerConfig.Links.createPersonal(
     if (apiProxy != null) {
         dialog.show(
             dialog.savedState ?: FeatureDisabledWithProxyDialogState(
-                R.string.create_personal_account_not_supported_dialog_description,
+                AuthenticationR.string.create_personal_account_not_supported_dialog_description,
             ),
         )
     } else if (ENABLE_NEW_REGISTRATION) {

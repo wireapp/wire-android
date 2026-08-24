@@ -5,4 +5,6 @@
 <string name="welcome_screen_carousel_item_message_3">Šifrirani zvuk &amp; videokonferencije od\u00A0do 50\u00A0sudionika</string>
 <string name="welcome_screen_carousel_item_message_4">Sigurno dijeljenje datoteka s timovima i\u00A0klijentima</string>
 <string name="welcome_screen_carousel_item_message_5">Wire je neovisno revidiran i usklađen je s ISO, CCPA, GDPR i SOX standardima</string>
+    <string name="welcome_footer_text">Želite razgovarati s obitelji i prijateljima?</string>
+    <string name="welcome_button_create_personal_account">Stvorite privatni račun</string>
 </resources>

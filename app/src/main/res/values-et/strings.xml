@@ -101,7 +101,6 @@
     <string name="settings_backup_restore">Taasta varundusest</string>
     <!-- Welcome -->
     <string name="welcome_footer_link">Loo tasuta privaatne konto</string>
-    <string name="welcome_button_create_personal_account">Loo isiklik konto</string>
 <string name="welcome_migration_dialog_title">Tere tulemast meie uude Androidi rakendusse 👋</string>
     <string name="welcome_migration_dialog_continue">Alusta Wire\'i kasutamist</string>
     <!-- API Versioning Dialogs -->
@@ -111,9 +110,6 @@
     <string name="migration_title_updated">Wire\'i seadistamine</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_title">Logi sisse</string>
-    <string name="login_forgot_password">Unustasid parooli?</string>
-    <string name="login_user_identifier_label">E-POST VÕI KASUTAJANIMI</string>
     <string name="login_password_placeholder">Parool</string>
     <string name="login_password_label">PAROOL</string>
     <string name="deleted_user_error_title">Kustutatud konto</string>
@@ -127,8 +123,6 @@
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_original_message_is_a_picture">Pilt</string>
     <!-- Create Account -->
-<string name="create_account_username_placeholder">eesnimi.perenimi</string>
-    <string name="create_account_username_label">KASUTAJANIMI</string>
     <!-- Conversations -->
     <string name="conversation_label_conversations">VESTLUSED</string>
     <string name="mention_label_unread_mentions">LUGEMATA MAINIMISED</string>

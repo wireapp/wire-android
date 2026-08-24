@@ -5,4 +5,11 @@
 <string name="login_tab_sso">SSO LOGIN</string>
 <string name="login_sso_code_label">SSO CODE OR EMAIL</string>
 <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
+    <string name="login_title">Log in</string>
+    <string name="content_description_login_back_btn">Go back to new team creation and login view</string>
+    <string name="content_description_login_user_identifier_field">enter your email or username</string>
+    <string name="content_description_login_password_field">enter your password</string>
+    <string name="sso_not_supported_dialog_description">You can\'t log in via SSO on an on-premises backend with proxy support.</string>
+    <string name="missing_backend_config_title">Set up your app</string>
+    <string name="missing_backend_config_error">Something went wrong. Check the link and your connection, then try again.</string>
 </resources>

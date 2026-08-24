@@ -24,6 +24,7 @@ import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.android.feature.authentication.R as AuthenticationR
 
 /** Navigation- and host-specific adapter for the feature-owned new-login content. */
 @Composable
@@ -82,7 +83,7 @@ internal fun NewLoginRouteScreen(
 
                 else -> MissingBackendConfigContent(
                     errorText = if (viewModel.state.flowState == NewLoginFlowState.BackendConfigError) {
-                        stringResource(R.string.missing_backend_config_error)
+                        stringResource(AuthenticationR.string.missing_backend_config_error)
                     } else {
                         null
                     },

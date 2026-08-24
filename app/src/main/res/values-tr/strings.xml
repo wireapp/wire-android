@@ -181,10 +181,6 @@
     <string name="content_description_self_profile_new_account_btn">Yeni bir ekip veya kişisel hesap oluşturun veya giriş yapın</string>
     <string name="content_description_self_profile_manage_team_btn">Ekibi yönet</string>
     <string name="content_description_change_picture_back_btn">Profilinizin genel görünümüne geri dönün</string>
-    <string name="content_description_welcome_screen_close_btn">Yeni ekip oluşturma ve oturum açma görünümünü kapatın</string>
-    <string name="content_description_login_back_btn">Yeni takım oluşturma ve oturum açma görünümüne geri dön</string>
-    <string name="content_description_login_user_identifier_field">e-posta adresinizi ya da kullanıcı adınızı girin</string>
-    <string name="content_description_login_password_field">parolanızı girin</string>
     <string name="content_description_whats_new_welcome_item">Wire\'ın Yeni Android Uygulamasına Hoş Geldiniz, destek sayfasına bağlantı</string>
     <string name="content_description_whats_new_all_releases_item">Tüm Android sürüm notları, sürüm notlarına genel bakış bağlantısı</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, sürüm ayrıntılarına bağlantı</string>
@@ -230,9 +226,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="settings_backup_create">Yedek oluştur</string>
     <string name="settings_backup_restore">Yedekten Geri Yükle</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Arkadaşlarınızla ve ailenizle sohbet etmek ister misiniz?</string>
     <string name="welcome_footer_link">Ücretsiz olarak özel bir hesap oluşturun</string>
-    <string name="welcome_button_create_personal_account">Kişisel Hesap Oluşturun</string>
     <string name="server_details_dialog_body">Backend ismi:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Backend ismi:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="welcome_migration_dialog_title">👋 Wire\'ın Yeni Android Uygulamasına Hoşgeldin!</string>
@@ -258,7 +252,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="migration_cancel_message">Uygulamayı kapatmak ve devam eden taşımanı iptal etmek istediğinizden emin misiniz?</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_forgot_password">Parolanızı mı unuttunuz?</string>
     <string name="login_password_placeholder">Parola</string>
     <string name="login_password_label">PAROLA</string>
     <!-- Second Factor Authentication -->

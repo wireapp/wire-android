@@ -2,4 +2,6 @@
 <resources>
 <string name="login_user_identifier_placeholder">jaan@näide.ee või jaan.tamm</string>
 <string name="login_proxy_identifier_label">PROKSI E-POST VÕI KASUTAJANIMI</string>
+    <string name="login_user_identifier_label">E-POST VÕI KASUTAJANIMI</string>
+    <string name="login_forgot_password">Unustasid parooli?</string>
 </resources>

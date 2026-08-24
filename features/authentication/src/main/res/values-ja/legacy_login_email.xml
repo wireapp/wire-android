@@ -2,4 +2,6 @@
 <resources>
 <string name="login_user_identifier_placeholder">jane@example.com または jane.doe</string>
 <string name="login_proxy_identifier_label">プロキシメールまたはユーザー名</string>
+    <string name="login_user_identifier_label">メールアドレスまたはユーザー名</string>
+    <string name="login_forgot_password">パスワードをお忘れですか？</string>
 </resources>

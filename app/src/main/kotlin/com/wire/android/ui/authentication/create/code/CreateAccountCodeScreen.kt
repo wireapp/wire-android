@@ -51,7 +51,7 @@ internal fun CreateAccountCodeRouteScreen(
                 title = stringResource(policy.titleResId),
                 codeInstruction = stringResource(AuthenticationR.string.create_account_code_text, codeState.email),
                 invalidActivationCodeError = stringResource(id = AuthenticationR.string.create_account_code_error),
-                backContentDescription = R.string.content_description_login_back_btn,
+                backContentDescription = AuthenticationR.string.content_description_login_back_btn,
             ),
             subtitleContent = {
                 if (serverConfig.isOnPremises) {

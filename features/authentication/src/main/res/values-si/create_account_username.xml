@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="create_account_username_text">ඔබගේ පරිශ්‍රීලක නාමය ඇතුල් කරන්න. අන් අයට ඔබව වයර් තුළ සොයා ගැනීමට සහ සම්බන්ධ වීමට උපකාරී වේ.</string>
+    <string name="create_account_username_placeholder">තිසර.කසුන්</string>
+    <string name="create_account_username_label">පරිශ්‍රීලක නාමය</string>
+    <string name="create_account_username_description">අවම වශයෙන් අකුරු 2 ක්, a-z, 0-9, \"_\" හා \".\"</string>
+    <string name="create_account_username_taken_error">මෙම පරිශ්‍රීලක නාමය අරගෙන ඇත. වෙනත් එකක් තෝරන්න.</string>
 </resources>

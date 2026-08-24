@@ -61,16 +61,16 @@ fun LoginEmailScreen(
             apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
         ),
         text = com.wire.android.ui.authentication.login.email.LoginEmailText(
-            wireCredentials = stringResource(R.string.label_wire_credentials),
-            userIdentifierLabel = stringResource(R.string.login_user_identifier_label),
-            userIdentifierDescription = stringResource(R.string.content_description_login_user_identifier_field),
-            invalidUserIdentifier = stringResource(R.string.login_error_invalid_user_identifier),
-            passwordDescription = stringResource(R.string.content_description_login_password_field),
+            wireCredentials = stringResource(AuthenticationR.string.label_wire_credentials),
+            userIdentifierLabel = stringResource(AuthenticationR.string.login_user_identifier_label),
+            userIdentifierDescription = stringResource(AuthenticationR.string.content_description_login_user_identifier_field),
+            invalidUserIdentifier = stringResource(AuthenticationR.string.login_error_invalid_user_identifier),
+            passwordDescription = stringResource(AuthenticationR.string.content_description_login_password_field),
             invalidCredentials = stringResource(AuthenticationR.string.login_error_invalid_credentials_message),
-            forgotPassword = stringResource(R.string.login_forgot_password),
+            forgotPassword = stringResource(AuthenticationR.string.login_forgot_password),
             openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
-            proxyCredentials = stringResource(R.string.label_proxy_credentials),
-            proxyDescription = { host -> context.getString(R.string.proxy_credential_description, host) },
+            proxyCredentials = stringResource(AuthenticationR.string.label_proxy_credentials),
+            proxyDescription = { host -> context.getString(AuthenticationR.string.proxy_credential_description, host) },
             login = stringResource(R.string.label_login),
             loggingIn = stringResource(R.string.label_logging_in),
         ),
@@ -100,7 +100,7 @@ fun ForgotPasswordLabel(
 ) {
     val context = LocalContext.current
     com.wire.android.ui.authentication.login.email.ForgotPasswordLink(
-        label = stringResource(R.string.login_forgot_password),
+        label = stringResource(AuthenticationR.string.login_forgot_password),
         openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
         onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
         modifier = modifier,

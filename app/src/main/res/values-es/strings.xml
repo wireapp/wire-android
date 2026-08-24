@@ -154,9 +154,7 @@
     <string name="settings_backup_create">Crear un respaldo</string>
     <string name="settings_backup_restore">Restablecer un respaldo</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">¿Quieres chatear con amigos y familias?</string>
     <string name="welcome_footer_link">Crea una cuenta privada gratis</string>
-    <string name="welcome_button_create_personal_account">Crear una cuenta personal</string>
     <string name="server_details_dialog_body">Nombre del servidor:\n%1$s\n\nURL del servidor:\n%2$s</string>
     <string name="server_details_dialog_title">Servidor On-premises</string>
     <string name="welcome_migration_dialog_title">Bienvenido a nuestra nueva aplicación Android 👋</string>
@@ -181,9 +179,6 @@
     <string name="migration_cancel_message">&#191;Est&#225;s seguro de que quieres cerrar la aplicaci&#243;n y cancelar la migraci&#243;n en curso?</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_title">Iniciar sesi&#243;n</string>
-    <string name="login_forgot_password">&#191;Olvidaste tu contrase&#241;a?</string>
-    <string name="login_user_identifier_label">CORREO ELECTR&#211;NICO O NOMBRE DE USUARIO</string>
     <string name="login_password_placeholder">Contrase&#241;a</string>
     <string name="login_password_label">CONTRASE&#209;A</string>
     <string name="deleted_user_error_title">Cuenta eliminada</string>
@@ -220,9 +215,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="create_team_details_text">Ingresa tu correo electr&#243;nico para crear tu equipo:</string>
     <string name="create_account_details_password_description">Usa al menos 8 caracteres, con una letra min&#250;scula, una letra may&#250;scula, un n&#250;mero y un car&#225;cter especial.</string>
     <string name="create_account_username_title">Tu nombre de usuario</string>
-    <string name="create_account_username_placeholder">julia.martinez</string>
-    <string name="create_account_username_label">NOMBRE DE USUARIO</string>
-    <string name="create_account_username_taken_error">Este nombre de usuario ya est&#225; registrado. Por favor, elije otro.</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">LLAMADAS PERDIDAS</string>
     <string name="calls_label_calls_history">HISTORIAL DE LLAMADAS</string>
@@ -645,16 +637,10 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_content_delete_failure">No se pudo eliminar el contenido de la conversaci&#243;n</string>
     <string name="group_label">grupo</string>
     <string name="conversation_label">conversaci&#243;n</string>
-    <string name="proxy_credential_description">Esta informa est&#225; configurada para utilizar el siguiente servidor proxy: %1$s</string>
-    <string name="label_proxy_credentials">CREDENCIALES DEL PROXY</string>
-    <string name="label_wire_credentials">CREDENCIALES DE WIRE</string>
     <string name="dialog_clear_content_title">&#191;Borrar contenido?</string>
     <string name="dialog_clear_content_option">Borrar contenido</string>
     <string name="dialog_clear_content_text">Esto borrar&#225; el historial de conversaciones en todos tus dispositivos. Permanecer&#225;s en el %1$s y tendr&#225;s acceso a todas las nuevas actividades de %1$s.</string>
     <string name="not_supported_dialog_title">No compatible</string>
-    <string name="sso_not_supported_dialog_description">No puedes iniciar sesi&#243;n a trav&#233;s de SSO en una informa local con soporte de proxy.</string>
-    <string name="create_personal_account_not_supported_dialog_description">No puedes crear una cuenta personal en una informa local con soporte de proxy.</string>
-    <string name="create_team_not_supported_dialog_description">No puedes crear un nuevo equipo en una informa local con soporte de proxy en la aplicaci&#243;n. Por favor utiliza la administraci&#243;n de equipos (%1$s) en esta informa.</string>
     <string name="to_team_management_action">Abrir Administraci&#243;n de Equipo</string>
     <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->

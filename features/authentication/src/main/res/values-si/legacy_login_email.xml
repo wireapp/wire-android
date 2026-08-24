@@ -3,4 +3,10 @@
 <string name="login_user_identifier_placeholder">කසුන්@නිදසුන.ලංකා හෝ තිසර.කසුන්</string>
 <string name="login_proxy_identifier_label">ප්‍රතියු. වි-තැපෑල හෝ පරි.නාමය</string>
 <string name="label_proxy_password">ප්‍රතියුක්තයේ මුරපදය</string>
+    <string name="label_wire_credentials">වයර් අක්තපත්‍ර</string>
+    <string name="login_user_identifier_label">වි-තැපෑල හෝ පරි.නාමය</string>
+    <string name="login_error_invalid_user_identifier">මෙම විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය වලංගු නොවේ. කරුණාකර සත්‍යාපනය කර නැවත උත්සාහ කරන්න.</string>
+    <string name="login_forgot_password">මුරපදය අමතකද?</string>
+    <string name="label_proxy_credentials">ප්‍රතියුක්තයේ අක්තපත්‍ර</string>
+    <string name="proxy_credential_description">පහත ප්‍රතියුක්ත සේවාදායකය භාවිතයට මෙම සේවාදායකය වින්‍යාසගත කර ඇත: %1$s</string>
 </resources>

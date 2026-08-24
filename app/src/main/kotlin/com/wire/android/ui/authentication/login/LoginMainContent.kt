@@ -21,6 +21,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.feature.authentication.R as AuthenticationR
 
 @Composable
 internal fun MainLoginContent(
@@ -43,14 +44,14 @@ internal fun MainLoginContent(
     LoginScreenContent(
         showBackendSetup = showSetup,
         initialTab = initialLoginTab(ssoLoginResult != null, ssoCodeAutoLogin != null),
-        title = stringResource(if (showSetup) R.string.missing_backend_config_title else R.string.login_title),
-        backContentDescription = R.string.content_description_login_back_btn,
+        title = stringResource(if (showSetup) AuthenticationR.string.missing_backend_config_title else AuthenticationR.string.login_title),
+        backContentDescription = AuthenticationR.string.content_description_login_back_btn,
         isProxyEnabled = loginEmailViewModel.serverConfig.isProxyEnabled,
         onBackPressed = onBackPressed,
         onSsoBlocked = {
             ssoDialog.show(
                 ssoDialog.savedState ?: FeatureDisabledWithProxyDialogState(
-                    R.string.sso_not_supported_dialog_description,
+                    AuthenticationR.string.sso_not_supported_dialog_description,
                 ),
             )
         },
@@ -80,7 +81,7 @@ private fun BackendConfiguration(state: LoginEmailState.BackendConfigState, view
             modifier = Modifier.fillMaxWidth(),
             errorText = (state == LoginEmailState.BackendConfigState.Error)
                 .takeIf { it }
-                ?.let { stringResource(R.string.missing_backend_config_error) },
+                ?.let { stringResource(AuthenticationR.string.missing_backend_config_error) },
             isLoading = state == LoginEmailState.BackendConfigState.Loading,
             onConfigurationLinkEntered = viewModel::onBackendConfigLinkEntered,
         )

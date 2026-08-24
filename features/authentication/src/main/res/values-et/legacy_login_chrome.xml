@@ -2,4 +2,5 @@
 <resources>
 <string name="login_tab_email">E-POST</string>
 <string name="login_tab_sso">SSO SISSELOGIMINE</string>
+    <string name="login_title">Logi sisse</string>
 </resources>

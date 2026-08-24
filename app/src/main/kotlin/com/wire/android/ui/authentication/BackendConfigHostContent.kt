@@ -18,6 +18,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import kotlinx.coroutines.launch
+import com.wire.android.feature.authentication.R as AuthenticationR
 
 @Composable
 fun MissingBackendConfigContent(
@@ -80,7 +81,7 @@ fun BackendConfigSuccessContent(modifier: Modifier = Modifier, onContinue: () ->
 
 @Composable
 private fun backendConfigText() = BackendConfigText(
-    title = stringResource(R.string.missing_backend_config_title),
+    title = stringResource(AuthenticationR.string.missing_backend_config_title),
     description = stringResource(R.string.missing_backend_config_description),
     inputLabel = stringResource(R.string.missing_backend_config_input_label),
     inputPlaceholder = stringResource(R.string.missing_backend_config_input_placeholder),

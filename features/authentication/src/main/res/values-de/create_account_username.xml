@@ -2,4 +2,8 @@
 <resources>
     <string name="create_account_set_username_title">Benutzernamen festlegen</string>
     <string name="create_account_username_text">Geben Sie Ihren Benutzernamen ein. Andere können Sie so leichter in Wire finden und sich mit Ihnen verbinden.</string>
+    <string name="create_account_username_placeholder">max.müller</string>
+    <string name="create_account_username_label">BENUTZERNAME</string>
+    <string name="create_account_username_description">Mindestens 2 Zeichen, a-z, 0-9, “_”, “-” und “.”</string>
+    <string name="create_account_username_taken_error">Dieser Benutzername ist bereits vergeben. Bitte wählen Sie einen anderen.</string>
 </resources>

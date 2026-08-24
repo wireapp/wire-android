@@ -211,11 +211,7 @@
     <string name="content_description_self_profile_new_account_btn">Erstellen Sie ein neues Team oder ein privates Konto oder melden Sie sich an</string>
     <string name="content_description_self_profile_manage_team_btn">Team verwalten</string>
     <string name="content_description_change_picture_back_btn">Zurück zu Ihrer Profilübersicht</string>
-    <string name="content_description_welcome_screen_close_btn">Ansicht zur Team-Erstellung und Anmeldung schließen</string>
-    <string name="content_description_login_back_btn">Zurück zur Ansicht zur Team-Erstellung und Anmeldung</string>
-    <string name="content_description_login_user_identifier_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
     <string name="content_description_backend_config_camera_button">QR Code scannen</string>
-    <string name="content_description_login_password_field">Geben Sie Ihr Passwort ein</string>
     <string name="content_description_whats_new_welcome_item">Willkommen bei der Android-App, Link zur Support-Seite</string>
     <string name="content_description_whats_new_all_releases_item">Alle Android Release Notizen, Link zur Release-Übersicht</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, verlinken zu dem Release-Details</string>
@@ -261,9 +257,7 @@
     <string name="settings_backup_create">Unterhaltungen sichern</string>
     <string name="settings_backup_restore">Backup wiederherstellen</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Möchten Sie mit Freunden und Ihrer Familie chatten?</string>
     <string name="welcome_footer_link">Erstellen Sie kostenlos ein privates Benutzerkonto</string>
-    <string name="welcome_button_create_personal_account">Privates Benutzerkonto erstellen</string>
     <string name="server_details_dialog_body">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s\n\nProxy-URL:\n%3$s\n\nProxy-Authentifizierung:\n%4$s</string>
     <string name="server_details_dialog_title">Lokales Backend</string>
@@ -291,10 +285,6 @@
     <!-- Enterprise Login -->
     <string name="enterprise_login_on_prem_welcome_title">Willkommen bei Wire Enterprise für %s!</string>
     <!-- Login -->
-    <string name="login_title">Anmelden</string>
-    <string name="login_forgot_password">Passwort vergessen?</string>
-    <string name="login_user_identifier_label">E-MAIL ODER BENUTZERNAME</string>
-    <string name="login_error_invalid_user_identifier">E-Mail-Adresse oder Benutzername ist ungültig. Bitte überprüfen Sie Ihre Daten und versuchen Sie es erneut.</string>
     <string name="login_password_placeholder">Passwort</string>
     <string name="login_password_label">PASSWORT</string>
     <string name="deleted_user_error_title">Gelöschtes Benutzerkonto</string>
@@ -348,10 +338,6 @@
     <string name="create_team_details_text">Geben Sie Ihre E-Mail-Adresse ein, um Ihr Team zu erstellen:</string>
     <string name="create_account_details_password_description">Bitte mindestens 8 Zeichen verwenden: mit einem Kleinbuchstaben, einem Großbuchstaben, einer Zahl und einem Sonderzeichen.</string>
     <string name="create_account_username_title">Ihr Benutzername</string>
-    <string name="create_account_username_placeholder">max.müller</string>
-    <string name="create_account_username_label">BENUTZERNAME</string>
-    <string name="create_account_username_taken_error">Dieser Benutzername ist bereits vergeben. Bitte wählen Sie einen anderen.</string>
-    <string name="create_account_username_description">Mindestens 2 Zeichen, a-z, 0-9, “_”, “-” und “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">VERPASSTE ANRUFE</string>
     <string name="calls_label_calls_history">ANRUFLISTE</string>
@@ -1121,16 +1107,10 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="conversation_content_delete_failure">Gesprächsverlauf konnte nicht gelöscht werden</string>
     <string name="group_label">Gruppe</string>
     <string name="conversation_label">Unterhaltung</string>
-    <string name="proxy_credential_description">Dieses Backend ist für die Verwendung des folgenden Proxy-Servers konfiguriert: %1$s</string>
-    <string name="label_proxy_credentials">PROXY-ZUGANGSDATEN</string>
-    <string name="label_wire_credentials">WIRE-ZUGANGSDATEN</string>
     <string name="dialog_clear_content_title">Verlauf löschen?</string>
     <string name="dialog_clear_content_option">Verlauf löschen</string>
     <string name="dialog_clear_content_text">Der Gesprächsverlauf wird auf all Ihren Geräten gelöscht. Sie bleiben in der %1$s und haben Zugriff auf alle neuen Aktivitäten</string>
     <string name="not_supported_dialog_title">Nicht unterstützt</string>
-    <string name="sso_not_supported_dialog_description">Sie können sich nicht über SSO auf einem lokalen Backend mit Proxy-Unterstützung anmelden.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Sie können kein privates Benutzerkonto auf einem lokalen Backend mit Proxy-Unterstützung erstellen.</string>
-    <string name="create_team_not_supported_dialog_description">Sie können kein neues Team auf einem lokalen Backend mit Proxy-Unterstützung in der App erstellen.\nBitte verwenden Sie stattdessen das Team-Management (%1$s) auf diesem Backend.</string>
     <string name="to_team_management_action">Team-Management öffnen</string>
     <!-- Claimed Domain dialog -->
     <string name="claimed_domain_email_already_in_use_dialog_title">E-Mail-Adresse wird von einem lokalen Backend beansprucht</string>
@@ -1458,12 +1438,10 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="restriction_keep_websocket_title">WebSocket-Verbindung behalten</string>
     <string name="restriction_keep_websocket_description">Dauerhafte WebSocket-Verbindung für alle Benutzer erzwingen</string>
     <string name="settings_keep_websocket_enforced_by_organization">Diese Einstellung wird von Ihrer Organisation verwaltet.</string>
-    <string name="missing_backend_config_title">Richten Sie Ihre App ein</string>
     <string name="missing_backend_config_description">Um loszulegen, geben Sie den Link ein oder scannen Sie den von Ihrer Verwaltung bereitgestellten QR-Code.</string>
     <string name="missing_backend_config_input_label">Konfigurationslink</string>
     <string name="missing_backend_config_input_placeholder">Link eingeben oder QR-Code scannen</string>
     <string name="missing_backend_config_button_setup">Einrichten</string>
-    <string name="missing_backend_config_error">Es ist ein Fehler aufgetreten. Überprüfen Sie den Link sowie Ihre Internetverbindung und versuchen Sie es erneut.</string>
     <string name="backend_config_success_title">Ihre App ist eingerichtet</string>
     <string name="backend_config_success_description">Im nächsten Schritt können Sie sich anmelden</string>
     <!--    channel not available dialog-->

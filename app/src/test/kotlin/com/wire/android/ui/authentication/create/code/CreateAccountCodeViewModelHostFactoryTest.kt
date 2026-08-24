@@ -14,7 +14,6 @@ import com.wire.android.framework.TestUser
 import com.wire.android.navigation.routes.auth.CreateAccountRegistrationInfo
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.navigation.routes.auth.toAuthenticationServerLinks
-import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.util.WillNeverOccurError
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.common.error.NetworkFailure

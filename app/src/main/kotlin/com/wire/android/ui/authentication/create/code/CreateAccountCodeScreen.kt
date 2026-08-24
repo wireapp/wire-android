@@ -21,7 +21,6 @@ package com.wire.android.ui.authentication.create.code
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
@@ -32,8 +31,6 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.DialogErrorStrings
-import com.wire.android.util.dialogErrorStrings
 
 @Composable
 internal fun CreateAccountCodeRouteScreen(
@@ -65,7 +62,7 @@ internal fun CreateAccountCodeRouteScreen(
         )
 
         (codeState.result as? CreateAccountCodeResult.Error.DialogError)?.let {
-            val (title, message) = it.getResources(type = codeState.type)
+            val (title, message) = it.dialogResources(type = codeState.type)
             WireDialog(
                 title = title,
                 text = message,
@@ -89,54 +86,6 @@ internal fun CreateAccountCodeRouteScreen(
             }
         }
     }
-}
-
-@Composable
-private fun CreateAccountCodeResult.Error.DialogError<com.wire.kalium.common.error.CoreFailure>.getResources(
-    type: CreateAccountRouteFlowType,
-) = when (this) {
-    CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
-        stringResource(id = AuthenticationR.string.create_account_code_error_title),
-        stringResource(id = AuthenticationR.string.create_account_email_already_in_use_error)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.BlackListedError -> DialogErrorStrings(
-        stringResource(id = AuthenticationR.string.create_account_code_error_title),
-        stringResource(id = AuthenticationR.string.create_account_email_blacklisted_error)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
-        stringResource(id = AuthenticationR.string.create_account_code_error_title),
-        stringResource(id = AuthenticationR.string.create_account_email_domain_blocked_error)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.InvalidEmailError -> DialogErrorStrings(
-        stringResource(id = AuthenticationR.string.create_account_code_error_title),
-        stringResource(id = AuthenticationR.string.create_account_email_invalid_error)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.TeamMembersLimitError -> DialogErrorStrings(
-        stringResource(id = AuthenticationR.string.create_account_code_error_title),
-        stringResource(id = AuthenticationR.string.create_account_code_error_team_members_limit_reached)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.CreationRestrictedError -> DialogErrorStrings(
-        stringResource(id = AuthenticationR.string.create_account_code_error_title),
-        stringResource(
-            id = when (type) {
-                CreateAccountRouteFlowType.PERSONAL ->
-                    AuthenticationR.string.create_account_code_error_personal_account_creation_restricted
-                CreateAccountRouteFlowType.TEAM ->
-                    AuthenticationR.string.create_account_code_error_team_creation_restricted
-            }
-        )
-    )
-    // TODO: sync with design about the error message
-    CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError ->
-        DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
-
-    is CreateAccountCodeResult.Error.DialogError.GenericError ->
-        this.failure.dialogErrorStrings(LocalContext.current.resources)
 }
 
 private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {

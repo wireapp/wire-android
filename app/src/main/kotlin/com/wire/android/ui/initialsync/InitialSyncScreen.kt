@@ -19,6 +19,10 @@
 package com.wire.android.ui.initialsync
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import com.wire.android.R
 import com.wire.android.ui.authentication.initialsync.InitialSyncRouteContent
 import com.wire.android.ui.initialSyncViewModel
 
@@ -26,5 +30,11 @@ import com.wire.android.ui.initialSyncViewModel
 internal fun InitialSyncRouteScreen(
     onSyncCompleted: (shouldMoveToBackground: Boolean) -> Unit,
 ) {
-    InitialSyncRouteContent(initialSyncViewModel(), onSyncCompleted)
+    InitialSyncRouteContent(
+        viewModel = initialSyncViewModel(),
+        topBarTitle = stringResource(R.string.migration_title),
+        message = AnnotatedString(stringResource(R.string.migration_message)),
+        icon = painterResource(R.drawable.ic_migration),
+        onSyncCompleted = onSyncCompleted,
+    )
 }

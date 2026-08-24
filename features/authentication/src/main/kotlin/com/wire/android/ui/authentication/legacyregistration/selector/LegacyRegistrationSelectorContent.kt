@@ -71,9 +71,14 @@ fun LegacyRegistrationSelectorContent(
     dimensions().spacing16x).fillMaxWidth()) { Icon(checkIcon, null, Modifier.size(dimensions().spacing16x), positiveColor);
     Text(highlight, style = MaterialTheme.wireTypography.body01, modifier = Modifier.padding(start = dimensions().spacing8x)) };
     HorizontalDivider(Modifier.padding(horizontal = dimensions().spacing12x)) }
-            if (primary) WirePrimaryButton(card.continueLabel, onClick, modifier = Modifier.fillMaxWidth().padding(vertical =
-    dimensions().spacing8x)) else WireSecondaryButton(card.continueLabel, onClick, modifier =
-    Modifier.fillMaxWidth().padding(vertical = dimensions().spacing8x))
+            val buttonModifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = dimensions().spacing8x)
+            if (primary) {
+                WirePrimaryButton(onClick = onClick, modifier = buttonModifier, text = card.continueLabel)
+            } else {
+                WireSecondaryButton(onClick = onClick, modifier = buttonModifier, text = card.continueLabel)
+            }
         }
     }
 }

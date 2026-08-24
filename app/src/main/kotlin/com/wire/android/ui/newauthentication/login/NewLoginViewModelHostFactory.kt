@@ -192,8 +192,8 @@ internal class KaliumNewLoginGateway(
             is ReplaceRetainedSsoSessionResult.Success -> NewLoginReplaceSessionResult.Success(result.userId)
             is ReplaceRetainedSsoSessionResult.Failure -> when (val failure = result.cause) {
                 is AddAuthenticatedUserUseCase.Result.Failure.Generic -> NewLoginReplaceSessionResult.Failure(failure.genericFailure)
+                AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> NewLoginReplaceSessionResult.SsoIdentityChanged
                 AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists,
-                AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged,
                 AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> NewLoginReplaceSessionResult.UserAlreadyExists
             }
         }

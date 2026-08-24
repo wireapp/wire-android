@@ -338,6 +338,23 @@ class NewLoginViewModelTest {
     }
 
     @Test
+    fun `replacement identity change remains distinct and returns to identity confirmation state`() = runTest(dispatcher) {
+        val gateway = FakeGateway().apply {
+            session = NewLoginSessionResult.IdentityChanged(TestSession("retained"), false)
+            replacement = NewLoginReplaceSessionResult.SsoIdentityChanged
+        }
+        val viewModel = arrange(gateway = gateway)
+        viewModel.handleSSOResult(NewLoginSsoCallback.Success("cookie", "config"))
+        advanceUntilIdle()
+
+        viewModel.onSsoIdentityChangeConfirmed()
+        advanceUntilIdle()
+
+        assertEquals(NewLoginFlowState.SsoIdentityChanged, viewModel.state.flowState)
+        assertEquals(listOf(TestSession("retained")), gateway.replaced)
+    }
+
+    @Test
     fun `regular registration maps all results and never reverts failures`() = runTest(dispatcher) {
         val gateway = FakeGateway().apply { session = NewLoginSessionResult.Success("user") }
         val viewModel = arrange(gateway = gateway)

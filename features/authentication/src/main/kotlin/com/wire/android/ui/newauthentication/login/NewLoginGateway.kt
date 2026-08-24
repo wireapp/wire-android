@@ -76,6 +76,7 @@ sealed interface NewLoginSessionResult<out FailureT, out UserT, out SessionT> {
 
 sealed interface NewLoginReplaceSessionResult<out FailureT, out UserT> {
     data class Success<UserT>(val userId: UserT) : NewLoginReplaceSessionResult<Nothing, UserT>
+    data object SsoIdentityChanged : NewLoginReplaceSessionResult<Nothing, Nothing>
     data object UserAlreadyExists : NewLoginReplaceSessionResult<Nothing, Nothing>
     data class Failure<FailureT>(val failure: FailureT) : NewLoginReplaceSessionResult<FailureT, Nothing>
 }

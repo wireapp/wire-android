@@ -187,6 +187,8 @@ class NewLoginViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT, BackendR
         viewModelScope.launch {
             when (val result = gateway.replaceRetainedSession(pending.session)) {
                 is NewLoginReplaceSessionResult.Success -> continueAfterSsoSessionStored(result.userId, pending.isNomadSession)
+                NewLoginReplaceSessionResult.SsoIdentityChanged ->
+                    updateLoginFlowState(NewLoginFlowState.SsoIdentityChanged)
                 NewLoginReplaceSessionResult.UserAlreadyExists ->
                     updateLoginFlowState(NewLoginFlowState.Error.DialogError.UserAlreadyExists)
                 is NewLoginReplaceSessionResult.Failure ->

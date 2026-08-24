@@ -159,6 +159,10 @@ class NewLoginViewModelHostFactoryTest {
 
         coEvery { arrangement.ssoExtension.replaceRetainedSsoSession(retained) } returns
             ReplaceRetainedSsoSessionResult.Failure(AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged)
+        assertEquals(NewLoginReplaceSessionResult.SsoIdentityChanged, arrangement.gateway.replaceRetainedSession(retained))
+
+        coEvery { arrangement.ssoExtension.replaceRetainedSsoSession(retained) } returns
+            ReplaceRetainedSsoSessionResult.Failure(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
         assertEquals(NewLoginReplaceSessionResult.UserAlreadyExists, arrangement.gateway.replaceRetainedSession(retained))
         coVerify {
             arrangement.ssoExtension.establishSSOSession(

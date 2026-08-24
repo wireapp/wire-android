@@ -20,13 +20,16 @@ package com.wire.android.ui.home.conversations.info
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.NavigationTestExtension
+import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.composer.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.composer.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -39,6 +42,42 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @ExtendWith(NavigationTestExtension::class)
 class ConversationInfoViewModelTest {
+
+    @Test
+    fun `given pending MLS creation, when opening conversation, then retry creation once`() = runTest {
+        val pendingProtocol = TestConversation.MLS_PROTOCOL_INFO.copy(
+            groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.PENDING_CREATION
+        )
+        val pendingConversationDetails = mockConversationDetailsGroup("Pending conversation").let { details ->
+            details.copy(conversation = details.conversation.copy(protocol = pendingProtocol))
+        }
+        val (arrangement, viewModel) = ConversationInfoViewModelArrangement().arrange()
+
+        launch { viewModel.observeConversationDetails() }.run {
+            arrangement.withConversationDetailUpdate(pendingConversationDetails)
+            arrangement.withConversationDetailUpdate(pendingConversationDetails)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                arrangement.createRegularGroup.retryPendingMLSGroupCreation(pendingConversationDetails.conversation.id)
+            }
+            cancel()
+        }
+    }
+
+    @Test
+    fun `given established conversation, when opening conversation, then do not retry creation`() = runTest {
+        val conversationDetails = mockConversationDetailsGroup("Established conversation")
+        val (arrangement, viewModel) = ConversationInfoViewModelArrangement().arrange()
+
+        launch { viewModel.observeConversationDetails() }.run {
+            arrangement.withConversationDetailUpdate(conversationDetails)
+            advanceUntilIdle()
+
+            coVerify(exactly = 0) { arrangement.createRegularGroup.retryPendingMLSGroupCreation(any()) }
+            cancel()
+        }
+    }
 
     @Test
     fun `given a self mentioned user, when getting user data, then return valid result`() = runTest {

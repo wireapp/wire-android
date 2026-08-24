@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import com.wire.android.ui.common.groupname.GroupMetadataState
+import com.wire.android.ui.common.groupname.GroupMetadataState.NewGroupError
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameScreen
 import com.wire.android.ui.theme.WireTheme
@@ -36,13 +37,13 @@ internal fun EditConversationNameRouteScreen(
     with(viewModel) {
         LaunchedEffect(editConversationState.completed) {
             when (editConversationState.completed) {
-                GroupMetadataState.Completed.Success -> onCompleted(true)
-                GroupMetadataState.Completed.Failure -> onCompleted(false)
-                GroupMetadataState.Completed.None -> Unit // No action needed
+                EditConversationMetadataState.Completed.Success -> onCompleted(true)
+                EditConversationMetadataState.Completed.Failure -> onCompleted(false)
+                EditConversationMetadataState.Completed.None -> Unit // No action needed
             }
         }
         GroupNameScreen(
-            newGroupState = editConversationState,
+            newGroupState = editConversationState.toGroupMetadataState(),
             newGroupNameTextState = editConversationNameTextState,
             onGroupNameErrorAnimated = ::onGroupNameErrorAnimated,
             onContinuePressed = ::saveNewGroupName,
@@ -50,6 +51,19 @@ internal fun EditConversationNameRouteScreen(
         )
     }
 }
+
+private fun EditConversationMetadataState.toGroupMetadataState() = GroupMetadataState(
+    originalGroupName = originalGroupName,
+    animatedGroupNameError = animatedGroupNameError,
+    continueEnabled = continueEnabled,
+    isChannel = isChannel,
+    error = when (error) {
+        EditConversationMetadataState.NameError.None -> NewGroupError.None
+        EditConversationMetadataState.NameError.Empty -> NewGroupError.TextFieldError.GroupNameEmptyError
+        EditConversationMetadataState.NameError.TooLong -> NewGroupError.TextFieldError.GroupNameExceedLimitError
+    },
+    mode = GroupNameMode.EDITION,
+)
 
 @Composable
 @PreviewMultipleThemes

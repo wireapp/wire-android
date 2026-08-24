@@ -25,9 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.common.groupname.GroupMetadataState
-import com.wire.android.ui.common.groupname.GroupNameMode
-import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -63,7 +60,7 @@ class EditConversationMetadataViewModel @AssistedInject constructor(
     private val conversationId: QualifiedID = navigationArgs.conversationId
 
     val editConversationNameTextState: TextFieldState = TextFieldState()
-    var editConversationState by mutableStateOf(GroupMetadataState(mode = GroupNameMode.EDITION))
+    var editConversationState by mutableStateOf(EditConversationMetadataState())
         private set
 
     init {
@@ -91,13 +88,13 @@ class EditConversationMetadataViewModel @AssistedInject constructor(
             editConversationNameTextState.textAsFlow()
                 .dropWhile { it.isEmpty() } // ignore first empty value to not show the error before the user typed anything
                 .collectLatest {
-                    editConversationState = GroupNameValidator.onGroupNameChange(it.toString(), editConversationState)
+                    editConversationState = EditGroupNameValidator.onGroupNameChange(it.toString(), editConversationState)
                 }
         }
     }
 
     fun onGroupNameErrorAnimated() {
-        editConversationState = GroupNameValidator.onGroupNameErrorAnimated(editConversationState)
+        editConversationState = EditGroupNameValidator.onGroupNameErrorAnimated(editConversationState)
     }
 
     fun saveNewGroupName() {
@@ -107,8 +104,8 @@ class EditConversationMetadataViewModel @AssistedInject constructor(
             }.let { renamingResult ->
                 editConversationState = editConversationState.copy(
                     completed = when (renamingResult) {
-                        is RenamingResult.Failure -> GroupMetadataState.Completed.Failure
-                        is RenamingResult.Success -> GroupMetadataState.Completed.Success
+                        is RenamingResult.Failure -> EditConversationMetadataState.Completed.Failure
+                        is RenamingResult.Success -> EditConversationMetadataState.Completed.Success
                     }
                 )
             }

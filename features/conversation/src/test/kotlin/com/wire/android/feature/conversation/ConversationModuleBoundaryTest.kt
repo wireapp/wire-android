@@ -73,6 +73,35 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun editConversationMetadataStateSeamHasTheExactDependencyBudget() {
+        val stateSource = File(Konsist.projectRootPath, editConversationMetadataStateRelativePath).readText()
+        val validatorSource = File(Konsist.projectRootPath, editGroupNameValidatorRelativePath).readText()
+        val appViewModelSource = File(Konsist.projectRootPath, appEditConversationMetadataViewModelRelativePath).readText()
+
+        listOf(stateSource, validatorSource).forEach { source ->
+            assertTrue(
+                source.contains("package com.wire.android.ui.home.conversations.details.metadata"),
+                "The edit metadata seam must preserve its package.",
+            )
+        }
+        assertEquals(emptySet<String>(), importedDeclarations(stateSource))
+        assertEquals(
+            setOf(
+                "com.wire.android.ui.common.groupname.GroupNamePolicy",
+                "com.wire.android.ui.common.groupname.GroupNamePolicyResult",
+            ),
+            importedDeclarations(validatorSource),
+            "The edit-name validator may depend only on the neutral core policy.",
+        )
+        forbiddenAppEditMetadataStateImports.forEach { forbiddenImport ->
+            assertFalse(
+                importedDeclarations(appViewModelSource).contains(forbiddenImport),
+                "EditConversationMetadataViewModel must not import $forbiddenImport.",
+            )
+        }
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -649,6 +678,27 @@ class ConversationModuleBoundaryTest {
     }
 
     private companion object {
+        const val editConversationMetadataStateRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/metadata/" +
+                    "EditConversationMetadataState.kt"
+        const val editGroupNameValidatorRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/metadata/" +
+                    "EditGroupNameValidator.kt"
+        const val appEditConversationMetadataViewModelRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/metadata/" +
+                    "EditConversationMetadataViewModel.kt"
+        val forbiddenAppEditMetadataStateImports = setOf(
+            "com.wire.android.ui.common.groupname.GroupMetadataState",
+            "com.wire.android.ui.common.groupname.GroupNameMode",
+            "com.wire.android.ui.common.groupname.GroupNameValidator",
+        )
+
+        fun importedDeclarations(source: String): Set<String> =
+            Regex("""^import\s+([^\s]+)$""", RegexOption.MULTILINE)
+                .findAll(source)
+                .map { it.groupValues[1] }
+                .toSet()
+
         const val configurationPackage = "com.wire.android.feature.conversation.config"
         val featureBuildScript = File(Konsist.projectRootPath, "features/conversation/build.gradle.kts")
         val appBuildScript = File(Konsist.projectRootPath, "app/build.gradle.kts")

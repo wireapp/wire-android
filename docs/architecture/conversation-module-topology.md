@@ -1,8 +1,8 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, image-asset paging, role projection, and media/search arguments have facade-owned seams
+**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, image-asset paging, role projection, media/search arguments, and edit-metadata state have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `5be88a96c`
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `68c80d6e3409a3e01cad8ce324dcf783d6159f7b`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -63,6 +63,8 @@ Message-user resolution is facade-owned as well. `GetUsersForMessageUseCase` kee
 Conversation role projection is facade-owned. `ObserveConversationRoleForUserUseCase` and `ConversationRoleData` keep their package and FQNs while projecting ordinary member roles and the same-team channel team-admin override from Kalium flows. `OtherUserProfileScreenViewModel`, `ServiceDetailsViewModel`, and their tests remain app-owned consumers through the existing facade edge; failed conversation details still produce no projection. No Gradle edge, resource, Metro contract, profile, navigation, or KMP source-set changes with this seam.
 
 The conversation media and message-search arguments are facade-owned. `ConversationMediaNavArgs` and `SearchConversationMessagesNavArgs` keep their packages, FQNs, fields, defaults, and data-class behavior while depending only on `ConversationId`. App Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors continue to consume the same contracts through the existing facade edge. No caller import, Gradle, resource, profile, stability, navigation-behavior, or KMP source-set change accompanies this ownership move.
+
+Edit-conversation metadata state now has a facade-owned seam. `EditConversationMetadataState` carries only the name, validation, channel, and completion fields used by editing, while `EditGroupNameValidator` maps the neutral `GroupNamePolicy` results without app dependencies. `EditConversationMetadataViewModel` remains app-owned but exposes the narrow state and no longer imports creation state, mode, or validator. The app route privately adapts it to edition-mode `GroupMetadataState` for the unchanged app-owned `GroupNameScreen`; creation state and UI, resources, Metro assembly, Navigation 3, profiles, stability, and KMP sources remain unchanged.
 
 The image-asset paging seam is now facade-owned. `ObserveImageAssetMessagesFromConversationUseCase`, `UIAssetMapper`, `TimeZoneProvider`, and the focused paging test keep their packages and FQNs in `:features:conversation`; Paging 3 runtime is a direct public-API dependency and paging-testing remains test-only. `:app` retains `ConversationAssetMessagesViewModel`, media screens and navigation, the file-asset pipeline, platform pickers and permissions, and Android runtime composition.
 

@@ -20,16 +20,17 @@ package com.wire.android.ui.authentication.login.sso
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.wire.android.R
+import com.wire.android.feature.authentication.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun SsoIdentityChangedDialog(
+    cancelLabel: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
@@ -39,7 +40,7 @@ fun SsoIdentityChangedDialog(
         onDismiss = onDismiss,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDismiss,
-            text = stringResource(R.string.label_cancel),
+            text = cancelLabel,
             type = WireDialogButtonType.Secondary,
         ),
         optionButton1Properties = WireDialogButtonProperties(
@@ -52,10 +53,11 @@ fun SsoIdentityChangedDialog(
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 private fun SsoIdentityChangedDialogPreview() = WireTheme {
     SsoIdentityChangedDialog(
+        cancelLabel = "Cancel",
         onDismiss = {},
         onConfirm = {},
     )

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_error_invalid_credentials_title">Informaci&#243;n no v&#225;lida</string>
+    <string name="login_error_invalid_credentials_message">Credenciales de cuenta incorrectas. Por favor, verifique su informaci&#243;n e int&#233;ntelo de nuevo.</string>
+    <string name="login_error_user_already_logged_in_title">Cuenta en uso</string>
+    <string name="login_error_user_already_logged_in_message">Ya ha iniciado sesi&#243;n con esas credenciales en este dispositivo.</string>
+    <string name="login_sso_error_invalid_cookie_title">&#161;Cookie inv&#225;lida!</string>
+    <string name="login_sso_error_invalid_cookie_message">&#161;La sesi&#243;n es inv&#225;lida o ha expirado! Por favor, int&#233;ntelo de nuevo para iniciar sesi&#243;n.</string>
+    <string name="login_error_invalid_sso_code">Por favor, ingrese un c&#243;digo SSO v&#225;lido.</string>
+    <string name="error_socket_title">Informaci&#243;n inv&#225;lida</string>
+    <string name="error_socket_message">Las credenciales del proxy son incorrectas. Verifica los detalles e intenta nuevamente.</string>
+    <string name="sso_error_dialog_title">No se pudo iniciar sesi&#243;n con SSO</string>
+    <string name="sso_error_dialog_message">Por favor, int&#233;ntelo de nuevo. Si esto no ayuda, p&#243;ngase en contacto con su administrador y proporcione este c&#243;digo:
+%d</string>
+</resources>

@@ -297,27 +297,9 @@
     <string name="login_title">Anmelden</string>
     <string name="login_forgot_password">Passwort vergessen?</string>
     <string name="login_user_identifier_label">E-MAIL ODER BENUTZERNAME</string>
-    <string name="login_error_invalid_credentials_title">Ungültige Information</string>
-    <string name="login_error_invalid_credentials_message">Diese Zugangsdaten sind nicht korrekt. 
-        Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut.
-    </string>
     <string name="login_error_invalid_user_identifier">E-Mail-Adresse oder Benutzername ist ungültig. Bitte überprüfen Sie Ihre Daten und versuchen Sie es erneut.</string>
-    <string name="login_error_user_already_logged_in_title">Benutzerkonto in Gebrauch</string>
-    <string name="login_error_user_already_logged_in_message">Sie sind bereits mit diesen Daten auf diesem Gerät angemeldet.</string>
-    <string name="login_sso_error_invalid_cookie_title">Ungültiger Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">Die Sitzung ist ungültig oder abgelaufen! Bitte versuchen Sie erneut, sich anzumelden.</string>
-    <string name="sso_identity_changed_dialog_title">Identitätsanbieter geändert</string>
-    <string name="sso_identity_changed_dialog_message">Dieses Benutzerkonto wurde mit einem anderen Identitätsanbieter verwendet. Wenn Sie fortfahren, werden alle Unterhaltungen von diesem Gerät gelöscht.\nUm Ihre Daten zu behalten, wählen Sie „Abbrechen“ und melden Sie sich anschließend mit Ihrem bisherigen Identitätsanbieter an.</string>
-    <string name="sso_identity_changed_dialog_confirm">Daten löschen und fortfahren</string>
     <string name="login_password_placeholder">Passwort</string>
     <string name="login_password_label">PASSWORT</string>
-    <string name="login_error_invalid_sso_code">Bitte geben Sie einen gültigen SSO-Code ein.</string>
-    <string name="login_error_request_2fa_with_handle_title">Anmeldung mit E-Mail-Adresse</string>
-    <string name="login_error_request_2fa_with_handle_message">Sie können Ihren Benutzernamen nicht verwenden, da die Zwei-Faktor-Authentifizierung aktiviert ist. Bitte melden Sie sich stattdessen mit Ihrer E-Mail-Adresse an.</string>
-    <string name="login_error_unauthorized_title">Nicht berechtigt</string>
-    <string name="login_error_unauthorized_message">Benutzerkonto ist nicht mehr zur Anmeldung berechtigt.</string>
-    <string name="login_error_pending_activation_title">Ausstehende Aktivierung</string>
-    <string name="login_error_pending_activation_message">Dieses Benutzerkonto ist noch nicht aktiviert. Bitte bestätigen Sie Ihre Angaben.</string>
     <string name="deleted_user_error_title">Gelöschtes Benutzerkonto</string>
     <string name="deleted_user_error_message">Sie wurden abgemeldet, weil Ihr Konto
         gelöscht wurde.
@@ -799,8 +781,6 @@
     <string name="error_unknown_message">Bitte erneut versuchen</string>
     <string name="error_server_miscommunication_title">Serverfehler</string>
     <string name="error_server_miscommunication_message">Bitte erneut versuchen</string>
-    <string name="error_socket_title">Ungültige Information</string>
-    <string name="error_socket_message">Die Proxy-Zugangsdaten sind nicht korrekt. Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut.</string>
     <string name="error_no_network_title">Warten auf Netzwerk</string>
     <string name="error_no_network_message">Bitte Internetverbindung überprüfen und erneut versuchen</string>
     <string name="error_downloading_self_user_profile_picture">Beim Herunterladen Ihres Profilbildes ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung</string>
@@ -950,10 +930,6 @@
         Downloads ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut
     </string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Anmeldung mit SSO nicht möglich</string>
-    <string name="sso_error_dialog_message">Bitte erneut versuchen. Falls dies nicht hilft, wenden Sie sich an Ihren
-        Admin und geben diesen Code an: \n%d
-    </string>
     <string name="asset_download_dialog_default_title">Datei herunterladen</string>
     <string name="empty_conversation_label">Unterhaltung ohne Namen</string>
     <!--prohibited asset messages -->

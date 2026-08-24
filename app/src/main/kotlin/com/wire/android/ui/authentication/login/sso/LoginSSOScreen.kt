@@ -123,6 +123,7 @@ private fun LoginSSOHostDialogs(
 
     if (loginSSOState.showSsoIdentityChangedDialog) {
         SsoIdentityChangedDialog(
+            cancelLabel = stringResource(R.string.label_cancel),
             onDismiss = loginSSOViewModel::onSsoIdentityChangeDismissed,
             onConfirm = loginSSOViewModel::onSsoIdentityChangeConfirmed,
         )

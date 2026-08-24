@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_error_invalid_credentials_title">Invalid information</string>
+    <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
+        Please verify your details and try again.
+    </string>
+    <string name="login_error_user_already_logged_in_title">Account in use</string>
+    <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
+    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
+    <string name="sso_identity_changed_dialog_title">Identity provider changed</string>
+    <string name="sso_identity_changed_dialog_message">This account was used with a different identity provider. Continuing will delete all conversations from this device.\nTo keep your data, select Cancel, then log in with your previous identity provider.</string>
+    <string name="sso_identity_changed_dialog_confirm">Delete data and continue</string>
+    <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
+    <string name="login_error_request_2fa_with_handle_title">Login with email</string>
+    <string name="login_error_request_2fa_with_handle_message">You can\'t use your username as two-factor authentication is activated. Please log in with your email instead.</string>
+    <string name="login_error_unauthorized_title">Unauthorized</string>
+    <string name="login_error_unauthorized_message">This account is no longer authorized to log in.</string>
+    <string name="login_error_pending_activation_title">Pending activation</string>
+    <string name="login_error_pending_activation_message">The account you are trying to access is pending activation. Please verify your details.</string>
+    <string name="error_socket_title">Invalid information</string>
+    <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
+    <string name="sso_error_dialog_title">Unable to log in with SSO</string>
+    <string name="sso_error_dialog_message">Please try again. If this does not help, contact your
+        admin and provide this code:\n%d"
+    </string>
+</resources>

@@ -307,27 +307,9 @@
     <string name="login_title">Войти</string>
     <string name="login_forgot_password">Забыли пароль?</string>
     <string name="login_user_identifier_label">EMAIL ИЛИ ПСЕВДОНИМ</string>
-    <string name="login_error_invalid_credentials_title">Неверная информация</string>
-    <string name="login_error_invalid_credentials_message">Эти учетные данные неверны. 
-        Проверьте их и повторите попытку.
-    </string>
     <string name="login_error_invalid_user_identifier">Адрес email или псевдоним неверны. Пожалуйста, проверьте и повторите попытку.</string>
-    <string name="login_error_user_already_logged_in_title">Используемая учетная запись</string>
-    <string name="login_error_user_already_logged_in_message">Вы уже авторизованы с этими учетными данными на данном устройстве.</string>
-    <string name="login_sso_error_invalid_cookie_title">Неверный cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">Сессия недействительна или истекла! Пожалуйста, попробуйте авторизоваться еще раз.</string>
-    <string name="sso_identity_changed_dialog_title">Провайдер идентификации изменен</string>
-    <string name="sso_identity_changed_dialog_message">Этот аккаунт использовался с другим провайдером услуг аутентификации. Если вы продолжите, все беседы с этого устройства будут удалены.\nЧтобы сохранить свои данные, нажмите Отмена, а затем авторизуйтесь с помощью прежнего провайдера услуг аутентификации.</string>
-    <string name="sso_identity_changed_dialog_confirm">Удалить данные и продолжить</string>
     <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">ПАРОЛЬ</string>
-    <string name="login_error_invalid_sso_code">Пожалуйста, введите действительный код доступа SSO.</string>
-    <string name="login_error_request_2fa_with_handle_title">Войти c email</string>
-    <string name="login_error_request_2fa_with_handle_message">Вы не можете использовать псевдоним, поскольку активирована двухфакторная аутентификация. Пожалуйста, авторизуйтесь, используя свой адрес email.</string>
-    <string name="login_error_unauthorized_title">Неавторизован</string>
-    <string name="login_error_unauthorized_message">У этого аккаунта истек срок действия авторизации.</string>
-    <string name="login_error_pending_activation_title">Ожидание активации</string>
-    <string name="login_error_pending_activation_message">Аккаунт, к которому вы пытаетесь получить доступ, ожидает активации. Пожалуйста, проверьте свои данные.</string>
     <string name="deleted_user_error_title">Удаленный аккаунт</string>
     <string name="deleted_user_error_message">Вы деавторизованы, поскольку ваша учетная запись была
         удалена.
@@ -834,8 +816,6 @@
     <string name="error_unknown_message">Повторите попытку</string>
     <string name="error_server_miscommunication_title">Ошибка сервера</string>
     <string name="error_server_miscommunication_message">Повторите попытку</string>
-    <string name="error_socket_title">Неверная информация</string>
-    <string name="error_socket_message">Учетные данные прокси-сервера неверны. Проверьте свои данные и повторите попытку.</string>
     <string name="error_no_network_title">Ожидание сети</string>
     <string name="error_no_network_message">Проверьте подключение к интернету и повторите попытку</string>
     <string name="error_downloading_self_user_profile_picture">Произошла ошибка при загрузке изображения вашего профиля. Пожалуйста, проверьте подключение к интернету</string>
@@ -988,10 +968,6 @@
         папку загрузок. Пожалуйста, проверьте подключение к интернету и повторите попытку
     </string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Невозможно авторизоваться с помощью SSO</string>
-    <string name="sso_error_dialog_message">Пожалуйста, попробуйте еще раз. Если это не помогло, свяжитесь с вашим
-        администратором и сообщите этот код:\n%d\"
-    </string>
     <string name="asset_download_dialog_default_title">Загрузить файл</string>
     <string name="empty_conversation_label">Безымянная беседа</string>
     <!--prohibited asset messages -->

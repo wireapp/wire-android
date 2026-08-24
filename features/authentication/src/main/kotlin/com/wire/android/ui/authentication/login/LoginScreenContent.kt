@@ -55,8 +55,8 @@ fun LoginScreenContent(
     emailContent: @Composable () -> Unit,
     ssoContent: @Composable () -> Unit,
     backendConfigContent: @Composable ColumnScope.() -> Unit,
-    subtitleContent: @Composable ColumnScope.() -> Unit = {},
     modifier: Modifier = Modifier,
+    subtitleContent: @Composable ColumnScope.() -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(initialPage = initialTab.ordinal, pageCount = { LoginTabItem.entries.size })

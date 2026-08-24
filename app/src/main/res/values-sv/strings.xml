@@ -157,17 +157,8 @@
     <string name="login_title">Logga in</string>
     <string name="login_forgot_password">Glömt lösenord?</string>
     <string name="login_user_identifier_label">E-POSTADRESS ELLER ANVÄNDARNAMN</string>
-    <string name="login_error_invalid_credentials_title">Ogiltig information</string>
-    <string name="login_error_invalid_credentials_message">De här kontouppgifterna är felaktiga.
-        Vänligen bekräfta dina uppgifter och försök igen.
-    </string>
-    <string name="login_error_user_already_logged_in_title">Konto som används</string>
-    <string name="login_error_user_already_logged_in_message">Du är redan inloggad med dessa uppgifter i den här enheten.</string>
-    <string name="login_sso_error_invalid_cookie_title">Ogiltig Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">Sessionen är ogiltig eller har slutat gälla! Vänligen försök igen för att logga in.</string>
     <string name="login_password_placeholder">Lösenord</string>
     <string name="login_password_label">LÖSENORD</string>
-    <string name="login_error_invalid_sso_code">Ange en giltig SSO-kod.</string>
     <string name="deleted_user_error_title">Kontot togs bort</string>
     <string name="deleted_user_error_message">Du loggades ut eftersom att ditt konto togs
         bort.

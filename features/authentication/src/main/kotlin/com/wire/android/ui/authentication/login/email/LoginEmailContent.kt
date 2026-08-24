@@ -281,9 +281,9 @@ fun LoginButtonContent(
     loading: Boolean,
     enabled: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     text: String,
     loadingText: String,
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         WirePrimaryButton(

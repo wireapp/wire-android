@@ -146,7 +146,7 @@ fun WelcomeScreenContent(
 private fun WelcomeCarousel(
     pages: List<WelcomeCarouselPage>,
     delayMillis: Long,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     if (pages.isEmpty()) return
     val circular = listOf(pages.last()) + pages + listOf(pages.first())

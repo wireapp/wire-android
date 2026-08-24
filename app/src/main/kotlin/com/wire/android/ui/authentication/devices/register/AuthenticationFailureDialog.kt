@@ -22,9 +22,6 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 
 @Composable
 internal fun AuthenticationFailureDialog(
@@ -32,15 +29,11 @@ internal fun AuthenticationFailureDialog(
     onDismiss: () -> Unit,
 ) {
     val strings = failure.dialogStrings()
-    WireDialog(
+    AuthenticationFailureDialogContent(
         title = stringResource(strings.title),
-        text = stringResource(strings.message),
+        message = stringResource(strings.message),
+        confirmLabel = stringResource(R.string.label_ok),
         onDismiss = onDismiss,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDismiss,
-            text = stringResource(R.string.label_ok),
-            type = WireDialogButtonType.Primary,
-        )
     )
 }
 

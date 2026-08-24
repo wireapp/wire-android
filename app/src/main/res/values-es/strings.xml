@@ -187,15 +187,8 @@
     <string name="login_title">Iniciar sesi&#243;n</string>
     <string name="login_forgot_password">&#191;Olvidaste tu contrase&#241;a?</string>
     <string name="login_user_identifier_label">CORREO ELECTR&#211;NICO O NOMBRE DE USUARIO</string>
-    <string name="login_error_invalid_credentials_title">Informaci&#243;n no v&#225;lida</string>
-    <string name="login_error_invalid_credentials_message">Credenciales de cuenta incorrectas. Por favor, verifique su informaci&#243;n e int&#233;ntelo de nuevo.</string>
-    <string name="login_error_user_already_logged_in_title">Cuenta en uso</string>
-    <string name="login_error_user_already_logged_in_message">Ya ha iniciado sesi&#243;n con esas credenciales en este dispositivo.</string>
-    <string name="login_sso_error_invalid_cookie_title">&#161;Cookie inv&#225;lida!</string>
-    <string name="login_sso_error_invalid_cookie_message">&#161;La sesi&#243;n es inv&#225;lida o ha expirado! Por favor, int&#233;ntelo de nuevo para iniciar sesi&#243;n.</string>
     <string name="login_password_placeholder">Contrase&#241;a</string>
     <string name="login_password_label">CONTRASE&#209;A</string>
-    <string name="login_error_invalid_sso_code">Por favor, ingrese un c&#243;digo SSO v&#225;lido.</string>
     <string name="deleted_user_error_title">Cuenta eliminada</string>
     <string name="deleted_user_error_message">Has cerrado la sesi&#243;n porque tu cuenta ha sido eliminada.</string>
     <string name="removed_client_error_title">Dispositivo eliminado</string>
@@ -468,8 +461,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="error_unknown_message">Por favor intenta nuevamente</string>
     <string name="error_server_miscommunication_title">Error del servidor</string>
     <string name="error_server_miscommunication_message">Por favor intenta nuevamente</string>
-    <string name="error_socket_title">Informaci&#243;n inv&#225;lida</string>
-    <string name="error_socket_message">Las credenciales del proxy son incorrectas. Verifica los detalles e intenta nuevamente.</string>
     <string name="error_no_network_title">Esperando la red</string>
     <string name="error_no_network_message">Verifica tu conexi&#243;n a Internet e intenta nuevamente.</string>
     <string name="error_downloading_self_user_profile_picture">Hubo un error al descargar tu foto de perfil. Verifica tu conexi&#243;n a Internet.</string>
@@ -548,9 +539,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="media_gallery_on_image_downloaded">Guardado en la carpeta Descargas</string>
     <string name="media_gallery_on_image_download_error">Se produjo un error al guardar la imagen en la carpeta Descargas. Por favor, comprueba tu conexi&#243;n a Internet e int&#233;ntalo de nuevo.</string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">No se pudo iniciar sesi&#243;n con SSO</string>
-    <string name="sso_error_dialog_message">Por favor, int&#233;ntelo de nuevo. Si esto no ayuda, p&#243;ngase en contacto con su administrador y proporcione este c&#243;digo:
-%d</string>
     <string name="asset_download_dialog_default_title">Descargar archivo</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">No se permiten recibir im&#225;genes</string>

@@ -64,6 +64,7 @@ internal fun NewLoginRouteScreen(
     }
     if (viewModel.state.flowState == NewLoginFlowState.SsoIdentityChanged) {
         SsoIdentityChangedDialog(
+            cancelLabel = stringResource(R.string.label_cancel),
             onDismiss = viewModel::onSsoIdentityChangeDismissed,
             onConfirm = viewModel::onSsoIdentityChangeConfirmed,
         )

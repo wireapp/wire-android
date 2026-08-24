@@ -259,23 +259,9 @@
     <string name="login_title">පිවිසෙන්න</string>
     <string name="login_forgot_password">මුරපදය අමතකද?</string>
     <string name="login_user_identifier_label">වි-තැපෑල හෝ පරි.නාමය</string>
-    <string name="login_error_invalid_credentials_title">සාවද්‍ය තොරතුරකි</string>
-    <string name="login_error_invalid_credentials_message">මෙම අක්තපත්‍ර වැරදියි.
-        ඔබගේ විස්තර තහවුරු කරගෙන උත්සාහ කරන්න.</string>
     <string name="login_error_invalid_user_identifier">මෙම විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය වලංගු නොවේ. කරුණාකර සත්‍යාපනය කර නැවත උත්සාහ කරන්න.</string>
-    <string name="login_error_user_already_logged_in_title">ගිණුම භාවිතයේ ඇත</string>
-    <string name="login_error_user_already_logged_in_message">මෙම උපාංගයේ ඔබ දැනටමත් එම අක්තපත්‍ර භාවිතයෙන් ඇතුළු වී ඇත.</string>
-    <string name="login_sso_error_invalid_cookie_title">සාවද්‍ය දත්තකඩකි!</string>
-    <string name="login_sso_error_invalid_cookie_message">වාරය වලංගු නොවේ හෝ කල් ඉකුත් වී ඇත! නැවත පිවිසීමට උත්සාහ කරන්න.</string>
     <string name="login_password_placeholder">මුරපදය</string>
     <string name="login_password_label">මුරපදය</string>
-    <string name="login_error_invalid_sso_code">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
-    <string name="login_error_request_2fa_with_handle_title">විද්‍යුත් තැපෑලෙන් පුරනය වන්න</string>
-    <string name="login_error_request_2fa_with_handle_message">ද්වි-සාධක සත්‍යාපනය සක්‍රිය කර ඇති බැවින් ඔබට ඔබේ පරිශීලක නාමය භාවිතා කළ නොහැක. ඒ වෙනුවට ඔබේ විද්‍යුත් තැපෑලෙන් ලොග් වන්න.</string>
-    <string name="login_error_unauthorized_title">අනවසර</string>
-    <string name="login_error_unauthorized_message">මෙම ගිණුමට තවදුරටත් පුරනය වීමට අවසර නැත.</string>
-    <string name="login_error_pending_activation_title">සක්‍රිය කිරීම පොරොත්තුයි</string>
-    <string name="login_error_pending_activation_message">ඔබ ප්‍රවේශ වීමට උත්සාහ කරන ගිණුම සක්‍රිය කිරීම බලාපොරොත්තුවෙන් සිටී. කරුණාකර ඔබගේ විස්තර සත්‍යාපනය කරන්න.</string>
     <string name="deleted_user_error_title">මකාදැමූ ගිණුමකි</string>
     <string name="deleted_user_error_message">ඔබගේ ගිණුම මකා දැමූ නිසා ඔබව
         නික්මවිණි.
@@ -685,8 +671,6 @@
     <string name="error_unknown_message">යළි උත්සාහ කරන්න</string>
     <string name="error_server_miscommunication_title">සේවාදායකයේ දෝෂයකි</string>
     <string name="error_server_miscommunication_message">යළි උත්සාහ කරන්න</string>
-    <string name="error_socket_title">සාවද්‍ය තොරතුරකි</string>
-    <string name="error_socket_message">ප්‍රතියුක්තයේ අක්තපත්‍ර වැරදියි. ඔබගේ විස්තර තහවුරු කරගෙන උත්සාහ කරන්න.</string>
     <string name="error_no_network_title">ජාලය සඳහා රැඳෙමින්</string>
     <string name="error_no_network_message">අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කර යළි උත්සාහ කරන්න</string>
     <string name="error_downloading_self_user_profile_picture">ඔබගේ පැතිකඩ රූපය බාගැනීමේ දෝෂයකි - අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කරන්න</string>
@@ -810,10 +794,6 @@
     <string name="media_gallery_on_image_downloaded">බාගැනීමේ බහාලුමට සුරැකිණි</string>
     <string name="media_gallery_on_image_download_error">බාගැනීම් බහාලුමට ඡායාරූපය සුරැකීමේ දෝෂයකි. ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්‍ෂා කර නැවත උත්සාහ කරන්න</string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">තනි-පිවිසුමෙන් (SSO) පිවිසීමට නොහැකි විය</string>
-    <string name="sso_error_dialog_message">නැවත උත්සාහ කරන්න. මෙයින් ඵලක් නොවේ නම්,
-        පරිපාලක අමතා මෙම කේතය දෙන්න:\n%d\"
-    </string>
     <string name="asset_download_dialog_default_title">ගොනුව බාගන්න</string>
     <string name="empty_conversation_label">නම් නොකළ සංවාදය</string>
     <!--prohibited asset messages -->

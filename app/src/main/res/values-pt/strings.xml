@@ -261,21 +261,8 @@ URL do Backend:
     <string name="login_title">Entrar</string>
     <string name="login_forgot_password">Esqueceu a senha?</string>
     <string name="login_user_identifier_label">E-MAIL OU USUÁRIO</string>
-    <string name="login_error_invalid_credentials_title">Informações inválidas</string>
-    <string name="login_error_invalid_credentials_message">As credenciais da conta estão incorretas. Por favor, verifique seus detalhes e tente novamente.</string>
-    <string name="login_error_user_already_logged_in_title">Conta em uso</string>
-    <string name="login_error_user_already_logged_in_message">Você já está logado com essas credenciais neste dispositivo.</string>
-    <string name="login_sso_error_invalid_cookie_title">Cookie inválido!</string>
-    <string name="login_sso_error_invalid_cookie_message">A sessão é inválida ou expirou! Por favor, tente fazer login novamente.</string>
     <string name="login_password_placeholder">Senha</string>
     <string name="login_password_label">SENHA</string>
-    <string name="login_error_invalid_sso_code">Por favor, insira um código SSO válido.</string>
-    <string name="login_error_request_2fa_with_handle_title">Entrar com E-mail</string>
-    <string name="login_error_request_2fa_with_handle_message">Você não pode usar seu nome de usuário porque a autenticação de dois fatores está ativada. Entre com seu e-mail.</string>
-    <string name="login_error_unauthorized_title">Não autorizado</string>
-    <string name="login_error_unauthorized_message">Esta conta não está mais autorizada a entrar.</string>
-    <string name="login_error_pending_activation_title">Pendente de ativação</string>
-    <string name="login_error_pending_activation_message">A conta que você está tentando acessar está pendente de ativação. Verifique seus dados.</string>
     <string name="deleted_user_error_title">Conta excluída</string>
     <string name="deleted_user_error_message">Você foi desconectado porque sua conta foi excluída.</string>
     <string name="removed_client_error_title">Dispositivo removido</string>
@@ -637,8 +624,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="error_unknown_message">Por favor, tente novamente.</string>
     <string name="error_server_miscommunication_title">Erro do servidor</string>
     <string name="error_server_miscommunication_message">Por favor, tente novamente.</string>
-    <string name="error_socket_title">Informação inválida</string>
-    <string name="error_socket_message">As credenciais do proxy estão incorretas. Por favor, verifique suas informações e tente novamente.</string>
     <string name="error_no_network_title">Aguardando conexão</string>
     <string name="error_no_network_message">Por favor, verifique sua conexão com a Internet e tente novamente.</string>
     <string name="error_downloading_self_user_profile_picture">Ocorreu um erro ao baixar a sua foto de perfil. Por favor, verifique sua conexão com a Internet.</string>
@@ -754,8 +739,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="media_gallery_on_image_downloaded">Salvo na pasta de Downloads</string>
     <string name="media_gallery_on_image_download_error">Ocorreu um erro ao salvar a imagem na pasta de Downloads. Verifique sua conexão com a internet e tente novamente.</string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Não foi possível fazer login com SSO</string>
-    <string name="sso_error_dialog_message">Por favor tente novamente. Se isso não resolver, contate um administrador e forneça este código:\n%d\"</string>
     <string name="asset_download_dialog_default_title">Baixar arquivo</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">O recebimento de imagens está desabilitado</string>

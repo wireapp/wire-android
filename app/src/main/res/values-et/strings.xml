@@ -115,8 +115,6 @@
     <string name="login_title">Logi sisse</string>
     <string name="login_forgot_password">Unustasid parooli?</string>
     <string name="login_user_identifier_label">E-POST VÕI KASUTAJANIMI</string>
-    <string name="login_error_invalid_credentials_title">Vale info</string>
-    <string name="login_error_user_already_logged_in_title">Konto on kasutusel</string>
     <string name="login_password_placeholder">Parool</string>
     <string name="login_password_label">PAROOL</string>
     <string name="deleted_user_error_title">Kustutatud konto</string>

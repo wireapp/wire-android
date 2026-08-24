@@ -884,14 +884,6 @@ private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed:
     - ssoCodeAutoLogin: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.LoginErrorDialog(dialogErrorData: com.wire.android.ui.authentication.login.LoginDialogErrorData, onDialogDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - dialogErrorData: STABLE (class with no mutable properties)
-    - onDialogDismiss: STABLE (function type)
-
-@Composable
 internal fun com.wire.android.ui.authentication.login.LoginRouteScreen(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>, onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -1091,14 +1083,6 @@ private fun com.wire.android.ui.authentication.login.sso.SSOCodeInput(ssoCodeSta
     - ssoCodeState: STABLE (marked @Stable or @Immutable)
     - error: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.authentication.login.sso.SsoIdentityChangedDialog(onDismiss: kotlin.Function0<kotlin.Unit>, onConfirm: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - onDismiss: STABLE (function type)
-    - onConfirm: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.authentication.login.toLoginDialogErrorData(): com.wire.android.ui.authentication.login.LoginDialogErrorData

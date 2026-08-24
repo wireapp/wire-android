@@ -88,7 +88,7 @@ internal fun NewLoginPasswordRouteScreen(
         ),
         sharedText = NewLoginPasswordSharedText(
             invalidEmail = stringResource(AuthenticationR.string.login_error_invalid_email),
-            invalidCredentials = stringResource(R.string.login_error_invalid_credentials_message),
+            invalidCredentials = stringResource(AuthenticationR.string.login_error_invalid_credentials_message),
             forgotPassword = stringResource(R.string.login_forgot_password),
             forgotPasswordContentDescription = stringResource(CommonR.string.content_description_open_link_label),
             proxyDescription = serverConfig.apiProxy?.host?.let { stringResource(R.string.proxy_credential_description, it) },

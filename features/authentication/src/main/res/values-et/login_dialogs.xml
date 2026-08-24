@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_error_invalid_credentials_title">Vale info</string>
+    <string name="login_error_user_already_logged_in_title">Konto on kasutusel</string>
+</resources>

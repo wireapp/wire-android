@@ -160,15 +160,8 @@ URL &#347;rodowiska:
     <string name="login_title">Zaloguj si&#281;</string>
     <string name="login_forgot_password">Zapomnia&#322;e&#347; has&#322;a?</string>
     <string name="login_user_identifier_label">ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
-    <string name="login_error_invalid_credentials_title">Niepoprawne dane logowania</string>
-    <string name="login_error_invalid_credentials_message">Podane dane logowania s&#261; niepoprawne. Sprawd&#378; swoje dane i spr&#243;buj ponownie.</string>
-    <string name="login_error_user_already_logged_in_title">Konto ju&#380; zalogowane</string>
-    <string name="login_error_user_already_logged_in_message">Jeste&#347; ju&#380; zalogowany tymi danymi na tym urz&#261;dzeniu.</string>
-    <string name="login_sso_error_invalid_cookie_title">Nieprawid&#322;owy plik cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">Sesja jest niewa&#380;na lub wygas&#322;a! Spr&#243;buj ponownie si&#281; zalogowa&#263;.</string>
     <string name="login_password_placeholder">Has&#322;o</string>
     <string name="login_password_label">HAS&#321;O</string>
-    <string name="login_error_invalid_sso_code">Wpisz poprawny kod SSO.</string>
     <string name="deleted_user_error_title">Usuni&#281;te konto</string>
     <string name="deleted_user_error_message">Zosta&#322;e&#347; wylogowany, poniewa&#380; Twoje konto zosta&#322;o usuni&#281;te.</string>
     <string name="removed_client_error_title">Usu&#324; urz&#261;dzenie</string>
@@ -395,8 +388,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="error_unknown_message">Spr&#243;buj ponownie</string>
     <string name="error_server_miscommunication_title">B&#322;&#261;d serwera</string>
     <string name="error_server_miscommunication_message">Prosz&#281; spr&#243;buj ponownie</string>
-    <string name="error_socket_title">Nieprawid&#322;owa informacja</string>
-    <string name="error_socket_message">Podane dane uwierzytelniaj&#261;ce s&#261; nieprawid&#322;owe. Sprawd&#378; swoje dane i spr&#243;buj ponownie.</string>
     <string name="error_no_network_title">Oczekiwanie na po&#322;&#261;czenie z sieci&#261;</string>
     <string name="error_no_network_message">Sprawd&#378; swoje po&#322;&#261;czenie internetowe i spr&#243;buj ponownie.</string>
     <string name="error_downloading_self_user_profile_picture">Wyst&#261;pi&#322; b&#322;&#261;d podczas pobierania twojego zdj&#281;cia profilowego. Sprawd&#378; swoje po&#322;&#261;czenie internetowe.</string>
@@ -473,9 +464,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="media_gallery_on_image_downloaded">Zapisane do folderu Pobrane</string>
     <string name="media_gallery_on_image_download_error">Wyst&#261;pi&#322; b&#322;&#261;d podczas zapisywania obrazu w folderze pobranych. Sprawd&#378; swoje po&#322;&#261;czenie z Internetem i spr&#243;buj ponownie.</string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Nie mo&#380;na zalogowa&#263; si&#281; za pomoc&#261; SSO</string>
-    <string name="sso_error_dialog_message">Spr&#243;buj ponownie. Je&#347;li to nie pomo&#380;e, skontaktuj si&#281; z administratorem i podaj ten kod:
-%d</string>
     <string name="asset_download_dialog_default_title">Pobierz plik</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Otrzymywanie obraz&#243;w jest zabronione</string>

@@ -186,15 +186,8 @@ URL backend:
     <string name="login_title">Accedi</string>
     <string name="login_forgot_password">Hai dimenticato la password?</string>
     <string name="login_user_identifier_label">EMAIL O USERNAME</string>
-    <string name="login_error_invalid_credentials_title">Informazioni non valide</string>
-    <string name="login_error_invalid_credentials_message">Queste credenziali di accesso non sono corrette. Verifica le credenziali e riprova.</string>
-    <string name="login_error_user_already_logged_in_title">Account in uso</string>
-    <string name="login_error_user_already_logged_in_message">Hai gi&#224; effettuato l\'accesso con queste credenziali su questo dispositivo.</string>
-    <string name="login_sso_error_invalid_cookie_title">Cookie non valido!</string>
-    <string name="login_sso_error_invalid_cookie_message">La sessione non &#232; valida o &#232; scaduta! Prova a effettuare nuovamente l\'accesso.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
-    <string name="login_error_invalid_sso_code">Inserisci un codice SSO valido.</string>
     <string name="deleted_user_error_title">Account eliminato</string>
     <string name="deleted_user_error_message">Hai effettuato il logout perch&#233; il tuo account &#232; stato eliminato.</string>
     <string name="removed_client_error_title">Dispositivo rimosso</string>
@@ -491,8 +484,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="error_unknown_message">Riprova.</string>
     <string name="error_server_miscommunication_title">Errore del server.</string>
     <string name="error_server_miscommunication_message">Riprova.</string>
-    <string name="error_socket_title">Informazioni non valide.</string>
-    <string name="error_socket_message">Le credenziali del proxy non sono corrette. Verifica i tuoi dettagli e riprova.</string>
     <string name="error_no_network_title">In attesa della rete.</string>
     <string name="error_no_network_message">Controlla la tua connessione Internet e riprova.</string>
     <string name="error_downloading_self_user_profile_picture">C\'&#232; stato un errore nel caricare la tua immagine del profilo. Controlla la tua connessione Internet.</string>
@@ -586,8 +577,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="media_gallery_on_image_downloaded">Salvato nella cartella Download</string>
     <string name="media_gallery_on_image_download_error">Si è verificato un errore durante il salvataggio dell\'immagine nella cartella Download. Verifica la connessione Internet e riprova.</string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Impossibile effettuare l\'accesso con SSO</string>
-    <string name="sso_error_dialog_message">Riprova. Se il problema persiste, contatta l\'amministratore e fornisci questo codice:\n%d</string>
     <string name="asset_download_dialog_default_title">Scarica file</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Ricevere immagini è vietato</string>

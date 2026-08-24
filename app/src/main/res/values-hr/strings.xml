@@ -177,17 +177,8 @@
     <string name="login_title">Prijava</string>
     <string name="login_forgot_password">Zaboravili ste lozinku?</string>
     <string name="login_user_identifier_label">EMAIL ILI KORISNIČKO IME</string>
-    <string name="login_error_invalid_credentials_title">Nevažeća informacija</string>
-    <string name="login_error_invalid_credentials_message">Ovi detalji računa nisu ispravni.
-        Molimo provjerite svoje podatke i pokušajte ponovo.
-    </string>
-    <string name="login_error_user_already_logged_in_title">Račun je već u upotrebi</string>
-    <string name="login_error_user_already_logged_in_message">S ovim podacima računa na ovom uređaju, već ste prijavljeni.</string>
-    <string name="login_sso_error_invalid_cookie_title">Nevažeći Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">Sesija nije valjana ili je istekla! Pokušajte se ponovno prijaviti.</string>
     <string name="login_password_placeholder">Lozinka</string>
     <string name="login_password_label">LOZINKA</string>
-    <string name="login_error_invalid_sso_code">Molimo, unesite ispravan kod za jedinstvenu prijavu.</string>
     <string name="deleted_user_error_title">Obrisan kontakt</string>
     <string name="deleted_user_error_message">Odjavljeni ste jer je Vaš račun izbrisan.    </string>
     <string name="removed_client_error_title">Uklonjen uređaj</string>
@@ -348,7 +339,6 @@
     <string name="error_unknown_message">Molimo pokušajte ponovno</string>
     <string name="error_server_miscommunication_title">Serverska greška</string>
     <string name="error_server_miscommunication_message">Molimo pokušajte ponovno</string>
-    <string name="error_socket_title">Nevažeća informacija</string>
     <string name="error_conversation_deleting_message">Poruka se ne može izbrisati</string>
     <string name="error_limit_number_assets_imported_exceeded">Možete poslati najviše 20 datoteka odjednom</string>
     <!-- Archiving -->

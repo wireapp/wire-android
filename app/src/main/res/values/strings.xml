@@ -324,27 +324,9 @@
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
-    <string name="login_error_invalid_credentials_title">Invalid information</string>
-    <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
-        Please verify your details and try again.
-    </string>
     <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
-    <string name="login_error_user_already_logged_in_title">Account in use</string>
-    <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
-    <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
-    <string name="sso_identity_changed_dialog_title">Identity provider changed</string>
-    <string name="sso_identity_changed_dialog_message">This account was used with a different identity provider. Continuing will delete all conversations from this device.\nTo keep your data, select Cancel, then log in with your previous identity provider.</string>
-    <string name="sso_identity_changed_dialog_confirm">Delete data and continue</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
-    <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
-    <string name="login_error_request_2fa_with_handle_title">Login with email</string>
-    <string name="login_error_request_2fa_with_handle_message">You can\'t use your username as two-factor authentication is activated. Please log in with your email instead.</string>
-    <string name="login_error_unauthorized_title">Unauthorized</string>
-    <string name="login_error_unauthorized_message">This account is no longer authorized to log in.</string>
-    <string name="login_error_pending_activation_title">Pending activation</string>
-    <string name="login_error_pending_activation_message">The account you are trying to access is pending activation. Please verify your details.</string>
     <string name="deleted_user_error_title">Deleted account</string>
     <string name="deleted_user_error_message">You were logged out because your account was
         deleted.
@@ -831,8 +813,6 @@
     <string name="error_unknown_message">Please try again</string>
     <string name="error_server_miscommunication_title">Server error</string>
     <string name="error_server_miscommunication_message">Please try again</string>
-    <string name="error_socket_title">Invalid information</string>
-    <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
     <string name="error_no_network_title">Waiting for network</string>
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
     <string name="error_downloading_self_user_profile_picture">There was an error downloading your profile picture. Please check your Internet connection</string>
@@ -989,10 +969,6 @@
         Downloads folder. Please check your Internet connection and try again
     </string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Unable to log in with SSO</string>
-    <string name="sso_error_dialog_message">Please try again. If this does not help, contact your
-        admin and provide this code:\n%d"
-    </string>
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_conversation_label">Unnamed conversation</string>
     <!--prohibited asset messages -->

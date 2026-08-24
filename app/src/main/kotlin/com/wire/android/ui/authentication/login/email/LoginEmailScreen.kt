@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.login.AppLoginDialogError
 import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
@@ -73,7 +74,7 @@ fun LoginEmailScreen(
             userIdentifierDescription = stringResource(R.string.content_description_login_user_identifier_field),
             invalidUserIdentifier = stringResource(R.string.login_error_invalid_user_identifier),
             passwordDescription = stringResource(R.string.content_description_login_password_field),
-            invalidCredentials = stringResource(R.string.login_error_invalid_credentials_message),
+            invalidCredentials = stringResource(AuthenticationR.string.login_error_invalid_credentials_message),
             forgotPassword = stringResource(R.string.login_forgot_password),
             openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
             proxyCredentials = stringResource(R.string.label_proxy_credentials),

@@ -18,9 +18,9 @@ fun <FailureT, UserT, SsoFailureT, DomainT> loginTerminalEffect(
     state: LoginState<FailureT, UserT, SsoFailureT>,
     claimedDomain: DomainT?,
 ): LoginTerminalEffect<UserT, DomainT> = when (state) {
-    is LoginState.Success -> claimedDomain?.let(LoginTerminalEffect::ShowClaimedDomain)
+    is LoginState.Success -> claimedDomain?.let { LoginTerminalEffect.ShowClaimedDomain(it) }
         ?: LoginTerminalEffect.Success(state.initialSyncCompleted, state.isE2EIRequired, state.userId)
-    is LoginState.Error.TooManyDevicesError -> claimedDomain?.let(LoginTerminalEffect::ShowClaimedDomain)
+    is LoginState.Error.TooManyDevicesError -> claimedDomain?.let { LoginTerminalEffect.ShowClaimedDomain(it) }
         ?: LoginTerminalEffect.RemoveDevice(state.userId)
     else -> LoginTerminalEffect.None
 }

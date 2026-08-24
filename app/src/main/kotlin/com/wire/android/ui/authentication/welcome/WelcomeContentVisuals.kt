@@ -10,10 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.wire.android.R
-import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.isConfigured
@@ -61,27 +59,3 @@ internal fun ServerConfig.Links.welcomeBodyOverride(): (@Composable ColumnScope.
     } else {
         null
     }
-
-@Composable
-internal fun welcomeCarouselPages() = listOf(
-    WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_1,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_1),
-    ),
-    WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_2,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_2),
-    ),
-    WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_3,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_3),
-    ),
-    WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_4,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_4),
-    ),
-    WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_5,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_5),
-    ),
-)

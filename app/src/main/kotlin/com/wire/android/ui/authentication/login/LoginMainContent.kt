@@ -59,7 +59,10 @@ internal fun MainLoginContent(
         backendConfigContent = { BackendConfiguration(backendState, loginEmailViewModel) },
         subtitleContent = {
             if (!showSetup && loginEmailViewModel.serverConfig.isOnPremises) {
-                ServerTitle(loginEmailViewModel.serverConfig, MaterialTheme.wireTypography.body01)
+                ServerTitle(
+                    serverLinks = loginEmailViewModel.serverConfig,
+                    style = MaterialTheme.wireTypography.body01,
+                )
             }
         },
     )

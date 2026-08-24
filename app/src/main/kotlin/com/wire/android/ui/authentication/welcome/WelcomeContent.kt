@@ -38,17 +38,20 @@ internal fun WelcomeContent(
     FeatureDisabledWithProxyDialogContent(personalDialog)
     if (maxAccounts) maxDialog.show(maxDialog.savedState ?: MaxAccountsReachedDialogState)
     if (nomadBlocksLogin) nomadDialog.show(nomadDialog.savedState ?: NomadAccountBlocksLoginDialogState)
+    val teamRegistrationUrl = links.teams + stringResource(
+        AuthenticationR.string.create_account_email_backlink_to_team_suffix_url,
+    )
     WelcomeScreenContent(
         state = welcomePresentation(activeSession),
         loginLabel = stringResource(R.string.label_login),
-        createTeamLabel = stringResource(R.string.welcome_button_create_team),
+        createTeamLabel = stringResource(AuthenticationR.string.welcome_button_create_team),
         footerText = stringResource(R.string.welcome_footer_text),
         createPersonalLabel = stringResource(R.string.welcome_button_create_personal_account),
         openLinkDescription = stringResource(CommonR.string.content_description_open_link_label),
         closeContentDescription = R.string.content_description_welcome_screen_close_btn,
         onClose = navigateBack,
         onLogin = { onAction(WelcomeScreenAction.Login(links)) },
-        onCreateTeam = { handleTeamDecision(links, enterpriseDialog, onAction) },
+        onCreateTeam = { handleTeamDecision(links, teamRegistrationUrl, enterpriseDialog, onAction) },
         onCreatePersonal = { handlePersonalDecision(links, personalDialog, onAction) },
         logoContent = { WelcomeLogo() },
         serverTitleContent = { WelcomeServerTitle(links) },
@@ -66,13 +69,12 @@ private fun welcomePresentation(activeSession: Boolean) = WelcomePresentationSta
     carouselPages = welcomeCarouselPages(),
 )
 
-@Composable
 private fun handleTeamDecision(
     links: ServerConfig.Links,
+    registrationUrl: String,
     dialog: VisibilityState<FeatureDisabledWithProxyDialogState>,
     onAction: (WelcomeScreenAction) -> Unit,
 ) {
-    val registrationUrl = links.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
     val policy = WelcomePolicy(
         links,
         links.isProxyEnabled(),
@@ -88,7 +90,6 @@ private fun handleTeamDecision(
     }
 }
 
-@Composable
 private fun handlePersonalDecision(
     links: ServerConfig.Links,
     dialog: VisibilityState<FeatureDisabledWithProxyDialogState>,

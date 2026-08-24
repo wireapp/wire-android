@@ -1,6 +1,8 @@
 package com.wire.android.ui.authentication.create.common
 
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
+import com.wire.android.feature.authentication.R
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -11,7 +13,8 @@ class CreateAccountFlowPolicyTest {
         val policy = CreateAccountRouteFlowType.PERSONAL.createAccountFlowPolicy()
 
         assertFalse(policy.isTeam)
-        assertTrue(policy.usesPersonalOverview)
+        assertEquals(R.string.create_personal_account_text, policy.overview.contentTextResId)
+        assertEquals(R.drawable.ic_create_personal_account, policy.overview.contentIconResId)
     }
 
     @Test
@@ -19,6 +22,7 @@ class CreateAccountFlowPolicyTest {
         val policy = CreateAccountRouteFlowType.TEAM.createAccountFlowPolicy()
 
         assertTrue(policy.isTeam)
-        assertFalse(policy.usesPersonalOverview)
+        assertEquals(R.string.create_team_text, policy.overview.contentTextResId)
+        assertEquals(R.drawable.ic_create_team, policy.overview.contentIconResId)
     }
 }

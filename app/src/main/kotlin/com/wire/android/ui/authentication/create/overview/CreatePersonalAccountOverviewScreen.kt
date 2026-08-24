@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -37,14 +38,16 @@ internal fun CreateAccountOverviewRouteScreen(
     onContinue: () -> Unit,
 ) {
     val context = LocalContext.current
+    val policy = flowType.createAccountFlowPolicy()
     with(flowType) {
         CreateAccountOverviewContent(
             overviewParams = CreateAccountOverviewParams(
                 title = stringResource(id = titleResId()),
-                contentTitle = overviewContentTitleResId()?.let { stringResource(id = it) } ?: "",
-                contentText = stringResource(id = overviewContentTextResId()),
-                contentIconResId = overviewContentIconResId(),
-                learnMoreText = stringResource(id = overviewLearnMoreTextResId()),
+                contentTitle = policy.overview.contentTitleResId?.let(::stringResource) ?: "",
+                contentText = stringResource(policy.overview.contentTextResId),
+                contentIconResId = policy.overview.contentIconResId,
+                learnMoreText = policy.overview.learnMoreTextResId?.let(::stringResource)
+                    ?: stringResource(R.string.label_learn_more),
                 learnMoreUrl = viewModel.learnMoreUrl(),
             ),
             continueText = stringResource(R.string.label_continue),
@@ -69,24 +72,4 @@ internal fun CreateAccountOverviewRouteScreen(
 private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
     CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_title
     CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
-}
-
-private fun CreateAccountRouteFlowType.overviewContentTitleResId(): Int? = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> null
-    CreateAccountRouteFlowType.TEAM -> com.wire.android.feature.authentication.R.string.create_team_content_title
-}
-
-private fun CreateAccountRouteFlowType.overviewContentTextResId(): Int = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_text
-    CreateAccountRouteFlowType.TEAM -> com.wire.android.feature.authentication.R.string.create_team_text
-}
-
-private fun CreateAccountRouteFlowType.overviewContentIconResId(): Int = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.drawable.ic_create_personal_account
-    CreateAccountRouteFlowType.TEAM -> com.wire.android.feature.authentication.R.drawable.ic_create_team
-}
-
-private fun CreateAccountRouteFlowType.overviewLearnMoreTextResId(): Int = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> R.string.label_learn_more
-    CreateAccountRouteFlowType.TEAM -> com.wire.android.feature.authentication.R.string.create_team_learn_more
 }

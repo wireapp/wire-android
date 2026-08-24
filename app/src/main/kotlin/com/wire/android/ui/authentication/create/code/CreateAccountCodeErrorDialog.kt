@@ -5,7 +5,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
-import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.*
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.ACCOUNT_EXISTS
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.BLACKLISTED
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.DOMAIN_BLOCKED
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.GENERIC
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.INVALID_EMAIL
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.PERSONAL_CREATION_RESTRICTED
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.TEAM_CREATION_RESTRICTED
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.TEAM_LIMIT
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.USER_EXISTS
 import com.wire.android.ui.authentication.create.code.dialogKind
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings

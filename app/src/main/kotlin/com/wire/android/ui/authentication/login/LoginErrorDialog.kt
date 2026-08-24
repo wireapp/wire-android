@@ -30,7 +30,9 @@ import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.newauthentication.login.NewLoginFlowState
 import com.wire.android.ui.newauthentication.login.toLoginStateDialogError
 import com.wire.android.util.dialogErrorStrings
+import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.android.util.launchUpdateTheApp
+import com.wire.kalium.common.error.CoreFailure
 
 @Composable
 fun LoginErrorDialog(dialogErrorData: LoginDialogErrorData, onDialogDismiss: () -> Unit) {
@@ -51,7 +53,7 @@ fun LoginErrorDialog(dialogErrorData: LoginDialogErrorData, onDialogDismiss: () 
 }
 
 @Composable
-fun LoginState.Error.DialogError.toLoginDialogErrorData() = when (this) {
+fun AppLoginDialogError.toLoginDialogErrorData() = when (this) {
     is LoginState.Error.DialogError.InvalidCredentialsError -> LoginDialogErrorData(
         title = stringResource(R.string.login_error_invalid_credentials_title),
         body = AnnotatedString(stringResource(R.string.login_error_invalid_credentials_message)),
@@ -67,8 +69,8 @@ fun LoginState.Error.DialogError.toLoginDialogErrorData() = when (this) {
         body = AnnotatedString(stringResource(R.string.error_socket_message)),
     )
 
-    is LoginState.Error.DialogError.GenericError -> {
-        val strings = this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+    is LoginState.Error.DialogError.GenericError<*> -> {
+        val strings = (this.coreFailure as CoreFailure).dialogErrorStrings(LocalContext.current.resources)
         LoginDialogErrorData(
             title = strings.title,
             body = strings.annotatedMessage,
@@ -85,9 +87,9 @@ fun LoginState.Error.DialogError.toLoginDialogErrorData() = when (this) {
         body = AnnotatedString(stringResource(R.string.login_sso_error_invalid_cookie_message)),
     )
 
-    is LoginState.Error.DialogError.SSOResultError -> LoginDialogErrorData(
+    is LoginState.Error.DialogError.SSOResultError<*> -> LoginDialogErrorData(
         title = stringResource(R.string.sso_error_dialog_title),
-        body = AnnotatedString(stringResource(R.string.sso_error_dialog_message, this.result.errorCode)),
+        body = AnnotatedString(stringResource(R.string.sso_error_dialog_message, (this.result as SSOFailureCodes).errorCode)),
     )
 
     is LoginState.Error.DialogError.ServerVersionNotSupported -> LoginDialogErrorData(

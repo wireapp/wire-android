@@ -34,6 +34,7 @@ import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.toBackendConfigUrl
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
@@ -234,7 +235,7 @@ class LoginEmailViewModel(
     }
 
     private fun updateEmailFlowState(
-        flowState: LoginState,
+        flowState: AppLoginState,
         showInvalidCredentialsError: Boolean = when (flowState) {
             LoginState.Error.DialogError.InvalidCredentialsError -> true
             LoginState.Default -> loginState.showInvalidCredentialsError
@@ -252,11 +253,11 @@ class LoginEmailViewModel(
         )
     }
 
-    private fun LoginState.canBeResetByCredentialChange(): Boolean = when (this) {
+    private fun AppLoginState.canBeResetByCredentialChange(): Boolean = when (this) {
         LoginState.Loading,
         LoginState.Canceled,
-        is LoginState.Success,
-        is LoginState.Error.TooManyDevicesError -> false
+        is LoginState.Success<*>,
+        is LoginState.Error.TooManyDevicesError<*> -> false
 
         else -> true
     }

@@ -19,6 +19,7 @@
 package com.wire.android.ui.newauthentication.login
 
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.AppLoginDialogError
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -50,7 +51,7 @@ sealed class NewLoginFlowState {
     }
 }
 
-fun NewLoginFlowState.Error.DialogError.toLoginStateDialogError(): LoginState.Error.DialogError = when (this) {
+fun NewLoginFlowState.Error.DialogError.toLoginStateDialogError(): AppLoginDialogError = when (this) {
     is NewLoginFlowState.Error.DialogError.ServerVersionNotSupported -> LoginState.Error.DialogError.ServerVersionNotSupported
     is NewLoginFlowState.Error.DialogError.ClientUpdateRequired -> LoginState.Error.DialogError.ClientUpdateRequired
     is NewLoginFlowState.Error.DialogError.SSOResultFailure -> LoginState.Error.DialogError.SSOResultError(this.result)

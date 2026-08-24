@@ -56,6 +56,8 @@ import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.AppLoginState
+import com.wire.android.ui.authentication.login.AppLoginDialogError
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.ForgotPasswordLabel
@@ -416,20 +418,20 @@ internal fun LoginStateNavigationAndDialogs(
 ) {
     val state = viewModel.loginState.flowState
     val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    val handleLoginStateNavigation: (LoginState) -> Boolean = {
+    val handleLoginStateNavigation: (AppLoginState) -> Boolean = {
         when (it) {
-            is LoginState.Success -> {
+            is LoginState.Success<*> -> {
                 onAction(
                     NewLoginPasswordScreenAction.Success(
                         initialSyncCompleted = it.initialSyncCompleted,
                         isE2EIRequired = it.isE2EIRequired,
-                        userId = it.userId,
+                        userId = it.userId as UserId,
                     )
                 )
             }
 
-            is LoginState.Error.TooManyDevicesError -> {
-                val accepted = onAction(NewLoginPasswordScreenAction.RemoveDevice(it.userId))
+            is LoginState.Error.TooManyDevicesError<*> -> {
+                val accepted = onAction(NewLoginPasswordScreenAction.RemoveDevice(it.userId as UserId))
                 if (accepted) {
                     viewModel.clearLoginErrors()
                 }
@@ -448,15 +450,15 @@ internal fun LoginStateNavigationAndDialogs(
     }
     LaunchedEffect(state) {
         val isDomainClaimedByOrg = viewModel.loginNavArgs.loginPasswordPath?.isDomainClaimedByOrg
-        val isStateCompleted = state is LoginState.Success || state is LoginState.Error.TooManyDevicesError
+        val isStateCompleted = state is LoginState.Success<*> || state is LoginState.Error.TooManyDevicesError<*>
         if (isStateCompleted && isDomainClaimedByOrg is DomainClaimedByOrg.Claimed) {
             emailAlreadyInUseClaimedDomainDialogState.show(isDomainClaimedByOrg)
         } else {
             handleLoginStateNavigation(state)
         }
     }
-    if (state is LoginState.Error.DialogError) {
-        LoginErrorDialog(state.toLoginDialogErrorData(), viewModel::clearLoginErrors)
+    if (state is LoginState.Error.DialogError<*, *>) {
+        LoginErrorDialog((state as AppLoginDialogError).toLoginDialogErrorData(), viewModel::clearLoginErrors)
     }
     EmailAlreadyInUseClaimedDomainDialog(
         dialogState = emailAlreadyInUseClaimedDomainDialogState,

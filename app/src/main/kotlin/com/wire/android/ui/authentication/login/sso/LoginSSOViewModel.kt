@@ -34,6 +34,7 @@ import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.authentication.login.LoginNavArgs
+import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginViewModel
@@ -184,7 +185,7 @@ class LoginSSOViewModel : LoginViewModel {
         }
     }
 
-    private fun updateSSOFlowState(flowState: LoginState) {
+    private fun updateSSOFlowState(flowState: AppLoginState) {
         loginState = loginState.copy(
             flowState = flowState,
             loginEnabled = ssoTextState.text.isNotEmpty() && flowState !is LoginState.Loading

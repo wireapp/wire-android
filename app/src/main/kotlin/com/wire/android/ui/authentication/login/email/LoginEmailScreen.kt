@@ -18,6 +18,8 @@
 
 package com.wire.android.ui.authentication.login.email
 
+import com.wire.android.ui.authentication.login.AppLoginDialogError
+import com.wire.android.ui.authentication.login.AppLoginState
 import android.content.Context
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -245,19 +247,19 @@ private fun LoginEmailContent(
 
 @Composable
 private fun LoginEmailStateNavigationAndDialogs(
-    state: LoginState,
+    state: AppLoginState,
     domainClaimedByOrg: DomainClaimedByOrg?,
     onClearLoginErrors: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
     onRemoveDeviceNeeded: (UserId) -> Unit,
 ) {
     val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    val handleLoginStateNavigation: (LoginState) -> Unit = {
+    val handleLoginStateNavigation: (AppLoginState) -> Unit = {
         when (it) {
-            is LoginState.Success -> onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId)
-            is LoginState.Error.TooManyDevicesError -> {
+            is LoginState.Success<*> -> onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId as UserId)
+            is LoginState.Error.TooManyDevicesError<*> -> {
                 onClearLoginErrors()
-                onRemoveDeviceNeeded(it.userId)
+                onRemoveDeviceNeeded(it.userId as UserId)
             }
             else -> {
                 /* do nothing */
@@ -266,7 +268,7 @@ private fun LoginEmailStateNavigationAndDialogs(
     }
 
     LaunchedEffect(state) {
-        val isStateCompleted = state is LoginState.Success || state is LoginState.Error.TooManyDevicesError
+        val isStateCompleted = state is LoginState.Success<*> || state is LoginState.Error.TooManyDevicesError<*>
         if (isStateCompleted && domainClaimedByOrg is DomainClaimedByOrg.Claimed) {
             emailAlreadyInUseClaimedDomainDialogState.show(domainClaimedByOrg)
         } else {
@@ -274,8 +276,8 @@ private fun LoginEmailStateNavigationAndDialogs(
         }
     }
 
-    if (state is LoginState.Error.DialogError) {
-        LoginErrorDialog(state.toLoginDialogErrorData(), onClearLoginErrors)
+    if (state is LoginState.Error.DialogError<*, *>) {
+        LoginErrorDialog((state as AppLoginDialogError).toLoginDialogErrorData(), onClearLoginErrors)
     }
     EmailAlreadyInUseClaimedDomainDialog(
         dialogState = emailAlreadyInUseClaimedDomainDialogState,

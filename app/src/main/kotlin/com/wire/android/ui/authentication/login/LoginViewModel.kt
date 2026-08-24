@@ -82,7 +82,7 @@ fun RegisterClientResult.Failure.toLoginError() = when (this) {
 }
 
 fun DomainLookupUseCase.Result.Failure.toLoginError() = LoginState.Error.DialogError.GenericError(this.coreFailure)
-fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginState.Error = when (this) {
+fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): AppLoginError = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginState.Error.DialogError.UserAlreadyExists
     AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> LoginState.Error.DialogError.UserAlreadyExists

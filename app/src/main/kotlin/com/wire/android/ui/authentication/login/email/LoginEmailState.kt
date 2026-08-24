@@ -17,12 +17,13 @@
  */
 package com.wire.android.ui.authentication.login.email
 
+import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.LoginState
 
 data class LoginEmailState(
     val userIdentifierEnabled: Boolean = true,
     val loginEnabled: Boolean = false,
-    val flowState: LoginState = LoginState.Default,
+    val flowState: AppLoginState = LoginState.Default,
     val backendConfigState: BackendConfigState = BackendConfigState.Missing,
     val showInvalidCredentialsError: Boolean = false,
 ) {

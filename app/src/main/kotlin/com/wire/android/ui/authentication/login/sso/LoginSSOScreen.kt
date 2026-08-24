@@ -47,6 +47,7 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.AppLoginDialogError
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -114,8 +115,8 @@ fun LoginSSOScreen(
         }.launchIn(scope)
     }
     LaunchedEffect(loginSSOViewModel.loginState.flowState) {
-        (loginSSOViewModel.loginState.flowState as? LoginState.Success)?.let {
-            onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId)
+        (loginSSOViewModel.loginState.flowState as? LoginState.Success<*>)?.let {
+            onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId as UserId)
         }
     }
 }
@@ -158,10 +159,10 @@ private fun LoginSSOContent(
             onClick = onLoginButtonClick
         )
     }
-    if (loginSSOState.flowState is LoginState.Error.DialogError) {
-        LoginErrorDialog(loginSSOState.flowState.toLoginDialogErrorData(), onErrorDialogDismiss)
-    } else if (loginSSOState.flowState is LoginState.Error.TooManyDevicesError) {
-        onRemoveDeviceOpen(loginSSOState.flowState.userId)
+    if (loginSSOState.flowState is LoginState.Error.DialogError<*, *>) {
+        LoginErrorDialog((loginSSOState.flowState as AppLoginDialogError).toLoginDialogErrorData(), onErrorDialogDismiss)
+    } else if (loginSSOState.flowState is LoginState.Error.TooManyDevicesError<*>) {
+        onRemoveDeviceOpen(loginSSOState.flowState.userId as UserId)
     }
 
     if (loginSSOState.customServerDialogState != null) {

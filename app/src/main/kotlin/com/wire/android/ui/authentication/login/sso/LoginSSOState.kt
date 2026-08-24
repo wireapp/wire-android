@@ -17,12 +17,13 @@
  */
 package com.wire.android.ui.authentication.login.sso
 
+import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 
 data class LoginSSOState(
     val loginEnabled: Boolean = false,
-    val flowState: LoginState = LoginState.Default,
+    val flowState: AppLoginState = LoginState.Default,
     val customServerDialogState: CustomServerDetailsDialogState? = null,
     val showSsoIdentityChangedDialog: Boolean = false,
 )

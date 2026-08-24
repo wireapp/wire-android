@@ -85,6 +85,7 @@ class CreateAccountUsernameOwnershipTest {
         assertTrue(appScreen.contains("CreateAccountUsernameContent("))
         assertTrue(appScreen.contains("NewAuthContainer("))
         assertTrue(appScreen.contains("NewAuthHeader("))
+        assertTrue(appScreen.replace(Regex("\\s+"), " ").contains("content = { content() }"))
         assertTrue(appScreen.contains("CoreFailureErrorDialog(failure, onDismiss)"))
         assertFalse(appScreen.contains("toHandleUpdateErrorState"))
         assertFalse(appScreen.contains("UsernameTextField("))

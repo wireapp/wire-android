@@ -59,7 +59,7 @@ internal fun CreateAccountUsernameRouteScreen(
                     )
                 },
                 contentPadding = dimensions().spacing16x,
-                content = content,
+                content = { content() },
             )
         },
         genericFailureContent = { failure, onDismiss -> CoreFailureErrorDialog(failure, onDismiss) },

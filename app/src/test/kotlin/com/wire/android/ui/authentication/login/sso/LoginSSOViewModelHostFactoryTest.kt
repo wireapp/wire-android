@@ -52,6 +52,7 @@ import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -191,6 +192,11 @@ class LoginSSOViewModelHostFactoryTest {
         assertEquals(
             LoginSSOSessionResult.IdentityChanged(retained, true),
             arrangement.gateway.establishSession("cookie", "config", { "nomad" }, { "shared" }),
+        )
+        every { retained.nomadServiceUrl } returns null
+        assertEquals(
+            LoginSSOSessionResult.IdentityChanged(retained, false),
+            arrangement.gateway.establishSession("cookie", "config", { null }, { null }),
         )
 
         coEvery { arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
@@ -381,6 +387,10 @@ class LoginSSOViewModelHostFactoryTest {
         )
         fallback.handleSSOResult(null)
         assertFalse(fallback.loginState.flowState is com.wire.android.ui.authentication.login.LoginState.Error<*, *, *>)
+
+        val successMapperTarget = mockk<AppLoginSSOViewModel>(relaxed = true)
+        successMapperTarget.handleSSOResult(DeepLinkResult.SSOLogin.Success("cookie", "server-config"))
+        verify(exactly = 1) { successMapperTarget.establishSSOSession("cookie", "server-config") }
     }
 
     private class Arrangement {

@@ -27,8 +27,6 @@ import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
-import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel
-import com.wire.android.ui.home.conversations.media.ConversationMediaNavArgs
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModel
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavArgs
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
@@ -117,16 +115,6 @@ fun mediaGalleryViewModel(args: MediaGalleryNavArgs): MediaGalleryViewModel =
 @Composable
 fun locationPickerViewModel(): LocationPickerViewModel =
     conversationCoreViewModel()
-
-@Composable
-fun conversationAssetMessagesViewModel(): ConversationAssetMessagesViewModel =
-    conversationCoreViewModel()
-
-@Composable
-fun conversationAssetMessagesViewModel(args: ConversationMediaNavArgs): ConversationAssetMessagesViewModel =
-    wireAssistedMetroViewModel<ConversationAssetMessagesViewModel, ConversationCoreManualViewModelFactory> { _ ->
-        conversationAssetMessagesViewModel(args)
-    }
 
 @Composable
 fun imagesPreviewViewModel(): ImagesPreviewViewModel =

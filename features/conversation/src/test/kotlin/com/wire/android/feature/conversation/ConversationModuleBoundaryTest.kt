@@ -450,11 +450,37 @@ class ConversationModuleBoundaryTest {
         assertTrue(leading.contains("fun SystemMessageItemLeading(messageContent: SystemMessageContent"))
         assertTrue(content.contains("data class SystemMessageContent("))
         assertTrue(content.contains("val annotatedStringBuilder: @Composable (expanded: Boolean) -> AnnotatedString"))
-        assertTrue(appFactory.contains("fun systemMessageContent("))
+        assertTrue(appFactory.contains("fun SystemMessage.buildContent("))
         assertFalse(appFactory.contains("data class SystemMessageContent("))
         assertFalse(leading.contains("com.wire.android.R"))
         assertFalse(content.contains("com.wire.android.R"))
         assertFalse(File(Konsist.projectRootPath, legacySystemMessageItemLeadingRelativePath).exists())
+    }
+
+    @Test
+    fun conversationAssetMessagesPresentationHasAFeatureOwnedGatewayAndAppAssemblyOnly() {
+        val graph = featureSource(conversationAssetMessagesViewModelGraphRelativePath)
+        val viewModel = featureSource(conversationAssetMessagesViewModelRelativePath)
+        val state = featureSource(conversationAssetMessagesViewStateRelativePath)
+        val sessionGraph = File(Konsist.projectRootPath, appSessionViewModelGraphRelativePath).readText()
+        val formerCoreGraph = File(Konsist.projectRootPath, conversationCoreViewModelGraphRelativePath).readText()
+
+        assertTrue(graph.contains("object ConversationAssetMessagesManualViewModelFactoryGroup"))
+        assertTrue(graph.contains("fun conversationAssetMessagesViewModel(args: ConversationMediaNavArgs)"))
+        assertTrue(viewModel.contains("ConversationAssetMessagesManualViewModelFactoryGroup::class"))
+        assertTrue(viewModel.contains("factoryMethod = \"conversationAssetMessagesViewModel\""))
+        assertTrue(state.contains("data class ConversationAssetMessagesViewState("))
+        assertFalse(viewModel.contains("ConversationCoreManualViewModelFactoryGroup"))
+        assertFalse(viewModel.contains("com.wire.android.R"))
+        assertEquals(
+            1,
+            Regex("ConversationAssetMessagesManualViewModelFactoryMetroBindings::class")
+                .findAll(sessionGraph)
+                .count(),
+        )
+        assertFalse(formerCoreGraph.contains("conversationAssetMessagesViewModel"))
+        assertFalse(File(Konsist.projectRootPath, legacyConversationAssetMessagesViewModelRelativePath).exists())
+        assertFalse(File(Konsist.projectRootPath, legacyConversationAssetMessagesViewStateRelativePath).exists())
     }
 
     @Test
@@ -1207,6 +1233,20 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/SystemMessageItemLeading.kt"
         const val systemMessageItemRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/SystemMessageItem.kt"
+        const val conversationAssetMessagesViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationAssetMessagesViewModelGraph.kt"
+        const val conversationAssetMessagesViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/media/ConversationAssetMessagesViewModel.kt"
+        const val conversationAssetMessagesViewStateRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/media/ConversationAssetMessagesViewState.kt"
+        const val legacyConversationAssetMessagesViewModelRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/media/ConversationAssetMessagesViewModel.kt"
+        const val legacyConversationAssetMessagesViewStateRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/media/ConversationAssetMessagesViewState.kt"
+        const val appSessionViewModelGraphRelativePath =
+            "app/src/main/kotlin/com/wire/android/di/metro/AppSessionViewModelGraph.kt"
+        const val conversationCoreViewModelGraphRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationCoreViewModelGraph.kt"
         const val conversationSearchPagingUseCaseRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetConversationMessagesFromSearchUseCase.kt"
         const val legacyConversationSearchPagingUseCaseRelativePath =
@@ -1814,6 +1854,11 @@ class ConversationModuleBoundaryTest {
             systemMessageItemLeadingRelativePath to "com.wire.android.ui.home.conversations.messages.item",
             systemMessageContentRelativePath to "com.wire.android.ui.home.conversations.messages.item",
         )
+        val conversationAssetMessagesPresentationSources = mapOf(
+            conversationAssetMessagesViewModelGraphRelativePath to "com.wire.android.ui.home.conversations",
+            conversationAssetMessagesViewModelRelativePath to "com.wire.android.ui.home.conversations.media",
+            conversationAssetMessagesViewStateRelativePath to "com.wire.android.ui.home.conversations.media",
+        )
         val conversationSearchPagingUseCaseSources = mapOf(
             conversationSearchPagingUseCaseRelativePath to "com.wire.android.ui.home.conversations.usecase",
         )
@@ -1863,7 +1908,7 @@ class ConversationModuleBoundaryTest {
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
                     offlineMessageIndicatorSources + groupConversationAvatarSources + participantPreviewSources +
-                    messageBubbleItemSources + systemMessageLeadingSources +
+                    messageBubbleItemSources + systemMessageLeadingSources + conversationAssetMessagesPresentationSources +
                     conversationSearchPagingUseCaseSources + conversationAssetPagingUseCaseSources +
                     reactionPresentationSources +
                     messageResourceProviderSources +
@@ -1976,6 +2021,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.EditSelfDeletingMessagesManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.PromoteAdminManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.AddMembersToConversationManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.ConversationAssetMessagesManualViewModelFactoryGroup",
             "com.wire.android.ui.home.conversations.QualifiedIdParceler",
             "com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs",
             "com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel",
@@ -2013,17 +2059,25 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.model.UIMessage",
             "com.wire.android.ui.home.conversations.model.UIMessageContent",
             "com.wire.android.ui.home.conversations.model.UIQuotedMessage",
+            "com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel",
+            "com.wire.android.ui.home.conversations.media.ConversationMediaNavArgs",
             "com.wire.android.ui.home.conversations.info.ConversationAvatar",
             "com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams",
+            "com.wire.android.ui.home.conversations.model.messagetypes.image.MaxBounds",
             "com.wire.android.ui.home.messagecomposer.SelfDeletionDuration",
             "com.wire.android.ui.markdown.MarkdownNode",
             "com.wire.android.ui.markdown.MarkdownPreview",
             "com.wire.android.ui.theme.Accent",
+            "com.wire.android.ui.theme.color",
             "com.wire.android.util.Copyable",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",
             "com.wire.android.ui.home.conversations.usecase.ObserveUsersTypingInConversationUseCase",
+            "com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase",
+            "com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase",
+            "com.wire.android.ui.home.conversations.usecase.UIImageAssetPagingItem",
+            "com.wire.android.ui.home.conversations.usecase.UIPagingItem",
             "com.wire.android.ui.home.conversationslist.model.Membership",
             "com.wire.android.ui.theme.wireColorScheme",
             "com.wire.android.ui.theme.wireDimensions",

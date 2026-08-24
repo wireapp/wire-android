@@ -23,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationAssetMessagesManualViewModelFactoryGroup
 import com.wire.android.ui.home.conversations.usecase.GetAssetMessagesFromConversationUseCase
 import com.wire.android.ui.home.conversations.usecase.ObserveImageAssetMessagesFromConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -32,11 +34,12 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+@WireAssistedViewModelBinding(
+    group = ConversationAssetMessagesManualViewModelFactoryGroup::class,
+    factoryMethod = "conversationAssetMessagesViewModel",
+)
 class ConversationAssetMessagesViewModel @AssistedInject constructor(
     @Assisted navigationArgs: ConversationMediaNavArgs,
     private val getImageMessages: ObserveImageAssetMessagesFromConversationUseCase,

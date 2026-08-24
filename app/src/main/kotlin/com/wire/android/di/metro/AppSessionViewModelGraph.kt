@@ -57,6 +57,7 @@ import com.wire.android.ui.home.conversations.call.ConversationCallManualViewMod
 import com.wire.android.ui.home.conversations.AddMembersToConversationManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.CheckAssetRestrictionsMetroViewModelBindings
 import com.wire.android.ui.home.conversations.ConversationBannerManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversations.ConversationAssetMessagesManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.NewFolderMetroViewModelBindings
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.CompositeMessageManualViewModelFactoryMetroBindings
@@ -120,6 +121,7 @@ annotation class MetroSessionScope
         ConversationCallManualViewModelFactoryMetroBindings::class,
         CheckAssetRestrictionsMetroViewModelBindings::class,
         ConversationBannerManualViewModelFactoryMetroBindings::class,
+        ConversationAssetMessagesManualViewModelFactoryMetroBindings::class,
         ConversationCoreManualViewModelFactoryMetroBindings::class,
         CompositeMessageManualViewModelFactoryMetroBindings::class,
         ConversationInfoManualViewModelFactoryMetroBindings::class,

@@ -137,7 +137,10 @@ fun LoginEmailContent(
                 keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
                 onKeyboardAction = { keyboardController?.hide() },
                 semanticDescription = text.passwordDescription,
-                modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x).testTag("passwordField"),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+                    .testTag("passwordField"),
                 autoFill = true,
                 testTag = "PasswordInput",
             )
@@ -145,10 +148,14 @@ fun LoginEmailContent(
                 text = text.invalidCredentials,
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.error,
-                modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x).testTag("invalidCredentialsError"),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+                    .testTag("invalidCredentialsError"),
             )
             ForgotPasswordLink(
-                text = text,
+                label = text.forgotPassword,
+                openLinkDescription = text.openLinkDescription,
                 onClick = onForgotPasswordClick,
                 modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             )
@@ -162,7 +169,14 @@ fun LoginEmailContent(
         }
         Surface(color = MaterialTheme.wireColorScheme.surface, modifier = Modifier.semantics { testTagsAsResourceId = true }) {
             Box(Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                LoginButton(state.loading, state.loginEnabled, onLoginButtonClick, Modifier.fillMaxWidth(), text.login, text.loggingIn)
+                LoginButtonContent(
+                    loading = state.loading,
+                    enabled = state.loginEnabled,
+                    onClick = onLoginButtonClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    text = text.login,
+                    loadingText = text.loggingIn,
+                )
             }
         }
     }
@@ -170,7 +184,8 @@ fun LoginEmailContent(
 
 @Composable
 fun ForgotPasswordLink(
-    text: LoginEmailText,
+    label: String,
+    openLinkDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     textColor: Color = colorsScheme().primary,
@@ -179,12 +194,12 @@ fun ForgotPasswordLink(
         val interactionSource = remember { MutableInteractionSource() }
         val focused = interactionSource.collectIsFocusedAsState()
         Text(
-            text = text.forgotPassword,
+            text = label,
             style = MaterialTheme.wireTypography.body02.copy(textDecoration = TextDecoration.Underline, color = textColor),
             textAlign = TextAlign.Center,
             modifier = Modifier.focusedBorder(focused.value).clickable(
                 interactionSource = interactionSource, indication = null, role = Role.Button, onClick = onClick,
-                onClickLabel = text.openLinkDescription,
+                onClickLabel = openLinkDescription,
             ).testTag("Forgot password?"),
         )
     }
@@ -205,12 +220,24 @@ fun ProxyScreen(
         style = MaterialTheme.wireTypography.title03.copy(color = colorsScheme().secondaryText),
         modifier = Modifier.fillMaxWidth().padding(vertical = MaterialTheme.wireDimensions.spacing16x).semantics { heading() },
     )
-    apiProxyUrl?.let { Text(text.proxyDescription(it), style = MaterialTheme.wireTypography.body01.copy(color = colorsScheme().onBackground), modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x)) }
+    apiProxyUrl?.let {
+        Text(
+            text = text.proxyDescription(it),
+            style = MaterialTheme.wireTypography.body01.copy(color = colorsScheme().onBackground),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+        )
+    }
     WireTextField(
         textState = proxyIdentifierState, placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_proxy_identifier_label),
         state = if (invalidIdentifier) WireTextFieldState.Error(text.invalidUserIdentifier) else WireTextFieldState.Default,
-        keyboardOptions = KeyboardOptions.DefaultEmailNext, modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x).testTag("emailField"),
+        keyboardOptions = KeyboardOptions.DefaultEmailNext,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
+            .testTag("emailField"),
     )
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
@@ -228,7 +255,8 @@ fun ProxyScreen(
 fun ProxyIdentifierInput(proxyIdentifierState: TextFieldState, error: String?, modifier: Modifier = Modifier) {
     WireTextField(
         textState = proxyIdentifierState,
-        placeholderText = stringResource(R.string.login_user_identifier_placeholder), labelText = stringResource(R.string.login_proxy_identifier_label),
+        placeholderText = stringResource(R.string.login_user_identifier_placeholder),
+        labelText = stringResource(R.string.login_proxy_identifier_label),
         state = error?.let(WireTextFieldState::Error) ?: WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions.DefaultEmailNext,
         modifier = modifier.testTag("emailField"),
@@ -249,7 +277,7 @@ fun ProxyPasswordInput(proxyPasswordState: TextFieldState, modifier: Modifier = 
 }
 
 @Composable
-fun LoginButton(
+internal fun LoginButtonContent(
     loading: Boolean,
     enabled: Boolean,
     onClick: () -> Unit,

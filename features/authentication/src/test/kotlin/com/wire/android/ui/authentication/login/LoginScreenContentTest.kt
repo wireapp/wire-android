@@ -18,4 +18,11 @@ class LoginScreenContentTest {
         assertTrue(shouldShowBackendSetup(true, true))
         assertFalse(shouldShowBackendSetup(true, false))
     }
+
+    @Test fun `proxy ignores tab changes and blocks only an attempted email exit`() {
+        assertEquals(LoginTabChange.BlockLeavingEmail, loginTabChange(true, 0, 1))
+        assertEquals(LoginTabChange.Ignore, loginTabChange(true, 0, 0))
+        assertEquals(LoginTabChange.Ignore, loginTabChange(true, 1, 0))
+        assertEquals(LoginTabChange.Animate, loginTabChange(false, 0, 1))
+    }
 }

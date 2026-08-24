@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.wire.android.feature.authentication.R
-import com.wire.android.ui.authentication.login.email.LoginButton
+import com.wire.android.ui.authentication.login.email.LoginButtonContent
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
@@ -53,11 +53,22 @@ fun LoginSSOContent(
             textState = ssoCodeTextState,
             labelText = stringResource(R.string.login_sso_code_label),
             semanticDescription = stringResource(R.string.content_description_login_sso_code_field),
-            state = if (state.invalidCode) WireTextFieldState.Error(stringResource(R.string.login_error_invalid_sso_code_format)) else WireTextFieldState.Default,
+            state = if (state.invalidCode) {
+                WireTextFieldState.Error(stringResource(R.string.login_error_invalid_sso_code_format))
+            } else {
+                WireTextFieldState.Default
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x).testTag("ssoCodeField"),
         )
         Spacer(Modifier.weight(1f))
-        LoginButton(state.loading, state.loginEnabled, onLoginButtonClick, Modifier.fillMaxWidth().testTag("ssoLoginButton"), text.login, text.loggingIn)
+        LoginButtonContent(
+            loading = state.loading,
+            enabled = state.loginEnabled,
+            onClick = onLoginButtonClick,
+            modifier = Modifier.fillMaxWidth().testTag("ssoLoginButton"),
+            text = text.login,
+            loadingText = text.loggingIn,
+        )
     }
 }

@@ -18,76 +18,30 @@
 
 package com.wire.android.ui.authentication.login.email
 
-import com.wire.android.ui.authentication.login.AppLoginDialogError
-import com.wire.android.ui.authentication.login.AppLoginState
 import android.content.Context
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.ui.common.R as commonR
+import com.wire.android.ui.authentication.login.AppLoginDialogError
+import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
-import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
-import com.wire.android.ui.common.textfield.DefaultEmailNext
-import com.wire.android.ui.common.textfield.DefaultPassword
-import com.wire.android.ui.common.focusedBorder
-import com.wire.android.ui.common.textfield.WireAutoFillType
-import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WireTextField
-import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun LoginEmailScreen(
@@ -195,11 +149,30 @@ fun ForgotPasswordLabel(
 ) {
     val context = LocalContext.current
     com.wire.android.ui.authentication.login.email.ForgotPasswordLink(
+        label = stringResource(R.string.login_forgot_password),
+        openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
         onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
         modifier = modifier,
         textColor = textColor,
     )
 }
+
+@Composable
+fun LoginButton(
+    loading: Boolean,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    text: String = stringResource(R.string.label_login),
+    loadingText: String = stringResource(R.string.label_logging_in),
+    onClick: () -> Unit,
+) = com.wire.android.ui.authentication.login.email.LoginButtonContent(
+    loading = loading,
+    enabled = enabled,
+    onClick = onClick,
+    modifier = modifier,
+    text = text,
+    loadingText = loadingText,
+)
 
 private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) {
     CustomTabsHelper.launchUrl(context, forgotPasswordUrl).also {

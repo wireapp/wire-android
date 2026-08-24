@@ -15,6 +15,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -42,6 +43,7 @@ data class BackendConfigText(
 fun BackendConfigFormContent(
     text: BackendConfigText,
     onConfigurationLinkEntered: ((String) -> Unit)?,
+    onDefaultConfigurationLinkEntered: (String) -> Unit,
     trailingIcon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     showTitle: Boolean = false,
@@ -52,24 +54,48 @@ fun BackendConfigFormContent(
 ) {
     val input = remember { TextFieldState() }
     val align = if (centerText) TextAlign.Center else TextAlign.Start
-    Column(modifier, verticalArrangement = verticalArrangement) {
+    Column(modifier = modifier, verticalArrangement = verticalArrangement) {
         if (showTitle) {
-            Text(text.title, style = MaterialTheme.wireTypography.title01, color = MaterialTheme.colorScheme.onBackground, textAlign = align, modifier = Modifier.fillMaxWidth())
+            Text(
+                text = text.title,
+                style = MaterialTheme.wireTypography.title01,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = align,
+                modifier = Modifier.fillMaxWidth(),
+            )
             VerticalSpace.x16()
         }
-        Text(text.description, style = typography().body01, color = colorsScheme().secondaryText, textAlign = align, modifier = Modifier.fillMaxWidth())
+        Text(
+            text = text.description,
+            style = typography().body01,
+            color = colorsScheme().secondaryText,
+            textAlign = align,
+            modifier = Modifier.fillMaxWidth(),
+        )
         VerticalSpace.x16()
         WireTextField(
-            textState = input, placeholderText = text.inputPlaceholder, labelText = text.inputLabel,
+            textState = input,
+            placeholderText = text.inputPlaceholder,
+            labelText = text.inputLabel,
             state = errorText?.let(WireTextFieldState::Error) ?: WireTextFieldState.Default,
-            keyboardOptions = KeyboardOptions.Default, trailingIcon = trailingIcon,
+            keyboardOptions = KeyboardOptions.Default,
+            modifier = Modifier.testTag("backendConfigInputField"),
+            trailingIcon = trailingIcon,
             testTag = "backendConfigInput",
         )
         VerticalSpace.x8()
         WirePrimaryButton(
-            text = text.setupLabel, fillMaxWidth = true,
-            state = if (input.text.isBlank() || isLoading || onConfigurationLinkEntered == null) WireButtonState.Disabled else WireButtonState.Default,
-            onClick = { onConfigurationLinkEntered?.invoke(input.text.toString()) },
+            text = text.setupLabel,
+            fillMaxWidth = true,
+            state = if (input.text.isBlank() || isLoading || onConfigurationLinkEntered == null) {
+                WireButtonState.Disabled
+            } else {
+                WireButtonState.Default
+            },
+            onClick = {
+                (onConfigurationLinkEntered ?: onDefaultConfigurationLinkEntered)(input.text.toString())
+            },
+            modifier = Modifier.testTag("backendConfigContinueButton"),
         )
     }
 }
@@ -80,14 +106,31 @@ fun BackendConfigSuccessContent(
     successIcon: @Composable () -> Unit,
     onContinue: () -> Unit,
     modifier: Modifier = Modifier,
-) = Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.fillMaxWidth()) {
+) = Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+    modifier = modifier.fillMaxWidth(),
+) {
     VerticalSpace.x16()
     Row(verticalAlignment = Alignment.CenterVertically) {
-        successIcon(); HorizontalSpace.x8()
-        Text(text.successTitle, style = typography().body01, color = colorsScheme().onSurface)
+        successIcon()
+        HorizontalSpace.x8()
+        Text(
+            text = text.successTitle,
+            style = typography().body01,
+            color = colorsScheme().onSurface,
+        )
     }
     VerticalSpace.x8()
-    Text(text.successDescription, style = typography().body01, color = colorsScheme().secondaryText)
+    Text(
+        text = text.successDescription,
+        style = typography().body01,
+        color = colorsScheme().secondaryText,
+    )
     VerticalSpace.x24()
-    WirePrimaryButton(text = text.continueLabel, onClick = onContinue, fillMaxWidth = true)
+    WirePrimaryButton(
+        text = text.continueLabel,
+        onClick = onContinue,
+        fillMaxWidth = true,
+        modifier = Modifier.testTag("backendConfigSuccessContinueButton"),
+    )
 }

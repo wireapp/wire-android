@@ -20,61 +20,29 @@
 
 package com.wire.android.ui.authentication.welcome
 
-import android.content.res.TypedArray
-import androidx.annotation.ArrayRes
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.layout.weight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.integerResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
-import com.wire.android.feature.authentication.R as AuthenticationR
-import com.wire.android.ui.common.R as commonR
 import com.wire.android.config.LocalCustomUiConfigurationProvider
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.isConfigured
-import com.wire.android.ui.common.button.WirePrimaryButton
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog
@@ -82,21 +50,10 @@ import com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState
 import com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialog
 import com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialogState
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.scan
 
 internal sealed interface WelcomeScreenAction {
     data class Login(val serverConfig: ServerConfig.Links) : WelcomeScreenAction
@@ -162,27 +119,58 @@ private fun WelcomeContent(
         createTeamLabel = stringResource(R.string.welcome_button_create_team),
         footerText = stringResource(R.string.welcome_footer_text),
         createPersonalLabel = stringResource(R.string.welcome_button_create_personal_account),
+        openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
+        closeContentDescription = R.string.content_description_welcome_screen_close_btn,
         onClose = navigateBack,
         onLogin = { onAction(WelcomeScreenAction.Login(state)) },
         onCreateTeam = {
-            if (state.isProxyEnabled()) enterpriseProxyDialog.show(enterpriseProxyDialog.savedState ?: FeatureDisabledWithProxyDialogState(R.string.create_team_not_supported_dialog_description, state.teams))
+            if (state.isProxyEnabled()) {
+                enterpriseProxyDialog.show(
+                    enterpriseProxyDialog.savedState ?: FeatureDisabledWithProxyDialogState(
+                        R.string.create_team_not_supported_dialog_description,
+                        state.teams,
+                    )
+                )
+            }
             else if (ENABLE_NEW_REGISTRATION) onAction(WelcomeScreenAction.OpenUrl(teamCreationUrl))
             else onAction(WelcomeScreenAction.CreateTeam(state))
         },
         onCreatePersonal = {
-            if (state.isProxyEnabled()) personalProxyDialog.show(personalProxyDialog.savedState ?: FeatureDisabledWithProxyDialogState(R.string.create_personal_account_not_supported_dialog_description))
+            if (state.isProxyEnabled()) {
+                personalProxyDialog.show(
+                    personalProxyDialog.savedState ?: FeatureDisabledWithProxyDialogState(
+                        R.string.create_personal_account_not_supported_dialog_description,
+                    )
+                )
+            }
             else if (ENABLE_NEW_REGISTRATION) onAction(WelcomeScreenAction.CreateAccountData(state))
             else onAction(WelcomeScreenAction.CreatePersonal(state))
         },
-        topBarContent = {
-            if (isThereActiveSession) WireCenterAlignedTopAppBar(elevation = dimensions().spacing0x, title = "", navigationIconType = NavigationIconType.Close(R.string.content_description_welcome_screen_close_btn), onNavigationPressed = navigateBack)
-            else Spacer(Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
+        logoContent = {
+            Icon(
+                ImageVector.vectorResource(R.drawable.ic_wire_logo),
+                null,
+                tint = MaterialTheme.colorScheme.onBackground,
+            )
         },
-        logoContent = { Icon(ImageVector.vectorResource(R.drawable.ic_wire_logo), null, tint = MaterialTheme.colorScheme.onBackground) },
-        serverTitleContent = { if (state.isOnPremises) ServerTitle(state, Modifier.padding(top = dimensions().spacing16x, start = dimensions().spacing32x, end = dimensions().spacing32x)) },
+        serverTitleContent = {
+            if (state.isOnPremises) {
+                ServerTitle(
+                    state,
+                    Modifier.padding(
+                        top = dimensions().spacing16x,
+                        start = dimensions().spacing32x,
+                        end = dimensions().spacing32x,
+                    ),
+                )
+            }
+        },
         bodyOverride = if (!state.isConfigured()) ({
             MissingBackendConfigContent(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding).weight(1f, true),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding)
+                    .weight(1f, true),
                 showTitle = true, centerText = true, verticalArrangement = Arrangement.Center,
             )
         }) else null,
@@ -191,11 +179,26 @@ private fun WelcomeContent(
 
 @Composable
 private fun welcomeCarouselPages() = listOf(
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_1, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_1)),
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_2, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_2)),
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_3, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_3)),
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_4, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_4)),
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_5, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_5)),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
+        AuthenticationR.drawable.ic_welcome_1,
+        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_1),
+    ),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
+        AuthenticationR.drawable.ic_welcome_2,
+        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_2),
+    ),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
+        AuthenticationR.drawable.ic_welcome_3,
+        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_3),
+    ),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
+        AuthenticationR.drawable.ic_welcome_4,
+        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_4),
+    ),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
+        AuthenticationR.drawable.ic_welcome_5,
+        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_5),
+    ),
 )
 
 @Preview

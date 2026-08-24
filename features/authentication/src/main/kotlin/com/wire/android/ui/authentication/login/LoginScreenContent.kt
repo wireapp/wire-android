@@ -75,15 +75,26 @@ fun LoginScreenContent(
                     tabs = LoginTabItem.entries.toList(),
                     selectedTabIndex = pagerState.calculateCurrentTab(),
                     onTabChange = { index ->
-                        if (isProxyEnabled && pagerState.currentPage != LoginTabItem.SSO.ordinal) onSsoBlocked()
-                        else scope.launch { pagerState.animateScrollToPage(index) }
+                        when (loginTabChange(isProxyEnabled, pagerState.currentPage, index)) {
+                            LoginTabChange.BlockLeavingEmail -> onSsoBlocked()
+                            LoginTabChange.Animate -> scope.launch { pagerState.animateScrollToPage(index) }
+                            LoginTabChange.Ignore -> Unit
+                        }
                     },
                     modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
                 )
             }
         },
     ) { padding ->
-        if (showBackendSetup) Column(Modifier.fillMaxSize().padding(padding).padding(MaterialTheme.wireDimensions.spacing16x), content = backendConfigContent)
+        if (showBackendSetup) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(MaterialTheme.wireDimensions.spacing16x),
+                content = backendConfigContent,
+            )
+        }
         else {
             var focusedTab by remember { mutableStateOf(initialTab.ordinal) }
             val keyboard = LocalSoftwareKeyboardController.current
@@ -95,8 +106,12 @@ fun LoginScreenContent(
                         LoginTabItem.SSO -> ssoContent()
                     }
                 }
-                if (!pagerState.isScrollInProgress && focusedTab != pagerState.currentPage) LaunchedEffect(pagerState.currentPage) {
-                    keyboard?.hide(); focusManager.clearFocus(); focusedTab = pagerState.currentPage
+                if (!pagerState.isScrollInProgress && focusedTab != pagerState.currentPage) {
+                    LaunchedEffect(pagerState.currentPage) {
+                        keyboard?.hide()
+                        focusManager.clearFocus()
+                        focusedTab = pagerState.currentPage
+                    }
                 }
             }
         }
@@ -108,3 +123,12 @@ fun initialLoginTab(hasSsoResult: Boolean, hasSsoAutoLogin: Boolean): LoginTabIt
 
 fun shouldShowBackendSetup(isBackendConfigured: Boolean, backendConfigurationSucceeded: Boolean): Boolean =
     !isBackendConfigured || backendConfigurationSucceeded
+
+enum class LoginTabChange { Animate, BlockLeavingEmail, Ignore }
+
+fun loginTabChange(isProxyEnabled: Boolean, currentPage: Int, targetPage: Int): LoginTabChange =
+    when {
+        !isProxyEnabled -> LoginTabChange.Animate
+        currentPage == LoginTabItem.EMAIL.ordinal && targetPage != LoginTabItem.EMAIL.ordinal -> LoginTabChange.BlockLeavingEmail
+        else -> LoginTabChange.Ignore
+    }

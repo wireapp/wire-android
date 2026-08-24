@@ -30,12 +30,9 @@ import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.authentication.create.code.AppCreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
-import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.model.Device
@@ -51,6 +48,9 @@ import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewMo
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
+import com.wire.android.navigation.routes.auth.AuthenticationServerLinks
+import com.wire.android.navigation.routes.auth.CreateAccountRegistrationInfo
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -64,14 +64,20 @@ interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory 
     fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppNewLoginViewModel
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginEmailViewModel
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginSSOViewModel
-    fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel<ServerConfig.Links>
+    fun createAccountOverviewViewModel(customServerConfig: AuthenticationServerLinks?): CreateAccountOverviewViewModel<ServerConfig.Links>
     fun createAccountEmailViewModel(
-        navArgs: CreateAccountNavArgs,
-    ): CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure>
+        type: CreateAccountRouteFlowType,
+        customServerConfig: AuthenticationServerLinks?,
+    ): CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure>
     fun createAccountDetailsViewModel(
-        navArgs: CreateAccountNavArgs,
+        type: CreateAccountRouteFlowType,
+        customServerConfig: AuthenticationServerLinks?,
     ): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>
-    fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): AppCreateAccountCodeViewModel
+    fun createAccountCodeViewModel(
+        type: CreateAccountRouteFlowType,
+        registrationInfo: CreateAccountRegistrationInfo,
+        customServerConfig: AuthenticationServerLinks?,
+    ): AppCreateAccountCodeViewModel
     fun createAccountSelectorViewModel(navArgs: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
     fun createAccountDataDetailViewModel(navArgs: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel
     fun createAccountVerificationCodeViewModel(
@@ -190,7 +196,7 @@ fun createAccountOverviewViewModel(): CreateAccountOverviewViewModel<ServerConfi
     authenticationViewModel()
 
 @Composable
-fun createAccountEmailViewModel(): CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure> =
+fun createAccountEmailViewModel(): CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure> =
     authenticationViewModel()
 
 @Composable
@@ -221,46 +227,50 @@ fun createAccountUsernameViewModel(
 
 @Composable
 fun createAccountOverviewViewModel(
-    navArgs: CreateAccountOverviewNavArgs,
+    customServerConfig: AuthenticationServerLinks?,
     viewModelStoreOwner: ViewModelStoreOwner,
 ): CreateAccountOverviewViewModel<ServerConfig.Links> =
     wireAssistedMetroViewModel<CreateAccountOverviewViewModel<ServerConfig.Links>, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
-        createAccountOverviewViewModel(navArgs)
+        createAccountOverviewViewModel(customServerConfig)
     }
 
 @Composable
 fun createAccountEmailViewModel(
-    navArgs: CreateAccountNavArgs,
+    type: CreateAccountRouteFlowType,
+    customServerConfig: AuthenticationServerLinks?,
     viewModelStoreOwner: ViewModelStoreOwner,
-): CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure> =
-    wireAssistedMetroViewModel<CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure>, AuthenticationManualViewModelFactory>(
+): CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure> =
+    wireAssistedMetroViewModel<CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure>, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
-        createAccountEmailViewModel(navArgs)
+        createAccountEmailViewModel(type, customServerConfig)
     }
 
 @Composable
 fun createAccountDetailsViewModel(
-    navArgs: CreateAccountNavArgs,
+    type: CreateAccountRouteFlowType,
+    customServerConfig: AuthenticationServerLinks?,
     viewModelStoreOwner: ViewModelStoreOwner,
 ): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure> =
     wireAssistedMetroViewModel<CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
-        createAccountDetailsViewModel(navArgs)
+        createAccountDetailsViewModel(type, customServerConfig)
     }
 
 @Composable
 fun createAccountCodeViewModel(
-    navArgs: CreateAccountNavArgs,
+    type: CreateAccountRouteFlowType,
+    registrationInfo: CreateAccountRegistrationInfo,
+    customServerConfig: AuthenticationServerLinks?,
     viewModelStoreOwner: ViewModelStoreOwner,
 ): AppCreateAccountCodeViewModel =
     wireAssistedMetroViewModel<AppCreateAccountCodeViewModel, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
-        createAccountCodeViewModel(navArgs)
+        createAccountCodeViewModel(type, registrationInfo, customServerConfig)
     }
 
 @Composable

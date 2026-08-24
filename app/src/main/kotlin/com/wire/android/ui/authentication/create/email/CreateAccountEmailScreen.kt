@@ -17,8 +17,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.navigation.routes.auth.CreateAccountDetailsRoute
+import com.wire.android.navigation.routes.auth.CreateAccountEmailRoute
+import com.wire.android.navigation.routes.auth.CreateAccountRegistrationInfo
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -31,11 +33,11 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 internal fun CreateAccountEmailRouteScreen(
-    navArgs: CreateAccountNavArgs,
-    viewModel: CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure>,
+    route: CreateAccountEmailRoute,
+    viewModel: CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure>,
     onNavigateBack: () -> Unit,
     onLogin: () -> Unit,
-    onDetailsRequested: (CreateAccountNavArgs) -> Unit,
+    onDetailsRequested: (CreateAccountDetailsRoute) -> Unit,
 ) {
     val context = LocalContext.current
     val learnMoreUrl = supportUrlResource(SupportPage.CREATE_ACCOUNT)
@@ -45,8 +47,8 @@ internal fun CreateAccountEmailRouteScreen(
             state = emailState,
             emailTextState = emailTextState,
             text = CreateAccountEmailText(
-                title = stringResource(emailState.type.titleResId),
-                subtitle = stringResource(emailState.type.emailResources.emailSubtitleResId),
+                title = stringResource(emailState.type.titleResId()),
+                subtitle = stringResource(emailState.type.emailSubtitleResId()),
                 emailPlaceholder = stringResource(AuthenticationR.string.create_account_email_placeholder),
                 emailLabel = stringResource(AuthenticationR.string.create_account_email_label),
                 alreadyInUseError = stringResource(AuthenticationR.string.create_account_email_already_in_use_error),
@@ -87,13 +89,26 @@ internal fun CreateAccountEmailRouteScreen(
         LaunchedEffect(emailState.success) {
             if (emailState.success) {
                 onDetailsRequested(
-                    navArgs.copy(
-                        userRegistrationInfo = UserRegistrationInfo(
+                    CreateAccountDetailsRoute(
+                        type = route.type,
+                        registrationInfo = CreateAccountRegistrationInfo(
                             email = emailTextState.text.trim().toString().lowercase(),
-                        )
+                        ),
+                        customServerConfig = route.customServerConfig,
+                        flowId = route.flowId,
                     )
                 )
             }
         }
     }
+}
+
+private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> AuthenticationR.string.create_personal_account_title
+    CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
+}
+
+private fun CreateAccountRouteFlowType.emailSubtitleResId(): Int = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> AuthenticationR.string.create_personal_account_email_text
+    CreateAccountRouteFlowType.TEAM -> AuthenticationR.string.create_team_email_text
 }

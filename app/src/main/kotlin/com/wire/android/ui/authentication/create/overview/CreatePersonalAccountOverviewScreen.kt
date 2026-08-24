@@ -23,8 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -32,32 +31,27 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 internal fun CreateAccountOverviewRouteScreen(
-    flowType: CreateAccountFlowType,
+    flowType: CreateAccountRouteFlowType,
     viewModel: CreateAccountOverviewViewModel<ServerConfig.Links>,
     onNavigateBack: () -> Unit,
-    onContinue: (CreateAccountNavArgs) -> Unit,
+    onContinue: () -> Unit,
 ) {
     val context = LocalContext.current
     with(flowType) {
         CreateAccountOverviewContent(
             overviewParams = CreateAccountOverviewParams(
-                title = stringResource(id = titleResId),
-                contentTitle = overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
-                contentText = stringResource(id = overviewResources.overviewContentTextResId),
-                contentIconResId = overviewResources.overviewContentIconResId,
-                learnMoreText = stringResource(id = overviewResources.overviewLearnMoreTextResId),
+                title = stringResource(id = titleResId()),
+                contentTitle = overviewContentTitleResId()?.let { stringResource(id = it) } ?: "",
+                contentText = stringResource(id = overviewContentTextResId()),
+                contentIconResId = overviewContentIconResId(),
+                learnMoreText = stringResource(id = overviewLearnMoreTextResId()),
                 learnMoreUrl = viewModel.learnMoreUrl(),
             ),
             continueText = stringResource(R.string.label_continue),
             backContentDescription = R.string.content_description_login_back_btn,
             onBackPressed = onNavigateBack,
             onContinuePressed = {
-                onContinue(
-                    CreateAccountNavArgs(
-                        flowType = this,
-                        customServerConfig = viewModel.customServerConfig,
-                    )
-                )
+                onContinue()
             },
             onLearnMorePressed = { url -> CustomTabsHelper.launchUrl(context, url) },
             subtitleContent = {
@@ -70,4 +64,29 @@ internal fun CreateAccountOverviewRouteScreen(
             },
         )
     }
+}
+
+private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_title
+    CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
+}
+
+private fun CreateAccountRouteFlowType.overviewContentTitleResId(): Int? = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> null
+    CreateAccountRouteFlowType.TEAM -> com.wire.android.feature.authentication.R.string.create_team_content_title
+}
+
+private fun CreateAccountRouteFlowType.overviewContentTextResId(): Int = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_text
+    CreateAccountRouteFlowType.TEAM -> com.wire.android.feature.authentication.R.string.create_team_text
+}
+
+private fun CreateAccountRouteFlowType.overviewContentIconResId(): Int = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.drawable.ic_create_personal_account
+    CreateAccountRouteFlowType.TEAM -> com.wire.android.feature.authentication.R.drawable.ic_create_team
+}
+
+private fun CreateAccountRouteFlowType.overviewLearnMoreTextResId(): Int = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> R.string.label_learn_more
+    CreateAccountRouteFlowType.TEAM -> com.wire.android.feature.authentication.R.string.create_team_learn_more
 }

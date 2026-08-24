@@ -24,8 +24,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.navigation.routes.auth.CreateAccountCodeRoute
+import com.wire.android.navigation.routes.auth.CreateAccountDetailsRoute
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.theme.wireTypography
@@ -34,22 +35,25 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 internal fun CreateAccountDetailsRouteScreen(
-    navArgs: CreateAccountNavArgs,
+    route: CreateAccountDetailsRoute,
     viewModel: CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>,
     onNavigateBack: () -> Unit,
-    onCodeRequested: (CreateAccountNavArgs) -> Unit,
+    onCodeRequested: (CreateAccountCodeRoute) -> Unit,
 ) {
     with(viewModel) {
         LaunchedEffect(detailsState.success) {
             if (detailsState.success) {
                 onCodeRequested(
-                    navArgs.copy(
-                        userRegistrationInfo = navArgs.userRegistrationInfo.copy(
+                    CreateAccountCodeRoute(
+                        type = route.type,
+                        registrationInfo = route.registrationInfo.copy(
                             firstName = firstNameTextState.text.toString().trim(),
                             lastName = lastNameTextState.text.toString().trim(),
                             password = passwordTextState.text.toString(),
                             teamName = teamNameTextState.text.toString().trim(),
-                        )
+                        ),
+                        customServerConfig = route.customServerConfig,
+                        flowId = route.flowId,
                     )
                 )
             }
@@ -57,8 +61,8 @@ internal fun CreateAccountDetailsRouteScreen(
 
         CreateAccountDetailsContent(
             state = detailsState,
-            title = stringResource(navArgs.flowType.titleResId),
-            showTeamName = navArgs.flowType == CreateAccountFlowType.CreateTeam,
+            title = stringResource(route.type.titleResId()),
+            showTeamName = route.type == CreateAccountRouteFlowType.TEAM,
             sharedText = CreateAccountDetailsSharedText(
                 passwordDescription = stringResource(R.string.create_account_details_password_description),
                 confirmPasswordLabel = stringResource(AuthenticationR.string.create_account_details_confirm_password_label),
@@ -85,4 +89,9 @@ internal fun CreateAccountDetailsRouteScreen(
             genericFailureContent = { failure, onDismiss -> CoreFailureErrorDialog(failure, onDismiss) },
         )
     }
+}
+
+private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_title
+    CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
 }

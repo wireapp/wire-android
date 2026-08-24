@@ -42,9 +42,6 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import java.net.URI
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets.UTF_8
 import kotlinx.coroutines.launch
 
 @Composable
@@ -131,25 +128,6 @@ fun BackendConfigSuccessContent(
 
 fun ServerConfig.Links.isConfigured() = api.isNotBlank()
 
-@Suppress("ReturnCount")
-fun String.toBackendConfigUrl(): String? {
-    val sanitizedInput = trim().takeIf(String::isNotBlank) ?: return null
-
-    if (!sanitizedInput.startsWith(WIRE_ACCESS_DEEPLINK_BASE)) {
-        return sanitizedInput
-    }
-
-    return runCatching {
-        URI.create(sanitizedInput)
-            .rawQuery
-            ?.split('&')
-            ?.firstOrNull { it.substringBefore('=') == BACKEND_CONFIG_QUERY_PARAMETER }
-            ?.substringAfter('=', missingDelimiterValue = "")
-            ?.let { URLDecoder.decode(it, UTF_8.name()) }
-            ?.takeIf(String::isNotBlank)
-    }.getOrNull()
-}
-
 fun Context.openBackendConfig(input: String) {
     val sanitizedInput = input.trim()
     if (sanitizedInput.isEmpty()) return
@@ -176,6 +154,5 @@ fun Context.openExternalCamera(): Boolean {
     }
 }
 
-private const val WIRE_ACCESS_DEEPLINK_BASE = "wire://access/"
 private const val BACKEND_CONFIG_QUERY_PARAMETER = "config"
-private const val WIRE_ACCESS_DEEPLINK_PREFIX = "$WIRE_ACCESS_DEEPLINK_BASE?$BACKEND_CONFIG_QUERY_PARAMETER="
+private const val WIRE_ACCESS_DEEPLINK_PREFIX = "wire://access/?$BACKEND_CONFIG_QUERY_PARAMETER="

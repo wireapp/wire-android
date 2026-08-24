@@ -13,8 +13,10 @@ import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.navigation.routes.auth.AuthenticationServerLinks
+import com.wire.android.navigation.routes.auth.CreateAccountRegistrationInfo
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
+import com.wire.android.navigation.routes.auth.toLegacy
 import com.wire.android.util.WillNeverOccurError
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.common.error.CoreFailure
@@ -34,7 +36,7 @@ import dev.zacsweers.metro.Inject
 class KaliumCreateAccountCredentials internal constructor(internal val result: RegisterResult.Success)
 
 typealias AppCreateAccountCodeViewModel =
-    CreateAccountCodeViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure, UserId, KaliumCreateAccountCredentials>
+    CreateAccountCodeViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure, UserId, KaliumCreateAccountCredentials>
 
 internal class KaliumCreateAccountCodeGateway(
     private val coreLogic: CoreLogic,
@@ -188,18 +190,22 @@ class CreateAccountCodeViewModelHostFactory @Inject constructor(
     )
     private val defaultLinks = defaultServerConfig
 
-    fun create(navArgs: CreateAccountNavArgs): AppCreateAccountCodeViewModel {
-        val info = navArgs.userRegistrationInfo
+    fun create(
+        type: CreateAccountRouteFlowType,
+        registrationInfo: CreateAccountRegistrationInfo,
+        customServerConfig: AuthenticationServerLinks?,
+    ): AppCreateAccountCodeViewModel {
+        val info = registrationInfo
         return CreateAccountCodeViewModel(
             input = CreateAccountCodeInput(
-                flowType = navArgs.flowType,
-                customServerConfig = navArgs.customServerConfig,
+                flowType = type,
+                customServerConfig = customServerConfig?.toLegacy(),
                 email = info.email,
                 firstName = info.firstName,
                 lastName = info.lastName,
                 password = info.password,
                 teamName = info.teamName,
-                isTeam = navArgs.flowType == CreateAccountFlowType.CreateTeam,
+                isTeam = type == CreateAccountRouteFlowType.TEAM,
             ),
             defaultServerConfig = defaultLinks,
             gateway = gateway,

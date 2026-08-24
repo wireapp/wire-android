@@ -10,8 +10,9 @@
 package com.wire.android.ui.authentication.create.email
 
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.navigation.routes.auth.AuthenticationServerLinks
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
+import com.wire.android.navigation.routes.auth.toLegacy
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -55,10 +56,11 @@ class CreateAccountEmailViewModelHostFactory @Inject constructor(
     private val gateway = KaliumCreateAccountEmailGateway(validateEmail, coreLogic)
 
     fun create(
-        navArgs: CreateAccountNavArgs,
-    ): CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure> = CreateAccountEmailViewModel(
-        flowType = navArgs.flowType,
-        customServerConfig = navArgs.customServerConfig,
+        type: CreateAccountRouteFlowType,
+        customServerConfig: AuthenticationServerLinks?,
+    ): CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure> = CreateAccountEmailViewModel(
+        flowType = type,
+        customServerConfig = customServerConfig?.toLegacy(),
         defaultServerConfig = defaultServerConfig,
         tosUrlFor = { it.tos },
         gateway = gateway,

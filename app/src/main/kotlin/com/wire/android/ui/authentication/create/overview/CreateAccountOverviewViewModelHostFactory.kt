@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.authentication.create.overview
 
+import com.wire.android.navigation.routes.auth.AuthenticationServerLinks
+import com.wire.android.navigation.routes.auth.toLegacy
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dev.zacsweers.metro.Inject
 
@@ -24,9 +26,9 @@ class CreateAccountOverviewViewModelHostFactory @Inject constructor(
     private val defaultServerConfig: ServerConfig.Links,
 ) {
     fun create(
-        navArgs: CreateAccountOverviewNavArgs,
+        customServerConfig: AuthenticationServerLinks?,
     ): CreateAccountOverviewViewModel<ServerConfig.Links> = CreateAccountOverviewViewModel(
-        customServerConfig = navArgs.customServerConfig,
+        customServerConfig = customServerConfig?.toLegacy(),
         defaultServerConfig = defaultServerConfig,
         pricingUrl = { it.pricing },
     )

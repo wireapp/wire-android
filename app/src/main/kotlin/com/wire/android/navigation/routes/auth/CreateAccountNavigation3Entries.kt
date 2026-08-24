@@ -22,7 +22,8 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailRouteSc
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewRouteScreen
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryRouteScreen
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameRouteScreen
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
+import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.authentication.createAccountCodeViewModel
 import com.wire.android.ui.authentication.createAccountDataDetailViewModel
 import com.wire.android.ui.authentication.createAccountDetailsViewModel
@@ -37,6 +38,7 @@ import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.registration.code.CreateAccountVerificationCodeRouteScreen
 import com.wire.android.ui.registration.details.CreateAccountDataDetailRouteScreen
 import com.wire.android.ui.registration.selector.CreateAccountSelectorRouteScreen
+import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireViewModelOwner
 
@@ -54,10 +56,10 @@ internal fun createAccountNavigation3Entries(
         CreateAccountVerificationNavigation3Entry(route, actions, router)
     }
     wireEntry<CreatePersonalAccountOverviewRoute> { route ->
-        CreateAccountOverviewNavigation3Entry(route, CreateAccountFlowType.CreatePersonalAccount, actions, router)
+        CreateAccountOverviewNavigation3Entry(route, CreateAccountRouteFlowType.PERSONAL, actions, router)
     }
     wireEntry<CreateTeamAccountOverviewRoute> { route ->
-        CreateAccountOverviewNavigation3Entry(route, CreateAccountFlowType.CreateTeam, actions, router)
+        CreateAccountOverviewNavigation3Entry(route, CreateAccountRouteFlowType.TEAM, actions, router)
     }
     wireEntry<CreateAccountEmailRoute> { route ->
         CreateAccountEmailNavigation3Entry(route, actions, router)
@@ -83,13 +85,20 @@ private fun CreateAccountSelectorNavigation3Entry(
     router: AuthenticationNavigation3Router,
 ) {
     val owner = createAccountEntryOwner(route.entryId)
-    val viewModel = createAccountSelectorViewModel(route.toLegacyNavArgs(), owner)
+    val viewModel = createAccountSelectorViewModel(
+        CreateAccountSelectorNavArgs(route.customServerConfig?.toLegacy(), route.email),
+        owner,
+    )
     CreateAccountSelectorRouteScreen(
         viewModel = viewModel,
         onPersonalAccountCreation = {
             router.navigate(
                 AuthenticationNavigationTransition.ACCOUNT_SELECTOR_TO_DATA,
-                it.toDataDetailRoute(route.flowId),
+                CreateAccountDataDetailRoute(
+                    registrationInfo = it.userRegistrationInfo.toRoute(),
+                    customServerConfig = it.customServerConfig?.toAuthenticationServerLinks(),
+                    flowId = route.flowId,
+                ),
             )
         },
         onTeamAccountCreation = { url ->
@@ -113,12 +122,16 @@ private fun CreateAccountDataDetailNavigation3Entry(
 ) {
     val owner = createAccountEntryOwner(route.entryId)
     CreateAccountDataDetailRouteScreen(
-        viewModel = createAccountDataDetailViewModel(route.toLegacyNavArgs(), owner),
+        viewModel = createAccountDataDetailViewModel(route.toLegacyDataNavArgs(), owner),
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
         onCodeRequested = {
             router.navigate(
                 AuthenticationNavigationTransition.ACCOUNT_DATA_TO_VERIFICATION,
-                it.toVerificationCodeRoute(route.flowId),
+                CreateAccountVerificationCodeRoute(
+                    registrationInfo = it.userRegistrationInfo.toRoute(),
+                    customServerConfig = it.customServerConfig?.toAuthenticationServerLinks(),
+                    flowId = route.flowId,
+                ),
             )
         },
     )
@@ -132,7 +145,7 @@ private fun CreateAccountVerificationNavigation3Entry(
 ) {
     val owner = createAccountEntryOwner(route.entryId)
     CreateAccountVerificationCodeRouteScreen(
-        viewModel = createAccountVerificationCodeViewModel(route.toLegacyNavArgs(), owner),
+        viewModel = createAccountVerificationCodeViewModel(route.toLegacyDataNavArgs(), owner),
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
         onSuccess = { userId ->
             router.navigate(
@@ -153,29 +166,29 @@ private fun CreateAccountVerificationNavigation3Entry(
 @Composable
 private fun CreateAccountOverviewNavigation3Entry(
     route: com.wire.navigation.AuthenticationRoute,
-    flowType: CreateAccountFlowType,
+    flowType: CreateAccountRouteFlowType,
     actions: AuthenticationNavigation3Actions,
     router: AuthenticationNavigation3Router,
 ) {
     val flowId = checkNotNull(route.flowId)
     val owner = createAccountEntryOwner(route.entryId)
-    val navArgs = when (route) {
-        is CreatePersonalAccountOverviewRoute -> route.toLegacyNavArgs()
-        is CreateTeamAccountOverviewRoute -> route.toLegacyNavArgs()
+    val customServerConfig = when (route) {
+        is CreatePersonalAccountOverviewRoute -> route.customServerConfig
+        is CreateTeamAccountOverviewRoute -> route.customServerConfig
         else -> error("Unsupported create-account overview route ${route::class.qualifiedName}")
     }
     CreateAccountOverviewRouteScreen(
         flowType = flowType,
-        viewModel = createAccountOverviewViewModel(navArgs, owner),
+        viewModel = createAccountOverviewViewModel(customServerConfig, owner),
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
         onContinue = {
             router.navigate(
-                if (flowType == CreateAccountFlowType.CreatePersonalAccount) {
+                if (flowType == CreateAccountRouteFlowType.PERSONAL) {
                     AuthenticationNavigationTransition.PERSONAL_OVERVIEW_TO_EMAIL
                 } else {
                     AuthenticationNavigationTransition.TEAM_OVERVIEW_TO_EMAIL
                 },
-                it.toEmailRoute(flowId),
+                CreateAccountEmailRoute(flowType, customServerConfig = customServerConfig, flowId = flowId),
             )
         },
     )
@@ -188,10 +201,9 @@ private fun CreateAccountEmailNavigation3Entry(
     router: AuthenticationNavigation3Router,
 ) {
     val owner = createAccountEntryOwner(route.entryId)
-    val navArgs = route.toLegacyNavArgs()
     CreateAccountEmailRouteScreen(
-        navArgs = navArgs,
-        viewModel = createAccountEmailViewModel(navArgs, owner),
+        route = route,
+        viewModel = createAccountEmailViewModel(route.type, route.customServerConfig, owner),
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
         onLogin = {
             router.navigate(
@@ -203,7 +215,7 @@ private fun CreateAccountEmailNavigation3Entry(
         onDetailsRequested = {
             router.navigate(
                 AuthenticationNavigationTransition.ACCOUNT_EMAIL_TO_DETAILS,
-                it.toDetailsRoute(route.flowId),
+                it,
             )
         },
     )
@@ -216,15 +228,14 @@ private fun CreateAccountDetailsNavigation3Entry(
     router: AuthenticationNavigation3Router,
 ) {
     val owner = createAccountEntryOwner(route.entryId)
-    val navArgs = route.toLegacyNavArgs()
     CreateAccountDetailsRouteScreen(
-        navArgs = navArgs,
-        viewModel = createAccountDetailsViewModel(navArgs, owner),
+        route = route,
+        viewModel = createAccountDetailsViewModel(route.type, route.customServerConfig, owner),
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
         onCodeRequested = {
             router.navigate(
                 AuthenticationNavigationTransition.ACCOUNT_DETAILS_TO_CODE,
-                it.toCodeRoute(route.flowId),
+                it,
             )
         },
     )
@@ -238,12 +249,12 @@ private fun CreateAccountCodeNavigation3Entry(
 ) {
     val owner = createAccountEntryOwner(route.entryId)
     CreateAccountCodeRouteScreen(
-        viewModel = createAccountCodeViewModel(route.toLegacyNavArgs(), owner),
+        viewModel = createAccountCodeViewModel(route.type, route.registrationInfo, route.customServerConfig, owner),
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
-        onSuccess = { summaryArgs, userId ->
+        onSuccess = { type, userId ->
             router.navigate(
                 AuthenticationNavigationTransition.ACCOUNT_CODE_TO_SUMMARY,
-                summaryArgs.toSummaryRoute(route.flowId, userId.toWireSessionId()),
+                CreateAccountSummaryRoute(type, userId.toWireSessionId(), route.flowId),
                 WireBackStackMode.CLEAR_WHOLE,
             )
         },
@@ -299,3 +310,15 @@ private fun com.wire.kalium.logic.data.user.UserId.toWireSessionId() =
 
 private fun com.wire.navigation.WireRoute.terminalLoginEventId(): String =
     "${entryId.value}:login-terminal"
+
+private fun CreateAccountDataDetailRoute.toLegacyDataNavArgs(): CreateAccountDataNavArgs =
+    CreateAccountDataNavArgs(registrationInfo.toLegacy(), customServerConfig?.toLegacy())
+
+private fun CreateAccountVerificationCodeRoute.toLegacyDataNavArgs(): CreateAccountDataNavArgs =
+    CreateAccountDataNavArgs(registrationInfo.toLegacy(), customServerConfig?.toLegacy())
+
+private fun CreateAccountRegistrationInfo.toLegacy(): UserRegistrationInfo =
+    UserRegistrationInfo(email, name, firstName, lastName, password, teamName, teamIcon)
+
+private fun UserRegistrationInfo.toRoute(): CreateAccountRegistrationInfo =
+    CreateAccountRegistrationInfo(email, name, firstName, lastName, password, teamName, teamIcon)

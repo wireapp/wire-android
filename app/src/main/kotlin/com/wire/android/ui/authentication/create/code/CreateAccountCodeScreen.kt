@@ -25,9 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -40,7 +39,7 @@ import com.wire.android.util.dialogErrorStrings
 internal fun CreateAccountCodeRouteScreen(
     viewModel: AppCreateAccountCodeViewModel,
     onNavigateBack: () -> Unit,
-    onSuccess: (CreateAccountSummaryNavArgs, com.wire.kalium.logic.data.user.UserId) -> Unit,
+    onSuccess: (CreateAccountRouteFlowType, com.wire.kalium.logic.data.user.UserId) -> Unit,
     onTooManyDevices: (com.wire.kalium.logic.data.user.UserId) -> Unit,
 ) {
     with(viewModel) {
@@ -50,7 +49,7 @@ internal fun CreateAccountCodeRouteScreen(
             onResendCodePressed = ::resendCode,
             onBackPressed = onNavigateBack,
             presentation = CreateAccountCodePresentation(
-                title = stringResource(id = codeState.type.titleResId),
+                title = stringResource(id = codeState.type.titleResId()),
                 codeInstruction = stringResource(AuthenticationR.string.create_account_code_text, codeState.email),
                 invalidActivationCodeError = stringResource(id = AuthenticationR.string.create_account_code_error),
                 backContentDescription = R.string.content_description_login_back_btn,
@@ -80,7 +79,7 @@ internal fun CreateAccountCodeRouteScreen(
         }
         LaunchedEffect(codeState.result) {
             (codeState.result as? CreateAccountCodeResult.Success)?.let {
-                onSuccess(CreateAccountSummaryNavArgs(flowType), it.userId)
+                onSuccess(flowType, it.userId)
             }
             val tooManyDevicesError = codeState.result as? CreateAccountCodeResult.Error.TooManyDevicesError
             if (tooManyDevicesError != null) {
@@ -94,7 +93,7 @@ internal fun CreateAccountCodeRouteScreen(
 
 @Composable
 private fun CreateAccountCodeResult.Error.DialogError<com.wire.kalium.common.error.CoreFailure>.getResources(
-    type: CreateAccountFlowType,
+    type: CreateAccountRouteFlowType,
 ) = when (this) {
     CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
         stringResource(id = AuthenticationR.string.create_account_code_error_title),
@@ -125,8 +124,10 @@ private fun CreateAccountCodeResult.Error.DialogError<com.wire.kalium.common.err
         stringResource(id = AuthenticationR.string.create_account_code_error_title),
         stringResource(
             id = when (type) {
-                CreateAccountFlowType.CreatePersonalAccount -> AuthenticationR.string.create_account_code_error_personal_account_creation_restricted
-                CreateAccountFlowType.CreateTeam -> AuthenticationR.string.create_account_code_error_team_creation_restricted
+                CreateAccountRouteFlowType.PERSONAL ->
+                    AuthenticationR.string.create_account_code_error_personal_account_creation_restricted
+                CreateAccountRouteFlowType.TEAM ->
+                    AuthenticationR.string.create_account_code_error_team_creation_restricted
             }
         )
     )
@@ -136,4 +137,9 @@ private fun CreateAccountCodeResult.Error.DialogError<com.wire.kalium.common.err
 
     is CreateAccountCodeResult.Error.DialogError.GenericError ->
         this.failure.dialogErrorStrings(LocalContext.current.resources)
+}
+
+private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_title
+    CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
 }

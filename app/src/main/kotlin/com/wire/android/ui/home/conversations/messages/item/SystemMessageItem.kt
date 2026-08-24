@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -673,18 +672,5 @@ val DefaultMarkdownTextStyle
         normalColor = MaterialTheme.wireColorScheme.secondaryText,
         boldColor = MaterialTheme.wireColorScheme.onBackground
     )
-
-@Stable
-data class SystemMessageContent(
-    val expandable: Boolean,
-    val learnMorePage: SupportPage?,
-    @get:StringRes val learnMoreTextResId: Int,
-    @get:DrawableRes val iconResId: Int?,
-    val iconTintColor: Color?,
-    val iconSize: Dp,
-    val additionalVerticalPaddings: Dp,
-    val backgroundColor: Color?,
-    val annotatedStringBuilder: @Composable (expanded: Boolean) -> AnnotatedString
-)
 
 private const val EXPANDABLE_THRESHOLD = 4

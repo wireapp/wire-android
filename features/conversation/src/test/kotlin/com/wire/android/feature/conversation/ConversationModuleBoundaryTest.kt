@@ -442,6 +442,22 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun systemMessageLeadingAndContentContractAreFeatureOwned() {
+        val leading = featureSource(systemMessageItemLeadingRelativePath)
+        val content = featureSource(systemMessageContentRelativePath)
+        val appFactory = File(Konsist.projectRootPath, systemMessageItemRelativePath).readText()
+
+        assertTrue(leading.contains("fun SystemMessageItemLeading(messageContent: SystemMessageContent"))
+        assertTrue(content.contains("data class SystemMessageContent("))
+        assertTrue(content.contains("val annotatedStringBuilder: @Composable (expanded: Boolean) -> AnnotatedString"))
+        assertTrue(appFactory.contains("fun systemMessageContent("))
+        assertFalse(appFactory.contains("data class SystemMessageContent("))
+        assertFalse(leading.contains("com.wire.android.R"))
+        assertFalse(content.contains("com.wire.android.R"))
+        assertFalse(File(Konsist.projectRootPath, legacySystemMessageItemLeadingRelativePath).exists())
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -1183,6 +1199,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageBubbleItem.kt"
         const val legacyMessageBubbleItemRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageBubbleItem.kt"
+        const val systemMessageItemLeadingRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/SystemMessageItemLeading.kt"
+        const val systemMessageContentRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/SystemMessageContent.kt"
+        const val legacySystemMessageItemLeadingRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/SystemMessageItemLeading.kt"
+        const val systemMessageItemRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/SystemMessageItem.kt"
         const val conversationSearchPagingUseCaseRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetConversationMessagesFromSearchUseCase.kt"
         const val legacyConversationSearchPagingUseCaseRelativePath =
@@ -1786,6 +1810,10 @@ class ConversationModuleBoundaryTest {
         val messageBubbleItemSources = mapOf(
             messageBubbleItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
         )
+        val systemMessageLeadingSources = mapOf(
+            systemMessageItemLeadingRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+            systemMessageContentRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+        )
         val conversationSearchPagingUseCaseSources = mapOf(
             conversationSearchPagingUseCaseRelativePath to "com.wire.android.ui.home.conversations.usecase",
         )
@@ -1835,7 +1863,7 @@ class ConversationModuleBoundaryTest {
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
                     offlineMessageIndicatorSources + groupConversationAvatarSources + participantPreviewSources +
-                    messageBubbleItemSources +
+                    messageBubbleItemSources + systemMessageLeadingSources +
                     conversationSearchPagingUseCaseSources + conversationAssetPagingUseCaseSources +
                     reactionPresentationSources +
                     messageResourceProviderSources +
@@ -2002,6 +2030,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.theme.wireTypography",
             "com.wire.android.ui.theme.WireTheme",
             "com.wire.android.util.EMPTY",
+            "com.wire.android.util.SupportPage",
             "com.wire.android.util.AppsUtil",
             "com.wire.android.util.dispatchers.DispatcherProvider",
             "com.wire.android.util.time.TimeZoneProvider",

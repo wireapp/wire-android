@@ -22,30 +22,14 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.navigation.style.TransitionAnimationType
-import com.wire.android.ui.authentication.BackendConfigSuccessContent
-import com.wire.android.ui.authentication.MissingBackendConfigContent
-import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
-import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
-import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
-import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
-import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
 
 /**

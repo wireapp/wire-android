@@ -34,7 +34,10 @@ internal fun MainLoginContent(
 ) {
     val scroll = rememberScrollState()
     val backendState = loginEmailViewModel.loginState.backendConfigState
-    val showSetup = shouldShowBackendSetup(loginEmailViewModel.isBackendConfigured, backendState == LoginEmailState.BackendConfigState.Success)
+    val showSetup = shouldShowBackendSetup(
+        loginEmailViewModel.isBackendConfigured,
+        backendState == LoginEmailState.BackendConfigState.Success,
+    )
     val ssoDialog = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     FeatureDisabledWithProxyDialogContent(ssoDialog)
     LoginScreenContent(
@@ -44,11 +47,21 @@ internal fun MainLoginContent(
         backContentDescription = R.string.content_description_login_back_btn,
         isProxyEnabled = loginEmailViewModel.serverConfig.isProxyEnabled,
         onBackPressed = onBackPressed,
-        onSsoBlocked = { ssoDialog.show(ssoDialog.savedState ?: FeatureDisabledWithProxyDialogState(R.string.sso_not_supported_dialog_description)) },
+        onSsoBlocked = {
+            ssoDialog.show(
+                ssoDialog.savedState ?: FeatureDisabledWithProxyDialogState(
+                    R.string.sso_not_supported_dialog_description,
+                ),
+            )
+        },
         emailContent = { LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scroll) },
         ssoContent = { LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, loginNavArgs, ssoLoginResult, ssoCodeAutoLogin) },
         backendConfigContent = { BackendConfiguration(backendState, loginEmailViewModel) },
-        subtitleContent = { if (!showSetup && loginEmailViewModel.serverConfig.isOnPremises) ServerTitle(loginEmailViewModel.serverConfig, MaterialTheme.wireTypography.body01) },
+        subtitleContent = {
+            if (!showSetup && loginEmailViewModel.serverConfig.isOnPremises) {
+                ServerTitle(loginEmailViewModel.serverConfig, MaterialTheme.wireTypography.body01)
+            }
+        },
     )
 }
 
@@ -61,7 +74,9 @@ private fun BackendConfiguration(state: LoginEmailState.BackendConfigState, view
         )
     } else MissingBackendConfigContent(
         modifier = Modifier.fillMaxWidth(),
-        errorText = (state == LoginEmailState.BackendConfigState.Error).takeIf { it }?.let { stringResource(R.string.missing_backend_config_error) },
+        errorText = (state == LoginEmailState.BackendConfigState.Error)
+            .takeIf { it }
+            ?.let { stringResource(R.string.missing_backend_config_error) },
         isLoading = state == LoginEmailState.BackendConfigState.Loading,
         onConfigurationLinkEntered = viewModel::onBackendConfigLinkEntered,
     )

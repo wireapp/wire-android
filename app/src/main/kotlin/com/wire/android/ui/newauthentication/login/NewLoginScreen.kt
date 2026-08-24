@@ -9,32 +9,20 @@
  */
 package com.wire.android.ui.newauthentication.login
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.BackendConfigSuccessContent
 import com.wire.android.ui.authentication.MissingBackendConfigContent
-import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.sso.SsoIdentityChangedDialog
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.HandleActions
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.typography
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 /** Navigation- and host-specific adapter for the feature-owned new-login content. */

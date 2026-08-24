@@ -4,7 +4,11 @@ package com.wire.android.ui.authentication.login.email
 import com.wire.android.ui.authentication.login.LoginState
 
 sealed interface LoginTerminalEffect<out UserT, out DomainT> {
-    data class Success<UserT>(val syncCompleted: Boolean, val e2eiRequired: Boolean, val userId: UserT) : LoginTerminalEffect<UserT, Nothing>
+    data class Success<UserT>(
+        val syncCompleted: Boolean,
+        val e2eiRequired: Boolean,
+        val userId: UserT,
+    ) : LoginTerminalEffect<UserT, Nothing>
     data class RemoveDevice<UserT>(val userId: UserT) : LoginTerminalEffect<UserT, Nothing>
     data class ShowClaimedDomain<DomainT>(val domain: DomainT) : LoginTerminalEffect<Nothing, DomainT>
     data object None : LoginTerminalEffect<Nothing, Nothing>

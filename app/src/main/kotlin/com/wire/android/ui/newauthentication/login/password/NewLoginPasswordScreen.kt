@@ -35,8 +35,6 @@ import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
-import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordPolicy
-import com.wire.android.ui.newauthentication.login.password.showCreateAccount
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 

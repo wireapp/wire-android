@@ -2027,6 +2027,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.common.R",
             "com.wire.android.ui.common.UserBadge",
             "com.wire.android.ui.common.applyIf",
+            "com.wire.android.ui.common.button.WireButtonState",
             "com.wire.android.ui.common.button.WireSecondaryButton",
             "com.wire.android.ui.common.button.wireSecondaryButtonColors",
             "com.wire.android.ui.common.colorsScheme",

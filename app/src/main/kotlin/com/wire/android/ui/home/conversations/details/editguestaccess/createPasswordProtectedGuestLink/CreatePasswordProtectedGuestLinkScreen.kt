@@ -46,6 +46,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.button.GeneratePasswordButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -253,7 +254,7 @@ private fun CreateButton(
     onCreateLink: () -> Unit
 ) {
     WirePrimaryButton(
-        text = stringResource(id = R.string.guest_link_button_create_link),
+        text = stringResource(id = conversationR.string.guest_link_button_create_link),
         fillMaxWidth = true,
         onClick = onCreateLink,
         loading = isLoading,

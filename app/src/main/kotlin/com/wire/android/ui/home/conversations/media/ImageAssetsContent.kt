@@ -40,6 +40,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -80,7 +81,7 @@ fun ImageAssetsContent(
         )
     } else {
         EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_pictures_empty)
+            text = stringResource(conversationR.string.label_conversation_pictures_empty)
         )
     }
 }

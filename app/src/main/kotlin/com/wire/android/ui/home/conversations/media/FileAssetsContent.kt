@@ -35,6 +35,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.rowitem.SectionHeader
@@ -77,7 +78,7 @@ fun FileAssetsContent(
         )
     } else {
         EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_files_empty)
+            text = stringResource(conversationR.string.label_conversation_files_empty)
         )
     }
 }

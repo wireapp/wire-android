@@ -47,7 +47,7 @@ enum class CreateAccountFlowType(
     ),
     CreateTeam(
         routeArg = "create_team",
-        titleResId = R.string.create_team_title,
+        titleResId = AuthenticationR.string.create_team_title,
         overviewResources = OverviewResources(
             overviewContentTitleResId = AuthenticationR.string.create_team_content_title,
             overviewContentTextResId = AuthenticationR.string.create_team_text,

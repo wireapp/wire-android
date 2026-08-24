@@ -85,8 +85,7 @@
     <!-- Settings -->
     <string name="settings_backups_group_title">Резервні копії</string>
     <!-- Welcome -->
-    <string name="welcome_button_create_team">Створити команду</string>
-    <!-- API Versioning Dialogs -->
+<!-- API Versioning Dialogs -->
     <!-- Migration -->
     <!-- Enterprise Login -->
     <!-- Login -->

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_selector_title">Как вы будете использовать Wire?</string>
+    <string name="create_account_selector_team_subtitle">Работайте безопасно вместе со своей командой.</string>
+    <string name="create_account_selector_team_highlight_two">Начните бесплатно, улучшите в любое время</string>
+    <string name="create_account_selector_personal_subtitle">Общаться с друзьями и близкими.</string>
+    <string name="create_account_selector_personal_highlight_two">Всегда бесплатно</string>
+    <string name="create_account_email_label">EMAIL</string>
+    <string name="create_account_email_terms_dialog_text">Нажимая Продолжить, вы принимаете наши Условия использования и Политику конфиденциальности.</string>
+    <string name="create_account_email_share_anonymous_data_link_label">Политике конфиденциальности</string>
+    <string name="create_account_email_backlink_to_team_label">Хотите сотрудничать в команде?</string>
+    <string name="create_account_email_already_in_use_error">Указанный вами адрес электронной почты уже зарегистрирован.</string>
+    <string name="create_account_email_invalid_error">Пожалуйста, введите email в корректном формате.</string>
+    <string name="create_account_details_name_placeholder">Введите свое имя</string>
+    <string name="create_account_details_password_confirm_placeholder">Подтвердите пароль</string>
+    <string name="create_account_details_password_not_matching_error">Пароли не совпадают</string>
+    <string name="create_account_code_text">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
+    <string name="create_account_code_error_title">Неверная информация</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">Данная версия приложения не позволяет создавать личные аккаунты.</string>
+    <string name="welcome_button_create_team">Создать команду</string>
+    <string name="create_account_selector_team_title">Для совместной работы</string>
+    <string name="create_account_selector_team_highlight_one">Общайтесь с коллегами и делитесь документами через одно приложение</string>
+    <string name="create_account_selector_personal_title">Для частного использования</string>
+    <string name="create_account_selector_personal_highlight_one">Отправлять сообщения и делиться фотографиями</string>
+    <string name="create_team_title">Создать команду</string>
+    <string name="create_account_email_placeholder">maria@example.com</string>
+    <string name="create_account_email_terms_dialog_title">Условия использования</string>
+    <string name="create_account_email_share_anonymous_data_label">Я согласен делиться анонимными данными об использовании. Все подробности вы найдете в нашей</string>
+    <string name="create_account_email_share_anonymous_data_optional_label">(Необязательно)</string>
+    <string name="create_account_email_terms_dialog_view_policy">Ознакомиться с Условиями использования и Политикой конфиденциальности</string>
+    <string name="create_account_email_blacklisted_error">Ваш email был признан недоверенным, например, из-за отклонения спам-фильтром.</string>
+    <string name="create_account_email_domain_blocked_error">Вы не можете создать аккаунт, поскольку ваш почтовый домен целенаправленно заблокирован.</string>
+    <string name="create_account_details_password_placeholder">Введите пароль</string>
+    <string name="create_account_details_name_label">ИМЯ</string>
+    <string name="create_account_details_password_error">Неверный пароль</string>
+    <string name="create_account_details_confirm_password_label">ПОДТВЕРДИТЬ ПАРОЛЬ</string>
+    <string name="create_account_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
+    <string name="create_account_code_error_team_members_limit_reached">Эта команда достигла лимита участников.</string>
+    <string name="create_account_code_error_team_creation_restricted">Данная версия приложения не позволяет создавать команды.</string>
+</resources>

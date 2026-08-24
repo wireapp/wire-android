@@ -24,7 +24,7 @@ class CreateAccountCodeOwnershipTest {
             assertTrue(Files.isRegularFile(root.resolve("features/authentication/src/main/kotlin/$packagePath/$source")))
         }
         assertTrue(Files.isRegularFile(root.resolve("app/src/main/kotlin/$packagePath/CreateAccountCodeViewModelHostFactory.kt")))
-        assertTrue(Files.isRegularFile(root.resolve("app/src/main/kotlin/com/wire/android/ui/registration/code/CreateAccountVerificationCodeViewState.kt")))
+        assertFalse(Files.exists(root.resolve("app/src/main/kotlin/com/wire/android/ui/registration/code/CreateAccountVerificationCodeViewState.kt")))
     }
 
     @Test

@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
@@ -60,9 +61,9 @@ internal fun CreateAccountDetailsRouteScreen(
             showTeamName = navArgs.flowType == CreateAccountFlowType.CreateTeam,
             sharedText = CreateAccountDetailsSharedText(
                 passwordDescription = stringResource(R.string.create_account_details_password_description),
-                confirmPasswordLabel = stringResource(R.string.create_account_details_confirm_password_label),
-                invalidPasswordError = stringResource(R.string.create_account_details_password_error),
-                passwordsNotMatchingError = stringResource(R.string.create_account_details_password_not_matching_error),
+                confirmPasswordLabel = stringResource(AuthenticationR.string.create_account_details_confirm_password_label),
+                invalidPasswordError = stringResource(AuthenticationR.string.create_account_details_password_error),
+                passwordsNotMatchingError = stringResource(AuthenticationR.string.create_account_details_password_not_matching_error),
                 continueLabel = stringResource(R.string.label_continue),
             ),
             firstNameTextState = firstNameTextState,

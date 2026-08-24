@@ -157,7 +157,6 @@
     <string name="welcome_footer_text">¿Quieres chatear con amigos y familias?</string>
     <string name="welcome_footer_link">Crea una cuenta privada gratis</string>
     <string name="welcome_button_create_personal_account">Crear una cuenta personal</string>
-    <string name="welcome_button_create_team">Crear un equipo</string>
     <string name="server_details_dialog_body">Nombre del servidor:\n%1$s\n\nURL del servidor:\n%2$s</string>
     <string name="server_details_dialog_title">Servidor On-premises</string>
     <string name="welcome_migration_dialog_title">Bienvenido a nuestra nueva aplicación Android 👋</string>
@@ -221,25 +220,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_quote_original_message_is_a_picture">Imagen</string>
     <!-- Create Account -->
     <string name="create_team_details_text">Ingresa tu correo electr&#243;nico para crear tu equipo:</string>
-    <string name="create_account_email_placeholder">juan@example.com</string>
-    <string name="create_account_email_label">CORREO ELECTR&#211;NICO</string>
-    <string name="create_account_email_terms_dialog_title">T&#233;rminos de uso</string>
-    <string name="create_account_email_terms_dialog_text">Al hacer clic en continuar, est&#225;s aceptando nuestros T&#233;rminos de uso y Pol&#237;tica de privacidad.</string>
-    <string name="create_account_email_terms_dialog_view_policy">Ver ToU y Pol&#237;tica de privacidad</string>
-    <string name="create_account_email_already_in_use_error">La direcci&#243;n de correo electr&#243;nico ya est&#225; en uso.</string>
-    <string name="create_account_email_blacklisted_error">Tu correo electrónico ha sido identificado como no confiable, por ejemplo, debido a un rechazo por un filtro de spam.</string>
-    <string name="create_account_email_invalid_error">Por favor, introduce un formato v&#225;lido para tu correo electr&#243;nico.</string>
-    <string name="create_account_email_domain_blocked_error">No puedes crear esta cuenta porque tu dominio de correo electr&#243;nico est&#225; bloqueado intencionalmente.</string>
     <string name="create_account_details_password_description">Usa al menos 8 caracteres, con una letra min&#250;scula, una letra may&#250;scula, un n&#250;mero y un car&#225;cter especial.</string>
-    <string name="create_account_details_password_error">Contrase&#241;a no v&#225;lida.</string>
-    <string name="create_account_details_password_not_matching_error">Las contrase&#241;as no coinciden.</string>
-    <string name="create_account_details_confirm_password_label">CONFIRMAR CONTRASE&#209;A</string>
-    <string name="create_account_code_text">Por favor, revisa tu correo electr&#243;nico %1$s para obtener el c&#243;digo de verificaci&#243;n e ingr&#233;salo a continuaci&#243;n.</string>
-    <string name="create_account_code_error">C&#243;digo no v&#225;lido, o se ha excedido el n&#250;mero m&#225;ximo de intentos. Por favor, int&#233;ntalo de nuevo o solicita otro c&#243;digo.</string>
-    <string name="create_account_code_error_title">Informaci&#243;n no v&#225;lida</string>
-    <string name="create_account_code_error_team_members_limit_reached">Este equipo ha alcanzado su l&#237;mite de miembros.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Esta versi&#243;n de la aplicaci&#243;n no permite la creaci&#243;n de cuentas personales.</string>
-    <string name="create_account_code_error_team_creation_restricted">Esta versi&#243;n de la aplicaci&#243;n no permite la creaci&#243;n de equipos.</string>
     <string name="create_account_username_title">Tu nombre de usuario</string>
     <string name="create_account_username_placeholder">julia.martinez</string>
     <string name="create_account_username_label">NOMBRE DE USUARIO</string>

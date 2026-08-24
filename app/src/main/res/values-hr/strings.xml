@@ -147,7 +147,6 @@
     <string name="welcome_footer_text">Želite razgovarati s obitelji i prijateljima?</string>
     <string name="welcome_footer_link">Stvorite privatni račun besplatno</string>
     <string name="welcome_button_create_personal_account">Stvorite privatni račun</string>
-    <string name="welcome_button_create_team">Stvorite tim</string>
     <string name="server_details_dialog_body">Backend ime:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">Lokalni Backend</string>
     <string name="welcome_migration_dialog_title">Dobro došli u našu novu Android aplikaciju 👋</string>
@@ -221,25 +220,7 @@
     <string name="label_quote_original_message_is_a_picture">Slika</string>
     <!-- Create Account -->
     <string name="create_team_details_text">Unesite svoj email kako biste stvorili svoj tim:</string>
-    <string name="create_account_email_placeholder">vašeIme@primjer.com</string>
-    <string name="create_account_email_label">EMAIL</string>
-    <string name="create_account_email_terms_dialog_title">Uvjeti korištenja</string>
-    <string name="create_account_email_terms_dialog_text">Klikom na nastavak slažete se s našim Uvjetima korištenja i Politikom privatnosti.</string>
-    <string name="create_account_email_terms_dialog_view_policy">Pogledajte Uvjete kotištenja i Pravila privatnosti</string>
-    <string name="create_account_email_already_in_use_error">Ova e-mail adresa se već koristi.</string>
-    <string name="create_account_email_blacklisted_error">Vaša je e-pošta identificirana kao nepouzdana, na primjer, zbog odbijanja od strane filtra neželjene pošte.</string>
-    <string name="create_account_email_invalid_error">Unesite važeći format svoje e-pošte.</string>
-    <string name="create_account_email_domain_blocked_error">Ne možete stvoriti ovaj račun jer je vaša e-mail domena blokirana.</string>
     <string name="create_account_details_password_description">Koristite najmanje 8 znakova, s jednim malim slovom, jednim velikim slovom, brojem i posebnim znakom.</string>
-    <string name="create_account_details_password_error">Neispravna lozinka</string>
-    <string name="create_account_details_password_not_matching_error">Lozinke se ne podudaraju</string>
-    <string name="create_account_details_confirm_password_label">POTVRDI LOZINKU</string>
-    <string name="create_account_code_text">Provjerite svoju e-poštu %1$s za verifikacijski kod i unesite ga ispod.</string>
-    <string name="create_account_code_error">Nevažeći kôd ili je premašen maksimalan broj pokušaja. Molimo pokušajte ponovno ili zatražite drugi kôd</string>
-    <string name="create_account_code_error_title">Nevažeća informacija</string>
-    <string name="create_account_code_error_team_members_limit_reached">Ovaj tim je dosegao ograničen broja članova.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Ova verzija aplikacije ne dopušta stvaranje osobnih računa.</string>
-    <string name="create_account_code_error_team_creation_restricted">Ova verzija aplikacije ne dopušta stvaranje timova.</string>
     <string name="create_account_username_title">Vaše korisničko ime</string>
     <string name="create_account_username_placeholder">ivana.ivanović</string>
     <string name="create_account_username_label">KORISNIČKO IME</string>

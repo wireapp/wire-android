@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_email_label">EMAIL</string>
+    <string name="create_account_email_terms_dialog_text">Cliccando su continua accetti i nostri Termini d\'uso e la Nostra Privacy Policy.</string>
+    <string name="create_account_email_already_in_use_error">L\'indirizzo email &#232; gi&#224; in uso.</string>
+    <string name="create_account_email_invalid_error">Inserisci un formato email valido.</string>
+    <string name="create_account_details_password_not_matching_error">Le password non corrispondono.</string>
+    <string name="create_account_code_text">Controlla la tua email %1$s per il codice di verifica e inseriscilo qui sotto.</string>
+    <string name="create_account_code_error_title">Informazione non valida</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">Questa versione dell\'applicazione non permette la creazione di account personali.</string>
+    <string name="welcome_button_create_team">Crea un Team</string>
+    <string name="create_account_email_placeholder">jane@example.com</string>
+    <string name="create_account_email_terms_dialog_title">Termini d\'uso</string>
+    <string name="create_account_email_terms_dialog_view_policy">Visualizza Termini d\'uso e Privacy Policy</string>
+    <string name="create_account_email_blacklisted_error">Il tuo indirizzo email &#232; stato identificato come non affidabile, ad esempio a causa di un filtro antispam.</string>
+    <string name="create_account_email_domain_blocked_error">Non puoi creare questo account poich&#233; il tuo dominio email &#232; bloccato intenzionalmente.</string>
+    <string name="create_account_details_password_error">Password non valida.</string>
+    <string name="create_account_details_confirm_password_label">CONFERMA PASSWORD</string>
+    <string name="create_account_code_error">Codice non valido o tentativi massimi superati. Riprova o richiedi un nuovo codice.</string>
+    <string name="create_account_code_error_team_members_limit_reached">Questo team ha raggiunto il limite di membri.</string>
+    <string name="create_account_code_error_team_creation_restricted">Questa versione dell\'applicazione non consente la creazione di team.</string>
+</resources>

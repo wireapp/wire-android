@@ -233,7 +233,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="welcome_footer_text">Arkadaşlarınızla ve ailenizle sohbet etmek ister misiniz?</string>
     <string name="welcome_footer_link">Ücretsiz olarak özel bir hesap oluşturun</string>
     <string name="welcome_button_create_personal_account">Kişisel Hesap Oluşturun</string>
-    <string name="welcome_button_create_team">Bir ekip oluşturun</string>
     <string name="server_details_dialog_body">Backend ismi:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Backend ismi:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>
     <string name="welcome_migration_dialog_title">👋 Wire\'ın Yeni Android Uygulamasına Hoşgeldin!</string>
@@ -273,10 +272,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- Delete Message -->
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->
-    <string name="create_account_details_password_error">Geçersiz parola</string>
-    <string name="create_account_details_password_not_matching_error">Parolalar uyuşmuyor</string>
-    <string name="create_account_details_confirm_password_label">PAROLAYI ONAYLA</string>
-    <!-- Conversations -->
+<!-- Conversations -->
     <string name="conversation_label_conversations">KONUŞMALAR</string>
     <string name="group_name_title">Grup adı</string>
     <string name="conversation_details_title">Konuşma Detayları</string>

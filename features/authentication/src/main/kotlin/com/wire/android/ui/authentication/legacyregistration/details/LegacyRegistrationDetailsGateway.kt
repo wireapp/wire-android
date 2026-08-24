@@ -11,8 +11,8 @@ interface LegacyRegistrationDetailsGateway<LinksT, FailureT> {
     fun isEmailValid(email: String): Boolean
     suspend fun requestActivationCode(serverConfig: LinksT, email: String): LegacyActivationCodeResult<FailureT>
     suspend fun setAnonymousRegistrationEnabled(enabled: Boolean)
-    fun onAccountSetup(withPasswordTries: Boolean)
-    fun onTermsOfUseDialog()
+    suspend fun onAccountSetup(withPasswordTries: Boolean)
+    suspend fun onTermsOfUseDialog()
 }
 
 sealed interface LegacyActivationCodeResult<out FailureT> {

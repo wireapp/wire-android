@@ -151,7 +151,6 @@
     <string name="welcome_footer_text">友人や家族とチャットしたいですか？</string>
     <string name="welcome_footer_link">無料でプライベートアカウントを作成する</string>
     <string name="welcome_button_create_personal_account">個人アカウントを作成</string>
-    <string name="welcome_button_create_team">チームを作成</string>
     <string name="server_details_dialog_body">バックエンド名:\n%1$s\n\nバックエンドURL:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">バックエンド名:\n%1$s\n\nバックエンドURL:\n%2$s\n\nプロキシURL:\n%3$s\n\nプロキシ認証:\n%4$s</string>
     <string name="server_details_dialog_title">オンプレミスのバックエンド</string>

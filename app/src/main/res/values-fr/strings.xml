@@ -157,7 +157,6 @@
     <string name="welcome_footer_text">Vous voulez discuter avec vos amis et votre famille?</string>
     <string name="welcome_footer_link">Créez un compte privé gratuitement</string>
     <string name="welcome_button_create_personal_account">Créer un compte personnel</string>
-    <string name="welcome_button_create_team">Créer une équipe</string>
     <string name="server_details_dialog_title">Serveur dédié</string>
     <string name="welcome_migration_dialog_title">Bienvenue sur notre nouvelle application Android 👋</string>
     <string name="welcome_migration_dialog_continue">Commencez à utiliser Wire</string>
@@ -229,25 +228,7 @@
     <string name="label_quote_original_message_is_a_picture">Image</string>
     <!-- Create Account -->
     <string name="create_team_details_text">Entrez votre adresse e-mail pour créer votre équipe:</string>
-    <string name="create_account_email_placeholder">jeanne@example.com</string>
-    <string name="create_account_email_label">EMAIL</string>
-    <string name="create_account_email_terms_dialog_title">Conditions d\'utilisation</string>
-    <string name="create_account_email_terms_dialog_text">En cliquant sur continuer, vous acceptez nos conditions d\'utilisation et notre politique de sécurité.</string>
-    <string name="create_account_email_terms_dialog_view_policy">Voir les conditions d\'utilisation et la politique de confidentialité</string>
-    <string name="create_account_email_already_in_use_error">L\'adresse email est déjà utilisée.</string>
-    <string name="create_account_email_blacklisted_error">Votre email n\'est pas fiable. Cela peut venir d\'un rejet par un filtre anti-spam, par exemple.</string>
-    <string name="create_account_email_invalid_error">Veuillez entrer une adresse email au bon format.</string>
-    <string name="create_account_email_domain_blocked_error">Vous ne pouvez pas créer ce compte utilisateur car le domaine de votre email est intentionnellement bloqué.</string>
     <string name="create_account_details_password_description">Utilisez au moins 8 caractères, dont un minuscule, un majuscule, un nombre et un caractère spécial.</string>
-    <string name="create_account_details_password_error">Mot de passe incorrect</string>
-    <string name="create_account_details_password_not_matching_error">Les mots de passe ne correspondent pas</string>
-    <string name="create_account_details_confirm_password_label">CONFIRMEZ LE MOT DE PASSE</string>
-    <string name="create_account_code_text">Veuillez vérifier votre email %1$s pour obtenir le code de confirmation et saisissez-le ci-dessous.</string>
-    <string name="create_account_code_error">Code invalide, ou nombre d\'essais maximum atteint. Veuillez réessayer ou demander un nouveau code</string>
-    <string name="create_account_code_error_title">Information invalide</string>
-    <string name="create_account_code_error_team_members_limit_reached">Cette équipe a atteint la limite d\'utilisateurs.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Cette version de l\'application n\'autorise pas la création de comptes personnels.</string>
-    <string name="create_account_code_error_team_creation_restricted">Cette application n\'autorise pas la création d\'équipe.</string>
     <string name="create_account_username_title">Votre nom d\'utilisateur</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">NOM D\'UTILISATEUR</string>

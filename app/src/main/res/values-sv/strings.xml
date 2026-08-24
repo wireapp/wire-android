@@ -183,18 +183,7 @@
     <string name="label_delete_for_everyone">Radera för alla</string>
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->
-    <string name="create_account_email_label">E-POSTADRESS</string>
-    <string name="create_account_email_terms_dialog_title">Användarvillkor</string>
-    <string name="create_account_email_invalid_error">Ange ett giltigt format för din e-postadress.</string>
-    <string name="create_account_details_password_description">Använd minst 8 tecken, med en gemen bokstav, en versal bokstav, en siffra och ett specialtecken.</string>
-    <string name="create_account_details_password_error">Ogiltigt lösenord</string>
-    <string name="create_account_details_password_not_matching_error">Lösenorden matchar inte</string>
-    <string name="create_account_details_confirm_password_label">BEKRÄFTA LÖSENORD</string>
-    <string name="create_account_code_text">Kontrollera din e-post %1$s för verifieringskoden och ange den nedan.</string>
-    <string name="create_account_code_error_title">Ogiltig information</string>
-    <string name="create_account_code_error_team_members_limit_reached">Det här teamet har nått sin gräns för antalet medlemmar.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Den här applikationens version tillåter inte skapandet av personliga konton.</string>
-    <string name="create_account_code_error_team_creation_restricted">Den här applikationens version tillåter inte skapandet av teams.</string>
+<string name="create_account_details_password_description">Använd minst 8 tecken, med en gemen bokstav, en versal bokstav, en siffra och ett specialtecken.</string>
     <string name="create_account_username_title">Ditt användarnamn</string>
     <string name="create_account_username_label">ANVÄNDARNAMN</string>
     <string name="create_account_username_taken_error">Det här användarnamnet är redan upptaget. Vänligen välj ett annat.</string>

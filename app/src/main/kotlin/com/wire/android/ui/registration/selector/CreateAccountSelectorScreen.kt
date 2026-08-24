@@ -28,28 +28,39 @@ internal fun CreateAccountSelectorRouteScreen(
     onTeamAccountCreation: (String) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    val teamUrl = viewModel.teamAccountCreationUrl + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
+    val teamUrl = viewModel.teamAccountCreationUrl + stringResource(AuthenticationR.string.create_account_email_backlink_to_team_suffix_url)
     LegacyRegistrationSelectorContent(
         text = LegacyRegistrationSelectorText(
-            title = stringResource(R.string.create_account_selector_title),
+            title = stringResource(AuthenticationR.string.create_account_selector_title),
             team = LegacyRegistrationSelectorText.Card(
-                stringResource(R.string.create_account_selector_team_title),
-    stringResource(R.string.create_account_selector_team_subtitle),
-                listOf(stringResource(R.string.create_account_selector_team_highlight_one),
-    stringResource(R.string.create_account_selector_team_highlight_two)), stringResource(R.string.create_team_title),
+                stringResource(AuthenticationR.string.create_account_selector_team_title),
+    stringResource(AuthenticationR.string.create_account_selector_team_subtitle),
+                highlights = listOf(
+                    stringResource(AuthenticationR.string.create_account_selector_team_highlight_one),
+                    stringResource(AuthenticationR.string.create_account_selector_team_highlight_two),
+                ),
+                continueLabel = stringResource(AuthenticationR.string.create_team_title),
             ),
             personal = LegacyRegistrationSelectorText.Card(
-                stringResource(R.string.create_account_selector_personal_title),
-    stringResource(R.string.create_account_selector_personal_subtitle),
-                listOf(stringResource(R.string.create_account_selector_personal_highlight_one),
-    stringResource(R.string.create_account_selector_personal_highlight_two)),
-    stringResource(AuthenticationR.string.create_personal_account_title),
+                stringResource(AuthenticationR.string.create_account_selector_personal_title),
+    stringResource(AuthenticationR.string.create_account_selector_personal_subtitle),
+                highlights = listOf(
+                    stringResource(AuthenticationR.string.create_account_selector_personal_highlight_one),
+                    stringResource(AuthenticationR.string.create_account_selector_personal_highlight_two),
+                ),
+                continueLabel = stringResource(AuthenticationR.string.create_personal_account_title),
             ),
         ),
         checkIcon = painterResource(CommonR.drawable.ic_check_circle),
         positiveColor = colorsScheme().positive,
-        serverTitle = { if (viewModel.serverConfig.isOnPremises) ServerTitle(viewModel.serverConfig,
-    MaterialTheme.wireTypography.body01) },
+        serverTitle = {
+            if (viewModel.serverConfig.isOnPremises) {
+                ServerTitle(
+                    serverLinks = viewModel.serverConfig,
+                    style = MaterialTheme.wireTypography.body01,
+                )
+            }
+        },
         onNavigateBack = onNavigateBack,
         onPersonalAccountCreationClicked = { onPersonalAccountCreation(CreateAccountDataNavArgs(customServerConfig =
     viewModel.serverConfig, userRegistrationInfo = UserRegistrationInfo(viewModel.email))) },

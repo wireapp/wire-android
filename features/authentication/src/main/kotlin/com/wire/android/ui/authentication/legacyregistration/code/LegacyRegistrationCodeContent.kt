@@ -18,9 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
@@ -44,14 +47,20 @@ fun <UserT, FailureT> LegacyRegistrationCodeContent(
     serverTitle: @Composable () -> Unit,
     onResendCodePressed: () -> Unit,
     onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     NewAuthContainer(
+        modifier = modifier,
         header = {
             NewAuthHeader(
                 title = {
-                    Text(text.title, style = MaterialTheme.wireTypography.title01)
+                    Text(
+                        text = text.title,
+                        style = MaterialTheme.wireTypography.title01,
+                        modifier = Modifier.semantics { heading() },
+                    )
                     serverTitle()
                 },
                 canNavigateBack = true,
@@ -88,6 +97,7 @@ fun <UserT, FailureT> LegacyRegistrationCodeContent(
                         modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing16x),
                     )
                 }
+                VerticalSpace.x16()
                 ResendCodeText(onResendCodePressed, clickEnabled = !state.loading)
             }
             Spacer(Modifier.weight(1f))

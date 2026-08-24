@@ -104,7 +104,7 @@ private fun WelcomeContent(
     if (maxAccountsReached) maxDialog.show(maxDialog.savedState ?: MaxAccountsReachedDialogState)
     if (nomadAccountBlocksLogin) nomadDialog.show(nomadDialog.savedState ?: NomadAccountBlocksLoginDialogState)
     val accountCreationAllowed = LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed
-    val teamCreationUrl = state.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
+    val teamCreationUrl = state.teams + stringResource(AuthenticationR.string.create_account_email_backlink_to_team_suffix_url)
     com.wire.android.ui.authentication.welcome.WelcomeScreenContent(
         state = com.wire.android.ui.authentication.welcome.WelcomePresentationState(
             showCloseButton = isThereActiveSession,
@@ -115,7 +115,7 @@ private fun WelcomeContent(
             carouselPages = welcomeCarouselPages(),
         ),
         loginLabel = stringResource(R.string.label_login),
-        createTeamLabel = stringResource(R.string.welcome_button_create_team),
+        createTeamLabel = stringResource(AuthenticationR.string.welcome_button_create_team),
         footerText = stringResource(R.string.welcome_footer_text),
         createPersonalLabel = stringResource(R.string.welcome_button_create_personal_account),
         openLinkDescription = stringResource(commonR.string.content_description_open_link_label),

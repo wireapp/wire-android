@@ -31,8 +31,17 @@ import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-data class LegacyRegistrationSelectorText(val title: String, val team: Card, val personal: Card) {
-    data class Card(val title: String, val subtitle: String, val highlights: List<String>, val continueLabel: String)
+data class LegacyRegistrationSelectorText(
+    val title: String,
+    val team: Card,
+    val personal: Card,
+) {
+    data class Card(
+        val title: String,
+        val subtitle: String,
+        val highlights: List<String>,
+        val continueLabel: String,
+    )
 }
 
 @Composable
@@ -44,41 +53,80 @@ fun LegacyRegistrationSelectorContent(
     onNavigateBack: () -> Unit,
     onPersonalAccountCreationClicked: () -> Unit,
     onTeamAccountCreationClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    NewAuthContainer(header = { NewAuthHeader(title = { Text(text.title, style = MaterialTheme.wireTypography.title01, modifier =
-    Modifier.semantics { heading() }); serverTitle() }, canNavigateBack = true, onNavigateBack = onNavigateBack) }, contentPadding =
-    dimensions().spacing16x) {
-        SelectorCard(text.team, true, checkIcon, positiveColor, onTeamAccountCreationClicked)
-        SelectorCard(text.personal, false, checkIcon, positiveColor, onPersonalAccountCreationClicked)
+    NewAuthContainer(
+        modifier = modifier,
+        header = {
+            NewAuthHeader(
+                title = {
+                    Text(
+                        text = text.title,
+                        style = MaterialTheme.wireTypography.title01,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    serverTitle()
+                },
+                canNavigateBack = true,
+                onNavigateBack = onNavigateBack,
+            )
+        },
+        contentPadding = dimensions().spacing16x,
+    ) {
+        SelectorCard(
+            card = text.team,
+            primary = true,
+            checkIcon = checkIcon,
+            positiveColor = positiveColor,
+            onClick = onTeamAccountCreationClicked,
+        )
+        SelectorCard(
+            card = text.personal,
+            primary = false,
+            checkIcon = checkIcon,
+            positiveColor = positiveColor,
+            onClick = onPersonalAccountCreationClicked,
+        )
     }
 }
 
-@Composable private fun SelectorCard(card: LegacyRegistrationSelectorText.Card, primary: Boolean, checkIcon: Painter, positiveColor:
-    Color, onClick: () -> Unit) {
-    Column(Modifier.fillMaxHeight().padding(bottom = dimensions().spacing24x, start = dimensions().spacing16x, end =
-    dimensions().spacing16x).border(BorderStroke(dimensions().spacing1x, if (primary) MaterialTheme.colorScheme.primary else
-    MaterialTheme.colorScheme.outline), RoundedCornerShape(dimensions().spacing24x))) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement =
-    Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing12x), modifier = Modifier.padding(vertical = dimensions().spacing16x,
-    horizontal = dimensions().spacing16x)) {
-            Text(card.title.uppercase(), style = MaterialTheme.wireTypography.title03, color = MaterialTheme.colorScheme.primary,
-    textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = dimensions().spacing8x).fillMaxWidth().semantics {
-    heading() })
-            Text(card.subtitle, style = MaterialTheme.wireTypography.body01, textAlign = TextAlign.Center, modifier =
-    Modifier.padding(horizontal = dimensions().spacing8x).fillMaxWidth())
-            HorizontalDivider(Modifier.padding(horizontal = dimensions().spacing16x))
-            card.highlights.forEach { highlight -> Row(verticalAlignment = Alignment.Top, modifier = Modifier.padding(horizontal =
-    dimensions().spacing16x).fillMaxWidth()) { Icon(checkIcon, null, Modifier.size(dimensions().spacing16x), positiveColor);
-    Text(highlight, style = MaterialTheme.wireTypography.body01, modifier = Modifier.padding(start = dimensions().spacing8x)) };
-    HorizontalDivider(Modifier.padding(horizontal = dimensions().spacing12x)) }
-            val buttonModifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = dimensions().spacing8x)
-            if (primary) {
-                WirePrimaryButton(onClick = onClick, modifier = buttonModifier, text = card.continueLabel)
-            } else {
-                WireSecondaryButton(onClick = onClick, modifier = buttonModifier, text = card.continueLabel)
+@Composable
+private fun SelectorCard(
+    card: LegacyRegistrationSelectorText.Card,
+    primary: Boolean,
+    checkIcon: Painter,
+    positiveColor: Color,
+    onClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .padding(
+                start = dimensions().spacing16x,
+                end = dimensions().spacing16x,
+                bottom = dimensions().spacing24x,
+            )
+            .border(
+                border = BorderStroke(
+                    dimensions().spacing1x,
+                    if (primary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                ),
+                shape = RoundedCornerShape(dimensions().spacing24x),
+            ),
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing12x),
+            modifier = Modifier.padding(
+                horizontal = dimensions().spacing16x,
+                vertical = dimensions().spacing16x,
+            ),
+        ) {
+            CardHeader(card)
+            card.highlights.forEach { highlight ->
+                CardHighlight(highlight, checkIcon, positiveColor)
             }
+            CardButton(card.continueLabel, primary, onClick)
         }
     }
 }

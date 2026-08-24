@@ -39,8 +39,9 @@ fun InitialSyncRouteContent(
     message: AnnotatedString,
     icon: Painter,
     onSyncCompleted: (shouldMoveToBackground: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    InitialSyncProgressContent(topBarTitle, message, icon)
+    InitialSyncProgressContent(topBarTitle, message, icon, modifier)
 
     val state = viewModel.state
     LaunchedEffect(state) {
@@ -53,8 +54,10 @@ private fun InitialSyncProgressContent(
     topBarTitle: String,
     message: AnnotatedString,
     icon: Painter,
+    modifier: Modifier = Modifier,
 ) {
     WireScaffold(
+        modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = MaterialTheme.wireDimensions.spacing0x,

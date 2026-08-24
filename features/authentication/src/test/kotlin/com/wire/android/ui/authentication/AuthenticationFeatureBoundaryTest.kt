@@ -61,20 +61,22 @@ class AuthenticationFeatureBoundaryTest {
     }
 
     @Test
-    fun `mixed certificate route and pending initial sync remain documented host exceptions`() {
+    fun `mixed certificate route remains host exception while initial sync route is feature-owned`() {
         val root = repositoryRoot()
         val certificateRoute = Files.readString(
             root.resolve(
                 "app/src/main/kotlin/com/wire/android/ui/settings/devices/e2ei/E2eiCertificateDetailsNavigation3.kt"
             )
         )
-        val utilityRoutes = Files.readString(root.resolve("app/src/main/kotlin/com/wire/android/navigation/routes/utility/UtilityRoutes.kt"))
+        val initialSyncRoute = Files.readString(
+            root.resolve("features/authentication/src/main/kotlin/com/wire/android/navigation/routes/auth/InitialSyncRoute.kt")
+        )
         val readme = Files.readString(root.resolve("features/authentication/README.md"))
 
         assertTrue(certificateRoute.contains("data class DuringLogin("))
         assertTrue(certificateRoute.contains("data class AfterLogin("))
         assertTrue(certificateRoute.contains("AuthenticationScreenRoute"))
-        assertTrue(utilityRoutes.contains("data class InitialSyncRoute"))
+        assertTrue(initialSyncRoute.contains("data class InitialSyncRoute"))
         assertTrue(readme.contains("E2eiCertificateDetailsRoute"))
         assertTrue(readme.contains("InitialSync"))
     }

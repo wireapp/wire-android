@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
@@ -50,8 +51,8 @@ internal fun CreateAccountCodeRouteScreen(
             onBackPressed = onNavigateBack,
             presentation = CreateAccountCodePresentation(
                 title = stringResource(id = codeState.type.titleResId),
-                codeInstruction = stringResource(R.string.create_account_code_text, codeState.email),
-                invalidActivationCodeError = stringResource(id = R.string.create_account_code_error),
+                codeInstruction = stringResource(AuthenticationR.string.create_account_code_text, codeState.email),
+                invalidActivationCodeError = stringResource(id = AuthenticationR.string.create_account_code_error),
                 backContentDescription = R.string.content_description_login_back_btn,
             ),
             subtitleContent = {
@@ -96,36 +97,36 @@ private fun CreateAccountCodeResult.Error.DialogError<com.wire.kalium.common.err
     type: CreateAccountFlowType,
 ) = when (this) {
     CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_already_in_use_error)
+        stringResource(id = AuthenticationR.string.create_account_code_error_title),
+        stringResource(id = AuthenticationR.string.create_account_email_already_in_use_error)
     )
 
     CreateAccountCodeResult.Error.DialogError.BlackListedError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_blacklisted_error)
+        stringResource(id = AuthenticationR.string.create_account_code_error_title),
+        stringResource(id = AuthenticationR.string.create_account_email_blacklisted_error)
     )
 
     CreateAccountCodeResult.Error.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_domain_blocked_error)
+        stringResource(id = AuthenticationR.string.create_account_code_error_title),
+        stringResource(id = AuthenticationR.string.create_account_email_domain_blocked_error)
     )
 
     CreateAccountCodeResult.Error.DialogError.InvalidEmailError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_invalid_error)
+        stringResource(id = AuthenticationR.string.create_account_code_error_title),
+        stringResource(id = AuthenticationR.string.create_account_email_invalid_error)
     )
 
     CreateAccountCodeResult.Error.DialogError.TeamMembersLimitError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_code_error_team_members_limit_reached)
+        stringResource(id = AuthenticationR.string.create_account_code_error_title),
+        stringResource(id = AuthenticationR.string.create_account_code_error_team_members_limit_reached)
     )
 
     CreateAccountCodeResult.Error.DialogError.CreationRestrictedError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
+        stringResource(id = AuthenticationR.string.create_account_code_error_title),
         stringResource(
             id = when (type) {
-                CreateAccountFlowType.CreatePersonalAccount -> R.string.create_account_code_error_personal_account_creation_restricted
-                CreateAccountFlowType.CreateTeam -> R.string.create_account_code_error_team_creation_restricted
+                CreateAccountFlowType.CreatePersonalAccount -> AuthenticationR.string.create_account_code_error_personal_account_creation_restricted
+                CreateAccountFlowType.CreateTeam -> AuthenticationR.string.create_account_code_error_team_creation_restricted
             }
         )
     )

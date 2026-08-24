@@ -226,7 +226,6 @@
     <string name="welcome_footer_text">යහළුවන් හා පවුලේ අය සමඟ කතා කරන්න කැමති ද?</string>
     <string name="welcome_footer_link">නොමිලේ පෞද්ගලික ගිණුමක් සාදන්න</string>
     <string name="welcome_button_create_personal_account">පෞද්. ගිණුමක් සාදන්න</string>
-    <string name="welcome_button_create_team">කණ්ඩායමක් සාදන්න</string>
     <string name="server_details_dialog_body">සේවාදායකයේ නම:\n%1$s\n\nඒ.ස.නි.:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">සේවාදායකයේ නම:\n%1$s\n\nසේවාදායකයේ ඒ.ස.නි.:\n%2$s\n\nප්‍රතියුක්තයේ ඒ.ස.නි.:\n%3$s\n\nප්‍රතියුක්තය සත්‍යාපනය:\n%4$s</string>
     <string name="server_details_dialog_title">පරිශ්‍රයක සේවාදායකයකි</string>
@@ -306,25 +305,7 @@
     <string name="label_quote_original_message_is_a_picture">ඡායාරූපය</string>
     <!-- Create Account -->
     <string name="create_team_details_text">කණ්ඩායම සෑදීමට ඔබගේ වි-තැපෑල යොදන්න:</string>
-    <string name="create_account_email_placeholder">කසුන්@නිදසුන.ලංකා</string>
-    <string name="create_account_email_label">වි-තැපෑල</string>
-    <string name="create_account_email_terms_dialog_title">භාවිත නියම</string>
-    <string name="create_account_email_terms_dialog_text">ඉදිරියට එබීමෙන් ඔබ අපගේ භාවිත නියම සහ රහස්‍යතා ප්‍රතිපත්තියට එකඟ වේ.</string>
-    <string name="create_account_email_terms_dialog_view_policy">භා.නි. හා රහස්‍යතා ප්‍රතිපත්තිය බලන්න</string>
-    <string name="create_account_email_already_in_use_error">වි-තැපෑල දැනටමත් භාවිතයේ ඇත.</string>
-    <string name="create_account_email_blacklisted_error">ඔබගේ වි-තැපෑල විශ්වාස නොවන බව හඳුනාගෙන ඇත. එය අයාචිත පෙරහනකින් ප්‍රතික්‍ෂේප වීම නිසා විය යුතුය.</string>
-    <string name="create_account_email_invalid_error">වි-තැපැල් ලිපිනය නිවැරදිව යොදන්න.</string>
-    <string name="create_account_email_domain_blocked_error">ඔබගේ වි-තැපැල් වසම හිතාමතාම අවහිර කර ඇති බැවින් ඔබට මෙම ගිණුම සෑදීමට නොහැකිය.</string>
     <string name="create_account_details_password_description">කුඩා අකුරක්, ලොකු අකුරක්, අංකයක් සහ විශේෂ අකුරක් සමඟ, අවම වශයෙන් අකුරු 8 ක් භාවිතා කරන්න.</string>
-    <string name="create_account_details_password_error">මුරපදය වලංගු නොවේ</string>
-    <string name="create_account_details_password_not_matching_error">මුරපද නොගැළපේ</string>
-    <string name="create_account_details_confirm_password_label">මුරපදය තහවුරු කරන්න</string>
-    <string name="create_account_code_text">සත්‍යාපන කේතය සඳහා ඔබගේ %1$s වි-තැපෑල පරීක්‍ෂා කර එය පහතින් යොදන්න.</string>
-    <string name="create_account_code_error">වලංගු නොවන කේතයකි හෝ උපරිම තැත් කිරීම් ඉක්මවා ඇත. නැවත උත්සාහ කරන්න හෝ වෙනත් කේතයක් ඉල්ලන්න</string>
-    <string name="create_account_code_error_title">සාවද්‍ය තොරතුරකි</string>
-    <string name="create_account_code_error_team_members_limit_reached">මෙම කණ්ඩායම එහි සාමාජිකත්‍ව සීමාවට ළඟා වී ඇත.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">මෙම යෙදුමේ අනුවාදය පෞද්ගලික ගිණුම් සෑදීමට ඉඩ නොදේ.</string>
-    <string name="create_account_code_error_team_creation_restricted">මෙම යෙදුමේ අනුවාදය පෞද්ගලික කණ්ඩායම් සෑදීමට ඉඩ නොදේ.</string>
     <string name="create_account_username_title">පරිශ්‍රීලක නාමය</string>
     <string name="create_account_username_placeholder">තිසර.කසුන්</string>
     <string name="create_account_username_label">පරිශ්‍රීලක නාමය</string>

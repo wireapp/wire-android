@@ -1,270 +1,83 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * Copyright (C) 2026 Wire Swiss GmbH
  */
-
 package com.wire.android.ui.registration.code
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent
+import com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeState
 import com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeText
-import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
-import com.wire.android.ui.authentication.verificationcode.ResendCodeText
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.preview.EdgeToEdgePreview
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.textfield.CodeTextField
-import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.newauthentication.login.NewAuthContainer
-import com.wire.android.ui.newauthentication.login.NewAuthHeader
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.DialogErrorStrings
-import com.wire.android.util.dialogErrorStrings
-import com.wire.kalium.logic.configuration.server.ServerConfig
-import kotlinx.coroutines.job
+import com.wire.kalium.logic.data.user.UserId
 
+/** Navigation/resource adapter for the feature-owned legacy registration code surface. */
 @Composable
 internal fun CreateAccountVerificationCodeRouteScreen(
     viewModel: CreateAccountVerificationCodeViewModel,
     onNavigateBack: () -> Unit,
-    onSuccess: (com.wire.kalium.logic.data.user.UserId) -> Unit,
-    onTooManyDevices: (com.wire.kalium.logic.data.user.UserId) -> Unit,
+    onSuccess: (UserId) -> Unit,
+    onTooManyDevices: (UserId) -> Unit,
 ) {
-    with(viewModel) {
-        LegacyRegistrationCodeContent(
-            state = state,
-            textState = codeTextState,
-            text = LegacyRegistrationCodeText(
-                title = stringResource(AuthenticationR.string.create_personal_account_title),
-                instruction = stringResource(R.string.create_account_code_text, state.email),
-                invalidCode = stringResource(R.string.create_account_code_error),
-            ),
-            onResendCodePressed = ::resendCode,
-            onBackPressed = onNavigateBack,
-            serverTitle = {
-                if (serverConfig.isOnPremises) {
-                    ServerTitle(serverLinks = serverConfig, style = MaterialTheme.wireTypography.body01)
-                }
-            },
-        )
-
-        (codeState.result as? CreateAccountCodeResult.Error.DialogError)?.let {
-            val (title, message) = it.getResources()
-            WireDialog(
-                title = title,
-                text = message,
-                onDismiss = ::clearCodeError,
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = ::clearCodeError,
-                    text = stringResource(id = R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                )
-            )
-        }
-        LaunchedEffect(codeState.result) {
-            (codeState.result as? CreateAccountCodeResult.Success)?.let {
-                onSuccess(it.userId)
-            }
-            val tooManyDevicesError = codeState.result as? CreateAccountCodeResult.Error.TooManyDevicesError
-            if (tooManyDevicesError != null) {
-                clearCodeError()
-                clearCodeField()
-                onTooManyDevices(tooManyDevicesError.userId)
-            }
-        }
-        BackHandler {
-            if (codeState.loading) return@BackHandler
-            onNavigateBack()
-        }
-    }
-}
-
-@Composable
-private fun CodeContent(
-    state: CreateAccountVerificationCodeViewState,
-    textState: TextFieldState,
-    onResendCodePressed: () -> Unit,
-    onBackPressed: () -> Unit,
-    serverConfig: ServerConfig.Links
-) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    NewAuthContainer(
-        header = {
-            NewAuthHeader(
-                title = {
-                    Text(
-                        text = stringResource(id = AuthenticationR.string.create_personal_account_title),
-                        style = MaterialTheme.wireTypography.title01,
-                        modifier = Modifier.semantics { heading() }
-                    )
-                    if (serverConfig.isOnPremises == true) {
-                        ServerTitle(
-                            serverLinks = serverConfig,
-                            style = MaterialTheme.wireTypography.body01
-                        )
-                    }
-                },
-                canNavigateBack = true,
-                onNavigateBack = {
-                    if (state.loading) return@NewAuthHeader
-                    onBackPressed()
-                }
-            )
-        },
-        contentPadding = dimensions().spacing16x,
-        content = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
-                modifier = Modifier.fillMaxHeight()
-            ) {
-                Text(
-                    text = stringResource(R.string.create_account_code_text, state.email),
+    val state = viewModel.state
+    LegacyRegistrationCodeContent(
+        state = state,
+        textState = viewModel.codeTextState,
+        text = LegacyRegistrationCodeText(
+            title = stringResource(AuthenticationR.string.create_personal_account_title),
+            instruction = stringResource(AuthenticationR.string.create_account_code_text, state.email),
+            invalidCode = stringResource(AuthenticationR.string.create_account_code_error),
+        ),
+        onResendCodePressed = viewModel::resendCode,
+        onBackPressed = onNavigateBack,
+        serverTitle = {
+            if (viewModel.serverConfig.isOnPremises) {
+                ServerTitle(
+                    serverLinks = viewModel.serverConfig,
                     style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = MaterialTheme.wireDimensions.spacing16x,
-                            vertical = MaterialTheme.wireDimensions.spacing24x
-                        )
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CodeTextField(
-                        codeLength = state.codeLength,
-                        textState = textState,
-                        state = when (state.result) {
-                            is CreateAccountCodeResult.Error.TextFieldError.InvalidActivationCodeError ->
-                                WireTextFieldState.Error(stringResource(id = R.string.create_account_code_error))
-
-                            else -> WireTextFieldState.Default
-                        },
-                        modifier = Modifier.focusRequester(focusRequester)
-                    )
-                    AnimatedVisibility(visible = state.loading) {
-                        WireCircularProgressIndicator(
-                            progressColor = MaterialTheme.wireColorScheme.primary,
-                            size = MaterialTheme.wireDimensions.spacing24x,
-                            modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing16x)
-                        )
-                    }
-                    VerticalSpace.x16()
-                    ResendCodeText(
-                        onResendCodePressed = onResendCodePressed,
-                        clickEnabled = !state.loading
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
             }
-            LaunchedEffect(Unit) {
-                coroutineContext.job.invokeOnCompletion {
-                    focusRequester.requestFocus()
-                    keyboardController?.show()
-                }
-            }
-        }
+        },
     )
+    LegacyRegistrationCodeErrorDialog(
+        result = state.result,
+        onDismiss = viewModel::clearError,
+    )
+    HandleLegacyRegistrationCodeResult(
+        result = state.result,
+        onSuccess = onSuccess,
+        onTooManyDevices = onTooManyDevices,
+        onHandled = {
+            viewModel.clearError()
+            viewModel.clearCodeField()
+        },
+    )
+    BackHandler(enabled = !state.loading, onBack = onNavigateBack)
 }
 
 @Composable
-private fun CreateAccountCodeResult.Error.DialogError.getResources() = when (this) {
-    CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_already_in_use_error)
-    )
+private fun HandleLegacyRegistrationCodeResult(
+    result: LegacyRegistrationCodeState.Result<UserId, *>,
+    onSuccess: (UserId) -> Unit,
+    onTooManyDevices: (UserId) -> Unit,
+    onHandled: () -> Unit,
+) {
+    LaunchedEffect(result) {
+        when (result) {
+            is LegacyRegistrationCodeState.Result.Success -> onSuccess(result.userId)
+            is LegacyRegistrationCodeState.Result.TooManyDevices -> {
+                onHandled()
+                onTooManyDevices(result.userId)
+            }
 
-    CreateAccountCodeResult.Error.DialogError.BlackListedError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_blacklisted_error)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.EmailDomainBlockedError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_domain_blocked_error)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.InvalidEmailError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_email_invalid_error)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.TeamMembersLimitError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_code_error_team_members_limit_reached)
-    )
-
-    CreateAccountCodeResult.Error.DialogError.CreationRestrictedError -> DialogErrorStrings(
-        stringResource(id = R.string.create_account_code_error_title),
-        stringResource(id = R.string.create_account_code_error_personal_account_creation_restricted)
-    )
-    // TODO: sync with design about the error message
-    CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError ->
-        DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
-
-    is CreateAccountCodeResult.Error.DialogError.GenericError ->
-        this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-}
-
-@Composable
-@Preview
-fun PreviewCreateAccountVerificationCodeScreen() = WireTheme {
-    EdgeToEdgePreview(useDarkIcons = false) {
-        WireAuthBackgroundLayout {
-            CodeContent(
-                textState = TextFieldState(),
-                state = CreateAccountVerificationCodeViewState(),
-                onResendCodePressed = {},
-                onBackPressed = {},
-                serverConfig = ServerConfig.DEFAULT
-            )
+            else -> Unit
         }
     }
 }

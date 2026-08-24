@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_details_password_error">Geçersiz parola</string>
+    <string name="create_account_details_confirm_password_label">PAROLAYI ONAYLA</string>
+    <string name="welcome_button_create_team">Bir ekip oluşturun</string>
+    <string name="create_account_details_password_not_matching_error">Parolalar uyuşmuyor</string>
+</resources>

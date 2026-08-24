@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_email_label">E-MAIL</string>
+    <string name="create_account_email_terms_dialog_text">A Folytatás gombra kattintva elfogadja Felhasználási feltételeinket és Adatvédelmi irányelveinket.</string>
+    <string name="create_account_email_already_in_use_error">Ez az e-mail cím már használatban van.</string>
+    <string name="create_account_email_invalid_error">Adjon meg egy érvényes formátumú e-mail címet.</string>
+    <string name="create_account_details_password_not_matching_error">A jelszavak nem egyeznek</string>
+    <string name="create_account_code_text">Kérjük, adja meg a(z) %1$s e-mail címére küldött azonosító kódot.</string>
+    <string name="create_account_code_error_title">Érvénytelen információ</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">Ez az alkalmazásverzió nem teszi lehetővé személyes fiókok létrehozását.</string>
+    <string name="welcome_button_create_team">Csapat létrehozása</string>
+    <string name="create_account_email_placeholder">nev@pelda.hu</string>
+    <string name="create_account_email_terms_dialog_title">Felhasználási feltételek</string>
+    <string name="create_account_email_terms_dialog_view_policy">Feltételek és adatvédelem</string>
+    <string name="create_account_email_blacklisted_error">Az e-mail címe nem megbízhatóként lett azonosítva, pl. fennakadt egy spam-szűrőn.</string>
+    <string name="create_account_email_domain_blocked_error">Nem tudja létrehozni ezt a fiókot, mivel a megadott e-mail domain ki van tiltva.</string>
+    <string name="create_account_details_password_error">Érvénytelen jelszó</string>
+    <string name="create_account_details_confirm_password_label">ERŐSÍTSE MEG A JELSZÓT</string>
+    <string name="create_account_code_error">Érvénytelen kód, vagy túllépte a kísérletek maximális számát. Próbálja újra, vagy kérjen másik kódot</string>
+    <string name="create_account_code_error_team_members_limit_reached">Ez a csapat elérte a létszámkorlátot.</string>
+    <string name="create_account_code_error_team_creation_restricted">Ez az alkalmazásverzió nem teszi lehetővé csapatok létrehozását.</string>
+</resources>

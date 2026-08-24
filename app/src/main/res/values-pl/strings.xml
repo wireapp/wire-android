@@ -126,7 +126,6 @@ Wybierz silne has&#322;o, aby chroni&#263; plik kopii zapasowej.</string>
     <string name="welcome_footer_text">Chcesz rozmawia&#263; z rodzin&#261; i przyjaci&#243;&#322;mi?</string>
     <string name="welcome_footer_link">Utw&#243;rz prywatne konto za darmo</string>
     <string name="welcome_button_create_personal_account">Utw&#243;rz konto osobiste</string>
-    <string name="welcome_button_create_team">Utw&#243;rz zesp&#243;&#322;</string>
     <string name="server_details_dialog_body">Nazwa &#347;rodowiska:
 %1$s
 
@@ -194,25 +193,7 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="label_quote_original_message_is_a_picture">Zdj&#281;cie</string>
     <!-- Create Account -->
     <string name="create_team_details_text">Wpisz sw&#243;j adres e-mail, aby utworzy&#263; zesp&#243;&#322;:</string>
-    <string name="create_account_email_placeholder">adam@email.com</string>
-    <string name="create_account_email_label">E-MAIL</string>
-    <string name="create_account_email_terms_dialog_title">Warunki u&#380;ytkowania</string>
-    <string name="create_account_email_terms_dialog_text">Klikaj&#261;c przycisk kontynuuj, zgadzasz si&#281; na nasze Warunki u&#380;ytkowania oraz Polityk&#281; prywatno&#347;ci.</string>
-    <string name="create_account_email_terms_dialog_view_policy">Wy&#347;wietl Warunki u&#380;ytkowania oraz Polityk&#281; prywatno&#347;ci</string>
-    <string name="create_account_email_already_in_use_error">Adres e-mail jest ju&#380; w u&#380;yciu.</string>
-    <string name="create_account_email_blacklisted_error">Tw&#243;j e-mail zosta&#322; zidentyfikowany jako niezaufany, na przyk&#322;ad z powodu odrzucenia przez filtr spamowy.</string>
-    <string name="create_account_email_invalid_error">Wprowad&#378; prawid&#322;owy format adresu e-mail.</string>
-    <string name="create_account_email_domain_blocked_error">Nie mo&#380;esz utworzy&#263; tego konta, poniewa&#380; domena Twojego e-maila jest celowo zablokowana.</string>
     <string name="create_account_details_password_description">U&#380;yj co najmniej 8 znak&#243;w, w tym jednej ma&#322;ej litery, jednej du&#380;ej litery, jednej cyfry i jednego znaku specjalnego.</string>
-    <string name="create_account_details_password_error">Nieprawid&#322;owe has&#322;o</string>
-    <string name="create_account_details_password_not_matching_error">Has&#322;a nie s&#261; zgodne</string>
-    <string name="create_account_details_confirm_password_label">POTWIERD&#377; HAS&#321;O</string>
-    <string name="create_account_code_text">Sprawd&#378; swoj&#261; skrzynk&#281; e-mail %1$s w celu uzyskania kodu weryfikacyjnego i wpisz go poni&#380;ej.</string>
-    <string name="create_account_code_error">Nieprawid&#322;owy kod lub przekroczono maksymaln&#261; liczb&#281; pr&#243;b. Spr&#243;buj ponownie lub popro&#347; o kolejny kod.</string>
-    <string name="create_account_code_error_title">Nieprawid&#322;owe informacje</string>
-    <string name="create_account_code_error_team_members_limit_reached">Ten zesp&#243;&#322; osi&#261;gn&#261;&#322; limit cz&#322;onk&#243;w.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Ta wersja aplikacji nie pozwala na tworzenie kont osobistych.</string>
-    <string name="create_account_code_error_team_creation_restricted">Ta wersja aplikacji nie pozwala na tworzenie zespo&#322;&#243;w.</string>
     <string name="create_account_username_title">Tw&#243;j nazwa u&#380;ytkownika</string>
     <string name="create_account_username_placeholder">adam.nowak</string>
     <string name="create_account_username_label">NAZWA U&#379;YTKOWNIKA</string>

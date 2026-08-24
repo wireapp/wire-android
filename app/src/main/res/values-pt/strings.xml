@@ -224,7 +224,6 @@ Escolha uma senha forte para proteger o arquivo de backup.</string>
     <string name="welcome_footer_text">Quer conversar com amigos e familiares?</string>
     <string name="welcome_footer_link">Crie uma conta privada gratuitamente</string>
     <string name="welcome_button_create_personal_account">Criar uma conta pessoal</string>
-    <string name="welcome_button_create_team">Criar equipe</string>
     <string name="server_details_dialog_body">Nome do Backend:
 %1$s
 
@@ -309,25 +308,7 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_quote_original_message_is_a_picture">Imagem</string>
     <!-- Create Account -->
     <string name="create_team_details_text">Digite seu email para criar sua equipe:</string>
-    <string name="create_account_email_placeholder">maria@exemplo.org</string>
-    <string name="create_account_email_label">E-MAIL</string>
-    <string name="create_account_email_terms_dialog_title">Termos de Uso</string>
-    <string name="create_account_email_terms_dialog_text">Ao clicar em continuar, você concorda com nossos Termos de Uso e Política de Privacidade.</string>
-    <string name="create_account_email_terms_dialog_view_policy">Ver Termos de Uso e Política de Privacidade</string>
-    <string name="create_account_email_already_in_use_error">Este endereço de email já está em uso.</string>
-    <string name="create_account_email_blacklisted_error">Seu email foi identificado como não confiável, por exemplo, devido a uma rejeição por um filtro anti-spam.</string>
-    <string name="create_account_email_invalid_error">Por favor, insira um formato válido de email.</string>
-    <string name="create_account_email_domain_blocked_error">Você não pode criar esta conta, pois o seu domínio de email está bloqueado.</string>
     <string name="create_account_details_password_description">Use pelo menos 8 caracteres, com uma letra minúscula, uma letra maiúscula, um número e um caractere especial.</string>
-    <string name="create_account_details_password_error">Senha inválida</string>
-    <string name="create_account_details_password_not_matching_error">As senhas não se correspondem</string>
-    <string name="create_account_details_confirm_password_label">CONFIRMAR SENHA</string>
-    <string name="create_account_code_text">Por favor, verifique seu email %1$s para o código de verificação e insira abaixo.</string>
-    <string name="create_account_code_error">Código inválido ou máximo de tentativas atingido. Por favor, tente novamente ou solicite outro código.</string>
-    <string name="create_account_code_error_title">Informação inválida</string>
-    <string name="create_account_code_error_team_members_limit_reached">Esta equipe atingiu seu limite de membros.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Esta versão de aplicativo não permite a criação de contas pessoais.</string>
-    <string name="create_account_code_error_team_creation_restricted">Esta versão de aplicativo não permite a criação de equipes.</string>
     <string name="create_account_username_title">Seu nome de usuário</string>
     <string name="create_account_username_placeholder">maria.silva</string>
     <string name="create_account_username_label">NOME DE USUÁRIO</string>

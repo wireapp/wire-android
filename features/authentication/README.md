@@ -42,8 +42,14 @@ Thin app presentation adapters are intentionally retained for:
 `E2eiCertificateDetailsRoute` remains an explicit host exception: the same serialized route serves
 both the during-login certificate flow and the active settings device-details screen. Moving or
 splitting it without a coordinated route migration would change restored back-stack identity and
-settings ownership. Its payload is KMP-safe and contains no Kalium type. `InitialSync` and legacy
-registration are pending their separately integrated extraction package.
+settings ownership. Its payload is KMP-safe and contains no Kalium type.
+
+`InitialSync` and legacy registration are feature-owned. The feature owns their route identity,
+state machines, validation, registration policy, substantive Compose surfaces and auth-exclusive
+localized resources. The app retains only the Navigation 3 completion action, Custom Tabs/dialog
+slots, Metro construction and concrete Kalium, datastore, analytics and automated-login gateways.
+Initial-sync completion is emitted only after the host gateway has persisted its durable marker and
+consumed any in-memory automated-login backgrounding request.
 
 ## Forbidden dependencies
 

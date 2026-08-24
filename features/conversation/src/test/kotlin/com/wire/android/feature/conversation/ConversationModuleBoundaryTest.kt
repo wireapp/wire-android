@@ -76,9 +76,10 @@ class ConversationModuleBoundaryTest {
     fun editConversationMetadataStateSeamHasTheExactDependencyBudget() {
         val stateSource = File(Konsist.projectRootPath, editConversationMetadataStateRelativePath).readText()
         val validatorSource = File(Konsist.projectRootPath, editGroupNameValidatorRelativePath).readText()
-        val appViewModelSource = File(Konsist.projectRootPath, appEditConversationMetadataViewModelRelativePath).readText()
+        val viewModelSource = File(Konsist.projectRootPath, editConversationMetadataViewModelRelativePath).readText()
+        val graphSource = File(Konsist.projectRootPath, editConversationMetadataViewModelGraphRelativePath).readText()
 
-        listOf(stateSource, validatorSource).forEach { source ->
+        listOf(stateSource, validatorSource, viewModelSource).forEach { source ->
             assertTrue(
                 source.contains("package com.wire.android.ui.home.conversations.details.metadata"),
                 "The edit metadata seam must preserve its package.",
@@ -93,12 +94,31 @@ class ConversationModuleBoundaryTest {
             importedDeclarations(validatorSource),
             "The edit-name validator may depend only on the neutral core policy.",
         )
-        forbiddenAppEditMetadataStateImports.forEach { forbiddenImport ->
+        assertEquals(
+            setOf(
+                "androidx.compose.runtime.Composable",
+                "com.wire.android.di.metro.WireAssistedViewModelFactoryGroup",
+                "com.wire.android.di.metro.wireAssistedMetroViewModel",
+                "com.wire.android.di.metro.wireMetroViewModel",
+                "com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModel",
+                "com.wire.android.ui.home.conversations.details.metadata.EditConversationNameNavArgs",
+            ),
+            importedDeclarations(graphSource),
+            "The edit metadata graph must contain only feature gateway and neutral Metro imports.",
+        )
+        forbiddenEditMetadataViewModelImports.forEach { forbiddenImport ->
             assertFalse(
-                importedDeclarations(appViewModelSource).contains(forbiddenImport),
+                importedDeclarations(viewModelSource).contains(forbiddenImport),
                 "EditConversationMetadataViewModel must not import $forbiddenImport.",
             )
         }
+        assertTrue(viewModelSource.contains("EditConversationMetadataManualViewModelFactoryGroup::class"))
+        assertTrue(viewModelSource.contains("factoryMethod = \"editConversationMetadataViewModel\""))
+        assertTrue(graphSource.contains("object EditConversationMetadataManualViewModelFactoryGroup"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyAppEditConversationMetadataViewModelRelativePath).exists(),
+            "EditConversationMetadataViewModel must not remain app-owned.",
+        )
     }
 
     @Test
@@ -684,13 +704,27 @@ class ConversationModuleBoundaryTest {
         const val editGroupNameValidatorRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/metadata/" +
                     "EditGroupNameValidator.kt"
-        const val appEditConversationMetadataViewModelRelativePath =
+        const val editConversationMetadataViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/metadata/" +
+                    "EditConversationMetadataViewModel.kt"
+        const val editConversationMetadataViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/" +
+                    "EditConversationMetadataViewModelGraph.kt"
+        const val legacyAppEditConversationMetadataViewModelRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/metadata/" +
                     "EditConversationMetadataViewModel.kt"
-        val forbiddenAppEditMetadataStateImports = setOf(
+        val forbiddenEditMetadataViewModelImports = setOf(
             "com.wire.android.ui.common.groupname.GroupMetadataState",
             "com.wire.android.ui.common.groupname.GroupNameMode",
             "com.wire.android.ui.common.groupname.GroupNameValidator",
+            "com.wire.android.R",
+            "com.wire.android.BuildConfig",
+            "com.wire.android.model.Contact",
+            "com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType",
+            "com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType",
+            "com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryType",
+            "com.wire.kalium.logic.data.conversation.CreateConversationParam",
+            "androidx.navigation.NavController",
         )
 
         fun importedDeclarations(source: String): Set<String> =

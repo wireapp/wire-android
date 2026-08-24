@@ -15,14 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-@file:Suppress("TooManyFunctions", "MatchingDeclarationName")
+
+@file:Suppress("MatchingDeclarationName")
 
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
+import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
-import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
+import com.wire.android.ui.home.conversations.details.metadata.EditConversationMetadataViewModel
+import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameNavArgs
+
+@WireAssistedViewModelFactoryGroup
+object EditConversationMetadataManualViewModelFactoryGroup
 
 @Composable
-fun checkAssetRestrictionsViewModel(): CheckAssetRestrictionsViewModel =
+fun editConversationMetadataViewModel(): EditConversationMetadataViewModel =
     wireMetroViewModel()
+
+@Composable
+fun editConversationMetadataViewModel(args: EditConversationNameNavArgs): EditConversationMetadataViewModel =
+    wireAssistedMetroViewModel<EditConversationMetadataViewModel, EditConversationMetadataManualViewModelFactory> { _ ->
+        editConversationMetadataViewModel(args)
+    }

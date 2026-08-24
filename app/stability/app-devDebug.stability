@@ -4723,13 +4723,6 @@ private fun com.wire.android.ui.home.conversations.conversationCoreViewModel(key
     - key: STABLE (class with no mutable properties)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.conversationDetailsAssistedViewModel(create: @[ExtensionFunctionType] kotlin.Function1<com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactory, VM of com.wire.android.ui.home.conversations.conversationDetailsAssistedViewModel>): VM of com.wire.android.ui.home.conversations.conversationDetailsAssistedViewModel
-  skippable: true
-  restartable: true
-  params:
-    - create: STABLE (function type)
-
-@Composable
 public fun com.wire.android.ui.home.conversations.conversationFoldersViewModel(args: com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs): com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
   skippable: true
   restartable: true

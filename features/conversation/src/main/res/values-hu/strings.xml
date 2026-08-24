@@ -171,4 +171,24 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Miután egy résztvevő látta az Ön üzenetét, és az időzítő lejárt nála, ez a bejegyzés eltűnik.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Miután %1$s látta az Ön üzenetét, és az időzítő lejárt nála, ez a bejegyzés eltűnik.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Amint Ön online lesz, ez a megjegyzés eltűnik.</string>
+    <string name="folder_label_access">Hozzáférés</string>
+    <string name="folder_label_protocol_details">Protokoll részletei</string>
+    <string name="folder_label_messaging">Üzenetküldés</string>
+    <string name="content_description_conversation_details_guests_action">vendég-hozzáférés kezelése</string>
+    <string name="content_description_conversation_details_self_deleting_action">önmegsemmisítés idejének kezelése</string>
+    <string name="content_description_edit_label">szerkeszt</string>
+    <string name="channel_access_label">Hozzáférés</string>
+    <string name="channel_access_short_description">Minden csapattag csatlakozhat a nyilvános csatornákhoz. De csak csatornaadminok vagy tagok adhatnak hozzá felhasználókat egy magán csatornához.</string>
+    <string name="channel_name_title">Csatorna neve</string>
+    <string name="protocol">Protokoll</string>
+    <string name="cipher_suite">Titkosítási csomag</string>
+    <string name="last_key_material_update_label">Legutóbbi kulcskészlet-frissítés</string>
+    <string name="group_state_label">Csoport állapota</string>
+    <string name="conversation_details_options_group_name">CSOPORT NEVE</string>
+    <string name="conversation_options_self_deleting_messages_label">Önmegsemmisítő üzenetek</string>
+    <string name="conversation_options_self_deleting_messages_description">Ha ez aktív, ebben a beszélgetésben minden üzenet el fog tűnni bizonyos idő elteltével.</string>
+    <string name="conversation_options_guests_label">Vendégek</string>
+    <string name="conversation_details_guest_description">Ha ez aktív, csapatodon kívüli emberek is csatlakozhatnak ehhez a beszélgetéshez</string>
+    <string name="conversation_options_read_receipt_label">Olvasási visszaigazolások</string>
+    <string name="conversation_options_read_receipt_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
 </resources>

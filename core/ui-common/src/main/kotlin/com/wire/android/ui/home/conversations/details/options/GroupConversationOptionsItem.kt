@@ -39,8 +39,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -51,7 +51,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 
 @Composable
 fun GroupConversationOptionsItem(
@@ -159,13 +159,13 @@ enum class ArrowType {
 }
 
 @Composable
-@PreviewMultipleThemes
+@MultipleThemePreviews
 fun PreviewGroupConversationOptionsWithLabelAndTitle() = WireTheme {
     GroupConversationOptionsItem(title = "Conversation group title", label = "GROUP NAME")
 }
 
 @Composable
-@PreviewMultipleThemes
+@MultipleThemePreviews
 fun PreviewGroupConversationOptionsWithTitleAndSwitchClickable() = WireTheme {
     GroupConversationOptionsItem(
         title = "Services",
@@ -175,7 +175,7 @@ fun PreviewGroupConversationOptionsWithTitleAndSwitchClickable() = WireTheme {
 }
 
 @Composable
-@PreviewMultipleThemes
+@MultipleThemePreviews
 fun PreviewGroupConversationOptionsWithTitleAndSwitchWithoutArrow() = WireTheme {
     GroupConversationOptionsItem(
         title = "Services",
@@ -185,7 +185,7 @@ fun PreviewGroupConversationOptionsWithTitleAndSwitchWithoutArrow() = WireTheme 
 }
 
 @Composable
-@PreviewMultipleThemes
+@MultipleThemePreviews
 fun PreviewGroupConversationOptionsWithTitleAndTextOnlySwitch() = WireTheme {
     GroupConversationOptionsItem(
         title = "Services",
@@ -195,7 +195,7 @@ fun PreviewGroupConversationOptionsWithTitleAndTextOnlySwitch() = WireTheme {
 }
 
 @Composable
-@PreviewMultipleThemes
+@MultipleThemePreviews
 fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndIcon() = WireTheme {
     GroupConversationOptionsItem(
         title = "Group Color",
@@ -212,7 +212,7 @@ fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndIcon() = WireTheme {
 }
 
 @Composable
-@PreviewMultipleThemes
+@MultipleThemePreviews
 fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButton() = WireTheme {
     GroupConversationOptionsItem(
         title = "Guests",
@@ -226,7 +226,7 @@ fun PreviewGroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButton(
 }
 
 @Composable
-@PreviewMultipleThemes
+@MultipleThemePreviews
 fun PreviewGroupConversationOptionsWithTitleAndSubtitleWithoutArrow() = WireTheme {
     GroupConversationOptionsItem(
         label = "Cipher Suite",
@@ -237,7 +237,7 @@ fun PreviewGroupConversationOptionsWithTitleAndSubtitleWithoutArrow() = WireThem
 }
 
 @Composable
-@PreviewMultipleThemes
+@MultipleThemePreviews
 fun PreviewGroupConversationOptionsWithTitleAndArrowLabelAndRadioButton() = WireTheme {
     GroupConversationOptionsItem(
         title = "Custom",

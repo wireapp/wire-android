@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
@@ -38,7 +39,7 @@ fun ConversationSharedDriveButton(
 ) {
     WireSecondaryButton(
         modifier = modifier,
-        text = stringResource(R.string.conversation_options_shared_drive_label),
+        text = stringResource(conversationR.string.conversation_options_shared_drive_label),
         onClick = onClick,
         minSize = MaterialTheme.wireDimensions.buttonMinSize,
         fillMaxWidth = true,

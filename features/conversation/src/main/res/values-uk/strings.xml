@@ -1,4 +1,8 @@
 <resources>
     <string name="label_message_sent_failure">Не вдалося надіслати повідомлення.</string>
     <string name="label_message_status_edited_with_date">Відредаговано %s</string>
+    <string name="folder_label_access">Доступ</string>
+    <string name="folder_label_messaging">Обмін повідомленнями</string>
+    <string name="last_key_material_update_label">Останній ключ матеріального оновлення</string>
+    <string name="conversation_options_guests_label">Гість</string>
 </resources>

@@ -62,9 +62,6 @@
     <string name="label_hide_details">Részletek elrejtése</string>
     <string name="label_value_copied">%s másolva</string>
     <string name="label_disable">Letiltás</string>
-    <string name="folder_label_access">Hozzáférés</string>
-    <string name="folder_label_protocol_details">Protokoll részletei</string>
-    <string name="folder_label_messaging">Üzenetküldés</string>
     <string name="label_and">és</string>
     <string name="label_retry">Újra</string>
 
@@ -143,8 +140,6 @@
     <string name="content_description_conversation_details_options_tab_header">Beállítások</string>
     <string name="content_description_conversation_details_participants_tab_header">Résztvevők</string>
     <string name="content_description_conversation_details_close_btn">Beszélgetés részleteinek bezárása</string>
-    <string name="content_description_conversation_details_guests_action">vendég-hozzáférés kezelése</string>
-    <string name="content_description_conversation_details_self_deleting_action">önmegsemmisítés idejének kezelése</string>
     <string name="content_description_user_profile_more_btn">Beszélgetés beállításainak megnyitása</string>
     <string name="content_description_user_profile_close_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_user_profile_edit_role_btn">Szerepkör szerkesztése</string>
@@ -160,7 +155,6 @@
     <string name="content_description_open_label">megnyitás</string>
     <string name="content_description_join_call_label">híváshoz csatlakozás</string>
     <string name="content_description_share_label">megosztás</string>
-    <string name="content_description_edit_label">szerkeszt</string>
     <string name="content_description_selected_label">kiválasztva</string>
     <string name="content_description_edit_guests_option_back_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_edit_self_delete_back_btn">Vissza a beszélgetés részleteihez</string>
@@ -429,23 +423,16 @@
     <string name="conversations_mentions_tab_title">Említések</string>
     <string name="new_group_title">Új csoport</string>
     <string name="new_channel_title">Új csatorna</string>
-    <string name="channel_access_label">Hozzáférés</string>
     <string name="channel_access_description">Minden csapattag csatlakozhat a nyilvános csatornákhoz. De csak csatornaadminok vagy tagok adhatnak hozzá felhasználókat egy magán csatornához.\nEgy magán csatornát nem lehet később nyilvánossá tenni.</string>
-    <string name="channel_access_short_description">Minden csapattag csatlakozhat a nyilvános csatornákhoz. De csak csatornaadminok vagy tagok adhatnak hozzá felhasználókat egy magán csatornához.</string>
     <string name="channel_add_permission_description">Válassza ki, ki adhat hozzá résztvevőket egy magán csatornához</string>
     <string name="create_regular_group_button_label">Csoport létrehozása</string>
     <string name="create_channel_button_label">Csatorna létrehozása</string>
     <string name="new_group_description">Akár 500 személy csatlakozhat egy csoportos beszélgetéshez.</string>
     <string name="group_name_title">Csoportnév</string>
-    <string name="channel_name_title">Csatorna neve</string>
     <string name="conversation_name_placeholder">Adjon meg egy nevet</string>
     <string name="group_name_description">Adjon a csoportnak egy kifejező nevet.</string>
     <string name="channel_name_description">Adjon a csatornának egy kifejező nevet.</string>
-    <string name="protocol">Protokoll</string>
     <string name="mls">MLS</string>
-    <string name="cipher_suite">Titkosítási csomag</string>
-    <string name="last_key_material_update_label">Legutóbbi kulcskészlet-frissítés</string>
-    <string name="group_state_label">Csoport állapota</string>
     <string name="empty_regular_group_name_error">Adja meg a csoport nevét</string>
     <string name="empty_channel_name_error">Adja meg a csatorna nevét</string>
     <string name="regular_group_name_exceeded_limit_error">A csoport neve nem lehet 64 karakternél hosszabb</string>
@@ -471,17 +458,12 @@
     <string name="conversation_details_title">Beszélgetés részletei</string>
     <string name="conversation_details_options_tab">LEHETŐSÉGEK</string>
     <string name="conversation_details_participants_tab">RÉSZTVEVŐK</string>
-    <string name="conversation_details_options_group_name">CSOPORT NEVE</string>
     <string name="conversation_details_participants_info">A beszélgetésnek %s résztvevője van.\nAkár 500 fő is csatlakozhat egy beszélgetéshez.</string>
     <string name="conversation_details_participants_count">%s résztvevő</string>
     <string name="conversation_details_show_all_participants">Mutassa az összes résztvevőt (%d)</string>
     <string name="conversation_details_conversation_participants_add">Résztvevők hozzáadása</string>
     <string name="conversation_details_is_classified">BIZTONSÁGI SZINT: VS-NfD</string>
     <string name="conversation_details_is_not_classified">BIZTONSÁGI SZINT: NYÍLT</string>
-    <string name="conversation_options_self_deleting_messages_label">Önmegsemmisítő üzenetek</string>
-    <string name="conversation_options_self_deleting_messages_description">Ha ez aktív, ebben a beszélgetésben minden üzenet el fog tűnni bizonyos idő elteltével.</string>
-    <string name="conversation_options_guests_label">Vendégek</string>
-    <string name="conversation_details_guest_description">Ha ez aktív, csapatodon kívüli emberek is csatlakozhatnak ehhez a beszélgetéshez</string>
     <string name="conversation_options_guest_description">Aktiválja ezt az opciót, hogy csapatán kívüli személyek is csatlakozhassanak a beszélgetéshez, még ha nincs is Wire-ük.</string>
     <string name="conversation_options_guest_not_editable_description">Nem tudja letiltani a vendég opciót e beszélgetésben, mivel ezt valaki egy másik csapatból hozta létre.</string>
     <string name="conversation_options_renamed">Beszélgetés átnevezve</string>
@@ -501,8 +483,6 @@
     <string name="import_media_send_button_title">Küldés</string>
     <string name="export_media_subject_title">Média megosztása Wire-ből</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Olvasási visszaigazolások</string>
-    <string name="conversation_options_read_receipt_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
     <!-- Messages -->
     <string name="message_details_title">Üzenet részletei</string>
     <string name="message_details_reactions_tab">REAKCIÓK (%s)</string>

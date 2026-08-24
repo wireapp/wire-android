@@ -62,9 +62,6 @@
     <string name="label_hide_details">Ocultar detalles</string>
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desactivar</string>
-    <string name="folder_label_access">Acceso</string>
-    <string name="folder_label_protocol_details">Detalles del protocolo</string>
-    <string name="folder_label_messaging">Mensajería</string>
     <string name="label_and">y</string>
     <string name="label_retry">Reintentar</string>
 
@@ -313,10 +310,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="new_group_description">Hasta 500 personas pueden unirse a una conversaci&#243;n grupal.</string>
     <string name="group_name_title">Nombre del grupo</string>
     <string name="group_name_description">Asigna un nombre significativo a este grupo.</string>
-    <string name="protocol">Protocolo</string>
-    <string name="cipher_suite">Suite de Cifrado</string>
-    <string name="last_key_material_update_label">&#218;ltima Actualizaci&#243;n de Material de Clave</string>
-    <string name="group_state_label">Estado del grupo</string>
     <string name="asset_message_tap_to_download_text">Toque para descargar</string>
     <string name="asset_message_upload_in_progress_text">Cargando...</string>
     <string name="asset_message_download_in_progress_text">Descargando...</string>
@@ -329,18 +322,12 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="conversation_details_title">Detalles de la conversación</string>
     <string name="conversation_details_options_tab">OPCIONES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
-    <string name="conversation_details_options_group_name">NOMBRE DEL GRUPO</string>
     <string name="conversation_details_participants_count">%s participantes</string>
     <string name="conversation_details_show_all_participants">Mostrar todos los participantes (%d)</string>
     <string name="conversation_details_is_classified">NIVEL DE SEGURIDAD: VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEL DE SEGURIDAD: NO CLASIFICADO</string>
-    <string name="conversation_options_self_deleting_messages_label">Mensajes con auto-borrado</string>
-    <string name="conversation_options_guests_label">Invitados</string>
-    <string name="conversation_details_guest_description">Cuando esto está activo, personas de fuera de tu equipo pueden unirse a esta conversación</string>
     <string name="conversation_options_guest_description">Active esta opci&#243;n para abrir esta conversaci&#243;n a personas fuera de su equipo, incluso si no tienen Wire.</string>
     <string name="conversation_options_guest_not_editable_description">No se puede desactivar la opci&#243;n de invitados en esta conversaci&#243;n, ya que ha sido creada por alguien de otro equipo.</string>
-    <string name="conversation_options_services_label">Aplicaciones</string>
-    <string name="conversation_details_apps_description">Cuando esta opción está activada, la conversación está abierta a aplicaciones.</string>
     <string name="conversation_options_services_description">Activa esta opción para abrir la conversación a aplicaciones.</string>
     <string name="conversation_options_renamed">Conversaci&#243;n renombrada</string>
     <string name="disable_guest_dialog_title">&#191;Desea desactivar el acceso de invitados?</string>
@@ -353,8 +340,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="import_media_send_button_title">Enviar</string>
     <string name="export_media_subject_title">Compartiendo multimedia desde Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Confirmación de lectura</string>
-    <string name="conversation_options_read_receipt_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo se lee su mensaje en esta conversaci&#243;n.</string>
     <!-- Messages -->
     <string name="message_details_title">Detalles del mensaje</string>
     <string name="message_details_reactions_tab">REACCIONES (%s)</string>
@@ -850,7 +835,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- Apps-->
     <string name="apps_edit_apps_option_title">Aplicaciones</string>
     <string name="content_description_edit_apps_option_back_btn">Volver a los detalles de la conversación</string>
-    <string name="content_description_conversation_details_apps_action">ajustar acceso a aplicaciones</string>
     <string name="label_system_message_apps_access_enabled_by_self">%1$s has habilitado las **aplicaciones** para esta conversación</string>
     <string name="label_system_message_apps_access_disabled_by_self">%1$s has deshabilitado las **aplicaciones** para esta conversación</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s ha habilitado las **aplicaciones** para esta conversación</string>

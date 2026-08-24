@@ -52,8 +52,6 @@
     <string name="label_hide_details">Приховати деталі</string>
     <string name="label_value_copied">%s скопійовано</string>
     <string name="label_disable">Вимкнути</string>
-    <string name="folder_label_access">Доступ</string>
-    <string name="folder_label_messaging">Обмін повідомленнями</string>
     <string name="label_and">і</string>
     <string name="label_retry">Повторити</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -103,10 +101,8 @@
     <!-- Create Account -->
     <!-- Conversations -->
     <string name="conversation_label_conversations">Розмова</string>
-    <string name="last_key_material_update_label">Останній ключ матеріального оновлення</string>
     <string name="conversation_details_title">Деталі розмови</string>
     <string name="conversation_details_options_tab">Опції</string>
-    <string name="conversation_options_guests_label">Гість</string>
     <string name="disable_guest_dialog_title">Вимкнути гостьовий доступ?</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->

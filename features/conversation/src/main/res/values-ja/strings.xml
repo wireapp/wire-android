@@ -10,4 +10,7 @@
     <string name="content_description_message_sending_status">メッセージ送信中の状態</string>
     <string name="content_description_message_delivered_status">メッセージの配信状態</string>
     <string name="content_description_message_read_status">メッセージの既読状態</string>
+    <string name="folder_label_access">アクセス</string>
+    <string name="folder_label_protocol_details">プロトコルの詳細</string>
+    <string name="folder_label_messaging">メッセージ</string>
 </resources>

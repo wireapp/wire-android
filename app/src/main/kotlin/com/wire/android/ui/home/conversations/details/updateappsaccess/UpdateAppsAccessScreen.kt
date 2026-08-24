@@ -30,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -98,7 +99,7 @@ private fun UpdateAppsAccessContent(
                             switchState = isAppAccessAllowed,
                             onClick = onChangeAppAccess,
                             isLoading = isLoadingAppsOption,
-                            title = R.string.conversation_options_services_label,
+                            title = conversationR.string.conversation_options_services_label,
                             subTitle = R.string.conversation_options_services_description
                         )
                     }

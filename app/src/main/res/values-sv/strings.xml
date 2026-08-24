@@ -56,7 +56,6 @@
     <string name="label_show_all">Visa alla</string>
     <string name="label_value_copied">%s kopierat</string>
     <string name="label_disable">Inaktivera</string>
-    <string name="folder_label_access">Åtkomst</string>
     <string name="label_and">och</string>
     <string name="label_retry">Försök igen</string>
 
@@ -246,7 +245,6 @@
     <string name="new_group_description">Upp till 500 personer kan ansluta till en grupp-konversation.</string>
     <string name="group_name_title">Gruppnamn</string>
     <string name="group_name_description">Ge den här gruppen ett meningsfullt namn.</string>
-    <string name="protocol">Protokoll</string>
     <string name="asset_message_tap_to_download_text">Tryck för att hämta</string>
     <string name="asset_message_upload_in_progress_text">Laddar upp…</string>
     <string name="asset_message_download_in_progress_text">Hämtar…</string>
@@ -254,17 +252,14 @@
     <string name="label_add_participants">Lägg till deltagare</string>
     <string name="conversation_details_options_tab">ALTERNATIV</string>
     <string name="conversation_details_participants_tab">DELTAGARE</string>
-    <string name="conversation_details_options_group_name">GRUPPNAMN</string>
     <string name="conversation_details_participants_count">%s deltagare</string>
     <string name="conversation_details_show_all_participants">Visa alla deltagare (%d)</string>
-    <string name="conversation_options_guests_label">Gäster</string>
     <!-- Import/Export External Media -->
     <string name="import_media_content_title">Dela med Wire</string>
     <string name="import_media_searchbar_title">Sök efter konversation</string>
     <string name="import_media_send_button_title">Skicka</string>
     <string name="export_media_subject_title">Delar media från Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Läskvitton</string>
     <!-- Messages -->
     <string name="message_details_title">Meddelandedetaljer</string>
     <string name="message_details_reactions_tab">REAKTIONER (%s)</string>

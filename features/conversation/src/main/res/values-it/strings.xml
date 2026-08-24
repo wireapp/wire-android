@@ -160,4 +160,17 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Dopo che un partecipante ha visualizzato il tuo messaggio e il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Dopo che %1$s ha visto il tuo messaggio e che il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Una volta online, questa nota scompare.</string>
+    <string name="folder_label_access">Accesso</string>
+    <string name="folder_label_protocol_details">Dettagli del protocollo</string>
+    <string name="folder_label_messaging">Messaggistica</string>
+    <string name="protocol">Protocollo</string>
+    <string name="cipher_suite">Suite di Crittografia</string>
+    <string name="last_key_material_update_label">Ultimo Aggiornamento del Materiale Chiave</string>
+    <string name="group_state_label">Stato del gruppo</string>
+    <string name="conversation_details_options_group_name">NOME DEL GRUPPO</string>
+    <string name="conversation_options_self_deleting_messages_label">Autodistruzione dei messaggi</string>
+    <string name="conversation_options_guests_label">Ospiti</string>
+    <string name="conversation_details_guest_description">Con questa opzione ATTIVA, persone al di fuori del tuo team possono unirsi a questa conversazione.</string>
+    <string name="conversation_options_read_receipt_label">Notifiche di lettura</string>
+    <string name="conversation_options_read_receipt_description">Con questa opzione ATTIVA, le persone possono vedere quando i loro messaggi in questa conversazione vengono letti.</string>
 </resources>

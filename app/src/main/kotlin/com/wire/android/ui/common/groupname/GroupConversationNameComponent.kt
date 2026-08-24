@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
@@ -124,7 +125,7 @@ fun GroupNameScreen(
                                 onGroupNameErrorAnimated()
                             }
                             val labelText = if (newGroupState.isChannel) {
-                                R.string.channel_name_title
+                                conversationR.string.channel_name_title
                             } else {
                                 R.string.group_name_title
                             }
@@ -182,7 +183,7 @@ fun GroupNameScreen(
                     if (mode == CREATION && !newGroupState.isChannel) {
                         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
                         Text(
-                            text = stringResource(R.string.protocol),
+                            text = stringResource(conversationR.string.protocol),
                             style = MaterialTheme.wireTypography.label01,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -230,7 +231,7 @@ fun GroupNameScreen(
 
 fun GroupMetadataState.getScreenName(): Int = when {
     isChannel && mode == CREATION -> R.string.new_channel_title
-    isChannel -> R.string.channel_name_title
+    isChannel -> conversationR.string.channel_name_title
     mode == CREATION -> R.string.new_group_title
     else -> R.string.group_name_title
 }

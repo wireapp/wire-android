@@ -62,9 +62,6 @@
     <string name="label_hide_details">විස්තර සඟවන්න</string>
     <string name="label_value_copied">%s පිටපත් විය</string>
     <string name="label_disable">අබල කරන්න</string>
-    <string name="folder_label_access">ප්‍රවේශය</string>
-    <string name="folder_label_protocol_details">කෙටුම්පතෙහි විස්තර</string>
-    <string name="folder_label_messaging">පණිවිඩ</string>
     <string name="label_and">සහ</string>
     <string name="label_retry">නැවත</string>
 
@@ -143,8 +140,6 @@
     <string name="content_description_conversation_details_options_tab_header">විකල්ප</string>
     <string name="content_description_conversation_details_participants_tab_header">සහභාගිවන්නන්</string>
     <string name="content_description_conversation_details_close_btn">සංවාද විස්තර වසන්න</string>
-    <string name="content_description_conversation_details_guests_action">අමුත්තන්ගේ ප්‍රවේශය සකසන්න</string>
-    <string name="content_description_conversation_details_self_deleting_action">ස්වයං-මැකීමේ කාලය සකසන්න</string>
     <string name="content_description_user_profile_more_btn">සංවාද විකල්ප විවෘත කරන්න</string>
     <string name="content_description_user_profile_close_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
     <string name="content_description_user_profile_edit_role_btn">භූමිකාව සංස්කරණය කරන්න</string>
@@ -160,7 +155,6 @@
     <string name="content_description_open_label">විවෘත</string>
     <string name="content_description_join_call_label">ඇමතුමකට සම්බන්ධ වන්න</string>
     <string name="content_description_share_label">බෙදාගන්න</string>
-    <string name="content_description_edit_label">සංස්කරණය කරන්න</string>
     <string name="content_description_selected_label">තෝරා ගන්නා ලදී</string>
     <string name="content_description_edit_guests_option_back_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
     <string name="content_description_edit_self_delete_back_btn">සංවාද විස්තර වෙත ආපසු යන්න</string>
@@ -423,23 +417,16 @@
     <string name="conversations_mentions_tab_title">සැඳහුම්</string>
     <string name="new_group_title">නව සමූහය</string>
     <string name="new_channel_title">නව නාලිකාව</string>
-    <string name="channel_access_label">ප්‍රවේශය</string>
     <string name="channel_access_description">සියලුම කණ්ඩායම් සාමාජිකයින්ට පොදු නාලිකාවලට සම්බන්ධ විය හැකිය. නමුත්, නාලිකා පරිපාලකයින්ට හෝ සාමාජිකයින්ට පමණක් පුද්ගලික නාලිකාවකට පුද්ගලයින් එක් කළ හැකිය.\nපුද්ගලික නාලිකාවක් පසුව පොදු ලෙස වෙනස් කළ නොහැක.</string>
-    <string name="channel_access_short_description">සියලුම කණ්ඩායම් සාමාජිකයින්ට පොදු නාලිකාවලට සම්බන්ධ විය හැක. නමුත්, නාලිකා පරිපාලකයින්ට හෝ සාමාජිකයින්ට පමණක් පුද්ගලික නාලිකාවකට පුද්ගලයින් එක් කළ හැක.</string>
     <string name="channel_add_permission_description">පුද්ගලික නාලිකාවකට සහභාගිවන්නන් එක් කළ හැක්කේ කාටද යන්න තෝරන්න</string>
     <string name="create_regular_group_button_label">කණ්ඩායමක් සාදන්න</string>
     <string name="create_channel_button_label">නාලිකාව සාදන්න</string>
     <string name="new_group_description">සමූහ සංවාදයකට {{count}} දෙනෙකුට එක්විය හැකිය.</string>
     <string name="group_name_title">සමූහයේ නම</string>
-    <string name="channel_name_title">නාලිකාවේ නම</string>
     <string name="conversation_name_placeholder">නමක් ඇතුළත් කරන්න</string>
     <string name="group_name_description">මෙම කණ්ඩායමට අර්ථවත් නමක් දෙන්න.</string>
     <string name="channel_name_description">මේ නාලිකාවට අර්ථවත් නමක් දෙන්න.</string>
-    <string name="protocol">කෙටුම්පත</string>
     <string name="mls">MLS</string>
-    <string name="cipher_suite">කේතාංකන කට්ටලය</string>
-    <string name="last_key_material_update_label">අවසාන යතුරු ද්‍රව්‍ය යාවත්කාලීනය</string>
-    <string name="group_state_label">සමූහයේ තත්‍වය</string>
     <string name="empty_regular_group_name_error">කරුණාකර කණ්ඩායම් නමක් ඇතුළත් කරන්න.</string>
     <string name="empty_channel_name_error">කරුණාකර නාලිකා නාමයක් ඇතුළත් කරන්න.</string>
     <string name="regular_group_name_exceeded_limit_error">කණ්ඩායම් නම අක්ෂර 64 නොඉක්මවිය යුතුය.</string>
@@ -464,17 +451,12 @@
     <string name="conversation_details_title">සංවාදයේ විස්තර</string>
     <string name="conversation_details_options_tab">විකල්ප</string>
     <string name="conversation_details_participants_tab">සහභාගීන්</string>
-    <string name="conversation_details_options_group_name">සමූහයේ නම</string>
     <string name="conversation_details_participants_info">මෙම සංවාදයට %s සහභාගිවන්නන් සිටී.\nසංවාදයකට පුද්ගලයින් 500ක් දක්වා සම්බන්ධ විය හැක.</string>
     <string name="conversation_details_participants_count">සහභාගීන් %s</string>
     <string name="conversation_details_show_all_participants">සියළු සහභාගීන් පෙන්වන්න (%d)</string>
     <string name="conversation_details_conversation_participants_add">සහභාගිවන්නන් එක් කරන්න</string>
     <string name="conversation_details_is_classified">ආරක්‍ෂණ මට්ටම: VS-NfD</string>
     <string name="conversation_details_is_not_classified">ආරක්‍ෂණ මට්ටම: වර්ගීකෘත නොවේ</string>
-    <string name="conversation_options_self_deleting_messages_label">ඉබේ මැකෙන පණිවිඩ</string>
-    <string name="conversation_options_self_deleting_messages_description">මෙය ක්‍රියාත්මක විට, මෙම සංවාදයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත.</string>
-    <string name="conversation_options_guests_label">අමුත්තන්</string>
-    <string name="conversation_details_guest_description">මෙය සක්‍රිය නම්, මෙම සංවාදයට කණ්ඩායමෙන් පිටත අයට එක් වීමට හැකිය</string>
     <string name="conversation_options_guest_description">ඔබගේ කණ්ඩායමෙන් පිටත පුද්ගලයින්ට මෙම සංවාදය විවෘත කිරීමට මෙම විකල්පය සක්‍රිය කරන්න. වයර් නැති අයට ද උපකාරී වේ.</string>
     <string name="conversation_options_guest_not_editable_description">මෙම සංවාදයේ ආගන්තුක විකල්පය වෙනත් කණ්ඩායමක කෙනෙක් සාදා තිබෙන බැවින් එය ඔබට අබල කිරීමට නොහැකිය.</string>
     <string name="conversation_options_renamed">සංවාදය නැවත නම් කළා</string>
@@ -494,8 +476,6 @@
     <string name="import_media_send_button_title">යවන්න</string>
     <string name="export_media_subject_title">වයර් හරහා මාධ්‍ය බෙදාගැනීම</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">කියවූ බවට ලදුපත්</string>
-    <string name="conversation_options_read_receipt_description">මෙය සක්‍රිය නම්, පුද්ගලයින්ට මෙම සංවාදය තුළ ඔවුන්ගේ පණිවිඩ කියවූ විට දැකගත හැකිය.</string>
     <!-- Messages -->
     <string name="message_details_title">පණිවිඩයේ විස්තර</string>
     <string name="message_details_reactions_tab">ප්‍රතික්‍රියා (%s)</string>

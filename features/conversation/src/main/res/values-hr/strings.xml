@@ -22,4 +22,10 @@
     <string name="content_description_message_sending_status">Status slanja poruke</string>
     <string name="content_description_message_delivered_status">Status isporučene poruke</string>
     <string name="content_description_message_read_status">Status pročitane poruke</string>
+    <string name="folder_label_access">Pristup</string>
+    <string name="folder_label_messaging">Poruke</string>
+    <string name="protocol">Protokol</string>
+    <string name="cipher_suite">Cipher Suite</string>
+    <string name="conversation_details_options_group_name">NAZIV GRUPE</string>
+    <string name="conversation_options_guests_label">Gosti</string>
 </resources>

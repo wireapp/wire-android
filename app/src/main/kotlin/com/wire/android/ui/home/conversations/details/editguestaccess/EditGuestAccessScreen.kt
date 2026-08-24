@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.dimensions
@@ -83,7 +84,7 @@ internal fun EditGuestAccessRouteScreen(
     WireScaffold(
         modifier = modifier,
         topBar = {
-            val title = stringResource(id = R.string.conversation_options_guests_label)
+            val title = stringResource(id = conversationR.string.conversation_options_guests_label)
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 navigationIconType = NavigationIconType.Back(R.string.content_description_edit_guests_option_back_btn),

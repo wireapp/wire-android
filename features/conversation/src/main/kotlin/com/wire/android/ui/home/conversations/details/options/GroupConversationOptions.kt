@@ -38,13 +38,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
@@ -52,7 +50,6 @@ import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -119,13 +116,13 @@ fun GroupConversationSettings(
         }
         if (state.areAccessOptionsAvailable) {
             folderWithItems(
-                folderTitleResId = R.string.folder_label_access,
+                folderTitleResId = conversationR.string.folder_label_access,
                 showFolder = !state.isChannel,
                 items = buildList {
                     addIf(state.isChannel) {
                         GroupConversationOptionsItem(
-                            title = stringResource(R.string.channel_access_label),
-                            subtitle = stringResource(id = R.string.channel_access_short_description),
+                            title = stringResource(conversationR.string.channel_access_label),
+                            subtitle = stringResource(id = conversationR.string.channel_access_short_description),
                             arrowType = if (state.isUpdatingChannelAccessAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                             arrowLabel = stringResource(state.channelAccessType!!.labelResId),
                             arrowLabelColor = colorsScheme().onBackground,
@@ -137,34 +134,34 @@ fun GroupConversationSettings(
                     }
                     add {
                         GroupConversationOptionsItem(
-                            title = stringResource(id = R.string.conversation_options_guests_label),
-                            subtitle = stringResource(id = R.string.conversation_details_guest_description),
+                            title = stringResource(id = conversationR.string.conversation_options_guests_label),
+                            subtitle = stringResource(id = conversationR.string.conversation_details_guest_description),
                             switchState = SwitchState.TextOnly(value = state.isGuestAllowed),
                             arrowType = if (state.isUpdatingGuestAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                             clickable = Clickable(
                                 enabled = state.isUpdatingGuestAllowed,
                                 onClick = onGuestItemClicked,
-                                onClickDescription = stringResource(id = R.string.content_description_conversation_details_guests_action)
+                                onClickDescription = stringResource(id = conversationR.string.content_description_conversation_details_guests_action)
                             ),
                         )
                     }
                     add {
                         GroupConversationOptionsItem(
-                            title = stringResource(id = R.string.conversation_options_services_label),
-                            subtitle = stringResource(id = R.string.conversation_details_apps_description),
+                            title = stringResource(id = conversationR.string.conversation_options_services_label),
+                            subtitle = stringResource(id = conversationR.string.conversation_details_apps_description),
                             switchState = SwitchState.TextOnly(value = state.isAppsAllowed),
                             arrowType = if (state.isUpdatingAppsAllowed) ArrowType.TITLE_ALIGNED else ArrowType.NONE,
                             clickable = Clickable(
                                 enabled = state.isUpdatingAppsAllowed,
                                 onClick = onAppsAccessItemClicked,
-                                onClickDescription = stringResource(id = R.string.content_description_conversation_details_apps_action)
+                                onClickDescription = stringResource(id = conversationR.string.content_description_conversation_details_apps_action)
                             ),
                         )
                     }
                     addIf(state.isWireCellEnabled) {
                         GroupConversationOptionsItem(
-                            title = stringResource(id = R.string.conversation_options_shared_drive_label),
-                            subtitle = stringResource(id = R.string.conversation_options_shared_drive_description),
+                            title = stringResource(id = conversationR.string.conversation_options_shared_drive_label),
+                            subtitle = stringResource(id = conversationR.string.conversation_options_shared_drive_description),
                             trailingOnText = null,
                             switchState = SwitchState.TextOnly(true),
                             arrowType = ArrowType.NONE,
@@ -176,12 +173,12 @@ fun GroupConversationSettings(
         }
 
         folderWithItems(
-            folderTitleResId = R.string.folder_label_messaging,
+            folderTitleResId = conversationR.string.folder_label_messaging,
             items = buildList {
                 addIf(!state.selfDeletionTimer.isDisabled) {
                     GroupConversationOptionsItem(
-                        title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
-                        subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_description),
+                        title = stringResource(id = conversationR.string.conversation_options_self_deleting_messages_label),
+                        subtitle = stringResource(id = conversationR.string.conversation_options_self_deleting_messages_description),
                         trailingOnText = if (state.selfDeletionTimer.isEnforced) {
                             "(${state.selfDeletionTimer.duration.toSelfDeletionDuration().shortLabel.asString()})"
                         } else {
@@ -196,14 +193,14 @@ fun GroupConversationSettings(
                         clickable = Clickable(
                             enabled = state.isUpdatingSelfDeletingAllowed && !state.selfDeletionTimer.isEnforcedByTeam,
                             onClick = onSelfDeletingClicked,
-                            onClickDescription = stringResource(id = R.string.content_description_conversation_details_self_deleting_action)
+                            onClickDescription = stringResource(id = conversationR.string.content_description_conversation_details_self_deleting_action)
                         )
                     )
                 }
                 addIf(state.isWireCellEnabled) {
                     GroupConversationOptionsItem(
-                        title = stringResource(id = R.string.conversation_options_self_deleting_messages_label),
-                        subtitle = stringResource(id = R.string.conversation_options_self_deleting_messages_shared_drive_description),
+                        title = stringResource(id = conversationR.string.conversation_options_self_deleting_messages_label),
+                        subtitle = stringResource(id = conversationR.string.conversation_options_self_deleting_messages_shared_drive_description),
                         trailingOnText = null,
                         switchState = SwitchState.TextOnly(),
                         arrowType = ArrowType.NONE,
@@ -222,7 +219,7 @@ fun GroupConversationSettings(
         )
 
         folderWithItems(
-            folderTitleResId = R.string.folder_label_protocol_details,
+            folderTitleResId = conversationR.string.folder_label_protocol_details,
             items = conversationProtocolDetailsItems(
                 protocolInfo = state.protocolInfo,
                 privateBuild = privateBuild,
@@ -269,7 +266,7 @@ private fun conversationProtocolDetailsItems(
 ): List<@Composable () -> Unit> = buildList {
     add {
         ProtocolDetails(
-            label = UIText.StringResource(R.string.protocol),
+            label = UIText.StringResource(conversationR.string.protocol),
             text = UIText.DynamicString(protocolInfo.name())
         )
     }
@@ -277,7 +274,7 @@ private fun conversationProtocolDetailsItems(
     if (protocolInfo is Conversation.ProtocolInfo.MLS) {
         add {
             ProtocolDetails(
-                label = UIText.StringResource(R.string.cipher_suite),
+                label = UIText.StringResource(conversationR.string.cipher_suite),
                 text = UIText.DynamicString(protocolInfo.cipherSuite.toString())
             )
         }
@@ -285,14 +282,14 @@ private fun conversationProtocolDetailsItems(
         if (privateBuild) {
             add {
                 ProtocolDetails(
-                    label = UIText.StringResource(R.string.last_key_material_update_label),
+                    label = UIText.StringResource(conversationR.string.last_key_material_update_label),
                     text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
                 )
             }
 
             add {
                 ProtocolDetails(
-                    label = UIText.StringResource(R.string.group_state_label),
+                    label = UIText.StringResource(conversationR.string.group_state_label),
                     text = UIText.DynamicString(protocolInfo.groupState.name)
                 )
             }
@@ -309,13 +306,13 @@ private fun GroupNameItem(
 ) {
     GroupConversationOptionsItem(
         label = stringResource(
-            id = if (isChannel) R.string.channel_name_title else R.string.conversation_details_options_group_name
+            id = if (isChannel) conversationR.string.channel_name_title else conversationR.string.conversation_details_options_group_name
         ),
         title = groupName,
         clickable = Clickable(
             enabled = canBeChanged,
             onClick = onClick,
-            onClickDescription = stringResource(id = R.string.content_description_edit_label)
+            onClickDescription = stringResource(id = conversationR.string.content_description_edit_label)
         ),
         arrowType = if (!canBeChanged) ArrowType.NONE else ArrowType.CENTER_ALIGNED,
     )
@@ -345,50 +342,8 @@ private fun ReadReceiptOption(
         switchState = switchState,
         isLoading = isLoading,
         onClick = onCheckedChange,
-        title = R.string.conversation_options_read_receipt_label,
-        subTitle = R.string.conversation_options_read_receipt_description
-    )
-}
-
-@Composable
-fun GroupOptionWithSwitch(
-    switchState: Boolean,
-    switchClickable: Boolean,
-    switchVisible: Boolean,
-    isLoading: Boolean,
-    onClick: (Boolean) -> Unit,
-    @StringRes title: Int,
-    @StringRes subTitle: Int?,
-) {
-    GroupConversationOptionsItem(
-        title = stringResource(id = title),
-        subtitle = subTitle?.let { stringResource(id = it) },
-        switchState = when {
-            !switchVisible -> SwitchState.TextOnly(value = switchState)
-            switchClickable && !isLoading -> SwitchState.Enabled(value = switchState, onCheckedChange = onClick)
-            else -> SwitchState.Disabled(value = switchState)
-        },
-        arrowType = ArrowType.NONE
-    )
-    HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
-}
-
-@Composable
-fun DisableConfirmationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    WireDialog(
-        title = stringResource(id = title),
-        text = stringResource(id = text),
-        onDismiss = onDismiss,
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDismiss,
-            text = stringResource(id = R.string.label_cancel),
-            type = WireDialogButtonType.Secondary,
-        ),
-        optionButton2Properties = WireDialogButtonProperties(
-            onClick = onConfirm,
-            text = stringResource(id = R.string.label_disable),
-            type = WireDialogButtonType.Primary,
-        )
+        title = conversationR.string.conversation_options_read_receipt_label,
+        subTitle = conversationR.string.conversation_options_read_receipt_description
     )
 }
 
@@ -436,13 +391,13 @@ private fun PreviewGroupConversationOptions(state: GroupConversationOptionsState
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewAdminTeamGroupConversationOptions() = PreviewGroupConversationOptions(
     state = StateAdmin
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewGuestAdminTeamGroupConversationOptions() = PreviewGroupConversationOptions(
     state = StateAdmin.copy(
@@ -450,7 +405,7 @@ fun PreviewGuestAdminTeamGroupConversationOptions() = PreviewGroupConversationOp
     )
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewExternalMemberAdminTeamGroupConversationOptions() = PreviewGroupConversationOptions(
     state = StateAdmin.copy(
@@ -459,13 +414,13 @@ fun PreviewExternalMemberAdminTeamGroupConversationOptions() = PreviewGroupConve
     )
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewMemberTeamGroupConversationOptions() = PreviewGroupConversationOptions(
     state = StateMember
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewNormalGroupConversationOptions() = PreviewGroupConversationOptions(
     state = StateMember.copy(
@@ -473,7 +428,7 @@ fun PreviewNormalGroupConversationOptions() = PreviewGroupConversationOptions(
     )
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewNormalGroupConversationOptionsWithSelfDeleting() = PreviewGroupConversationOptions(
     state = StateMember.copy(
@@ -483,7 +438,7 @@ fun PreviewNormalGroupConversationOptionsWithSelfDeleting() = PreviewGroupConver
     )
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewAdminMlsGroup() = PreviewGroupConversationOptions(
     state = StateAdmin.copy(
@@ -492,7 +447,7 @@ fun PreviewAdminMlsGroup() = PreviewGroupConversationOptions(
     ),
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewMemberMlsGroup() = PreviewGroupConversationOptions(
     state = StateMember.copy(
@@ -503,7 +458,7 @@ fun PreviewMemberMlsGroup() = PreviewGroupConversationOptions(
     ),
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewAdminChannel() = PreviewGroupConversationOptions(
     state = StateAdmin.copy(
@@ -514,7 +469,7 @@ fun PreviewAdminChannel() = PreviewGroupConversationOptions(
     ),
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewMemberChannel() = PreviewGroupConversationOptions(
     state = StateMember.copy(

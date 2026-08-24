@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.home.conversations.details.options.GroupOptionWithSwitch
 
 @Composable
@@ -37,7 +38,7 @@ fun GuestOption(
         switchState = switchState,
         onClick = onCheckedChange,
         isLoading = isLoading,
-        title = R.string.conversation_options_guests_label,
+        title = conversationR.string.conversation_options_guests_label,
         subTitle = when {
             isSwitchEnabled -> R.string.conversation_options_guest_description
             isSwitchVisible -> R.string.conversation_options_guest_not_editable_description

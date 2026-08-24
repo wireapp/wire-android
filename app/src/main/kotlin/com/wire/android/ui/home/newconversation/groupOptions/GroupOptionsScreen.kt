@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.TextWithLinkSuffix
 import com.wire.android.ui.common.WireDialog
@@ -276,7 +277,7 @@ fun AccessOptions(
     onAccessClicked: () -> Unit
 ) {
     GroupConversationOptionsItem(
-        title = stringResource(R.string.channel_access_label),
+        title = stringResource(conversationR.string.channel_access_label),
         arrowType = ArrowType.TITLE_ALIGNED,
         arrowLabel = stringResource(accessType.labelResId),
         clickable = Clickable(enabled = true, onClick = onAccessClicked),

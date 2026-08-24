@@ -168,4 +168,23 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Depois que um participante tiver visto sua mensagem e o cronômetro tiver expirado do lado dele, essa nota desaparecerá.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Depois de %1$s ver sua mensagem e o temporizador expirar do lado dela, esta nota desaparece.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Quando você estiver online, esta nota desaparece.</string>
+    <string name="folder_label_access">Acesso</string>
+    <string name="folder_label_protocol_details">Detalhes do protocolo</string>
+    <string name="folder_label_messaging">Mensagens</string>
+    <string name="content_description_conversation_details_guests_action">ajustar acesso de convidado</string>
+    <string name="content_description_conversation_details_self_deleting_action">ajustar tempo de auto-exclusão</string>
+    <string name="content_description_edit_label">editar</string>
+    <string name="channel_access_label">Acesso</string>
+    <string name="channel_access_short_description">Todos os membros da equipe podem se juntar a canais públicos. Mas, somente administradores ou membros do canal podem adicionar pessoas a um canal privado.</string>
+    <string name="channel_name_title">Nome do canal</string>
+    <string name="protocol">Protocolo</string>
+    <string name="cipher_suite">Cipher Suite</string>
+    <string name="last_key_material_update_label">Última atualização de material criptográfico</string>
+    <string name="group_state_label">Estado do Grupo</string>
+    <string name="conversation_details_options_group_name">NOME DO GRUPO</string>
+    <string name="conversation_options_self_deleting_messages_label">Mensagens auto-destrutivas</string>
+    <string name="conversation_options_guests_label">Convidados</string>
+    <string name="conversation_details_guest_description">Quando isso está LIGADO, pessoas de fora do seu time podem se juntar a essa conversa</string>
+    <string name="conversation_options_read_receipt_label">Confirmações de leitura</string>
+    <string name="conversation_options_read_receipt_description">Quando isso está ativado, as pessoas podem ver quando suas mensagens nesta conversa são lidas.</string>
 </resources>

@@ -62,9 +62,6 @@
     <string name="label_hide_details">Ocultar Detalhes</string>
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desabilitar</string>
-    <string name="folder_label_access">Acesso</string>
-    <string name="folder_label_protocol_details">Detalhes do protocolo</string>
-    <string name="folder_label_messaging">Mensagens</string>
     <string name="label_and">e</string>
     <string name="label_retry">Tentar novamente</string>
 
@@ -141,8 +138,6 @@
     <string name="content_description_conversation_details_options_tab_header">Opções</string>
     <string name="content_description_conversation_details_participants_tab_header">Participantes</string>
     <string name="content_description_conversation_details_close_btn">Fechar detalhes da conversa</string>
-    <string name="content_description_conversation_details_guests_action">ajustar acesso de convidado</string>
-    <string name="content_description_conversation_details_self_deleting_action">ajustar tempo de auto-exclusão</string>
     <string name="content_description_user_profile_more_btn">Abrir opções da conversa</string>
     <string name="content_description_user_profile_close_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_user_profile_edit_role_btn">Editar função</string>
@@ -158,7 +153,6 @@
     <string name="content_description_open_label">abrir</string>
     <string name="content_description_join_call_label">participar de uma chamada</string>
     <string name="content_description_share_label">compartilhar</string>
-    <string name="content_description_edit_label">editar</string>
     <string name="content_description_selected_label">selecionado</string>
     <string name="content_description_edit_guests_option_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_edit_self_delete_back_btn">Voltar para os detalhes da conversa</string>
@@ -421,22 +415,15 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="conversations_mentions_tab_title">Menções</string>
     <string name="new_group_title">Novo Grupo</string>
     <string name="new_channel_title">Novo Canal</string>
-    <string name="channel_access_label">Acesso</string>
     <string name="channel_access_description">Todos os membros da equipe podem se juntar a canais públicos. Mas, somente administradores ou membros do canal podem adicionar pessoas a um canal privado.\nUm canal privado não pode ser alterado para público mais tarde.</string>
-    <string name="channel_access_short_description">Todos os membros da equipe podem se juntar a canais públicos. Mas, somente administradores ou membros do canal podem adicionar pessoas a um canal privado.</string>
     <string name="channel_add_permission_description">Selecione quem pode adicionar participantes a um canal privado</string>
     <string name="create_regular_group_button_label">Criar Grupo</string>
     <string name="create_channel_button_label">Criar canal</string>
     <string name="new_group_description">Até 500 pessoas podem participar de uma conversa.</string>
     <string name="group_name_title">Nome do Grupo</string>
-    <string name="channel_name_title">Nome do canal</string>
     <string name="group_name_description">Dê um nome ao grupo.</string>
     <string name="channel_name_description">Dê um nome significativo a este canal.</string>
-    <string name="protocol">Protocolo</string>
     <string name="mls">MLS</string>
-    <string name="cipher_suite">Cipher Suite</string>
-    <string name="last_key_material_update_label">Última atualização de material criptográfico</string>
-    <string name="group_state_label">Estado do Grupo</string>
     <string name="empty_regular_group_name_error">Insira um nome para o grupo</string>
     <string name="empty_channel_name_error">Insira um nome de canal</string>
     <string name="regular_group_name_exceeded_limit_error">O nome do grupo não deve exceder 64 caracteres</string>
@@ -457,14 +444,10 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="conversation_details_title">Detalhes da Conversa</string>
     <string name="conversation_details_options_tab">OPÇÕES</string>
     <string name="conversation_details_participants_tab">PARTICIPANTES</string>
-    <string name="conversation_details_options_group_name">NOME DO GRUPO</string>
     <string name="conversation_details_participants_count">%s participantes</string>
     <string name="conversation_details_show_all_participants">Mostrar todos os participantes (%d)</string>
     <string name="conversation_details_is_classified">NÍVEL DE SEGURANÇA: VS-NfD</string>
     <string name="conversation_details_is_not_classified">DETALHES DA CONVERSA: NÍVEL DE SEGURANÇA: NÃO CONFIDENCIAL</string>
-    <string name="conversation_options_self_deleting_messages_label">Mensagens auto-destrutivas</string>
-    <string name="conversation_options_guests_label">Convidados</string>
-    <string name="conversation_details_guest_description">Quando isso está LIGADO, pessoas de fora do seu time podem se juntar a essa conversa</string>
     <string name="conversation_options_guest_description">Ative essa opção para abrir essa conversa para pessoas fora do seu time, mesmo que elas não tenham o Wire.</string>
     <string name="conversation_options_guest_not_editable_description">Você não pode desativar a opção de convidado nesta conversa, pois ela foi criada por alguém de outro time.</string>
     <string name="conversation_options_renamed">Conversa renomeada</string>
@@ -476,8 +459,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="import_media_send_button_title">Enviar</string>
     <string name="export_media_subject_title">Compartilhando mídia do Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Confirmações de leitura</string>
-    <string name="conversation_options_read_receipt_description">Quando isso está ativado, as pessoas podem ver quando suas mensagens nesta conversa são lidas.</string>
     <!-- Messages -->
     <string name="message_details_title">Detalhes da mensagem</string>
     <string name="message_details_reactions_tab">REAÇÕES (%s)</string>

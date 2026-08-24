@@ -62,9 +62,6 @@
     <string name="label_hide_details">Detayları Gizle</string>
     <string name="label_value_copied">%s kopyalandı</string>
     <string name="label_disable">Kapalı</string>
-    <string name="folder_label_access">Erişim</string>
-    <string name="folder_label_protocol_details">Protokol ayrıntıları</string>
-    <string name="folder_label_messaging">Mesajlaşma</string>
     <string name="label_and">ve</string>
     <string name="label_retry">Yeniden Dene</string>
 
@@ -143,8 +140,6 @@
     <string name="content_description_conversation_details_options_tab_header">Seçenekler</string>
     <string name="content_description_conversation_details_participants_tab_header">Katılımcılar</string>
     <string name="content_description_conversation_details_close_btn">Konuşma ayrıntılarını kapat</string>
-    <string name="content_description_conversation_details_guests_action">misafir erişimini ayarla</string>
-    <string name="content_description_conversation_details_self_deleting_action">kendi silme süresini ayarla</string>
     <string name="content_description_user_profile_more_btn">Konuşma seçeneklerini aç</string>
     <string name="content_description_user_profile_close_btn">Konuşma detaylarına geri dön</string>
     <string name="content_description_user_profile_edit_role_btn">Rolü düzenle</string>
@@ -160,7 +155,6 @@
     <string name="content_description_open_label">aç</string>
     <string name="content_description_join_call_label">bir çağrıya katıl</string>
     <string name="content_description_share_label">paylaş</string>
-    <string name="content_description_edit_label">düzenle</string>
     <string name="content_description_selected_label">seçildi</string>
     <string name="content_description_edit_guests_option_back_btn">Konuşma detaylarına geri dön</string>
     <string name="content_description_edit_self_delete_back_btn">Konuşma detaylarına geri dön</string>
@@ -310,11 +304,8 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="conversation_details_options_tab">SEÇENEKLER</string>
     <string name="conversation_details_participants_tab">KATILIMCILAR</string>
     <string name="conversation_details_participants_count">%s Katılımcı</string>
-    <string name="conversation_options_guests_label">Misafirler</string>
-    <string name="conversation_details_guest_description">Eğer bu seçenek açık ise, ekibiniz dışındaki kişiler bu sohbete katılabilir.</string>
     <!-- Import/Export External Media -->
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Okundu bilgisi</string>
     <!-- Messages -->
     <!-- Messages Date and Time -->
     <!-- Attachment options -->

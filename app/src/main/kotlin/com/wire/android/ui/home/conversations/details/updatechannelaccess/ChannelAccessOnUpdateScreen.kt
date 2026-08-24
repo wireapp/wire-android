@@ -21,6 +21,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -44,7 +45,7 @@ internal fun ChannelAccessOnUpdateRouteScreen(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = { navigateBack() },
                 elevation = dimensions().spacing0x,
-                title = stringResource(id = R.string.channel_access_label),
+                title = stringResource(id = conversationR.string.channel_access_label),
                 titleContentDescription = stringResource(id = R.string.content_description_new_conversation_options_heading),
                 navigationIconType = NavigationIconType.Back(R.string.content_description_user_profile_close_btn)
             )

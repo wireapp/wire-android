@@ -171,4 +171,24 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">එක් සහභාගියෙක් ඔබගේ පණිවිඩය දැකීමෙන් පසුව සහ එම පාර්ශ්වයේ කාලය ඉකුත් වූ පසු, මෙම සටහන අතුරුදහන් වේ.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">%1$s ඔබගේ පණිවිඩය දැකීමෙන් පසුව සහ එම පාර්ශ්වයේ කාලය ඉකුත් වූ පසු, මෙම සටහන අතුරුදහන් වේ.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">ඔබ මාර්ගගත වූ විගස, මෙම සටහන අතුරුදහන් වේ.</string>
+    <string name="folder_label_access">ප්‍රවේශය</string>
+    <string name="folder_label_protocol_details">කෙටුම්පතෙහි විස්තර</string>
+    <string name="folder_label_messaging">පණිවිඩ</string>
+    <string name="content_description_conversation_details_guests_action">අමුත්තන්ගේ ප්‍රවේශය සකසන්න</string>
+    <string name="content_description_conversation_details_self_deleting_action">ස්වයං-මැකීමේ කාලය සකසන්න</string>
+    <string name="content_description_edit_label">සංස්කරණය කරන්න</string>
+    <string name="channel_access_label">ප්‍රවේශය</string>
+    <string name="channel_access_short_description">සියලුම කණ්ඩායම් සාමාජිකයින්ට පොදු නාලිකාවලට සම්බන්ධ විය හැක. නමුත්, නාලිකා පරිපාලකයින්ට හෝ සාමාජිකයින්ට පමණක් පුද්ගලික නාලිකාවකට පුද්ගලයින් එක් කළ හැක.</string>
+    <string name="channel_name_title">නාලිකාවේ නම</string>
+    <string name="protocol">කෙටුම්පත</string>
+    <string name="cipher_suite">කේතාංකන කට්ටලය</string>
+    <string name="last_key_material_update_label">අවසාන යතුරු ද්‍රව්‍ය යාවත්කාලීනය</string>
+    <string name="group_state_label">සමූහයේ තත්‍වය</string>
+    <string name="conversation_details_options_group_name">සමූහයේ නම</string>
+    <string name="conversation_options_self_deleting_messages_label">ඉබේ මැකෙන පණිවිඩ</string>
+    <string name="conversation_options_self_deleting_messages_description">මෙය ක්‍රියාත්මක විට, මෙම සංවාදයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත.</string>
+    <string name="conversation_options_guests_label">අමුත්තන්</string>
+    <string name="conversation_details_guest_description">මෙය සක්‍රිය නම්, මෙම සංවාදයට කණ්ඩායමෙන් පිටත අයට එක් වීමට හැකිය</string>
+    <string name="conversation_options_read_receipt_label">කියවූ බවට ලදුපත්</string>
+    <string name="conversation_options_read_receipt_description">මෙය සක්‍රිය නම්, පුද්ගලයින්ට මෙම සංවාදය තුළ ඔවුන්ගේ පණිවිඩ කියවූ විට දැකගත හැකිය.</string>
 </resources>

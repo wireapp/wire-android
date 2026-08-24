@@ -73,9 +73,6 @@
     <string name="label_hide_details">Hide Details</string>
     <string name="label_value_copied">%s copied</string>
     <string name="label_disable">Disable</string>
-    <string name="folder_label_access">Access</string>
-    <string name="folder_label_protocol_details">Protocol details</string>
-    <string name="folder_label_messaging">Messaging</string>
     <string name="label_and">and</string>
     <string name="label_retry">Retry</string>
     <string name="conversation_creation_pending_title">Conversation isn’t ready yet</string>
@@ -188,8 +185,6 @@
     <string name="content_description_conversation_details_options_tab_header">Options</string>
     <string name="content_description_conversation_details_participants_tab_header">Participants</string>
     <string name="content_description_conversation_details_close_btn">Close conversation details</string>
-    <string name="content_description_conversation_details_guests_action">adjust guest access</string>
-    <string name="content_description_conversation_details_self_deleting_action">adjust self-deleting time</string>
     <string name="content_description_user_profile_more_btn">Open conversation options</string>
     <string name="content_description_user_profile_close_btn">Go back to conversation details</string>
     <string name="content_description_user_profile_edit_role_btn">Edit role</string>
@@ -205,7 +200,6 @@
     <string name="content_description_open_label">open</string>
     <string name="content_description_join_call_label">join a call</string>
     <string name="content_description_share_label">share</string>
-    <string name="content_description_edit_label">edit</string>
     <string name="content_description_selected_label">selected</string>
     <string name="content_description_switch_on">on</string>
     <string name="content_description_switch_off">off</string>
@@ -521,9 +515,7 @@
     <string name="conversations_mentions_tab_title">Mentions</string>
     <string name="new_group_title">New Group</string>
     <string name="new_channel_title">New Channel</string>
-    <string name="channel_access_label">Access</string>
     <string name="channel_access_description">All team members can join public channels. But, only channel admins or members can add people to a private channel.\nA private channel can not be changed to public later.</string>
-    <string name="channel_access_short_description">All team members can join public channels. But, only channel admins or members can add people to a private channel.</string>
     <string name="channel_add_permission_description">Select who can add participants to a private channel</string>
     <string name="channel_history_label">Conversation history</string>
     <string name="channel_history_description">Select a period. When participants join this channel, they can follow the history for this time frame.</string>
@@ -542,15 +534,10 @@
     <string name="create_channel_button_label">Create Channel</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name_title">Group Name</string>
-    <string name="channel_name_title">Channel Name</string>
     <string name="conversation_name_placeholder">Enter a name</string>
     <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="channel_name_description">Give this channel a meaningful name.</string>
-    <string name="protocol">Protocol</string>
     <string name="mls">MLS</string>
-    <string name="cipher_suite">Cipher Suite</string>
-    <string name="last_key_material_update_label">Last Key Material Update</string>
-    <string name="group_state_label">Group State</string>
     <string name="empty_regular_group_name_error">Please enter a group name</string>
     <string name="empty_channel_name_error">Please enter a channel name</string>
     <string name="regular_group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
@@ -579,22 +566,14 @@
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
-    <string name="conversation_details_options_group_name">GROUP NAME</string>
     <string name="conversation_details_participants_info">This conversation has %s participants.\nUp to 500 people can join a conversation.</string>
     <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_conversation_participants_add">Add participants</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
-    <string name="conversation_options_self_deleting_messages_label">Self-deleting messages</string>
-    <string name="conversation_options_self_deleting_messages_description">When this is on, all messages in this conversation will disappear after a certain time.</string>
-    <string name="conversation_options_self_deleting_messages_shared_drive_description">The feature is not available for conversations with a Shared Drive.</string>
-    <string name="conversation_options_guests_label">Guests</string>
-    <string name="conversation_details_guest_description">When this is ON, people from outside your team can join this conversation</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
-    <string name="conversation_options_services_label">Apps</string>
-    <string name="conversation_details_apps_description">When this is ON, you open this conversation to apps.</string>
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to apps.</string>
     <string name="conversation_options_renamed">Conversation renamed</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
@@ -629,8 +608,6 @@
     <string name="import_media_send_button_title">Send</string>
     <string name="export_media_subject_title">Sharing Media from Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Read receipts</string>
-    <string name="conversation_options_read_receipt_description">When this is on, people can see when their messages in this conversation are read.</string>
     <!-- Messages -->
     <string name="message_details_title">Message Details</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>
@@ -1765,8 +1742,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="failed_attachment_remove">Remove</string>
 
     <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
-    <string name="conversation_options_shared_drive_label">Shared Drive</string>
-    <string name="conversation_options_shared_drive_description">Permanently on for this conversation.</string>
     <plurals name="reply_multiple_files">
         <item quantity="one">%1$d file</item>
         <item quantity="other">%1$d files</item>
@@ -1775,7 +1750,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- Apps-->
     <string name="apps_edit_apps_option_title">Apps</string>
     <string name="content_description_edit_apps_option_back_btn">Go back to conversation details</string>
-    <string name="content_description_conversation_details_apps_action">adjust apps access</string>
 
     <string name="label_system_message_apps_access_enabled_by_self">%1$s enabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_disabled_by_self">%1$s disabled **apps** for this conversation</string>

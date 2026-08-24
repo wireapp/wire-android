@@ -81,4 +81,6 @@
         <item quantity="one">1 sekund jäänud</item>
         <item quantity="other">%1$d sekundit jäänud</item>
     </plurals>
+    <string name="folder_label_access">Juurdepääs</string>
+    <string name="folder_label_messaging">Sõnumside</string>
 </resources>

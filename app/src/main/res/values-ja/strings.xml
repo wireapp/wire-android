@@ -59,9 +59,6 @@
     <string name="label_hide_details">詳細を非表示</string>
     <string name="label_value_copied">%sをコピーしました</string>
     <string name="label_disable">無効</string>
-    <string name="folder_label_access">アクセス</string>
-    <string name="folder_label_protocol_details">プロトコルの詳細</string>
-    <string name="folder_label_messaging">メッセージ</string>
     <string name="label_and">と</string>
     <string name="label_retry">再試行</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->

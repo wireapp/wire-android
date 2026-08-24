@@ -56,8 +56,6 @@
     <string name="label_hide_details">Sakrij detalje</string>
     <string name="label_value_copied">%s kopirano</string>
     <string name="label_disable">Onemogući</string>
-    <string name="folder_label_access">Pristup</string>
-    <string name="folder_label_messaging">Poruke</string>
     <string name="label_and">i</string>
     <string name="label_retry">Pokušaj ponovo</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
@@ -313,9 +311,7 @@
     <string name="new_group_description">Grupnom razgovoru može se pridružiti do 500 ljudi.</string>
     <string name="group_name_title">Naziv grupe</string>
     <string name="group_name_description">Dajte ovoj grupi smislen naziv.</string>
-    <string name="protocol">Protokol</string>
     <string name="mls">MLS</string>
-    <string name="cipher_suite">Cipher Suite</string>
     <string name="asset_message_tap_to_download_text">Dodirni za preuzimanje</string>
     <string name="asset_message_upload_in_progress_text">Učitavanje…</string>
     <string name="asset_message_download_in_progress_text">Preuzimanje…</string>
@@ -329,8 +325,6 @@
     <string name="conversation_details_title">Detalji razgovora</string>
     <string name="conversation_details_options_tab">OPCIJE</string>
     <string name="conversation_details_participants_tab">SUDIONICI</string>
-    <string name="conversation_details_options_group_name">NAZIV GRUPE</string>
-    <string name="conversation_options_guests_label">Gosti</string>
     <string name="conversation_options_guest_not_editable_description">Ne možete onemogućiti opciju gosta u ovom razgovoru jer ju je kreirao netko iz drugog tima.</string>
     <!-- Import/Export External Media -->
     <string name="import_media_send_button_title">Pošalji</string>

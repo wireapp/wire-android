@@ -65,4 +65,9 @@
         <item quantity="one">1 sekund kvar</item>
         <item quantity="other">%1$d sekunder kvar</item>
     </plurals>
+    <string name="folder_label_access">Åtkomst</string>
+    <string name="protocol">Protokoll</string>
+    <string name="conversation_details_options_group_name">GRUPPNAMN</string>
+    <string name="conversation_options_guests_label">Gäster</string>
+    <string name="conversation_options_read_receipt_label">Läskvitton</string>
 </resources>

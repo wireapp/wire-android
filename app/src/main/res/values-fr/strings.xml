@@ -55,9 +55,6 @@
     <string name="label_hide_details">Masquer les détails</string>
     <string name="label_value_copied">%s copié</string>
     <string name="label_disable">Désactiver</string>
-    <string name="folder_label_access">Accès</string>
-    <string name="folder_label_protocol_details">Détails du protocole</string>
-    <string name="folder_label_messaging">Messagerie</string>
     <string name="label_and">et</string>
     <string name="label_retry">Réessayer</string>
 
@@ -322,11 +319,7 @@
     <string name="new_group_description">Jusqu\'à 500 personnes peuvent rejoindre une conversation de groupe.</string>
     <string name="group_name_title">Nom du groupe</string>
     <string name="group_name_description">Donnez un nom évocateur au groupe.</string>
-    <string name="protocol">Protocole</string>
     <string name="mls">MLS</string>
-    <string name="cipher_suite">Suite cryptographique</string>
-    <string name="last_key_material_update_label">Dernière mise à jour de la clé matérielle</string>
-    <string name="group_state_label">État du groupe</string>
     <string name="asset_message_tap_to_download_text">Appuyer ici pour lancer le téléchargement</string>
     <string name="asset_message_upload_in_progress_text">Envoi en cours…</string>
     <string name="asset_message_download_in_progress_text">Téléchargement en cours…</string>
@@ -343,14 +336,10 @@
     <string name="conversation_details_title">Détails de la conversation</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
-    <string name="conversation_details_options_group_name">NOM DU GROUPE</string>
     <string name="conversation_details_participants_count">%s participants</string>
     <string name="conversation_details_show_all_participants">Afficher tous les participants (%d)</string>
     <string name="conversation_details_is_classified">NIVEAU DE SÉCURITÉ : VS-NfD</string>
     <string name="conversation_details_is_not_classified">NIVEAU DE SÉCURITÉ : INCLASSIFIÉ</string>
-    <string name="conversation_options_self_deleting_messages_label">Messages éphémères</string>
-    <string name="conversation_options_guests_label">Invités</string>
-    <string name="conversation_details_guest_description">Lorsque cela est activé, des personnes extérieures à votre équipe peuvent rejoindre cette conversation</string>
     <string name="conversation_options_guest_description">Activez cette option pour ouvrir cette conversation à des personnes en dehors de votre équipe, même si elles n\'ont pas de Wire.</string>
     <string name="conversation_options_guest_not_editable_description">Vous ne pouvez pas désactiver l\'option Invité dans cette conversation, car elle a été créée par quelqu\'un d\'une autre équipe.</string>
     <string name="conversation_options_renamed">Conversation renommée</string>
@@ -362,8 +351,6 @@
     <string name="import_media_send_button_title">Envoyer</string>
     <string name="export_media_subject_title">Partage des médias depuis Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Accusés de lecture</string>
-    <string name="conversation_options_read_receipt_description">Quand cette option est activée, les participants peuvent voir quand leurs messages ont été lus dans cette conversation.</string>
     <!-- Messages -->
     <string name="message_details_title">Détails du Message</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>

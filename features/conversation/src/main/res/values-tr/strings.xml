@@ -14,4 +14,13 @@
     <string name="content_description_message_sending_status">Mesaj gönderme durumu</string>
     <string name="content_description_message_delivered_status">Mesaj teslim durumu</string>
     <string name="content_description_message_read_status">Mesaj okunma durumu</string>
+    <string name="folder_label_access">Erişim</string>
+    <string name="folder_label_protocol_details">Protokol ayrıntıları</string>
+    <string name="folder_label_messaging">Mesajlaşma</string>
+    <string name="content_description_conversation_details_guests_action">misafir erişimini ayarla</string>
+    <string name="content_description_conversation_details_self_deleting_action">kendi silme süresini ayarla</string>
+    <string name="content_description_edit_label">düzenle</string>
+    <string name="conversation_options_guests_label">Misafirler</string>
+    <string name="conversation_details_guest_description">Eğer bu seçenek açık ise, ekibiniz dışındaki kişiler bu sohbete katılabilir.</string>
+    <string name="conversation_options_read_receipt_label">Okundu bilgisi</string>
 </resources>

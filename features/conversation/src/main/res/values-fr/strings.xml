@@ -19,4 +19,17 @@
     <string name="content_description_message_sending_status">État d\'envoi des messages</string>
     <string name="content_description_message_delivered_status">Statut de la livraison du message</string>
     <string name="content_description_message_read_status">Statut de lecture du message</string>
+    <string name="folder_label_access">Accès</string>
+    <string name="folder_label_protocol_details">Détails du protocole</string>
+    <string name="folder_label_messaging">Messagerie</string>
+    <string name="protocol">Protocole</string>
+    <string name="cipher_suite">Suite cryptographique</string>
+    <string name="last_key_material_update_label">Dernière mise à jour de la clé matérielle</string>
+    <string name="group_state_label">État du groupe</string>
+    <string name="conversation_details_options_group_name">NOM DU GROUPE</string>
+    <string name="conversation_options_self_deleting_messages_label">Messages éphémères</string>
+    <string name="conversation_options_guests_label">Invités</string>
+    <string name="conversation_details_guest_description">Lorsque cela est activé, des personnes extérieures à votre équipe peuvent rejoindre cette conversation</string>
+    <string name="conversation_options_read_receipt_label">Accusés de lecture</string>
+    <string name="conversation_options_read_receipt_description">Quand cette option est activée, les participants peuvent voir quand leurs messages ont été lus dans cette conversation.</string>
 </resources>

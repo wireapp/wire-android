@@ -64,9 +64,6 @@
     <string name="label_hide_details">Details ausblenden</string>
     <string name="label_value_copied">%s kopiert</string>
     <string name="label_disable">Deaktivieren</string>
-    <string name="folder_label_access">Zugang</string>
-    <string name="folder_label_protocol_details">Details zum Protokoll</string>
-    <string name="folder_label_messaging">Messaging</string>
     <string name="label_and">und</string>
     <string name="label_retry">Wiederholen</string>
 
@@ -172,8 +169,6 @@
     <string name="content_description_conversation_details_options_tab_header">Optionen</string>
     <string name="content_description_conversation_details_participants_tab_header">Teilnehmer</string>
     <string name="content_description_conversation_details_close_btn">Unterhaltungsdetails schließen</string>
-    <string name="content_description_conversation_details_guests_action">Gästezugang anpassen</string>
-    <string name="content_description_conversation_details_self_deleting_action">Timer anpassen</string>
     <string name="content_description_user_profile_more_btn">Unterhaltungsoptionen öffnen</string>
     <string name="content_description_user_profile_close_btn">Zurück zu Unterhaltungsdetails</string>
     <string name="content_description_user_profile_edit_role_btn">Rolle bearbeiten</string>
@@ -188,7 +183,6 @@
     <string name="content_description_open_label">Öffnen</string>
     <string name="content_description_join_call_label">Anruf annehmen</string>
     <string name="content_description_share_label">Teilen</string>
-    <string name="content_description_edit_label">bearbeiten</string>
     <string name="content_description_selected_label">ausgewählt</string>
     <string name="content_description_switch_on">an</string>
     <string name="content_description_switch_off">aus</string>
@@ -493,9 +487,7 @@
     <string name="conversations_mentions_tab_title">Erwähnungen</string>
     <string name="new_group_title">Neue Gruppe</string>
     <string name="new_channel_title">Neuer Channel</string>
-    <string name="channel_access_label">Zugang</string>
     <string name="channel_access_description">Alle Team-Mitglieder können öffentlichen Channels beitreten. Aber nur Channel-Admins oder -Mitglieder können Personen zu einem privaten Channel hinzufügen.\nEin privater Channel kann nicht in einen öffentlichen umgewandelt werden.</string>
-    <string name="channel_access_short_description">Alle Team-Mitglieder können öffentlichen Channels beitreten. Aber nur Channel-Admins oder -Mitglieder können Personen zu einem privaten Channel hinzufügen.</string>
     <string name="channel_add_permission_description">Wählen Sie, wer Teilnehmer zu einem privaten Channel hinzufügen kann</string>
     <string name="channel_history_label">Gesprächsverlauf</string>
     <string name="channel_history_description">Wählen Sie einen Zeitraum. Wenn Teilnehmer diesem Channel beitreten, können sie den Verlauf für diese Zeitspanne verfolgen.</string>
@@ -514,15 +506,10 @@
     <string name="create_channel_button_label">Channel erstellen</string>
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
     <string name="group_name_title">Gruppenname</string>
-    <string name="channel_name_title">Channel-Name</string>
     <string name="conversation_name_placeholder">Namen eingeben</string>
     <string name="group_name_description">Geben Sie dieser Gruppe einen aussagekräftigen Namen.</string>
     <string name="channel_name_description">Geben Sie diesem Channel einen aussagekräftigen Namen.</string>
-    <string name="protocol">Protokoll</string>
     <string name="mls">MLS</string>
-    <string name="cipher_suite">Cipher-Suite</string>
-    <string name="last_key_material_update_label">Letzte Aktualisierung des Schlüssel-Materials</string>
-    <string name="group_state_label">Gruppenstatus</string>
     <string name="empty_regular_group_name_error">Bitte geben Sie einen Gruppennamen ein</string>
     <string name="empty_channel_name_error">Bitte geben Sie einen Channel-Namen ein</string>
     <string name="regular_group_name_exceeded_limit_error">Gruppenname darf 64 Zeichen nicht überschreiten</string>
@@ -551,22 +538,14 @@
     <string name="conversation_details_title">Unterhaltungsdetails</string>
     <string name="conversation_details_options_tab">OPTIONEN</string>
     <string name="conversation_details_participants_tab">TEILNEHMER</string>
-    <string name="conversation_details_options_group_name">GRUPPENNAME</string>
     <string name="conversation_details_participants_info">Diese Unterhaltung hat %s Teilnehmer.\nBis zu 500 Personen können an einer Unterhaltung teilnehmen.</string>
     <string name="conversation_details_participants_count">%s Teilnehmer</string>
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
     <string name="conversation_details_conversation_participants_add">Teilnehmer hinzufügen</string>
     <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
-    <string name="conversation_options_self_deleting_messages_label">Selbstlöschende Nachrichten</string>
-    <string name="conversation_options_self_deleting_messages_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Unterhaltung nach einer bestimmten Zeit.</string>
-    <string name="conversation_options_self_deleting_messages_shared_drive_description">Die Funktion ist für Unterhaltungen mit Geteiltes Drive nicht verfügbar.</string>
-    <string name="conversation_options_guests_label">Gäste</string>
-    <string name="conversation_details_guest_description">Wenn diese Option aktiviert ist, können Personen außerhalb des Teams an dieser Unterhaltung teilnehmen</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
     <string name="conversation_options_guest_not_editable_description">Sie können die Gast-Option in dieser Unterhaltung nicht deaktivieren, da sie von jemandem aus einem anderen Team erstellt wurde.</string>
-    <string name="conversation_options_services_label">Apps</string>
-    <string name="conversation_details_apps_description">Wenn diese Option aktiviert ist, öffnen Sie die Unterhaltung für Apps.</string>
     <string name="conversation_options_services_description">Aktivieren Sie diese Option, um die Unterhaltung für Apps zu öffnen.</string>
     <string name="conversation_options_renamed">Unterhaltung umbenannt</string>
     <string name="disable_guest_dialog_title">Gastzugang deaktivieren?</string>
@@ -597,8 +576,6 @@
     <string name="import_media_send_button_title">Senden</string>
     <string name="export_media_subject_title">Teilen von Medien aus Wire</string>
     <!--Read receipts -->
-    <string name="conversation_options_read_receipt_label">Lesebestätigungen</string>
-    <string name="conversation_options_read_receipt_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <!-- Messages -->
     <string name="message_details_title">Nachrichtendetails</string>
     <string name="message_details_reactions_tab">REAKTIONEN (%s)</string>
@@ -1639,8 +1616,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Diese Funktion ist nicht verfügbar. Bitte wenden Sie sich an Ihren Admin.</string>
-    <string name="conversation_options_shared_drive_label">Geteiltes Drive</string>
-    <string name="conversation_options_shared_drive_description">Dauerhaft aktiv für diese Unterhaltung.</string>
     <plurals name="reply_multiple_files">
         <item quantity="one">%1$d Datei</item>
         <item quantity="other">%1$d Dateien</item>

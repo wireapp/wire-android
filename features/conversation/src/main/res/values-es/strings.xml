@@ -156,4 +156,20 @@
     <string name="self_deleting_message_time_left">Mensaje con autoborrado • %1$s</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Una vez que un participante haya visto tu mensaje y su temporizador de éste haya finalizado, esta nota desaparecerá.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Después de que %1$s haya visto tu mensaje y el temporizador haya caducado en su lado, esta nota desaparecerá.</string>
+    <string name="folder_label_access">Acceso</string>
+    <string name="folder_label_protocol_details">Detalles del protocolo</string>
+    <string name="folder_label_messaging">Mensajería</string>
+    <string name="protocol">Protocolo</string>
+    <string name="cipher_suite">Suite de Cifrado</string>
+    <string name="last_key_material_update_label">&#218;ltima Actualizaci&#243;n de Material de Clave</string>
+    <string name="group_state_label">Estado del grupo</string>
+    <string name="conversation_details_options_group_name">NOMBRE DEL GRUPO</string>
+    <string name="conversation_options_self_deleting_messages_label">Mensajes con auto-borrado</string>
+    <string name="conversation_options_guests_label">Invitados</string>
+    <string name="conversation_details_guest_description">Cuando esto está activo, personas de fuera de tu equipo pueden unirse a esta conversación</string>
+    <string name="conversation_options_services_label">Aplicaciones</string>
+    <string name="conversation_details_apps_description">Cuando esta opción está activada, la conversación está abierta a aplicaciones.</string>
+    <string name="conversation_options_read_receipt_label">Confirmación de lectura</string>
+    <string name="conversation_options_read_receipt_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo se lee su mensaje en esta conversaci&#243;n.</string>
+    <string name="content_description_conversation_details_apps_action">ajustar acceso a aplicaciones</string>
 </resources>

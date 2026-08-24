@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -118,7 +119,7 @@ fun SelfDeletionTimerIcon(
     onSelfDeletionTimerClicked: () -> Unit
 ) {
     val isSelected = selfDeletionTimer is SelfDeletionTimer.Enabled && selfDeletionTimer.duration != null
-    val contentDescription = stringResource(id = R.string.content_description_conversation_details_self_deleting_action)
+    val contentDescription = stringResource(id = conversationR.string.content_description_conversation_details_self_deleting_action)
     val toggleActionDescription = stringResource(id = commonR.string.content_description_toggle_setting_label)
     val stateDescription = stringResource(
         id = if (isSelected) R.string.content_description_switch_on else R.string.content_description_switch_off

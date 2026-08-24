@@ -33555,7 +33555,6 @@ Lcom/wire/android/ui/authentication/devices/common/ClearSessionViewModel$MetroFa
 SPLcom/wire/android/ui/authentication/devices/common/ClearSessionViewModel$MetroFactory$Companion;-><init>()V
 SPLcom/wire/android/ui/authentication/devices/common/ClearSessionViewModel$MetroFactory$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 SPLcom/wire/android/ui/authentication/devices/common/ClearSessionViewModel$MetroFactory$Companion;->create(Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;Ldev/zacsweers/metro/Provider;)Lcom/wire/android/ui/authentication/devices/common/ClearSessionViewModel$MetroFactory;
-Lcom/wire/android/ui/authentication/devices/common/SessionBackedAuthenticationNavArgs;
 Lcom/wire/android/ui/authentication/devices/register/RegisterDeviceViewModel;
 Lcom/wire/android/ui/authentication/devices/register/RegisterDeviceViewModel$MetroFactory;
 SPLcom/wire/android/ui/authentication/devices/register/RegisterDeviceViewModel$MetroFactory;-><clinit>()V

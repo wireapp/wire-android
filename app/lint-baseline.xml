@@ -92,44 +92,11 @@
     <issue
         id="ComposeModifierMissing"
         message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun EmptySearchQueryScreen() {"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/home/conversations/search/EmptySearchQueryScreen.kt"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
         errorLine1="fun MembersMentionListPreview() {"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/com/wire/android/ui/home/messagecomposer/MembersMentionList.kt"
             line="75"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun NewAuthContainer("
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/newauthentication/login/NewLoginContainer.kt"
-            line="59"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeModifierMissing"
-        message="This @Composable function emits content but doesn&apos;t have a modifier parameter.See https://slackhq.github.io/compose-lints/rules/#when-should-i-expose-modifier-parameters for more information."
-        errorLine1="fun NewAuthHeader("
-        errorLine2="    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/newauthentication/login/NewLoginContainer.kt"
-            line="93"
             column="5"/>
     </issue>
 
@@ -230,28 +197,6 @@
             file="src/main/kotlin/com/wire/android/ui/authentication/login/email/LoginEmailScreen.kt"
             line="302"
             column="16"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, verticalPadding: Dp = dimensions().spacing2x, modifier: Modifier = Modifier] but should be [title: String, modifier: Modifier = Modifier, verticalPadding: Dp = dimensions().spacing2x].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun NewAuthTitle("
-        errorLine2="                ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/newauthentication/login/NewLoginContainer.kt"
-            line="130"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ComposeParameterOrder"
-        message="Parameters in a composable function should be ordered following this pattern: params without defaults, modifiers, params with defaults and optionally, a trailing function that might not have a default param.&#xA;Current params are: [title: String, verticalPadding: Dp = dimensions().spacing2x, modifier: Modifier = Modifier] but should be [title: String, modifier: Modifier = Modifier, verticalPadding: Dp = dimensions().spacing2x].&#xA;See https://slackhq.github.io/compose-lints/rules/#ordering-composable-parameters-properly for more information."
-        errorLine1="fun NewAuthSubtitle("
-        errorLine2="                   ^">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/newauthentication/login/NewLoginContainer.kt"
-            line="146"
-            column="20"/>
     </issue>
 
 </issues>

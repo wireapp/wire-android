@@ -2,7 +2,7 @@
 
 **Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, participant renderers/previews, regular, content, final and preview mapping/formatting, image-asset paging, role projection, media/search arguments, asset restrictions, and edit-metadata presentation have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `7290998d412aa70bf3e3365873b8153308b9b65b`
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `c663ed8ab8e0c790fb859755e94fdd05a0c8cefb`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -75,6 +75,8 @@ Self-deletion icon metrics are facade-owned with their seven Jupiter tests. The 
 The package-preserved `GroupConversationAvatar` is facade-owned because it renders feature-owned conversation avatar data through neutral core avatar primitives. Existing list and details callers keep the same FQN; no generic core component depends on the feature model.
 
 Participant previews are facade-owned beside the existing runtime renderers and preview state. Their six preview functions keep their packages/FQNs and use the public neutral `MultipleThemePreviews` annotation; the app-internal preview annotation no longer crosses the module boundary.
+
+The package-preserved `MessageBubbleItem` is facade-owned as the regular-message layout and interaction shell. It consumes conversation-owned models and the feature-owned click interceptor plus neutral theme/UI primitives; app callers retain the same FQN.
 
 Edit-conversation metadata presentation is facade-owned. `EditConversationMetadataViewModel`, its narrow state and validator, dedicated assisted Metro group/gateways, and focused test keep their packages and public FQNs in `:features:conversation`. App keeps the unchanged `GroupNameScreen`, its private edition-state adapter, Navigation 3 calls, and composition-root installation of the generated feature binding exactly once. Creation state and UI, resources, Gradle edges, profiles, Navigation 3 runtime, and KMP sources remain unchanged.
 

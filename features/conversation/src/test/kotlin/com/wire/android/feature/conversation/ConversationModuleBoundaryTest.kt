@@ -431,6 +431,17 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun messageBubbleIsFeatureOwnedWithTheLegacyPublicContract() {
+        val source = featureSource(messageBubbleItemRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations.messages.item"))
+        assertTrue(source.contains("fun MessageBubbleItem("))
+        assertTrue(source.contains("message: UIMessage.Regular"))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(File(Konsist.projectRootPath, legacyMessageBubbleItemRelativePath).exists())
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -1168,6 +1179,10 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/ConversationParticipantItemPreviews.kt"
         const val legacyGroupConversationParticipantsPreviewsRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsPreviews.kt"
+        const val messageBubbleItemRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageBubbleItem.kt"
+        const val legacyMessageBubbleItemRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageBubbleItem.kt"
         const val conversationSearchPagingUseCaseRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetConversationMessagesFromSearchUseCase.kt"
         const val legacyConversationSearchPagingUseCaseRelativePath =
@@ -1768,6 +1783,9 @@ class ConversationModuleBoundaryTest {
             groupConversationParticipantsPreviewsRelativePath to
                     "com.wire.android.ui.home.conversations.details.participants",
         )
+        val messageBubbleItemSources = mapOf(
+            messageBubbleItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+        )
         val conversationSearchPagingUseCaseSources = mapOf(
             conversationSearchPagingUseCaseRelativePath to "com.wire.android.ui.home.conversations.usecase",
         )
@@ -1817,6 +1835,7 @@ class ConversationModuleBoundaryTest {
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
                     offlineMessageIndicatorSources + groupConversationAvatarSources + participantPreviewSources +
+                    messageBubbleItemSources +
                     conversationSearchPagingUseCaseSources + conversationAssetPagingUseCaseSources +
                     reactionPresentationSources +
                     messageResourceProviderSources +

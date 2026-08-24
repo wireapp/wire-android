@@ -19,7 +19,7 @@ import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginRouteScreen
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.ui.authentication.newLoginViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeRouteScreen
@@ -228,7 +228,7 @@ private fun NewLoginPasswordNavigation3Entry(
 ) {
     val legacyArgs = route.toLegacyNavArgs()
     val flowOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId))
-    val viewModel: LoginEmailViewModel = loginEmailViewModel(
+    val viewModel: AppLoginEmailViewModel = loginEmailViewModel(
         loginNavArgs = legacyArgs,
         viewModelStoreOwner = flowOwner,
     )
@@ -297,7 +297,7 @@ private fun NewLoginVerificationCodeNavigation3Entry(
 ) {
     val legacyArgs = route.toLegacyNavArgs()
     val flowOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId))
-    val viewModel: LoginEmailViewModel = loginEmailViewModel(
+    val viewModel: AppLoginEmailViewModel = loginEmailViewModel(
         loginNavArgs = legacyArgs,
         viewModelStoreOwner = flowOwner,
     )

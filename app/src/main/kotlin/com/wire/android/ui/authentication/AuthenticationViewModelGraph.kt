@@ -42,7 +42,7 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.ui.authentication.login.LoginNavArgs
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.AppLoginSSOViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
@@ -62,7 +62,7 @@ interface AuthenticationViewModelGraph : MetroViewModelGraph
 interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory {
     fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>
     fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): NewLoginViewModel
-    fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel
+    fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginEmailViewModel
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginSSOViewModel
     fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel<ServerConfig.Links>
     fun createAccountEmailViewModel(
@@ -137,8 +137,8 @@ fun loginEmailViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
-): LoginEmailViewModel =
-    wireAssistedMetroViewModel<LoginEmailViewModel, AuthenticationManualViewModelFactory>(
+): AppLoginEmailViewModel =
+    wireAssistedMetroViewModel<AppLoginEmailViewModel, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) { extras ->
         loginEmailViewModel(loginNavArgs, extras)

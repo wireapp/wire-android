@@ -50,10 +50,10 @@ import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.BackendConfigSuccessContent
 import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -80,7 +80,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun LoginRouteScreen(
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     onBackPressed: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
     onRemoveDeviceNeeded: (UserId) -> Unit,
@@ -102,7 +102,7 @@ private fun LoginContent(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
     onRemoveDeviceNeeded: (UserId) -> Unit,
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
@@ -138,7 +138,7 @@ private fun MainLoginContent(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
     onRemoveDeviceNeeded: (UserId) -> Unit,
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {

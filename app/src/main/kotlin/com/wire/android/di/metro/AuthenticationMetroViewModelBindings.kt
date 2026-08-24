@@ -35,7 +35,8 @@ import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewN
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModelHostFactory
 import com.wire.android.ui.authentication.login.LoginNavArgs
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModelHostFactory
 import com.wire.android.ui.authentication.login.sso.AppLoginSSOViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelHostFactory
 import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
@@ -72,7 +73,7 @@ object AuthenticationMetroViewModelBindings {
     fun authenticationManualViewModelFactory(
         welcomeFactory: WelcomeViewModelHostFactory,
         newLoginFactory: NewLoginViewModel.Factory,
-        loginEmailFactory: LoginEmailViewModel.Factory,
+        loginEmailFactory: LoginEmailViewModelHostFactory,
         loginSSOFactory: LoginSSOViewModelHostFactory,
         createAccountOverviewFactory: CreateAccountOverviewViewModelHostFactory,
         createAccountEmailFactory: CreateAccountEmailViewModelHostFactory,
@@ -88,7 +89,7 @@ object AuthenticationMetroViewModelBindings {
         override fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): NewLoginViewModel =
             newLoginFactory.create(loginNavArgs, extras.createSavedStateHandle())
 
-        override fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel =
+        override fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginEmailViewModel =
             loginEmailFactory.create(loginNavArgs, extras.createSavedStateHandle())
 
         override fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginSSOViewModel =

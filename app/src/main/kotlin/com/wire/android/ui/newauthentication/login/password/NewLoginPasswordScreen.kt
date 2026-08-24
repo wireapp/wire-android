@@ -60,10 +60,11 @@ import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.AppLoginDialogError
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.authentication.login.email.AppLoginEmailState
+import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.email.ForgotPasswordLabel
 import com.wire.android.ui.authentication.login.email.LoginButton
 import com.wire.android.ui.authentication.login.email.LoginEmailState
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.email.ProxyIdentifierInput
 import com.wire.android.ui.authentication.login.email.ProxyPasswordInput
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
@@ -114,7 +115,7 @@ internal sealed interface NewLoginPasswordScreenAction {
 @Composable
 internal fun NewLoginPasswordRouteScreen(
     navArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     canNavigateBack: Boolean,
     onAction: (NewLoginPasswordScreenAction) -> Boolean,
 ) {
@@ -169,7 +170,7 @@ internal fun LoginPasswordContent(
     passwordTextState: TextFieldState,
     proxyIdentifierState: TextFieldState,
     proxyPasswordState: TextFieldState,
-    loginEmailState: LoginEmailState,
+    loginEmailState: AppLoginEmailState,
     onLoginButtonClick: () -> Unit,
     onCreateAccount: () -> Unit,
     canNavigateBack: Boolean,
@@ -336,7 +337,7 @@ fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modi
 private fun ProxyContent(
     proxyIdentifierState: TextFieldState,
     proxyPasswordState: TextFieldState,
-    proxyState: LoginEmailState,
+    proxyState: AppLoginEmailState,
     apiProxyUrl: String?,
     modifier: Modifier = Modifier,
 ) {
@@ -413,7 +414,7 @@ private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: M
 
 @Composable
 internal fun LoginStateNavigationAndDialogs(
-    viewModel: LoginEmailViewModel,
+    viewModel: AppLoginEmailViewModel,
     onAction: (NewLoginPasswordScreenAction) -> Boolean,
 ) {
     val state = viewModel.loginState.flowState
@@ -449,7 +450,7 @@ internal fun LoginStateNavigationAndDialogs(
         }
     }
     LaunchedEffect(state) {
-        val isDomainClaimedByOrg = viewModel.loginNavArgs.loginPasswordPath?.isDomainClaimedByOrg
+        val isDomainClaimedByOrg = viewModel.domainClaimedByOrg
         val isStateCompleted = state is LoginState.Success<*> || state is LoginState.Error.TooManyDevicesError<*>
         if (isStateCompleted && isDomainClaimedByOrg is DomainClaimedByOrg.Claimed) {
             emailAlreadyInUseClaimedDomainDialogState.show(isDomainClaimedByOrg)

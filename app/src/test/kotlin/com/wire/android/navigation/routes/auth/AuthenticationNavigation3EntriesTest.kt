@@ -75,6 +75,13 @@ class AuthenticationNavigation3EntriesTest {
         val loginSsoHostFactory = sourceFile(
             "../../../ui/authentication/login/sso/LoginSSOViewModelHostFactory.kt"
         ).readText()
+        val loginEmailViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/login/email/LoginEmailViewModel.kt",
+        ).readText()
+        val loginEmailHostFactory = sourceFile(
+            "../../../ui/authentication/login/email/LoginEmailViewModelHostFactory.kt"
+        ).readText()
         val entries = sourceFile("AuthenticationNavigation3Entries.kt").readText()
 
         assertTrue(graph.contains("fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
@@ -83,6 +90,8 @@ class AuthenticationNavigation3EntriesTest {
         assertTrue(bindings.contains("NewLoginViewModel.Factory"))
         assertTrue(bindings.contains("LoginSSOViewModelHostFactory"))
         assertFalse(bindings.contains("LoginSSOViewModel.Factory"))
+        assertTrue(bindings.contains("LoginEmailViewModelHostFactory"))
+        assertFalse(bindings.contains("LoginEmailViewModel.Factory"))
         assertTrue(bindings.contains("welcomeFactory.create(navArgs)"))
         assertTrue(bindings.contains("newLoginFactory.create(loginNavArgs, extras.createSavedStateHandle())"))
         assertTrue(welcomeViewModel.contains("class WelcomeViewModel<LinksT>"))
@@ -91,6 +100,10 @@ class AuthenticationNavigation3EntriesTest {
         assertTrue(newLoginViewModel.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
         assertTrue(loginSsoViewModel.contains("class LoginSSOViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT>"))
         assertTrue(loginSsoHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
+        assertTrue(loginEmailViewModel.contains("class LoginEmailViewModel<LinksT, FailureT, UserT, ScopeT, SessionT, BackendRequestT, DomainClaimT>"))
+        assertFalse(loginEmailViewModel.contains("LoginNavArgs"))
+        assertFalse(loginEmailViewModel.contains("ServerConfig"))
+        assertTrue(loginEmailHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
         assertTrue(entries.contains("welcomeViewModel(route.toLegacyNavArgs(), flowOwner)"))
         assertTrue(entries.contains("newLoginViewModel(legacyArgs, flowOwner)"))
         assertTrue(entries.contains("WireViewModelOwner.Flow(route.flowId)"))

@@ -54,7 +54,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 fun ProxyScreen(
     proxyIdentifierState: TextFieldState,
     proxyPasswordState: TextFieldState,
-    proxyState: LoginEmailState,
+    proxyState: AppLoginEmailState,
     apiProxyUrl: String?,
     modifier: Modifier = Modifier,
 ) {

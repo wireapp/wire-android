@@ -93,7 +93,7 @@ import kotlinx.coroutines.launch
 fun LoginEmailScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
     onRemoveDeviceNeeded: (UserId) -> Unit,
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState(),
     fillMaxHeight: Boolean = true,
 ) {
@@ -118,7 +118,7 @@ fun LoginEmailScreen(
 
     LoginEmailStateNavigationAndDialogs(
         state = loginEmailViewModel.loginState.flowState,
-        domainClaimedByOrg = loginEmailViewModel.loginNavArgs.loginPasswordPath?.isDomainClaimedByOrg,
+        domainClaimedByOrg = loginEmailViewModel.domainClaimedByOrg,
         onClearLoginErrors = loginEmailViewModel::clearLoginErrors,
         onSuccess = onSuccess,
         onRemoveDeviceNeeded = onRemoveDeviceNeeded,
@@ -133,7 +133,7 @@ private fun LoginEmailContent(
     passwordTextState: TextFieldState,
     proxyIdentifierState: TextFieldState,
     proxyPasswordState: TextFieldState,
-    loginEmailState: LoginEmailState,
+    loginEmailState: AppLoginEmailState,
     isProxyAuthRequired: Boolean,
     apiProxyUrl: String?,
     onLoginButtonClick: () -> Unit,
@@ -289,7 +289,7 @@ private fun LoginEmailStateNavigationAndDialogs(
 }
 
 @Composable
-private fun userIdentifierInputState(loginEmailState: LoginEmailState): WireTextFieldState = when {
+private fun userIdentifierInputState(loginEmailState: AppLoginEmailState): WireTextFieldState = when {
     !loginEmailState.userIdentifierEnabled -> WireTextFieldState.Disabled
     loginEmailState.flowState is LoginState.Error.TextFieldError.InvalidValue ->
         WireTextFieldState.Error(stringResource(R.string.login_error_invalid_user_identifier))

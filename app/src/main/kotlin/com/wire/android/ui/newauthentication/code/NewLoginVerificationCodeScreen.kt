@@ -31,7 +31,7 @@ import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.LoginButton
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.verificationcode.VerificationCode
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.dimensions
@@ -47,7 +47,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 internal fun NewLoginVerificationCodeRouteScreen(
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     canNavigateBack: Boolean,
     onNavigateBack: () -> Unit,
 ) {

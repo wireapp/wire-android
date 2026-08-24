@@ -969,7 +969,7 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceVerific
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -990,7 +990,7 @@ public fun com.wire.android.ui.authentication.login.LoginErrorDialog(dialogError
     - onDialogDismiss: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.authentication.login.LoginRouteScreen(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.login.LoginRouteScreen(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>, onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1001,7 +1001,7 @@ internal fun com.wire.android.ui.authentication.login.LoginRouteScreen(loginNavA
     - onRemoveDeviceNeeded: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1043,7 +1043,7 @@ public fun com.wire.android.ui.authentication.login.email.LoginButton(loading: k
     - onClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scrollState: androidx.compose.foundation.ScrollState, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState, isProxyAuthRequired: kotlin.Boolean, apiProxyUrl: kotlin.String?, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, forgotPasswordUrl: kotlin.String, scope: kotlinx.coroutines.CoroutineScope, fillMaxHeight: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scrollState: androidx.compose.foundation.ScrollState, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState<com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID>, isProxyAuthRequired: kotlin.Boolean, apiProxyUrl: kotlin.String?, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, forgotPasswordUrl: kotlin.String, scope: kotlinx.coroutines.CoroutineScope, fillMaxHeight: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1061,7 +1061,7 @@ private fun com.wire.android.ui.authentication.login.email.LoginEmailContent(scr
     - fillMaxHeight: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.email.LoginEmailScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, scrollState: androidx.compose.foundation.ScrollState, fillMaxHeight: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.email.LoginEmailScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>, scrollState: androidx.compose.foundation.ScrollState, fillMaxHeight: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1083,7 +1083,7 @@ private fun com.wire.android.ui.authentication.login.email.LoginEmailStateNaviga
     - onRemoveDeviceNeeded: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen(viewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen(viewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1116,7 +1116,7 @@ public fun com.wire.android.ui.authentication.login.email.ProxyPasswordInput(pro
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.email.ProxyScreen(proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, proxyState: com.wire.android.ui.authentication.login.email.LoginEmailState, apiProxyUrl: kotlin.String?, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.email.ProxyScreen(proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, proxyState: com.wire.android.ui.authentication.login.email.LoginEmailState<com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID>, apiProxyUrl: kotlin.String?, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -1136,7 +1136,7 @@ private fun com.wire.android.ui.authentication.login.email.UserIdentifierInput(u
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.email.userIdentifierInputState(loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState): com.wire.android.ui.common.textfield.WireTextFieldState
+private fun com.wire.android.ui.authentication.login.email.userIdentifierInputState(loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState<com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID>): com.wire.android.ui.common.textfield.WireTextFieldState
   skippable: true
   restartable: true
   params:
@@ -1211,7 +1211,7 @@ public fun com.wire.android.ui.authentication.login.toLoginDialogErrorData(): co
   params:
 
 @Composable
-public fun com.wire.android.ui.authentication.loginEmailViewModel(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.login.email.LoginEmailViewModel
+public fun com.wire.android.ui.authentication.loginEmailViewModel(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>
   skippable: false
   restartable: true
   params:
@@ -10606,7 +10606,7 @@ private fun com.wire.android.ui.newauthentication.login.code.LoginVerificationCo
     - navigateBack: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.newauthentication.login.code.NewLoginVerificationCodeRouteScreen(loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, canNavigateBack: kotlin.Boolean, onNavigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.newauthentication.login.code.NewLoginVerificationCodeRouteScreen(loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>, canNavigateBack: kotlin.Boolean, onNavigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -10633,7 +10633,7 @@ public fun com.wire.android.ui.newauthentication.login.password.EmailInput(userI
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.ui.newauthentication.login.password.LoginPasswordContent(serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, onCreateAccount: kotlin.Function0<kotlin.Unit>, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>, isCloudAccountCreationPossible: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.ui.newauthentication.login.password.LoginPasswordContent(serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, userIdentifierTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, loginEmailState: com.wire.android.ui.authentication.login.email.LoginEmailState<com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, onCreateAccount: kotlin.Function0<kotlin.Unit>, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>, isCloudAccountCreationPossible: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -10650,7 +10650,7 @@ internal fun com.wire.android.ui.newauthentication.login.password.LoginPasswordC
     - isCloudAccountCreationPossible: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.ui.newauthentication.login.password.LoginStateNavigationAndDialogs(viewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, onAction: kotlin.Function1<com.wire.android.ui.newauthentication.login.password.NewLoginPasswordScreenAction, kotlin.Boolean>): kotlin.Unit
+internal fun com.wire.android.ui.newauthentication.login.password.LoginStateNavigationAndDialogs(viewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>, onAction: kotlin.Function1<com.wire.android.ui.newauthentication.login.password.NewLoginPasswordScreenAction, kotlin.Boolean>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -10658,7 +10658,7 @@ internal fun com.wire.android.ui.newauthentication.login.password.LoginStateNavi
     - onAction: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.newauthentication.login.password.NewLoginPasswordRouteScreen(navArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, canNavigateBack: kotlin.Boolean, onAction: kotlin.Function1<com.wire.android.ui.newauthentication.login.password.NewLoginPasswordScreenAction, kotlin.Boolean>): kotlin.Unit
+internal fun com.wire.android.ui.newauthentication.login.password.NewLoginPasswordRouteScreen(navArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.feature.auth.AuthenticationScope, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String, com.wire.android.ui.authentication.login.DomainClaimedByOrg>, canNavigateBack: kotlin.Boolean, onAction: kotlin.Function1<com.wire.android.ui.newauthentication.login.password.NewLoginPasswordScreenAction, kotlin.Boolean>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -10677,7 +10677,7 @@ public fun com.wire.android.ui.newauthentication.login.password.PasswordInput(pa
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.newauthentication.login.password.ProxyContent(proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, proxyState: com.wire.android.ui.authentication.login.email.LoginEmailState, apiProxyUrl: kotlin.String?, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+private fun com.wire.android.ui.newauthentication.login.password.ProxyContent(proxyIdentifierState: androidx.compose.foundation.text.input.TextFieldState, proxyPasswordState: androidx.compose.foundation.text.input.TextFieldState, proxyState: com.wire.android.ui.authentication.login.email.LoginEmailState<com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID>, apiProxyUrl: kotlin.String?, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:

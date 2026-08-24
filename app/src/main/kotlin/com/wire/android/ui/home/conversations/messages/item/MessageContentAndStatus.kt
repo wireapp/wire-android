@@ -80,6 +80,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     conversationDetailsData: ConversationDetailsData,
     accent: Accent = Accent.Unknown,
 ) {
+    val stableMessageContent = messageContent
     val conversationAssetPathsViewModel = when {
         LocalInspectionMode.current -> ConversationAssetPathsViewModelPreview
         else -> conversationAssetPathsViewModel(
@@ -114,7 +115,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
         Column(Modifier.applyIf(!messageStyle.isBubble()) { weight(1F) }) {
             MessageContent(
                 message = message,
-                messageContent = messageContent,
+                messageContent = stableMessageContent,
                 searchQuery = searchQuery,
                 assetStatus = assetStatus,
                 onAssetClick = onAssetClickable,
@@ -129,8 +130,8 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 conversationAssetPathsViewModel = conversationAssetPathsViewModel
             )
             if (!messageStyle.isBubble()) {
-                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
-                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                if (stableMessageContent is PartialDeliverable && stableMessageContent.deliveryStatus.hasAnyFailures) {
+                    PartialDeliveryInformation(stableMessageContent.deliveryStatus, messageStyle)
                 }
             }
         }

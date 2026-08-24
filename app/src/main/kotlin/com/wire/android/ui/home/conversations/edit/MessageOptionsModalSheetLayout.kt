@@ -192,20 +192,20 @@ private fun MessageOptionsModalContent(
             },
             onEditClick = remember(message.header.messageId, message.messageContent) {
                 {
-                    when (message.messageContent) {
+                    when (val messageContent = message.messageContent) {
                         is UIMessageContent.TextMessage ->
                             sheetState.hide {
                                 onEditClick(
                                     message.header.messageId,
-                                    message.messageContent.messageBody.message.asString(context.resources),
-                                    (message.messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf(),
+                                    messageContent.messageBody.message.asString(context.resources),
+                                    (messageContent.messageBody.message as? UIText.DynamicString)?.mentions ?: listOf(),
                                     false,
                                 )
                             }
 
                         is UIMessageContent.Multipart ->
                             sheetState.hide {
-                                with(message.messageContent.messageBody) {
+                                with(messageContent.messageBody) {
                                     onEditClick(
                                         message.header.messageId,
                                         this?.message?.asString(context.resources) ?: "",

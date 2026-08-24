@@ -30,7 +30,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.markdown.MarkdownNode
 import com.wire.android.ui.markdown.MarkdownPreview
 import com.wire.android.ui.theme.Accent
@@ -320,7 +319,7 @@ sealed interface UILastMessageContent {
     data class SenderWithMessage(
         val sender: UIText,
         val message: UIText,
-        val separator: String = MarkdownConstants.NON_BREAKING_SPACE,
+        val separator: String = MESSAGE_PREVIEW_NON_BREAKING_SPACE,
         @Transient
         val markdownPreview: MarkdownPreview? = null,
         @Transient
@@ -330,7 +329,7 @@ sealed interface UILastMessageContent {
     @Serializable
     data class MultipleMessage(
         val messages: List<UIText>,
-        val separator: String = MarkdownConstants.NON_BREAKING_SPACE
+        val separator: String = MESSAGE_PREVIEW_NON_BREAKING_SPACE
     ) : UILastMessageContent
 
     @Serializable
@@ -716,5 +715,7 @@ data class MessageButton(
 )
 
 const val DEFAULT_LOCATION_ZOOM = 20
+
+private const val MESSAGE_PREVIEW_NON_BREAKING_SPACE = "&nbsp;"
 
 fun UIMessageContent.isEditable() = this is UIMessageContent.TextMessage || this is UIMessageContent.Multipart

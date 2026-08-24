@@ -181,6 +181,27 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun uiMessageModelClosureIsFeatureOwnedWithoutTheAppMarkdownParser() {
+        val uiMessageSource = featureSource(uiMessageRelativePath)
+        val uiQuotedMessageSource = featureSource(uiQuotedMessageRelativePath)
+
+        assertTrue(uiMessageSource.contains("package com.wire.android.ui.home.conversations.model"))
+        assertTrue(uiQuotedMessageSource.contains("package com.wire.android.ui.home.conversations.model"))
+        assertTrue(uiMessageSource.contains("sealed interface UIMessage"))
+        assertTrue(uiMessageSource.contains("val quotedMessage: UIQuotedMessage? = null"))
+        assertTrue(uiQuotedMessageSource.contains("sealed class UIQuotedMessage"))
+        assertTrue(uiQuotedMessageSource.contains("fun UIMessage.Regular.mapToQuotedContent()"))
+        assertFalse(uiMessageSource.contains("com.wire.android.ui.markdown.MarkdownConstants"))
+        assertFalse(uiMessageSource.contains("org.commonmark"))
+        assertFalse(uiQuotedMessageSource.contains("org.commonmark"))
+        assertFalse(featureBuildScriptText().contains("commonmark"))
+        assertTrue(uiMessageSource.contains("private const val MESSAGE_PREVIEW_NON_BREAKING_SPACE = \"&nbsp;\""))
+        legacyUiMessageModelPaths.forEach { relativePath ->
+            assertFalse(File(Konsist.projectRootPath, relativePath).exists(), "$relativePath must be absent.")
+        }
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -766,11 +787,19 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/util/Copyable.kt"
         const val markdownNodeRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/markdown/MarkdownNode.kt"
+        const val uiMessageRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIMessage.kt"
+        const val uiQuotedMessageRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIQuotedMessage.kt"
         val legacyMessagePresentationPrimitivePaths = listOf(
             "app/src/main/kotlin/com/wire/android/mapper/MessageDateGroupingMapper.kt",
             "app/src/main/kotlin/com/wire/android/util/Copyable.kt",
             "app/src/main/kotlin/com/wire/android/ui/markdown/MarkdownNode.kt",
             "app/src/test/kotlin/com/wire/android/mapper/MessageDateGroupingMapperTest.kt",
+        )
+        val legacyUiMessageModelPaths = listOf(
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIMessage.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIQuotedMessage.kt",
         )
         val messageDateGroupingImports = setOf(
             "java.time.LocalDate",
@@ -1280,6 +1309,10 @@ class ConversationModuleBoundaryTest {
                     "SearchConversationMessagesNavArgs.kt" to
                     "com.wire.android.ui.home.conversations.search.messages",
         )
+        val uiMessageModelSources = mapOf(
+            uiMessageRelativePath to "com.wire.android.ui.home.conversations.model",
+            uiQuotedMessageRelativePath to "com.wire.android.ui.home.conversations.model",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -1297,7 +1330,7 @@ class ConversationModuleBoundaryTest {
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
-                    conversationMediaSearchArgumentSources
+                    conversationMediaSearchArgumentSources + uiMessageModelSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -1311,6 +1344,9 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.di.wireManualMetroViewModelScoped",
             "com.wire.android.appLogger",
             "com.wire.android.feature.conversation.R",
+            "com.wire.android.mapper.MessageDateTimeGroup",
+            "com.wire.android.mapper.groupedUIMessageDateTime",
+            "com.wire.android.mapper.shouldDisplayDatesDifferenceDivider",
             "com.wire.android.feature.conversation.config.LocalConversationHostConfiguration",
             "com.wire.android.feature.conversation.config.ConversationHostConfiguration",
             "com.wire.android.mapper.UIParticipantMapper",
@@ -1413,7 +1449,12 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesViewModel",
             "com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs",
             "com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration",
+            "com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams",
             "com.wire.android.ui.home.messagecomposer.SelfDeletionDuration",
+            "com.wire.android.ui.markdown.MarkdownNode",
+            "com.wire.android.ui.markdown.MarkdownPreview",
+            "com.wire.android.ui.theme.Accent",
+            "com.wire.android.util.Copyable",
             "com.wire.android.ui.home.conversations.name",
             "com.wire.android.ui.home.conversations.previewAsset",
             "com.wire.android.ui.home.conversations.userId",
@@ -1430,6 +1471,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.util.ui.FolderType",
             "com.wire.android.util.ui.UIText",
             "com.wire.android.util.ui.toUIText",
+            "com.wire.android.util.uiMessageDateTime",
             "com.wire.android.util.ui.sectionWithElements",
             "com.wire.android.util.uiReadReceiptDateTime",
             "dev.zacsweers.metro.Inject",

@@ -55,6 +55,7 @@ fun RegularMessageItem(
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
+    val stableMessageContent = messageContent
     val messageStyle = when {
         !isBubbleUiEnabled -> MessageStyle.NORMAL
         message.isMyMessage -> MessageStyle.BUBBLE_SELF
@@ -146,9 +147,9 @@ fun RegularMessageItem(
                     }
                 }
 
-                messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures -> {
+                stableMessageContent is PartialDeliverable && stableMessageContent.deliveryStatus.hasAnyFailures -> {
                     {
-                        PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                        PartialDeliveryInformation(stableMessageContent.deliveryStatus, messageStyle)
                     }
                 }
 

@@ -177,7 +177,6 @@ class ConversationMessageResourceOwnershipTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageExpirationItems.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/preview/PreviewMessageTypes.kt",
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIMessage.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/ConversationItemFactory.kt",
             "app/src/test/kotlin/com/wire/android/mapper/MessagePreviewContentMapperTest.kt",
             "app/src/test/kotlin/com/wire/android/ui/home/conversations/messages/draft/MessageDraftViewModelTest.kt",

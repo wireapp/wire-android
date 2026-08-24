@@ -149,9 +149,9 @@ fun MessageBubbleItem(
 
                 val bubbleWidthMod = when {
                     !message.decryptionFailed -> {
-                        when (message.messageContent) {
+                        when (val messageContent = message.messageContent) {
                             is UIMessageContent.VideoMessage -> {
-                                val normalizedSize = message.messageContent.params.normalizedSize(
+                                val normalizedSize = messageContent.params.normalizedSize(
                                     maxBounds = MaxBounds.ScreenFraction(
                                         maxWFraction = dimensions().messageVisualMaxFractionWidth,
                                         maxHFraction = dimensions().messageVisualMaxFractionHeight
@@ -161,7 +161,7 @@ fun MessageBubbleItem(
                             }
 
                             is UIMessageContent.ImageMessage -> {
-                                val normalizedSize = message.messageContent.params.normalizedSize(
+                                val normalizedSize = messageContent.params.normalizedSize(
                                     maxBounds = MaxBounds.ScreenFraction(
                                         maxWFraction = dimensions().messageVisualMaxFractionWidth,
                                         maxHFraction = dimensions().messageVisualMaxFractionHeight

@@ -197,4 +197,6 @@
     <string name="guest_link_button_copy_link">Copiar Link</string>
     <string name="guest_link_button_share_link">Compartilhar Link</string>
     <string name="guest_link_button_revoke_link">Revogar Link</string>
+    <string name="label_conversation_pictures_empty">Ninguém compartilhou fotos nesta conversa ainda 🥲</string>
+    <string name="label_conversation_files_empty">Ninguém compartilhou arquivos nesta conversa ainda 🙀</string>
 </resources>

@@ -202,4 +202,6 @@
     <string name="guest_link_button_copy_link">Vendég-link másolása</string>
     <string name="guest_link_button_share_link">Vendég-link megosztása</string>
     <string name="guest_link_button_revoke_link">Vendég-link visszavonása</string>
+    <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
+    <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
 </resources>

@@ -947,7 +947,7 @@ class ConversationModuleBoundaryTest {
             25,
             featureResources.listFiles().orEmpty().count { it.isDirectory && it.name.startsWith("values") },
         )
-        assertEquals(992, featureDefinitions.size)
+        assertEquals(1006, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -1506,6 +1506,7 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/Buttons.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/" +
                     "GuestLinkActionButtons.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/media/EmptyMediaContentScreen.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/" +
                     "RecordAudioInfoMessageType.kt",
         )
@@ -1875,6 +1876,9 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/" +
                     "GuestLinkActionButtons.kt" to
                     "com.wire.android.ui.home.conversations.details.editguestaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/media/" +
+                    "EmptyMediaContentScreen.kt" to
+                    "com.wire.android.ui.home.conversations.media",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/" +
                     "RecordAudioInfoMessageType.kt" to
                     "com.wire.android.ui.home.messagecomposer.recordaudio",

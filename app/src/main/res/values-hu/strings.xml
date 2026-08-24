@@ -703,8 +703,6 @@
     <!-- Conversation Media -->
     <string name="label_conversation_media">Média</string>
     <string name="label_conversation_pictures">Képek</string>
-    <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
-    <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
     <string name="label_new_group">Új csoport</string>
     <string name="label_new_channel">Új csatorna</string>
     <string name="label_create_new_group">Új csoport</string>

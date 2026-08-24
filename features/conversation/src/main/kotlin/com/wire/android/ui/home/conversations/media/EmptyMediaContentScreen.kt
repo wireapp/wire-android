@@ -31,11 +31,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun EmptyMediaContentScreen(
@@ -60,22 +60,22 @@ fun EmptyMediaContentScreen(
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewAssetEmptyMediaContentScreen() {
     WireTheme {
         EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_files_empty)
+            text = stringResource(conversationR.string.label_conversation_files_empty)
         )
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewPictureEmptyMediaContentScreen() {
     WireTheme {
         EmptyMediaContentScreen(
-            text = stringResource(R.string.label_conversation_pictures_empty)
+            text = stringResource(conversationR.string.label_conversation_pictures_empty)
         )
     }
 }

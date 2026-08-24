@@ -667,8 +667,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Mídia</string>
     <string name="label_conversation_pictures">Imagens</string>
-    <string name="label_conversation_pictures_empty">Ninguém compartilhou fotos nesta conversa ainda 🥲</string>
-    <string name="label_conversation_files_empty">Ninguém compartilhou arquivos nesta conversa ainda 🙀</string>
     <string name="label_new_group">Novo Grupo</string>
     <string name="label_new_channel">Novo Canal</string>
     <string name="label_create_new_group">Novo Grupo</string>

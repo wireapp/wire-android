@@ -837,8 +837,6 @@
     <string name="label_conversation_pictures">Bilder</string>
     <string name="label_conversation_files">Dateien</string>
     <string name="content_description_see_shared_drive_in_conversation_btn">Geteiltes Drive öffnen</string>
-    <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
-    <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
     <string name="conversation_search_files_button">Dateien suchen</string>
     <string name="label_new_group">Neue Gruppe</string>
     <string name="label_new_channel">Neuer Channel</string>

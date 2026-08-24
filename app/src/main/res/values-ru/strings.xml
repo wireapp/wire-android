@@ -870,8 +870,6 @@
     <string name="label_conversation_pictures">Изображения</string>
     <string name="label_conversation_files">Файлы</string>
     <string name="content_description_see_shared_drive_in_conversation_btn">Открыть общий диск</string>
-    <string name="label_conversation_pictures_empty">Никто не делился фотографиями в этой беседе 🥲</string>
-    <string name="label_conversation_files_empty">Никто не делился файлами в этой беседе 🙀</string>
     <string name="conversation_search_files_button">Поиск файлов</string>
     <string name="label_new_group">Новая группа</string>
     <string name="label_new_channel">Новый канал</string>

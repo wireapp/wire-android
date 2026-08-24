@@ -202,4 +202,6 @@
     <string name="guest_link_button_copy_link">සබැඳියේ පිටපතක්</string>
     <string name="guest_link_button_share_link">සබැඳිය බෙදාගන්න</string>
     <string name="guest_link_button_revoke_link">සබැඳිය අහෝසිය</string>
+    <string name="label_conversation_pictures_empty">කිසිවෙක් මෙම සංවාදයෙහි ඡායාරූප බෙදාගෙන නැත 🥲</string>
+    <string name="label_conversation_files_empty">කිසිවෙක් මෙම සංවාදයෙහි ගොනු බෙදාගෙන නැත 🙀</string>
 </resources>

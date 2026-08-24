@@ -522,8 +522,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Multimedia</string>
     <string name="label_conversation_pictures">Immagini</string>
-    <string name="label_conversation_pictures_empty">Nessuno ha ancora condiviso immagini in questa conversazione 🥲</string>
-    <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
     <string name="label_new_group">Nuovo Gruppo</string>
     <!-- Search Channels -->
     <string name="label_new_conversation">Nuova Conversazione</string>

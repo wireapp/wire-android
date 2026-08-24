@@ -241,4 +241,6 @@
     <string name="guest_link_button_copy_link">Link kopieren</string>
     <string name="guest_link_button_share_link">Link teilen</string>
     <string name="guest_link_button_revoke_link">Link widerrufen</string>
+    <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
+    <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
 </resources>

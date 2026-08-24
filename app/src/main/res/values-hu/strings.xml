@@ -1202,15 +1202,11 @@ Kérjük, próbálja meg újra.</string>
     <string name="label_shared_multiple_assets_error">Távolítsa el a jelölt állományokat, és próbálja újra</string>
     <string name="label_file_saved_to_device">A fájl mentve az eszközére.</string>
     <!-- Expiring messages -->
-    <string name="self_deleting_message_time_left">Önmegsemmisítő üzenet • %1$s</string>
     <string name="self_deleting_message_label">Önmegsemmisítő üzenet</string>
     <string name="self_deleting_messages_team_setting_disabled">Önmegsemmisítő üzenetek letiltva.</string>
     <string name="self_deleting_messages_team_setting_enabled">Önmegsemmisítő üzenetek engedélyezve. Beállíthat időzítőt az üzenet írása előtt.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Az önmegsemmisítő üzenetek kötelezőek. Az új üzenetek törlik magukat %1$s után.</string>
     <string name="automatically_delete_message_after">Automatikusan törölje az üzenetet ennyi idő múlva:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Miután egy résztvevő látta az Ön üzenetét, és az időzítő lejárt nála, ez a bejegyzés eltűnik.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Miután %1$s látta az Ön üzenetét, és az időzítő lejárt nála, ez a bejegyzés eltűnik.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">Amint Ön online lesz, ez a megjegyzés eltűnik.</string>
     <string name="label_debug_data">Hibakeresési információ</string>
     <string name="title_internal_debugging">Belső hibakeresés</string>
     <string name="label_log_options_description">"Ez helyileg tárolja az anonimizált hibaelhárítási információkat. "</string>

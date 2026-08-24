@@ -245,4 +245,8 @@
     <string name="content_description_message_sending_status">Статус отправки сообщения</string>
     <string name="content_description_message_delivered_status">Статус доставки сообщения</string>
     <string name="content_description_message_read_status">Статус прочтения сообщения</string>
+    <string name="self_deleting_message_time_left">Самоудаляющееся сообщение • %1$s</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">После того как один из участников просмотрит ваше сообщение и таймер на его стороне истечет, эта заметка исчезнет.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">После того как %1$s просмотрит ваше сообщение и таймер на его стороне истечет, эта заметка исчезнет.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">После подключения к сети эта заметка исчезает.</string>
 </resources>

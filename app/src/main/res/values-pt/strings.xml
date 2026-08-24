@@ -1146,15 +1146,11 @@ registrado. Tente novamente.</string>
     <string name="label_shared_multiple_assets_error">Remova todos os ativos marcados e tente novamente</string>
     <string name="label_file_saved_to_device">O arquivo foi salvo no seu dispositivo.</string>
     <!-- Expiring messages -->
-    <string name="self_deleting_message_time_left">Mensagem com auto-exclusão %1$s</string>
     <string name="self_deleting_message_label">Mensagem de auto-exclusão</string>
     <string name="self_deleting_messages_team_setting_disabled">A auto-exclusão de mensagens está desabilitada.</string>
     <string name="self_deleting_messages_team_setting_enabled">A auto-exclusão está habilitada. Você pode definir um temporizador antes de escrever uma mensagem.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">A auto-exclusão de mensagens agora é obrigatória. Novas mensagens serão excluídas automaticamente após %1$s.</string>
     <string name="automatically_delete_message_after">Excluir mensagem automaticamente após:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Depois que um participante tiver visto sua mensagem e o cronômetro tiver expirado do lado dele, essa nota desaparecerá.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Depois de %1$s ver sua mensagem e o temporizador expirar do lado dela, esta nota desaparece.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">Quando você estiver online, esta nota desaparece.</string>
     <string name="label_debug_data">Dados de depuração</string>
     <string name="title_internal_debugging">Depuração interna</string>
     <string name="label_log_options_description">"Isso armazena informações anônimas de solução de problemas localmente. "</string>

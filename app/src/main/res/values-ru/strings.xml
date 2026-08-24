@@ -1439,15 +1439,11 @@
     <string name="label_shared_multiple_assets_error">Удалить все отмеченные медиафайлы и повторить попытку</string>
     <string name="label_file_saved_to_device">Файл был сохранен на устройстве.</string>
     <!-- Expiring messages -->
-    <string name="self_deleting_message_time_left">Самоудаляющееся сообщение • %1$s</string>
     <string name="self_deleting_message_label">Самоудаляющееся сообщение</string>
     <string name="self_deleting_messages_team_setting_disabled">Самоудаляющиеся сообщения отключены.</string>
     <string name="self_deleting_messages_team_setting_enabled">Самоудаляющиеся сообщения включены. Перед написанием сообщения можно установить таймер.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Самоудаляющиеся сообщения теперь обязательны. Новые сообщения будут самоудаляться спустя %1$s.</string>
     <string name="automatically_delete_message_after">Автоматическое удаление сообщения спустя:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">После того как один из участников просмотрит ваше сообщение и таймер на его стороне истечет, эта заметка исчезнет.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">После того как %1$s просмотрит ваше сообщение и таймер на его стороне истечет, эта заметка исчезнет.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">После подключения к сети эта заметка исчезает.</string>
     <plurals name="months_long_label">
         <item quantity="one">1 мес.</item>
         <item quantity="few">%1$d мес.</item>

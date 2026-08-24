@@ -156,4 +156,8 @@
     <string name="content_description_message_sending_status">Stato di invio del messaggio</string>
     <string name="content_description_message_delivered_status">Stato messaggio consegnato</string>
     <string name="content_description_message_read_status">Stato messaggio letto</string>
+    <string name="self_deleting_message_time_left">Autodistruzione messaggi • %1$s</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Dopo che un partecipante ha visualizzato il tuo messaggio e il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Dopo che %1$s ha visto il tuo messaggio e che il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Una volta online, questa nota scompare.</string>
 </resources>

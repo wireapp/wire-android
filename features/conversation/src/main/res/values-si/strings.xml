@@ -167,4 +167,8 @@
     <string name="content_description_message_sending_status">පණවිඩය යවන තත්‍වය</string>
     <string name="content_description_message_delivered_status">බාරදුන් පණවිඩයේ තත්‍වය</string>
     <string name="content_description_message_read_status">පණවිඩය කියවූ තත්‍වය</string>
+    <string name="self_deleting_message_time_left">ඉබේ මැකෙන පණිවිඩය • %1$s</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">එක් සහභාගියෙක් ඔබගේ පණිවිඩය දැකීමෙන් පසුව සහ එම පාර්ශ්වයේ කාලය ඉකුත් වූ පසු, මෙම සටහන අතුරුදහන් වේ.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">%1$s ඔබගේ පණිවිඩය දැකීමෙන් පසුව සහ එම පාර්ශ්වයේ කාලය ඉකුත් වූ පසු, මෙම සටහන අතුරුදහන් වේ.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">ඔබ මාර්ගගත වූ විගස, මෙම සටහන අතුරුදහන් වේ.</string>
 </resources>

@@ -153,4 +153,7 @@
         <item quantity="other">Faltan %1$d segundos</item>
     </plurals>
     <string name="content_description_message_sending_status">Estado de envío del mensaje</string>
+    <string name="self_deleting_message_time_left">Mensaje con autoborrado • %1$s</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Una vez que un participante haya visto tu mensaje y su temporizador de éste haya finalizado, esta nota desaparecerá.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Después de que %1$s haya visto tu mensaje y el temporizador haya caducado en su lado, esta nota desaparecerá.</string>
 </resources>

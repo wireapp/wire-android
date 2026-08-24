@@ -201,4 +201,8 @@
     <string name="content_description_message_sending_status">Nachricht wird gesendet</string>
     <string name="content_description_message_delivered_status">Nachricht wurde zugestellt</string>
     <string name="content_description_message_read_status">Nachricht wurde gelesen</string>
+    <string name="self_deleting_message_time_left">Selbstlöschende Nachricht • %1$s</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Nachdem %1$s Ihre Nachricht gesehen hat und der Timer abgelaufen ist, verschwindet diese Notiz.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Sobald Sie online sind, verschwindet diese Notiz.</string>
 </resources>

@@ -34,7 +34,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.wire.android.R
 import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.colorsScheme
@@ -58,6 +57,7 @@ private const val DELETION_ICON_STROKE_WIDTH_FRACTION = 0.11f
 fun MessageBubbleEphemeralItem(
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
+    unknownUserName: String,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
 ) {
     with(message) {
@@ -66,6 +66,7 @@ fun MessageBubbleEphemeralItem(
                 EphemeralMessageExpiredLabel(
                     isSelfMessage = message.isMyMessage,
                     conversationDetailsData = conversationDetailsData,
+                    unknownUserName = unknownUserName,
                     color = if (source == MessageSource.Self) {
                         MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(
                             header.accent,
@@ -182,6 +183,7 @@ private fun SelfDeletionTimerIcon(
 fun MessageStatusAndExpireTimer(
     message: UIMessage.Regular,
     conversationDetailsData: ConversationDetailsData,
+    unknownUserName: String,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
 ) {
     with(message) {
@@ -193,7 +195,8 @@ fun MessageStatusAndExpireTimer(
             if (isDeleted) {
                 EphemeralMessageExpiredLabel(
                     isSelfMessage = isMyMessage,
-                    conversationDetailsData = conversationDetailsData
+                    conversationDetailsData = conversationDetailsData,
+                    unknownUserName = unknownUserName,
                 )
             }
         } else {
@@ -213,21 +216,22 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
 private fun EphemeralMessageExpiredLabel(
     isSelfMessage: Boolean,
     conversationDetailsData: ConversationDetailsData,
+    unknownUserName: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified
 ) {
 
     val stringResource = if (!isSelfMessage) {
-        stringResource(id = R.string.label_information_waiting_for_deleation_when_self_not_sender)
+        stringResource(id = conversationR.string.label_information_waiting_for_deleation_when_self_not_sender)
     } else if (conversationDetailsData is ConversationDetailsData.OneOne) {
         conversationDetailsData.otherUserName?.let { otherUserName ->
             stringResource(
-                R.string.label_information_waiting_for_recipient_timer_to_expire_one_to_one,
+                conversationR.string.label_information_waiting_for_recipient_timer_to_expire_one_to_one,
                 otherUserName
             )
-        } ?: stringResource(id = R.string.unknown_user_name)
+        } ?: unknownUserName
     } else {
-        stringResource(R.string.label_information_waiting_for_recipient_timer_to_expire_group)
+        stringResource(conversationR.string.label_information_waiting_for_recipient_timer_to_expire_group)
     }
 
     Text(
@@ -248,7 +252,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
         is UIMessageContent.TextMessage -> {
             StatusBox(
                 statusText = stringResource(
-                    R.string.self_deleting_message_time_left,
+                    conversationR.string.self_deleting_message_time_left,
                     timeLeft
                 )
             )
@@ -259,7 +263,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
 
             StatusBox(
                 statusText = stringResource(
-                    R.string.self_deleting_message_time_left,
+                    conversationR.string.self_deleting_message_time_left,
                     context.resources.getQuantityString(
                         conversationR.plurals.seconds_left,
                         0,

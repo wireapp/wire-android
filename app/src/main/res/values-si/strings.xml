@@ -1211,15 +1211,11 @@
     <string name="label_shared_multiple_assets_error">සලකුණු කළ සියලු වත්කම් ඉවත් කර නැවත උත්සාහ කරන්න.</string>
     <string name="label_file_saved_to_device">ඔබගේ උපාංගයට ගොනුව සුරැකිණි.</string>
     <!-- Expiring messages -->
-    <string name="self_deleting_message_time_left">ඉබේ මැකෙන පණිවිඩය • %1$s</string>
     <string name="self_deleting_message_label">ඉබේ මැකෙන පණිවිඩය</string>
     <string name="self_deleting_messages_team_setting_disabled">පණිවිඩ ඉබේ මැකීම අබලයි.</string>
     <string name="self_deleting_messages_team_setting_enabled">ඉබේ මැකෙන පණිවිඩ සබලයි. පණිවිඩයක් ලිවීමට පෙර කාලය සැකසීමට හැකිය.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">ඉබේ මැකෙන පණිවිඩ දැන් අනිවාර්යයි. නව පණිවිඩ %1$s කට පසු ඉබේ මැකෙනු ඇත.</string>
     <string name="automatically_delete_message_after">මෙයින් පසුව පණිවිඩ මකන්න:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">එක් සහභාගියෙක් ඔබගේ පණිවිඩය දැකීමෙන් පසුව සහ එම පාර්ශ්වයේ කාලය ඉකුත් වූ පසු, මෙම සටහන අතුරුදහන් වේ.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">%1$s ඔබගේ පණිවිඩය දැකීමෙන් පසුව සහ එම පාර්ශ්වයේ කාලය ඉකුත් වූ පසු, මෙම සටහන අතුරුදහන් වේ.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">ඔබ මාර්ගගත වූ විගස, මෙම සටහන අතුරුදහන් වේ.</string>
     <string name="label_debug_data">නිදෝස්කරණ දත්ත</string>
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"මෙය නිර්නාමික දෝෂ නිරාකරණ තොරතුරු ස්ථානීයව ගබඩා කරයි. "</string>

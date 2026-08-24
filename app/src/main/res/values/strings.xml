@@ -1442,15 +1442,11 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_shared_multiple_assets_error">Remove all marked assets and try again</string>
     <string name="label_file_saved_to_device">The file was saved to your device.</string>
     <!-- Expiring messages -->
-    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
     <string name="self_deleting_message_label">Self-deleting message</string>
     <string name="self_deleting_messages_team_setting_disabled">Self-deleting messages are disabled.</string>
     <string name="self_deleting_messages_team_setting_enabled">Self-deleting messages are enabled. You can set a timer before writing a message.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">Self-deleting messages are now mandatory. New messages will self-delete after %1$s.</string>
     <string name="automatically_delete_message_after">Automatically delete message after:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
-    <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
     <plurals name="months_long_label">
         <item quantity="one">1 month</item>
         <item quantity="other">%1$d months</item>

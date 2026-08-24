@@ -164,4 +164,8 @@
     <string name="content_description_message_sending_status">Status de envio de mensagem</string>
     <string name="content_description_message_delivered_status">Estado de mensagem entregue</string>
     <string name="content_description_message_read_status">Status de leitura da mensagem</string>
+    <string name="self_deleting_message_time_left">Mensagem com auto-exclusão %1$s</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Depois que um participante tiver visto sua mensagem e o cronômetro tiver expirado do lado dele, essa nota desaparecerá.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Depois de %1$s ver sua mensagem e o temporizador expirar do lado dela, esta nota desaparece.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Quando você estiver online, esta nota desaparece.</string>
 </resources>

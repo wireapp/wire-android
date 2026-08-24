@@ -819,14 +819,11 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_shared_file_too_large">Solo puedes compartir archivos hasta %d MB.</string>
     <string name="label_file_saved_to_device">El archivo se guardó en tu dispositivo.</string>
     <!-- Expiring messages -->
-    <string name="self_deleting_message_time_left">Mensaje con autoborrado • %1$s</string>
     <string name="self_deleting_message_label">Mensaje con autoborrado</string>
     <string name="self_deleting_messages_team_setting_disabled">Los mensajes de auto-borrado están deshabilitados.</string>
     <string name="self_deleting_messages_team_setting_enabled">Los mensajes de auto-borrado están habilitados. Puedes configurar un temporizador antes de escribir un mensaje.</string>
     <string name="self_deleting_messages_team_setting_enabled_enforced_timeout">El modo auto-borrado para enviar mensajes es obligatorio ahora en tu cuenta. Los nuevos mensajes enviados se eliminarán automáticamente después de %1$s.</string>
     <string name="automatically_delete_message_after">Borrar el mensaje automáticamente después de:</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Una vez que un participante haya visto tu mensaje y su temporizador de éste haya finalizado, esta nota desaparecerá.</string>
-    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Después de que %1$s haya visto tu mensaje y el temporizador haya caducado en su lado, esta nota desaparecerá.</string>
     <string name="label_debug_data">Datos de depuración</string>
     <string name="title_internal_debugging">Depuración interna</string>
     <string name="label_log_options_description">"Esto almacena información anónima de solución de problemas localmente. "</string>

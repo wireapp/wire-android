@@ -167,4 +167,8 @@
     <string name="content_description_message_sending_status">Üzenet küldése állapot</string>
     <string name="content_description_message_delivered_status">Üzenet kézbesítve állapot</string>
     <string name="content_description_message_read_status">Üzenet olvasva állapot</string>
+    <string name="self_deleting_message_time_left">Önmegsemmisítő üzenet • %1$s</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">Miután egy résztvevő látta az Ön üzenetét, és az időzítő lejárt nála, ez a bejegyzés eltűnik.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Miután %1$s látta az Ön üzenetét, és az időzítő lejárt nála, ez a bejegyzés eltűnik.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Amint Ön online lesz, ez a megjegyzés eltűnik.</string>
 </resources>

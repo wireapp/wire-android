@@ -72,6 +72,7 @@ fun MessageContentItem(
                 MessageStatusAndExpireTimer(
                     message = message,
                     conversationDetailsData = conversationDetailsData,
+                    unknownUserName = stringResource(R.string.unknown_user_name),
                     selfDeletionTimerState = selfDeletionTimerState,
                 )
             }
@@ -81,6 +82,7 @@ fun MessageContentItem(
                     MessageBubbleEphemeralItem(
                         message = message,
                         conversationDetailsData = conversationDetailsData,
+                        unknownUserName = stringResource(R.string.unknown_user_name),
                         selfDeletionTimerState = selfDeletionTimerState
                     )
                 }

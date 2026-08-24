@@ -202,4 +202,8 @@
     <string name="content_description_message_sending_status">Message sending status</string>
     <string name="content_description_message_delivered_status">Message delivered status</string>
     <string name="content_description_message_read_status">Message read status</string>
+    <string name="self_deleting_message_time_left">Self-deleting message • %1$s</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_group">After one participant has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">After %1$s has seen your message and the timer has expired on their side, this note disappears.</string>
+    <string name="label_information_waiting_for_deleation_when_self_not_sender">Once you are online, this note disappears.</string>
 </resources>

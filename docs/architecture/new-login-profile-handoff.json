@@ -7,16 +7,16 @@
   ],
   "preserve": [
     {
-      "owner": "Lcom/ramcosta/composedestinations/generated/app/destinations/NewLoginVerificationCodeScreenDestination;",
-      "reason": "The app route facade and destination identity remain unchanged."
-    },
-    {
       "owner": "Lcom/wire/android/ui/newauthentication/login/NewLoginContainerKt;",
       "method": "NavigationBarBackground(Landroidx/compose/runtime/Composer;I)V",
       "reason": "The private function retains its source signature and owner."
     }
   ],
   "staleSelectors": [
+    {
+      "owner": "Lcom/ramcosta/composedestinations/generated/app/destinations/NewLoginVerificationCodeScreenDestination;",
+      "reason": "The generated destination was produced for the removed screen entry point; compile and inspect generated navigation output before preserving or replacing it."
+    },
     {
       "owner": "Lcom/wire/android/ui/newauthentication/login/ComposableSingletons$NewLoginContainerKt;",
       "reason": "The app previews were removed with the feature-owned container."

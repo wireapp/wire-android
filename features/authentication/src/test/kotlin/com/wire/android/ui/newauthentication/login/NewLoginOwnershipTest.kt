@@ -33,7 +33,11 @@ class NewLoginOwnershipTest {
         assertTrue(Files.exists(featureDirectory.resolve("NewLoginContainer.kt")))
         assertTrue(Files.exists(featureDirectory.resolve("NewLoginContent.kt")))
         assertTrue(Files.exists(featureDirectory.resolve("code/NewLoginVerificationCodeContent.kt")))
-        assertTrue(Files.exists(root.resolve("app/src/main/kotlin/$packagePath/code/NewLoginVerificationCodeScreen.kt")))
+        assertTrue(
+            Files.exists(
+                root.resolve("app/src/main/kotlin/com/wire/android/ui/newauthentication/code/NewLoginVerificationCodeScreen.kt")
+            )
+        )
         assertFalse(Files.exists(featureDirectory.resolve("code/NewLoginVerificationCodeScreen.kt")))
         assertTrue(Files.exists(featureDirectory.resolve("password/NewLoginPasswordContent.kt")))
         assertFalse(Files.exists(root.resolve("app/src/main/kotlin/$packagePath/NewLoginContainer.kt")))

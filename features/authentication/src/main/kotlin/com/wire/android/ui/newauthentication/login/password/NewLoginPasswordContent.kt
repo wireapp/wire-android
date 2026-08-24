@@ -89,10 +89,10 @@ fun NewLoginPasswordContent(
     passwordTextState: TextFieldState,
     proxyIdentifierState: TextFieldState,
     proxyPasswordState: TextFieldState,
-    modifier: Modifier = Modifier,
     onLoginButtonClick: () -> Unit,
     onCreateAccount: () -> Unit,
     onForgotPassword: () -> Unit,
+    modifier: Modifier = Modifier,
     header: @Composable () -> Unit,
 ) {
     NewAuthContainer(

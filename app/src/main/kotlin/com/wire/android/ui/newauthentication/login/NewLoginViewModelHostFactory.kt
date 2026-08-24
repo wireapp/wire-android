@@ -220,18 +220,21 @@ internal class KaliumNewLoginGateway(
         }
     }
 
-    @Suppress("ReturnCount")
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun restoreCryptoState(userId: UserId): NewLoginRestoreResult<CoreFailure> {
         val restoreResult = try {
             withContext(dispatchers.io()) { coreLogic.getSessionScope(userId).backup.restoreCryptoState() }
         } catch (exception: CancellationException) {
             throw exception
-        } catch (exception: IllegalStateException) {
-            return cryptoRestoreUnavailableAfterConcurrentLogout(userId, exception)
-        } catch (exception: IOException) {
-            return cryptoRestoreUnavailableAfterConcurrentLogout(userId, exception)
-        } catch (exception: SQLiteException) {
-            return cryptoRestoreUnavailableAfterConcurrentLogout(userId, exception)
+        } catch (exception: Exception) {
+            when (exception) {
+                is IllegalStateException, is IOException, is SQLiteException -> {
+                    if (isSessionStillValid(userId)) throw exception
+                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${exception.message}")
+                    return NewLoginRestoreResult.SessionUnavailable
+                }
+                else -> throw exception
+            }
         }
         return when (restoreResult) {
             RestoreCryptoStateResult.Success ->
@@ -244,18 +247,21 @@ internal class KaliumNewLoginGateway(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun revertSession(userId: UserId) {
         try {
             coreLogic.getSessionScope(userId).logout(LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
             coreLogic.getGlobalScope().deleteSession(userId)
         } catch (exception: CancellationException) {
             throw exception
-        } catch (exception: IllegalStateException) {
-            ignoreConcurrentLogout(userId, exception)
-        } catch (exception: IOException) {
-            ignoreConcurrentLogout(userId, exception)
-        } catch (exception: SQLiteException) {
-            ignoreConcurrentLogout(userId, exception)
+        } catch (exception: Exception) {
+            when (exception) {
+                is IllegalStateException, is IOException, is SQLiteException -> {
+                    if (isSessionStillValid(userId)) throw exception
+                    appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${exception.message}")
+                }
+                else -> throw exception
+            }
         }
     }
 
@@ -270,20 +276,6 @@ internal class KaliumNewLoginGateway(
     private suspend fun isSessionStillValid(userId: UserId): Boolean =
         (coreLogic.getGlobalScope().doesValidSessionExist(userId) as? DoesValidSessionExistResult.Success)
             ?.doesValidSessionExist == true
-
-    private suspend fun cryptoRestoreUnavailableAfterConcurrentLogout(
-        userId: UserId,
-        exception: Exception,
-    ): NewLoginRestoreResult<CoreFailure> {
-        if (isSessionStillValid(userId)) throw exception
-        appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${exception.message}")
-        return NewLoginRestoreResult.SessionUnavailable
-    }
-
-    private suspend fun ignoreConcurrentLogout(userId: UserId, exception: Exception) {
-        if (isSessionStillValid(userId)) throw exception
-        appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${exception.message}")
-    }
 
     private fun LoginRedirectPath.toFeatureResult(): NewLoginEnterpriseResult<ServerConfig.Links, CoreFailure> = when (this) {
         is LoginRedirectPath.SSO -> NewLoginEnterpriseResult.Sso(

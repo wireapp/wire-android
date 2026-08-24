@@ -85,6 +85,7 @@ import com.wire.android.util.SupportPage
 import com.wire.android.util.isHostValidForAnalytics
 import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
@@ -124,7 +125,7 @@ internal fun CreateAccountDataDetailRouteScreen(
             onTermsAccept = ::onTermsAccept,
             onBackPressed = onNavigateBack,
             onContinuePressed = ::onDetailsContinue,
-            onErrorDismiss = ::onDetailsErrorDismiss,
+            onErrorDismiss = ::onErrorDismiss,
             serverConfig = serverConfig
         )
     }
@@ -309,8 +310,9 @@ private fun AccountDetailsContent(
                     onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, tosUrl) }
                 )
             }
-            if (state.error is CreateAccountDataDetailViewState.DetailsError.DialogError.GenericError) {
-                CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+            val genericError = state.error as? CreateAccountDataDetailViewState.DetailsError.GenericError
+            if (genericError != null) {
+                CoreFailureErrorDialog(genericError.failure as CoreFailure, onErrorDismiss)
             }
         }
     )

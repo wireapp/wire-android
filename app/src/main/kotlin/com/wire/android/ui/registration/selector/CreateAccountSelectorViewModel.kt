@@ -17,11 +17,11 @@
  */
 package com.wire.android.ui.registration.selector
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorGateway
+import com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorInput
+import com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorViewModel
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -30,16 +30,14 @@ class CreateAccountSelectorViewModel @AssistedInject constructor(
     private val globalDataStore: GlobalDataStore,
     @Assisted val navArgs: CreateAccountSelectorNavArgs,
     defaultServerConfig: ServerConfig.Links
-) : ViewModel() {
+) : LegacyRegistrationSelectorViewModel<ServerConfig.Links>(
+    input = LegacyRegistrationSelectorInput(navArgs.customServerConfig, navArgs.email),
+    defaultServerConfig = defaultServerConfig,
+    gateway = LegacyRegistrationSelectorGateway { globalDataStore.setAnonymousRegistrationEnabled(it) },
+) {
     @AssistedFactory
     interface Factory {
         fun create(navArgs: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
     }
-    val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
-    val email: String = navArgs.email.orEmpty()
     val teamAccountCreationUrl = serverConfig.teams
-
-    fun onPageLoaded() = viewModelScope.launch {
-        globalDataStore.setAnonymousRegistrationEnabled(false)
-    }
 }

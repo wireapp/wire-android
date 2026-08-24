@@ -11,10 +11,17 @@ class LegacyAuthenticationPresentationStructureTest {
     @Test
     fun `backend adapter delegates presentation and keeps platform tags`() {
         val source = appSource("BackendConfigSetup.kt")
+        val content = featureSource("BackendConfigContent.kt")
         assertTrue(source.contains("BackendConfigFormContent("))
         assertTrue(source.contains("BackendConfigSuccessContent("))
         assertTrue(source.contains("backendConfigCameraButton"))
         assertTrue(source.contains("context::openBackendConfig"))
+        setOf(
+            "backendConfigInputField",
+            "backendConfigInput",
+            "backendConfigContinueButton",
+            "backendConfigSuccessContinueButton",
+        ).forEach { tag -> assertTrue(content.contains(tag), "Missing extracted tag: $tag") }
     }
 
     @Test
@@ -41,7 +48,11 @@ class LegacyAuthenticationPresentationStructureTest {
         Files.readString(repositoryRoot().resolve("app/src/main/kotlin/com/wire/android/ui/authentication/$relativePath"))
 
     private fun featureSource(relativePath: String): String =
-        Files.readString(repositoryRoot().resolve("features/authentication/src/main/kotlin/com/wire/android/ui/authentication/$relativePath"))
+        Files.readString(
+            repositoryRoot().resolve(
+                "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/$relativePath"
+            )
+        )
 
     private fun repositoryRoot(): Path =
         generateSequence(Path.of(System.getProperty("user.dir")).toAbsolutePath()) { it.parent }

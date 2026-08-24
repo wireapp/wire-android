@@ -312,6 +312,26 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun selfDeletionIconMetricsAndTheirTestsAreFeatureOwnedWithTheAppRendererSeam() {
+        val source = featureSource(deletionIconMetricsRelativePath)
+        val testSource = File(Konsist.projectRootPath, deletionIconMetricsTestRelativePath).readText()
+        val appRenderer = File(Konsist.projectRootPath, messageExpirationItemsRelativePath).readText()
+
+        assertTrue(source.contains("data class DeletionIconMetrics("))
+        assertTrue(source.contains("enum class QuantizeStrategy"))
+        assertTrue(source.contains("internal fun computeDeletionIconMetrics("))
+        assertTrue(source.contains("fun SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.iconMetrics("))
+        assertFalse(source.contains("START_ANGLE_TOP_DEG"))
+        assertFalse(source.contains("STROKE_WIDTH_FRACTION"))
+        assertTrue(appRenderer.contains("private const val DELETION_ICON_START_ANGLE_TOP_DEG = -90f"))
+        assertTrue(appRenderer.contains("private const val DELETION_ICON_STROKE_WIDTH_FRACTION = 0.11f"))
+        assertTrue(testSource.contains("class DeletionIconMetricsTest"))
+        assertEquals(7, Regex("@Test").findAll(testSource).count())
+        assertFalse(File(Konsist.projectRootPath, legacyDeletionIconMetricsRelativePath).exists())
+        assertFalse(File(Konsist.projectRootPath, legacyDeletionIconMetricsTestRelativePath).exists())
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -1044,6 +1064,16 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/MessageExpiration.kt"
         const val legacySelfDeletionTimerTestRelativePath =
             "app/src/test/kotlin/com/wire/android/SelfDeletionTimerTest.kt"
+        const val deletionIconMetricsRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/SelfDeletionTimerHelper.kt"
+        const val deletionIconMetricsTestRelativePath =
+            "features/conversation/src/test/kotlin/com/wire/android/ui/home/conversations/messages/DeletionIconMetricsTest.kt"
+        const val legacyDeletionIconMetricsRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/SelfDeletionTimerHelper.kt"
+        const val legacyDeletionIconMetricsTestRelativePath =
+            "app/src/test/kotlin/com/wire/android/ui/home/conversations/messages/DeletionIconMetricsTest.kt"
+        const val messageExpirationItemsRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageExpirationItems.kt"
         const val messageReactionsItemRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
         const val reactionPillRelativePath =

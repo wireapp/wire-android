@@ -50,6 +50,9 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 
+private const val DELETION_ICON_START_ANGLE_TOP_DEG = -90f
+private const val DELETION_ICON_STROKE_WIDTH_FRACTION = 0.11f
+
 @SuppressLint("ComposeModifierMissing")
 @Composable
 fun MessageBubbleEphemeralItem(
@@ -147,7 +150,7 @@ private fun SelfDeletionTimerIcon(
                 contentDescription = "Time left ${"%.0f".format(metrics.displayFractionLeft * 100)}%"
             }
     ) {
-        val strokePx = this.size.minDimension * STROKE_WIDTH_FRACTION
+        val strokePx = this.size.minDimension * DELETION_ICON_STROKE_WIDTH_FRACTION
         val insetPx = strokePx / 2f
 
         inset(insetPx, insetPx) {
@@ -160,7 +163,7 @@ private fun SelfDeletionTimerIcon(
             if (metrics.emptySweepDegrees > 0f) {
                 drawArc(
                     color = emptyColor,
-                    startAngle = START_ANGLE_TOP_DEG,
+                    startAngle = DELETION_ICON_START_ANGLE_TOP_DEG,
                     sweepAngle = metrics.emptySweepDegrees,
                     useCenter = true
                 )
@@ -168,7 +171,7 @@ private fun SelfDeletionTimerIcon(
 
             drawCircle(
                 color = filledColor,
-                style = Stroke(width = this.size.minDimension * STROKE_WIDTH_FRACTION)
+                style = Stroke(width = this.size.minDimension * DELETION_ICON_STROKE_WIDTH_FRACTION)
             )
         }
     }

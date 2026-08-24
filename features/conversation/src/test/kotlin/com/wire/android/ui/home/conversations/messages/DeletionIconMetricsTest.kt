@@ -19,8 +19,8 @@ package com.wire.android.ui.home.conversations.messages
 
 import com.wire.android.ui.home.conversations.messages.item.QuantizeStrategy
 import com.wire.android.ui.home.conversations.messages.item.computeDeletionIconMetrics
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class DeletionIconMetricsTest {
 

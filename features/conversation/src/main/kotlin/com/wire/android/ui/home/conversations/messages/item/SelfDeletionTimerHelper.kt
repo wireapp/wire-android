@@ -28,7 +28,7 @@ data class DeletionIconMetrics(
 
 enum class QuantizeStrategy { FLOOR, CEIL, NEAREST }
 
-fun computeDeletionIconMetrics(
+internal fun computeDeletionIconMetrics(
     fractionLeft: Float,
     backgroundAlpha: Float,
     discreteSteps: Int? = 8,
@@ -63,5 +63,3 @@ fun SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.iconMetrics(
     computeDeletionIconMetrics(fractionLeft, alphaBackgroundColor(), discreteSteps, strategy)
 
 private const val FULL_CIRCLE_DEGREES = 360f
-internal const val START_ANGLE_TOP_DEG = -90f
-internal const val STROKE_WIDTH_FRACTION = 0.11f

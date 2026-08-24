@@ -69,10 +69,24 @@ class CreateAccountDetailsOwnershipTest {
         val appScreen = Files.readString(
             root.resolve("app/src/main/kotlin/$packagePath/CreateAccountDetailsScreen.kt")
         )
+        val contentSignature = extractDelimited(
+            featureContent,
+            "fun <FailureT> CreateAccountDetailsContent",
+            '(',
+            ')',
+        ).normalizeWhitespace()
+        val contentSection = featureContent.substring(
+            featureContent.indexOf("fun <FailureT> CreateAccountDetailsContent"),
+            featureContent.indexOf("@MultipleThemePreviews"),
+        )
+        val scaffoldArguments = extractDelimited(contentSection, "WireScaffold", '(', ')').normalizeWhitespace()
 
         assertTrue(featureContent.contains("fun <FailureT> CreateAccountDetailsContent("))
-        assertTrue(featureContent.contains("modifier: Modifier = Modifier"))
-        assertTrue(Regex("""WireScaffold\(\s*modifier\s*=\s*modifier,""").containsMatchIn(featureContent))
+        assertTrue(contentSignature.contains("modifier: Modifier = Modifier"))
+        assertTrue(contentSignature.indexOf("modifier:") < contentSignature.indexOf("genericFailureContent:"))
+        assertTrue(contentSignature.endsWith("genericFailureContent: @Composable (FailureT, () -> Unit) -> Unit,"))
+        assertTrue(scaffoldArguments.startsWith("modifier = modifier,"))
+        assertEquals(1, Regex("""\bmodifier\s*=\s*modifier\b""").findAll(contentSection).count())
         assertTrue(featureContent.contains("showTeamName: Boolean"))
         assertTrue(featureContent.contains("if (showTeamName)"))
         assertTrue(featureContent.contains("firstNameFocusRequester.requestFocus()"))
@@ -139,6 +153,26 @@ class CreateAccountDetailsOwnershipTest {
         MessageDigest.getInstance("SHA-256")
             .digest(value.toByteArray(StandardCharsets.UTF_8))
             .joinToString("") { byte -> "%02x".format(byte) }
+
+    private fun extractDelimited(source: String, marker: String, opening: Char, closing: Char): String {
+        val markerIndex = source.indexOf(marker)
+        require(markerIndex >= 0) { "Missing marker: $marker" }
+        val openingIndex = source.indexOf(opening, markerIndex)
+        require(openingIndex >= 0) { "Missing '$opening' after marker: $marker" }
+        var depth = 0
+        for (index in openingIndex until source.length) {
+            when (source[index]) {
+                opening -> depth++
+                closing -> {
+                    depth--
+                    if (depth == 0) return source.substring(openingIndex + 1, index)
+                }
+            }
+        }
+        error("Missing '$closing' after marker: $marker")
+    }
+
+    private fun String.normalizeWhitespace(): String = replace(Regex("""\s+"""), " ").trim()
 
     private fun repositoryRoot(): Path =
         generateSequence(Path.of(System.getProperty("user.dir")).toAbsolutePath()) { it.parent }

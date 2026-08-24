@@ -78,8 +78,8 @@ fun <FailureT> CreateAccountDetailsContent(
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
     subtitleContent: @Composable ColumnScope.() -> Unit,
-    genericFailureContent: @Composable (FailureT, () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
+    genericFailureContent: @Composable (FailureT, () -> Unit) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     WireScaffold(

@@ -348,12 +348,9 @@
     <string name="label_quote_invalid_or_not_found">ඔබට මෙම පණිවිඩය දැකීමට නොහැකිය</string>
     <string name="label_quote_original_message_is_a_picture">ඡායාරූපය</string>
     <!-- Create Account -->
-    <string name="create_personal_account_email_text">වඩාත් ආරක්‍ෂිතම සහයෝගිත්‍ව වේදිකාව භාවිතයට වි-තැපැල් ලිපිනය යොදන්න.</string>
-    <string name="create_team_email_text">කණ්ඩායම සෑදීමට ඔබගේ වි-තැපෑල යොදන්න:</string>
     <string name="create_team_details_text">කණ්ඩායම සෑදීමට ඔබගේ වි-තැපෑල යොදන්න:</string>
     <string name="create_account_email_placeholder">කසුන්@නිදසුන.ලංකා</string>
     <string name="create_account_email_label">වි-තැපෑල</string>
-    <string name="create_account_email_footer_text">දැනටමත් ගිණුමක් තිබේද? </string>
     <string name="create_account_email_terms_dialog_title">භාවිත නියම</string>
     <string name="create_account_email_terms_dialog_text">ඉදිරියට එබීමෙන් ඔබ අපගේ භාවිත නියම සහ රහස්‍යතා ප්‍රතිපත්තියට එකඟ වේ.</string>
     <string name="create_account_email_terms_dialog_view_policy">භා.නි. හා රහස්‍යතා ප්‍රතිපත්තිය බලන්න</string>

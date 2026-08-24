@@ -224,7 +224,14 @@ class CreateAccountNavigation3HostTest {
         assertTrue(screen.contains("navArgs.copy("))
         assertTrue(screen.contains("UserRegistrationInfo("))
         assertTrue(screen.contains("email = emailTextState.text.trim().toString().lowercase()"))
+        assertTrue(screen.contains("CreateAccountEmailContent("))
+        assertTrue(screen.contains("CustomTabsHelper.launchUrl(context, tosUrl())"))
+        assertTrue(screen.contains("CustomTabsHelper.launchUrl(context, learnMoreUrl)"))
+        assertTrue(screen.contains("CoreFailureErrorDialog(failure, onDismiss)"))
+        assertFalse(screen.contains("WireScaffold("))
+        assertFalse(screen.contains("WireTextField("))
         assertTrue(featureSources.contains("class CreateAccountEmailViewModel<FlowT, LinksT, FailureT>"))
+        assertTrue(featureSources.contains("fun <FlowT, FailureT> CreateAccountEmailContent("))
         listOf(
             "CreateAccountNavArgs",
             "CreateAccountFlowType",

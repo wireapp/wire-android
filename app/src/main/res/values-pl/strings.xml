@@ -211,12 +211,9 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="label_quote_invalid_or_not_found">Nie mo&#380;esz zobaczy&#263; tej wiadomo&#347;ci</string>
     <string name="label_quote_original_message_is_a_picture">Zdj&#281;cie</string>
     <!-- Create Account -->
-    <string name="create_personal_account_email_text">Wpisz sw&#243;j adres e-mail, aby zacz&#261;&#263; korzysta&#263; z najbezpieczniejszej platformy do wsp&#243;&#322;pracy.</string>
-    <string name="create_team_email_text">Wpisz sw&#243;j adres e-mail, aby utworzy&#263; zesp&#243;&#322;:</string>
     <string name="create_team_details_text">Wpisz sw&#243;j adres e-mail, aby utworzy&#263; zesp&#243;&#322;:</string>
     <string name="create_account_email_placeholder">adam@email.com</string>
     <string name="create_account_email_label">E-MAIL</string>
-    <string name="create_account_email_footer_text">Masz ju&#380; konto?</string>
     <string name="create_account_email_terms_dialog_title">Warunki u&#380;ytkowania</string>
     <string name="create_account_email_terms_dialog_text">Klikaj&#261;c przycisk kontynuuj, zgadzasz si&#281; na nasze Warunki u&#380;ytkowania oraz Polityk&#281; prywatno&#347;ci.</string>
     <string name="create_account_email_terms_dialog_view_policy">Wy&#347;wietl Warunki u&#380;ytkowania oraz Polityk&#281; prywatno&#347;ci</string>

@@ -578,47 +578,6 @@ internal fun com.wire.android.ui.authentication.create.email.CreateAccountEmailR
     - onDetailsRequested: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.email.EmailContent(state: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.common.error.CoreFailure>, emailTextState: androidx.compose.foundation.text.input.TextFieldState, onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onLoginPressed: kotlin.Function0<kotlin.Unit>, onTermsDialogDismiss: kotlin.Function0<kotlin.Unit>, onTermsAccept: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>, tosUrl: kotlin.String, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - state: STABLE (class with no mutable properties)
-    - emailTextState: STABLE (marked @Stable or @Immutable)
-    - onBackPressed: STABLE (function type)
-    - onContinuePressed: STABLE (function type)
-    - onLoginPressed: STABLE (function type)
-    - onTermsDialogDismiss: STABLE (function type)
-    - onTermsAccept: STABLE (function type)
-    - onErrorDismiss: STABLE (function type)
-    - tosUrl: STABLE (String is immutable)
-    - serverConfig: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
-private fun com.wire.android.ui.authentication.create.email.EmailErrorText(error: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState.EmailError<com.wire.kalium.common.error.CoreFailure>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - error: STABLE (class with no mutable properties)
-
-@Composable
-private fun com.wire.android.ui.authentication.create.email.EmailFooter(state: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.common.error.CoreFailure>, onLoginPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - state: STABLE (class with no mutable properties)
-    - onLoginPressed: STABLE (function type)
-    - onContinuePressed: STABLE (function type)
-
-@Composable
-private fun com.wire.android.ui.authentication.create.email.TermsConditionsDialog(onDialogDismiss: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onViewPolicyPressed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - onDialogDismiss: STABLE (function type)
-    - onContinuePressed: STABLE (function type)
-    - onViewPolicyPressed: STABLE (function type)
-
-@Composable
 internal fun com.wire.android.ui.authentication.create.overview.CreateAccountOverviewRouteScreen(flowType: com.wire.android.ui.authentication.create.common.CreateAccountFlowType, viewModel: com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onContinue: kotlin.Function1<com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true

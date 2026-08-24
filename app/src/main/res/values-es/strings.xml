@@ -240,12 +240,9 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_quote_invalid_or_not_found">No puedes ver este mensaje</string>
     <string name="label_quote_original_message_is_a_picture">Imagen</string>
     <!-- Create Account -->
-    <string name="create_personal_account_email_text">Ingresa tu correo electr&#243;nico para empezar a utilizar la plataforma de colaboraci&#243;n m&#225;s segura.</string>
-    <string name="create_team_email_text">Ingresa tu correo electr&#243;nico para crear tu equipo:</string>
     <string name="create_team_details_text">Ingresa tu correo electr&#243;nico para crear tu equipo:</string>
     <string name="create_account_email_placeholder">juan@example.com</string>
     <string name="create_account_email_label">CORREO ELECTR&#211;NICO</string>
-    <string name="create_account_email_footer_text">&#191;Ya tienes una cuenta?</string>
     <string name="create_account_email_terms_dialog_title">T&#233;rminos de uso</string>
     <string name="create_account_email_terms_dialog_text">Al hacer clic en continuar, est&#225;s aceptando nuestros T&#233;rminos de uso y Pol&#237;tica de privacidad.</string>
     <string name="create_account_email_terms_dialog_view_policy">Ver ToU y Pol&#237;tica de privacidad</string>

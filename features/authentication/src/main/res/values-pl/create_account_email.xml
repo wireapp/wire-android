@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_email_text">Wpisz sw&#243;j adres e-mail, aby zacz&#261;&#263; korzysta&#263; z najbezpieczniejszej platformy do wsp&#243;&#322;pracy.</string>
+    <string name="create_team_email_text">Wpisz sw&#243;j adres e-mail, aby utworzy&#263; zesp&#243;&#322;:</string>
+    <string name="create_account_email_footer_text">Masz ju&#380; konto?</string>
+</resources>

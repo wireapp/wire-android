@@ -9,8 +9,11 @@
  */
 package com.wire.android.ui.authentication.create.email
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
+import java.security.MessageDigest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -54,6 +57,75 @@ class CreateAccountEmailOwnershipTest {
         assertTrue(source.contains("ActivationCodeResult.AuthScopeUnavailable -> return@launch"))
     }
 
+    @Test
+    fun givenEmailPresentation_thenFeatureOwnsRendererAndAppOwnsHostEffects() {
+        val root = repositoryRoot()
+        val featureContent = Files.readString(
+            root.resolve("features/authentication/src/main/kotlin/$packagePath/CreateAccountEmailContent.kt")
+        )
+        val appScreen = Files.readString(root.resolve("app/src/main/kotlin/$packagePath/CreateAccountEmailScreen.kt"))
+
+        assertTrue(featureContent.contains("fun <FlowT, FailureT> CreateAccountEmailContent("))
+        assertTrue(featureContent.contains("focusRequester.requestFocus()"))
+        assertTrue(featureContent.contains("EmailErrorText(state.error, text, onLearnMorePressed)"))
+        assertTrue(featureContent.contains("if (state.termsDialogVisible)"))
+        assertTrue(featureContent.contains("genericFailureContent(dialogError.coreFailure, onErrorDismiss)"))
+        assertFalse(featureContent.contains("com.wire.android.R"))
+        assertFalse(featureContent.contains("CustomTabsHelper"))
+        assertFalse(featureContent.contains("ServerConfig"))
+        assertFalse(featureContent.contains("CreateAccountFlowType"))
+        assertFalse(featureContent.contains("CreateAccountNavArgs"))
+
+        assertTrue(appScreen.contains("CreateAccountEmailContent("))
+        assertTrue(appScreen.contains("CustomTabsHelper.launchUrl(context, tosUrl())"))
+        assertTrue(appScreen.contains("CustomTabsHelper.launchUrl(context, learnMoreUrl)"))
+        assertTrue(appScreen.contains("CoreFailureErrorDialog(failure, onDismiss)"))
+        assertTrue(appScreen.contains("email = emailTextState.text.trim().toString().lowercase()"))
+        assertFalse(appScreen.contains("WireScaffold("))
+        assertFalse(appScreen.contains("WireTextField("))
+        assertFalse(appScreen.contains("WireDialog("))
+    }
+
+    @Test
+    fun givenExclusiveEmailResources_thenFeatureOwnsExactDefinitions() {
+        val root = repositoryRoot()
+        val appDefinitions = resourceDefinitions(root.resolve("app/src/main/res"))
+        val featureDefinitions = resourceDefinitions(root.resolve("features/authentication/src/main/res"))
+
+        assertTrue(appDefinitions.isEmpty(), "App still owns email presentation strings: $appDefinitions")
+        assertEquals(36, featureDefinitions.size)
+        assertEquals(
+            expectedQualifiersByResource,
+            featureDefinitions
+                .groupBy { definition -> resourceNames.single { definition.contains("name=\"$it\"") } }
+                .mapValues { (_, definitions) -> definitions.map { it.substringBefore('|') }.toSet() },
+        )
+        assertEquals(expectedResourceFingerprint, sha256(featureDefinitions.joinToString("\n")))
+    }
+
+    private fun resourceDefinitions(resourceRoot: Path): List<String> =
+        Files.walk(resourceRoot).use { paths ->
+            paths
+                .filter { path ->
+                    Files.isRegularFile(path) &&
+                        path.fileName.toString().endsWith(".xml") &&
+                        path.parent.fileName.toString().startsWith("values")
+                }
+                .flatMap { path ->
+                    val qualifier = path.parent.fileName.toString()
+                    resourceRegex.findAll(Files.readString(path)).map { match ->
+                        "$qualifier|${match.value.trim()}"
+                    }.toList().stream()
+                }
+                .sorted()
+                .toList()
+        }
+
+    private fun sha256(value: String): String =
+        MessageDigest.getInstance("SHA-256")
+            .digest(value.toByteArray(StandardCharsets.UTF_8))
+            .joinToString("") { byte -> "%02x".format(byte) }
+
     private fun repositoryRoot(): Path =
         generateSequence(Path.of(System.getProperty("user.dir")).toAbsolutePath()) { it.parent }
             .first { Files.isDirectory(it.resolve("app/src/main/kotlin")) }
@@ -64,6 +136,7 @@ class CreateAccountEmailOwnershipTest {
             "CreateAccountEmailViewModel.kt",
             "CreateAccountEmailViewState.kt",
             "CreateAccountEmailGateway.kt",
+            "CreateAccountEmailContent.kt",
         )
         val forbiddenImports = listOf(
             "com.wire.kalium",
@@ -74,6 +147,29 @@ class CreateAccountEmailOwnershipTest {
             "CoreLogic",
             "CoreFailure",
             "dev.zacsweers.metro",
+        )
+        val resourceNames = setOf(
+            "create_personal_account_email_text",
+            "create_team_email_text",
+            "create_account_email_footer_text",
+        )
+        val resourceRegex = Regex(
+            """<string\s+name="(${resourceNames.joinToString("|")})"[^>]*>.*?</string>"""
+        )
+        const val expectedResourceFingerprint = "d720a54c825fba594f0e4cacd3ddc8d7463eb7b94be68377676f265e736712aa"
+        val expectedQualifiersByResource = mapOf(
+            "create_personal_account_email_text" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu",
+                "values-it", "values-ja", "values-pl", "values-pt", "values-ru", "values-si",
+            ),
+            "create_team_email_text" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu",
+                "values-it", "values-pl", "values-pt", "values-ru", "values-si",
+            ),
+            "create_account_email_footer_text" to setOf(
+                "values", "values-de", "values-es", "values-et", "values-fr", "values-hr",
+                "values-hu", "values-it", "values-pl", "values-pt", "values-ru", "values-si", "values-sv",
+            ),
         )
     }
 }

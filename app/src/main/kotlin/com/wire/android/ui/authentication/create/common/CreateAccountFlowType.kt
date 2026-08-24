@@ -42,7 +42,7 @@ enum class CreateAccountFlowType(
             overviewLearnMoreTextResId = R.string.label_learn_more
         ),
         emailResources = EmailResources(
-            emailSubtitleResId = R.string.create_personal_account_email_text
+            emailSubtitleResId = AuthenticationR.string.create_personal_account_email_text
         ),
     ),
     CreateTeam(
@@ -55,7 +55,7 @@ enum class CreateAccountFlowType(
             overviewLearnMoreTextResId = AuthenticationR.string.create_team_learn_more
         ),
         emailResources = EmailResources(
-            emailSubtitleResId = R.string.create_team_email_text
+            emailSubtitleResId = AuthenticationR.string.create_team_email_text
         ),
     );
 

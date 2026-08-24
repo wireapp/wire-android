@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_email_text">Unesite svoj email kako biste počeli koristiti najsigurniju platformu za suradnju.</string>
+    <string name="create_team_email_text">Unesite svoj email kako biste stvorili svoj tim:</string>
+    <string name="create_account_email_footer_text">Imate već korisnički račun? </string>
+</resources>

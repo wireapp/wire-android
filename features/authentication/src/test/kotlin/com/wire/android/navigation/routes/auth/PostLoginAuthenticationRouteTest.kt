@@ -20,6 +20,7 @@ package com.wire.android.navigation.routes.auth
 
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceRoute
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentRoute
+import com.wire.android.navigation.routes.utility.InitialSyncRoute
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId
 import kotlinx.serialization.encodeToString
@@ -37,6 +38,10 @@ class PostLoginAuthenticationRouteTest {
 
         assertEquals(route, restored)
         assertEquals("app/initial_sync_screen", restored.routeId)
+        assertEquals(
+            "com.wire.android.navigation.routes.utility.InitialSyncRoute",
+            InitialSyncRoute::class.qualifiedName,
+        )
     }
 
     @Test

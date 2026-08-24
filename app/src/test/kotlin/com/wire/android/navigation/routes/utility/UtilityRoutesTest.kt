@@ -10,7 +10,6 @@
 
 package com.wire.android.navigation.routes.utility
 
-import com.wire.android.navigation.routes.auth.InitialSyncRoute
 import com.wire.navigation.AuthenticationScreenRoute
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId

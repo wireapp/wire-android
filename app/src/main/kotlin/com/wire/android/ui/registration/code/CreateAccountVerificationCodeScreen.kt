@@ -59,7 +59,9 @@ internal fun CreateAccountVerificationCodeRouteScreen(
             viewModel.clearCodeField()
         },
     )
-    BackHandler(enabled = !state.loading, onBack = onNavigateBack)
+    BackHandler {
+        if (!state.loading) onNavigateBack()
+    }
 }
 
 @Composable

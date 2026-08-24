@@ -49,7 +49,7 @@ class AuthenticationRouteSourcePurityTest {
         val contractSources = listOf(
             "com/wire/android/navigation/routes/auth/AuthenticationRoutes.kt",
             "com/wire/android/navigation/routes/auth/CreateAccountNavigation3.kt",
-            "com/wire/android/navigation/routes/auth/InitialSyncRoute.kt",
+            "com/wire/android/navigation/routes/utility/InitialSyncRoute.kt",
             "com/wire/android/ui/authentication/devices/register/RegisterDeviceRoute.kt",
             "com/wire/android/ui/authentication/devices/remove/RemoveDeviceRoute.kt",
             "com/wire/android/ui/e2eiEnrollment/E2EIEnrollmentRoute.kt",

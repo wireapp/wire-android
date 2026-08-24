@@ -12,7 +12,7 @@ package com.wire.android.navigation.runtime
 
 import com.wire.android.navigation.routes.auth.NewWelcomeEmptyStartRoute
 import com.wire.android.navigation.routes.auth.WelcomeRoute
-import com.wire.android.navigation.routes.auth.InitialSyncRoute
+import com.wire.android.navigation.routes.utility.InitialSyncRoute
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceRoute
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceRoute

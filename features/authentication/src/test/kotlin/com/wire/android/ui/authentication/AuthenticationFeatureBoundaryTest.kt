@@ -69,7 +69,7 @@ class AuthenticationFeatureBoundaryTest {
             )
         )
         val initialSyncRoute = Files.readString(
-            root.resolve("features/authentication/src/main/kotlin/com/wire/android/navigation/routes/auth/InitialSyncRoute.kt")
+            root.resolve("features/authentication/src/main/kotlin/com/wire/android/navigation/routes/utility/InitialSyncRoute.kt")
         )
         val readme = Files.readString(root.resolve("features/authentication/README.md"))
 
@@ -77,6 +77,7 @@ class AuthenticationFeatureBoundaryTest {
         assertTrue(certificateRoute.contains("data class AfterLogin("))
         assertTrue(certificateRoute.contains("AuthenticationScreenRoute"))
         assertTrue(initialSyncRoute.contains("data class InitialSyncRoute"))
+        assertTrue(initialSyncRoute.contains("package com.wire.android.navigation.routes.utility"))
         assertTrue(readme.contains("E2eiCertificateDetailsRoute"))
         assertTrue(readme.contains("InitialSync"))
     }

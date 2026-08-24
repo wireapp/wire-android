@@ -11,6 +11,7 @@
 package com.wire.android.navigation.routes.auth
 
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
+import com.wire.android.navigation.routes.utility.InitialSyncRoute
 import com.wire.android.navigation.runtime.WireNavigationDiagnostics
 import com.wire.android.navigation.runtime.startup.HomeRoute
 import com.wire.android.ui.home.HomeRequirement

@@ -5,6 +5,7 @@
 
 package com.wire.android.ui.authentication
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.MessageDigest
@@ -50,7 +51,7 @@ class AuthenticationChromeOwnershipTest {
             .groupBy { definition -> resourceNames.single { name -> definition.contains("name=\"${name}\"") } }
             .mapValues { (_, definitions) -> definitions.map { it.substringBefore('|') }.toSet() })
         assertEquals(39, featureDefinitions.size)
-        assertEquals("06ed0063538826eaf89b4527ebb406cb721908ee292cfd24f59ba451d393fe74", sha256(featureDefinitions.joinToString("\n")))
+        assertEquals("55d5c5aac64fd9304ce257d778db9914f04b3c8303813177c9cb2d692c090b8b", sha256(featureDefinitions.joinToString("\n")))
     }
 
     private fun resourceDefinitions(resourceRoot: Path): List<String> =
@@ -72,6 +73,8 @@ class AuthenticationChromeOwnershipTest {
     private fun sha256(value: ByteArray): String =
         MessageDigest.getInstance("SHA-256").digest(value)
             .joinToString("") { byte -> "%02x".format(byte) }
+
+    private fun sha256(value: String): String = sha256(value.toByteArray(StandardCharsets.UTF_8))
 
     private companion object {
         val movedSources = setOf(

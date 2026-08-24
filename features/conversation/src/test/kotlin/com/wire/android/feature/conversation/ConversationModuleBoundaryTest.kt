@@ -385,10 +385,10 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
-    fun selfDeletionIconMetricsAndTheirTestsAreFeatureOwnedWithTheAppRendererSeam() {
+    fun selfDeletionIconMetricsAndTheirTestsAreFeatureOwnedWithTheFeatureRendererSeam() {
         val source = featureSource(deletionIconMetricsRelativePath)
         val testSource = File(Konsist.projectRootPath, deletionIconMetricsTestRelativePath).readText()
-        val appRenderer = File(Konsist.projectRootPath, messageExpirationItemsRelativePath).readText()
+        val featureRenderer = File(Konsist.projectRootPath, messageExpirationItemsRelativePath).readText()
 
         assertTrue(source.contains("data class DeletionIconMetrics("))
         assertTrue(source.contains("enum class QuantizeStrategy"))
@@ -396,8 +396,8 @@ class ConversationModuleBoundaryTest {
         assertTrue(source.contains("fun SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.iconMetrics("))
         assertFalse(source.contains("START_ANGLE_TOP_DEG"))
         assertFalse(source.contains("STROKE_WIDTH_FRACTION"))
-        assertTrue(appRenderer.contains("private const val DELETION_ICON_START_ANGLE_TOP_DEG = -90f"))
-        assertTrue(appRenderer.contains("private const val DELETION_ICON_STROKE_WIDTH_FRACTION = 0.11f"))
+        assertTrue(featureRenderer.contains("private const val DELETION_ICON_START_ANGLE_TOP_DEG = -90f"))
+        assertTrue(featureRenderer.contains("private const val DELETION_ICON_STROKE_WIDTH_FRACTION = 0.11f"))
         assertTrue(testSource.contains("class DeletionIconMetricsTest"))
         assertEquals(7, Regex("@Test").findAll(testSource).count())
         assertFalse(File(Konsist.projectRootPath, legacyDeletionIconMetricsRelativePath).exists())
@@ -681,6 +681,12 @@ class ConversationModuleBoundaryTest {
                 "$relativePath must not remain app-owned after the conversation argument move.",
             )
         }
+        appConversationSearchPresentationRelativePaths.forEach { relativePath ->
+            assertFalse(
+                File(Konsist.projectRootPath, relativePath).exists(),
+                "$relativePath must not remain app-owned after the conversation search presentation move.",
+            )
+        }
     }
 
     @Test
@@ -930,9 +936,12 @@ class ConversationModuleBoundaryTest {
         val featureStateDefinitions = featureDefinitions.filter { it in conversationBannerStateMessageIds }
         val appDefinitions = stringResourceIds(appResources)
 
-        assertEquals(25, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
-        assertEquals(25, featureResources.listFiles().orEmpty().count { it.isDirectory })
-        assertEquals(615, featureDefinitions.size)
+        assertEquals(25, featureResources.walkTopDown().count { it.isFile && it.name == "strings.xml" })
+        assertEquals(
+            25,
+            featureResources.listFiles().orEmpty().count { it.isDirectory && it.name.startsWith("values") },
+        )
+        assertEquals(918, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -1208,7 +1217,7 @@ class ConversationModuleBoundaryTest {
         const val legacyDeletionIconMetricsTestRelativePath =
             "app/src/test/kotlin/com/wire/android/ui/home/conversations/messages/DeletionIconMetricsTest.kt"
         const val messageExpirationItemsRelativePath =
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageExpirationItems.kt"
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageExpirationItems.kt"
         const val groupConversationAvatarRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/GroupConversationAvatar.kt"
         const val legacyGroupConversationAvatarRelativePath =
@@ -1475,6 +1484,15 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/media/ConversationMediaNavArgs.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
                     "SearchConversationMessagesNavArgs.kt",
+        )
+        val appConversationSearchPresentationRelativePaths = listOf(
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
+                    "SearchConversationMessagesViewModel.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
+                    "SearchConversationMessagesState.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
+                    "SearchConversationMessagesNoResultsScreen.kt",
         )
         const val groupConversationDetailsViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
@@ -1819,6 +1837,20 @@ class ConversationModuleBoundaryTest {
                     "SearchConversationMessagesNavArgs.kt" to
                     "com.wire.android.ui.home.conversations.search.messages",
         )
+        val conversationSearchPresentationSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/" +
+                    "SearchConversationMessagesViewModelGraph.kt" to
+                    "com.wire.android.ui.home.conversations",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
+                    "SearchConversationMessagesViewModel.kt" to
+                    "com.wire.android.ui.home.conversations.search.messages",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
+                    "SearchConversationMessagesState.kt" to
+                    "com.wire.android.ui.home.conversations.search.messages",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
+                    "SearchConversationMessagesNoResultsScreen.kt" to
+                    "com.wire.android.ui.home.conversations.search.messages",
+        )
         val uiMessageModelSources = mapOf(
             uiMessageRelativePath to "com.wire.android.ui.home.conversations.model",
             uiQuotedMessageRelativePath to "com.wire.android.ui.home.conversations.model",
@@ -1905,7 +1937,8 @@ class ConversationModuleBoundaryTest {
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
-                    conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
+                    conversationMediaSearchArgumentSources + conversationSearchPresentationSources +
+                    uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
                     offlineMessageIndicatorSources + groupConversationAvatarSources + participantPreviewSources +
                     messageBubbleItemSources + systemMessageLeadingSources + conversationAssetMessagesPresentationSources +
@@ -2027,6 +2060,11 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel",
             "com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs",
             "com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel",
+            "com.wire.android.ui.home.conversations.SearchConversationMessagesManualViewModelFactoryGroup",
+            "com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesNavArgs",
+            "com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel",
+            "com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase",
+            "com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkViewModel",
             "com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs",
             "com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessViewModel",

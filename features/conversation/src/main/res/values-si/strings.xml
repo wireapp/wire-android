@@ -193,4 +193,5 @@
     <string name="conversation_options_read_receipt_description">මෙය සක්‍රිය නම්, පුද්ගලයින්ට මෙම සංවාදය තුළ ඔවුන්ගේ පණිවිඩ කියවූ විට දැකගත හැකිය.</string>
     <string name="self_deleting_messages_option">බලෙන් පණිවිඩය මකන්න</string>
     <string name="self_deleting_messages_option_description">මෙය ක්‍රියාත්මක විට, මෙම සංවාදයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත. මෙය සියලුම සහභාගිවන්නන්ට අදාළ වේ.</string>
+    <string name="label_search_messages_no_results">ප්‍රතිඵල හමු නොවිණි.\nනැවත උත්සාහ කරන්න.</string>
 </resources>

@@ -715,7 +715,6 @@
     </plurals>
     <!-- Search Messages -->
     <string name="label_search_messages_empty_title">මෙම සංවාදයේ සියලුම පණිවිඩ සොයන්න.</string>
-    <string name="label_search_messages_no_results">ප්‍රතිඵල හමු නොවිණි.\nනැවත උත්සාහ කරන්න.</string>
     <string name="label_search_button">සොයන්න</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">මාධ්‍ය</string>

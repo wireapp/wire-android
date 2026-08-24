@@ -26,11 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun SearchConversationMessagesNoResultsScreen(
@@ -41,7 +41,7 @@ fun SearchConversationMessagesNoResultsScreen(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = stringResource(R.string.label_search_messages_no_results),
+            text = stringResource(conversationR.string.label_search_messages_no_results),
             style = MaterialTheme.wireTypography.body01.copy(
                 color = MaterialTheme.wireColorScheme.secondaryText
             ),
@@ -50,7 +50,7 @@ fun SearchConversationMessagesNoResultsScreen(
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewSearchConversationMessagesNoResultsScreen() {
     WireTheme {

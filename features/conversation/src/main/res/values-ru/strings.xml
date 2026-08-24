@@ -277,4 +277,5 @@
     <string name="content_description_conversation_details_apps_action">настройка доступа к приложениям</string>
     <string name="self_deleting_messages_option">Принудительное удаление сообщений</string>
     <string name="self_deleting_messages_option_description">При включении этой опции все сообщения в данной беседе будут исчезать через определенное время. Это относится ко всем участникам.</string>
+    <string name="label_search_messages_no_results">Ничего не найдено.\nПожалуйста, уточните свой поиск и попробуйте еще раз.</string>
 </resources>

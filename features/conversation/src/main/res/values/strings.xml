@@ -234,4 +234,5 @@
     <string name="content_description_conversation_details_apps_action">adjust apps access</string>
     <string name="self_deleting_messages_option">Enforce message deletion</string>
     <string name="self_deleting_messages_option_description">When this is on, all messages in this conversation will disappear after a certain time. This applies to all participants.</string>
+    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
 </resources>

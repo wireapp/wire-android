@@ -864,7 +864,6 @@
     <!-- Search Messages -->
     <string name="label_search_messages">Поиск текстовых сообщений</string>
     <string name="label_search_messages_empty_title">Поиск всех сообщений в этой беседе.</string>
-    <string name="label_search_messages_no_results">Ничего не найдено.\nПожалуйста, уточните свой поиск и попробуйте еще раз.</string>
     <string name="label_search_button">Поиск</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Медиа</string>

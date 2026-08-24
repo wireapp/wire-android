@@ -663,7 +663,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     </plurals>
     <!-- Search Messages -->
     <string name="label_search_messages_empty_title">Pesquisar todas as mensagens nesta conversa.</string>
-    <string name="label_search_messages_no_results">Nenhum resultado encontrado.\nRefine sua pesquisa e tente novamente.</string>
     <string name="label_search_button">Procurar</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Mídia</string>

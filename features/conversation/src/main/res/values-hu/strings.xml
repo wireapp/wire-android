@@ -193,4 +193,5 @@
     <string name="conversation_options_read_receipt_description">Amikor ez be van kapcsolva, az emberek láthatják, mikor olvasták el a beszélgetés üzeneteit.</string>
     <string name="self_deleting_messages_option">Üzenet törlésének kényszerítése</string>
     <string name="self_deleting_messages_option_description">Ha ez aktív, ebben a beszélgetésben minden üzenet el fog tűnni bizonyos idő után. Ez minden résztvevőre érvényes.</string>
+    <string name="label_search_messages_no_results">Nincs találat.\nMódosítsa a keresőkifejezést, és próbálja meg újra.</string>
 </resources>

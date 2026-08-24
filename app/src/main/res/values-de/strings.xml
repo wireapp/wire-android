@@ -831,7 +831,6 @@
     <!-- Search Messages -->
     <string name="label_search_messages">Textnachrichten suchen</string>
     <string name="label_search_messages_empty_title">Alle Nachrichten in dieser Unterhaltung durchsuchen.</string>
-    <string name="label_search_messages_no_results">Keine passenden Ergebnisse.\nVerfeinern Sie Ihre Suche und versuchen Sie es erneut.</string>
     <string name="label_search_button">Suche</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Medien</string>

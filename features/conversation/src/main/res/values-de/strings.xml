@@ -232,4 +232,5 @@
     <string name="conversation_options_shared_drive_description">Dauerhaft aktiv für diese Unterhaltung.</string>
     <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
     <string name="self_deleting_messages_option_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Unterhaltung nach einer bestimmten Zeit. Dies gilt für alle Teilnehmer.</string>
+    <string name="label_search_messages_no_results">Keine passenden Ergebnisse.\nVerfeinern Sie Ihre Suche und versuchen Sie es erneut.</string>
 </resources>

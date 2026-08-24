@@ -699,7 +699,6 @@
     </plurals>
     <!-- Search Messages -->
     <string name="label_search_messages_empty_title">Üzenetek keresése ebben a beszélgetésben.</string>
-    <string name="label_search_messages_no_results">Nincs találat.\nMódosítsa a keresőkifejezést, és próbálja meg újra.</string>
     <string name="label_search_button">Keresés</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Média</string>

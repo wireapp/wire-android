@@ -863,7 +863,6 @@
     <!-- Search Messages -->
     <string name="label_search_messages">Search text messages</string>
     <string name="label_search_messages_empty_title">Search all messages in this conversation.</string>
-    <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="label_search_button">Search</string>
     <!-- Conversation Media -->
     <string name="label_conversation_media">Media</string>

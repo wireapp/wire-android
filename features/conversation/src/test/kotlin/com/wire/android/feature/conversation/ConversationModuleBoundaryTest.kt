@@ -260,6 +260,21 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun regularMessageItemLeadingIsFeatureOwnedWithTheLegacyPublicContract() {
+        val source = featureSource(regularMessageItemLeadingRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations.messages.item"))
+        assertTrue(source.contains("fun RegularMessageItemLeading("))
+        assertTrue(source.contains("com.wire.android.model.Clickable"))
+        assertTrue(source.contains("com.wire.android.ui.common.avatar.UserProfileAvatar"))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyRegularMessageItemLeadingRelativePath).exists(),
+            "$legacyRegularMessageItemLeadingRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -976,6 +991,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageAuthorRow.kt"
         const val legacyMessageAuthorRowRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageAuthorRow.kt"
+        const val regularMessageItemLeadingRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItemLeading.kt"
+        const val legacyRegularMessageItemLeadingRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItemLeading.kt"
         const val messageReactionsItemRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
         const val reactionPillRelativePath =
@@ -1557,6 +1576,9 @@ class ConversationModuleBoundaryTest {
         val messageAuthorRowSources = mapOf(
             messageAuthorRowRelativePath to "com.wire.android.ui.home.conversations.messages.item",
         )
+        val regularMessageItemLeadingSources = mapOf(
+            regularMessageItemLeadingRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+        )
         val reactionPresentationSources = mapOf(
             messageReactionsItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
             reactionPillRelativePath to "com.wire.android.ui.home.conversations.messages",
@@ -1598,7 +1620,8 @@ class ConversationModuleBoundaryTest {
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
-                    linkPreviewMessageBodySources + messageAuthorRowSources + reactionPresentationSources +
+                    linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
+                    reactionPresentationSources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
                     messageContentAndFinalMapperSources + messagePreviewContentMapperSources

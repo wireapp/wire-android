@@ -246,6 +246,20 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun messageAuthorRowIsFeatureOwnedWithTheLegacyPublicContract() {
+        val source = featureSource(messageAuthorRowRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations.messages.item"))
+        assertTrue(source.contains("fun MessageAuthorRow("))
+        assertTrue(source.contains("fun MessageSmallLabel("))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyMessageAuthorRowRelativePath).exists(),
+            "$legacyMessageAuthorRowRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -958,6 +972,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/LinkPreviewMessageBody.kt"
         const val legacyLinkPreviewMessageBodyRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/LinkPreviewMessageBody.kt"
+        const val messageAuthorRowRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageAuthorRow.kt"
+        const val legacyMessageAuthorRowRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageAuthorRow.kt"
         const val messageResourceProviderRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageResourceProvider.kt"
         const val legacyMessageResourceProviderRelativePath =
@@ -1532,6 +1550,9 @@ class ConversationModuleBoundaryTest {
         val linkPreviewMessageBodySources = mapOf(
             linkPreviewMessageBodyRelativePath to "com.wire.android.ui.home.conversations.messages.item",
         )
+        val messageAuthorRowSources = mapOf(
+            messageAuthorRowRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+        )
         val messageResourceProviderSources = mapOf(
             messageResourceProviderRelativePath to "com.wire.android.mapper",
         )
@@ -1569,7 +1590,7 @@ class ConversationModuleBoundaryTest {
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
-                    linkPreviewMessageBodySources +
+                    linkPreviewMessageBodySources + messageAuthorRowSources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
                     messageContentAndFinalMapperSources + messagePreviewContentMapperSources
@@ -1614,11 +1635,13 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.common.ProtocolLabel",
             "com.wire.android.ui.common.R",
             "com.wire.android.ui.common.UserBadge",
+            "com.wire.android.ui.common.applyIf",
             "com.wire.android.ui.common.colorsScheme",
             "com.wire.android.ui.common.avatar.UserProfileAvatar",
             "com.wire.android.ui.common.avatar.UserProfileAvatarType",
             "com.wire.android.ui.common.avatar.UserProfileAvatarType.WithIndicators",
             "com.wire.android.ui.common.dimensions",
+            "com.wire.android.ui.common.typography",
             "com.wire.android.ui.common.preview.MultipleThemePreviews",
             "com.wire.android.ui.common.rememberTopBarElevationState",
             "com.wire.android.ui.common.shimmerPlaceholder",

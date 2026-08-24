@@ -32,6 +32,7 @@ fun MissingBackendConfigContent(
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
+    val noCameraAppMessage = stringResource(CommonR.string.no_camera_app)
     BackendConfigFormContent(
         text = backendConfigText(),
         onConfigurationLinkEntered = onConfigurationLinkEntered,
@@ -40,7 +41,7 @@ fun MissingBackendConfigContent(
             IconButton(
                 onClick = {
                     if (!context.openExternalCamera()) {
-                        coroutineScope.launch { snackbarHostState.showSnackbar(stringResource(CommonR.string.no_camera_app)) }
+                        coroutineScope.launch { snackbarHostState.showSnackbar(noCameraAppMessage) }
                     }
                 },
                 modifier = Modifier.testTag("backendConfigCameraButton"),

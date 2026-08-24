@@ -16,17 +16,17 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.navigation.routes
+package com.wire.android.navigation.routes.auth
 
 import java.nio.file.Files
 import java.nio.file.Path
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class Navigation3ContractSourcePurityTest {
+class AuthenticationRouteSourcePurityTest {
 
     @Test
-    fun givenKmpReadyNavigationContracts_whenInspectingImports_thenOnlyCommonDependenciesAreUsed() {
+    fun givenKmpReadyAuthenticationContracts_whenInspectingImports_thenOnlyCommonDependenciesAreUsed() {
         contractSources.forEach { relativePath ->
             val source = Files.readAllLines(Path.of("src/main/kotlin").resolve(relativePath))
             val unsupportedImports = source
@@ -40,19 +40,16 @@ class Navigation3ContractSourcePurityTest {
 
             assertTrue(
                 unsupportedImports.isEmpty(),
-                "$relativePath has platform or legacy imports: $unsupportedImports",
+                "$relativePath has platform or implementation imports: $unsupportedImports",
             )
         }
     }
 
     private companion object {
         val contractSources = listOf(
-            "com/wire/android/ui/authentication/devices/remove/RemoveDeviceRoute.kt",
-            "com/wire/android/ui/e2eiEnrollment/E2EIEnrollmentRoute.kt",
-            "com/wire/android/ui/home/newconversation/channelhistory/ChannelHistoryNavigation3.kt",
-            "com/wire/android/ui/home/settings/SettingsNavigation3.kt",
-            "com/wire/android/ui/settings/devices/DeviceManagementNavigation3.kt",
-            "com/wire/android/ui/settings/devices/e2ei/E2eiCertificateDetailsNavigation3.kt",
+            "com/wire/android/navigation/routes/auth/AuthenticationRoutes.kt",
+            "com/wire/android/navigation/routes/auth/CreateAccountNavigation3.kt",
+            "com/wire/android/ui/authentication/devices/register/RegisterDeviceRoute.kt",
         )
     }
 }

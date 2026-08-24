@@ -132,7 +132,7 @@ These are not Gradle edges and must not be mistaken for module ownership:
 Audited app production-file counts are: conversations **144**, message composer **39**,
 conversations list **26**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **54** unit tests and **1** Android
- test; **67** files import app `R`, **341** distinct resource-alias `R.type.name`
+ test; **67** files import app `R`, **342** distinct resource-alias `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
 **147** production files and **59** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
 **25** values directories and contain **1023** string definitions, including the exact

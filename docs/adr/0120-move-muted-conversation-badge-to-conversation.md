@@ -25,7 +25,7 @@ exact source, qualifier, value, consumer, and drawable-hash ownership tests.
 App production/tests become **964/285**; strict app conversation production/tests remain
 **144/54**, and app conversation-list production becomes **26**. The conversation feature becomes
 **147/59** and owns **1023** string definitions plus `ic_mute`. Strict app conversation sources
-importing app `R` remain **67**, with **341** distinct resource-alias tokens. Packages, composable
+importing app `R` remain **67**, with **342** distinct resource-alias tokens. Packages, composable
 contracts, rendering, Navigation 3, Metro, profiles, stability, Gradle edges, and KMP/iOS sources
 do not change.
 

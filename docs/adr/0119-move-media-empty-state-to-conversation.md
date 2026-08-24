@@ -24,7 +24,7 @@ side effects, Navigation 3, and Metro app-owned. Add exact source and resource o
 
 App production/tests become **965/285** and strict app conversation production/tests become
 **144/54**. The conversation feature becomes **146/58** and owns **1006** string definitions.
-Strict app conversation sources importing app `R` become **67**, with **341** distinct
+Strict app conversation sources importing app `R` become **67**, with **342** distinct
 resource-alias tokens. Packages, composable contracts, rendering, navigation identities,
 profiles, Gradle edges, and KMP/iOS sources do not change.
 

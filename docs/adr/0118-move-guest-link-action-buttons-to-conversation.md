@@ -23,7 +23,7 @@ Metro assembly app-owned. Add exact source, qualifier, definition, and caller ow
 
 App production/tests become **966/285** and strict app conversation production/tests become
 **145/54**. The conversation feature becomes **145/57** and owns **992** string definitions.
-Strict app conversation sources importing app `R` become **68**, with **341** distinct
+Strict app conversation sources importing app `R` become **68**, with **342** distinct
 resource-alias tokens. Packages, composable contracts, behavior, Metro, Navigation 3, profiles,
 stability, Gradle edges, and KMP/iOS sources do not change.
 

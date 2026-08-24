@@ -15,28 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
 @file:Suppress("MatchingDeclarationName")
 
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesNavArgs
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
-import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
 @WireAssistedViewModelFactoryGroup
-object ConversationSearchFolderManualViewModelFactoryGroup
+object SearchConversationMessagesManualViewModelFactoryGroup
 
 @Composable
-fun searchConversationMessagesViewModel(args: SearchConversationMessagesNavArgs): SearchConversationMessagesViewModel =
-    conversationSearchFolderAssistedViewModel { searchConversationMessagesViewModel(args) }
-
-@Composable
-private inline fun <reified VM> conversationSearchFolderAssistedViewModel(
-    crossinline create: ConversationSearchFolderManualViewModelFactory.() -> VM,
-): VM where VM : androidx.lifecycle.ViewModel =
+fun searchConversationMessagesViewModel(
+    args: SearchConversationMessagesNavArgs,
+): SearchConversationMessagesViewModel =
     wireAssistedMetroViewModel<
-        VM,
-        ConversationSearchFolderManualViewModelFactory,
-        >(create = { _ -> create() })
+        SearchConversationMessagesViewModel,
+        SearchConversationMessagesManualViewModelFactory,
+    > { _ ->
+        searchConversationMessagesViewModel(args)
+    }

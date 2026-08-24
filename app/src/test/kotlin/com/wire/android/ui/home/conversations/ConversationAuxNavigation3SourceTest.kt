@@ -46,10 +46,12 @@ class ConversationAuxNavigation3SourceTest {
 
     @Test
     fun givenArgumentOwningViewModels_whenInspectingSources_thenArgumentsAreTyped() {
-        listOf(
+        val searchViewModelSource = featureSource(
             "ui/home/conversations/search/messages/SearchConversationMessagesViewModel.kt",
-            "ui/debug/conversation/DebugConversationViewModel.kt",
-        ).forEach { path ->
+        )
+        assertFalse(searchViewModelSource.contains("SavedStateHandle"))
+        assertFalse(searchViewModelSource.contains("generated.app.navArgs"))
+        listOf("ui/debug/conversation/DebugConversationViewModel.kt").forEach { path ->
             val source = source(path)
             assertFalse(source.contains("SavedStateHandle"))
             assertFalse(source.contains("generated.app.navArgs"))

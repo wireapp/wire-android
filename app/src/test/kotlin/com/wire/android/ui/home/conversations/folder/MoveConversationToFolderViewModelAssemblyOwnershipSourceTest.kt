@@ -28,9 +28,6 @@ class MoveConversationToFolderViewModelAssemblyOwnershipSourceTest {
 
     @Test
     fun moveConversationToFolderFactoryIsFeatureOwnedAndInstalledOnceByAppComposition() {
-        val appGraph = sourceFile(
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
-        )
         val featureGraph = sourceFile(
             "features/conversation/folders/src/main/kotlin/com/wire/android/ui/home/conversations/MoveConversationToFolderViewModelGraph.kt",
         )
@@ -39,8 +36,12 @@ class MoveConversationToFolderViewModelAssemblyOwnershipSourceTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationAuxNavigation3Entries.kt",
         )
 
-        assertFalse(appGraph.contains("moveConversationToFolderViewModel"))
-        assertFalse(appGraph.contains("MoveConversationToFolderVM"))
+        assertFalse(
+            File(
+                repositoryRoot(),
+                "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
+            ).exists(),
+        )
         assertTrue(featureGraph.contains("object MoveConversationToFolderManualViewModelFactoryGroup"))
         assertTrue(featureGraph.contains("fun moveConversationToFolderViewModel("))
         assertTrue(

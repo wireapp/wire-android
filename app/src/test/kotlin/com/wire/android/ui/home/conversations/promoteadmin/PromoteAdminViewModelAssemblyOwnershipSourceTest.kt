@@ -28,9 +28,6 @@ class PromoteAdminViewModelAssemblyOwnershipSourceTest {
 
     @Test
     fun promoteAdminFactoryIsFeatureOwnedAndInstalledOnceByAppComposition() {
-        val appGraph = sourceFile(
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
-        )
         val featureGraph = sourceFile(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/PromoteAdminViewModelGraph.kt",
         )
@@ -39,8 +36,12 @@ class PromoteAdminViewModelAssemblyOwnershipSourceTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationAuxNavigation3Entries.kt",
         )
 
-        assertFalse(appGraph.contains("promoteAdminViewModel"))
-        assertFalse(appGraph.contains("PromoteAdminViewModel"))
+        assertFalse(
+            File(
+                repositoryRoot(),
+                "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
+            ).exists(),
+        )
         assertTrue(featureGraph.contains("object PromoteAdminManualViewModelFactoryGroup"))
         assertTrue(featureGraph.contains("fun promoteAdminViewModel(args: PromoteAdminNavArgs): PromoteAdminViewModel"))
         assertEquals(

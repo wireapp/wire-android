@@ -28,9 +28,6 @@ class ConversationFoldersViewModelAssemblyOwnershipSourceTest {
 
     @Test
     fun conversationFoldersFactoryIsFeatureOwnedAndInstalledOnceByAppComposition() {
-        val appGraph = sourceFile(
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
-        )
         val featureGraph = sourceFile(
             "features/conversation/folders/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationFoldersViewModelGraph.kt",
         )
@@ -42,8 +39,12 @@ class ConversationFoldersViewModelAssemblyOwnershipSourceTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversationslist/all/AllConversationsScreen.kt",
         )
 
-        assertFalse(appGraph.contains("conversationFoldersViewModel"))
-        assertFalse(appGraph.contains("ConversationFoldersVM"))
+        assertFalse(
+            File(
+                repositoryRoot(),
+                "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
+            ).exists(),
+        )
         assertTrue(featureGraph.contains("object ConversationFoldersManualViewModelFactoryGroup"))
         assertTrue(featureGraph.contains("fun conversationFoldersViewModel("))
         assertTrue(featureGraph.contains("instanceKey = \"conversation_folders_\${args.selectedFolderId}\""))

@@ -248,7 +248,6 @@ class EntryOwnedViewModelGatewaySourceTest {
             "com/wire/android/ui/home/settings/SettingsViewModelGraph.kt",
             "com/wire/android/ui/home/conversations/ConversationCoreViewModelGraph.kt",
             "com/wire/android/ui/home/conversations/ConversationDetailsViewModelGraph.kt",
-            "com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
         ).map(::sourceFile)
 
     private fun productionSources(root: File): List<File> =

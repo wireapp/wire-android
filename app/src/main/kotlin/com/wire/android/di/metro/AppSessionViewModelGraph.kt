@@ -75,7 +75,7 @@ import com.wire.android.ui.home.conversations.EditSelfDeletingMessagesManualView
 import com.wire.android.ui.home.conversations.ConversationFoldersManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.MoveConversationToFolderManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.PromoteAdminManualViewModelFactoryMetroBindings
-import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversations.SearchConversationMessagesManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversationslist.ConversationListCallMetroViewModelBindings
 import com.wire.android.ui.home.meetings.MeetingsCallMetroViewModelBindings
 import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryMetroBindings
@@ -117,7 +117,7 @@ annotation class MetroSessionScope
         DebugMetroViewModelBindings::class,
         HomeMetroViewModelBindings::class,
         NewFolderMetroViewModelBindings::class,
-        ConversationSearchFolderManualViewModelFactoryMetroBindings::class,
+        SearchConversationMessagesManualViewModelFactoryMetroBindings::class,
         ConversationCallManualViewModelFactoryMetroBindings::class,
         CheckAssetRestrictionsMetroViewModelBindings::class,
         ConversationBannerManualViewModelFactoryMetroBindings::class,

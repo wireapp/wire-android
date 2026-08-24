@@ -28,9 +28,6 @@ class NewFolderViewModelAssemblyOwnershipSourceTest {
 
     @Test
     fun newFolderBindingIsFeatureOwnedAndInstalledOnceByAppComposition() {
-        val appGraph = sourceFile(
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
-        )
         val featureGraph = sourceFile(
             "features/conversation/folders/src/main/kotlin/com/wire/android/ui/home/conversations/NewFolderViewModelGraph.kt",
         )
@@ -43,8 +40,12 @@ class NewFolderViewModelAssemblyOwnershipSourceTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderMetroViewModelBindings.kt",
         )
 
-        assertFalse(appGraph.contains("newFolderViewModel"))
-        assertFalse(appGraph.contains("NewFolderViewModel"))
+        assertFalse(
+            File(
+                repositoryRoot(),
+                "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
+            ).exists(),
+        )
         assertFalse(removedAppBindings.exists(), "The app-only NewFolder binding file must be removed.")
         assertTrue(featureGraph.contains("object NewFolderMetroViewModelBindings"))
         assertTrue(featureGraph.contains("@ViewModelKey(NewFolderViewModel::class)"))

@@ -28,9 +28,6 @@ class AddMembersToConversationViewModelAssemblyOwnershipSourceTest {
 
     @Test
     fun addMembersFactoryIsFeatureOwnedAndInstalledOnceByAppComposition() {
-        val appGraph = sourceFile(
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
-        )
         val featureGraph = sourceFile(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/AddMembersToConversationViewModelGraph.kt",
         )
@@ -39,8 +36,12 @@ class AddMembersToConversationViewModelAssemblyOwnershipSourceTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationAuxNavigation3Entries.kt",
         )
 
-        assertFalse(appGraph.contains("addMembersToConversationViewModel"))
-        assertFalse(appGraph.contains("AddMembersToConversationViewModel"))
+        assertFalse(
+            File(
+                repositoryRoot(),
+                "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationSearchFolderViewModelGraph.kt",
+            ).exists(),
+        )
         assertTrue(featureGraph.contains("object AddMembersToConversationManualViewModelFactoryGroup"))
         assertTrue(featureGraph.contains("fun addMembersToConversationViewModel("))
         assertEquals(

@@ -15,37 +15,40 @@ import com.wire.android.ui.authentication.login.AppLoginDialogError
 import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
+import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
+import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordTerminal
+import com.wire.android.ui.newauthentication.login.password.newLoginPasswordTerminal
+import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordAction
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
 /** Remains host-owned because actions carry concrete [UserId] values and drive route mutation. */
 @Composable
 internal fun LoginStateNavigationAndDialogs(
     viewModel: AppLoginEmailViewModel,
-    onAction: (NewLoginPasswordScreenAction) -> Boolean,
+    onAction: (NewLoginPasswordAction<ServerConfig.Links, *, LoginNavArgs>) -> Boolean,
 ) {
     val state = viewModel.loginState.flowState
     val claimedDomainDialog = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    val handleState: (AppLoginState) -> Boolean = {
-        when (it) {
-            is LoginState.Success<*> -> onAction(
-                NewLoginPasswordScreenAction.Success(
-                    it.initialSyncCompleted,
-                    it.isE2EIRequired,
-                    it.userId as UserId,
+    val handleState: (AppLoginState) -> Boolean = { loginState ->
+        when (val terminal = newLoginPasswordTerminal(loginState)) {
+            is NewLoginPasswordTerminal.Success -> onAction(
+                NewLoginPasswordAction.Success(
+                    terminal.syncCompleted,
+                    terminal.e2eiRequired,
+                    terminal.userId,
                 ),
             )
-            is LoginState.Error.TooManyDevicesError<*> -> {
-                val accepted = onAction(NewLoginPasswordScreenAction.RemoveDevice(it.userId as UserId))
+            is NewLoginPasswordTerminal.RemoveDevice -> {
+                val accepted = onAction(NewLoginPasswordAction.RemoveDevice(terminal.userId))
                 if (accepted) viewModel.clearLoginErrors()
                 accepted
             }
-
-            is LoginState.Canceled -> onAction(NewLoginPasswordScreenAction.Canceled)
+            NewLoginPasswordTerminal.Canceled -> onAction(NewLoginPasswordAction.Canceled)
             else -> false
         }
     }

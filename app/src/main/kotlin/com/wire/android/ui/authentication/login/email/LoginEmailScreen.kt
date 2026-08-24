@@ -37,6 +37,8 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
+import com.wire.android.ui.authentication.login.email.LoginTerminalEffect
+import com.wire.android.ui.authentication.login.email.loginTerminalEffect
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
@@ -109,25 +111,21 @@ private fun LoginEmailStateNavigationAndDialogs(
     onRemoveDeviceNeeded: (UserId) -> Unit,
 ) {
     val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    val handleLoginStateNavigation: (AppLoginState) -> Unit = {
-        when (it) {
-            is LoginState.Success<*> -> onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId as UserId)
-            is LoginState.Error.TooManyDevicesError<*> -> {
+    val handleLoginStateNavigation: (AppLoginState) -> Unit = { loginState ->
+        when (val effect = loginTerminalEffect(loginState, null)) {
+            is LoginTerminalEffect.Success -> onSuccess(effect.syncCompleted, effect.e2eiRequired, effect.userId)
+            is LoginTerminalEffect.RemoveDevice -> {
                 onClearLoginErrors()
-                onRemoveDeviceNeeded(it.userId as UserId)
+                onRemoveDeviceNeeded(effect.userId)
             }
-            else -> {
-                /* do nothing */
-            }
+            else -> Unit
         }
     }
 
     LaunchedEffect(state) {
-        val isStateCompleted = state is LoginState.Success<*> || state is LoginState.Error.TooManyDevicesError<*>
-        if (isStateCompleted && domainClaimedByOrg is DomainClaimedByOrg.Claimed) {
-            emailAlreadyInUseClaimedDomainDialogState.show(domainClaimedByOrg)
-        } else {
-            handleLoginStateNavigation(state)
+        when (val effect = loginTerminalEffect(state, domainClaimedByOrg)) {
+            is LoginTerminalEffect.ShowClaimedDomain -> emailAlreadyInUseClaimedDomainDialogState.show(effect.domain)
+            else -> handleLoginStateNavigation(state)
         }
     }
 

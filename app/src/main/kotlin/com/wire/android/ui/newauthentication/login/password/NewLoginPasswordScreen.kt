@@ -35,18 +35,11 @@ import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
+import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordPolicy
+import com.wire.android.ui.newauthentication.login.password.showCreateAccount
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.data.user.UserId
-
-internal sealed interface NewLoginPasswordScreenAction {
-    data class Success(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean, val userId: UserId) : NewLoginPasswordScreenAction
-    data class RemoveDevice(val userId: UserId) : NewLoginPasswordScreenAction
-    data object Canceled : NewLoginPasswordScreenAction
-    data class VerificationRequired(val navArgs: LoginNavArgs) : NewLoginPasswordScreenAction
-    data class CreateAccountSelector(val serverConfig: ServerConfig.Links, val email: String) : NewLoginPasswordScreenAction
-    data class CreatePersonalAccount(val serverConfig: ServerConfig.Links) : NewLoginPasswordScreenAction
-}
+import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordAction
 
 /** App-owned route adapter: it contains all navigation, dialogs, policies and concrete Kalium aliases. */
 @Composable
@@ -54,14 +47,14 @@ internal fun NewLoginPasswordRouteScreen(
     navArgs: LoginNavArgs,
     loginEmailViewModel: AppLoginEmailViewModel,
     canNavigateBack: Boolean,
-    onAction: (NewLoginPasswordScreenAction) -> Boolean,
+    onAction: (NewLoginPasswordAction<ServerConfig.Links, *, LoginNavArgs>) -> Boolean,
 ) {
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, onAction)
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
             onAction(
-                NewLoginPasswordScreenAction.VerificationRequired(
+                NewLoginPasswordAction.VerificationRequired(
                     LoginNavArgs(
                         loginPasswordPath = navArgs.loginPasswordPath,
                         userHandle = PreFilledUserIdentifierType.PreFilled(loginEmailViewModel.userIdentifierTextState.text.toString()),
@@ -82,9 +75,13 @@ internal fun NewLoginPasswordRouteScreen(
             invalidIdentifier = state.flowState is LoginState.Error.TextFieldError.InvalidValue,
             showInvalidCredentialsError = state.showInvalidCredentialsError,
             proxyAuthenticationRequired = serverConfig.isProxyAuthRequired,
-            showCreateAccount = BuildConfig.ALLOW_ACCOUNT_CREATION &&
-                !serverConfig.isProxyEnabled() &&
-                (navArgs.loginPasswordPath?.isCloudAccountCreationPossible ?: true),
+            showCreateAccount = showCreateAccount(
+                NewLoginPasswordPolicy(
+                    BuildConfig.ALLOW_ACCOUNT_CREATION,
+                    serverConfig.isProxyEnabled(),
+                    navArgs.loginPasswordPath?.isCloudAccountCreationPossible ?: true,
+                ),
+            ),
         ),
         sharedText = NewLoginPasswordSharedText(
             invalidEmail = stringResource(AuthenticationR.string.login_error_invalid_email),
@@ -107,13 +104,13 @@ internal fun NewLoginPasswordRouteScreen(
         onCreateAccount = {
             if (ENABLE_NEW_REGISTRATION) {
                 onAction(
-                    NewLoginPasswordScreenAction.CreateAccountSelector(
+                    NewLoginPasswordAction.CreateAccountSelector(
                         serverConfig,
                         loginEmailViewModel.userIdentifierTextState.text.toString(),
                     ),
                 )
             } else {
-                onAction(NewLoginPasswordScreenAction.CreatePersonalAccount(serverConfig))
+                onAction(NewLoginPasswordAction.CreatePersonalAccount(serverConfig))
             }
         },
         onForgotPassword = {

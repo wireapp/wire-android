@@ -33,6 +33,8 @@ import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
+import com.wire.android.ui.authentication.login.sso.LoginSSOEffect
+import com.wire.android.ui.authentication.login.sso.loginSsoEffect
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialog
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -93,8 +95,9 @@ fun LoginSSOScreen(
         }.launchIn(scope)
     }
     LaunchedEffect(loginSSOViewModel.loginState.flowState) {
-        (loginSSOViewModel.loginState.flowState as? LoginState.Success<*>)?.let {
-            onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId as UserId)
+        when (val effect = loginSsoEffect(loginSSOViewModel.loginState.flowState)) {
+            is LoginSSOEffect.Success -> onSuccess(effect.syncCompleted, effect.e2eiRequired, effect.userId)
+            else -> Unit
         }
     }
 }
@@ -106,11 +109,15 @@ private fun LoginSSOHostDialogs(
 ) {
     val loginSSOState = loginSSOViewModel.loginState
     val flowState = loginSSOState.flowState
-    if (flowState is LoginState.Error.DialogError<*, *>) {
+    when (val effect = loginSsoEffect(flowState)) {
+        LoginSSOEffect.ShowError -> {
         LoginErrorDialog((flowState as AppLoginDialogError).toLoginDialogErrorData(), loginSSOViewModel::clearLoginErrors)
-    } else if (flowState is LoginState.Error.TooManyDevicesError<*>) {
+        }
+        is LoginSSOEffect.RemoveDevice -> {
         loginSSOViewModel.clearLoginErrors()
-        onRemoveDeviceOpen(flowState.userId as UserId)
+        onRemoveDeviceOpen(effect.userId)
+        }
+        else -> Unit
     }
 
     loginSSOState.customServerDialogState?.let { customServerDialogState ->

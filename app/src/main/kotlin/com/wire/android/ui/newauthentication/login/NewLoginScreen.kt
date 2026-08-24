@@ -151,17 +151,3 @@ private fun NewLoginHeader(
         onNavigateBack = navigateBack,
     )
 }
-
-private fun AppNewLoginScreenState.toPresentation(): NewLoginContentPresentation = NewLoginContentPresentation(
-    mode = when (flowState) {
-        NewLoginFlowState.MissingBackendConfig,
-        NewLoginFlowState.LoadingBackendConfig,
-        NewLoginFlowState.BackendConfigError -> NewLoginContentMode.BackendConfiguration
-
-        NewLoginFlowState.BackendConfigSuccess -> NewLoginContentMode.BackendConfigurationSuccess
-        else -> NewLoginContentMode.Identifier
-    },
-    nextEnabled = nextEnabled,
-    loading = flowState is NewLoginFlowState.Loading,
-    invalidIdentifier = flowState is NewLoginFlowState.Error.TextFieldError.InvalidValue,
-)

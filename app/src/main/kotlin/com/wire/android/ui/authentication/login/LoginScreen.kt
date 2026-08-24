@@ -82,12 +82,12 @@ private fun LoginContent(
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         AnimatedContent(
-            targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
+            targetState = loginSurface(loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary),
             transitionSpec = {
                 TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
             }
-        ) { isCodeInputNecessary ->
-            if (isCodeInputNecessary) {
+        ) { surface ->
+            if (surface == LoginSurface.Verification) {
                 LoginEmailVerificationCodeScreen(loginEmailViewModel)
             } else {
                 MainLoginContent(

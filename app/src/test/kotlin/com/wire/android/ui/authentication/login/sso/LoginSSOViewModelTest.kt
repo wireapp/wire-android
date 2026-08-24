@@ -304,7 +304,7 @@ class LoginSSOViewModelTest {
             }
 
             onSSOInitiateFailureSlot.captured.invoke(SSOInitiateLoginResult.Failure.InvalidRedirect)
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError<CoreFailure>>().let {
                 it.coreFailure.shouldBeInstanceOf<CoreFailure.Unknown>().let {
                     it.rootCause.shouldBeInstanceOf<IllegalArgumentException>()
                 }
@@ -339,7 +339,7 @@ class LoginSSOViewModelTest {
 
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
         onSSOInitiateFailureSlot.captured.invoke(SSOInitiateLoginResult.Failure.Generic(networkFailure))
-        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError<CoreFailure>>().let {
             it.coreFailure shouldBeEqualTo networkFailure
         }
     }
@@ -372,7 +372,7 @@ class LoginSSOViewModelTest {
         }
 
         onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
-        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>().let {
             it.initialSyncCompleted shouldBeEqualTo false
             it.isE2EIRequired shouldBeEqualTo false
         }
@@ -407,7 +407,7 @@ class LoginSSOViewModelTest {
             }
 
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>().let {
                 it.initialSyncCompleted shouldBeEqualTo true
                 it.isE2EIRequired shouldBeEqualTo false
             }
@@ -451,7 +451,7 @@ class LoginSSOViewModelTest {
 
             loginViewModel.handleSSOResult(null)
             advanceUntilIdle()
-            loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
+            loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error<*, *, *>>()
         }
 
     @Test
@@ -461,7 +461,7 @@ class LoginSSOViewModelTest {
 
             loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown))
             advanceUntilIdle()
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.SSOResultError>().let {
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.SSOResultError<SSOFailureCodes>>().let {
                 it.result shouldBeEqualTo SSOFailureCodes.Unknown
             }
         }
@@ -492,7 +492,7 @@ class LoginSSOViewModelTest {
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>()
         }
 
     @Test
@@ -617,7 +617,7 @@ class LoginSSOViewModelTest {
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
 
             coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TooManyDevicesError>()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.TooManyDevicesError<UserId>>()
         }
 
     @Test
@@ -648,7 +648,7 @@ class LoginSSOViewModelTest {
         onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
 
         coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
-        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>()
     }
 
     @Test
@@ -714,7 +714,7 @@ class LoginSSOViewModelTest {
 
         coVerify(exactly = 1) { arrangement.authenticationScope.domainLookup(expectedEmail) }
         loginViewModel.loginState.customServerDialogState shouldBeEqualTo null
-        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError<CoreFailure>>().let {
             it.coreFailure shouldBeEqualTo expected
         }
     }
@@ -900,7 +900,7 @@ class LoginSSOViewModelTest {
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>().let {
                 it.initialSyncCompleted shouldBeEqualTo true
                 it.isE2EIRequired shouldBeEqualTo false
             }
@@ -934,7 +934,7 @@ class LoginSSOViewModelTest {
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>().let {
                 it.initialSyncCompleted shouldBeEqualTo false
                 it.isE2EIRequired shouldBeEqualTo false
             }
@@ -972,7 +972,7 @@ class LoginSSOViewModelTest {
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
             coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
             coVerify(exactly = 1) { arrangement.setLastDeviceIdUseCase(TestClient.CLIENT_ID.value) }
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>()
         }
 
     @Test
@@ -1005,7 +1005,7 @@ class LoginSSOViewModelTest {
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
             coVerify(exactly = 1) { arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true) }
             coVerify(exactly = 1) { arrangement.deleteSessionUseCase(TestUser.USER_ID) }
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError<CoreFailure>>()
         }
 
     @Test
@@ -1133,7 +1133,7 @@ class LoginSSOViewModelTest {
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError<CoreFailure>>()
         }
 
     private class Arrangement {

@@ -164,7 +164,7 @@ class LoginEmailViewModelTest {
         coVerify(exactly = 1) { arrangement.loginUseCase(any(), any(), any(), any(), any()) }
         coVerify(exactly = 1) { arrangement.persistSelfUserEmailUseCase(any()) }
         coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
-        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>().let {
             it.initialSyncCompleted shouldBeEqualTo true
             it.isE2EIRequired shouldBeEqualTo false
         }
@@ -190,7 +190,7 @@ class LoginEmailViewModelTest {
             coVerify(exactly = 1) { arrangement.loginUseCase(any(), any(), any(), any(), any()) }
             coVerify(exactly = 1) { arrangement.persistSelfUserEmailUseCase(any()) }
             coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>().let {
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>().let {
                 it.initialSyncCompleted shouldBeEqualTo false
                 it.isE2EIRequired shouldBeEqualTo false
             }
@@ -229,7 +229,7 @@ class LoginEmailViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError<CoreFailure>>().let {
             it.coreFailure shouldBeEqualTo networkFailure
         }
     }
@@ -244,7 +244,7 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.InvalidCredentialsError>()
         loginViewModel.clearLoginErrors()
-        loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error>()
+        loginViewModel.loginState.flowState.shouldNotBeInstanceOf<LoginState.Error<*, *, *>>()
         loginViewModel.loginState.showInvalidCredentialsError shouldBeEqualTo true
 
         loginViewModel.passwordTextState.setTextAndPlaceCursorAtEnd("new password")
@@ -410,7 +410,7 @@ class LoginEmailViewModelTest {
         coVerify(exactly = 1) {
             arrangement.getOrRegisterClientUseCase(any())
         }
-        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>()
     }
 
     @Test
@@ -523,7 +523,7 @@ class LoginEmailViewModelTest {
         loginViewModel.login()
         advanceUntilIdle()
 
-        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>().let {
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError<CoreFailure>>().let {
             it.coreFailure shouldBeEqualTo failure
         }
     }
@@ -856,7 +856,7 @@ class LoginEmailViewModelTest {
             loginViewModel.login(usernameAllowed = false)
             advanceUntilIdle()
 
-            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+            loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success<UserId>>()
         }
 
     inner class Arrangement {

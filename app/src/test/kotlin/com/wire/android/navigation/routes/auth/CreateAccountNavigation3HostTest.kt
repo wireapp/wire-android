@@ -94,6 +94,39 @@ class CreateAccountNavigation3HostTest {
     }
 
     @Test
+    fun givenOverviewViewModel_whenInspectingHost_thenGenericFeatureBoundaryPreservesOptionalCustomConfig() {
+        val graph = sourceFile("ui/authentication/AuthenticationViewModelGraph.kt").readText()
+        val metro = sourceFile("di/metro/AuthenticationMetroViewModelBindings.kt").readText()
+        val screen = sourceFile(
+            "ui/authentication/create/overview/CreatePersonalAccountOverviewScreen.kt"
+        ).readText()
+        val hostFactory = sourceFile(
+            "ui/authentication/create/overview/CreateAccountOverviewViewModelHostFactory.kt"
+        ).readText()
+        val featureViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/overview/" +
+                "CreateAccountOverviewViewModel.kt",
+        ).readText()
+
+        assertTrue(
+            graph.contains(
+                "createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): " +
+                    "CreateAccountOverviewViewModel<ServerConfig.Links>"
+            )
+        )
+        assertTrue(metro.contains("CreateAccountOverviewViewModelHostFactory"))
+        assertFalse(metro.contains("CreateAccountOverviewViewModel.Factory"))
+        assertTrue(hostFactory.contains("pricingUrl = { it.pricing }"))
+        assertTrue(screen.contains("customServerConfig = viewModel.customServerConfig"))
+        assertFalse(screen.contains("viewModel.navArgs.customServerConfig"))
+        assertTrue(featureViewModel.contains("class CreateAccountOverviewViewModel<LinksT>"))
+        assertFalse(featureViewModel.contains("CreateAccountOverviewNavArgs"))
+        assertFalse(featureViewModel.contains("com.wire.kalium.logic.configuration.server.ServerConfig"))
+        assertFalse(featureViewModel.contains("AssistedInject"))
+    }
+
+    @Test
     fun givenSummaryRoute_whenInspectingHost_thenStatelessFeatureUiPreservesTransitionAndRouteIdentity() {
         val entries = sourceFile("navigation/routes/auth/CreateAccountNavigation3Entries.kt").readText()
         val summaryEntry = entries
@@ -128,10 +161,12 @@ class CreateAccountNavigation3HostTest {
     }
 
     private fun sourceFile(relativePath: String): File {
-        val projectDir = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
-            .first { File(it, "app/src/main/kotlin").isDirectory }
-        return File(projectDir, "app/src/main/kotlin/com/wire/android/$relativePath").also {
+        return File(repositoryRoot(), "app/src/main/kotlin/com/wire/android/$relativePath").also {
             assertTrue(it.isFile, "Missing source file $relativePath")
         }
     }
+
+    private fun repositoryRoot(): File =
+        generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+            .first { File(it, "app/src/main/kotlin").isDirectory }
 }

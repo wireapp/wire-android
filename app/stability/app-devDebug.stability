@@ -633,7 +633,7 @@ private fun com.wire.android.ui.authentication.create.email.TermsConditionsDialo
     - onViewPolicyPressed: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.authentication.create.overview.CreateAccountOverviewRouteScreen(flowType: com.wire.android.ui.authentication.create.common.CreateAccountFlowType, viewModel: com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel, onNavigateBack: kotlin.Function0<kotlin.Unit>, onContinue: kotlin.Function1<com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.create.overview.CreateAccountOverviewRouteScreen(flowType: com.wire.android.ui.authentication.create.common.CreateAccountFlowType, viewModel: com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onContinue: kotlin.Function1<com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -736,13 +736,13 @@ public fun com.wire.android.ui.authentication.createAccountEmailViewModel(navArg
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountOverviewViewModel(): com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
+public fun com.wire.android.ui.authentication.createAccountOverviewViewModel(): com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links>
   skippable: true
   restartable: true
   params:
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountOverviewViewModel(navArgs: com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
+public fun com.wire.android.ui.authentication.createAccountOverviewViewModel(navArgs: com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links>
   skippable: false
   restartable: true
   params:

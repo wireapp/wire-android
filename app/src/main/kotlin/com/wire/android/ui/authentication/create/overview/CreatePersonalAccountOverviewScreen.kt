@@ -60,7 +60,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 internal fun CreateAccountOverviewRouteScreen(
     flowType: CreateAccountFlowType,
-    viewModel: CreateAccountOverviewViewModel,
+    viewModel: CreateAccountOverviewViewModel<ServerConfig.Links>,
     onNavigateBack: () -> Unit,
     onContinue: (CreateAccountNavArgs) -> Unit,
 ) {
@@ -71,7 +71,7 @@ internal fun CreateAccountOverviewRouteScreen(
                 onContinue(
                     CreateAccountNavArgs(
                         flowType = this,
-                        customServerConfig = viewModel.navArgs.customServerConfig,
+                        customServerConfig = viewModel.customServerConfig,
                     )
                 )
             },

@@ -61,7 +61,7 @@ interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory 
     fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): NewLoginViewModel
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginSSOViewModel
-    fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel
+    fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel<ServerConfig.Links>
     fun createAccountEmailViewModel(navArgs: CreateAccountNavArgs): CreateAccountEmailViewModel
     fun createAccountDetailsViewModel(navArgs: CreateAccountNavArgs): CreateAccountDetailsViewModel
     fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): CreateAccountCodeViewModel
@@ -179,7 +179,7 @@ fun createAccountUsernameViewModel(): CreateAccountUsernameViewModel =
     authenticationViewModel()
 
 @Composable
-fun createAccountOverviewViewModel(): CreateAccountOverviewViewModel =
+fun createAccountOverviewViewModel(): CreateAccountOverviewViewModel<ServerConfig.Links> =
     authenticationViewModel()
 
 @Composable
@@ -216,8 +216,8 @@ fun createAccountUsernameViewModel(
 fun createAccountOverviewViewModel(
     navArgs: CreateAccountOverviewNavArgs,
     viewModelStoreOwner: ViewModelStoreOwner,
-): CreateAccountOverviewViewModel =
-    wireAssistedMetroViewModel<CreateAccountOverviewViewModel, AuthenticationManualViewModelFactory>(
+): CreateAccountOverviewViewModel<ServerConfig.Links> =
+    wireAssistedMetroViewModel<CreateAccountOverviewViewModel<ServerConfig.Links>, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
         createAccountOverviewViewModel(navArgs)

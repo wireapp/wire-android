@@ -1,6 +1,6 @@
 /*
  * Wire
- * Copyright (C) 2024 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,20 +17,17 @@
  */
 package com.wire.android.ui.authentication.create.overview
 
-import androidx.lifecycle.ViewModel
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Inject
 
-class CreateAccountOverviewViewModel @AssistedInject constructor(
-    @Assisted val navArgs: CreateAccountOverviewNavArgs,
-    defaultServerConfig: ServerConfig.Links
-) : ViewModel() {
-    @AssistedFactory
-    interface Factory {
-        fun create(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel
-    }
-    val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
-    fun learnMoreUrl(): String = serverConfig.pricing
+class CreateAccountOverviewViewModelHostFactory @Inject constructor(
+    private val defaultServerConfig: ServerConfig.Links,
+) {
+    fun create(
+        navArgs: CreateAccountOverviewNavArgs,
+    ): CreateAccountOverviewViewModel<ServerConfig.Links> = CreateAccountOverviewViewModel(
+        customServerConfig = navArgs.customServerConfig,
+        defaultServerConfig = defaultServerConfig,
+        pricingUrl = { it.pricing },
+    )
 }

@@ -29,6 +29,7 @@ import com.wire.android.ui.authentication.create.details.CreateAccountDetailsVie
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
+import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModelHostFactory
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
@@ -66,7 +67,7 @@ object AuthenticationMetroViewModelBindings {
         newLoginFactory: NewLoginViewModel.Factory,
         loginEmailFactory: LoginEmailViewModel.Factory,
         loginSSOFactory: LoginSSOViewModel.Factory,
-        createAccountOverviewFactory: CreateAccountOverviewViewModel.Factory,
+        createAccountOverviewFactory: CreateAccountOverviewViewModelHostFactory,
         createAccountEmailFactory: CreateAccountEmailViewModel.Factory,
         createAccountDetailsFactory: CreateAccountDetailsViewModel.Factory,
         createAccountCodeFactory: CreateAccountCodeViewModel.Factory,
@@ -88,7 +89,7 @@ object AuthenticationMetroViewModelBindings {
 
         override fun createAccountOverviewViewModel(
             navArgs: CreateAccountOverviewNavArgs,
-        ): CreateAccountOverviewViewModel = createAccountOverviewFactory.create(navArgs)
+        ): CreateAccountOverviewViewModel<ServerConfig.Links> = createAccountOverviewFactory.create(navArgs)
 
         override fun createAccountEmailViewModel(navArgs: CreateAccountNavArgs): CreateAccountEmailViewModel =
             createAccountEmailFactory.create(navArgs)

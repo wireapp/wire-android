@@ -663,8 +663,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">MLS වෙත සංක්‍රමණය හේතුවෙන් ඔබගේ වත්මන් ඇමතුම ගැටලු සහගත විය හැකිය. එසේ වුවහොත්, විසන්ධි කර නැවත අමතන්න.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">සංකේතාංකන ප්‍රොටෝකෝලය සංක්‍රමණය කිරීම ආරම්භ කර ඇත. ඔබගේ සියලුම Wire සේවාලාභීන් යාවත්කාලීන කර ඇති බවට වග බලා ගන්න.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">මෙම සංවාදය දැන් නව පණිවිඩකරණ ස්ථර ආරක්‍ෂණ (MLS) කෙටුම්පත භාවිතා කරයි. බාධාවකින් තොරව සන්නිවේදනය සඳහා සැමවිටම ඔබගේ උපාංග වලට නවතම වයර් අනුවාදය බාගන්න.</string>
-    <string name="label_system_message_receipt_mode_on">සක්‍රියයි</string>
-    <string name="label_system_message_receipt_mode_off">අක්‍රියයි</string>
     <string name="label_system_message_conversation_started_by_self">**ඔබ** සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_by_other">%1$s සංවාදය ආරම්භ කළා</string>
     <string name="label_system_message_conversation_started_with_members">%1$s සමග</string>

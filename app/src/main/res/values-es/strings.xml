@@ -459,8 +459,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_system_message_conversation_message_timer_deactivated_by_other">%1$s **desactivó** los mensajes de auto-borrado para todos</string>
     <string name="label_system_message_deactivated">ha desactivado</string>
     <string name="label_system_message_conversation_history_lost">No has usado este dispositivo por un tiempo. Es posible que algunos mensajes no aparezcan aqu&#237;.</string>
-    <string name="label_system_message_receipt_mode_on">encendido</string>
-    <string name="label_system_message_receipt_mode_off">apagado</string>
     <string name="label_system_message_conversation_started_with_members">Con: %1$s</string>
     <plurals name="label_system_message_conversation_failed_add_members_header">
         <item quantity="one">**%1$s participante** no se pudo agregar a la conversación.</item>

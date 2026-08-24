@@ -794,8 +794,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">При переходе на MLS могут возникнуть проблемы с текущим вызовом. В этом случае прервите разговор и позвоните снова.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Началась миграция протокола шифрования. Убедитесь, что все ваши клиенты Wire обновлены.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Теперь в этой беседе используется новый протокол Messaging Layer Security (MLS). Для обеспечения надежной связи всегда используйте последнюю версию Wire на своих устройствах.</string>
-    <string name="label_system_message_receipt_mode_on">вкл</string>
-    <string name="label_system_message_receipt_mode_off">выкл</string>
     <string name="label_system_message_conversation_started_by_self">**Вы** начали беседу</string>
     <string name="label_system_message_conversation_started_by_other">%1$s начал(-а) беседу</string>
     <string name="label_system_message_conversation_started_with_members">С %1$s</string>

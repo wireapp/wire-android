@@ -19,4 +19,6 @@
     <string name="member_name_deleted_label">මකාදැමූ ගිණුමකි</string>
     <string name="member_name_you_label_titlecase">ඔබ</string>
     <string name="member_name_you_label_lowercase">ඔබ</string>
+    <string name="label_system_message_receipt_mode_on">සක්‍රියයි</string>
+    <string name="label_system_message_receipt_mode_off">අක්‍රියයි</string>
 </resources>

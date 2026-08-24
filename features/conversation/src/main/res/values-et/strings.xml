@@ -1,4 +1,6 @@
 <resources>
     <string name="label_message_decryption_failure_message">Sõnumi dekrüpteerimine ebaõnnestus.</string>
     <string name="label_message_status_edited_with_date">Muudetud: %s</string>
+    <string name="label_system_message_receipt_mode_on">sees</string>
+    <string name="label_system_message_receipt_mode_off">väljas</string>
 </resources>

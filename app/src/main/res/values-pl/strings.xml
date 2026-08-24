@@ -399,8 +399,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="label_system_message_read_receipt_changed_by_self">%1$s zmieni&#322;(a) tryb odczytu na %2$s dla wszystkich</string>
     <string name="label_system_message_read_receipt_changed_by_other">%1$s zmieni&#322;(a) tryb odczytu na %2$s dla wszystkich</string>
     <string name="label_system_message_conversation_history_lost">Nie korzysta&#322;e&#347;(a&#347;) z tego urz&#261;dzenia przez jaki&#347; czas. Niekt&#243;re wiadomo&#347;ci mog&#261; nie by&#263; widoczne.</string>
-    <string name="label_system_message_receipt_mode_on">w&#322;&#261;czone</string>
-    <string name="label_system_message_receipt_mode_off">wy&#322;&#261;czone</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Doda&#322;e&#347;(a&#347;) 1 osob&#281; do rozmowy</item>

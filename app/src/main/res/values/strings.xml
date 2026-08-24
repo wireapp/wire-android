@@ -805,8 +805,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Due to migration to MLS, you might have issues with your current call. If that\'s the case, hang up and call again.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migration of encryption protocol has started. Make sure you all your Wire clients are updated.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">This conversation now uses the new Messaging Layer Security (MLS) protocol. To communicate seamlessly, always use the latest version of Wire on your devices.</string>
-    <string name="label_system_message_receipt_mode_on">on</string>
-    <string name="label_system_message_receipt_mode_off">off</string>
     <string name="label_system_message_conversation_started_by_self">**You** started the conversation</string>
     <string name="label_system_message_conversation_started_by_other">%1$s started the conversation</string>
     <string name="label_system_message_conversation_started_with_members">With %1$s</string>

@@ -211,8 +211,6 @@
     <string name="label_system_message_renamed_the_conversation">%1$s muutis vestluse nime:\n%2$s</string>
     <string name="label_system_message_activated">aktiveeritud</string>
     <string name="label_system_message_deactivated">desaktiveeritud</string>
-    <string name="label_system_message_receipt_mode_on">sees</string>
-    <string name="label_system_message_receipt_mode_off">väljas</string>
     <!-- Last messages -->
     <string name="last_message_self_user_shared_asset">jagas faili.</string>
     <string name="last_message_other_user_shared_asset">jagas faili.</string>

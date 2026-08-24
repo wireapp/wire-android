@@ -221,6 +221,24 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun systemMessageContentMapperAndItsTestAreFeatureOwnedWithTheLegacyContract() {
+        val source = featureSource(systemMessageContentMapperRelativePath)
+        val testSource = File(Konsist.projectRootPath, systemMessageContentMapperTestRelativePath).readText()
+
+        assertTrue(source.contains("package com.wire.android.mapper"))
+        assertTrue(source.contains("import com.wire.android.feature.conversation.R"))
+        assertTrue(source.contains("class SystemMessageContentMapper @Inject constructor("))
+        assertTrue(source.contains("private val messageResourceProvider: MessageResourceProvider"))
+        assertTrue(source.contains("enum class SelfNameType"))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertTrue(testSource.contains("package com.wire.android.mapper"))
+        assertTrue(testSource.contains("class SystemMessageContentMapperTest"))
+        legacySystemMessageContentMapperPaths.forEach { relativePath ->
+            assertFalse(File(Konsist.projectRootPath, relativePath).exists(), "$relativePath must be absent.")
+        }
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -554,7 +572,7 @@ class ConversationModuleBoundaryTest {
 
         assertEquals(25, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
         assertEquals(25, featureResources.listFiles().orEmpty().count { it.isDirectory })
-        assertEquals(279, featureDefinitions.size)
+        assertEquals(299, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -814,6 +832,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageResourceProvider.kt"
         const val legacyMessageResourceProviderRelativePath =
             "app/src/main/kotlin/com/wire/android/mapper/MessageResourceProvider.kt"
+        const val systemMessageContentMapperRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/SystemMessageContentMapper.kt"
+        const val systemMessageContentMapperTestRelativePath =
+            "features/conversation/src/test/kotlin/com/wire/android/mapper/SystemMessageContentMapperTest.kt"
+        val legacySystemMessageContentMapperPaths = listOf(
+            "app/src/main/kotlin/com/wire/android/mapper/SystemMessageContentMapper.kt",
+            "app/src/test/kotlin/com/wire/android/mapper/SystemMessageContentMapperTest.kt",
+        )
         val legacyMessagePresentationPrimitivePaths = listOf(
             "app/src/main/kotlin/com/wire/android/mapper/MessageDateGroupingMapper.kt",
             "app/src/main/kotlin/com/wire/android/util/Copyable.kt",
@@ -1339,6 +1365,9 @@ class ConversationModuleBoundaryTest {
         val messageResourceProviderSources = mapOf(
             messageResourceProviderRelativePath to "com.wire.android.mapper",
         )
+        val systemMessageContentMapperSources = mapOf(
+            systemMessageContentMapperRelativePath to "com.wire.android.mapper",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -1356,7 +1385,8 @@ class ConversationModuleBoundaryTest {
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
-                    conversationMediaSearchArgumentSources + uiMessageModelSources + messageResourceProviderSources
+                    conversationMediaSearchArgumentSources + uiMessageModelSources + messageResourceProviderSources +
+                    systemMessageContentMapperSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -1475,6 +1505,8 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesViewModel",
             "com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs",
             "com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration",
+            "com.wire.android.ui.home.conversations.findUser",
+            "com.wire.android.ui.home.conversations.model.UIMessageContent",
             "com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams",
             "com.wire.android.ui.home.messagecomposer.SelfDeletionDuration",
             "com.wire.android.ui.markdown.MarkdownNode",
@@ -1496,6 +1528,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.util.time.TimeZoneProvider",
             "com.wire.android.util.ui.FolderType",
             "com.wire.android.util.ui.UIText",
+            "com.wire.android.util.formatFullDateShortTime",
             "com.wire.android.util.ui.toUIText",
             "com.wire.android.util.uiMessageDateTime",
             "com.wire.android.util.ui.sectionWithElements",

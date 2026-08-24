@@ -35,7 +35,7 @@ class ConversationMessageResourceOwnershipTest {
 
         val definitions = resourceDefinitions(featureResources)
 
-        assertEquals(167, definitions.size)
+        assertEquals(187, definitions.size)
         assertEquals(expectedQualifierCoverage, definitions.groupBy({ it.name }, { it.qualifier }).mapValues { it.value.toSet() })
         assertEquals(expectedDefinitionFingerprint, definitions.fingerprint())
     }
@@ -129,6 +129,8 @@ class ConversationMessageResourceOwnershipTest {
             "member_name_you_label_lowercase",
             "member_name_you_label_titlecase",
             "sent_a_message_with_content",
+            "label_system_message_receipt_mode_on",
+            "label_system_message_receipt_mode_off",
         )
         val messageResourceReferencePattern = Regex(
             """([A-Za-z0-9_]*R)\.string\.(label_message_edit_sent_failure|label_message_sent_failure|""" +
@@ -137,9 +139,10 @@ class ConversationMessageResourceOwnershipTest {
                 """label_message_decryption_failure_message|deleted_message_text|""" +
                 """label_message_status_edited_with_date|url_maps_location_coordinates_fallback|""" +
                 """member_name_deleted_label|member_name_you_label_lowercase|member_name_you_label_titlecase|""" +
-                """sent_a_message_with_content)\b""",
+                """sent_a_message_with_content|label_system_message_receipt_mode_on|""" +
+                """label_system_message_receipt_mode_off)\b""",
         )
-        const val expectedDefinitionFingerprint = "db7575c9aab257e848b4ba7e0c40e81d2b900dc78512abd76a87875b500675af"
+        const val expectedDefinitionFingerprint = "e1c55eecb2f465d2c0bf8710648454d6d0d59c3b8a9138eb05e22a94a19e157b"
         val expectedQualifierCoverage = mapOf(
             "label_message_edit_sent_failure" to setOf(
                 "values", "values-cs", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it",
@@ -191,6 +194,14 @@ class ConversationMessageResourceOwnershipTest {
             "sent_a_message_with_content" to setOf(
                 "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
                 "values-pt", "values-ru", "values-si", "values-sv",
+            ),
+            "label_system_message_receipt_mode_on" to setOf(
+                "values", "values-de", "values-es", "values-et", "values-hu", "values-it", "values-pl", "values-pt",
+                "values-ru", "values-si",
+            ),
+            "label_system_message_receipt_mode_off" to setOf(
+                "values", "values-de", "values-es", "values-et", "values-hu", "values-it", "values-pl", "values-pt",
+                "values-ru", "values-si",
             ),
         )
         val expectedConsumers = setOf(

@@ -479,8 +479,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">A causa della migrazione a MLS, potresti riscontrare dei problemi con la tua chiamata corrente. In tal caso, riaggancia e richiama.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Migrazione del protocollo crittografico avviata. Assicurati che tutti i tuoi client di Wire siano aggiornati.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Ora, questa conversazione utilizza il nuovo protocollo Messaging Layer Security (MLS). Per comunicare senza problemi, utilizza sempre la versione più recente di Wire sui tuoi dispositivi.</string>
-    <string name="label_system_message_receipt_mode_on">acceso</string>
-    <string name="label_system_message_receipt_mode_off">spento</string>
     <string name="label_system_message_conversation_started_by_self">**Hai** avviato la conversazione</string>
     <string name="label_system_message_conversation_started_by_other">%1$s ha avviato la conversazione</string>
     <string name="label_system_message_conversation_started_with_members">Con %1$s</string>

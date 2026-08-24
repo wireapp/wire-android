@@ -666,8 +666,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Az MLS-re átállás miatt gondok lehetnek a jelenlegi hívással. Ha ez áll fenn, fejezze be azt, majd indítson új hívást.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">A titkosítási eljárás megváltoztatása elkezdődött. Gondoskodjon összes Wire-kliense frissítéséről.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Ez a beszélgetés immár az új Messaging Layer Security (MLS) protokollt használja. A zökkenőmentes kommunikációhoz mindig a Wire legfrissebb verzióját használja.</string>
-    <string name="label_system_message_receipt_mode_on">be</string>
-    <string name="label_system_message_receipt_mode_off">ki</string>
     <string name="label_system_message_conversation_started_by_self">**Ön** indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_by_other">%1$s indította a beszélgetést</string>
     <string name="label_system_message_conversation_started_with_members">%1$s résztvevővel</string>

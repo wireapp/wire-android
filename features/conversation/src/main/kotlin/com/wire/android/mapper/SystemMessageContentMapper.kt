@@ -18,7 +18,7 @@
 
 package com.wire.android.mapper
 
-import com.wire.android.R
+import com.wire.android.feature.conversation.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration

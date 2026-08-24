@@ -773,8 +773,6 @@
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Aufgrund der Umstellung auf MLS haben Sie möglicherweise Probleme mit Ihrem aktuellen Anruf. Wenn das der Fall ist, legen Sie auf und rufen Sie erneut an.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">Die Migration des Verschlüsselungsprotokolls wurde gestartet. Stellen Sie sicher, dass alle Ihre Geräte aktualisiert werden.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Diese Unterhaltung verwendet jetzt das neue Protokoll namens Messaging-Layer-Security (MLS). Um eine reibungslose Kommunikation zu gewährleisten, verwenden Sie immer die neueste Wire-Version auf Ihren Geräten.</string>
-    <string name="label_system_message_receipt_mode_on">ein</string>
-    <string name="label_system_message_receipt_mode_off">aus</string>
     <string name="label_system_message_conversation_started_by_self">**Sie** haben die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_by_other">%1$s hat die Unterhaltung begonnen</string>
     <string name="label_system_message_conversation_started_with_members">Mit %1$s</string>

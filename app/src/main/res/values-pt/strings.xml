@@ -630,8 +630,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_system_message_conversation_protocol_changed_during_a_call">Devido à migração para MLS, você pode ter problemas com sua chamada atual. Se for esse o caso, desligue e ligue novamente.</string>
     <string name="label_system_message_conversation_protocol_changed_mixed">A migração do protocolo de criptografia começou. Certifique-se de que todos os seus clientes do Wire estejam atualizados.</string>
     <string name="label_system_message_conversation_protocol_changed_mls">Esta conversa agora usa o novo protocolo de camada de mensagens de segurança (MLS). Para se comunicar sem problemas, use sempre a versão mais recente do Wire em seus dispositivos.</string>
-    <string name="label_system_message_receipt_mode_on">ativadas</string>
-    <string name="label_system_message_receipt_mode_off">desativadas</string>
     <string name="label_system_message_conversation_started_by_self">**Você** iniciou a conversa</string>
     <string name="label_system_message_conversation_started_by_other">%1$s iniciou a conversa</string>
     <string name="label_system_message_conversation_started_with_members">Com %1$s</string>

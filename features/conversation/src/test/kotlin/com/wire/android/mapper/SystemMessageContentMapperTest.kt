@@ -19,10 +19,8 @@
 package com.wire.android.mapper
 
 import android.content.res.Resources
-import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.framework.TestMessage
-import com.wire.android.framework.TestMessage.CONVERSATION_CREATED_MESSAGE
+import com.wire.android.feature.conversation.R
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.home.conversations.name
@@ -30,6 +28,8 @@ import com.wire.android.util.formatFullDateShortTime
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
@@ -38,6 +38,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -56,7 +57,7 @@ class SystemMessageContentMapperTest {
         val content = MessageContent.ConversationMessageTimerChanged(10000)
 
         // When
-        val uiContent = mapper.mapMessage(TestMessage.SYSTEM_MESSAGE.copy(content = content), listOf())
+        val uiContent = mapper.mapMessage(systemMessage(content), listOf())
 
         // Then
         assertTrue(uiContent is SystemMessage.ConversationMessageTimerActivated)
@@ -69,10 +70,33 @@ class SystemMessageContentMapperTest {
         val content = MessageContent.ConversationMessageTimerChanged(null)
 
         // When
-        val uiContent = mapper.mapMessage(TestMessage.SYSTEM_MESSAGE.copy(content = content), listOf())
+        val uiContent = mapper.mapMessage(systemMessage(content), listOf())
 
         // Then
         assertTrue(uiContent is SystemMessage.ConversationMessageTimerDeactivated)
+    }
+
+    @Test
+    fun givenReceiptModeState_whenMappingToSystemMessage_thenFeatureResourcesAreUsed() {
+        val (_, mapper) = Arrangement().arrange()
+
+        val enabled = assertInstanceOf(
+            SystemMessage.NewConversationReceiptMode::class.java,
+            mapper.mapMessage(
+                systemMessage(MessageContent.NewConversationReceiptMode(receiptMode = true)),
+                emptyList(),
+            ),
+        )
+        val disabled = assertInstanceOf(
+            SystemMessage.NewConversationReceiptMode::class.java,
+            mapper.mapMessage(
+                systemMessage(MessageContent.NewConversationReceiptMode(receiptMode = false)),
+                emptyList(),
+            ),
+        )
+
+        assertEquals(R.string.label_system_message_receipt_mode_on, (enabled.receiptMode as UIText.StringResource).resId)
+        assertEquals(R.string.label_system_message_receipt_mode_off, (disabled.receiptMode as UIText.StringResource).resId)
     }
 
     @Test
@@ -107,7 +131,8 @@ class SystemMessageContentMapperTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
         val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
-        val missedCallMessage = TestMessage.MISSED_CALL_MESSAGE
+        val missedCallMessage = systemMessage(MessageContent.MissedCall)
+        val conversationCreatedMessage = systemMessage(MessageContent.ConversationCreated)
         val selfCaller = MemberDetails(TestUser.SELF_USER.copy(id = missedCallMessage.senderUserId), Member.Role.Admin)
         val otherCallerInfo = (member1.user as OtherUser).copy(id = missedCallMessage.senderUserId)
         val otherCaller = member1.copy(user = otherCallerInfo)
@@ -116,7 +141,7 @@ class SystemMessageContentMapperTest {
         val resultMyMissedCall = mapper.mapMessage(missedCallMessage, listOf(selfCaller.user))
         val resultOtherMissedCall = mapper.mapMessage(missedCallMessage, listOf(otherCaller.user))
 
-        val resultConversationCreated = mapper.mapMessage(CONVERSATION_CREATED_MESSAGE, listOf(member1.user))
+        val resultConversationCreated = mapper.mapMessage(conversationCreatedMessage, listOf(member1.user))
 
         // Then
         assertTrue(
@@ -128,15 +153,15 @@ class SystemMessageContentMapperTest {
                     (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
 
-        val expectedFormattedDate = CONVERSATION_CREATED_MESSAGE.date
+        val expectedFormattedDate = conversationCreatedMessage.date
             .formatFullDateShortTime()
             .uppercase(
                 Locale.getDefault()
             )
 
-        assertIs<SystemMessage.ConversationMessageCreated>(resultConversationCreated!!)
-        assertEquals(10584735, (resultConversationCreated.author as UIText.StringResource).resId)
-        assertEquals(expectedFormattedDate, resultConversationCreated.date)
+        val createdMessage = assertInstanceOf(SystemMessage.ConversationMessageCreated::class.java, resultConversationCreated)
+        assertEquals(10584735, (createdMessage.author as UIText.StringResource).resId)
+        assertEquals(expectedFormattedDate, createdMessage.date)
     }
 
     @Suppress("LongMethod", "ComplexMethod")
@@ -233,7 +258,7 @@ class SystemMessageContentMapperTest {
         )
 
         // When
-        val uiContent = mapper.mapMessage(TestMessage.SYSTEM_MESSAGE.copy(content = content), listOf())
+        val uiContent = mapper.mapMessage(systemMessage(content), listOf())
 
         // Then
         assertInstanceOf(SystemMessage.FederationStopped::class.java, uiContent)
@@ -250,7 +275,7 @@ class SystemMessageContentMapperTest {
         )
 
         // When
-        val uiContent = mapper.mapMessage(TestMessage.SYSTEM_MESSAGE.copy(content = content), listOf())
+        val uiContent = mapper.mapMessage(systemMessage(content), listOf())
 
         // Then
         assertInstanceOf(SystemMessage.FederationStopped::class.java, uiContent)
@@ -281,8 +306,23 @@ class SystemMessageContentMapperTest {
     }
 
     private companion object {
+        val systemMessageDate = Instant.parse("2022-03-30T15:36:00.000Z")
+        val systemSenderUserId = UserId("user-id", "domain")
         val userId1 = UserId("user-id1", "user-domain")
         val userId2 = UserId("user-id2", "user-domain")
         val userId3 = UserId("user-id3", "user-domain")
+
+        fun systemMessage(
+            content: MessageContent.System,
+            senderUserId: UserId = systemSenderUserId,
+        ) = Message.System(
+            id = "messageID",
+            content = content,
+            conversationId = ConversationId("convo-id", "convo.domain"),
+            date = systemMessageDate,
+            senderUserId = senderUserId,
+            status = Message.Status.Sent,
+            expirationData = null,
+        )
     }
 }

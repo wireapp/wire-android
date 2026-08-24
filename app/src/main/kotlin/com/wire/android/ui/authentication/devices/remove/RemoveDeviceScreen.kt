@@ -20,6 +20,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
+import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -33,50 +34,53 @@ internal fun RemoveDeviceRouteScreen(
     onE2EIRequired: () -> Unit,
     onHomeRequired: () -> Unit,
     onInitialSyncRequired: () -> Unit,
-) = RemoveDeviceScreen(
-    viewModel = viewModel,
-    placeholderDevice = { Device(clientId = ClientId("placeholder_$it")) },
-    deviceItem = { device, placeholder, onClick ->
-        DeviceItem(
-            device = device,
-            placeholder = placeholder,
-            onClickAction = onClick,
-            shouldShowVerifyLabel = false,
-            icon = {
-                Icon(
-                    painterResource(R.drawable.ic_remove),
-                    stringResource(R.string.content_description_remove_devices_screen_remove_icon),
-                )
-            },
-        )
-    },
-    removeDialog = { dialog, password, invalidPassword, dismiss, confirm ->
-        RemoveDeviceDialog(
-            errorState = if (invalidPassword) RemoveDeviceError.InvalidCredentialsError else RemoveDeviceError.None,
-            state = RemoveDeviceDialogState.Visible(dialog.device, dialog.loading, dialog.removeEnabled),
-            passwordTextState = password,
-            onDialogDismiss = dismiss,
-            onRemoveConfirm = confirm,
-        )
-    },
-    initialLoadErrorDialog = { cancel, retry -> InitialLoadErrorDialog(cancel, retry) },
-    genericFailureDialog = { failure, dismiss -> AuthenticationFailureDialog(failure, dismiss) },
-    cancelDialog = {
-        CancelRemoveDeviceDialog(
-            state = clearSessionViewModel.state,
-            onCancel = { clearSessionViewModel.onCancelLoginClicked(switchAccountActions) },
-            onProceed = clearSessionViewModel::onProceedLoginClicked,
-        )
-    },
-    onBack = clearSessionViewModel::onBackButtonClicked,
-    onComplete = { action ->
-        when {
-            action.isE2EIRequired -> onE2EIRequired()
-            action.initialSyncCompleted -> onHomeRequired()
-            else -> onInitialSyncRequired()
-        }
-    },
-)
+) {
+    clearAutofillTree()
+    RemoveDeviceContent(
+        viewModel = viewModel,
+        placeholderDevice = { Device(clientId = ClientId("placeholder_$it")) },
+        deviceItem = { device, placeholder, onClick ->
+            DeviceItem(
+                device = device,
+                placeholder = placeholder,
+                onClickAction = onClick,
+                shouldShowVerifyLabel = false,
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.ic_remove),
+                        stringResource(R.string.content_description_remove_devices_screen_remove_icon),
+                    )
+                },
+            )
+        },
+        removeDialog = { dialog, password, invalidPassword, dismiss, confirm ->
+            RemoveDeviceDialog(
+                errorState = if (invalidPassword) RemoveDeviceError.InvalidCredentialsError else RemoveDeviceError.None,
+                state = RemoveDeviceDialogState.Visible(dialog.device, dialog.loading, dialog.removeEnabled),
+                passwordTextState = password,
+                onDialogDismiss = dismiss,
+                onRemoveConfirm = confirm,
+            )
+        },
+        initialLoadErrorDialog = { cancel, retry -> InitialLoadErrorDialog(cancel, retry) },
+        genericFailureDialog = { failure, dismiss -> AuthenticationFailureDialog(failure, dismiss) },
+        cancelDialog = {
+            CancelRemoveDeviceDialog(
+                state = clearSessionViewModel.state,
+                onCancel = { clearSessionViewModel.onCancelLoginClicked(switchAccountActions) },
+                onProceed = clearSessionViewModel::onProceedLoginClicked,
+            )
+        },
+        onBack = clearSessionViewModel::onBackButtonClicked,
+        onComplete = { action ->
+            when {
+                action.isE2EIRequired -> onE2EIRequired()
+                action.initialSyncCompleted -> onHomeRequired()
+                else -> onInitialSyncRequired()
+            }
+        },
+    )
+}
 
 @Composable
 private fun InitialLoadErrorDialog(onCancel: () -> Unit, onRetry: () -> Unit) {

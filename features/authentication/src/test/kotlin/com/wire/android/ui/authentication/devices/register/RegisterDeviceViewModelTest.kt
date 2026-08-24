@@ -21,7 +21,6 @@ package com.wire.android.ui.authentication.devices.register
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
-import com.wire.navigation.WireSessionId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -77,7 +76,7 @@ class RegisterDeviceViewModelTest {
 
     @Test
     fun `passwordless init automatically registers with a null password`() = runTest(dispatcher) {
-        val success = RegisterDeviceResult.Success(initialSyncCompleted = true, isE2EIRequired = false)
+        val success = RegisterDeviceResult.Success<String>(initialSyncCompleted = true, isE2EIRequired = false)
         val (gateway, _, viewModel) = arrange(
             passwordRequirement = PasswordRequirement.NotRequired,
             registerResults = listOf(success),
@@ -85,7 +84,7 @@ class RegisterDeviceViewModelTest {
 
         assertEquals(listOf(RegisterDeviceRequest(null, null)), gateway.registerRequests)
         assertEquals(
-            RegisterDeviceFlowState.Success(initialSyncCompleted = true, isE2EIRequired = false),
+            RegisterDeviceFlowState.Success<String>(initialSyncCompleted = true, isE2EIRequired = false),
             viewModel.state.flowState,
         )
     }
@@ -101,10 +100,10 @@ class RegisterDeviceViewModelTest {
 
     @Test
     fun `successful registrations preserve initial sync and E2EI session values`() = runTest(dispatcher) {
-        val sessionId = WireSessionId("user", "domain")
+        val sessionId = "user@domain"
         listOf(
-            RegisterDeviceResult.Success(initialSyncCompleted = true, isE2EIRequired = false),
-            RegisterDeviceResult.Success(
+            RegisterDeviceResult.Success<String>(initialSyncCompleted = true, isE2EIRequired = false),
+            RegisterDeviceResult.Success<String>(
                 initialSyncCompleted = false,
                 isE2EIRequired = true,
                 e2eiSessionId = sessionId,
@@ -311,9 +310,9 @@ class RegisterDeviceViewModelTest {
 
     private fun arrange(
         passwordRequirement: PasswordRequirement = PasswordRequirement.Required,
-        registerResults: List<RegisterDeviceResult> = emptyList(),
+        registerResults: List<RegisterDeviceResult<String>> = emptyList(),
         verificationResults: List<RequestVerificationCodeResult> = emptyList(),
-    ): Triple<FakeRegisterDeviceGateway, FakeRegisterDeviceResendTimer, RegisterDeviceViewModel> {
+    ): Triple<FakeRegisterDeviceGateway, FakeRegisterDeviceResendTimer, RegisterDeviceViewModel<String>> {
         val gateway = FakeRegisterDeviceGateway(passwordRequirement, registerResults, verificationResults)
         val timer = FakeRegisterDeviceResendTimer()
         return Triple(gateway, timer, RegisterDeviceViewModel(gateway, timer))
@@ -321,9 +320,9 @@ class RegisterDeviceViewModelTest {
 
     private class FakeRegisterDeviceGateway(
         private val passwordRequirementResult: PasswordRequirement,
-        registerResults: List<RegisterDeviceResult>,
+        registerResults: List<RegisterDeviceResult<String>>,
         verificationResults: List<RequestVerificationCodeResult>,
-    ) : RegisterDeviceGateway {
+    ) : RegisterDeviceGateway<String> {
         private val remainingRegisterResults = ArrayDeque(registerResults)
         private val remainingVerificationResults = ArrayDeque(verificationResults)
 
@@ -333,7 +332,7 @@ class RegisterDeviceViewModelTest {
 
         override suspend fun passwordRequirement(): PasswordRequirement = passwordRequirementResult
 
-        override suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult {
+        override suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult<String> {
             registerRequests += request
             return if (remainingRegisterResults.isEmpty()) {
                 RegisterDeviceResult.PasswordRequired

@@ -26,8 +26,8 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
-fun RegisterDeviceVerificationCodeScreen(
-    viewModel: RegisterDeviceViewModel
+fun <SessionT> RegisterDeviceVerificationCodeScreen(
+    viewModel: RegisterDeviceViewModel<SessionT>
 ) = VerificationCodeScreenContent(
     viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,

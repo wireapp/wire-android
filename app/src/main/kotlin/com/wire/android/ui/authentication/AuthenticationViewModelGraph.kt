@@ -160,7 +160,7 @@ fun loginSSOViewModel(
 @Composable
 fun registerDeviceViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
-): RegisterDeviceViewModel =
+): RegisterDeviceViewModel<com.wire.navigation.WireSessionId> =
     authenticationViewModel(viewModelStoreOwner)
 
 @Composable

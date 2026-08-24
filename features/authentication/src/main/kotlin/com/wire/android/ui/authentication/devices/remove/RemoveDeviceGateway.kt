@@ -21,7 +21,7 @@ package com.wire.android.ui.authentication.devices.remove
 import com.wire.android.ui.authentication.devices.register.AuthenticationFailure
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceGateway
 
-interface RemoveDeviceGateway<DeviceT> : RegisterDeviceGateway {
+interface RemoveDeviceGateway<DeviceT> : RegisterDeviceGateway<Nothing> {
     suspend fun fetchPermanentDevices(): FetchPermanentDevicesResult<DeviceT>
 
     suspend fun deleteDevice(password: String?, device: DeviceT): DeleteDeviceResult

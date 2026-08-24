@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,12 +20,12 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 
 data class E2EIEnrollmentText(
     val title: String,
     val message: String,
     val enrollLabel: String,
+    val learnMoreUrl: String,
 )
 
 /**
@@ -34,7 +33,7 @@ data class E2EIEnrollmentText(
  * dialogs because those have app/session dependencies.
  */
 @Composable
-fun E2EIEnrollmentScreenContent(
+fun E2EIEnrollmentContent(
     state: E2EIEnrollmentState,
     text: E2EIEnrollmentText,
     onBackButtonClicked: () -> Unit,
@@ -43,9 +42,10 @@ fun E2EIEnrollmentScreenContent(
     enrollmentRequest: @Composable ((E2EIEnrollmentResult) -> Unit) -> Unit,
     errorDialog: @Composable (onRetry: () -> Unit, onDismiss: () -> Unit) -> Unit,
     successDialog: @Composable (certificate: String, onOpenDetails: () -> Unit, onDismiss: () -> Unit, isFinalizing: Boolean) -> Unit,
+    learnMoreContent: @Composable (message: String, url: String) -> Unit,
     onEnrollmentResult: (E2EIEnrollmentResult) -> Unit,
     onDismissError: () -> Unit,
-    onOpenCertificateDetails: () -> Unit,
+    onOpenCertificateDetails: (String) -> Unit,
     onDismissSuccess: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -85,18 +85,19 @@ fun E2EIEnrollmentScreenContent(
                 .padding(internalPadding)
                 .padding(MaterialTheme.wireDimensions.spacing16x),
         ) {
-            Text(
-                text = text.message,
-                style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.padding(
-                    top = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                    bottom = MaterialTheme.wireDimensions.dialogTextsSpacing,
-                ),
+            learnMoreContent(
+                text.message,
+                text.learnMoreUrl,
             )
         }
         if (state.isCertificateEnrollError) errorDialog(onEnroll, onDismissError)
         if (state.isCertificateEnrollSuccess) {
-            successDialog(state.certificate, onOpenCertificateDetails, onDismissSuccess, state.isFinalizing)
+            successDialog(
+                state.certificate,
+                { onOpenCertificateDetails(state.certificate) },
+                onDismissSuccess,
+                state.isFinalizing,
+            )
         }
         if (state.startGettingE2EICertificate) enrollmentRequest(onEnrollmentResult)
     }

@@ -59,7 +59,7 @@ class SessionAuthenticationViewModelFactory @Inject constructor(
     private val logout: LogoutUseCase,
     private val createAccountUsernameViewModelHostFactory: CreateAccountUsernameViewModelHostFactory,
 ) {
-    fun registerDeviceViewModel() = RegisterDeviceViewModel(
+    fun registerDeviceViewModel(): RegisterDeviceViewModel<com.wire.navigation.WireSessionId> = RegisterDeviceViewModel(
         gateway = registerDeviceGateway(),
         resendCodeTimer = AndroidRegisterDeviceResendTimer(countdownTimer),
     )

@@ -103,7 +103,7 @@ class RegisterDeviceGatewayAdapterTest {
         val arrangement = Arrangement(initialSyncCompleted = true)
         coEvery { arrangement.registerClient(any()) } returns RegisterClientResult.Success(TestClient.CLIENT)
         assertEquals(
-            RegisterDeviceResult.Success(initialSyncCompleted = true, isE2EIRequired = false),
+            RegisterDeviceResult.Success<WireSessionId>(initialSyncCompleted = true, isE2EIRequired = false),
             arrangement.gateway.registerClient(RegisterDeviceRequest(null, null)),
         )
 
@@ -112,7 +112,7 @@ class RegisterDeviceGatewayAdapterTest {
             TestUser.SELF_USER_ID,
         )
         assertEquals(
-            RegisterDeviceResult.Success(
+            RegisterDeviceResult.Success<WireSessionId>(
                 initialSyncCompleted = true,
                 isE2EIRequired = true,
                 e2eiSessionId = WireSessionId(TestUser.SELF_USER_ID.value, TestUser.SELF_USER_ID.domain),

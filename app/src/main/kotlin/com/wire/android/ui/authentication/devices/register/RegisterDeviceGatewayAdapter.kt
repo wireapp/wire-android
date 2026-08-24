@@ -40,7 +40,7 @@ internal class KaliumRegisterDeviceGateway(
     private val getSelfUser: GetSelfUserUseCase,
     private val requestSecondFactorVerificationCode: RequestSecondFactorVerificationCodeUseCase,
     private val buildFlags: RegisterDeviceBuildFlags = RegisterDeviceBuildFlags.current(),
-) : RegisterDeviceGateway {
+) : RegisterDeviceGateway<WireSessionId> {
 
     override suspend fun passwordRequirement(): PasswordRequirement = when (val result = isPasswordRequired()) {
         is IsPasswordRequiredUseCase.Result.Success -> if (result.value) {
@@ -53,7 +53,7 @@ internal class KaliumRegisterDeviceGateway(
             PasswordRequirement.Failure(result.cause.toAuthenticationFailure())
     }
 
-    override suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult =
+    override suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult<WireSessionId> =
         when (
             val result = registerClient(
                 RegisterClientParam(

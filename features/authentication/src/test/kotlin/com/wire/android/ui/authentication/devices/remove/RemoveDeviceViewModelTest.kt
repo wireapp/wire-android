@@ -231,8 +231,8 @@ class RemoveDeviceViewModelTest {
     @Test
     fun `registration success emits exact completion values after delete`() = runTest(dispatcher) {
         listOf(
-            RegisterDeviceResult.Success(initialSyncCompleted = true, isE2EIRequired = false),
-            RegisterDeviceResult.Success(initialSyncCompleted = false, isE2EIRequired = true),
+            RegisterDeviceResult.Success<Nothing>(initialSyncCompleted = true, isE2EIRequired = false),
+            RegisterDeviceResult.Success<Nothing>(initialSyncCompleted = false, isE2EIRequired = true),
         ).forEach { result ->
             val (_, viewModel) = arrange(
                 passwordRequirements = listOf(PasswordRequirement.NotRequired),
@@ -391,7 +391,7 @@ class RemoveDeviceViewModelTest {
         ),
         passwordRequirements: List<PasswordRequirement> = listOf(PasswordRequirement.Required),
         deleteResults: List<DeleteDeviceResult> = emptyList(),
-        registerResults: List<RegisterDeviceResult> = emptyList(),
+        registerResults: List<RegisterDeviceResult<Nothing>> = emptyList(),
         verificationResults: List<RequestVerificationCodeResult> = emptyList(),
     ): Pair<FakeRemoveDeviceGateway, RemoveDeviceViewModel<TestDevice>> {
         val gateway = FakeRemoveDeviceGateway(
@@ -416,7 +416,7 @@ class RemoveDeviceViewModelTest {
         fetchResults: List<FetchPermanentDevicesResult<TestDevice>>,
         passwordRequirements: List<PasswordRequirement>,
         deleteResults: List<DeleteDeviceResult>,
-        registerResults: List<RegisterDeviceResult>,
+        registerResults: List<RegisterDeviceResult<Nothing>>,
         verificationResults: List<RequestVerificationCodeResult>,
     ) : RemoveDeviceGateway<TestDevice> {
         private val remainingFetchResults = ArrayDeque(fetchResults)
@@ -451,7 +451,7 @@ class RemoveDeviceViewModelTest {
             }
         }
 
-        override suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult {
+        override suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult<Nothing> {
             events += "register"
             registerRequests += request
             return if (remainingRegisterResults.isEmpty()) {

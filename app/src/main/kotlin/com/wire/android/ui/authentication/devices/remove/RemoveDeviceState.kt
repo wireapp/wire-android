@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.authentication.devices.remove
 
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.common.error.CoreFailure
 
 /** Shared app dialog/error models retained for the Device and formatting-aware dialog adapter. */

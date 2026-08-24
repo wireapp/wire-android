@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "status": "requires-compiled-artifacts",
+  "profileFiles": [
+    "app/src/main/baseline-prof.txt",
+    "app/src/main/startup-prof.txt"
+  ],
+  "staleSelectors": [
+    {
+      "owner": "Lcom/wire/android/ui/authentication/devices/common/SessionBackedAuthenticationNavArgs;",
+      "reason": "Legacy route arguments were deleted after Navigation 3 became the session/flow carrier."
+    },
+    {
+      "owner": "Lcom/wire/android/ui/e2eiEnrollment/E2EIEnrollmentViewModel;",
+      "reason": "The FQCN now compiles from :features:authentication; the app retains only its Kalium gateway adapter."
+    },
+    {
+      "owner": "Lcom/wire/android/ui/authentication/devices/register/RegisterDeviceScreenKt;",
+      "reason": "The app route facade remains; feature presentation is RegisterDeviceContentKt."
+    },
+    {
+      "owner": "Lcom/wire/android/ui/authentication/devices/remove/RemoveDeviceScreenKt;",
+      "reason": "The app route facade remains; feature presentation is RemoveDeviceContentKt."
+    },
+    {
+      "owner": "Lcom/wire/android/ui/e2eiEnrollment/E2EIEnrollmentScreenKt;",
+      "reason": "The app route facade remains; feature presentation is E2EIEnrollmentContentKt."
+    }
+  ],
+  "expectedCompiledFacades": [
+    "com.wire.android.ui.authentication.devices.register.RegisterDeviceContentKt",
+    "com.wire.android.ui.authentication.devices.remove.RemoveDeviceContentKt",
+    "com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentContentKt"
+  ],
+  "requiredVerification": [
+    "Compile :app and :features:authentication.",
+    "Inspect register/remove/E2EI generated view-model factories; do not hand-edit direct factory selectors.",
+    "Use javap on every expectedCompiledFacades class before editing method descriptors.",
+    "Regenerate or compare both profile files from compiled output; do not owner-rewrite method entries blindly."
+  ]
+}

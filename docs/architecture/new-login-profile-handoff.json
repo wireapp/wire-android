@@ -31,14 +31,6 @@
       "reason": "All listed methods describe the removed app renderer; the remaining app facade is NewLoginRouteScreen."
     },
     {
-      "owner": "Lcom/wire/android/ui/authentication/devices/common/SessionBackedAuthenticationNavArgs;",
-      "reason": "The legacy bridge was deleted after Navigation 3 routes became the session/flow carrier. Compile and inspect generated output before removing profile selectors."
-    },
-    {
-      "owner": "Lcom/wire/android/ui/e2eiEnrollment/E2EIEnrollmentViewModel;",
-      "reason": "The FQCN is now compiled by :features:authentication while the app retains only a Kalium gateway adapter; inspect the generated factory and profile owner before changing selectors."
-    },
-    {
       "owner": "Lcom/wire/android/ui/newauthentication/login/password/NewLoginPasswordScreenKt;",
       "reason": "All listed methods describe the removed renderer or the moved effects helper; the remaining app facade is NewLoginPasswordRouteScreen."
     }
@@ -54,7 +46,6 @@
   ],
   "requiredVerification": [
     "Compile :app and :features:authentication.",
-    "Inspect register/remove/E2EI generated view-model factories; do not hand-edit direct factory selectors.",
     "Use javap on every expectedCompiledFacades class before editing method descriptors.",
     "Regenerate or compare both profile files from compiled output; do not owner-rewrite method entries blindly."
   ]

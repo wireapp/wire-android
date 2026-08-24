@@ -20,6 +20,10 @@ package com.wire.android.ui.authentication.devices.remove
 
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceGateway
+import com.wire.android.ui.authentication.devices.register.RegisterDeviceRequest
+import com.wire.android.ui.authentication.devices.register.RegisterDeviceResult
+import com.wire.android.ui.authentication.devices.register.RequestVerificationCodeResult
+import com.wire.android.ui.authentication.devices.register.PasswordRequirement
 import com.wire.android.ui.authentication.devices.register.toAuthenticationFailure
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
@@ -27,12 +31,32 @@ import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
+import com.wire.navigation.WireSessionId
 
 internal class KaliumRemoveDeviceGateway(
     private val fetchSelfClientsFromRemote: FetchSelfClientsFromRemoteUseCase,
     private val deleteClient: DeleteClientUseCase,
-    registerDeviceGateway: RegisterDeviceGateway,
-) : RemoveDeviceGateway<Device>, RegisterDeviceGateway by registerDeviceGateway {
+    private val registerDeviceGateway: RegisterDeviceGateway<WireSessionId>,
+) : RemoveDeviceGateway<Device> {
+
+    override suspend fun passwordRequirement(): PasswordRequirement = registerDeviceGateway.passwordRequirement()
+
+    override suspend fun requestVerificationCode(): RequestVerificationCodeResult =
+        registerDeviceGateway.requestVerificationCode()
+
+    override suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult<Nothing> =
+        when (val result = registerDeviceGateway.registerClient(request)) {
+            is RegisterDeviceResult.Success -> RegisterDeviceResult.Success<Nothing>(
+                initialSyncCompleted = result.initialSyncCompleted,
+                isE2EIRequired = result.isE2EIRequired,
+            )
+            RegisterDeviceResult.TooManyDevices -> RegisterDeviceResult.TooManyDevices
+            RegisterDeviceResult.MissingSecondFactor -> RegisterDeviceResult.MissingSecondFactor
+            RegisterDeviceResult.InvalidSecondFactor -> RegisterDeviceResult.InvalidSecondFactor
+            RegisterDeviceResult.InvalidCredentials -> RegisterDeviceResult.InvalidCredentials
+            RegisterDeviceResult.PasswordRequired -> RegisterDeviceResult.PasswordRequired
+            is RegisterDeviceResult.Failure -> RegisterDeviceResult.Failure(result.failure)
+        }
 
     override suspend fun fetchPermanentDevices(): FetchPermanentDevicesResult<Device> =
         when (val result = fetchSelfClientsFromRemote()) {

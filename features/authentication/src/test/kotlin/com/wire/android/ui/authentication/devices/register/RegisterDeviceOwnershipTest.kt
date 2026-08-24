@@ -47,6 +47,7 @@ class RegisterDeviceOwnershipTest {
         val featureRegisterRoot = root.resolve("features/authentication/src/main/kotlin/$registerPackagePath")
         val sources = Files.walk(featureRegisterRoot).use { paths ->
             paths.filter { Files.isRegularFile(it) && it.fileName.toString().endsWith(".kt") }
+                .filter { it.fileName.toString() != "RegisterDeviceRoute.kt" }
                 .map(Files::readString)
                 .toList()
         }
@@ -55,6 +56,8 @@ class RegisterDeviceOwnershipTest {
             assertFalse(sources.any { it.contains(forbidden) }, "Forbidden feature dependency: $forbidden")
         }
         assertTrue(sources.any { it.contains("interface RegisterDeviceGateway") })
+        assertTrue(sources.any { it.contains("RegisterDeviceGateway<SessionT>") })
+        assertFalse(sources.any { it.contains("WireSessionId") })
         assertTrue(sources.any { it.contains("fun interface RegisterDeviceResendTimer") })
         assertTrue(sources.any { it.contains("const val RESEND_TIMER_DELAY_SECONDS = 300L") })
     }

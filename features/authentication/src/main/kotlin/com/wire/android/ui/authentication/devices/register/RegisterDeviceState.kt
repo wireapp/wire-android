@@ -18,24 +18,22 @@
 
 package com.wire.android.ui.authentication.devices.register
 
-import com.wire.navigation.WireSessionId
-
-data class RegisterDeviceState(
+data class RegisterDeviceState<SessionT>(
     val continueEnabled: Boolean = false,
-    val flowState: RegisterDeviceFlowState = RegisterDeviceFlowState.Default
+    val flowState: RegisterDeviceFlowState<SessionT> = RegisterDeviceFlowState.Default
 )
 
-sealed class RegisterDeviceFlowState {
-    data object Default : RegisterDeviceFlowState()
-    data object Loading : RegisterDeviceFlowState()
-    data object TooManyDevices : RegisterDeviceFlowState()
-    data class Success(
+sealed class RegisterDeviceFlowState<out SessionT> {
+    data object Default : RegisterDeviceFlowState<Nothing>()
+    data object Loading : RegisterDeviceFlowState<Nothing>()
+    data object TooManyDevices : RegisterDeviceFlowState<Nothing>()
+    data class Success<SessionT>(
         val initialSyncCompleted: Boolean,
         val isE2EIRequired: Boolean,
-        val e2eiSessionId: WireSessionId? = null,
-    ) : RegisterDeviceFlowState()
+        val e2eiSessionId: SessionT? = null,
+    ) : RegisterDeviceFlowState<SessionT>()
 
-    sealed class Error : RegisterDeviceFlowState() {
+    sealed class Error : RegisterDeviceFlowState<Nothing>() {
         data object InvalidCredentialsError : Error()
         data class GenericError(val failure: AuthenticationFailure) : Error()
     }

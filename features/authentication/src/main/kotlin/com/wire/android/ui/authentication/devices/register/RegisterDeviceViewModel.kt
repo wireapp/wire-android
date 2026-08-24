@@ -32,13 +32,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class RegisterDeviceViewModel(
-    private val gateway: RegisterDeviceGateway,
+class RegisterDeviceViewModel<SessionT>(
+    private val gateway: RegisterDeviceGateway<SessionT>,
     private val resendCodeTimer: RegisterDeviceResendTimer,
 ) : ViewModel() {
 
     val passwordTextState: TextFieldState = TextFieldState()
-    var state: RegisterDeviceState by mutableStateOf(RegisterDeviceState())
+    var state: RegisterDeviceState<SessionT> by mutableStateOf(RegisterDeviceState())
         private set
 
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
@@ -88,7 +88,7 @@ class RegisterDeviceViewModel(
         ).handle(secondFactorVerificationCode.isNullOrEmpty())
     }
 
-    private suspend fun RegisterDeviceResult.handle(empty2FACodeInput: Boolean) {
+    private suspend fun RegisterDeviceResult<SessionT>.handle(empty2FACodeInput: Boolean) {
         when (this) {
             RegisterDeviceResult.TooManyDevices -> updateFlowState(RegisterDeviceFlowState.TooManyDevices)
 
@@ -175,7 +175,7 @@ class RegisterDeviceViewModel(
         startResendCodeTimer()
     }
 
-    private fun updateFlowState(flowState: RegisterDeviceFlowState) {
+    private fun updateFlowState(flowState: RegisterDeviceFlowState<SessionT>) {
         state = state.copy(flowState = flowState)
     }
 

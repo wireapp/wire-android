@@ -24,6 +24,7 @@ import com.wire.android.ui.authentication.devices.register.PasswordRequirement
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceGateway
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceRequest
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceResult
+import com.wire.navigation.WireSessionId
 import com.wire.android.ui.authentication.devices.register.RequestVerificationCodeResult
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
@@ -110,7 +111,7 @@ class RemoveDeviceGatewayAdapterTest {
         val arrangement = Arrangement()
         val request = RegisterDeviceRequest("password", "123456")
         coEvery { arrangement.registerGateway.passwordRequirement() } returns PasswordRequirement.NotRequired
-        coEvery { arrangement.registerGateway.registerClient(request) } returns RegisterDeviceResult.Success(
+        coEvery { arrangement.registerGateway.registerClient(request) } returns RegisterDeviceResult.Success<WireSessionId>(
             initialSyncCompleted = true,
             isE2EIRequired = true,
         )
@@ -119,7 +120,7 @@ class RemoveDeviceGatewayAdapterTest {
 
         assertEquals(PasswordRequirement.NotRequired, arrangement.gateway.passwordRequirement())
         assertEquals(
-            RegisterDeviceResult.Success(initialSyncCompleted = true, isE2EIRequired = true),
+            RegisterDeviceResult.Success<Nothing>(initialSyncCompleted = true, isE2EIRequired = true),
             arrangement.gateway.registerClient(request),
         )
         assertEquals(
@@ -143,7 +144,7 @@ class RemoveDeviceGatewayAdapterTest {
     private class Arrangement {
         val fetchClients = mockk<FetchSelfClientsFromRemoteUseCase>()
         val deleteClient = mockk<DeleteClientUseCase>()
-        val registerGateway = mockk<RegisterDeviceGateway>()
+        val registerGateway = mockk<RegisterDeviceGateway<WireSessionId>>()
 
         val gateway = KaliumRemoveDeviceGateway(
             fetchSelfClientsFromRemote = fetchClients,

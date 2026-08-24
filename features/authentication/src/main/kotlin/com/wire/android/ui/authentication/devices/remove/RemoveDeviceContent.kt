@@ -30,7 +30,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
  * app, so the feature never imports host models, Kalium, app R, or date/fingerprint formatting.
  */
 @Composable
-fun <DeviceT> RemoveDeviceScreen(
+fun <DeviceT> RemoveDeviceContent(
     viewModel: RemoveDeviceViewModel<DeviceT>,
     placeholderDevice: (Int) -> DeviceT,
     deviceItem: @Composable (device: DeviceT, placeholder: Boolean, onClick: (DeviceT) -> Unit) -> Unit,
@@ -84,7 +84,13 @@ private fun <DeviceT> RemoveDeviceListContent(
     password: TextFieldState,
     placeholderDevice: (Int) -> DeviceT,
     deviceItem: @Composable (DeviceT, Boolean, (DeviceT) -> Unit) -> Unit,
-    removeDialog: @Composable (RemoveDeviceAuthenticationDialogState.Visible<DeviceT>, TextFieldState, Boolean, () -> Unit, () -> Unit) -> Unit,
+    removeDialog: @Composable (
+        RemoveDeviceAuthenticationDialogState.Visible<DeviceT>,
+        TextFieldState,
+        Boolean,
+        () -> Unit,
+        () -> Unit,
+    ) -> Unit,
     cancelDialog: @Composable () -> Unit,
     onBack: () -> Unit,
     onItemClick: (DeviceT) -> Unit,

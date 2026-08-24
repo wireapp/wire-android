@@ -18,12 +18,10 @@
 
 package com.wire.android.ui.authentication.devices.register
 
-import com.wire.navigation.WireSessionId
-
-interface RegisterDeviceGateway {
+interface RegisterDeviceGateway<SessionT> {
     suspend fun passwordRequirement(): PasswordRequirement
 
-    suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult
+    suspend fun registerClient(request: RegisterDeviceRequest): RegisterDeviceResult<SessionT>
 
     suspend fun requestVerificationCode(): RequestVerificationCodeResult
 }
@@ -39,19 +37,19 @@ sealed interface PasswordRequirement {
     data class Failure(val failure: AuthenticationFailure) : PasswordRequirement
 }
 
-sealed interface RegisterDeviceResult {
-    data class Success(
+sealed interface RegisterDeviceResult<out SessionT> {
+    data class Success<SessionT>(
         val initialSyncCompleted: Boolean,
         val isE2EIRequired: Boolean,
-        val e2eiSessionId: WireSessionId? = null,
-    ) : RegisterDeviceResult
+        val e2eiSessionId: SessionT? = null,
+    ) : RegisterDeviceResult<SessionT>
 
-    data object TooManyDevices : RegisterDeviceResult
-    data object MissingSecondFactor : RegisterDeviceResult
-    data object InvalidSecondFactor : RegisterDeviceResult
-    data object InvalidCredentials : RegisterDeviceResult
-    data object PasswordRequired : RegisterDeviceResult
-    data class Failure(val failure: AuthenticationFailure) : RegisterDeviceResult
+    data object TooManyDevices : RegisterDeviceResult<Nothing>
+    data object MissingSecondFactor : RegisterDeviceResult<Nothing>
+    data object InvalidSecondFactor : RegisterDeviceResult<Nothing>
+    data object InvalidCredentials : RegisterDeviceResult<Nothing>
+    data object PasswordRequired : RegisterDeviceResult<Nothing>
+    data class Failure(val failure: AuthenticationFailure) : RegisterDeviceResult<Nothing>
 }
 
 sealed interface RequestVerificationCodeResult {

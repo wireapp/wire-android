@@ -34,6 +34,7 @@ import com.wire.android.ui.authentication.login.AppLoginState
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.isProxyAuthRequired
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme

@@ -277,7 +277,7 @@ fun ProxyPasswordInput(proxyPasswordState: TextFieldState, modifier: Modifier = 
 }
 
 @Composable
-internal fun LoginButtonContent(
+fun LoginButtonContent(
     loading: Boolean,
     enabled: Boolean,
     onClick: () -> Unit,

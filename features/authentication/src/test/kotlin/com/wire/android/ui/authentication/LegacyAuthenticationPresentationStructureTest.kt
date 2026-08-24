@@ -28,6 +28,7 @@ class LegacyAuthenticationPresentationStructureTest {
     fun `login button keeps wrapper and child tag boundary`() {
         val feature = featureSource("login/email/LoginEmailContent.kt")
         val app = appSource("login/email/LoginEmailScreen.kt")
+        assertTrue(Regex("(?m)^fun LoginButtonContent\\(").containsMatchIn(feature))
         assertTrue(feature.contains("Column(modifier = modifier)"))
         assertTrue(feature.contains("modifier = Modifier.testTag(\"loginButton\")"))
         assertTrue(app.contains("fun LoginButton("))

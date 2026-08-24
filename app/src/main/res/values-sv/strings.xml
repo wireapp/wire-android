@@ -138,8 +138,6 @@
     <string name="api_versioning_server_version_not_supported_title">Server-versionen stöds inte</string>
     <string name="api_versioning_server_version_not_supported_message">Din Wire-server behöver inte uppdateras. Vänligen meddela administratören för ditt system.</string>
     <!-- Migration -->
-    <string name="migration_title">Ställer in Wire</string>
-    <string name="migration_message">Vänligen vänta medans vi ställer in appen till dig</string>
     <string name="migration_message_unknown">Vänligen vänta medans vi migrerar data för dig</string>
     <string name="migration_accounts_message">Migrerar dina konton...</string>
     <string name="migration_messages_message">Migrerar dina meddelanden...</string>

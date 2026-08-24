@@ -238,8 +238,6 @@
     <string name="api_versioning_server_version_not_supported_title">Nem támogatott szerververzió</string>
     <string name="api_versioning_server_version_not_supported_message">Az Ön Wire-kiszolgálója frissítést igényel. Értesítse rendszeradminisztrátorát.</string>
     <!-- Migration -->
-    <string name="migration_title">A Wire beállítása</string>
-    <string name="migration_message">Kérjük várjon, amíg beállítjuk Önnek az alkalmazást</string>
     <string name="migration_message_unknown">Kérjük várjon, amíg átköltöztetjük az adatait</string>
     <string name="migration_accounts_message">Fiókjai átköltöztetése...</string>
     <string name="migration_messages_message">Üzenetei átköltöztetése...</string>

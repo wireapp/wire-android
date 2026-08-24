@@ -238,8 +238,6 @@
     <string name="api_versioning_server_version_not_supported_title">සේවාදායකයේ අනුවාදයට සහාය නොදක්වයි</string>
     <string name="api_versioning_server_version_not_supported_message">ඔබගේ වයර් සේවාදායකය යාවත්කාල විය යුතුය. කරුණාකර පද්ධතියේ පරිපාලකයාට දන්වන්න.</string>
     <!-- Migration -->
-    <string name="migration_title">වයර් පිහිටුවමින්</string>
-    <string name="migration_message">යෙදුම පිහිටුවන තෙක් රැඳී සිටින්න</string>
     <string name="migration_message_unknown">අපි ඔබ වෙනුවෙන් දත්ත සංක්‍රමණය කරන තෙක් රැඳී සිටින්න.</string>
     <string name="migration_accounts_message">ඔබගේ ගිණුම් සංක්‍රමණය කරමින්...</string>
     <string name="migration_messages_message">ඔබගේ පණිවිඩ සංක්‍රමණය කරමින්...</string>

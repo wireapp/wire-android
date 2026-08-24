@@ -286,8 +286,6 @@
     <string name="api_versioning_server_version_not_supported_title">Версия сервера не поддерживается</string>
     <string name="api_versioning_server_version_not_supported_message">Ваш сервер Wire нуждается в обновлении. Пожалуйста, сообщите об этом вашему системному администратору.</string>
     <!-- Migration -->
-    <string name="migration_title">Настройка Wire</string>
-    <string name="migration_message">Пожалуйста, подождите, пока мы настроим приложение для вас</string>
     <string name="migration_message_unknown">Пожалуйста, подождите, пока мы перенесем ваши данные</string>
     <string name="migration_accounts_message">Миграция ваших учетных записей...</string>
     <string name="migration_messages_message">Перенос ваших сообщений...</string>

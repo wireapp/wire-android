@@ -276,8 +276,6 @@
     <string name="api_versioning_server_version_not_supported_title">Serverversion wird nicht unterstützt</string>
     <string name="api_versioning_server_version_not_supported_message">Ihr Wire-Server muss aktualisiert werden. Bitte informieren Sie Ihren Systemadministrator.</string>
     <!-- Migration -->
-    <string name="migration_title">Einrichten von Wire</string>
-    <string name="migration_message">Bitte warten Sie, während wir die App für Sie einrichten</string>
     <string name="migration_message_unknown">Bitte warten Sie, während wir die Daten für Sie migrieren</string>
     <string name="migration_accounts_message">Ihre Benutzerkonten werden migriert...</string>
     <string name="migration_messages_message">Ihre Nachrichten werden migriert...</string>

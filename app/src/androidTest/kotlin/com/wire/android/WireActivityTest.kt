@@ -35,6 +35,7 @@ import com.wire.android.extensions.waitUntilExists
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.CurrentSessionErrorState
 import com.wire.android.ui.GlobalAppState
 import com.wire.android.ui.WireActivity
@@ -85,7 +86,7 @@ class WireActivityTest {
 
         composeTestRule.onNodeWithTag("loginButton").performClick()
 
-        composeTestRule.waitUntilExists(R.string.migration_title, timeoutMillis = 10_000)
+        composeTestRule.waitUntilExists(AuthenticationR.string.migration_title, timeoutMillis = 10_000)
     }
 
     @Test

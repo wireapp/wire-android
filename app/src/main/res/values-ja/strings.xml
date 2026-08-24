@@ -162,8 +162,6 @@
     <string name="api_versioning_server_version_not_supported_title">サポートされていないサーバーのバージョン</string>
     <string name="api_versioning_server_version_not_supported_message">このWireサーバーをアップデートする必要があります。システム管理者にお問い合わせください。</string>
     <!-- Migration -->
-    <string name="migration_title">Wireをセットアップ</string>
-    <string name="migration_message">アプリを設定中です。しばらくお待ちください</string>
     <string name="migration_message_unknown">データの移行中です。しばらくお待ちください</string>
     <string name="migration_accounts_message">アカウントの移行中…</string>
     <string name="migration_messages_message">メッセージの移行中…</string>

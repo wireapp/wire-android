@@ -244,8 +244,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="api_versioning_server_version_not_supported_title">Sunucu versiyonu desteklenmiyor</string>
     <string name="api_versioning_server_version_not_supported_message">Wire sunucunuzun güncellenmesi gerekiyor. Lütfen sistem yöneticinizi bilgilendirin.</string>
     <!-- Migration -->
-    <string name="migration_title">Wire Kurulumu</string>
-    <string name="migration_message">Uygulamayı sizin için ayarlarken lütfen bekleyin</string>
     <string name="migration_message_unknown">Lütfen verilerinizi sizin için taşırken bekleyin</string>
     <string name="migration_accounts_message">Hesaplarınız taşınıyor...</string>
     <string name="migration_messages_message">Mesajlarınız taşınıyor...</string>

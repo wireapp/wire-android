@@ -240,8 +240,6 @@ URL do Backend:
     <string name="api_versioning_server_version_not_supported_title">Versão do servidor não suportada</string>
     <string name="api_versioning_server_version_not_supported_message">Seu servidor do Wire precisa ser atualizado. Por favor, notifique o administrador do sistema.</string>
     <!-- Migration -->
-    <string name="migration_title">Configurando o Wire</string>
-    <string name="migration_message">Por favor, aguarde enquanto configuramos o aplicativo para você</string>
     <string name="migration_message_unknown">Por favor, aguarde enquanto migrarmos os dados para você</string>
     <string name="migration_accounts_message">Migrando suas contas…</string>
     <string name="migration_messages_message">Migrando suas mensagens…</string>

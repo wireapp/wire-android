@@ -157,8 +157,6 @@
     <string name="api_versioning_server_version_not_supported_title">Nepodržana verzija server-a</string>
     <string name="api_versioning_server_version_not_supported_message">Vaš Wire serve se treba ažurirati. Obavijestite svog administratora sustava.</string>
     <!-- Migration -->
-    <string name="migration_title">Podešavanje Wire-a</string>
-    <string name="migration_message">Molimo pričekajte dok ne postavimo aplikaciju za vas</string>
     <string name="migration_message_unknown">Molimo pričekajte dok migriramo podatke za vas</string>
     <string name="migration_accounts_message">Migracija vaših računa...</string>
     <string name="migration_messages_message">Migracija vaših poruka...</string>

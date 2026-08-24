@@ -16,11 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -35,13 +37,10 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun InitialSyncRouteContent(
     viewModel: InitialSyncViewModel,
-    topBarTitle: String,
-    message: AnnotatedString,
-    icon: Painter,
     onSyncCompleted: (shouldMoveToBackground: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    InitialSyncProgressContent(topBarTitle, message, icon, modifier)
+    InitialSyncProgressContent(modifier)
 
     val state = viewModel.state
     LaunchedEffect(state) {
@@ -51,9 +50,6 @@ fun InitialSyncRouteContent(
 
 @Composable
 private fun InitialSyncProgressContent(
-    topBarTitle: String,
-    message: AnnotatedString,
-    icon: Painter,
     modifier: Modifier = Modifier,
 ) {
     WireScaffold(
@@ -61,7 +57,7 @@ private fun InitialSyncProgressContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = MaterialTheme.wireDimensions.spacing0x,
-                title = topBarTitle,
+                title = stringResource(AuthenticationR.string.migration_title),
                 navigationIconType = null,
             )
         },
@@ -79,7 +75,7 @@ private fun InitialSyncProgressContent(
                     .weight(weight = 1f, fill = true),
             ) {
                 Image(
-                    painter = icon,
+                    painter = painterResource(AuthenticationR.drawable.ic_migration),
                     contentDescription = null,
                     contentScale = ContentScale.Inside,
                     modifier = Modifier.padding(
@@ -89,7 +85,7 @@ private fun InitialSyncProgressContent(
                 )
                 WireCircularProgressIndicator(progressColor = MaterialTheme.wireColorScheme.onBackground)
                 Text(
-                    text = message,
+                    text = AnnotatedString(stringResource(AuthenticationR.string.migration_message)),
                     style = MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     overflow = TextOverflow.Ellipsis,

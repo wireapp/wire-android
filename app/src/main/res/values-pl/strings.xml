@@ -140,8 +140,6 @@ URL &#347;rodowiska:
     <string name="api_versioning_server_version_not_supported_title">Wersja serwera nie wspierana</string>
     <string name="api_versioning_server_version_not_supported_message">Tw&#243;j serwer Wire musi zosta&#263; zaktualizowany. Poinformuj o tym administratora systemu.</string>
     <!-- Migration -->
-    <string name="migration_title">Konfiguracja Wire</string>
-    <string name="migration_message">Prosz&#281; czeka&#263;, konfigurujemy aplikacj&#281; dla Ciebie</string>
     <string name="migration_message_unknown">Prosz&#281; czeka&#263;, migrujemy dane dla Ciebie</string>
     <string name="migration_accounts_message">Migracja Twoich kont...</string>
     <string name="migration_messages_message">Migracja Twoich wiadomo&#347;ci...</string>

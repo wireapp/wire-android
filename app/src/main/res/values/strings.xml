@@ -303,8 +303,6 @@
     <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
     <!-- Migration -->
-    <string name="migration_title">Setting up Wire</string>
-    <string name="migration_message">Please wait while we set up the app for you</string>
     <string name="migration_message_unknown">Please wait while we migrate data for you</string>
     <string name="migration_accounts_message">Migrating your accounts...</string>
     <string name="migration_messages_message">Migrating your messages...</string>

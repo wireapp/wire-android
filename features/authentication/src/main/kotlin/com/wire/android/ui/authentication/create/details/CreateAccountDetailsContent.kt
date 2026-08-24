@@ -79,9 +79,11 @@ fun <FailureT> CreateAccountDetailsContent(
     onErrorDismiss: () -> Unit,
     subtitleContent: @Composable ColumnScope.() -> Unit,
     genericFailureContent: @Composable (FailureT, () -> Unit) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
     WireScaffold(
+        modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,

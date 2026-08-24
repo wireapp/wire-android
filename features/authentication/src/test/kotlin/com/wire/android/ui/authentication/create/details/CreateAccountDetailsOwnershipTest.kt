@@ -71,6 +71,8 @@ class CreateAccountDetailsOwnershipTest {
         )
 
         assertTrue(featureContent.contains("fun <FailureT> CreateAccountDetailsContent("))
+        assertTrue(featureContent.contains("modifier: Modifier = Modifier"))
+        assertTrue(Regex("""WireScaffold\(\s*modifier\s*=\s*modifier,""").containsMatchIn(featureContent))
         assertTrue(featureContent.contains("showTeamName: Boolean"))
         assertTrue(featureContent.contains("if (showTeamName)"))
         assertTrue(featureContent.contains("firstNameFocusRequester.requestFocus()"))

@@ -18,49 +18,22 @@
 
 package com.wire.android.ui.authentication.create.code
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
-import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
-import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.textfield.CodeTextField
-import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
-import com.wire.kalium.logic.configuration.server.ServerConfig
-import kotlinx.coroutines.job
 
 @Composable
 internal fun CreateAccountCodeRouteScreen(
@@ -70,12 +43,25 @@ internal fun CreateAccountCodeRouteScreen(
     onTooManyDevices: (com.wire.kalium.logic.data.user.UserId) -> Unit,
 ) {
     with(viewModel) {
-        CodeContent(
+        CreateAccountCodeContent(
             state = codeState,
             textState = codeTextState,
             onResendCodePressed = ::resendCode,
             onBackPressed = onNavigateBack,
-            serverConfig = serverConfig
+            presentation = CreateAccountCodePresentation(
+                title = stringResource(id = codeState.type.titleResId),
+                codeInstruction = stringResource(R.string.create_account_code_text, codeState.email),
+                invalidActivationCodeError = stringResource(id = R.string.create_account_code_error),
+                backContentDescription = R.string.content_description_login_back_btn,
+            ),
+            subtitleContent = {
+                if (serverConfig.isOnPremises) {
+                    ServerTitle(
+                        serverLinks = serverConfig,
+                        style = MaterialTheme.wireTypography.body01,
+                    )
+                }
+            },
         )
 
         (codeState.result as? CreateAccountCodeResult.Error.DialogError)?.let {
@@ -100,86 +86,6 @@ internal fun CreateAccountCodeRouteScreen(
                 clearCodeError()
                 clearCodeField()
                 onTooManyDevices(tooManyDevicesError.userId)
-            }
-        }
-    }
-}
-
-@Composable
-private fun CodeContent(
-    state: CreateAccountCodeViewState<CreateAccountFlowType, com.wire.kalium.logic.data.user.UserId, com.wire.kalium.common.error.CoreFailure>,
-    textState: TextFieldState,
-    onResendCodePressed: () -> Unit,
-    onBackPressed: () -> Unit,
-    serverConfig: ServerConfig.Links
-) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    WireScaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            elevation = 0.dp,
-            title = stringResource(id = state.type.titleResId),
-            onNavigationPressed = onBackPressed,
-            subtitleContent = {
-                if (serverConfig.isOnPremises) {
-                    ServerTitle(
-                        serverLinks = serverConfig,
-                        style = MaterialTheme.wireTypography.body01
-                    )
-                }
-            },
-            navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
-        )
-    }) { internalPadding ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(internalPadding)
-        ) {
-            Text(
-                text = stringResource(R.string.create_account_code_text, state.email),
-                style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = MaterialTheme.wireDimensions.spacing16x,
-                        vertical = MaterialTheme.wireDimensions.spacing24x
-                    )
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CodeTextField(
-                    codeLength = state.codeLength,
-                    textState = textState,
-                    state = when (state.result) {
-                        is CreateAccountCodeResult.Error.TextFieldError.InvalidActivationCodeError ->
-                            WireTextFieldState.Error(stringResource(id = R.string.create_account_code_error))
-
-                        else -> WireTextFieldState.Default
-                    },
-                    modifier = Modifier.focusRequester(focusRequester)
-                )
-                AnimatedVisibility(visible = state.loading) {
-                    WireCircularProgressIndicator(
-                        progressColor = MaterialTheme.wireColorScheme.primary,
-                        size = MaterialTheme.wireDimensions.spacing24x,
-                        modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.spacing16x)
-                    )
-                }
-                ResendCodeText(
-                    onResendCodePressed = onResendCodePressed,
-                    clickEnabled = !state.loading,
-                    timerText = state.remainingTimerText,
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-        }
-        LaunchedEffect(Unit) {
-            coroutineContext.job.invokeOnCompletion {
-                focusRequester.requestFocus()
-                keyboardController?.show()
             }
         }
     }
@@ -229,16 +135,4 @@ private fun CreateAccountCodeResult.Error.DialogError<com.wire.kalium.common.err
 
     is CreateAccountCodeResult.Error.DialogError.GenericError ->
         this.failure.dialogErrorStrings(LocalContext.current.resources)
-}
-
-@Composable
-@Preview
-fun PreviewCreateAccountCodeScreen() {
-    CodeContent(
-        textState = TextFieldState(),
-        state = CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount),
-        onResendCodePressed = {},
-        onBackPressed = {},
-        serverConfig = ServerConfig.DEFAULT
-    )
 }

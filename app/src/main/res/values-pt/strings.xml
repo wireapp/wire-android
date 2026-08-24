@@ -1194,8 +1194,6 @@ registrado. Tente novamente.</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRMAR SENHA</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Insira a senha</string>
     <string name="generate_password_button_text">Gerar Senha</string>
-    <string name="password_protected_link_banner_description">Pessoas desejando entrar na conversa via link de convidado precisam digitar esta senha antes.\nEsqueceu a senha? Revogue o link e crie outro.</string>
-    <string name="password_protected_link_banner_title">O link está protegido por senha</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">A senha foi copiada para a área de transferência</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use pelo menos 8 caracteres, com uma letra minúscula, uma letra maiúscula, um número e um caractere especial.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">Nova senha gerada</string>

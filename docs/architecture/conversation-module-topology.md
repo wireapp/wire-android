@@ -1,8 +1,8 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, participant renderers/previews, regular, content, final and preview mapping/formatting, image/asset paging and asset-media/search state and no-results rendering, role projection, media/search arguments, asset restrictions, and edit-metadata presentation have facade-owned seams
+**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, participant renderers/previews, regular, content, final and preview mapping/formatting, image/asset paging and asset-media/search state and no-results rendering, role projection, media/search arguments, asset restrictions, guest-link presentation, and edit-metadata presentation have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `cd7c1297e`
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `f9163e05b`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -92,6 +92,10 @@ confirmation dialog stays in app. This preserves existing callers without a feat
 The package-preserved `SelfDeletingMessageOption` details renderer is facade-owned with its two
 dedicated labels and all 13 existing definitions. It consumes the neutral options item shell and
 changes only from app `R` to feature `R`.
+
+The package-preserved `PasswordProtectedLinkBanner` guest-access renderer is facade-owned with
+its two dedicated labels and all 15 existing definitions. Its app caller resolves the unchanged
+FQN through the facade edge; the renderer otherwise uses only neutral UI-common presentation.
 
 The package-preserved `MessageBubbleItem` is facade-owned as the regular-message layout and interaction shell. It consumes conversation-owned models and the feature-owned click interceptor plus neutral theme/UI primitives; app callers retain the same FQN.
 

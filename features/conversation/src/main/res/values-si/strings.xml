@@ -194,4 +194,6 @@
     <string name="self_deleting_messages_option">බලෙන් පණිවිඩය මකන්න</string>
     <string name="self_deleting_messages_option_description">මෙය ක්‍රියාත්මක විට, මෙම සංවාදයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත. මෙය සියලුම සහභාගිවන්නන්ට අදාළ වේ.</string>
     <string name="label_search_messages_no_results">ප්‍රතිඵල හමු නොවිණි.\nනැවත උත්සාහ කරන්න.</string>
+    <string name="password_protected_link_banner_description">ආගන්තුක සබැඳිය හරහා සංවාදයට එක් වන අය පළමුව මෙම මුරපදය ඇතුල් කළ යුතුය.\nමුරපදය අමතකද? සබැඳිය අහෝසි කර අළුතින් සාදන්න.</string>
+    <string name="password_protected_link_banner_title">සබැඳිය මුරපදයකින් ආරක්‍ෂිතයි</string>
 </resources>

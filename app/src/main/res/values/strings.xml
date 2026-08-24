@@ -1501,8 +1501,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFIRM PASSWORD</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Enter password</string>
     <string name="generate_password_button_text">Generate Password</string>
-    <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
-    <string name="password_protected_link_banner_title">Link is password secured</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copied to clipboard</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">New password generated</string>

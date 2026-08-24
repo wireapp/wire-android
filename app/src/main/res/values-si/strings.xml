@@ -1257,8 +1257,6 @@
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">මුරපදය තහවුරු කරන්න</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">මුරපදය යොදන්න</string>
     <string name="generate_password_button_text">මුරපදය උත්පාදනය</string>
-    <string name="password_protected_link_banner_description">ආගන්තුක සබැඳිය හරහා සංවාදයට එක් වන අය පළමුව මෙම මුරපදය ඇතුල් කළ යුතුය.\nමුරපදය අමතකද? සබැඳිය අහෝසි කර අළුතින් සාදන්න.</string>
-    <string name="password_protected_link_banner_title">සබැඳිය මුරපදයකින් ආරක්‍ෂිතයි</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">මුරපදය පසුරු පුවරුවට පිටපත් විය</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">කුඩා සහ ලොකු අකුරක් ද, අංකයක් ද, විශේෂ අකුරක් ද සහිතව අවම වශයෙන් අකුරු 8 ක් යොදා ගන්න.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">නව මුරපදයක් උත්පාදනය විය</string>

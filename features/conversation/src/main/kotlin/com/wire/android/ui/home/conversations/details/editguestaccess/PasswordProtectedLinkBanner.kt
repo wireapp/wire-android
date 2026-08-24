@@ -37,13 +37,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.ui.common.R as commonR
 
 @Composable
@@ -68,7 +68,7 @@ fun PasswordProtectedLinkBanner(modifier: Modifier = Modifier) {
                     .padding(bottom = dimensions().spacing4x)
             ) {
                 Text(
-                    text = stringResource(id = R.string.password_protected_link_banner_title),
+                    text = stringResource(id = conversationR.string.password_protected_link_banner_title),
                     style = MaterialTheme.wireTypography.title02,
                     modifier = Modifier.semantics { heading() }
                 )
@@ -83,7 +83,7 @@ fun PasswordProtectedLinkBanner(modifier: Modifier = Modifier) {
                 )
             }
             Text(
-                text = stringResource(id = R.string.password_protected_link_banner_description),
+                text = stringResource(id = conversationR.string.password_protected_link_banner_description),
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.secondaryText,
             )
@@ -91,7 +91,7 @@ fun PasswordProtectedLinkBanner(modifier: Modifier = Modifier) {
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewPasswordProtectedLinkBanner() = WireTheme {
     PasswordProtectedLinkBanner()

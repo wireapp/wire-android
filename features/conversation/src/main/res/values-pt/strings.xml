@@ -189,4 +189,6 @@
     <string name="conversation_options_read_receipt_description">Quando isso está ativado, as pessoas podem ver quando suas mensagens nesta conversa são lidas.</string>
     <string name="self_deleting_messages_option">Forçar exclusão de mensagens</string>
     <string name="label_search_messages_no_results">Nenhum resultado encontrado.\nRefine sua pesquisa e tente novamente.</string>
+    <string name="password_protected_link_banner_description">Pessoas desejando entrar na conversa via link de convidado precisam digitar esta senha antes.\nEsqueceu a senha? Revogue o link e crie outro.</string>
+    <string name="password_protected_link_banner_title">O link está protegido por senha</string>
 </resources>

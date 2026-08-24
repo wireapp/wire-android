@@ -1248,8 +1248,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">ERŐSÍTSE MEG A JELSZÓT</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Adja meg a jelszót</string>
     <string name="generate_password_button_text">Jelszógenerálás</string>
-    <string name="password_protected_link_banner_description">A beszélgetéshez vendég-linken keresztül csatlakozni kívánóknak először meg kell adniuk ezt a jelszót.\nElfelejtette a jelszót? Vonja vissza a linket, és hozzon létre újat.</string>
-    <string name="password_protected_link_banner_title">A link jelszóvédett</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">A jelszó a vágólapra másolva</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Használjon legalább 8 karaktert, legyen benne minimum 1 kisbetű, 1 nagybetű, 1 szám és 1 speciális karakter is.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">Új jelszó generálva</string>

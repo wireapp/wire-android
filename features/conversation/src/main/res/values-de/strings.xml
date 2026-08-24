@@ -233,4 +233,6 @@
     <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
     <string name="self_deleting_messages_option_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Unterhaltung nach einer bestimmten Zeit. Dies gilt für alle Teilnehmer.</string>
     <string name="label_search_messages_no_results">Keine passenden Ergebnisse.\nVerfeinern Sie Ihre Suche und versuchen Sie es erneut.</string>
+    <string name="password_protected_link_banner_description">Personen, die über den Gäste-Link an der Unterhaltung teilnehmen möchten, müssen zuerst dieses Passwort eingeben.\nPasswort vergessen? Widerrufen Sie den Link und erstellen Sie einen neuen.</string>
+    <string name="password_protected_link_banner_title">Link ist passwortgesichert</string>
 </resources>

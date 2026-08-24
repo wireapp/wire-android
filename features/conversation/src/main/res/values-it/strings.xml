@@ -175,4 +175,6 @@
     <string name="conversation_options_read_receipt_description">Con questa opzione ATTIVA, le persone possono vedere quando i loro messaggi in questa conversazione vengono letti.</string>
     <string name="self_deleting_messages_option">Forza eliminazione dei messaggi</string>
     <string name="label_search_messages_no_results">Impossibile trovare alcun risultato.\nTi preghiamo di affinare la tua ricerca e riprovare.</string>
+    <string name="password_protected_link_banner_description">Coloro che desiderano unirsi alla conversazione tramite il link ospite, devono prima inserire questa password.\nHai dimenticato la password? Revoca il link e creane uno nuovo.</string>
+    <string name="password_protected_link_banner_title">Il link è protetto da password</string>
 </resources>

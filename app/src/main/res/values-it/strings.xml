@@ -957,8 +957,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="conversation_options_create_confirm_password_protected_guest_link_password_label">CONFERMA LA PASSWORD</string>
     <string name="conversation_options_create_password_protected_guest_link_button_placeholder_text">Inserisci la password</string>
     <string name="generate_password_button_text">Genera password</string>
-    <string name="password_protected_link_banner_description">Coloro che desiderano unirsi alla conversazione tramite il link ospite, devono prima inserire questa password.\nHai dimenticato la password? Revoca il link e creane uno nuovo.</string>
-    <string name="password_protected_link_banner_title">Il link è protetto da password</string>
     <string name="conversation_options_create_password_protected_guest_link_password_copied">Password copiata negli appunti</string>
     <string name="conversation_options_create_password_protected_guest_link_password_description">Utilizza almeno 8 caratteri, con una lettera minuscola, una lettera maiuscola, un numero e un carattere speciale.</string>
     <string name="conversation_options_create_password_protected_guest_link_password_generated">Nuova password generata</string>

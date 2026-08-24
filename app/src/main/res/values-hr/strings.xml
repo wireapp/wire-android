@@ -477,7 +477,6 @@
     <string name="delete_acount_dialog_title">Izbriši Račun</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Podsjeti me kasnije</string>
     <!-- Record Audio -->
-    <string name="password_protected_link_banner_description">Osobe koje se žele pridružiti razgovoru putem veze za goste moraju prvo unijeti ovu lozinku.\nZaboravili ste lozinku? Opozovite vezu i stvorite novu.</string>
     <!--    biometrics-->
     <!--    e2ei-->
     <!-- legal hold -->

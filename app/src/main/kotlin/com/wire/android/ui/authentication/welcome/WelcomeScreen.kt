@@ -30,7 +30,7 @@ internal fun WelcomeRouteScreen(
         viewModel.state.nomadAccountBlocksLogin,
         viewModel.state.links,
         onNavigateBack,
-        onAction = { onAction(it.toRouteAction()) },
+        onAction = onAction,
     )
 }
 

@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
@@ -46,7 +46,7 @@ import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 
 @Composable
 fun ReactionPill(
@@ -78,9 +78,9 @@ fun ReactionPill(
 
     val onClickDescription = stringResource(
         if (isOwn) {
-            R.string.content_description_remove_your_reaction
+            conversationR.string.content_description_remove_your_reaction
         } else {
-            R.string.content_description_add_this_reaction
+            conversationR.string.content_description_add_this_reaction
         }
     )
 
@@ -125,7 +125,7 @@ fun ReactionPill(
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun ReactionPillPreview() = WireTheme(accent = Accent.Unknown) {
     ReactionPill(
@@ -136,7 +136,7 @@ fun ReactionPillPreview() = WireTheme(accent = Accent.Unknown) {
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun ReactionOwnPillPreview() = WireTheme(accent = Accent.Amber) {
     ReactionPill(

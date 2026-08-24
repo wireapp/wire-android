@@ -156,4 +156,7 @@
 <string name="ephemeral_group_channel_event_message">"Someone sent a message"</string>
 
 <string name="last_message_composite_with_missing_text">sent an interactive message</string>
+    <string name="content_description_add_this_reaction">Double tap to add this reaction</string>
+
+    <string name="content_description_remove_your_reaction">Double tap to remove reaction</string>
 </resources>

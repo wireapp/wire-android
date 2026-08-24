@@ -155,4 +155,7 @@
 <string name="ephemeral_group_channel_event_message">"Jemand hat eine Nachricht gesendet"</string>
 
 <string name="last_message_composite_with_missing_text">hat eine interaktive Nachricht gesendet</string>
+    <string name="content_description_add_this_reaction">Doppeltippen, um diese Reaktion hinzuzufügen</string>
+
+    <string name="content_description_remove_your_reaction">Doppeltippen, um die Reaktion zu entfernen</string>
 </resources>

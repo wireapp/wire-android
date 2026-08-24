@@ -179,4 +179,7 @@
 <string name="ephemeral_group_channel_event_message">"Кто-то прислал сообщение"</string>
 
 <string name="last_message_composite_with_missing_text">отправил интерактивное сообщение</string>
+    <string name="content_description_add_this_reaction">Нажмите дважды, чтобы добавить эту реакцию</string>
+
+    <string name="content_description_remove_your_reaction">Нажмите дважды, чтобы удалить реакцию</string>
 </resources>

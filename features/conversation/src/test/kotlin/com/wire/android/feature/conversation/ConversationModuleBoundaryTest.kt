@@ -708,7 +708,7 @@ class ConversationModuleBoundaryTest {
 
         assertEquals(25, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
         assertEquals(25, featureResources.listFiles().orEmpty().count { it.isDirectory })
-        assertEquals(609, featureDefinitions.size)
+        assertEquals(615, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -976,6 +976,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageAuthorRow.kt"
         const val legacyMessageAuthorRowRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageAuthorRow.kt"
+        const val messageReactionsItemRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
+        const val reactionPillRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/ReactionPill.kt"
         const val messageResourceProviderRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageResourceProvider.kt"
         const val legacyMessageResourceProviderRelativePath =
@@ -1553,6 +1557,10 @@ class ConversationModuleBoundaryTest {
         val messageAuthorRowSources = mapOf(
             messageAuthorRowRelativePath to "com.wire.android.ui.home.conversations.messages.item",
         )
+        val reactionPresentationSources = mapOf(
+            messageReactionsItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+            reactionPillRelativePath to "com.wire.android.ui.home.conversations.messages",
+        )
         val messageResourceProviderSources = mapOf(
             messageResourceProviderRelativePath to "com.wire.android.mapper",
         )
@@ -1590,7 +1598,7 @@ class ConversationModuleBoundaryTest {
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
-                    linkPreviewMessageBodySources + messageAuthorRowSources +
+                    linkPreviewMessageBodySources + messageAuthorRowSources + reactionPresentationSources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
                     messageContentAndFinalMapperSources + messagePreviewContentMapperSources
@@ -1636,6 +1644,8 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.common.R",
             "com.wire.android.ui.common.UserBadge",
             "com.wire.android.ui.common.applyIf",
+            "com.wire.android.ui.common.button.WireSecondaryButton",
+            "com.wire.android.ui.common.button.wireSecondaryButtonColors",
             "com.wire.android.ui.common.colorsScheme",
             "com.wire.android.ui.common.avatar.UserProfileAvatar",
             "com.wire.android.ui.common.avatar.UserProfileAvatarType",
@@ -1730,6 +1740,8 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.model.MessageStatus",
             "com.wire.android.ui.home.conversations.model.MessageTime",
             "com.wire.android.ui.home.conversations.model.Reaction",
+            "com.wire.android.ui.home.conversations.messages.ReactionPill",
+            "com.wire.android.ui.home.conversations.messages.item.interceptCombinedClickable",
             "com.wire.android.ui.home.conversations.model.UIMessage",
             "com.wire.android.ui.home.conversations.model.UIMessageContent",
             "com.wire.android.ui.home.conversations.model.UIQuotedMessage",

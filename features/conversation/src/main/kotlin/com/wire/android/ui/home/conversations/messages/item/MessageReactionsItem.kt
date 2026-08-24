@@ -32,7 +32,7 @@ import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.Reaction
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 
 private const val BUBBLE_MAX_REACTIONS_IN_ROW = 4
 
@@ -71,7 +71,7 @@ fun MessageReactionsItem(
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun LongMessageReactionsItemPreview() = WireTheme(accent = Accent.Green) {
     Box(modifier = Modifier.width(300.dp)) {
@@ -94,7 +94,7 @@ fun LongMessageReactionsItemPreview() = WireTheme(accent = Accent.Green) {
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun LongMessageReactionsBubbleItemPreview() = WireTheme(accent = Accent.Petrol) {
     Box(modifier = Modifier.width(300.dp)) {

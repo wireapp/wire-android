@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remove_device_title">Ukloni uređaj</string>
+    <string name="remove_device_message">Uklonite jedan od Vaših ostalih uređaja kako bi ste počeli koristiti Wire na ovom.    </string>
+    <string name="remove_device_label">POVEZANI UREĐAJI</string>
+</resources>

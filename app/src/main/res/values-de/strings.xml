@@ -362,11 +362,6 @@
         wurde auch Ihr Gesprächsverlauf gelöscht.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">Bitte ein Gerät entfernen</string>
-    <string name="remove_device_message">Entfernen Sie eines Ihrer anderen Geräte, um Wire
-        hier zu nutzen.
-    </string>
-    <string name="remove_device_label">IHRE GERÄTE</string>
     <string name="remove_device_id_and_time_label">Proteus-ID: %1$s\nHinzugefügt: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus-ID: %1$s\nHinzugefügt: %2$s\nAktiv: %3$s</string>
     <string name="remove_device_id_label">Proteus-ID: %1$s</string>

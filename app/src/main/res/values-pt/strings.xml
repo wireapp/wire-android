@@ -308,9 +308,6 @@ URL do Backend:
     <string name="conversation_history_wipe_explanation">De acordo com as configurações de segurança da sua equipe, seu histórico de conversas também foi excluído.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">Remover um dispositivo</string>
-    <string name="remove_device_message">Remova um dos seus outros dispositivos para começar a usar o Wire neste aparelho.</string>
-    <string name="remove_device_label">SEUS DISPOSITIVOS</string>
     <string name="remove_device_id_and_time_label">ID Proteus: %1$s\nAdicionado: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">ID Proteus: %1$s\nAdicionado: %2$s\nAtivo: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>

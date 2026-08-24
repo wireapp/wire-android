@@ -216,9 +216,6 @@ URL backend:
     <string name="conversation_history_wipe_explanation">In base alle impostazioni di sicurezza del tuo team, anche la cronologia delle conversazioni &#232; stata eliminata.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">Rimuovi un dispositivo</string>
-    <string name="remove_device_message">Rimuovi un altro dispositivo per iniziare ad usare Wire su questo.</string>
-    <string name="remove_device_label">I TUOI DISPOSITIVI</string>
     <string name="remove_device_id_and_time_label">ID di Proteus: %1$s\nAggiunto: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">ID di Proteus: %1$s\nAggiunto: %2$s\nAttivo: %3$s</string>
     <string name="remove_device_id_label">ID di Proteus: %1$s</string>

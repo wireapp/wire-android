@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remove_device_title">Eszköz eltávolítása</string>
+    <string name="remove_device_message">Ahhoz, hogy használni tudja a Wire-t ezen az eszközön, először távolítsa el
+        egy másik készülékét.
+    </string>
+    <string name="remove_device_label">ESZKÖZEI</string>
+</resources>

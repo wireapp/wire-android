@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remove_device_title">Remover um dispositivo</string>
+    <string name="remove_device_message">Remova um dos seus outros dispositivos para começar a usar o Wire neste aparelho.</string>
+    <string name="remove_device_label">SEUS DISPOSITIVOS</string>
+</resources>

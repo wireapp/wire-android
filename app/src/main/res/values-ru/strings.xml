@@ -372,11 +372,6 @@
         вашей команды история бесед также была удалена.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">Удалить устройство</string>
-    <string name="remove_device_message">Удалите одно из ваших устройств, чтобы начать использовать Wire
-        на этом.
-    </string>
-    <string name="remove_device_label">ВАШИ УСТРОЙСТВА</string>
     <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nДобавлено: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nДобавлено: %2$s\nАктивность: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>

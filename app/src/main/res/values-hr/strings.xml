@@ -212,9 +212,6 @@
          vašeg tima, vaša povijest razgovora također je izbrisana.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">Ukloni uređaj</string>
-    <string name="remove_device_message">Uklonite jedan od Vaših ostalih uređaja kako bi ste počeli koristiti Wire na ovom.    </string>
-    <string name="remove_device_label">POVEZANI UREĐAJI</string>
     <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nDodan: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nDodan: %2$s\nAktivan: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>

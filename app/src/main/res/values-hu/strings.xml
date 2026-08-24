@@ -320,11 +320,6 @@
         megfelelően, beszélgetési előzményei szintén törlésre kerültek.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">Eszköz eltávolítása</string>
-    <string name="remove_device_message">Ahhoz, hogy használni tudja a Wire-t ezen az eszközön, először távolítsa el
-        egy másik készülékét.
-    </string>
-    <string name="remove_device_label">ESZKÖZEI</string>
     <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nHozzáadva: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nHozzáadva: %2$s\nAktív: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>

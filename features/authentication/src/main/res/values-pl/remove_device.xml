@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remove_device_title">Usu&#324; urz&#261;dzenie</string>
+    <string name="remove_device_message">Usu&#324; jedno ze swoich innych urz&#261;dze&#324;, aby zacz&#261;&#263; u&#380;ywa&#263; Wire na tym.</string>
+    <string name="remove_device_label">Twoje urz&#261;dzenia</string>
+</resources>

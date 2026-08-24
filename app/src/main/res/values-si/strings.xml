@@ -316,9 +316,6 @@
     <string name="conversation_history_wipe_explanation">ඔබගේ කණ්ඩායමේ ආරක්‍ෂණ සැකසුම් වලට අනුව, ඔබගේ සංවාද ඉතිහාසය ද මකා ඇත.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">උපාංගයක් ඉවත් කරන්න</string>
-    <string name="remove_device_message">මෙහි වයර් භාවිතා කිරීම ඇරඹීමට ඔබගේ අනෙක් උපාංග වලින් එකක් ඉවත් කරන්න.</string>
-    <string name="remove_device_label">ඔබගේ උපාංග</string>
     <string name="remove_device_id_and_time_label">ප්‍රෝටියස් හැඳු.: %1$s\nඑක් කළේ: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">ප්‍රෝටියස් හැඳු.: %1$s\nඑක් කළේ: %2$s\nසක්‍රිය: %3$s</string>
     <string name="remove_device_id_label">ප්‍රෝටියස් හැඳු.: %1$s</string>

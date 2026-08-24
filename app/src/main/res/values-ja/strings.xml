@@ -218,9 +218,6 @@
     <string name="conversation_history_wipe_explanation">チームのセキュリティ設定により、会話の履歴も削除されました。</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">デバイスの削除</string>
-    <string name="remove_device_message">このデバイスでWireを使用するには、他のデバイスを 1 つ削除してください。</string>
-    <string name="remove_device_label">デバイス</string>
     <string name="remove_device_id_and_time_label">Proteus ID: %1$s\n追加: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\n追加: %2$s\nアクティブ: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>

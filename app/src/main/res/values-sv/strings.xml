@@ -188,8 +188,6 @@
         inställningar, din konversationshistorik har också tagits bort.</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->
-    <string name="remove_device_title">Ta bort en enhet</string>
-    <string name="remove_device_label">DINA ENHETER</string>
     <string name="remove_device_invalid_password">Ogiltigt lösenord</string>
     <string name="item_subtitle_status_e2ei_certificate">Status</string>
     <string name="item_subtitle_serial_number_e2ei_certificate">Serienummer</string>

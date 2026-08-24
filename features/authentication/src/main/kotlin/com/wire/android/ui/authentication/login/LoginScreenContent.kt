@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.authentication.R
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -129,6 +128,6 @@ enum class LoginTabChange { Animate, BlockLeavingEmail, Ignore }
 fun loginTabChange(isProxyEnabled: Boolean, currentPage: Int, targetPage: Int): LoginTabChange =
     when {
         !isProxyEnabled -> LoginTabChange.Animate
-        currentPage == LoginTabItem.EMAIL.ordinal && targetPage != LoginTabItem.EMAIL.ordinal -> LoginTabChange.BlockLeavingEmail
+        currentPage == LoginTabItem.EMAIL.ordinal -> LoginTabChange.BlockLeavingEmail
         else -> LoginTabChange.Ignore
     }

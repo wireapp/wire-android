@@ -18,31 +18,13 @@
 
 package com.wire.android.ui.authentication.login
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.authentication.loginEmailViewModel
@@ -55,24 +37,14 @@ import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
-import com.wire.android.ui.common.TabItem
-import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
-import com.wire.android.ui.common.rememberTopBarElevationState
-import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.launch
 
 /**
  * Navigation-neutral adapter used by the Navigation 3 host.
@@ -130,8 +102,6 @@ private fun LoginContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Suppress("CyclomaticComplexMethod")
 @Composable
 private fun MainLoginContent(
     onBackPressed: () -> Unit,
@@ -154,32 +124,51 @@ private fun MainLoginContent(
     FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
     com.wire.android.ui.authentication.login.LoginScreenContent(
         showBackendSetup = shouldShowBackendSetup,
-        initialTab = com.wire.android.ui.authentication.login.initialLoginTab(ssoLoginResult != null, ssoCodeAutoLogin != null),
-        title = stringResource(if (shouldShowBackendSetup) R.string.missing_backend_config_title else R.string.login_title),
+        initialTab = com.wire.android.ui.authentication.login.initialLoginTab(
+            ssoLoginResult != null,
+            ssoCodeAutoLogin != null,
+        ),
+        title = stringResource(
+            if (shouldShowBackendSetup) R.string.missing_backend_config_title else R.string.login_title
+        ),
         backContentDescription = R.string.content_description_login_back_btn,
         isProxyEnabled = loginEmailViewModel.serverConfig.isProxyEnabled,
         onBackPressed = onBackPressed,
         onSsoBlocked = {
             ssoDisabledWithProxyDialogState.show(
-                ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(R.string.sso_not_supported_dialog_description)
+                ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                    R.string.sso_not_supported_dialog_description
+                )
             )
         },
-        emailContent = { LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState) },
-        ssoContent = { LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, loginNavArgs, ssoLoginResult, ssoCodeAutoLogin) },
+        emailContent = {
+            LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
+        },
+        ssoContent = {
+            LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, loginNavArgs, ssoLoginResult, ssoCodeAutoLogin)
+        },
         backendConfigContent = {
-            if (backendConfigState == LoginEmailState.BackendConfigState.Success) BackendConfigSuccessContent(
-                modifier = Modifier.fillMaxWidth(), onContinue = loginEmailViewModel::onBackendConfigSuccessContinue,
-            ) else MissingBackendConfigContent(
+            if (backendConfigState == LoginEmailState.BackendConfigState.Success) {
+                BackendConfigSuccessContent(
+                    modifier = Modifier.fillMaxWidth(),
+                    onContinue = loginEmailViewModel::onBackendConfigSuccessContinue,
+                )
+            } else MissingBackendConfigContent(
                 modifier = Modifier.fillMaxWidth(),
-                errorText = if (backendConfigState == LoginEmailState.BackendConfigState.Error) stringResource(R.string.missing_backend_config_error) else null,
+                errorText = if (backendConfigState == LoginEmailState.BackendConfigState.Error) {
+                    stringResource(R.string.missing_backend_config_error)
+                } else null,
                 isLoading = backendConfigState == LoginEmailState.BackendConfigState.Loading,
                 onConfigurationLinkEntered = loginEmailViewModel::onBackendConfigLinkEntered,
             )
         },
         subtitleContent = {
-            if (!shouldShowBackendSetup && loginEmailViewModel.serverConfig.isOnPremises) ServerTitle(
-                serverLinks = loginEmailViewModel.serverConfig, style = MaterialTheme.wireTypography.body01,
-            )
+            if (!shouldShowBackendSetup && loginEmailViewModel.serverConfig.isOnPremises) {
+                ServerTitle(
+                    serverLinks = loginEmailViewModel.serverConfig,
+                    style = MaterialTheme.wireTypography.body01,
+                )
+            }
         },
     )
 }

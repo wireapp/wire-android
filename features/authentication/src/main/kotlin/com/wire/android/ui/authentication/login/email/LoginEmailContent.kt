@@ -285,11 +285,13 @@ internal fun LoginButtonContent(
     text: String,
     loadingText: String,
 ) {
-    WirePrimaryButton(
-        text = if (loading) loadingText else text,
-        onClick = onClick,
-        state = if (enabled && !loading) WireButtonState.Default else WireButtonState.Disabled,
-        loading = loading,
-        modifier = modifier.testTag("loginButton"),
-    )
+    Column(modifier = modifier) {
+        WirePrimaryButton(
+            text = if (loading) loadingText else text,
+            onClick = onClick,
+            state = if (enabled && !loading) WireButtonState.Default else WireButtonState.Disabled,
+            loading = loading,
+            modifier = Modifier.testTag("loginButton"),
+        )
+    }
 }

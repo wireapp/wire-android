@@ -215,6 +215,3 @@ fun PreviewWelcomeScreen() {
         )
     }
 }
-
-private data class CarouselScrollData(val scrollToPage: Int, val animate: Boolean)
-private data class CarouselPageData(@DrawableRes val icon: Int, val text: String)

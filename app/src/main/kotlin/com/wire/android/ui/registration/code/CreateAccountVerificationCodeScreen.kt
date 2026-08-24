@@ -9,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
-import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent

@@ -9,7 +9,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
@@ -28,7 +27,9 @@ internal fun CreateAccountSelectorRouteScreen(
     onTeamAccountCreation: (String) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    val teamUrl = viewModel.teamAccountCreationUrl + stringResource(AuthenticationR.string.create_account_email_backlink_to_team_suffix_url)
+    val teamUrl = viewModel.teamAccountCreationUrl + stringResource(
+        AuthenticationR.string.create_account_email_backlink_to_team_suffix_url,
+    )
     LegacyRegistrationSelectorContent(
         text = LegacyRegistrationSelectorText(
             title = stringResource(AuthenticationR.string.create_account_selector_title),
@@ -62,8 +63,14 @@ internal fun CreateAccountSelectorRouteScreen(
             }
         },
         onNavigateBack = onNavigateBack,
-        onPersonalAccountCreationClicked = { onPersonalAccountCreation(CreateAccountDataNavArgs(customServerConfig =
-    viewModel.serverConfig, userRegistrationInfo = UserRegistrationInfo(viewModel.email))) },
+        onPersonalAccountCreationClicked = {
+            onPersonalAccountCreation(
+                CreateAccountDataNavArgs(
+                    customServerConfig = viewModel.serverConfig,
+                    userRegistrationInfo = UserRegistrationInfo(viewModel.email),
+                ),
+            )
+        },
         onTeamAccountCreationClicked = { onTeamAccountCreation(teamUrl) },
     )
     LaunchedEffect(Unit) { viewModel.onPageLoaded() }

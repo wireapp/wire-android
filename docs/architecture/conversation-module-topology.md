@@ -2,7 +2,7 @@
 
 **Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, participant renderers/previews, regular, content, final and preview mapping/formatting, image-asset paging, role projection, media/search arguments, asset restrictions, and edit-metadata presentation have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `9b5c3a97b27c7ceafeb977a071648777bec0e70f`
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `de60e3292184844063f515fafa7b8a60b17c45e0`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -62,7 +62,7 @@ Message-user resolution is facade-owned as well. `GetUsersForMessageUseCase` kee
 
 Conversation role projection is facade-owned. `ObserveConversationRoleForUserUseCase` and `ConversationRoleData` keep their package and FQNs while projecting ordinary member roles and the same-team channel team-admin override from Kalium flows. `OtherUserProfileScreenViewModel`, `ServiceDetailsViewModel`, and their tests remain app-owned consumers through the existing facade edge; failed conversation details still produce no projection. No Gradle edge, resource, Metro contract, profile, navigation, or KMP source-set changes with this seam.
 
-The conversation media and message-search arguments are facade-owned. `ConversationMediaNavArgs` and `SearchConversationMessagesNavArgs` keep their packages, FQNs, fields, defaults, and data-class behavior while depending only on `ConversationId`. App Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors continue to consume the same contracts through the existing facade edge. No caller import, Gradle, resource, profile, stability, navigation-behavior, or KMP source-set change accompanies this ownership move.
+The conversation media and message-search arguments and search paging use case are facade-owned. `ConversationMediaNavArgs`, `SearchConversationMessagesNavArgs`, and `GetConversationMessagesFromSearchUseCase` keep their packages, FQNs, fields/defaults or injection/paging behavior while depending only on the existing feature dependency budget. App Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors continue to consume the same contracts through the existing facade edge. No caller import, Gradle, resource, profile, stability, navigation-behavior, or KMP source-set change accompanies this ownership move.
 
 Asset restriction presentation and its value-model closure are facade-owned. `CheckAssetRestrictionsViewModel`, `AssetTooLargeDialogState`, `AssetBundle`, `UriAsset`, `PathParceler`, and `ImportedMediaAsset` keep their packages, public FQNs, field/default contracts, and parcel encoding in `:features:conversation`. The feature owns the ordinary Metro binding and unchanged `checkAssetRestrictionsViewModel()` gateway; app installs that binding exactly once while retaining media import handling, screens, dialogs, and Navigation 3 runtime. No caller import, Gradle edge, resource, profile, stability, or KMP source changes with this move.
 

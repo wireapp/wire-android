@@ -59,6 +59,39 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun conversationSearchPagingUseCaseIsFeatureOwnedWithTheLegacyContract() {
+        val source = featureSource(conversationSearchPagingUseCaseRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations.usecase"))
+        assertEquals(
+            setOf(
+                "androidx.paging.PagingConfig",
+                "androidx.paging.PagingData",
+                "androidx.paging.flatMap",
+                "com.wire.android.mapper.MessageMapper",
+                "com.wire.android.ui.home.conversations.model.UIMessage",
+                "com.wire.android.util.dispatchers.DispatcherProvider",
+                "com.wire.kalium.logic.data.id.ConversationId",
+                "com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase",
+                "kotlinx.coroutines.flow.Flow",
+                "kotlinx.coroutines.flow.flowOf",
+                "kotlinx.coroutines.flow.flowOn",
+                "kotlinx.coroutines.flow.map",
+                "dev.zacsweers.metro.Inject",
+                "kotlin.math.max",
+            ),
+            importedDeclarations(source),
+        )
+        assertTrue(source.contains("class GetConversationMessagesFromSearchUseCase @Inject constructor("))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(source.contains("BuildConfig"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyConversationSearchPagingUseCaseRelativePath).exists(),
+            "$legacyConversationSearchPagingUseCaseRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun appDependsOnConversationThroughTheFeatureConvention() {
         val appBuildScript = appBuildScriptText()
 
@@ -1112,6 +1145,10 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/ConversationParticipantItemPreviews.kt"
         const val legacyGroupConversationParticipantsPreviewsRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsPreviews.kt"
+        const val conversationSearchPagingUseCaseRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetConversationMessagesFromSearchUseCase.kt"
+        const val legacyConversationSearchPagingUseCaseRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetConversationMessagesFromSearchUseCase.kt"
         const val messageReactionsItemRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
         const val reactionPillRelativePath =
@@ -1708,6 +1745,9 @@ class ConversationModuleBoundaryTest {
             groupConversationParticipantsPreviewsRelativePath to
                     "com.wire.android.ui.home.conversations.details.participants",
         )
+        val conversationSearchPagingUseCaseSources = mapOf(
+            conversationSearchPagingUseCaseRelativePath to "com.wire.android.ui.home.conversations.usecase",
+        )
         val reactionPresentationSources = mapOf(
             messageReactionsItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
             reactionPillRelativePath to "com.wire.android.ui.home.conversations.messages",
@@ -1751,6 +1791,7 @@ class ConversationModuleBoundaryTest {
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
                     offlineMessageIndicatorSources + groupConversationAvatarSources + participantPreviewSources +
+                    conversationSearchPagingUseCaseSources +
                     reactionPresentationSources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +

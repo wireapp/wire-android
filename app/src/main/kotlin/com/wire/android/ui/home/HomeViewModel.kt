@@ -120,12 +120,12 @@ class HomeViewModel @Inject constructor(
     fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
-            // Keep reads awaited and resolve once: the feature policy is deterministic and side-effect free.
+            // The feature policy evaluates requirements in priority order, avoiding unnecessary datastore reads.
             when (
                 PostLoginAuthenticationRequirementResolver.resolve(
-                    needsDeviceRegistration = needsToRegisterClient(),
-                    initialSyncCompleted = dataStore.initialSyncCompleted.first(),
-                    hasUsername = !selfUser.handle.isNullOrEmpty(),
+                    needsDeviceRegistration = { needsToRegisterClient() },
+                    initialSyncCompleted = { dataStore.initialSyncCompleted.first() },
+                    hasUsername = { !selfUser.handle.isNullOrEmpty() },
                 )
             ) {
                 PostLoginAuthenticationRequirement.RegisterDevice ->

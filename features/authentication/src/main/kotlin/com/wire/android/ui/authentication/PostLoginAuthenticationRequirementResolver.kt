@@ -16,6 +16,17 @@ object PostLoginAuthenticationRequirementResolver {
         !hasUsername -> PostLoginAuthenticationRequirement.CreateUsername
         else -> null
     }
+
+    suspend fun resolve(
+        needsDeviceRegistration: suspend () -> Boolean,
+        initialSyncCompleted: suspend () -> Boolean,
+        hasUsername: suspend () -> Boolean,
+    ): PostLoginAuthenticationRequirement? = when {
+        needsDeviceRegistration() -> PostLoginAuthenticationRequirement.RegisterDevice
+        !initialSyncCompleted() -> PostLoginAuthenticationRequirement.InitialSync
+        !hasUsername() -> PostLoginAuthenticationRequirement.CreateUsername
+        else -> null
+    }
 }
 
 sealed interface PostLoginAuthenticationRequirement {

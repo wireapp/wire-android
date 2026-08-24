@@ -30,6 +30,8 @@ class AuthenticationChromeOwnershipTest {
             assertTrue(content.contains("package com.wire.android.ui.authentication"))
             assertFalse(content.contains("import com.wire.android.R"))
             assertFalse(content.contains("com.wire.kalium"))
+            assertFalse(content.contains("com.wire.android.util"))
+            assertFalse(content.contains("PreviewMultipleThemes"))
         }
     }
 

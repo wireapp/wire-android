@@ -22,8 +22,8 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun RegisterDeviceVerificationCodeScreen(
@@ -36,7 +36,7 @@ fun RegisterDeviceVerificationCodeScreen(
     viewModel::onCodeVerificationBackPress
 )
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 internal fun RegisterDeviceVerificationCodeScreenPreview() = WireTheme {
     VerificationCodeScreenContent(

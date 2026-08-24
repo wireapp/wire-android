@@ -31,9 +31,9 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.wire.android.feature.authentication.R
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDarkColorScheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun WireAuthBackgroundLayout(
@@ -59,7 +59,7 @@ fun WireAuthBackgroundLayout(
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 private fun PreviewWireAuthBackgroundLayout() = WireTheme {
     WireAuthBackgroundLayout {}

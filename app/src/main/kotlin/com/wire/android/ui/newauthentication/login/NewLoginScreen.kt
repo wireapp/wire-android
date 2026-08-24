@@ -76,10 +76,10 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 @Composable
 internal fun NewLoginRouteScreen(
     navArgs: LoginNavArgs,
-    viewModel: NewLoginViewModel,
+    viewModel: AppNewLoginViewModel,
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
-    onAction: (NewLoginAction) -> Unit,
+    onAction: (AppNewLoginAction) -> Unit,
 ) {
     // Handle SSO code auto-login from intent parameter
     LaunchedEffect(navArgs.ssoCodeAutoLogin) {
@@ -93,7 +93,7 @@ internal fun NewLoginRouteScreen(
             }
         }
     }
-    (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->
+    (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog<ServerConfig.Links>)?.let { customServerDialogState ->
         CustomServerDetailsDialog(
             serverLinks = customServerDialogState.serverLinks,
             onDismiss = viewModel::onDismissDialog,
@@ -102,7 +102,7 @@ internal fun NewLoginRouteScreen(
             }
         )
     }
-    (viewModel.state.flowState as? NewLoginFlowState.Error.DialogError)?.let { dialogErrorState ->
+    (viewModel.state.flowState as? AppNewLoginDialogError)?.let { dialogErrorState ->
         LoginErrorDialog(dialogErrorState.toLoginDialogErrorData(), viewModel::onDismissDialog)
     }
     if (viewModel.state.flowState == NewLoginFlowState.SsoIdentityChanged) {
@@ -132,7 +132,7 @@ internal fun NewLoginRouteScreen(
 @Suppress("CyclomaticComplexMethod")
 @Composable
 private fun LoginContent(
-    loginEmailSSOState: NewLoginScreenState,
+    loginEmailSSOState: AppNewLoginScreenState,
     userIdentifierState: TextFieldState,
     serverConfig: ServerConfig.Links,
     canNavigateBack: Boolean,
@@ -287,7 +287,7 @@ fun PreviewNewLoginScreen() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailSSOState = NewLoginScreenState(),
+                loginEmailSSOState = AppNewLoginScreenState(),
                 userIdentifierState = TextFieldState(),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = false),
                 onNextClicked = {},
@@ -306,7 +306,7 @@ fun PreviewNewLoginScreenCustomConfig() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailSSOState = NewLoginScreenState(),
+                loginEmailSSOState = AppNewLoginScreenState(),
                 userIdentifierState = TextFieldState(),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
                 onNextClicked = {},
@@ -325,7 +325,7 @@ fun PreviewNewLoginScreenMissingBackendConfig() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailSSOState = NewLoginScreenState(flowState = NewLoginFlowState.MissingBackendConfig),
+                loginEmailSSOState = AppNewLoginScreenState(flowState = NewLoginFlowState.MissingBackendConfig),
                 userIdentifierState = TextFieldState(),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = false),
                 onNextClicked = {},
@@ -344,7 +344,7 @@ fun PreviewNewLoginScreenBackendConfigSuccess() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailSSOState = NewLoginScreenState(flowState = NewLoginFlowState.BackendConfigSuccess),
+                loginEmailSSOState = AppNewLoginScreenState(flowState = NewLoginFlowState.BackendConfigSuccess),
                 userIdentifierState = TextFieldState(),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = false),
                 onNextClicked = {},

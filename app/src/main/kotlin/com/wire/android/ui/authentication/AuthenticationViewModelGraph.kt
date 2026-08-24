@@ -46,7 +46,7 @@ import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.AppLoginSSOViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
-import com.wire.android.ui.newauthentication.login.NewLoginViewModel
+import com.wire.android.ui.newauthentication.login.AppNewLoginViewModel
 import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewModel
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
@@ -61,7 +61,7 @@ interface AuthenticationViewModelGraph : MetroViewModelGraph
 
 interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory {
     fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>
-    fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): NewLoginViewModel
+    fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppNewLoginViewModel
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginEmailViewModel
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginSSOViewModel
     fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel<ServerConfig.Links>
@@ -115,7 +115,7 @@ fun welcomeViewModel(
     }
 
 @Composable
-fun newLoginViewModel(): NewLoginViewModel =
+fun newLoginViewModel(): AppNewLoginViewModel =
     authenticationViewModel()
 
 @Composable
@@ -124,8 +124,8 @@ fun newLoginViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
-): NewLoginViewModel =
-    wireAssistedMetroViewModel<NewLoginViewModel, AuthenticationManualViewModelFactory>(
+): AppNewLoginViewModel =
+    wireAssistedMetroViewModel<AppNewLoginViewModel, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) { extras ->
         newLoginViewModel(loginNavArgs, extras)

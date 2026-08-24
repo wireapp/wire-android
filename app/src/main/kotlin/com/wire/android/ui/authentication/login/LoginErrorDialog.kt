@@ -27,7 +27,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
-import com.wire.android.ui.newauthentication.login.NewLoginFlowState
+import com.wire.android.ui.newauthentication.login.AppNewLoginDialogError
 import com.wire.android.ui.newauthentication.login.toLoginStateDialogError
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.deeplink.SSOFailureCodes
@@ -136,7 +136,7 @@ fun AppLoginDialogError.toLoginDialogErrorData() = when (this) {
 }
 
 @Composable
-fun NewLoginFlowState.Error.DialogError.toLoginDialogErrorData() = this.toLoginStateDialogError().toLoginDialogErrorData()
+fun AppNewLoginDialogError.toLoginDialogErrorData() = this.toLoginStateDialogError().toLoginDialogErrorData()
 
 data class LoginDialogErrorData(
     val title: String,

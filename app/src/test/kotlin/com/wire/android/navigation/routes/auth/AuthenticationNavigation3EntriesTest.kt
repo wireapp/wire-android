@@ -65,8 +65,12 @@ class AuthenticationNavigation3EntriesTest {
         val welcomeHostFactory = sourceFile(
             "../../../ui/authentication/welcome/WelcomeViewModelHostFactory.kt"
         ).readText()
-        val newLoginViewModel = sourceFile(
-            "../../../ui/newauthentication/login/NewLoginViewModel.kt"
+        val newLoginViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/newauthentication/login/NewLoginViewModel.kt",
+        ).readText()
+        val newLoginHostFactory = sourceFile(
+            "../../../ui/newauthentication/login/NewLoginViewModelHostFactory.kt"
         ).readText()
         val loginSsoViewModel = File(
             repositoryRoot(),
@@ -87,7 +91,8 @@ class AuthenticationNavigation3EntriesTest {
         assertTrue(graph.contains("fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
         assertTrue(graph.contains("fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras)"))
         assertTrue(bindings.contains("WelcomeViewModelHostFactory"))
-        assertTrue(bindings.contains("NewLoginViewModel.Factory"))
+        assertTrue(bindings.contains("NewLoginViewModelHostFactory"))
+        assertFalse(bindings.contains("NewLoginViewModel.Factory"))
         assertTrue(bindings.contains("LoginSSOViewModelHostFactory"))
         assertFalse(bindings.contains("LoginSSOViewModel.Factory"))
         assertTrue(bindings.contains("LoginEmailViewModelHostFactory"))
@@ -97,7 +102,10 @@ class AuthenticationNavigation3EntriesTest {
         assertTrue(welcomeViewModel.contains("class WelcomeViewModel<LinksT>"))
         assertFalse(welcomeViewModel.contains("AssistedInject"))
         assertTrue(welcomeHostFactory.contains("fun create(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
-        assertTrue(newLoginViewModel.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
+        assertTrue(newLoginViewModel.contains("class NewLoginViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT, BackendRequestT>"))
+        assertFalse(newLoginViewModel.contains("LoginNavArgs"))
+        assertFalse(newLoginViewModel.contains("com.wire.kalium.logic.configuration.server.ServerConfig"))
+        assertTrue(newLoginHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
         assertTrue(loginSsoViewModel.contains("class LoginSSOViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT>"))
         assertTrue(loginSsoHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
         assertTrue(loginEmailViewModel.contains("class LoginEmailViewModel<LinksT, FailureT, UserT, ScopeT, SessionT, BackendRequestT, DomainClaimT>"))

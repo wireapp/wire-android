@@ -1227,13 +1227,13 @@ public fun com.wire.android.ui.authentication.loginSSOViewModel(loginNavArgs: co
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.authentication.newLoginViewModel(): com.wire.android.ui.newauthentication.login.NewLoginViewModel
+public fun com.wire.android.ui.authentication.newLoginViewModel(): com.wire.android.ui.newauthentication.login.NewLoginViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.util.deeplink.SSOFailureCodes, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String>
   skippable: true
   restartable: true
   params:
 
 @Composable
-public fun com.wire.android.ui.authentication.newLoginViewModel(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.newauthentication.login.NewLoginViewModel
+public fun com.wire.android.ui.authentication.newLoginViewModel(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.newauthentication.login.NewLoginViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.util.deeplink.SSOFailureCodes, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String>
   skippable: false
   restartable: true
   params:
@@ -10513,7 +10513,7 @@ private fun com.wire.android.ui.newauthentication.login.EnterBackendNameDialog(o
     - onDismiss: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, canNavigateBack: kotlin.Boolean, onNextClicked: kotlin.Function0<kotlin.Unit>, onBackendConfigLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>, onBackendConfigSuccessContinue: kotlin.Function0<kotlin.Unit>, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.newauthentication.login.LoginContent(loginEmailSSOState: com.wire.android.ui.newauthentication.login.NewLoginScreenState<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.android.util.deeplink.SSOFailureCodes>, userIdentifierState: androidx.compose.foundation.text.input.TextFieldState, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links, canNavigateBack: kotlin.Boolean, onNextClicked: kotlin.Function0<kotlin.Unit>, onBackendConfigLinkEntered: kotlin.Function1<kotlin.String, kotlin.Unit>, onBackendConfigSuccessContinue: kotlin.Function0<kotlin.Unit>, onNoBackendSelected: kotlin.Function0<kotlin.Unit>, navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -10582,7 +10582,7 @@ public fun com.wire.android.ui.newauthentication.login.NewAuthTitle(title: kotli
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.ui.newauthentication.login.NewLoginRouteScreen(navArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModel: com.wire.android.ui.newauthentication.login.NewLoginViewModel, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.newauthentication.login.NewLoginAction, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.newauthentication.login.NewLoginRouteScreen(navArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModel: com.wire.android.ui.newauthentication.login.NewLoginViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.util.deeplink.SSOFailureCodes, com.wire.kalium.logic.data.session.StoreSessionParam, kotlin.String>, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.newauthentication.login.NewLoginAction<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.logic.data.id.QualifiedID>, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:

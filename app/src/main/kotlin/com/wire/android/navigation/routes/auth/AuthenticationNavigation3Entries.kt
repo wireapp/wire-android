@@ -27,6 +27,9 @@ import com.wire.android.ui.authentication.welcome.WelcomeScreenAction
 import com.wire.android.ui.authentication.welcomeViewModel
 import com.wire.android.ui.newauthentication.login.NewLoginAction
 import com.wire.android.ui.newauthentication.login.NewLoginRouteScreen
+import com.wire.android.ui.newauthentication.login.toLoginPasswordPath
+import com.wire.android.ui.newauthentication.login.toNewLoginNavigationInput
+import com.wire.android.ui.newauthentication.login.toNewLoginSsoCallback
 import com.wire.android.ui.newauthentication.login.code.NewLoginVerificationCodeRouteScreen
 import com.wire.android.ui.newauthentication.login.password.LoginStateNavigationAndDialogs
 import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordRouteScreen
@@ -202,11 +205,11 @@ private fun NewLoginNavigation3Entry(
     val viewModel = newLoginViewModel(legacyArgs, flowOwner)
 
     LaunchedEffect(route.args) {
-        viewModel.onNavigationArgumentsChanged(legacyArgs)
+        viewModel.onNavigationArgumentsChanged(legacyArgs.toNewLoginNavigationInput())
     }
 
     LaunchedEffect(route.entryId.value, route.args.ssoLoginResult) {
-        legacyArgs.ssoLoginResult?.let(viewModel::handleSSOResult)
+        legacyArgs.ssoLoginResult?.toNewLoginSsoCallback()?.let(viewModel::handleSSOResult)
     }
 
     NewLoginRouteScreen(
@@ -339,7 +342,7 @@ private fun handleNewLoginAction(
     router: AuthenticationNavigation3Router,
     route: NewLoginRoute,
     serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links,
-    action: NewLoginAction,
+    action: com.wire.android.ui.newauthentication.login.AppNewLoginAction,
     actions: AuthenticationNavigation3Actions,
 ) {
     when (action) {
@@ -349,7 +352,7 @@ private fun handleNewLoginAction(
                     userHandle = com.wire.android.ui.authentication.login.PreFilledUserIdentifierType.PreFilled(
                         action.userIdentifier
                     ),
-                    loginPasswordPath = action.loginPasswordPath,
+                    loginPasswordPath = action.toLoginPasswordPath(),
                 ).toNewLoginPasswordAttemptRoute(),
         )
 
@@ -392,7 +395,7 @@ private fun handleNewLoginAction(
     }
 }
 
-internal fun NewLoginAction.Success.NextStep.toAuthenticationLoginCompletion(): AuthenticationLoginCompletion =
+internal fun NewLoginAction.Success.NextStep<UserId>.toAuthenticationLoginCompletion(): AuthenticationLoginCompletion =
     when (this) {
         is NewLoginAction.Success.NextStep.None ->
             AuthenticationLoginCompletion.Home(userId.toSessionId())

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_details_text">Ingresa tus detalles personales:</string>
+    <string name="create_account_details_first_name_placeholder">Julia</string>
+    <string name="create_account_details_first_name_label">NOMBRE</string>
+    <string name="create_account_details_last_name_placeholder">Martín</string>
+    <string name="create_account_details_last_name_label">APELLIDO</string>
+    <string name="create_account_details_team_name_placeholder">Equipo Impresionante</string>
+    <string name="create_account_details_team_name_label">NOMBRE DEL EQUIPO</string>
+</resources>

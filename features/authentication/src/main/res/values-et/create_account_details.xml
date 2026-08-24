@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_details_first_name_placeholder">Jaan</string>
+    <string name="create_account_details_first_name_label">EESNIMI</string>
+    <string name="create_account_details_last_name_placeholder">Tamm</string>
+    <string name="create_account_details_last_name_label">PEREKONNANIMI</string>
+    <string name="create_account_details_team_name_placeholder">Vinge meeskond</string>
+    <string name="create_account_details_team_name_label">MEESKONNA NIMI</string>
+</resources>

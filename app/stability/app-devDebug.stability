@@ -567,23 +567,6 @@ internal fun com.wire.android.ui.authentication.create.details.CreateAccountDeta
     - onCodeRequested: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.details.DetailsContent(state: com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewState<com.wire.kalium.common.error.NetworkFailure>, flowType: com.wire.android.ui.authentication.create.common.CreateAccountFlowType, firstNameTextState: androidx.compose.foundation.text.input.TextFieldState, lastNameTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, teamNameTextState: androidx.compose.foundation.text.input.TextFieldState, onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - state: STABLE (class with no mutable properties)
-    - flowType: STABLE (enum)
-    - firstNameTextState: STABLE (marked @Stable or @Immutable)
-    - lastNameTextState: STABLE (marked @Stable or @Immutable)
-    - passwordTextState: STABLE (marked @Stable or @Immutable)
-    - confirmPasswordTextState: STABLE (marked @Stable or @Immutable)
-    - teamNameTextState: STABLE (marked @Stable or @Immutable)
-    - onBackPressed: STABLE (function type)
-    - onContinuePressed: STABLE (function type)
-    - onErrorDismiss: STABLE (function type)
-    - serverConfig: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
 internal fun com.wire.android.ui.authentication.create.email.CreateAccountEmailRouteScreen(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModel: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onLogin: kotlin.Function0<kotlin.Unit>, onDetailsRequested: kotlin.Function1<com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true

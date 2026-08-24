@@ -354,7 +354,6 @@
     <!-- Create Account -->
     <string name="create_personal_account_text">Biztonságos csevegés barátokkal és családtagokkal a Wire nyilvános kiszolgálóját használva.</string>
     <string name="create_personal_account_email_text">Adja meg e-mail címét a legbiztonságosabb együttműködési felület használatához.</string>
-    <string name="create_personal_account_details_text">Adja meg személyes adatait:</string>
     <string name="create_team_content_title">Ingyenes Wire</string>
     <string name="create_team_text">Üzenetküldés kis szervezetek vagy egyszemélyes tanácsadó cégek számára.\n</string>
     <string name="create_team_learn_more">Tudjon meg többet csomagjainkról és árazásunkról</string>
@@ -370,12 +369,6 @@
     <string name="create_account_email_blacklisted_error">Az e-mail címe nem megbízhatóként lett azonosítva, pl. fennakadt egy spam-szűrőn.</string>
     <string name="create_account_email_invalid_error">Adjon meg egy érvényes formátumú e-mail címet.</string>
     <string name="create_account_email_domain_blocked_error">Nem tudja létrehozni ezt a fiókot, mivel a megadott e-mail domain ki van tiltva.</string>
-    <string name="create_account_details_first_name_placeholder">Katalin</string>
-    <string name="create_account_details_first_name_label">UTÓNÉV</string>
-    <string name="create_account_details_last_name_placeholder">Minta</string>
-    <string name="create_account_details_last_name_label">VEZETÉKNÉV</string>
-    <string name="create_account_details_team_name_placeholder">Csodacsapat</string>
-    <string name="create_account_details_team_name_label">CSAPAT NEVE</string>
     <string name="create_account_details_password_description">Használjon legalább 8 karaktert, legyen benne minimum 1 kisbetű, 1 nagybetű, 1 szám és 1 speciális karakter is.</string>
     <string name="create_account_details_password_error">Érvénytelen jelszó</string>
     <string name="create_account_details_password_not_matching_error">A jelszavak nem egyeznek</string>

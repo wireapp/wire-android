@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_details_text">Geben Sie Ihre persönlichen Daten ein:</string>
+    <string name="create_account_details_first_name_placeholder">Max</string>
+    <string name="create_account_details_first_name_label">VORNAME</string>
+    <string name="create_account_details_last_name_placeholder">Müller</string>
+    <string name="create_account_details_last_name_label">NACHNAME</string>
+    <string name="create_account_details_team_name_placeholder">Name des Teams</string>
+    <string name="create_account_details_team_name_label">TEAM-NAME</string>
+</resources>

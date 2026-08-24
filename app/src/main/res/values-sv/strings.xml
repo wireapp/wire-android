@@ -203,9 +203,6 @@
     <string name="create_account_email_footer_text">Har du redan ett konto? </string>
     <string name="create_account_email_terms_dialog_title">Användarvillkor</string>
     <string name="create_account_email_invalid_error">Ange ett giltigt format för din e-postadress.</string>
-    <string name="create_account_details_first_name_label">FÖRNAMN</string>
-    <string name="create_account_details_last_name_label">EFTERNAMN</string>
-    <string name="create_account_details_team_name_label">NAMN PÅ TEAM</string>
     <string name="create_account_details_password_description">Använd minst 8 tecken, med en gemen bokstav, en versal bokstav, en siffra och ett specialtecken.</string>
     <string name="create_account_details_password_error">Ogiltigt lösenord</string>
     <string name="create_account_details_password_not_matching_error">Lösenorden matchar inte</string>

@@ -213,7 +213,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <!-- Create Account -->
     <string name="create_personal_account_text">Bezpieczne rozmowy z przyjaci&#243;&#322;mi i rodzin&#261; przy u&#380;yciu publicznej chmury Wire.</string>
     <string name="create_personal_account_email_text">Wpisz sw&#243;j adres e-mail, aby zacz&#261;&#263; korzysta&#263; z najbezpieczniejszej platformy do wsp&#243;&#322;pracy.</string>
-    <string name="create_personal_account_details_text">Wprowad&#378; swoje dane osobowe:</string>
     <string name="create_team_content_title">Wire za darmo</string>
     <string name="create_team_text">Wymiana wiadomo&#347;ci dla ma&#322;ych organizacji lub firm konsultingowych jednoosobowych.</string>
     <string name="create_team_learn_more">Dowiedz si&#281; wi&#281;cej o planach i cenach</string>
@@ -229,12 +228,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="create_account_email_blacklisted_error">Tw&#243;j e-mail zosta&#322; zidentyfikowany jako niezaufany, na przyk&#322;ad z powodu odrzucenia przez filtr spamowy.</string>
     <string name="create_account_email_invalid_error">Wprowad&#378; prawid&#322;owy format adresu e-mail.</string>
     <string name="create_account_email_domain_blocked_error">Nie mo&#380;esz utworzy&#263; tego konta, poniewa&#380; domena Twojego e-maila jest celowo zablokowana.</string>
-    <string name="create_account_details_first_name_placeholder">Adam</string>
-    <string name="create_account_details_first_name_label">IMI&#280;</string>
-    <string name="create_account_details_last_name_placeholder">Nowak</string>
-    <string name="create_account_details_last_name_label">NAZWISKO</string>
-    <string name="create_account_details_team_name_placeholder">Zesp&#243;&#322; Wspania&#322;y</string>
-    <string name="create_account_details_team_name_label">NAZWA ZESPO&#321;U</string>
     <string name="create_account_details_password_description">U&#380;yj co najmniej 8 znak&#243;w, w tym jednej ma&#322;ej litery, jednej du&#380;ej litery, jednej cyfry i jednego znaku specjalnego.</string>
     <string name="create_account_details_password_error">Nieprawid&#322;owe has&#322;o</string>
     <string name="create_account_details_password_not_matching_error">Has&#322;a nie s&#261; zgodne</string>

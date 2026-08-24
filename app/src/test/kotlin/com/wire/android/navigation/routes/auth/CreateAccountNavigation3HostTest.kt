@@ -154,8 +154,18 @@ class CreateAccountNavigation3HostTest {
         assertTrue(detailsEntry.contains("navArgs = navArgs"))
         assertTrue(detailsEntry.contains("createAccountDetailsViewModel(navArgs, owner)"))
         assertTrue(screen.contains("navArgs.userRegistrationInfo.copy("))
-        assertTrue(screen.contains("flowType = navArgs.flowType"))
+        assertTrue(screen.contains("CreateAccountDetailsContent("))
+        assertTrue(screen.contains("showTeamName = navArgs.flowType == CreateAccountFlowType.CreateTeam"))
+        assertTrue(screen.contains("ServerTitle("))
+        assertTrue(screen.contains("CoreFailureErrorDialog(failure, onDismiss)"))
+        assertTrue(screen.contains("firstName = firstNameTextState.text.toString().trim()"))
+        assertTrue(screen.contains("lastName = lastNameTextState.text.toString().trim()"))
+        assertTrue(screen.contains("password = passwordTextState.text.toString()"))
+        assertTrue(screen.contains("teamName = teamNameTextState.text.toString().trim()"))
+        assertFalse(screen.contains("WireScaffold("))
+        assertFalse(screen.contains("WireTextField("))
         assertTrue(featureSources.contains("class CreateAccountDetailsViewModel<LinksT, FailureT>"))
+        assertTrue(featureSources.contains("fun <FailureT> CreateAccountDetailsContent("))
         listOf(
             "CreateAccountNavArgs",
             "CreateAccountFlowType",

@@ -407,7 +407,6 @@
     <string name="create_account_selector_personal_highlight_two">Immer kostenlos</string>
     <string name="create_personal_account_text">Chatten Sie sicher mit Freunden und Ihrer Familie.</string>
     <string name="create_personal_account_email_text">Geben Sie Ihre E-Mail-Adresse ein, um die sicherste Kommunikationsplattform zu nutzen.</string>
-    <string name="create_personal_account_details_text">Geben Sie Ihre persönlichen Daten ein:</string>
     <string name="create_team_title">Team erstellen</string>
     <string name="create_team_content_title">Wire for Free</string>
     <string name="create_team_text">Messaging für kleine Organisationen oder Einzelunternehmen.\n</string>
@@ -428,16 +427,10 @@
     <string name="create_account_email_blacklisted_error">Ihre E-Mail-Adresse wurde als nicht vertrauenswürdig identifiziert, zum Beispiel aufgrund einer Ablehnung durch einen Spam-Filter.</string>
     <string name="create_account_email_invalid_error">Bitte geben Sie ein gültiges Format für Ihre E-Mail-Adresse ein.</string>
     <string name="create_account_email_domain_blocked_error">Sie können dieses Benutzerkonto nicht einrichten, da Ihre E-Mail-Domain absichtlich blockiert ist.</string>
-    <string name="create_account_details_first_name_placeholder">Max</string>
     <string name="create_account_details_name_placeholder">Name eingeben</string>
     <string name="create_account_details_password_placeholder">Passwort eingeben</string>
     <string name="create_account_details_password_confirm_placeholder">Passwort bestätigen</string>
     <string name="create_account_details_name_label">NAME</string>
-    <string name="create_account_details_first_name_label">VORNAME</string>
-    <string name="create_account_details_last_name_placeholder">Müller</string>
-    <string name="create_account_details_last_name_label">NACHNAME</string>
-    <string name="create_account_details_team_name_placeholder">Name des Teams</string>
-    <string name="create_account_details_team_name_label">TEAM-NAME</string>
     <string name="create_account_details_password_description">Bitte mindestens 8 Zeichen verwenden: mit einem Kleinbuchstaben, einem Großbuchstaben, einer Zahl und einem Sonderzeichen.</string>
     <string name="create_account_details_password_error">Ungültiges Passwort</string>
     <string name="create_account_details_password_not_matching_error">Passwörter stimmen nicht überein</string>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_details_text">Wprowad&#378; swoje dane osobowe:</string>
+    <string name="create_account_details_first_name_placeholder">Adam</string>
+    <string name="create_account_details_first_name_label">IMI&#280;</string>
+    <string name="create_account_details_last_name_placeholder">Nowak</string>
+    <string name="create_account_details_last_name_label">NAZWISKO</string>
+    <string name="create_account_details_team_name_placeholder">Zesp&#243;&#322; Wspania&#322;y</string>
+    <string name="create_account_details_team_name_label">NAZWA ZESPO&#321;U</string>
+</resources>

@@ -348,7 +348,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <!-- Create Account -->
     <string name="create_personal_account_text">Converse com segurança com amigos e familiares usando o servidor de nuvem público do Wire.</string>
     <string name="create_personal_account_email_text">Digite seu e-mail para começar a usar a plataforma de colaboração mais segura.</string>
-    <string name="create_personal_account_details_text">Digite seus detalhes pessoais:</string>
     <string name="create_team_content_title">Wire Grátis</string>
     <string name="create_team_text">Mensagens para pequenas organizações ou empresas de consultoria de uma pessoa.</string>
     <string name="create_team_learn_more">Saiba mais sobre planos e preços</string>
@@ -364,12 +363,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="create_account_email_blacklisted_error">Seu email foi identificado como não confiável, por exemplo, devido a uma rejeição por um filtro anti-spam.</string>
     <string name="create_account_email_invalid_error">Por favor, insira um formato válido de email.</string>
     <string name="create_account_email_domain_blocked_error">Você não pode criar esta conta, pois o seu domínio de email está bloqueado.</string>
-    <string name="create_account_details_first_name_placeholder">Maria</string>
-    <string name="create_account_details_first_name_label">NOME</string>
-    <string name="create_account_details_last_name_placeholder">Silva</string>
-    <string name="create_account_details_last_name_label">SOBRENOME</string>
-    <string name="create_account_details_team_name_placeholder">Time Incrível</string>
-    <string name="create_account_details_team_name_label">NOME DA EQUIPE</string>
     <string name="create_account_details_password_description">Use pelo menos 8 caracteres, com uma letra minúscula, uma letra maiúscula, um número e um caractere especial.</string>
     <string name="create_account_details_password_error">Senha inválida</string>
     <string name="create_account_details_password_not_matching_error">As senhas não se correspondem</string>

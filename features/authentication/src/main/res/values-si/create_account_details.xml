@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_details_text">ඔබගේ විස්තර යොදන්න:</string>
+    <string name="create_account_details_first_name_placeholder">තිසර</string>
+    <string name="create_account_details_first_name_label">මුල් නම</string>
+    <string name="create_account_details_last_name_placeholder">කසුන්</string>
+    <string name="create_account_details_last_name_label">අග නම</string>
+    <string name="create_account_details_team_name_placeholder">කණ්ඩායම කදිමයි</string>
+    <string name="create_account_details_team_name_label">කණ්ඩායමේ නම</string>
+</resources>

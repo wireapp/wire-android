@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_details_text">Введите ваши персональные данные:</string>
+    <string name="create_account_details_first_name_placeholder">Maria</string>
+    <string name="create_account_details_first_name_label">ИМЯ</string>
+    <string name="create_account_details_last_name_placeholder">Ivanova</string>
+    <string name="create_account_details_last_name_label">ФАМИЛИЯ</string>
+    <string name="create_account_details_team_name_placeholder">Super Team</string>
+    <string name="create_account_details_team_name_label">НАЗВАНИЕ КОМАНДЫ</string>
+</resources>

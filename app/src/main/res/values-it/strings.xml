@@ -256,7 +256,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <!-- Create Account -->
     <string name="create_personal_account_text">Chatta in modo sicuro con amici e familiari utilizzando il server cloud pubblico di Wire.</string>
     <string name="create_personal_account_email_text">Inserisci la tua email per iniziare ad usare la piattaforma di collaborazione pi&#249; sicura.</string>
-    <string name="create_personal_account_details_text">Inserisci i tuoi dati personali:</string>
     <string name="create_team_content_title">Wire gratuito</string>
     <string name="create_team_text">Messaggistica per piccole organizzazioni o per liberi professionisti.</string>
     <string name="create_team_learn_more">Scopri di pi&#249; su piani e prezzi</string>
@@ -272,12 +271,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="create_account_email_blacklisted_error">Il tuo indirizzo email &#232; stato identificato come non affidabile, ad esempio a causa di un filtro antispam.</string>
     <string name="create_account_email_invalid_error">Inserisci un formato email valido.</string>
     <string name="create_account_email_domain_blocked_error">Non puoi creare questo account poich&#233; il tuo dominio email &#232; bloccato intenzionalmente.</string>
-    <string name="create_account_details_first_name_placeholder">Jane</string>
-    <string name="create_account_details_first_name_label">NOME</string>
-    <string name="create_account_details_last_name_placeholder">Doe</string>
-    <string name="create_account_details_last_name_label">COGNOME</string>
-    <string name="create_account_details_team_name_placeholder">Team Awesome</string>
-    <string name="create_account_details_team_name_label">NOME TEAM</string>
     <string name="create_account_details_password_description">Usa almeno 8 caratteri, di cui una lettera minuscola, una maiuscola, un numero e un carattere speciale.</string>
     <string name="create_account_details_password_error">Password non valida.</string>
     <string name="create_account_details_password_not_matching_error">Le password non corrispondono.</string>

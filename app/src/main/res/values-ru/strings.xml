@@ -168,11 +168,8 @@
     <string name="content_description_calling_call_paused_camera">Пауза камеры</string>
     <string name="content_description_more_emojis">Больше смайликов</string>
     <string name="content_description_self_deletion_selector_button">Переключение самоудаления сообщений, кнопка</string>
-    <string name="content_description_message_sending_status">Статус отправки сообщения</string>
     <string name="content_description_message_sent_status">Статус отправленного сообщения</string>
     <string name="content_description_message_error_status">Статус ошибки сообщения</string>
-    <string name="content_description_message_delivered_status">Статус доставки сообщения</string>
-    <string name="content_description_message_read_status">Статус прочтения сообщения</string>
     <string name="content_description_record_audio_button_start">Запись аудио</string>
     <string name="content_description_record_audio_button_stop">Остановить запись аудио</string>
     <string name="content_description_record_audio_button_send">Отправить аудиосообщение</string>

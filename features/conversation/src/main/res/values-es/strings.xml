@@ -152,4 +152,5 @@
         <item quantity="one">Falta 1 segundo</item>
         <item quantity="other">Faltan %1$d segundos</item>
     </plurals>
+    <string name="content_description_message_sending_status">Estado de envío del mensaje</string>
 </resources>

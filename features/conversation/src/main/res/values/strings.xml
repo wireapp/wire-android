@@ -199,4 +199,7 @@
         <item quantity="one">1 second left</item>
         <item quantity="other">%1$d seconds left</item>
     </plurals>
+    <string name="content_description_message_sending_status">Message sending status</string>
+    <string name="content_description_message_delivered_status">Message delivered status</string>
+    <string name="content_description_message_read_status">Message read status</string>
 </resources>

@@ -26,14 +26,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun MessageStatusIndicator(
@@ -57,26 +58,26 @@ fun MessageStatusIndicator(
     when (status) {
         MessageFlowStatus.Sending -> Icon(
             modifier = modifier,
-            painter = painterResource(id = R.drawable.ic_message_sending),
+            painter = painterResource(id = conversationR.drawable.ic_message_sending),
             tint = defaultTint,
-            contentDescription = stringResource(R.string.content_description_message_sending_status),
+            contentDescription = stringResource(conversationR.string.content_description_message_sending_status),
         )
 
         MessageFlowStatus.Sent -> {
             Icon(
                 modifier = modifier,
-                painter = painterResource(id = R.drawable.ic_message_sent),
+                painter = painterResource(id = conversationR.drawable.ic_message_sent),
                 tint = defaultTint,
-                contentDescription = stringResource(R.string.content_description_message_sending_status),
+                contentDescription = stringResource(conversationR.string.content_description_message_sending_status),
             )
         }
 
         MessageFlowStatus.Delivered -> {
             Icon(
                 modifier = modifier,
-                painter = painterResource(id = R.drawable.ic_message_delivered),
+                painter = painterResource(id = conversationR.drawable.ic_message_delivered),
                 tint = defaultTint,
-                contentDescription = stringResource(R.string.content_description_message_delivered_status),
+                contentDescription = stringResource(conversationR.string.content_description_message_delivered_status),
             )
         }
 
@@ -84,9 +85,9 @@ fun MessageStatusIndicator(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     modifier = modifier,
-                    painter = painterResource(id = R.drawable.ic_message_read),
+                    painter = painterResource(id = commonR.drawable.ic_message_read),
                     tint = defaultTint,
-                    contentDescription = stringResource(R.string.content_description_message_read_status),
+                    contentDescription = stringResource(conversationR.string.content_description_message_read_status),
                 )
                 if (isGroupConversation) {
                     HorizontalSpace.x2()
@@ -100,14 +101,14 @@ fun MessageStatusIndicator(
 
         is MessageFlowStatus.Failure -> Icon(
             modifier = modifier,
-            painter = painterResource(id = R.drawable.ic_warning_circle),
+            painter = painterResource(id = commonR.drawable.ic_warning_circle),
             tint = errorTint,
             contentDescription = null,
         )
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewMessageStatusFailed() {
     WireTheme {
@@ -118,7 +119,7 @@ fun PreviewMessageStatusFailed() {
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewMessageStatusSending() {
     WireTheme {
@@ -129,7 +130,7 @@ fun PreviewMessageStatusSending() {
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewMessageStatusDelivered() {
     WireTheme {

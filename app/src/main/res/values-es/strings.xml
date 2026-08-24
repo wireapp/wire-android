@@ -131,7 +131,6 @@
     <string name="content_description_calling_call_unmuted">Llamada reanudada</string>
     <string name="content_description_calling_call_paused_camera">C&#225;mara pausada</string>
     <string name="content_description_more_emojis">M&#225;s emojis</string>
-    <string name="content_description_message_sending_status">Estado de envío del mensaje</string>
     <string name="content_description_message_sent_status">Estado del mensaje enviado</string>
     <string name="content_description_message_error_status">Estado de error del mensaje</string>
     <string name="content_description_location_icon">Compartir ubicación</string>

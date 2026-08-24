@@ -198,4 +198,7 @@
         <item quantity="one">Noch 1 Sekunde</item>
         <item quantity="other">Noch %1$d Sekunden</item>
     </plurals>
+    <string name="content_description_message_sending_status">Nachricht wird gesendet</string>
+    <string name="content_description_message_delivered_status">Nachricht wurde zugestellt</string>
+    <string name="content_description_message_read_status">Nachricht wurde gelesen</string>
 </resources>

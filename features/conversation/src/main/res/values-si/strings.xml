@@ -164,4 +164,7 @@
         <item quantity="one">තත්පරයක් ඉතිරිය</item>
         <item quantity="other">තත්. %1$d ක් ඉතිරිය</item>
     </plurals>
+    <string name="content_description_message_sending_status">පණවිඩය යවන තත්‍වය</string>
+    <string name="content_description_message_delivered_status">බාරදුන් පණවිඩයේ තත්‍වය</string>
+    <string name="content_description_message_read_status">පණවිඩය කියවූ තත්‍වය</string>
 </resources>

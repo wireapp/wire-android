@@ -131,11 +131,8 @@
     <string name="content_description_calling_call_unmuted">A hívás némítása feloldva</string>
     <string name="content_description_calling_call_paused_camera">Kamera felfüggesztve</string>
     <string name="content_description_more_emojis">További hangulatjelek</string>
-    <string name="content_description_message_sending_status">Üzenet küldése állapot</string>
     <string name="content_description_message_sent_status">Üzenet elküldve állapot</string>
     <string name="content_description_message_error_status">Üzenet hiba állapot</string>
-    <string name="content_description_message_delivered_status">Üzenet kézbesítve állapot</string>
-    <string name="content_description_message_read_status">Üzenet olvasva állapot</string>
     <string name="content_description_record_audio_button_start">Hang felvétele</string>
     <string name="content_description_record_audio_button_stop">Hangfelvétel leállítása</string>
     <string name="content_description_record_audio_button_send">Hangüzenet küldése</string>

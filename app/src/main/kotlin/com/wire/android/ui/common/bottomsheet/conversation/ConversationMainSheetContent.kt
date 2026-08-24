@@ -57,6 +57,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.android.ui.common.R as commonR
 
 // items cannot be simplified
 @Suppress("CyclomaticComplexMethod")
@@ -91,7 +92,7 @@ internal fun ConversationMainSheetContent(
                         title = "Inspect conversation",
                         leading = {
                             MenuItemIcon(
-                                id = R.drawable.ic_message_read,
+                                id = commonR.drawable.ic_message_read,
                                 tint = colorsScheme().onSurface,
                                 contentDescription = null,
                             )

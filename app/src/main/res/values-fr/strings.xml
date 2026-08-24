@@ -116,11 +116,8 @@
     <string name="content_description_calling_call_unmuted">Appel rétabli</string>
     <string name="content_description_calling_call_paused_camera">Caméra en pause</string>
     <string name="content_description_more_emojis">Plus d\'émojis</string>
-    <string name="content_description_message_sending_status">État d\'envoi des messages</string>
     <string name="content_description_message_sent_status">Statut du message envoyé</string>
     <string name="content_description_message_error_status">Statut d\'erreur du message</string>
-    <string name="content_description_message_delivered_status">Statut de la livraison du message</string>
-    <string name="content_description_message_read_status">Statut de lecture du message</string>
     <string name="content_description_record_audio_button_start">Enregistrer l\' Audio</string>
     <string name="content_description_record_audio_button_stop">Arrêter l\'enregistrement audio</string>
     <string name="content_description_record_audio_button_send">Envoyer un message audio</string>

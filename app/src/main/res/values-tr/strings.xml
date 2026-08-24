@@ -131,11 +131,8 @@
     <string name="content_description_calling_call_unmuted">Çağrının sesi açıldı</string>
     <string name="content_description_calling_call_paused_camera">Kamerayı dondur</string>
     <string name="content_description_more_emojis">Daha fazla emoji</string>
-    <string name="content_description_message_sending_status">Mesaj gönderme durumu</string>
     <string name="content_description_message_sent_status">Mesaj gönderme durumu</string>
     <string name="content_description_message_error_status">Mesaj hata durumu</string>
-    <string name="content_description_message_delivered_status">Mesaj teslim durumu</string>
-    <string name="content_description_message_read_status">Mesaj okunma durumu</string>
     <string name="content_description_record_audio_button_start">Ses Kaydet</string>
     <string name="content_description_record_audio_button_stop">Ses kaydını durdur</string>
     <string name="content_description_record_audio_button_send">Sesli mesaj gönder</string>

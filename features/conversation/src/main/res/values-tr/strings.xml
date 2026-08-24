@@ -11,4 +11,7 @@
 <string name="label_draft">Taslaklar</string>
 
 <string name="last_message_other_user_joined_conversation">sohbete katıldı.</string>
+    <string name="content_description_message_sending_status">Mesaj gönderme durumu</string>
+    <string name="content_description_message_delivered_status">Mesaj teslim durumu</string>
+    <string name="content_description_message_read_status">Mesaj okunma durumu</string>
 </resources>

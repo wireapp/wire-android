@@ -153,4 +153,7 @@
         <item quantity="one">1 secondo rimanente</item>
         <item quantity="other">%1$d secondi rimanenti</item>
     </plurals>
+    <string name="content_description_message_sending_status">Stato di invio del messaggio</string>
+    <string name="content_description_message_delivered_status">Stato messaggio consegnato</string>
+    <string name="content_description_message_read_status">Stato messaggio letto</string>
 </resources>

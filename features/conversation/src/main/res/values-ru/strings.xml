@@ -242,4 +242,7 @@
         <item quantity="many">Осталось %1$d секунд</item>
         <item quantity="other">Осталось %1$d секунды</item>
     </plurals>
+    <string name="content_description_message_sending_status">Статус отправки сообщения</string>
+    <string name="content_description_message_delivered_status">Статус доставки сообщения</string>
+    <string name="content_description_message_read_status">Статус прочтения сообщения</string>
 </resources>

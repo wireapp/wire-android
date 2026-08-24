@@ -43,6 +43,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun LegalHoldStatusBar(
@@ -80,7 +81,7 @@ private fun LegalHoldPendingContent(onPendingClicked: () -> Unit) {
             .clickable(onClick = onPendingClicked)
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_warning_circle),
+            painter = painterResource(id = commonR.drawable.ic_warning_circle),
             contentDescription = null,
             tint = MaterialTheme.wireColorScheme.error,
             modifier = Modifier.size(dimensions().spacing12x)

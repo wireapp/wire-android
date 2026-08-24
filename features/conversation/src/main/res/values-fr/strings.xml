@@ -16,4 +16,7 @@
 
 
 <string name="label_draft">Brouillons</string>
+    <string name="content_description_message_sending_status">État d\'envoi des messages</string>
+    <string name="content_description_message_delivered_status">Statut de la livraison du message</string>
+    <string name="content_description_message_read_status">Statut de lecture du message</string>
 </resources>

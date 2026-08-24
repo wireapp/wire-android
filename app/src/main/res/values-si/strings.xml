@@ -131,11 +131,8 @@
     <string name="content_description_calling_call_unmuted">ඇමතුම නොනිහඬයි</string>
     <string name="content_description_calling_call_paused_camera">රූගතය විරාමයක</string>
     <string name="content_description_more_emojis">තව ඉමෝජි</string>
-    <string name="content_description_message_sending_status">පණවිඩය යවන තත්‍වය</string>
     <string name="content_description_message_sent_status">යැවූ පණිවිඩයේ තත්‍වය</string>
     <string name="content_description_message_error_status">පණවිඩයේ දෝෂ තත්‍වය</string>
-    <string name="content_description_message_delivered_status">බාරදුන් පණිවිඩයේ තත්‍වය</string>
-    <string name="content_description_message_read_status">පණිවිඩය කියවූ තත්‍වය</string>
     <string name="content_description_record_audio_button_start">හඬ පටිගත කරන්න</string>
     <string name="content_description_record_audio_button_stop">හඬ පටිගතය නවතන්න</string>
     <string name="content_description_record_audio_button_send">හඬ පණිවිඩය යවන්න</string>

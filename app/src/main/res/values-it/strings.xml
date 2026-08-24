@@ -120,11 +120,8 @@
     <string name="content_description_calling_call_unmuted">Chiamata non mutata</string>
     <string name="content_description_calling_call_paused_camera">Pausa della fotocamera</string>
     <string name="content_description_more_emojis">Altro emojis</string>
-    <string name="content_description_message_sending_status">Stato di invio del messaggio</string>
     <string name="content_description_message_sent_status">Stato messaggio inviato</string>
     <string name="content_description_message_error_status">Stato errore del messaggio</string>
-    <string name="content_description_message_delivered_status">Stato messaggio consegnato</string>
-    <string name="content_description_message_read_status">Stato messaggio letto</string>
     <string name="content_description_record_audio_button_start">Registra un Audio</string>
     <string name="content_description_record_audio_button_stop">Arresta la registrazione dell\'audio</string>
     <string name="content_description_record_audio_button_send">Invia messaggio audio</string>

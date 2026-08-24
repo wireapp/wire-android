@@ -175,11 +175,8 @@
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
     <string name="content_description_more_emojis">More emojis</string>
     <string name="content_description_self_deletion_selector_button">Toggle self deletion mode, button</string>
-    <string name="content_description_message_sending_status">Message sending status</string>
     <string name="content_description_message_sent_status">Message sent status</string>
     <string name="content_description_message_error_status">Message error status</string>
-    <string name="content_description_message_delivered_status">Message delivered status</string>
-    <string name="content_description_message_read_status">Message read status</string>
     <string name="content_description_record_audio_button_start">Record Audio</string>
     <string name="content_description_record_audio_button_stop">Stop Recording Audio</string>
     <string name="content_description_record_audio_button_send">Send Audio Message</string>

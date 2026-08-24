@@ -164,4 +164,7 @@
         <item quantity="one">1 másodperc van hátra</item>
         <item quantity="other">%1$d másodperc van hátra</item>
     </plurals>
+    <string name="content_description_message_sending_status">Üzenet küldése állapot</string>
+    <string name="content_description_message_delivered_status">Üzenet kézbesítve állapot</string>
+    <string name="content_description_message_read_status">Üzenet olvasva állapot</string>
 </resources>

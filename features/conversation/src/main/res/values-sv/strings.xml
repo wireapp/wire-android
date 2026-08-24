@@ -6,4 +6,5 @@
     <string name="sent_a_message_with_content">skickade ett meddelande med %s-innehåll</string>
     <string name="member_name_you_label_titlecase">Du</string>
     <string name="member_name_you_label_lowercase">du</string>
+    <string name="sent_a_message_with_unknown_content">skickade ett meddelande med okänt innehåll</string>
 </resources>

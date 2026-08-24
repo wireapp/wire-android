@@ -416,7 +416,6 @@
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Diese Nachricht ist nicht sichtbar</string>
     <string name="label_quote_original_message_is_a_picture">Bild</string>
-    <string name="label_quote_original_message_date">Ursprüngliche Nachricht vom %s</string>
     <!-- Create Account -->
     <string name="create_account_selector_title">Wie werden Sie Wire verwenden?</string>
     <string name="create_account_selector_team_title">Für die Zusammenarbeit</string>
@@ -497,7 +496,6 @@
     <string name="conversations_all_tab_title">Alle</string>
     <string name="conversations_calls_tab_title">Anrufe</string>
     <string name="conversations_mentions_tab_title">Erwähnungen</string>
-    <string name="sent_a_message_with_unknown_content">hat eine Nachricht mit unbekanntem Inhalt gesendet</string>
     <string name="new_group_title">Neue Gruppe</string>
     <string name="new_channel_title">Neuer Channel</string>
     <string name="channel_access_label">Zugang</string>

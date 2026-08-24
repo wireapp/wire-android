@@ -114,7 +114,8 @@ fun PreviewMessageWithReply() {
                             messageId = "asdoij",
                             senderId = previewUserId,
                             senderName = UIText.DynamicString("John Doe"),
-                            originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
+                            originalMessageDateDescription =
+                                UIText.StringResource(conversationR.string.label_quote_original_message_date, "10:30"),
                             editedTimeDescription = UIText.StringResource(conversationR.string.label_message_status_edited_with_date, "10:32"),
                             quotedContent = UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString("Hey, can I call right now?")),
                             senderAccent = Accent.Blue

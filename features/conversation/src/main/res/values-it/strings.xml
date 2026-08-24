@@ -19,4 +19,6 @@
     <string name="member_name_you_label_lowercase">tu</string>
     <string name="label_system_message_receipt_mode_on">acceso</string>
     <string name="label_system_message_receipt_mode_off">spento</string>
+    <string name="label_quote_original_message_date">Messaggio originale del %s</string>
+    <string name="sent_a_message_with_unknown_content">invia un messaggio con contenuti sconosciuti</string>
 </resources>

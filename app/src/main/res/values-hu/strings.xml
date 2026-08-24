@@ -372,7 +372,6 @@
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Ezt az üzenetet nem látod</string>
     <string name="label_quote_original_message_is_a_picture">Kép</string>
-    <string name="label_quote_original_message_date">%s eredeti üzenete</string>
     <!-- Create Account -->
     <string name="create_personal_account_summary_title">Személyes fiók elkészítve</string>
     <string name="create_personal_account_text">Biztonságos csevegés barátokkal és családtagokkal a Wire nyilvános kiszolgálóját használva.</string>
@@ -433,7 +432,6 @@
     <string name="conversations_all_tab_title">Minden</string>
     <string name="conversations_calls_tab_title">Hívások</string>
     <string name="conversations_mentions_tab_title">Említések</string>
-    <string name="sent_a_message_with_unknown_content">küldött üzenetet ismeretlen tartalommal</string>
     <string name="new_group_title">Új csoport</string>
     <string name="new_channel_title">Új csatorna</string>
     <string name="channel_access_label">Hozzáférés</string>

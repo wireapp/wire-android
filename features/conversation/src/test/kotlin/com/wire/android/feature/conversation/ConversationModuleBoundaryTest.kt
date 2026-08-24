@@ -239,6 +239,16 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun isoFormatterIsFeatureOwnedWithItsLegacyInjectionContract() {
+        val source = featureSource(isoFormatterRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.util.time"))
+        assertTrue(source.contains("class ISOFormatter @Inject constructor()"))
+        assertTrue(source.contains("fun fromInstantToTimeFormatter(instant: Instant): String"))
+        assertFalse(File(Konsist.projectRootPath, legacyIsoFormatterRelativePath).exists())
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -572,7 +582,7 @@ class ConversationModuleBoundaryTest {
 
         assertEquals(25, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
         assertEquals(25, featureResources.listFiles().orEmpty().count { it.isDirectory })
-        assertEquals(299, featureDefinitions.size)
+        assertEquals(323, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -840,6 +850,10 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/mapper/SystemMessageContentMapper.kt",
             "app/src/test/kotlin/com/wire/android/mapper/SystemMessageContentMapperTest.kt",
         )
+        const val isoFormatterRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/util/time/ISOFormatter.kt"
+        const val legacyIsoFormatterRelativePath =
+            "app/src/main/kotlin/com/wire/android/util/time/ISOFormatter.kt"
         val legacyMessagePresentationPrimitivePaths = listOf(
             "app/src/main/kotlin/com/wire/android/mapper/MessageDateGroupingMapper.kt",
             "app/src/main/kotlin/com/wire/android/util/Copyable.kt",
@@ -1368,6 +1382,9 @@ class ConversationModuleBoundaryTest {
         val systemMessageContentMapperSources = mapOf(
             systemMessageContentMapperRelativePath to "com.wire.android.mapper",
         )
+        val isoFormatterSources = mapOf(
+            isoFormatterRelativePath to "com.wire.android.util.time",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -1386,7 +1403,7 @@ class ConversationModuleBoundaryTest {
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageResourceProviderSources +
-                    systemMessageContentMapperSources
+                    systemMessageContentMapperSources + isoFormatterSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

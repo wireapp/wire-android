@@ -220,7 +220,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Nie mo&#380;esz zobaczy&#263; tej wiadomo&#347;ci</string>
     <string name="label_quote_original_message_is_a_picture">Zdj&#281;cie</string>
-    <string name="label_quote_original_message_date">Oryginalna wiadomo&#347;&#263; z %s</string>
     <!-- Create Account -->
     <string name="create_personal_account_summary_title">Utworzono Konto Osobiste</string>
     <string name="create_personal_account_text">Bezpieczne rozmowy z przyjaci&#243;&#322;mi i rodzin&#261; przy u&#380;yciu publicznej chmury Wire.</string>

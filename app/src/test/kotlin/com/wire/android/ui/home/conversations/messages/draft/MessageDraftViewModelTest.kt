@@ -102,7 +102,10 @@ class MessageDraftViewModelTest {
             messageId = "quoted_message_id",
             senderId = UserId("user_id", "domain"),
             senderName = UIText.DynamicString("John"),
-            originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
+            originalMessageDateDescription = UIText.StringResource(
+                conversationR.string.label_quote_original_message_date,
+                "10:30",
+            ),
             editedTimeDescription = UIText.StringResource(conversationR.string.label_message_status_edited_with_date, "10:32"),
             quotedContent = UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString("Any ideas?")),
             senderAccent = Accent.Unknown

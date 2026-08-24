@@ -35,7 +35,7 @@ class ConversationMessageResourceOwnershipTest {
 
         val definitions = resourceDefinitions(featureResources)
 
-        assertEquals(187, definitions.size)
+        assertEquals(211, definitions.size)
         assertEquals(expectedQualifierCoverage, definitions.groupBy({ it.name }, { it.qualifier }).mapValues { it.value.toSet() })
         assertEquals(expectedDefinitionFingerprint, definitions.fingerprint())
     }
@@ -131,6 +131,8 @@ class ConversationMessageResourceOwnershipTest {
             "sent_a_message_with_content",
             "label_system_message_receipt_mode_on",
             "label_system_message_receipt_mode_off",
+            "sent_a_message_with_unknown_content",
+            "label_quote_original_message_date",
         )
         val messageResourceReferencePattern = Regex(
             """([A-Za-z0-9_]*R)\.string\.(label_message_edit_sent_failure|label_message_sent_failure|""" +
@@ -140,9 +142,10 @@ class ConversationMessageResourceOwnershipTest {
                 """label_message_status_edited_with_date|url_maps_location_coordinates_fallback|""" +
                 """member_name_deleted_label|member_name_you_label_lowercase|member_name_you_label_titlecase|""" +
                 """sent_a_message_with_content|label_system_message_receipt_mode_on|""" +
-                """label_system_message_receipt_mode_off)\b""",
+                """label_system_message_receipt_mode_off|sent_a_message_with_unknown_content|""" +
+                """label_quote_original_message_date)\b""",
         )
-        const val expectedDefinitionFingerprint = "e1c55eecb2f465d2c0bf8710648454d6d0d59c3b8a9138eb05e22a94a19e157b"
+        const val expectedDefinitionFingerprint = "dfb6b3a5b81f7db207ea6121129c90bd858f78b16404021dc6b326d21aae216a"
         val expectedQualifierCoverage = mapOf(
             "label_message_edit_sent_failure" to setOf(
                 "values", "values-cs", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it",
@@ -202,6 +205,14 @@ class ConversationMessageResourceOwnershipTest {
             "label_system_message_receipt_mode_off" to setOf(
                 "values", "values-de", "values-es", "values-et", "values-hu", "values-it", "values-pl", "values-pt",
                 "values-ru", "values-si",
+            ),
+            "sent_a_message_with_unknown_content" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pt",
+                "values-ru", "values-si", "values-sv",
+            ),
+            "label_quote_original_message_date" to setOf(
+                "values", "values-de", "values-es", "values-et", "values-fr", "values-hr", "values-hu", "values-it",
+                "values-ja", "values-pl", "values-pt", "values-ru", "values-si",
             ),
         )
         val expectedConsumers = setOf(

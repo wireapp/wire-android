@@ -6,4 +6,5 @@
     <string name="label_message_decryption_failure_message">メッセージを復号化できませんでした。</string>
     <string name="label_message_status_edited_with_date">%sに編集済み</string>
     <string name="deleted_message_text">削除されたメッセージ</string>
+    <string name="label_quote_original_message_date">%sからの元のメッセージ</string>
 </resources>

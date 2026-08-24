@@ -142,7 +142,6 @@
     <string name="label_delete_for_everyone">Kustuta kõigi jaoks</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_original_message_is_a_picture">Pilt</string>
-    <string name="label_quote_original_message_date">Originaalsõnum kasutajalt %s</string>
     <!-- Create Account -->
     <string name="create_team_summary_title">Meeskond loodud</string>
     <string name="create_team_content_title">Tasuta Wire</string>

@@ -21,4 +21,6 @@
     <string name="member_name_you_label_lowercase">ඔබ</string>
     <string name="label_system_message_receipt_mode_on">සක්‍රියයි</string>
     <string name="label_system_message_receipt_mode_off">අක්‍රියයි</string>
+    <string name="label_quote_original_message_date">%s මුල් පණිවිඩය</string>
+    <string name="sent_a_message_with_unknown_content">නොදන්නා අන්තර්ගතයක් සහිත පණිවිඩයක් යවා ඇත</string>
 </resources>

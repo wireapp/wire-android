@@ -18,7 +18,6 @@
 
 package com.wire.android.mapper
 
-import com.wire.android.R
 import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.R as commonR
@@ -184,7 +183,7 @@ class RegularMessageMapper @Inject constructor(
                     UIText.StringResource(
                         messageResourceProvider.sentAMessageWithContent, it
                     )
-                } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
+                } ?: UIText.StringResource(conversationR.string.sent_a_message_with_unknown_content)
 
                 is MessageContent.FailedDecryption -> {
                     content.errorCode?.let {
@@ -192,7 +191,7 @@ class RegularMessageMapper @Inject constructor(
                     } ?: UIText.StringResource(conversationR.string.label_message_decryption_failure_message)
                 }
 
-                else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
+                else -> UIText.StringResource(conversationR.string.sent_a_message_with_unknown_content)
         }
 
         return MessageBody(
@@ -213,7 +212,7 @@ class RegularMessageMapper @Inject constructor(
             senderName = details.senderName.orUnknownName(),
             senderAccent = Accent.fromAccentId(details.accentId),
             originalMessageDateDescription = UIText.StringResource(
-                R.string.label_quote_original_message_date,
+                conversationR.string.label_quote_original_message_date,
                 isoFormatter.fromInstantToTimeFormatter(details.timeInstant)
             ),
             editedTimeDescription = details.editInstant?.let { instant ->

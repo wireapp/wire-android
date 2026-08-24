@@ -426,7 +426,6 @@
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Вы не можете видеть это сообщение</string>
     <string name="label_quote_original_message_is_a_picture">Изображение</string>
-    <string name="label_quote_original_message_date">Исходное сообщение от %s</string>
     <!-- Create Account -->
     <string name="create_account_selector_title">Как вы будете использовать Wire?</string>
     <string name="create_account_selector_team_title">Для совместной работы</string>
@@ -507,7 +506,6 @@
     <string name="conversations_all_tab_title">Все</string>
     <string name="conversations_calls_tab_title">Звонки</string>
     <string name="conversations_mentions_tab_title">Упоминания</string>
-    <string name="sent_a_message_with_unknown_content">отправлено сообщение с неизвестным контентом</string>
     <string name="new_group_title">Новая группа</string>
     <string name="new_channel_title">Новый канал</string>
     <string name="channel_access_label">Доступ</string>

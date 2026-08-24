@@ -443,7 +443,6 @@
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">You can not see this message</string>
     <string name="label_quote_original_message_is_a_picture">Picture</string>
-    <string name="label_quote_original_message_date">Original message from %s</string>
     <!-- Create Account -->
     <string name="create_account_selector_title">How will you use Wire?</string>
     <string name="create_account_selector_team_title">For collaboration</string>
@@ -525,7 +524,6 @@
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
-    <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">New Group</string>
     <string name="new_channel_title">New Channel</string>
     <string name="channel_access_label">Access</string>

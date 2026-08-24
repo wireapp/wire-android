@@ -11,4 +11,6 @@
     <string name="member_name_deleted_label">Compte supprimé</string>
     <string name="member_name_you_label_titlecase">Vous</string>
     <string name="member_name_you_label_lowercase">vous</string>
+    <string name="label_quote_original_message_date">Message original de %s</string>
+    <string name="sent_a_message_with_unknown_content">a envoyé un message avec un contenu inconnu</string>
 </resources>

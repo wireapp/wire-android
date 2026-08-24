@@ -243,7 +243,6 @@
     <string name="conversations_all_tab_title">Alla</string>
     <string name="conversations_calls_tab_title">Samtal</string>
     <string name="conversations_mentions_tab_title">Omnämnanden</string>
-    <string name="sent_a_message_with_unknown_content">skickade ett meddelande med okänt innehåll</string>
     <string name="new_group_title">Ny grupp</string>
     <string name="new_group_description">Upp till 500 personer kan ansluta till en grupp-konversation.</string>
     <string name="group_name_title">Gruppnamn</string>

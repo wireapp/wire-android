@@ -1240,8 +1240,6 @@
     <string name="record_audio_permission_denied_dialog_settings_button">සැකසුම්</string>
     <string name="record_audio_max_file_size_reached_title">පටිගතය නතර විය</string>
     <string name="record_audio_max_file_size_reached_text">හඬ පණිවිඩ ගොනුවක ප්‍රමාණය මෙ.බ. %1$d කට සීමා වේ.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">ඇමතුමක් අතරතුර ඔබට ශ්‍රව්‍ය පණිවිඩයක් පටිගත කළ නොහැක.</string>
-    <string name="record_audio_unable_due_to_error">හඬ පණිවිඩය පටිගතයට උත්සාහ කිරීමේ දී යමක් වැරදී ඇත. නැවත උත්සාහ කරන්න.</string>
     <string name="label_not_now">දැන් නොවේ</string>
 
     <string name="join_conversation_dialog_password_label">සංවාදයේ මුරපදය</string>

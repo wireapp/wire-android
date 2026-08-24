@@ -1,4 +1,5 @@
 <resources>
+    <string name="record_audio_unable_due_to_ongoing_call">Du kan inte spela in ett ljudmeddelande under ett samtal.</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_edit_sent_failure">Det redigerade meddelandet kunde inte skickas till följd av problem med anslutningen.</string>
     <string name="label_message_decryption_failure_message">Meddelandet kunde inte avkrypteras.</string>

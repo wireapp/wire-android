@@ -1,4 +1,6 @@
 <resources>
+    <string name="record_audio_unable_due_to_ongoing_call">Hívás közben nem rögzíthet hangüzenetet.</string>
+    <string name="record_audio_unable_due_to_error">Hiba történt a hangüzenet rögzítése közben. Próbálja újra.</string>
     <string name="conversation_details_participants_title">A beszélgetés résztvevői</string>
     <string name="conversation_banner_federated_externals_guests_present">Szövetségesek, külsősök és vendégek is vannak itt</string>
     <string name="conversation_banner_federated_guests_present">Szövetségesek és vendégek is vannak itt</string>

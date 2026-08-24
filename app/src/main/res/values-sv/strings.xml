@@ -507,7 +507,6 @@
     <!-- Record Audio -->
     <string name="record_audio_send_label">Skicka ljudmeddelande</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Inställningar</string>
-    <string name="record_audio_unable_due_to_ongoing_call">Du kan inte spela in ett ljudmeddelande under ett samtal.</string>
     <string name="label_not_now">Inte nu</string>
     <string name="join_conversation_dialog_password_label">Konversationslösenord</string>
     <string name="join_conversation_dialog_password_placeholder">Ange lösenord</string>

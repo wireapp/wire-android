@@ -1231,8 +1231,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Beállítások</string>
     <string name="record_audio_max_file_size_reached_title">Felvétel leállítva</string>
     <string name="record_audio_max_file_size_reached_text">A hangüzenetek fájlméretének felső korlátja %1$d MB.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">Hívás közben nem rögzíthet hangüzenetet.</string>
-    <string name="record_audio_unable_due_to_error">Hiba történt a hangüzenet rögzítése közben. Próbálja újra.</string>
     <string name="label_not_now">Most nem</string>
 
     <string name="join_conversation_dialog_password_label">Beszélgetés jelszava</string>

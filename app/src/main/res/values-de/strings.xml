@@ -1426,8 +1426,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Einstellungen</string>
     <string name="record_audio_max_file_size_reached_title">Aufnahme wurde beendet</string>
     <string name="record_audio_max_file_size_reached_text">Die Dateigröße für Audionachrichten ist auf %1$d MB begrenzt.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">Sie können während eines Anrufs keine Audionachricht aufnehmen.</string>
-    <string name="record_audio_unable_due_to_error">Beim Versuch, eine Audionachricht aufzuzeichnen, ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
     <string name="label_not_now">Nicht jetzt</string>
 
     <string name="join_conversation_dialog_password_label">Passwort für die Unterhaltung</string>

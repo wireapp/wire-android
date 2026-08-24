@@ -1177,8 +1177,6 @@ registrado. Tente novamente.</string>
     <string name="record_audio_permission_denied_dialog_settings_button">Configurações</string>
     <string name="record_audio_max_file_size_reached_title">Gravação Parada</string>
     <string name="record_audio_max_file_size_reached_text">O tamanho do arquivo para mensagens de áudio é limitado a %1$d MB.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">Você não pode gravar uma mensagem de áudio durante uma chamada.</string>
-    <string name="record_audio_unable_due_to_error">Algo deu errado ao tentar gravar a mensagem de áudio. Por favor, tente novamente.</string>
     <string name="label_not_now">Agora Não</string>
 
     <string name="join_conversation_dialog_password_label">Senha da conversa</string>

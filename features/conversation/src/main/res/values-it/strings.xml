@@ -1,4 +1,5 @@
 <resources>
+    <string name="record_audio_unable_due_to_error">Qualcosa è andato storto provando a registrare il messaggio audio. Ti preghiamo di riprovare.</string>
     <string name="conversation_banner_federated_externals_guests_present">Sono presenti utenti federati, esterni e ospiti</string>
     <string name="conversation_banner_federated_guests_present">Sono presenti utenti federati e ospiti</string>
     <string name="conversation_banner_federated_externals_present">Sono presenti utenti federati ed esterni</string>

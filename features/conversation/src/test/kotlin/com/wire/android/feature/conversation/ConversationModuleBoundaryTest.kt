@@ -687,6 +687,12 @@ class ConversationModuleBoundaryTest {
                 "$relativePath must not remain app-owned after the conversation search presentation move.",
             )
         }
+        appFacadeLeafPresentationRelativePaths.forEach { relativePath ->
+            assertFalse(
+                File(Konsist.projectRootPath, relativePath).exists(),
+                "$relativePath must not remain app-owned after its facade presentation move.",
+            )
+        }
     }
 
     @Test
@@ -941,7 +947,7 @@ class ConversationModuleBoundaryTest {
             25,
             featureResources.listFiles().orEmpty().count { it.isDirectory && it.name.startsWith("values") },
         )
-        assertEquals(918, featureDefinitions.size)
+        assertEquals(947, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -1494,6 +1500,12 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/search/messages/" +
                     "SearchConversationMessagesNoResultsScreen.kt",
         )
+        val appFacadeLeafPresentationRelativePaths = listOf(
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/" +
+                    "PasswordProtectedLinkBanner.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/" +
+                    "RecordAudioInfoMessageType.kt",
+        )
         const val groupConversationDetailsViewModelRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/GroupConversationDetailsViewModel.kt"
         const val groupConversationDetailsViewModelGraphRelativePath =
@@ -1851,6 +1863,14 @@ class ConversationModuleBoundaryTest {
                     "SearchConversationMessagesNoResultsScreen.kt" to
                     "com.wire.android.ui.home.conversations.search.messages",
         )
+        val facadeLeafPresentationSources = mapOf(
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/" +
+                    "PasswordProtectedLinkBanner.kt" to
+                    "com.wire.android.ui.home.conversations.details.editguestaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/" +
+                    "RecordAudioInfoMessageType.kt" to
+                    "com.wire.android.ui.home.messagecomposer.recordaudio",
+        )
         val uiMessageModelSources = mapOf(
             uiMessageRelativePath to "com.wire.android.ui.home.conversations.model",
             uiQuotedMessageRelativePath to "com.wire.android.ui.home.conversations.model",
@@ -1938,6 +1958,7 @@ class ConversationModuleBoundaryTest {
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + conversationSearchPresentationSources +
+                    facadeLeafPresentationSources +
                     uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
                     offlineMessageIndicatorSources + groupConversationAvatarSources + participantPreviewSources +

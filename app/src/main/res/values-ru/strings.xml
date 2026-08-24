@@ -1489,8 +1489,6 @@
     <string name="record_audio_permission_denied_dialog_settings_button">Настройки</string>
     <string name="record_audio_max_file_size_reached_title">Запись остановлена</string>
     <string name="record_audio_max_file_size_reached_text">Размер файла аудиосообщения ограничен %1$d МБ.</string>
-    <string name="record_audio_unable_due_to_ongoing_call">Записать аудиосообщение во время звонка невозможно.</string>
-    <string name="record_audio_unable_due_to_error">При попытке записать аудиосообщение что-то пошло не так. Попробуйте еще раз.</string>
     <string name="label_not_now">Не сейчас</string>
 
     <string name="join_conversation_dialog_password_label">Пароль беседы</string>

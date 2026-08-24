@@ -1,4 +1,6 @@
 <resources>
+    <string name="record_audio_unable_due_to_ongoing_call">ඇමතුමක් අතරතුර ඔබට ශ්‍රව්‍ය පණිවිඩයක් පටිගත කළ නොහැක.</string>
+    <string name="record_audio_unable_due_to_error">හඬ පණිවිඩය පටිගතයට උත්සාහ කිරීමේ දී යමක් වැරදී ඇත. නැවත උත්සාහ කරන්න.</string>
     <string name="conversation_details_participants_title">සංවාද සහභාගිවන්නන්</string>
     <string name="conversation_banner_federated_externals_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින්, පිටස්තරයින් සහ අමුත්තන් සිටියි</string>
     <string name="conversation_banner_federated_guests_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සහ අමුත්තන් සිටියි</string>

@@ -81,6 +81,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.allUploaded
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
@@ -551,7 +552,7 @@ fun EnabledMessageComposer(
 }
 
 private fun showRecordNotAllowedMessage(context: Context) {
-    Toast.makeText(context, R.string.record_audio_unable_due_to_ongoing_call, Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, conversationR.string.record_audio_unable_due_to_ongoing_call, Toast.LENGTH_SHORT).show()
 }
 
 private fun Size.getDistanceToCorner(corner: Offset): Float {

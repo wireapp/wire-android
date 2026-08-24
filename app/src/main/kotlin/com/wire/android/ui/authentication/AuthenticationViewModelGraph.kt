@@ -43,7 +43,7 @@ import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewMod
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
+import com.wire.android.ui.authentication.login.sso.AppLoginSSOViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.newauthentication.login.NewLoginViewModel
@@ -63,7 +63,7 @@ interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory 
     fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>
     fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): NewLoginViewModel
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel
-    fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginSSOViewModel
+    fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginSSOViewModel
     fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel<ServerConfig.Links>
     fun createAccountEmailViewModel(
         navArgs: CreateAccountNavArgs,
@@ -150,8 +150,8 @@ fun loginSSOViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
-): LoginSSOViewModel =
-    wireAssistedMetroViewModel<LoginSSOViewModel, AuthenticationManualViewModelFactory>(
+): AppLoginSSOViewModel =
+    wireAssistedMetroViewModel<AppLoginSSOViewModel, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) { extras ->
         loginSSOViewModel(loginNavArgs, extras)

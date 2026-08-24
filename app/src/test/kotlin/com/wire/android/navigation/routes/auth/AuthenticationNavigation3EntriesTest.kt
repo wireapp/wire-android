@@ -68,18 +68,29 @@ class AuthenticationNavigation3EntriesTest {
         val newLoginViewModel = sourceFile(
             "../../../ui/newauthentication/login/NewLoginViewModel.kt"
         ).readText()
+        val loginSsoViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/login/sso/LoginSSOViewModel.kt",
+        ).readText()
+        val loginSsoHostFactory = sourceFile(
+            "../../../ui/authentication/login/sso/LoginSSOViewModelHostFactory.kt"
+        ).readText()
         val entries = sourceFile("AuthenticationNavigation3Entries.kt").readText()
 
         assertTrue(graph.contains("fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
         assertTrue(graph.contains("fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras)"))
         assertTrue(bindings.contains("WelcomeViewModelHostFactory"))
         assertTrue(bindings.contains("NewLoginViewModel.Factory"))
+        assertTrue(bindings.contains("LoginSSOViewModelHostFactory"))
+        assertFalse(bindings.contains("LoginSSOViewModel.Factory"))
         assertTrue(bindings.contains("welcomeFactory.create(navArgs)"))
         assertTrue(bindings.contains("newLoginFactory.create(loginNavArgs, extras.createSavedStateHandle())"))
         assertTrue(welcomeViewModel.contains("class WelcomeViewModel<LinksT>"))
         assertFalse(welcomeViewModel.contains("AssistedInject"))
         assertTrue(welcomeHostFactory.contains("fun create(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
         assertTrue(newLoginViewModel.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
+        assertTrue(loginSsoViewModel.contains("class LoginSSOViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT>"))
+        assertTrue(loginSsoHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
         assertTrue(entries.contains("welcomeViewModel(route.toLegacyNavArgs(), flowOwner)"))
         assertTrue(entries.contains("newLoginViewModel(legacyArgs, flowOwner)"))
         assertTrue(entries.contains("WireViewModelOwner.Flow(route.flowId)"))

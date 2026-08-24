@@ -1153,7 +1153,7 @@ private fun com.wire.android.ui.authentication.login.sso.LoginButton(loading: ko
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollState: androidx.compose.foundation.ScrollState, loginSSOState: com.wire.android.ui.authentication.login.sso.LoginSSOState, ssoCodeTextState: androidx.compose.foundation.text.input.TextFieldState, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, onCustomServerDialogDismiss: kotlin.Function0<kotlin.Unit>, onCustomServerDialogConfirm: kotlin.Function0<kotlin.Unit>, onSsoIdentityChangeDismissed: kotlin.Function0<kotlin.Unit>, onSsoIdentityChangeConfirmed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollState: androidx.compose.foundation.ScrollState, loginSSOState: com.wire.android.ui.authentication.login.sso.LoginSSOState<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.util.deeplink.SSOFailureCodes>, ssoCodeTextState: androidx.compose.foundation.text.input.TextFieldState, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, onRemoveDeviceOpen: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onLoginButtonClick: kotlin.Function0<kotlin.Unit>, onCustomServerDialogDismiss: kotlin.Function0<kotlin.Unit>, onCustomServerDialogConfirm: kotlin.Function0<kotlin.Unit>, onSsoIdentityChangeDismissed: kotlin.Function0<kotlin.Unit>, onSsoIdentityChangeConfirmed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1169,7 +1169,7 @@ private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollS
     - onSsoIdentityChangeConfirmed: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.util.deeplink.SSOFailureCodes, com.wire.kalium.logic.data.session.StoreSessionParam>, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1219,7 +1219,7 @@ public fun com.wire.android.ui.authentication.loginEmailViewModel(loginNavArgs: 
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.authentication.loginSSOViewModel(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
+public fun com.wire.android.ui.authentication.loginSSOViewModel(loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.login.sso.LoginSSOViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.util.deeplink.SSOFailureCodes, com.wire.kalium.logic.data.session.StoreSessionParam>
   skippable: false
   restartable: true
   params:

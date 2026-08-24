@@ -70,7 +70,7 @@ fun LoginSSOScreen(
     loginNavArgs: LoginNavArgs,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
-    loginSSOViewModel: LoginSSOViewModel = loginSSOViewModel(loginNavArgs),
+    loginSSOViewModel: AppLoginSSOViewModel = loginSSOViewModel(loginNavArgs),
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
@@ -124,7 +124,7 @@ fun LoginSSOScreen(
 @Composable
 private fun LoginSSOContent(
     scrollState: ScrollState,
-    loginSSOState: LoginSSOState,
+    loginSSOState: AppLoginSSOState,
     ssoCodeTextState: TextFieldState,
     onErrorDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: (UserId) -> Unit,
@@ -159,15 +159,16 @@ private fun LoginSSOContent(
             onClick = onLoginButtonClick
         )
     }
-    if (loginSSOState.flowState is LoginState.Error.DialogError<*, *>) {
-        LoginErrorDialog((loginSSOState.flowState as AppLoginDialogError).toLoginDialogErrorData(), onErrorDialogDismiss)
-    } else if (loginSSOState.flowState is LoginState.Error.TooManyDevicesError<*>) {
-        onRemoveDeviceOpen(loginSSOState.flowState.userId as UserId)
+    val flowState = loginSSOState.flowState
+    if (flowState is LoginState.Error.DialogError<*, *>) {
+        LoginErrorDialog((flowState as AppLoginDialogError).toLoginDialogErrorData(), onErrorDialogDismiss)
+    } else if (flowState is LoginState.Error.TooManyDevicesError<*>) {
+        onRemoveDeviceOpen(flowState.userId as UserId)
     }
 
-    if (loginSSOState.customServerDialogState != null) {
+    loginSSOState.customServerDialogState?.let { customServerDialogState ->
         CustomServerDetailsDialog(
-            serverLinks = loginSSOState.customServerDialogState.serverLinks,
+            serverLinks = customServerDialogState.serverLinks,
             onDismiss = onCustomServerDialogDismiss,
             onConfirm = onCustomServerDialogConfirm
         )

@@ -36,7 +36,8 @@ import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewV
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModelHostFactory
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
+import com.wire.android.ui.authentication.login.sso.AppLoginSSOViewModel
+import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelHostFactory
 import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeViewModelHostFactory
@@ -72,7 +73,7 @@ object AuthenticationMetroViewModelBindings {
         welcomeFactory: WelcomeViewModelHostFactory,
         newLoginFactory: NewLoginViewModel.Factory,
         loginEmailFactory: LoginEmailViewModel.Factory,
-        loginSSOFactory: LoginSSOViewModel.Factory,
+        loginSSOFactory: LoginSSOViewModelHostFactory,
         createAccountOverviewFactory: CreateAccountOverviewViewModelHostFactory,
         createAccountEmailFactory: CreateAccountEmailViewModelHostFactory,
         createAccountDetailsFactory: CreateAccountDetailsViewModelHostFactory,
@@ -90,7 +91,7 @@ object AuthenticationMetroViewModelBindings {
         override fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel =
             loginEmailFactory.create(loginNavArgs, extras.createSavedStateHandle())
 
-        override fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginSSOViewModel =
+        override fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): AppLoginSSOViewModel =
             loginSSOFactory.create(loginNavArgs, extras.createSavedStateHandle())
 
         override fun createAccountOverviewViewModel(

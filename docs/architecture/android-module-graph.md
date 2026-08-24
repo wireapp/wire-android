@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `de60e3292184844063f515fafa7b8a60b17c45e0`.
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `7290998d412aa70bf3e3365873b8153308b9b65b`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -116,7 +116,7 @@ These are not Gradle edges and must not be mistaken for module ownership:
 |---|---|---|
 | Feature-owned conversation Metro assembly | Conversation info, call, migration, composite-message, and banner factory generation is feature-owned; app keeps route adapters and installs each generated binding container in the session graph | Preserve dedicated groups, generated binding FQNs, instance keys, scopes, narrow assisted contracts, and one-time app installation as the remaining owners move |
 | Conversation role projection | `ObserveConversationRoleForUserUseCase` and `ConversationRoleData` are feature-owned with package-preserved app profile consumers | Keep the projection in the facade; app retains `OtherUserProfileScreenViewModel`, `ServiceDetailsViewModel`, and their tests through the existing facade edge |
-| Conversation media and message-search paging/contracts | `ConversationMediaNavArgs`, `SearchConversationMessagesNavArgs`, and package-preserved `GetConversationMessagesFromSearchUseCase` are feature-owned | Keep Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors in app while consuming the unchanged FQNs through the facade edge |
+| Conversation media and message-search paging/contracts | `ConversationMediaNavArgs`, `SearchConversationMessagesNavArgs`, package-preserved `GetConversationMessagesFromSearchUseCase`, `GetAssetMessagesFromConversationUseCase`, and its `UIPagingItem` are feature-owned | Keep Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors in app while consuming the unchanged FQNs through the facade edge |
 | Asset restriction presentation and value models | `CheckAssetRestrictionsViewModel`, `AssetTooLargeDialogState`, `AssetBundle`, `UriAsset`, `PathParceler`, `ImportedMediaAsset`, and the ordinary Metro binding/gateway are feature-owned with package/FQN preservation | App keeps media import handling, screens/dialog rendering, Navigation 3 runtime, and one-time session installation of the feature binding |
 | Message-presentation models, actions, chrome, mappers, and resources | The single `UIMessage`/`UIQuotedMessage` model closure, quote-content mapping, package-preserved `MessageClickActions`, public package-preserved `MessageBody.shouldHideStandalonePreviewedUrl`, group avatar, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, date grouping, `Copyable`, immutable `MarkdownNode`/`MarkdownPreview`, `MessageResourceProvider`, `SystemMessageContentMapper`, `RegularMessageMapper`, `MessageContentMapper`, `MessageMapper`, `MessagePreviewContentMapper`, `ISOFormatter`, all 59 provider/model/mapper resource IDs, 2 reaction accessibility IDs, and 10 timer plural IDs are feature-owned; neutral `UiTextResolver` remains in `:core:ui-common` | App keeps Markdown parsing/rendering, remaining Compose/message-list rendering, and all action consumers; no parallel model, chrome, action contract, mapper, formatter, or commonmark dependency is allowed |
 | Edit-conversation metadata presentation | `EditConversationMetadataViewModel`, its narrow state/validator, dedicated assisted Metro group/gateways, and focused test are feature-owned with package/FQN preservation | App keeps `GroupNameScreen`, its private edition-state adapter, Navigation 3 calls, and one-time session installation of the feature-generated binding |
@@ -125,12 +125,12 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **161**, message composer **40**,
+Audited app production-file counts are: conversations **160**, message composer **40**,
 conversations list **27**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **52** unit tests and **1** Android
  test; **75** files import app `R`, **385** distinct resource-alias `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**126** production files and **49** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
+**127** production files and **49** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
 **25** values directories and contain **615** string definitions, including the exact
 **95** localized banner-state definitions. App retains the four banner span-label IDs
 with **23** localized definitions. The feature also owns all **608** definitions of the

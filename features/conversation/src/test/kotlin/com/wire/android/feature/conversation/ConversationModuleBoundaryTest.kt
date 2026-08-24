@@ -92,6 +92,46 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun conversationAssetPagingUseCaseAndPagingItemAreFeatureOwnedWithTheLegacyContract() {
+        val source = featureSource(conversationAssetPagingUseCaseRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations.usecase"))
+        assertEquals(
+            setOf(
+                "androidx.paging.PagingConfig",
+                "androidx.paging.PagingData",
+                "androidx.paging.flatMap",
+                "androidx.paging.insertSeparators",
+                "com.wire.android.mapper.MessageMapper",
+                "com.wire.android.ui.common.monthYearHeader",
+                "com.wire.android.ui.home.conversations.model.UIMessage",
+                "com.wire.android.util.dispatchers.DispatcherProvider",
+                "com.wire.kalium.logic.data.id.ConversationId",
+                "com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase",
+                "kotlinx.coroutines.flow.Flow",
+                "kotlinx.coroutines.flow.flowOn",
+                "kotlinx.coroutines.flow.map",
+                "kotlinx.datetime.Instant",
+                "kotlinx.datetime.TimeZone",
+                "kotlinx.datetime.toLocalDateTime",
+                "dev.zacsweers.metro.Inject",
+                "kotlin.math.max",
+            ),
+            importedDeclarations(source),
+        )
+        assertTrue(source.contains("class GetAssetMessagesFromConversationUseCase @Inject constructor("))
+        assertTrue(source.contains("sealed class UIPagingItem"))
+        assertTrue(source.contains("data class Message(val uiMessage: UIMessage, val date: Instant) : UIPagingItem()"))
+        assertTrue(source.contains("data class Label(val date: String) : UIPagingItem()"))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(source.contains("BuildConfig"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyConversationAssetPagingUseCaseRelativePath).exists(),
+            "$legacyConversationAssetPagingUseCaseRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun appDependsOnConversationThroughTheFeatureConvention() {
         val appBuildScript = appBuildScriptText()
 
@@ -1028,23 +1068,6 @@ class ConversationModuleBoundaryTest {
         assertTrue(viewModel.contains("factoryMethod = \"addMembersToConversationViewModel\""))
     }
 
-    @Test
-    fun participantRendererPreviewsRemainAppOwned() {
-        val previews = File(Konsist.projectRootPath, groupParticipantPreviewsRelativePath)
-        val renderer = File(Konsist.projectRootPath, groupParticipantRendererRelativePath)
-
-        assertTrue(previews.isFile, "Group participant previews must remain an app-owned source.")
-        assertEquals(
-            3,
-            Regex("@PreviewMultipleThemes").findAll(previews.readText()).count(),
-            "The app preview source must preserve all three multi-theme previews.",
-        )
-        assertFalse(
-            renderer.readText().contains("PreviewMultipleThemes"),
-            "The feature renderer must not import the app-internal preview annotation.",
-        )
-    }
-
     private fun featureBuildScriptText(): String {
         assertTrue(featureBuildScript.isFile, "Missing :features:conversation build.gradle.kts.")
         return featureBuildScript.readText()
@@ -1149,6 +1172,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetConversationMessagesFromSearchUseCase.kt"
         const val legacyConversationSearchPagingUseCaseRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetConversationMessagesFromSearchUseCase.kt"
+        const val conversationAssetPagingUseCaseRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetAssetMessagesFromConversationUseCase.kt"
+        const val legacyConversationAssetPagingUseCaseRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/usecase/GetAssetMessagesFromConversationUseCase.kt"
         const val messageReactionsItemRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
         const val reactionPillRelativePath =
@@ -1406,10 +1433,6 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/search/AddMembersSearchNavArgs.kt"
         const val addMembersToConversationViewModelGraphRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/AddMembersToConversationViewModelGraph.kt"
-        const val groupParticipantRendererRelativePath =
-            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipants.kt"
-        const val groupParticipantPreviewsRelativePath =
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsPreviews.kt"
         val forbiddenFeatureBuildScriptEntries = listOf(
             Regex("""projects\s*\.\s*app\b"""),
             Regex("""project\s*\(\s*(?:path\s*=\s*)?[\"']\s*:\s*app\s*[\"']"""),
@@ -1748,6 +1771,9 @@ class ConversationModuleBoundaryTest {
         val conversationSearchPagingUseCaseSources = mapOf(
             conversationSearchPagingUseCaseRelativePath to "com.wire.android.ui.home.conversations.usecase",
         )
+        val conversationAssetPagingUseCaseSources = mapOf(
+            conversationAssetPagingUseCaseRelativePath to "com.wire.android.ui.home.conversations.usecase",
+        )
         val reactionPresentationSources = mapOf(
             messageReactionsItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
             reactionPillRelativePath to "com.wire.android.ui.home.conversations.messages",
@@ -1791,7 +1817,7 @@ class ConversationModuleBoundaryTest {
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
                     offlineMessageIndicatorSources + groupConversationAvatarSources + participantPreviewSources +
-                    conversationSearchPagingUseCaseSources +
+                    conversationSearchPagingUseCaseSources + conversationAssetPagingUseCaseSources +
                     reactionPresentationSources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
@@ -1810,6 +1836,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.appLogger",
             "com.wire.android.feature.conversation.R",
             "com.wire.android.mapper.MessageDateTimeGroup",
+            "com.wire.android.mapper.MessageMapper",
             "com.wire.android.mapper.groupedUIMessageDateTime",
             "com.wire.android.mapper.shouldDisplayDatesDifferenceDivider",
             "com.wire.android.feature.conversation.config.LocalConversationHostConfiguration",

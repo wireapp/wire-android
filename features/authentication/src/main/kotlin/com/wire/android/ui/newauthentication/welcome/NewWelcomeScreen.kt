@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
  * Navigation-neutral adapter used by Navigation 3.
  */
 @Composable
-internal fun WelcomeChooserScreen(
+fun WelcomeChooserScreen(
     onChooseLogin: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
@@ -38,8 +38,10 @@ internal fun WelcomeChooserScreen(
     }
 }
 
-// this is completely empty initial screen that allows to show just BackgroundType.Auth until any potential deep link is handled
+// This empty initial screen shows only BackgroundType.Auth until a potential deep link is handled.
 @Composable
+@Suppress("ComposeModifierMissing")
 fun NewWelcomeEmptyStartScreen() {
-    Box(modifier = Modifier.fillMaxSize()) // empty Box to keep proper bounds of the screen for transition animation to the next screen
+    // Keep proper bounds for the transition animation to the next screen.
+    Box(modifier = Modifier.fillMaxSize())
 }

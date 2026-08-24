@@ -3949,6 +3949,13 @@ private fun com.wire.android.ui.debug.securityproviders.NetworkSection(network: 
     - network: RUNTIME (requires runtime check)
 
 @Composable
+private fun com.wire.android.ui.debug.securityproviders.SQLSecuritySection(security: com.wire.android.ui.debug.securityproviders.DatabaseSecurityInfo): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - security: STABLE (class with no mutable properties)
+
+@Composable
 public fun com.wire.android.ui.debug.securityproviders.SecurityProvidersScreen(navigator: com.wire.android.navigation.Navigator, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel): kotlin.Unit
   skippable: false
   restartable: true
@@ -9143,12 +9150,14 @@ public fun com.wire.android.ui.home.newconversation.common.ContinueButton(onCont
     - elevation: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog(error: com.wire.android.ui.home.newconversation.common.CreateGroupState.Error, onDismiss: kotlin.Function0<kotlin.Unit>, onEditParticipantsList: kotlin.Function0<kotlin.Unit>, onCancel: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.newconversation.common.CreateGroupErrorDialog(error: com.wire.android.ui.home.newconversation.common.CreateGroupState.Error, onDismiss: kotlin.Function0<kotlin.Unit>, onRetryPendingCreation: kotlin.Function0<kotlin.Unit>, onPendingCreationAcknowledged: kotlin.Function0<kotlin.Unit>, onEditParticipantsList: kotlin.Function0<kotlin.Unit>, onCancel: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - error: STABLE (class with no mutable properties)
     - onDismiss: STABLE (function type)
+    - onRetryPendingCreation: STABLE (function type)
+    - onPendingCreationAcknowledged: STABLE (function type)
     - onEditParticipantsList: STABLE (function type)
     - onCancel: STABLE (function type)
 
@@ -9164,6 +9173,15 @@ public fun com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrC
     - modifier: STABLE (marked @Stable or @Immutable)
     - firstVisibleButtonModifier: STABLE (marked @Stable or @Immutable)
     - elevation: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.home.newconversation.common.PendingMLSGroupCreationDialog(isRetrying: kotlin.Boolean, onRetry: kotlin.Function0<kotlin.Unit>, onAcknowledged: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - isRetrying: STABLE (primitive type)
+    - onRetry: STABLE (function type)
+    - onAcknowledged: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.home.newconversation.common.SelfDeletionTimerIcon(selfDeletionTimer: com.wire.kalium.logic.data.message.SelfDeletionTimer, isDisabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onSelfDeletionTimerClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -9243,7 +9261,7 @@ public fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScre
     - newConversationViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreenContent(groupOptionState: com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState, createGroupState: com.wire.android.ui.home.newconversation.common.CreateGroupState, groupMetadataState: com.wire.android.ui.common.groupname.GroupMetadataState, onAccessClicked: kotlin.Function0<kotlin.Unit>, onHistoryClicked: kotlin.Function0<kotlin.Unit>, onAllowGuestChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onAllowServicesChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onReadReceiptChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEnableWireCellChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onAllowGuestsDialogDismissed: kotlin.Function0<kotlin.Unit>, onNotAllowGuestsClicked: kotlin.Function0<kotlin.Unit>, onAllowGuestsClicked: kotlin.Function0<kotlin.Unit>, onErrorDismissed: kotlin.Function0<kotlin.Unit>, onEditParticipantsClick: kotlin.Function0<kotlin.Unit>, onDiscardGroupCreationClick: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, channelsHistoryOptionsEnabled: kotlin.Boolean, mlsReadReceiptsEnabled: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreenContent(groupOptionState: com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState, createGroupState: com.wire.android.ui.home.newconversation.common.CreateGroupState, groupMetadataState: com.wire.android.ui.common.groupname.GroupMetadataState, onAccessClicked: kotlin.Function0<kotlin.Unit>, onHistoryClicked: kotlin.Function0<kotlin.Unit>, onAllowGuestChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onAllowServicesChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onReadReceiptChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEnableWireCellChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onAllowGuestsDialogDismissed: kotlin.Function0<kotlin.Unit>, onNotAllowGuestsClicked: kotlin.Function0<kotlin.Unit>, onAllowGuestsClicked: kotlin.Function0<kotlin.Unit>, onErrorDismissed: kotlin.Function0<kotlin.Unit>, onEditParticipantsClick: kotlin.Function0<kotlin.Unit>, onDiscardGroupCreationClick: kotlin.Function0<kotlin.Unit>, onRetryPendingCreation: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, channelsHistoryOptionsEnabled: kotlin.Boolean, mlsReadReceiptsEnabled: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -9263,6 +9281,7 @@ private fun com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScr
     - onErrorDismissed: STABLE (function type)
     - onEditParticipantsClick: STABLE (function type)
     - onDiscardGroupCreationClick: STABLE (function type)
+    - onRetryPendingCreation: STABLE (function type)
     - onBackPressed: STABLE (function type)
     - channelsHistoryOptionsEnabled: STABLE (primitive type)
     - mlsReadReceiptsEnabled: STABLE (primitive type)

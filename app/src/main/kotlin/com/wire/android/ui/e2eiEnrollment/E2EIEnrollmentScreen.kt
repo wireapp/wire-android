@@ -106,8 +106,11 @@ private fun CancelEnrollmentDialog(
 ) {
     val dialogState = rememberVisibilityState<CancelLoginDialogState>()
     CancelLoginDialogContent(dialogState, onCancel, onProceed)
-    if (state.showCancelLoginDialog) dialogState.show(dialogState.savedState ?: CancelLoginDialogState)
-    else dialogState.dismiss()
+    if (state.showCancelLoginDialog) {
+        dialogState.show(dialogState.savedState ?: CancelLoginDialogState)
+    } else {
+        dialogState.dismiss()
+    }
 }
 
 private fun FinalizeEnrollmentResult.toFeatureResult(): E2EIEnrollmentResult = when (this) {

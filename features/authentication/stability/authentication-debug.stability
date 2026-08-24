@@ -880,4 +880,3 @@ public fun com.wire.android.ui.newauthentication.welcome.WelcomeChooserScreen(on
   restartable: true
   params:
     - onChooseLogin: STABLE (function type)
-

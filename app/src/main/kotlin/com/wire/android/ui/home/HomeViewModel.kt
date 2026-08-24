@@ -121,11 +121,13 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
             // Keep reads awaited and resolve once: the feature policy is deterministic and side-effect free.
-            when (PostLoginAuthenticationRequirementResolver.resolve(
-                needsDeviceRegistration = needsToRegisterClient(),
-                initialSyncCompleted = dataStore.initialSyncCompleted.first(),
-                hasUsername = !selfUser.handle.isNullOrEmpty(),
-            )) {
+            when (
+                PostLoginAuthenticationRequirementResolver.resolve(
+                    needsDeviceRegistration = needsToRegisterClient(),
+                    initialSyncCompleted = dataStore.initialSyncCompleted.first(),
+                    hasUsername = !selfUser.handle.isNullOrEmpty(),
+                )
+            ) {
                 PostLoginAuthenticationRequirement.RegisterDevice ->
                     sendAction(HomeRequirement.RegisterDevice(currentAccount))
                 PostLoginAuthenticationRequirement.InitialSync -> sendAction(HomeRequirement.InitialSync)

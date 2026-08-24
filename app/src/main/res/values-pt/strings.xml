@@ -1062,7 +1062,6 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">O número máximo de participantes nesta conversa foi atingido.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Mensagens autodestrutivas</string>
-    <string name="self_deleting_messages_option">Forçar exclusão de mensagens</string>
     <string name="self_deleting_messages_folder_timer">Temporizador</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Visitar Link</string>

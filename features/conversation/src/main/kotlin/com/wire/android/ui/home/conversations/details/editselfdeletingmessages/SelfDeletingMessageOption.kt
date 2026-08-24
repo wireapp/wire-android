@@ -20,7 +20,7 @@ package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.home.conversations.details.options.GroupOptionWithSwitch
 
 @Composable
@@ -35,8 +35,8 @@ fun SelfDeletingMessageOption(
         switchState = switchState,
         onClick = onCheckedChange,
         isLoading = isLoading,
-        title = R.string.self_deleting_messages_option,
-        subTitle = R.string.self_deleting_messages_option_description
+        title = conversationR.string.self_deleting_messages_option,
+        subTitle = conversationR.string.self_deleting_messages_option_description
     )
 }
 

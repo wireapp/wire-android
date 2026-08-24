@@ -1352,8 +1352,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="join_conversation_via_deeplink_error_general">Due to an error you could not be added to the conversation.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Self-deleting Messages</string>
-    <string name="self_deleting_messages_option">Enforce message deletion</string>
-    <string name="self_deleting_messages_option_description">When this is on, all messages in this conversation will disappear after a certain time. This applies to all participants.</string>
     <string name="self_deleting_messages_folder_timer">Timer</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Visit Link</string>

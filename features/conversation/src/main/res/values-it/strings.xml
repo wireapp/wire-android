@@ -173,4 +173,5 @@
     <string name="conversation_details_guest_description">Con questa opzione ATTIVA, persone al di fuori del tuo team possono unirsi a questa conversazione.</string>
     <string name="conversation_options_read_receipt_label">Notifiche di lettura</string>
     <string name="conversation_options_read_receipt_description">Con questa opzione ATTIVA, le persone possono vedere quando i loro messaggi in questa conversazione vengono letti.</string>
+    <string name="self_deleting_messages_option">Forza eliminazione dei messaggi</string>
 </resources>

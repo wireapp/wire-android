@@ -755,7 +755,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="join_conversation_via_deeplink_error_max_number_of_participent">Se ha alcanzado el n&#250;mero m&#225;ximo de participantes en esta conversaci&#243;n.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Mensajes con auto-borrado</string>
-    <string name="self_deleting_messages_option">Forzar auto-borrado de mensajes</string>
     <string name="self_deleting_messages_folder_timer">Contador</string>
     <!-- visit link -->
     <!-- invalid link -->

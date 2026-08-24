@@ -230,4 +230,6 @@
     <string name="conversation_options_read_receipt_description">Wenn diese Option aktiviert ist, können Sender sehen, wenn ihre Nachrichten gelesen werden.</string>
     <string name="conversation_options_shared_drive_label">Geteiltes Drive</string>
     <string name="conversation_options_shared_drive_description">Dauerhaft aktiv für diese Unterhaltung.</string>
+    <string name="self_deleting_messages_option">Löschen von Nachrichten erzwingen</string>
+    <string name="self_deleting_messages_option_description">Wenn diese Option aktiviert ist, verschwinden alle Nachrichten in dieser Unterhaltung nach einer bestimmten Zeit. Dies gilt für alle Teilnehmer.</string>
 </resources>

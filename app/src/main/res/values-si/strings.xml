@@ -1127,8 +1127,6 @@
     <string name="join_conversation_via_deeplink_error_general">දෝෂයක් නිසා ඔබව සංවාදයට එක් කිරීමට නොහැකි විය.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">ඉබේ මැකෙන පණිවිඩ</string>
-    <string name="self_deleting_messages_option">බලෙන් පණිවිඩය මකන්න</string>
-    <string name="self_deleting_messages_option_description">මෙය ක්‍රියාත්මක විට, මෙම සංවාදයේ ඇති සියලුම පණිවිඩ නිශ්චිත කාලයකට පසු අතුරුදහන් වනු ඇත. මෙය සියලුම සහභාගිවන්නන්ට අදාළ වේ.</string>
     <string name="self_deleting_messages_folder_timer">මුහුර්තකය</string>
     <!-- visit link -->
     <string name="label_visit_link_title">සබැඳිය බලන්න</string>

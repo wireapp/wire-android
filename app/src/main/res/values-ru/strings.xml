@@ -1348,8 +1348,6 @@
     <string name="join_conversation_via_deeplink_error_general">Из-за ошибки вы не можете быть добавлены в беседу.</string>
     <!-- edit self-deleting messages -->
     <string name="self_deleting_messages_title">Самоудаляющиеся сообщения</string>
-    <string name="self_deleting_messages_option">Принудительное удаление сообщений</string>
-    <string name="self_deleting_messages_option_description">При включении этой опции все сообщения в данной беседе будут исчезать через определенное время. Это относится ко всем участникам.</string>
     <string name="self_deleting_messages_folder_timer">Таймер</string>
     <!-- visit link -->
     <string name="label_visit_link_title">Перейти по ссылке</string>

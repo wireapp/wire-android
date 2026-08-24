@@ -187,4 +187,5 @@
     <string name="conversation_details_guest_description">Quando isso está LIGADO, pessoas de fora do seu time podem se juntar a essa conversa</string>
     <string name="conversation_options_read_receipt_label">Confirmações de leitura</string>
     <string name="conversation_options_read_receipt_description">Quando isso está ativado, as pessoas podem ver quando suas mensagens nesta conversa são lidas.</string>
+    <string name="self_deleting_messages_option">Forçar exclusão de mensagens</string>
 </resources>

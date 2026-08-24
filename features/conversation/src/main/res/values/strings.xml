@@ -232,4 +232,6 @@
     <string name="conversation_options_shared_drive_label">Shared Drive</string>
     <string name="conversation_options_shared_drive_description">Permanently on for this conversation.</string>
     <string name="content_description_conversation_details_apps_action">adjust apps access</string>
+    <string name="self_deleting_messages_option">Enforce message deletion</string>
+    <string name="self_deleting_messages_option_description">When this is on, all messages in this conversation will disappear after a certain time. This applies to all participants.</string>
 </resources>

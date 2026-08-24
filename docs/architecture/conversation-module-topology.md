@@ -89,6 +89,10 @@ existing definitions. The reusable `GroupConversationOptionsItem`, `ArrowType`, 
 `GroupOptionWithSwitch` shells are neutral UI-common primitives; the resource-backed disable
 confirmation dialog stays in app. This preserves existing callers without a feature-to-app edge.
 
+The package-preserved `SelfDeletingMessageOption` details renderer is facade-owned with its two
+dedicated labels and all 13 existing definitions. It consumes the neutral options item shell and
+changes only from app `R` to feature `R`.
+
 The package-preserved `MessageBubbleItem` is facade-owned as the regular-message layout and interaction shell. It consumes conversation-owned models and the feature-owned click interceptor plus neutral theme/UI primitives; app callers retain the same FQN.
 
 System-message leading presentation and the stable `SystemMessageContent` data contract are facade-owned. The package-preserved app system-message factory remains app-owned because it selects app resources; it constructs the unchanged feature contract through the existing facade edge.

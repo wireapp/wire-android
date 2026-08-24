@@ -172,4 +172,5 @@
     <string name="conversation_options_read_receipt_label">Confirmación de lectura</string>
     <string name="conversation_options_read_receipt_description">Cuando est&#225; activado, las personas pueden ver cu&#225;ndo se lee su mensaje en esta conversaci&#243;n.</string>
     <string name="content_description_conversation_details_apps_action">ajustar acceso a aplicaciones</string>
+    <string name="self_deleting_messages_option">Forzar auto-borrado de mensajes</string>
 </resources>

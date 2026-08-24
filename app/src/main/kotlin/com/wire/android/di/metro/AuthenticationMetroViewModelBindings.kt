@@ -24,10 +24,12 @@ import com.wire.android.ui.WireActivityViewModel
 import com.wire.android.ui.authentication.AuthenticationManualViewModelFactory
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModelHostFactory
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
+import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModelHostFactory
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModelHostFactory
@@ -42,6 +44,7 @@ import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewMo
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dev.zacsweers.metro.BindingContainer
@@ -70,7 +73,7 @@ object AuthenticationMetroViewModelBindings {
         loginEmailFactory: LoginEmailViewModel.Factory,
         loginSSOFactory: LoginSSOViewModel.Factory,
         createAccountOverviewFactory: CreateAccountOverviewViewModelHostFactory,
-        createAccountEmailFactory: CreateAccountEmailViewModel.Factory,
+        createAccountEmailFactory: CreateAccountEmailViewModelHostFactory,
         createAccountDetailsFactory: CreateAccountDetailsViewModelHostFactory,
         createAccountCodeFactory: CreateAccountCodeViewModel.Factory,
         createAccountSelectorFactory: CreateAccountSelectorViewModel.Factory,
@@ -93,7 +96,9 @@ object AuthenticationMetroViewModelBindings {
             navArgs: CreateAccountOverviewNavArgs,
         ): CreateAccountOverviewViewModel<ServerConfig.Links> = createAccountOverviewFactory.create(navArgs)
 
-        override fun createAccountEmailViewModel(navArgs: CreateAccountNavArgs): CreateAccountEmailViewModel =
+        override fun createAccountEmailViewModel(
+            navArgs: CreateAccountNavArgs,
+        ): CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure> =
             createAccountEmailFactory.create(navArgs)
 
         override fun createAccountDetailsViewModel(

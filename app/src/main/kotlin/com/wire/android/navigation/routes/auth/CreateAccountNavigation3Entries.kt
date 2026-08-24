@@ -188,8 +188,10 @@ private fun CreateAccountEmailNavigation3Entry(
     router: AuthenticationNavigation3Router,
 ) {
     val owner = createAccountEntryOwner(route.entryId)
+    val navArgs = route.toLegacyNavArgs()
     CreateAccountEmailRouteScreen(
-        viewModel = createAccountEmailViewModel(route.toLegacyNavArgs(), owner),
+        navArgs = navArgs,
+        viewModel = createAccountEmailViewModel(navArgs, owner),
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
         onLogin = {
             router.navigate(

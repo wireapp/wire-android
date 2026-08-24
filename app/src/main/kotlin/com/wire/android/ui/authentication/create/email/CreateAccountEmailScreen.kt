@@ -74,11 +74,13 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.SupportPage
 import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 internal fun CreateAccountEmailRouteScreen(
-    viewModel: CreateAccountEmailViewModel,
+    navArgs: CreateAccountNavArgs,
+    viewModel: CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure>,
     onNavigateBack: () -> Unit,
     onLogin: () -> Unit,
     onDetailsRequested: (CreateAccountNavArgs) -> Unit,
@@ -100,7 +102,7 @@ internal fun CreateAccountEmailRouteScreen(
         LaunchedEffect(emailState.success) {
             if (emailState.success) {
                 onDetailsRequested(
-                    createAccountNavArgs.copy(
+                    navArgs.copy(
                         userRegistrationInfo = UserRegistrationInfo(
                             email = emailTextState.text.trim().toString().lowercase()
                         )
@@ -113,7 +115,7 @@ internal fun CreateAccountEmailRouteScreen(
 
 @Composable
 private fun EmailContent(
-    state: CreateAccountEmailViewState,
+    state: CreateAccountEmailViewState<CreateAccountFlowType, CoreFailure>,
     emailTextState: TextFieldState,
     onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit,
@@ -192,13 +194,14 @@ private fun EmailContent(
             onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, tosUrl) }
         )
     }
-    if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError) {
-        CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+    val dialogError = state.error as? CreateAccountEmailViewState.EmailError.DialogError.GenericError<CoreFailure>
+    if (dialogError != null) {
+        CoreFailureErrorDialog(dialogError.coreFailure, onErrorDismiss)
     }
 }
 
 @Composable
-private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
+private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError<CoreFailure>) {
     val learnMoreTag = "learn_more"
     val context = LocalContext.current
     val learnMoreUrl = supportUrlResource(SupportPage.CREATE_ACCOUNT)
@@ -255,7 +258,11 @@ private fun EmailErrorText(error: CreateAccountEmailViewState.EmailError) {
 }
 
 @Composable
-private fun EmailFooter(state: CreateAccountEmailViewState, onLoginPressed: () -> Unit, onContinuePressed: () -> Unit) {
+private fun EmailFooter(
+    state: CreateAccountEmailViewState<CreateAccountFlowType, CoreFailure>,
+    onLoginPressed: () -> Unit,
+    onContinuePressed: () -> Unit,
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
             horizontalArrangement = Arrangement.Center,

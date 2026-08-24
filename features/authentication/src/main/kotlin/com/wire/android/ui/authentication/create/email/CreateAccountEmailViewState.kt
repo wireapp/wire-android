@@ -18,31 +18,28 @@
 
 package com.wire.android.ui.authentication.create.email
 
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.kalium.common.error.CoreFailure
-
-data class CreateAccountEmailViewState(
-    val type: CreateAccountFlowType,
+data class CreateAccountEmailViewState<FlowT, FailureT>(
+    val type: FlowT,
     val termsDialogVisible: Boolean = false,
     val termsAccepted: Boolean = false,
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
-    val error: EmailError = EmailError.None,
+    val error: EmailError<FailureT> = EmailError.None,
     val showClientUpdateDialog: Boolean = false,
     val showServerVersionNotSupportedDialog: Boolean = false,
     val success: Boolean = false,
 ) {
-    sealed class EmailError {
-        data object None : EmailError()
-        sealed class TextFieldError : EmailError() {
-            data object InvalidEmailError : TextFieldError()
-            data object BlacklistedEmailError : TextFieldError()
-            data object AlreadyInUseError : TextFieldError()
-            data object DomainBlockedError : TextFieldError()
+    sealed interface EmailError<out FailureT> {
+        data object None : EmailError<Nothing>
+        sealed interface TextFieldError : EmailError<Nothing> {
+            data object InvalidEmailError : TextFieldError
+            data object BlacklistedEmailError : TextFieldError
+            data object AlreadyInUseError : TextFieldError
+            data object DomainBlockedError : TextFieldError
         }
 
-        sealed class DialogError : EmailError() {
-            data class GenericError(val coreFailure: CoreFailure) : DialogError()
+        sealed interface DialogError<out FailureT> : EmailError<FailureT> {
+            data class GenericError<FailureT>(val coreFailure: FailureT) : DialogError<FailureT>
         }
     }
 }

@@ -30,6 +30,7 @@ import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
+import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
@@ -64,7 +65,9 @@ interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory 
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginSSOViewModel
     fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel<ServerConfig.Links>
-    fun createAccountEmailViewModel(navArgs: CreateAccountNavArgs): CreateAccountEmailViewModel
+    fun createAccountEmailViewModel(
+        navArgs: CreateAccountNavArgs,
+    ): CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure>
     fun createAccountDetailsViewModel(
         navArgs: CreateAccountNavArgs,
     ): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>
@@ -187,7 +190,7 @@ fun createAccountOverviewViewModel(): CreateAccountOverviewViewModel<ServerConfi
     authenticationViewModel()
 
 @Composable
-fun createAccountEmailViewModel(): CreateAccountEmailViewModel =
+fun createAccountEmailViewModel(): CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure> =
     authenticationViewModel()
 
 @Composable
@@ -231,8 +234,8 @@ fun createAccountOverviewViewModel(
 fun createAccountEmailViewModel(
     navArgs: CreateAccountNavArgs,
     viewModelStoreOwner: ViewModelStoreOwner,
-): CreateAccountEmailViewModel =
-    wireAssistedMetroViewModel<CreateAccountEmailViewModel, AuthenticationManualViewModelFactory>(
+): CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure> =
+    wireAssistedMetroViewModel<CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure>, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
         createAccountEmailViewModel(navArgs)

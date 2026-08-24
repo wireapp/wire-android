@@ -82,7 +82,7 @@ class CreateAccountNavigation3HostTest {
         val graph = sourceFile("ui/authentication/AuthenticationViewModelGraph.kt").readText()
         listOf(
             "createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs)",
-            "createAccountEmailViewModel(navArgs: CreateAccountNavArgs)",
+            "fun createAccountEmailViewModel(\n        navArgs: CreateAccountNavArgs,",
             "fun createAccountDetailsViewModel(\n        navArgs: CreateAccountNavArgs,",
             "createAccountCodeViewModel(navArgs: CreateAccountNavArgs)",
             "createAccountSelectorViewModel(navArgs: CreateAccountSelectorNavArgs)",
@@ -163,6 +163,45 @@ class CreateAccountNavigation3HostTest {
             "AssistedInject",
         )
             .forEach { assertFalse(featureSources.contains(it), "Feature details source contains $it") }
+    }
+
+    @Test
+    fun givenEmailViewModel_whenInspectingHost_thenFeatureBoundaryPreservesContinuationAndHostTypes() {
+        val graph = sourceFile("ui/authentication/AuthenticationViewModelGraph.kt").readText()
+        val metro = sourceFile("di/metro/AuthenticationMetroViewModelBindings.kt").readText()
+        val entries = sourceFile("navigation/routes/auth/CreateAccountNavigation3Entries.kt").readText()
+        val screen = sourceFile("ui/authentication/create/email/CreateAccountEmailScreen.kt").readText()
+        val hostFactory = sourceFile("ui/authentication/create/email/CreateAccountEmailViewModelHostFactory.kt").readText()
+        val featureRoot = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/email",
+        )
+        val featureSources = featureRoot.listFiles().orEmpty().joinToString("\n") { it.readText() }
+        val emailEntry = entries
+            .substringAfter("private fun CreateAccountEmailNavigation3Entry(")
+            .substringBefore("private fun CreateAccountDetailsNavigation3Entry(")
+
+        assertTrue(graph.contains("CreateAccountEmailViewModel<CreateAccountFlowType, ServerConfig.Links, CoreFailure>"))
+        assertTrue(graph.contains("fun createAccountEmailViewModel():"))
+        assertTrue(metro.contains("CreateAccountEmailViewModelHostFactory"))
+        assertFalse(metro.contains("CreateAccountEmailViewModel.Factory"))
+        assertTrue(hostFactory.contains("tosUrlFor = { it.tos }"))
+        assertTrue(emailEntry.contains("val navArgs = route.toLegacyNavArgs()"))
+        assertTrue(emailEntry.contains("navArgs = navArgs"))
+        assertTrue(emailEntry.contains("createAccountEmailViewModel(navArgs, owner)"))
+        assertTrue(screen.contains("navArgs.copy("))
+        assertTrue(screen.contains("UserRegistrationInfo("))
+        assertTrue(screen.contains("email = emailTextState.text.trim().toString().lowercase()"))
+        assertTrue(featureSources.contains("class CreateAccountEmailViewModel<FlowT, LinksT, FailureT>"))
+        listOf(
+            "CreateAccountNavArgs",
+            "CreateAccountFlowType",
+            "com.wire.kalium.logic.configuration.server.ServerConfig",
+            "CoreLogic",
+            "CoreFailure",
+            "dev.zacsweers.metro",
+        )
+            .forEach { assertFalse(featureSources.contains(it), "Feature email source contains $it") }
     }
 
     @Test

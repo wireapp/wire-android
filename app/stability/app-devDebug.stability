@@ -584,17 +584,18 @@ private fun com.wire.android.ui.authentication.create.details.DetailsContent(sta
     - serverConfig: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-internal fun com.wire.android.ui.authentication.create.email.CreateAccountEmailRouteScreen(viewModel: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel, onNavigateBack: kotlin.Function0<kotlin.Unit>, onLogin: kotlin.Function0<kotlin.Unit>, onDetailsRequested: kotlin.Function1<com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.create.email.CreateAccountEmailRouteScreen(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModel: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onLogin: kotlin.Function0<kotlin.Unit>, onDetailsRequested: kotlin.Function1<com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
+    - navArgs: UNSTABLE (has mutable properties or unstable members)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - onNavigateBack: STABLE (function type)
     - onLogin: STABLE (function type)
     - onDetailsRequested: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.email.EmailContent(state: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState, emailTextState: androidx.compose.foundation.text.input.TextFieldState, onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onLoginPressed: kotlin.Function0<kotlin.Unit>, onTermsDialogDismiss: kotlin.Function0<kotlin.Unit>, onTermsAccept: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>, tosUrl: kotlin.String, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
+private fun com.wire.android.ui.authentication.create.email.EmailContent(state: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.common.error.CoreFailure>, emailTextState: androidx.compose.foundation.text.input.TextFieldState, onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onLoginPressed: kotlin.Function0<kotlin.Unit>, onTermsDialogDismiss: kotlin.Function0<kotlin.Unit>, onTermsAccept: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>, tosUrl: kotlin.String, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -610,14 +611,14 @@ private fun com.wire.android.ui.authentication.create.email.EmailContent(state: 
     - serverConfig: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.email.EmailErrorText(error: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState.EmailError): kotlin.Unit
+private fun com.wire.android.ui.authentication.create.email.EmailErrorText(error: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState.EmailError<com.wire.kalium.common.error.CoreFailure>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - error: STABLE (class with no mutable properties)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.email.EmailFooter(state: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState, onLoginPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.authentication.create.email.EmailFooter(state: com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.common.error.CoreFailure>, onLoginPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -724,13 +725,13 @@ public fun com.wire.android.ui.authentication.createAccountDetailsViewModel(navA
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountEmailViewModel(): com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
+public fun com.wire.android.ui.authentication.createAccountEmailViewModel(): com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure>
   skippable: true
   restartable: true
   params:
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountEmailViewModel(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
+public fun com.wire.android.ui.authentication.createAccountEmailViewModel(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure>
   skippable: false
   restartable: true
   params:

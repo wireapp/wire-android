@@ -23,38 +23,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
-import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
 
-// TODO: Cover this viewModel  with unit test
-class CreateAccountEmailViewModel @AssistedInject constructor(
-    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
-    private val validateEmail: ValidateEmailUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
-    defaultServerConfig: ServerConfig.Links
+class CreateAccountEmailViewModel<FlowT, LinksT, FailureT>(
+    val flowType: FlowT,
+    val customServerConfig: LinksT?,
+    defaultServerConfig: LinksT,
+    private val tosUrlFor: (LinksT) -> String,
+    private val gateway: CreateAccountEmailGateway<LinksT, FailureT>,
 ) : ViewModel() {
-    @AssistedFactory
-    interface Factory {
-        fun create(createAccountNavArgs: CreateAccountNavArgs): CreateAccountEmailViewModel
-    }
     val emailTextState: TextFieldState = TextFieldState()
-    var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(createAccountNavArgs.flowType))
+    var emailState: CreateAccountEmailViewState<FlowT, FailureT> by mutableStateOf(CreateAccountEmailViewState(flowType))
         private set
 
-    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
+    val serverConfig: LinksT = customServerConfig ?: defaultServerConfig
 
-    fun tosUrl(): String = serverConfig.tos
+    fun tosUrl(): String = tosUrlFor(serverConfig)
 
     init {
         viewModelScope.launch {
@@ -71,7 +57,7 @@ class CreateAccountEmailViewModel @AssistedInject constructor(
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val email = emailTextState.text.toString().trim().lowercase()
-            val emailError = when (validateEmail(email)) {
+            val emailError = when (gateway.isEmailValid(email)) {
                 true -> CreateAccountEmailViewState.EmailError.None
                 false -> CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
             }
@@ -90,28 +76,16 @@ class CreateAccountEmailViewModel @AssistedInject constructor(
     fun onTermsAccept() {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val authScope = coreLogic.versionedAuthenticationScope(serverConfig)(null).let {
-                when (it) {
-                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
-
-                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                        // TODO: show dialog
-                        return@launch
-                    }
-
-                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                        // TODO: show dialog
-                        return@launch
-                    }
-
-                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
-                        return@launch
-                    }
-                }
-            }
-
             val email = emailTextState.text.toString().trim().lowercase()
-            val emailError = authScope.registerScope.requestActivationCode(email).toEmailError()
+            val emailError = when (val result = gateway.requestActivationCode(serverConfig, email)) {
+                ActivationCodeResult.AuthScopeUnavailable -> return@launch
+                ActivationCodeResult.Sent -> CreateAccountEmailViewState.EmailError.None
+                ActivationCodeResult.AlreadyInUse -> CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError
+                ActivationCodeResult.Blacklisted -> CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError
+                ActivationCodeResult.DomainBlocked -> CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError
+                ActivationCodeResult.InvalidEmail -> CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
+                is ActivationCodeResult.Generic -> CreateAccountEmailViewState.EmailError.DialogError.GenericError(result.failure)
+            }
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
             if (emailError is CreateAccountEmailViewState.EmailError.None) emailState = emailState.copy(success = true)
         }
@@ -124,13 +98,4 @@ class CreateAccountEmailViewModel @AssistedInject constructor(
     fun onTermsDialogDismiss() {
         emailState = emailState.copy(termsDialogVisible = false)
     }
-}
-
-private fun RequestActivationCodeResult.toEmailError() = when (this) {
-    RequestActivationCodeResult.Failure.AlreadyInUse -> CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError
-    RequestActivationCodeResult.Failure.BlacklistedEmail -> CreateAccountEmailViewState.EmailError.TextFieldError.BlacklistedEmailError
-    RequestActivationCodeResult.Failure.DomainBlocked -> CreateAccountEmailViewState.EmailError.TextFieldError.DomainBlockedError
-    RequestActivationCodeResult.Failure.InvalidEmail -> CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
-    is RequestActivationCodeResult.Failure.Generic -> CreateAccountEmailViewState.EmailError.DialogError.GenericError(this.failure)
-    RequestActivationCodeResult.Success -> CreateAccountEmailViewState.EmailError.None
 }

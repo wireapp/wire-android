@@ -29,27 +29,27 @@ class NewWelcomeOwnershipTest {
 
         val source = Files.readString(featureSource)
         assertTrue(source.contains("package com.wire.android.ui.newauthentication.welcome"))
-        assertTrue(source.contains("@Composable\nfun WelcomeChooserScreen(\n    onChooseLogin: () -> Unit,"))
-        assertFalse(source.contains("internal fun WelcomeChooserScreen"))
-        assertTrue(source.contains("fun NewWelcomeEmptyStartScreen()"))
-        source.lineSequence()
-            .filter { it.startsWith("import ") }
-            .forEach { importedSymbol ->
-                assertTrue(importedSymbol in allowedImports, "Unexpected NewWelcome import: $importedSymbol")
-            }
-        forbiddenFragments.forEach { forbidden ->
-            assertFalse(source.contains(forbidden), "NewWelcome source must not use host dependency: $forbidden")
+        assertTrue(publicWelcomeChooserSignature.containsMatchIn(source))
+        assertTrue(composableWelcomeChooserSignature.containsMatchIn(source))
+        assertTrue(publicEmptyStartSignature.containsMatchIn(source))
+        forbiddenHostDependencies.forEach { forbidden ->
+            assertFalse(forbidden.containsMatchIn(source), "NewWelcome source must not use: ${forbidden.pattern}")
         }
     }
 
     @Test
     fun givenNewWelcomePresentation_whenInspectingStructure_thenItPreservesNavigationNeutralBehavior() {
         val source = Files.readString(repositoryRoot().resolve("features/authentication/src/main/kotlin/$sourcePath"))
+        val welcomeChooserBody = functionBody(source, "WelcomeChooserScreen")
+        val launchedEffect = requireNotNull(launchedEffectUnit.find(welcomeChooserBody)) {
+            "WelcomeChooserScreen must contain a Unit-keyed login chooser effect"
+        }
+        val launchedEffectBody = blockBodyAfter(welcomeChooserBody, launchedEffect.range.last + 1)
+        val emptyStartBody = functionBody(source, "NewWelcomeEmptyStartScreen")
 
-        assertTrue(source.contains("LaunchedEffect(Unit)"))
-        assertTrue(source.contains("onChooseLogin()"))
-        assertTrue(source.contains("@Suppress(\"ComposeModifierMissing\")\nfun NewWelcomeEmptyStartScreen()"))
-        assertTrue(source.contains("Box(modifier = Modifier.fillMaxSize())"))
+        assertTrue(onChooseLoginInvocation.containsMatchIn(launchedEffectBody))
+        assertTrue(composableEmptyStartSignature.containsMatchIn(source))
+        assertTrue(fullSizeBox.containsMatchIn(emptyStartBody))
     }
 
     @Test
@@ -68,30 +68,55 @@ class NewWelcomeOwnershipTest {
         generateSequence(Path.of(System.getProperty("user.dir")).toAbsolutePath()) { it.parent }
             .first { Files.isDirectory(it.resolve("app/src/main/kotlin")) }
 
+    private fun functionBody(source: String, name: String): String {
+        val declaration = requireNotNull(Regex("""\bfun\s+${Regex.escape(name)}\s*\(""").find(source)) {
+            "Missing $name declaration"
+        }
+        return blockBodyAfter(source, declaration.range.last + 1)
+    }
+
+    private fun blockBodyAfter(source: String, startIndex: Int): String {
+        val openingBrace = source.indexOf('{', startIndex)
+        require(openingBrace >= 0) { "Missing function block" }
+
+        var depth = 0
+        for (index in openingBrace until source.length) {
+            when (source[index]) {
+                '{' -> depth++
+                '}' -> {
+                    depth--
+                    if (depth == 0) return source.substring(openingBrace + 1, index)
+                }
+            }
+        }
+        error("Unclosed function block")
+    }
+
     private companion object {
         const val sourcePath = "com/wire/android/ui/newauthentication/welcome/NewWelcomeScreen.kt"
         const val newWelcomeEmptyStartSignature =
             "Lcom/wire/android/ui/newauthentication/welcome/NewWelcomeScreenKt;->NewWelcomeEmptyStartScreen" +
                 "(Landroidx/compose/runtime/Composer;I)V"
-        val forbiddenFragments = listOf(
-            "import com.wire.android.R",
-            "import com.wire.kalium",
-            "com.wire.android.BuildConfig",
-            "com.wire.android.navigation",
-            "com.wire.android.ui.authentication.login.LoginNavArgs",
-            "WireEntry",
-            "NavController",
-            "DestinationScope",
-            "stringResource(",
-            "painterResource(",
-            "R.",
+        val publicWelcomeChooserSignature = Regex(
+            """(?m)^\s*fun\s+WelcomeChooserScreen\s*\(\s*onChooseLogin\s*:\s*\(\s*\)\s*->\s*Unit\s*,?\s*\)"""
         )
-        val allowedImports = setOf(
-            "import androidx.compose.foundation.layout.Box",
-            "import androidx.compose.foundation.layout.fillMaxSize",
-            "import androidx.compose.runtime.Composable",
-            "import androidx.compose.runtime.LaunchedEffect",
-            "import androidx.compose.ui.Modifier",
+        val publicEmptyStartSignature = Regex(
+            """(?m)^\s*fun\s+NewWelcomeEmptyStartScreen\s*\(\s*\)"""
+        )
+        val composableWelcomeChooserSignature = Regex("""@Composable\s+fun\s+WelcomeChooserScreen\s*\(""")
+        val launchedEffectUnit = Regex("""LaunchedEffect\s*\(\s*Unit\s*\)""")
+        val onChooseLoginInvocation = Regex("""\bonChooseLogin\s*\(\s*\)""")
+        val composableEmptyStartSignature = Regex(
+            """@Composable\s+@Suppress\s*\(\s*"ComposeModifierMissing"\s*\)\s*fun\s+NewWelcomeEmptyStartScreen\s*\("""
+        )
+        val fullSizeBox = Regex("""Box\s*\(\s*modifier\s*=\s*Modifier\s*\.\s*fillMaxSize\s*\(\s*\)\s*\)""")
+        val forbiddenHostDependencies = listOf(
+            Regex("""\bcom\.wire\.(?:kalium|android\.(?:R|BuildConfig|navigation|datastore))\b"""),
+            Regex("""(?m)^\s*import\s+com\.wire\.android\.ui\.authentication\."""),
+            Regex("""(?m)^\s*import\s+androidx\.compose\.ui\.res\."""),
+            Regex("""\b(?:LoginNavArgs|WireEntry|NavController|DestinationScope)\b"""),
+            Regex("""\b(?:stringResource|painterResource)\s*\("""),
+            Regex("""\bR\s*\."""),
         )
     }
 }

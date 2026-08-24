@@ -62,7 +62,6 @@
     <string name="label_show_all">Alle anzeigen</string>
     <string name="label_show_details">Details anzeigen</string>
     <string name="label_hide_details">Details ausblenden</string>
-    <string name="label_on">EIN</string>
     <string name="label_value_copied">%s kopiert</string>
     <string name="label_disable">Deaktivieren</string>
     <string name="folder_label_access">Zugang</string>
@@ -194,7 +193,6 @@
     <string name="content_description_share_label">Teilen</string>
     <string name="content_description_edit_label">bearbeiten</string>
     <string name="content_description_selected_label">ausgewählt</string>
-    <string name="content_description_toggle_setting_label">umschalten</string>
     <string name="content_description_switch_on">an</string>
     <string name="content_description_switch_off">aus</string>
     <string name="content_description_edit_guests_option_back_btn">Zurück zu Unterhaltungsdetails</string>

@@ -150,4 +150,6 @@
     <string name="five_minutes_short_label">5 Min</string>
     <string name="one_minute_short_label">1 Min.</string>
     <string name="ten_seconds_short_label">10 Sek</string>
+    <string name="label_on">EIN</string>
+    <string name="content_description_toggle_setting_label">umschalten</string>
 </resources>

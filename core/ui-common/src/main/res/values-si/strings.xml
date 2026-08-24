@@ -58,4 +58,6 @@
     <string name="five_minutes_short_label">වි. 5</string>
     <string name="one_minute_short_label">වි. 1</string>
     <string name="ten_seconds_short_label">ත. 10</string>
+    <string name="label_on">සක්‍රියයි</string>
+    <string name="content_description_toggle_setting_label">ටොගල් සැකසුම</string>
 </resources>

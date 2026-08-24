@@ -148,7 +148,6 @@
     <string name="cells_file_permanently_deleted_message">Файл удален навсегда</string>
     <string name="cells_folder_permanently_deleted_message">Папка удалена навсегда</string>
     <string name="public_link_settings">Настройки ссылки</string>
-    <string name="label_on">ВКЛ</string>
     <string name="public_link_setting_password_title">Защищена паролем</string>
     <string name="public_link_setting_password_subtitle">Установить пароль для ограничения доступа</string>
     <string name="public_link_setting_password_description">Для получения доступа к контенту по ссылке, необходимо сначала ввести этот пароль.</string>

@@ -60,7 +60,6 @@
     <string name="label_show_all">Összes megjelenítése</string>
     <string name="label_show_details">Részletek megjelenítése</string>
     <string name="label_hide_details">Részletek elrejtése</string>
-    <string name="label_on">BE</string>
     <string name="label_value_copied">%s másolva</string>
     <string name="label_disable">Letiltás</string>
     <string name="folder_label_access">Hozzáférés</string>
@@ -166,7 +165,6 @@
     <string name="content_description_share_label">megosztás</string>
     <string name="content_description_edit_label">szerkeszt</string>
     <string name="content_description_selected_label">kiválasztva</string>
-    <string name="content_description_toggle_setting_label">beállításkapcsoló</string>
     <string name="content_description_edit_guests_option_back_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_edit_self_delete_back_btn">Vissza a beszélgetés részleteihez</string>
     <string name="content_description_accept_or_ignore_connection_label">a kérelem elfogadása vagy elutasítása</string>

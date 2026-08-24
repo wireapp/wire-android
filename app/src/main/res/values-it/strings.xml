@@ -58,7 +58,6 @@
     <string name="label_show_all">Mostra tutto</string>
     <string name="label_show_details">Mostra i dettagli</string>
     <string name="label_hide_details">Nascondi i dettagli</string>
-    <string name="label_on">ACCESO</string>
     <string name="label_value_copied">%s copiato</string>
     <string name="label_disable">Disabilita</string>
     <string name="folder_label_access">Accesso</string>

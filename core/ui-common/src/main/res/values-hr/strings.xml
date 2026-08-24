@@ -26,4 +26,5 @@
     <!-- Go to app settings permissions dialog -->
     <string name="conversation_participant_you_label">(Vi)</string>
     <string name="label_off">ISKLJUČENO</string>
+    <string name="label_on">UKLJUČENO</string>
 </resources>

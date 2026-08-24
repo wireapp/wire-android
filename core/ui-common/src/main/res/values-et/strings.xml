@@ -49,4 +49,5 @@
     <string name="one_week_short_label">1ndl</string>
     <string name="one_day_short_label">1p</string>
     <string name="one_hour_short_label">1t</string>
+    <string name="label_on">SEES</string>
 </resources>

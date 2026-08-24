@@ -64,7 +64,6 @@
     <string name="label_show_all">Показать все</string>
     <string name="label_show_details">Подробнее</string>
     <string name="label_hide_details">Скрыть сведения</string>
-    <string name="label_on">ВКЛ</string>
     <string name="label_value_copied">%s скопирован</string>
     <string name="label_disable">Отключить</string>
     <string name="folder_label_access">Доступ</string>
@@ -204,7 +203,6 @@
     <string name="content_description_share_label">поделиться</string>
     <string name="content_description_edit_label">редактировать</string>
     <string name="content_description_selected_label">выбрано</string>
-    <string name="content_description_toggle_setting_label">переключить настройку</string>
     <string name="content_description_switch_on">вкл</string>
     <string name="content_description_switch_off">выкл</string>
     <string name="content_description_edit_guests_option_back_btn">Вернуться к сведениям о беседе</string>

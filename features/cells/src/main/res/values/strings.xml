@@ -147,7 +147,6 @@
     <string name="cells_file_permanently_deleted_message">File was permanently deleted</string>
     <string name="cells_folder_permanently_deleted_message">Folder was permanently deleted</string>
     <string name="public_link_settings">Link settings</string>
-    <string name="label_on">ON</string>
     <string name="public_link_setting_password_title">Password secured</string>
     <string name="public_link_setting_password_subtitle">Set password to restrict access</string>
     <string name="public_link_setting_password_description">People who want to access content via the link need to enter this password first.</string>

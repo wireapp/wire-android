@@ -37,4 +37,6 @@
     <!-- No Activity Errors -->
     <!-- Go to app settings permissions dialog -->
     <string name="label_off">KAPALI</string>
+    <string name="label_on">AÇIK</string>
+    <string name="content_description_toggle_setting_label">geçiş ayarı</string>
 </resources>

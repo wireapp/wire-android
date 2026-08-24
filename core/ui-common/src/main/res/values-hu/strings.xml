@@ -58,4 +58,6 @@
     <string name="five_minutes_short_label">5p</string>
     <string name="one_minute_short_label">1p</string>
     <string name="ten_seconds_short_label">10mp</string>
+    <string name="label_on">BE</string>
+    <string name="content_description_toggle_setting_label">beállításkapcsoló</string>
 </resources>

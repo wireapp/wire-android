@@ -60,7 +60,6 @@
     <string name="label_show_all">Mostrar todo</string>
     <string name="label_show_details">Ver detalles</string>
     <string name="label_hide_details">Ocultar detalles</string>
-    <string name="label_on">Encendido</string>
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desactivar</string>
     <string name="folder_label_access">Acceso</string>

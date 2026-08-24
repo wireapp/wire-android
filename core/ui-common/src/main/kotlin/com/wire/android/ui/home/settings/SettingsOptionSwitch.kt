@@ -24,8 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.common.R as commonR
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.theme.wireColorScheme
@@ -45,7 +44,7 @@ fun SettingsOptionSwitch(
             if (switchState.isOnOffVisible) {
                 HorizontalSpace.x8()
                 Text(
-                    text = stringResource(if (switchState.value) R.string.label_on else commonR.string.label_off),
+                    text = stringResource(if (switchState.value) R.string.label_on else R.string.label_off),
                     style = MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.onBackground
                 )

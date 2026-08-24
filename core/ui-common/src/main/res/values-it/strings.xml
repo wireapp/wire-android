@@ -53,4 +53,5 @@
     <string name="five_minutes_short_label">5m</string>
     <string name="one_minute_short_label">1m</string>
     <string name="ten_seconds_short_label">10s</string>
+    <string name="label_on">ACCESO</string>
 </resources>

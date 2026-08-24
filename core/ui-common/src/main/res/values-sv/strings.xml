@@ -47,4 +47,5 @@
         <item quantity="one">1 vecka</item>
         <item quantity="other">%1$d veckor</item>
     </plurals>
+    <string name="label_on">PÅ</string>
 </resources>

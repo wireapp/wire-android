@@ -25,4 +25,5 @@
     <!-- No Activity Errors -->
     <!-- Go to app settings permissions dialog -->
     <string name="label_off">オフ</string>
+    <string name="label_on">オン</string>
 </resources>

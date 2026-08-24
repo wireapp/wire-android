@@ -145,7 +145,6 @@
     <string name="cells_file_permanently_deleted_message">Datei wurde dauerhaft gelöscht</string>
     <string name="cells_folder_permanently_deleted_message">Ordner wurde dauerhaft gelöscht</string>
     <string name="public_link_settings">Link-Einstellungen</string>
-    <string name="label_on">EIN</string>
     <string name="public_link_setting_password_title">Passwortgesichert</string>
     <string name="public_link_setting_password_subtitle">Passwort festlegen, um den Zugriff zu beschränken</string>
     <string name="public_link_setting_password_description">Personen, die über den Link auf Inhalte zugreifen möchten, müssen zuerst dieses Passwort eingeben.</string>

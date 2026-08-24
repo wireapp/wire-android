@@ -50,7 +50,6 @@
     <string name="label_show_all">Розгорнути</string>
     <string name="label_show_details">Показати деталі</string>
     <string name="label_hide_details">Приховати деталі</string>
-    <string name="label_on">УВІМКНУТИ</string>
     <string name="label_value_copied">%s скопійовано</string>
     <string name="label_disable">Вимкнути</string>
     <string name="folder_label_access">Доступ</string>

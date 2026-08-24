@@ -111,7 +111,7 @@ internal fun LinkSettingsOption(
 
             if (errorLabel == null) {
                 Text(
-                    text = stringResource(if (isEnabled) R.string.label_on else commonR.string.label_off),
+                    text = stringResource(if (isEnabled) commonR.string.label_on else commonR.string.label_off),
                     style = typography().body01,
                 )
             } else {

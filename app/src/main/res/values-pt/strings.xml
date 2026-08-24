@@ -60,7 +60,6 @@
     <string name="label_show_all">Mostrar tudo</string>
     <string name="label_show_details">Mostrar Detalhes</string>
     <string name="label_hide_details">Ocultar Detalhes</string>
-    <string name="label_on">Ativado</string>
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desabilitar</string>
     <string name="folder_label_access">Acesso</string>
@@ -164,7 +163,6 @@
     <string name="content_description_share_label">compartilhar</string>
     <string name="content_description_edit_label">editar</string>
     <string name="content_description_selected_label">selecionado</string>
-    <string name="content_description_toggle_setting_label">alterar configuração</string>
     <string name="content_description_edit_guests_option_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_edit_self_delete_back_btn">Voltar para os detalhes da conversa</string>
     <string name="content_description_accept_or_ignore_connection_label">aceitar ou ignorar a solicitação</string>

@@ -18,7 +18,7 @@ class GenericDurationLabelResourceOwnershipSourceTest {
         val device = source("app/src/main/kotlin/com/wire/android/ui/authentication/devices/model/Device.kt")
         val durationUtil = source("app/src/main/kotlin/com/wire/android/util/DurationUtil.kt")
         val channelHistory = source("app/src/main/kotlin/com/wire/android/ui/home/newconversation/channelhistory/ChannelHistoryType.kt")
-        val settings = source("app/src/main/kotlin/com/wire/android/ui/home/settings/SettingsOptionSwitch.kt")
+        val settings = source("core/ui-common/src/main/kotlin/com/wire/android/ui/home/settings/SettingsOptionSwitch.kt")
         val selfDeletion = source("core/ui-common/src/main/kotlin/com/wire/android/ui/home/messagecomposer/SelfDeletionDuration.kt")
         val cells = source("features/cells/src/main/java/com/wire/android/feature/cells/ui/publiclink/settings/PublicLinkSettingsSection.kt")
 
@@ -27,7 +27,7 @@ class GenericDurationLabelResourceOwnershipSourceTest {
         assertFalse(durationUtil.contains("import com.wire.android.R"))
         assertTrue(channelHistory.contains("commonR.plurals.days_long_label"))
         assertTrue(channelHistory.contains("commonR.plurals.weeks_long_label"))
-        assertTrue(settings.contains("else commonR.string.label_off"))
+        assertTrue(settings.contains("else R.string.label_off"))
         assertTrue(selfDeletion.contains("import com.wire.android.ui.common.R"))
         assertFalse(selfDeletion.contains("import com.wire.android.R"))
         assertTrue(selfDeletion.contains("R.string.label_off"))

@@ -49,4 +49,5 @@
     <string name="four_weeks_short_label">4sem</string>
     <string name="one_week_short_label">1sem</string>
     <string name="five_minutes_short_label">5min</string>
+    <string name="label_on">Encendido</string>
 </resources>

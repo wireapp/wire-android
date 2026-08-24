@@ -49,6 +49,7 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
@@ -118,7 +119,7 @@ fun SelfDeletionTimerIcon(
 ) {
     val isSelected = selfDeletionTimer is SelfDeletionTimer.Enabled && selfDeletionTimer.duration != null
     val contentDescription = stringResource(id = R.string.content_description_conversation_details_self_deleting_action)
-    val toggleActionDescription = stringResource(id = R.string.content_description_toggle_setting_label)
+    val toggleActionDescription = stringResource(id = commonR.string.content_description_toggle_setting_label)
     val stateDescription = stringResource(
         id = if (isSelected) R.string.content_description_switch_on else R.string.content_description_switch_off
     )

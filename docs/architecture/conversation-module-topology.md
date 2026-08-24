@@ -76,6 +76,11 @@ The package-preserved `GroupConversationAvatar` is facade-owned because it rende
 
 Participant previews are facade-owned beside the existing runtime renderers and preview state. Their six preview functions keep their packages/FQNs and use the public neutral `MultipleThemePreviews` annotation; the app-internal preview annotation no longer crosses the module boundary.
 
+Conversation-details UI consumes the package-preserved `SettingsOptionSwitch` and `SwitchState`
+from `:core:ui-common`. The primitive is shared with app settings, new-conversation, and Cells;
+its two labels and all 23 localized definitions are core-owned. This neutral prerequisite prevents
+the details move from introducing a conversation-to-app dependency.
+
 The package-preserved `MessageBubbleItem` is facade-owned as the regular-message layout and interaction shell. It consumes conversation-owned models and the feature-owned click interceptor plus neutral theme/UI primitives; app callers retain the same FQN.
 
 System-message leading presentation and the stable `SystemMessageContent` data contract are facade-owned. The package-preserved app system-message factory remains app-owned because it selects app resources; it constructs the unchanged feature contract through the existing facade edge.

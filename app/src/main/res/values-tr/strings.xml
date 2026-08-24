@@ -60,7 +60,6 @@
     <string name="label_show_all">Hepsini Göster</string>
     <string name="label_show_details">Detayları Göster</string>
     <string name="label_hide_details">Detayları Gizle</string>
-    <string name="label_on">AÇIK</string>
     <string name="label_value_copied">%s kopyalandı</string>
     <string name="label_disable">Kapalı</string>
     <string name="folder_label_access">Erişim</string>
@@ -166,7 +165,6 @@
     <string name="content_description_share_label">paylaş</string>
     <string name="content_description_edit_label">düzenle</string>
     <string name="content_description_selected_label">seçildi</string>
-    <string name="content_description_toggle_setting_label">geçiş ayarı</string>
     <string name="content_description_edit_guests_option_back_btn">Konuşma detaylarına geri dön</string>
     <string name="content_description_edit_self_delete_back_btn">Konuşma detaylarına geri dön</string>
     <string name="content_description_accept_or_ignore_connection_label">isteği kabul et veya yok say</string>

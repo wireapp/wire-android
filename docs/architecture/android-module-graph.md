@@ -88,7 +88,7 @@ graph TD
 | `:core:search` | `:core:di`, `:core:ui-common`, `:core:query-matching`, `:core:interaction-model` | implementation | current | Shared contact/app search UI and matching primitives | Core to core only |
 | `:core:search` | Kalium Logic | implementation | current | Search data/use-case access | Core to third-party library only |
 | `:core:navigation` | `:core:navigation-kmp`, `:core:design-system`, `:core:ui-common` | api / implementation | current | Navigation primitives | Core to core only |
-| `:core:ui-common` | `:core:design-system`, `:core:interaction-model`, `:core:di` | api / implementation | current | Shared Android UI primitives | Core to core only |
+| `:core:ui-common` | `:core:design-system`, `:core:interaction-model`, `:core:di` | api / implementation | current | Shared Android UI primitives, including the package-preserved settings switch/state and its neutral labels | Core to core only |
 | `:core:calling` | `:core:ui-common`, Kalium Logic, coroutines | api | current | Public `ActionsManager`, Kalium and `Flow` types in the coordinator API | No app/feature/navigation edge |
 | `:core:calling` | Kalium common, Compose Runtime, AndroidX | implementation | current | Coordinator implementation and `VisibleForTesting` | No app/feature/navigation edge |
 | Kalium Logic | Kalium Domain Calling | api | current | Kalium calling domain | Kalium-owned edge |
@@ -124,6 +124,7 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Calling coordinator runtime adapters | `JoinOrStartCallRuntimeActions.kt` and `JoinOrStartCallRuntimeDialogs.kt` contain activity/analytics handling and app dialog rendering | App owns runtime adapters; core exposes only action/dialog-state contracts and dialog-response methods |
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
+| Reusable settings switch | app settings, new-conversation, conversation details, and Cells use the package-preserved `SettingsOptionSwitch`/`SwitchState` contract | Keep the primitive and its 23 exact localized resource definitions in `:core:ui-common`; feature UI must not depend on app settings implementation |
 
 Audited app production-file counts are: conversations **156**, message composer **40**,
 conversations list **27**, gallery **6**, calling **60**, and feature meetings
@@ -136,6 +137,8 @@ IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now
 with **23** localized definitions. The feature also owns all **608** definitions of the
 59 message-presentation, provider, mapper, and formatting IDs across their exact qualifiers, plus all **6** definitions of the 2 reaction accessibility IDs and all **65** definitions of the 10 self-deletion timer plural IDs. The first live internal capability,
 `:features:conversation:folders`, owns **6** production files and **2** unit-test files.
+UI common owns the neutral `SettingsOptionSwitch`/`SwitchState` source and all **23** exact
+definitions of its two resource IDs; app and Cells retain no duplicate definitions.
 The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
 the existing `:features:meetings` module is not in that SCC.

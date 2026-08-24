@@ -71,7 +71,6 @@
     <string name="label_show_all">Show All</string>
     <string name="label_show_details">Show Details</string>
     <string name="label_hide_details">Hide Details</string>
-    <string name="label_on">ON</string>
     <string name="label_value_copied">%s copied</string>
     <string name="label_disable">Disable</string>
     <string name="folder_label_access">Access</string>
@@ -211,7 +210,6 @@
     <string name="content_description_share_label">share</string>
     <string name="content_description_edit_label">edit</string>
     <string name="content_description_selected_label">selected</string>
-    <string name="content_description_toggle_setting_label">toggle setting</string>
     <string name="content_description_switch_on">on</string>
     <string name="content_description_switch_off">off</string>
     <string name="content_description_edit_guests_option_back_btn">Go back to conversation details</string>

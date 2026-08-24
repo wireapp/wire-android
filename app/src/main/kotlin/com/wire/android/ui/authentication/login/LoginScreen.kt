@@ -143,139 +143,45 @@ private fun MainLoginContent(
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
 
-    val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val isBackendConfigured = loginEmailViewModel.isBackendConfigured
     val backendConfigState = loginEmailViewModel.loginState.backendConfigState
-    val shouldShowBackendSetup = !isBackendConfigured || backendConfigState == LoginEmailState.BackendConfigState.Success
-    // Show SSO tab if we have either ssoLoginResult or ssoCodeAutoLogin
-    val initialPageIndex = if (ssoLoginResult != null || ssoCodeAutoLogin != null) {
-        LoginTabItem.SSO.ordinal
-    } else {
-        LoginTabItem.EMAIL.ordinal
-    }
-    val pagerState = rememberPagerState(
-        initialPage = initialPageIndex,
-        pageCount = { LoginTabItem.values().size }
+    val shouldShowBackendSetup = com.wire.android.ui.authentication.login.shouldShowBackendSetup(
+        isBackendConfigured,
+        backendConfigState == LoginEmailState.BackendConfigState.Success,
     )
-
     val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
-
-    WireScaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = scrollState.rememberTopBarElevationState().value,
-                title = stringResource(
-                    if (!shouldShowBackendSetup) {
-                        R.string.login_title
-                    } else {
-                        R.string.missing_backend_config_title
-                    }
-                ),
-                subtitleContent = {
-                    if (!shouldShowBackendSetup && loginEmailViewModel.serverConfig.isOnPremises) {
-                        ServerTitle(
-                            serverLinks = loginEmailViewModel.serverConfig,
-                            style = MaterialTheme.wireTypography.body01
-                        )
-                    }
-                },
-                onNavigationPressed = onBackPressed,
-                navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
-            ) {
-                if (!shouldShowBackendSetup) {
-                    WireTabRow(
-                        tabs = LoginTabItem.values().toList(),
-                        selectedTabIndex = pagerState.calculateCurrentTab(),
-                        onTabChange = {
-
-                            if (loginEmailViewModel.serverConfig.isProxyEnabled) {
-                                if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
-                                    ssoDisabledWithProxyDialogState.show(
-                                        ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                            R.string.sso_not_supported_dialog_description
-                                        )
-                                    )
-                                }
-                            } else {
-                                scope.launch { pagerState.animateScrollToPage(it) }
-                            }
-                        },
-                        modifier = Modifier.padding(
-                            start = MaterialTheme.wireDimensions.spacing16x,
-                            end = MaterialTheme.wireDimensions.spacing16x
-                        ),
-                    )
-                }
-            }
+    com.wire.android.ui.authentication.login.LoginScreenContent(
+        showBackendSetup = shouldShowBackendSetup,
+        initialTab = com.wire.android.ui.authentication.login.initialLoginTab(ssoLoginResult != null, ssoCodeAutoLogin != null),
+        title = stringResource(if (shouldShowBackendSetup) R.string.missing_backend_config_title else R.string.login_title),
+        backContentDescription = R.string.content_description_login_back_btn,
+        isProxyEnabled = loginEmailViewModel.serverConfig.isProxyEnabled,
+        onBackPressed = onBackPressed,
+        onSsoBlocked = {
+            ssoDisabledWithProxyDialogState.show(
+                ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(R.string.sso_not_supported_dialog_description)
+            )
         },
-        modifier = Modifier.fillMaxHeight(),
-    ) { internalPadding ->
-        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val focusManager = LocalFocusManager.current
-
-        if (!shouldShowBackendSetup) {
-            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                ) { pageIndex ->
-                    when (LoginTabItem.values()[pageIndex]) {
-                        LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
-                        LoginTabItem.SSO -> LoginSSOScreen(
-                            onSuccess,
-                            onRemoveDeviceNeeded,
-                            loginNavArgs,
-                            ssoLoginResult,
-                            ssoCodeAutoLogin,
-                        )
-                    }
-                }
-                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                    LaunchedEffect(Unit) {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                        focusedTabIndex = pagerState.currentPage
-                    }
-                }
-            }
-        } else {
-            if (backendConfigState == LoginEmailState.BackendConfigState.Success) {
-                BackendConfigSuccessContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                        .padding(MaterialTheme.wireDimensions.spacing16x),
-                    onContinue = loginEmailViewModel::onBackendConfigSuccessContinue,
-                )
-            } else {
-                MissingBackendConfigContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                        .padding(MaterialTheme.wireDimensions.spacing16x),
-                    errorText = if (backendConfigState == LoginEmailState.BackendConfigState.Error) {
-                        stringResource(R.string.missing_backend_config_error)
-                    } else {
-                        null
-                    },
-                    isLoading = backendConfigState == LoginEmailState.BackendConfigState.Loading,
-                    onConfigurationLinkEntered = loginEmailViewModel::onBackendConfigLinkEntered,
-                )
-            }
-        }
-    }
-}
-
-enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
-    EMAIL(R.string.login_tab_email),
-    SSO(R.string.login_tab_sso);
-
-    override val title: UIText = UIText.StringResource(titleResId)
+        emailContent = { LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState) },
+        ssoContent = { LoginSSOScreen(onSuccess, onRemoveDeviceNeeded, loginNavArgs, ssoLoginResult, ssoCodeAutoLogin) },
+        backendConfigContent = {
+            if (backendConfigState == LoginEmailState.BackendConfigState.Success) BackendConfigSuccessContent(
+                modifier = Modifier.fillMaxWidth(), onContinue = loginEmailViewModel::onBackendConfigSuccessContinue,
+            ) else MissingBackendConfigContent(
+                modifier = Modifier.fillMaxWidth(),
+                errorText = if (backendConfigState == LoginEmailState.BackendConfigState.Error) stringResource(R.string.missing_backend_config_error) else null,
+                isLoading = backendConfigState == LoginEmailState.BackendConfigState.Loading,
+                onConfigurationLinkEntered = loginEmailViewModel::onBackendConfigLinkEntered,
+            )
+        },
+        subtitleContent = {
+            if (!shouldShowBackendSetup && loginEmailViewModel.serverConfig.isOnPremises) ServerTitle(
+                serverLinks = loginEmailViewModel.serverConfig, style = MaterialTheme.wireTypography.body01,
+            )
+        },
+    )
 }
 
 @PreviewMultipleThemes

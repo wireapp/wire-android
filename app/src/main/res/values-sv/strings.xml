@@ -157,9 +157,7 @@
     <!-- Login -->
     <string name="login_title">Logga in</string>
     <string name="login_forgot_password">Glömt lösenord?</string>
-    <string name="login_user_identifier_placeholder">jane@example.com eller jane.doe</string>
     <string name="login_user_identifier_label">E-POSTADRESS ELLER ANVÄNDARNAMN</string>
-    <string name="login_proxy_identifier_label">EPOST-ADRESS ELLER ANVÄNDARNAMN FÖR PROXY</string>
     <string name="login_error_invalid_credentials_title">Ogiltig information</string>
     <string name="login_error_invalid_credentials_message">De här kontouppgifterna är felaktiga.
         Vänligen bekräfta dina uppgifter och försök igen.
@@ -170,11 +168,7 @@
     <string name="login_sso_error_invalid_cookie_message">Sessionen är ogiltig eller har slutat gälla! Vänligen försök igen för att logga in.</string>
     <string name="login_password_placeholder">Lösenord</string>
     <string name="login_password_label">LÖSENORD</string>
-    <string name="login_tab_email">E-POSTADRESS</string>
-    <string name="login_tab_sso">SSO-INLOGGNING</string>
-    <string name="login_sso_code_label">SSO-KOD ELLER E-POSTADRESS</string>
     <string name="login_error_invalid_sso_code">Ange en giltig SSO-kod.</string>
-    <string name="login_error_invalid_sso_code_format">Ange en giltig SSO-kod</string>
     <string name="deleted_user_error_title">Kontot togs bort</string>
     <string name="deleted_user_error_message">Du loggades ut eftersom att ditt konto togs
         bort.

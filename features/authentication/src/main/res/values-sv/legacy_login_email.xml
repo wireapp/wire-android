@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_user_identifier_placeholder">jane@example.com eller jane.doe</string>
+<string name="login_proxy_identifier_label">EPOST-ADRESS ELLER ANVÄNDARNAMN FÖR PROXY</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Dobrodošli u Wire, najsigurniju platformu za suradnju!</string>
+<string name="welcome_screen_carousel_item_message_2">Apsolutno povjerenje da su vaši podaci\u00A0sigurni</string>
+<string name="welcome_screen_carousel_item_message_3">Šifrirani zvuk &amp; videokonferencije od\u00A0do 50\u00A0sudionika</string>
+<string name="welcome_screen_carousel_item_message_4">Sigurno dijeljenje datoteka s timovima i\u00A0klijentima</string>
+<string name="welcome_screen_carousel_item_message_5">Wire je neovisno revidiran i usklađen je s ISO, CCPA, GDPR i SOX standardima</string>
+</resources>

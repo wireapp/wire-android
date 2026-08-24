@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
+<string name="login_tab_email">E-MAIL-ADRESSE</string>
+<string name="login_tab_sso">SSO</string>
+<string name="login_sso_code_label">SSO-CODE ODER E-MAIL-ADRESSE</string>
+<string name="login_error_invalid_sso_code_format">Geben Sie einen gültigen SSO-Code ein</string>
+</resources>

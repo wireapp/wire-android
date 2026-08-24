@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">最も安全なコラボレーションプラットフォームのWireへようこそ！</string>
+<string name="welcome_screen_carousel_item_message_2">あなたの情報が安全に保管されているという強い自信</string>
+<string name="welcome_screen_carousel_item_message_3">最大50人での暗号化された音声・ビデオ会議</string>
+<string name="welcome_screen_carousel_item_message_4">チームや顧客との安全なファイル共有</string>
+<string name="welcome_screen_carousel_item_message_5">Wireは独立して監査されていて、ISOやCCPA、GDPR、SOXに準拠しています</string>
+</resources>

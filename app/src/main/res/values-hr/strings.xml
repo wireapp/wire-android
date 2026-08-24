@@ -148,11 +148,6 @@
     <string name="welcome_footer_text">Želite razgovarati s obitelji i prijateljima?</string>
     <string name="welcome_footer_link">Stvorite privatni račun besplatno</string>
     <string name="welcome_button_create_personal_account">Stvorite privatni račun</string>
-    <string name="welcome_screen_carousel_item_message_1">Dobrodošli u Wire, najsigurniju platformu za suradnju!</string>
-    <string name="welcome_screen_carousel_item_message_2">Apsolutno povjerenje da su vaši podaci\u00A0sigurni</string>
-    <string name="welcome_screen_carousel_item_message_3">Šifrirani zvuk &amp; videokonferencije od\u00A0do 50\u00A0sudionika</string>
-    <string name="welcome_screen_carousel_item_message_4">Sigurno dijeljenje datoteka s timovima i\u00A0klijentima</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire je neovisno revidiran i usklađen je s ISO, CCPA, GDPR i SOX standardima</string>
     <string name="welcome_button_create_team">Stvorite tim</string>
     <string name="server_details_dialog_body">Backend ime:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">Lokalni Backend</string>
@@ -182,9 +177,7 @@
     <!-- Login -->
     <string name="login_title">Prijava</string>
     <string name="login_forgot_password">Zaboravili ste lozinku?</string>
-    <string name="login_user_identifier_placeholder">marta@primjer.hr ili marta.horvat</string>
     <string name="login_user_identifier_label">EMAIL ILI KORISNIČKO IME</string>
-    <string name="login_proxy_identifier_label">PROXY EMAIL ILI KORISNIČKO IME</string>
     <string name="login_error_invalid_credentials_title">Nevažeća informacija</string>
     <string name="login_error_invalid_credentials_message">Ovi detalji računa nisu ispravni.
         Molimo provjerite svoje podatke i pokušajte ponovo.
@@ -195,11 +188,7 @@
     <string name="login_sso_error_invalid_cookie_message">Sesija nije valjana ili je istekla! Pokušajte se ponovno prijaviti.</string>
     <string name="login_password_placeholder">Lozinka</string>
     <string name="login_password_label">LOZINKA</string>
-    <string name="login_tab_email">EMAIL</string>
-    <string name="login_tab_sso">SSO PRIJAVA</string>
-    <string name="login_sso_code_label">SSO KOD ILI EMAIL</string>
     <string name="login_error_invalid_sso_code">Molimo, unesite ispravan kod za jedinstvenu prijavu.</string>
-    <string name="login_error_invalid_sso_code_format">Unesite važeći kod za jedinstvenu prijavu</string>
     <string name="deleted_user_error_title">Obrisan kontakt</string>
     <string name="deleted_user_error_message">Odjavljeni ste jer je Vaš račun izbrisan.    </string>
     <string name="removed_client_error_title">Uklonjen uređaj</string>

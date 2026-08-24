@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_user_identifier_placeholder">max@example.com oder max.müller</string>
+<string name="login_proxy_identifier_label">PROXY E-MAIL-ADRESSE ODER BENUTZERNAME</string>
+<string name="label_proxy_password">PROXY-PASSWORT</string>
+</resources>

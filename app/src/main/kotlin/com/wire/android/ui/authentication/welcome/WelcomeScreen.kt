@@ -67,6 +67,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.ui.authentication.MissingBackendConfigContent
@@ -136,320 +137,66 @@ private fun WelcomeContent(
     navigateBack: () -> Unit,
     onAction: (WelcomeScreenAction) -> Unit,
 ) {
-    WireScaffold(topBar = {
-        if (isThereActiveSession) {
-            WireCenterAlignedTopAppBar(
-                elevation = dimensions().spacing0x,
-                title = "",
-                navigationIconType = NavigationIconType.Close(R.string.content_description_welcome_screen_close_btn),
-                onNavigationPressed = navigateBack
-            )
-        } else {
-            Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
-        }
-    }) { internalPadding ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .padding(internalPadding)
-        ) {
-            val maxAccountsReachedDialogState = rememberVisibilityState<MaxAccountsReachedDialogState>()
-            MaxAccountsReachedDialog(dialogState = maxAccountsReachedDialogState) { navigateBack() }
-            if (maxAccountsReached) {
-                maxAccountsReachedDialogState.show(maxAccountsReachedDialogState.savedState ?: MaxAccountsReachedDialogState)
-            }
-
-            val nomadBlocksLoginDialogState = rememberVisibilityState<NomadAccountBlocksLoginDialogState>()
-            NomadAccountBlocksLoginDialog(dialogState = nomadBlocksLoginDialogState) { navigateBack() }
-            if (nomadAccountBlocksLogin) {
-                nomadBlocksLoginDialogState.show(nomadBlocksLoginDialogState.savedState ?: NomadAccountBlocksLoginDialogState)
-            }
-
-            if (!state.isConfigured()) {
-                MissingBackendConfigContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding)
-                        .weight(1f, true),
-                    showTitle = true,
-                    centerText = true,
-                    verticalArrangement = Arrangement.Center,
-                )
-                return@Column
-            }
-
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-                tint = MaterialTheme.colorScheme.onBackground,
-                contentDescription = null
-            )
-
-            if (state.isOnPremises) {
-                ServerTitle(
-                    serverLinks = state,
-                    modifier = Modifier
-                        .padding(top = dimensions().spacing16x, start = dimensions().spacing32x, end = dimensions().spacing32x)
-                )
-            }
-
-            WelcomeCarousel(modifier = Modifier.weight(1f, true))
-
-            WelcomeButtonsColumn(state = state, onAction = onAction)
-
-            if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
-                WelcomeFooterSection(
-                    state = state,
-                    onAction = onAction,
-                    modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun WelcomeButtonsColumn(
-    state: ServerConfig.Links,
-    onAction: (WelcomeScreenAction) -> Unit,
-) {
+    val maxDialog = rememberVisibilityState<MaxAccountsReachedDialogState>()
+    val nomadDialog = rememberVisibilityState<NomadAccountBlocksLoginDialogState>()
+    val enterpriseProxyDialog = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    val personalProxyDialog = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    MaxAccountsReachedDialog(maxDialog) { navigateBack() }
+    NomadAccountBlocksLoginDialog(nomadDialog) { navigateBack() }
+    FeatureDisabledWithProxyDialogContent(enterpriseProxyDialog) { onAction(WelcomeScreenAction.OpenUrl(state.teams)) }
+    FeatureDisabledWithProxyDialogContent(personalProxyDialog)
+    if (maxAccountsReached) maxDialog.show(maxDialog.savedState ?: MaxAccountsReachedDialogState)
+    if (nomadAccountBlocksLogin) nomadDialog.show(nomadDialog.savedState ?: NomadAccountBlocksLoginDialogState)
+    val accountCreationAllowed = LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed
     val teamCreationUrl = state.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
-    val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    Column(
-        modifier = Modifier
-            .padding(
-                vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
-                horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
+    com.wire.android.ui.authentication.welcome.WelcomeScreenContent(
+        state = com.wire.android.ui.authentication.welcome.WelcomePresentationState(
+            showCloseButton = isThereActiveSession,
+            accountCreationAllowed = accountCreationAllowed,
+            showTeamCreation = true,
+            showPersonalCreation = true,
+            carouselDelayMillis = integerResource(AuthenticationR.integer.welcome_carousel_item_time_ms).toLong(),
+            carouselPages = welcomeCarouselPages(),
+        ),
+        loginLabel = stringResource(R.string.label_login),
+        createTeamLabel = stringResource(R.string.welcome_button_create_team),
+        footerText = stringResource(R.string.welcome_footer_text),
+        createPersonalLabel = stringResource(R.string.welcome_button_create_personal_account),
+        onClose = navigateBack,
+        onLogin = { onAction(WelcomeScreenAction.Login(state)) },
+        onCreateTeam = {
+            if (state.isProxyEnabled()) enterpriseProxyDialog.show(enterpriseProxyDialog.savedState ?: FeatureDisabledWithProxyDialogState(R.string.create_team_not_supported_dialog_description, state.teams))
+            else if (ENABLE_NEW_REGISTRATION) onAction(WelcomeScreenAction.OpenUrl(teamCreationUrl))
+            else onAction(WelcomeScreenAction.CreateTeam(state))
+        },
+        onCreatePersonal = {
+            if (state.isProxyEnabled()) personalProxyDialog.show(personalProxyDialog.savedState ?: FeatureDisabledWithProxyDialogState(R.string.create_personal_account_not_supported_dialog_description))
+            else if (ENABLE_NEW_REGISTRATION) onAction(WelcomeScreenAction.CreateAccountData(state))
+            else onAction(WelcomeScreenAction.CreatePersonal(state))
+        },
+        topBarContent = {
+            if (isThereActiveSession) WireCenterAlignedTopAppBar(elevation = dimensions().spacing0x, title = "", navigationIconType = NavigationIconType.Close(R.string.content_description_welcome_screen_close_btn), onNavigationPressed = navigateBack)
+            else Spacer(Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
+        },
+        logoContent = { Icon(ImageVector.vectorResource(R.drawable.ic_wire_logo), null, tint = MaterialTheme.colorScheme.onBackground) },
+        serverTitleContent = { if (state.isOnPremises) ServerTitle(state, Modifier.padding(top = dimensions().spacing16x, start = dimensions().spacing32x, end = dimensions().spacing32x)) },
+        bodyOverride = if (!state.isConfigured()) ({
+            MissingBackendConfigContent(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding).weight(1f, true),
+                showTitle = true, centerText = true, verticalArrangement = Arrangement.Center,
             )
-            .semantics {
-                testTagsAsResourceId = true
-            }
-    ) {
-        LoginButton(
-            onClick = { onAction(WelcomeScreenAction.Login(state)) }
-        )
-        FeatureDisabledWithProxyDialogContent(
-            dialogState = enterpriseDisabledWithProxyDialogState,
-            onActionButtonClicked = {
-                onAction(WelcomeScreenAction.OpenUrl(state.teams))
-            }
-        )
-        if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
-            CreateEnterpriseAccountButton {
-                if (state.isProxyEnabled()) {
-                    enterpriseDisabledWithProxyDialogState.show(
-                        enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                            R.string.create_team_not_supported_dialog_description,
-                            state.teams
-                        )
-                    )
-                } else {
-                    if (ENABLE_NEW_REGISTRATION) {
-                        onAction(WelcomeScreenAction.OpenUrl(teamCreationUrl))
-                    } else {
-                        onAction(WelcomeScreenAction.CreateTeam(state))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun WelcomeFooterSection(
-    state: ServerConfig.Links,
-    onAction: (WelcomeScreenAction) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
-    WelcomeFooter(
-        modifier = modifier,
-        onPrivateAccountClick = {
-            if (state.isProxyEnabled()) {
-                createPersonalAccountDisabledWithProxyDialogState.show(
-                    createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                        R.string.create_personal_account_not_supported_dialog_description
-                    )
-                )
-            } else {
-                if (ENABLE_NEW_REGISTRATION) {
-                    onAction(WelcomeScreenAction.CreateAccountData(state))
-                } else {
-                    onAction(WelcomeScreenAction.CreatePersonal(state))
-                }
-            }
-        }
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun WelcomeCarousel(modifier: Modifier = Modifier) {
-    val delay = integerResource(id = R.integer.welcome_carousel_item_time_ms)
-    val icons: List<Int> = typedArrayResource(id = R.array.welcome_carousel_icons).drawableResIdList()
-    val texts: List<String> = stringArrayResource(id = R.array.welcome_carousel_texts).toList()
-    val items: List<CarouselPageData> = icons.zip(texts) { icon, text -> CarouselPageData(icon, text) }
-
-    // adding repeated elements on both edges to have list like: [E A B C D E A] and because of that we can flip to the other side of the
-    // list when we reach the end while keeping swipe capability both ways and from the user side it looks like an infinite loop both ways
-    val circularItemsList = listOf<CarouselPageData>().plus(items.last()).plus(items).plus(items.first())
-    val initialPage = 1
-    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { circularItemsList.size })
-
-    LaunchedEffect(pagerState) {
-        autoScrollCarousel(pagerState, initialPage, circularItemsList, delay.toLong())
-    }
-
-    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = modifier.fillMaxWidth()
-        ) { page ->
-            val (pageIconResId, pageText) = circularItemsList[page]
-            WelcomeCarouselItem(pageIconResId = pageIconResId, pageText = pageText)
-        }
-    }
-}
-
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalFoundationApi::class)
-private suspend fun autoScrollCarousel(
-    pageState: PagerState,
-    initialPage: Int,
-    circularItemsList: List<CarouselPageData>,
-    delay: Long
-) = snapshotFlow { pageState.currentPage }.distinctUntilChanged()
-    .scan(initialPage to initialPage) { (_, previousPage), currentPage -> previousPage to currentPage }
-    .flatMapLatest { (previousPage, currentPage) ->
-        when {
-            shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) -> flow {
-                emit(
-                    CarouselScrollData(
-                        scrollToPage = initialPage,
-                        animate = false
-                    )
-                )
-            }
-
-            shouldJumpToEnd(
-                previousPage,
-                currentPage,
-                circularItemsList.lastIndex
-            ) -> flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
-
-            else -> flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }.onEach {
-                delay(
-                    delay
-                )
-            }
-        }
-    }.collect { (scrollToPage, animate) ->
-        if (pageState.pageCount != 0) {
-            if (animate) {
-                pageState.animateScrollToPage(scrollToPage)
-            } else {
-                pageState.scrollToPage(scrollToPage)
-            }
-        }
-    }
-
-@Composable
-private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Image(
-            painter = painterResource(id = pageIconResId),
-            contentDescription = null,
-            contentScale = ContentScale.Inside,
-            modifier = Modifier
-                .weight(1f, true)
-                .padding(
-                    horizontal = MaterialTheme.wireDimensions.welcomeImageHorizontalPadding,
-                    vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing
-                )
-        )
-        Text(
-            text = pageText,
-            style = MaterialTheme.wireTypography.title01,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
-                .clearAndSetSemantics {}
-        )
-    }
-}
-
-@Composable
-private fun LoginButton(onClick: () -> Unit) {
-    WirePrimaryButton(
-        onClick = onClick,
-        text = stringResource(R.string.label_login),
-        modifier = Modifier
-            .padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
-            .testTag("loginButton")
+        }) else null,
     )
 }
 
 @Composable
-private fun CreateEnterpriseAccountButton(onClick: () -> Unit) {
-    WireSecondaryButton(
-        onClick = onClick,
-        text = stringResource(R.string.welcome_button_create_team),
-        modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.welcomeButtonVerticalPadding)
-    )
-}
-
-@Composable
-private fun WelcomeFooter(onPrivateAccountClick: () -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.welcome_footer_text),
-            style = MaterialTheme.wireTypography.body02,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Text(
-            text = stringResource(R.string.welcome_button_create_personal_account),
-            style = MaterialTheme.wireTypography.body02.copy(
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onPrivateAccountClick,
-                    onClickLabel = stringResource(commonR.string.content_description_open_link_label)
-                )
-        )
-
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
-    }
-}
-
-@Composable
-@ReadOnlyComposable
-private fun typedArrayResource(@ArrayRes id: Int): TypedArray = LocalContext.current.resources.obtainTypedArray(id)
-
-private fun TypedArray.drawableResIdList(): List<Int> = (0 until this.length()).map { this.getResourceId(it, 0) }
-
-// having list [E A B C D E A], when moving forward we reach the last one - second "A", we want to flip to the first "A"
-// to keep swipe capability both ways and the feeling of an endless loop
-private fun shouldJumpToStart(previousPage: Int, currentPage: Int, lastPage: Int, initialPage: Int): Boolean =
-    currentPage == lastPage && previousPage < currentPage && previousPage >= initialPage
-
-// having list [E A B C D E A], when moving backward we reach the first one - first "E", we want to flip to the second "E"
-// to keep swipe capability both ways and the feeling of an endless loop
-private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int): Boolean =
-    currentPage == 0 && previousPage > currentPage && previousPage < lastPage
+private fun welcomeCarouselPages() = listOf(
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_1, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_1)),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_2, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_2)),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_3, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_3)),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_4, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_4)),
+    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(AuthenticationR.drawable.ic_welcome_5, stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_5)),
+)
 
 @Preview
 @Composable

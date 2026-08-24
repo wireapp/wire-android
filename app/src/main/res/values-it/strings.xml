@@ -153,11 +153,6 @@
     <string name="welcome_footer_text">Vuoi chattare con amici e familiari?</string>
     <string name="welcome_footer_link">Crea un account privato gratuitamente</string>
     <string name="welcome_button_create_personal_account">Crea un Account Personale</string>
-    <string name="welcome_screen_carousel_item_message_1">Benvenuto su Wire, la piattaforma di collaborazione pi&#249; sicura!</string>
-    <string name="welcome_screen_carousel_item_message_2">Assoluta sicurezza delle tue informazioni</string>
-    <string name="welcome_screen_carousel_item_message_3">Conferenze audio e video crittografate con un massimo di 50 partecipanti</string>
-    <string name="welcome_screen_carousel_item_message_4">Condivisione sicura dei file con i tuoi team e clienti</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire &#232; indipendentemente verificato e conforme ad ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Crea un Team</string>
     <string name="server_details_dialog_body">Nome backend:
 %1$s
@@ -191,9 +186,7 @@ URL backend:
     <!-- Login -->
     <string name="login_title">Accedi</string>
     <string name="login_forgot_password">Hai dimenticato la password?</string>
-    <string name="login_user_identifier_placeholder">jane@example.com o jane.doe</string>
     <string name="login_user_identifier_label">EMAIL O USERNAME</string>
-    <string name="login_proxy_identifier_label">EMAIL O USERNAME PROXY</string>
     <string name="login_error_invalid_credentials_title">Informazioni non valide</string>
     <string name="login_error_invalid_credentials_message">Queste credenziali di accesso non sono corrette. Verifica le credenziali e riprova.</string>
     <string name="login_error_user_already_logged_in_title">Account in uso</string>
@@ -202,11 +195,7 @@ URL backend:
     <string name="login_sso_error_invalid_cookie_message">La sessione non &#232; valida o &#232; scaduta! Prova a effettuare nuovamente l\'accesso.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
-    <string name="login_tab_email">EMAIL</string>
-    <string name="login_tab_sso">ACCESSO TRAMITE SSO</string>
-    <string name="login_sso_code_label">CODICE SSO O EMAIL</string>
     <string name="login_error_invalid_sso_code">Inserisci un codice SSO valido.</string>
-    <string name="login_error_invalid_sso_code_format">Inserisci un codice SSO valido</string>
     <string name="deleted_user_error_title">Account eliminato</string>
     <string name="deleted_user_error_message">Hai effettuato il logout perch&#233; il tuo account &#232; stato eliminato.</string>
     <string name="removed_client_error_title">Dispositivo rimosso</string>
@@ -780,7 +769,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="conversation_label">conversazione</string>
     <string name="proxy_credential_description">Questo backend &#232; configurato per utilizzare il seguente server proxy: %1$s</string>
     <string name="label_proxy_credentials">Credenziali proxy</string>
-    <string name="label_proxy_password">Password proxy</string>
     <string name="label_wire_credentials">Credenziali Wire</string>
     <string name="dialog_clear_content_title">Eliminare il contenuto?</string>
     <string name="dialog_clear_content_option">Elimina contenuto</string>

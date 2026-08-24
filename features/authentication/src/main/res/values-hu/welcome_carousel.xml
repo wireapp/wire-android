@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Üdvözli a Wire, a legbiztonságosabb együttműködési felület!</string>
+<string name="welcome_screen_carousel_item_message_2">Teljesen biztos lehet abban, hogy adatai\u00A0biztonságban vannak</string>
+<string name="welcome_screen_carousel_item_message_3">Titkosított hang- &amp; videókonferencia \u00A0akár 50\u00A0résztvevővel</string>
+<string name="welcome_screen_carousel_item_message_4">Biztonságos fájlmegosztás csapattagokkal és\u00A0ügyfelekkel</string>
+<string name="welcome_screen_carousel_item_message_5">A Wire külsőleg auditált és megfelel az ISO, CCPA, GDPR, SOX szabványoknak</string>
+</resources>

@@ -178,7 +178,6 @@
     <string name="content_description_welcome_screen_close_btn">Fechar nova visualização de criação de nova equipe e “login”</string>
     <string name="content_description_login_back_btn">Voltar para a visualização de criação de nova equipe e login</string>
     <string name="content_description_login_password_field">digite sua senha</string>
-    <string name="content_description_login_sso_code_field">digite seu código SSO ou e-mail do Wire</string>
     <string name="content_description_whats_new_welcome_item">Bem-vindo ao Novo Aplicativo Android do Wire, link para a página de suporte</string>
     <string name="content_description_whats_new_all_releases_item">Todas as notas de lançamento do Android, link para a publicação da nota</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, link para os detalhes do lançamento</string>
@@ -226,11 +225,6 @@ Escolha uma senha forte para proteger o arquivo de backup.</string>
     <string name="welcome_footer_text">Quer conversar com amigos e familiares?</string>
     <string name="welcome_footer_link">Crie uma conta privada gratuitamente</string>
     <string name="welcome_button_create_personal_account">Criar uma conta pessoal</string>
-    <string name="welcome_screen_carousel_item_message_1">Boas-vindas ao Wire, a plataforma de colaboração mais segura!</string>
-    <string name="welcome_screen_carousel_item_message_2">Total confidência de que suas informações estão seguras</string>
-    <string name="welcome_screen_carousel_item_message_3">Áudio e videoconferencias com até 50 participantes</string>
-    <string name="welcome_screen_carousel_item_message_4">Compartilhamento seguro de arquivos com equipes e clientes</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire é auditado independentemente e compatível com ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Criar equipe</string>
     <string name="server_details_dialog_body">Nome do Backend:
 %1$s
@@ -267,9 +261,7 @@ URL do Backend:
     <!-- Login -->
     <string name="login_title">Entrar</string>
     <string name="login_forgot_password">Esqueceu a senha?</string>
-    <string name="login_user_identifier_placeholder">jane@exemplo.com ou jane.doe</string>
     <string name="login_user_identifier_label">E-MAIL OU USUÁRIO</string>
-    <string name="login_proxy_identifier_label">E-MAIL OU USUÁRIO DE PROXY</string>
     <string name="login_error_invalid_credentials_title">Informações inválidas</string>
     <string name="login_error_invalid_credentials_message">As credenciais da conta estão incorretas. Por favor, verifique seus detalhes e tente novamente.</string>
     <string name="login_error_user_already_logged_in_title">Conta em uso</string>
@@ -278,11 +270,7 @@ URL do Backend:
     <string name="login_sso_error_invalid_cookie_message">A sessão é inválida ou expirou! Por favor, tente fazer login novamente.</string>
     <string name="login_password_placeholder">Senha</string>
     <string name="login_password_label">SENHA</string>
-    <string name="login_tab_email">E-MAIL</string>
-    <string name="login_tab_sso">LOGIN SSO</string>
-    <string name="login_sso_code_label">CÓDIGO DE SSO OU E-MAIL</string>
     <string name="login_error_invalid_sso_code">Por favor, insira um código SSO válido.</string>
-    <string name="login_error_invalid_sso_code_format">Insira um código SSO válido</string>
     <string name="login_error_request_2fa_with_handle_title">Entrar com E-mail</string>
     <string name="login_error_request_2fa_with_handle_message">Você não pode usar seu nome de usuário porque a autenticação de dois fatores está ativada. Entre com seu e-mail.</string>
     <string name="login_error_unauthorized_title">Não autorizado</string>
@@ -974,7 +962,6 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="conversation_label">conversa</string>
     <string name="proxy_credential_description">Este backend está configurado para utilizar o seguinte servidor proxy: %1$s</string>
     <string name="label_proxy_credentials">CREDENCIAIS DE PROXY</string>
-    <string name="label_proxy_password">SENHA DE PROXY</string>
     <string name="label_wire_credentials">CREDENCIAIS DO WIRE</string>
     <string name="dialog_clear_content_title">Apagar conteúdo?</string>
     <string name="dialog_clear_content_option">Apagar conteúdo</string>

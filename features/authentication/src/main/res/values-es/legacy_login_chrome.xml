@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_tab_email">CORREO ELECTR&#211;NICO</string>
+<string name="login_tab_sso">INICIO DE SESI&#211;N SSO</string>
+<string name="login_error_invalid_sso_code_format">Ingrese un c&#243;digo SSO v&#225;lido.</string>
+</resources>

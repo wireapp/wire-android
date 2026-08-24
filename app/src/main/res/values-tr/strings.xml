@@ -186,7 +186,6 @@
     <string name="content_description_login_back_btn">Yeni takım oluşturma ve oturum açma görünümüne geri dön</string>
     <string name="content_description_login_user_identifier_field">e-posta adresinizi ya da kullanıcı adınızı girin</string>
     <string name="content_description_login_password_field">parolanızı girin</string>
-    <string name="content_description_login_sso_code_field">SSO kodunuzu veya Wire e-postanızı girin</string>
     <string name="content_description_whats_new_welcome_item">Wire\'ın Yeni Android Uygulamasına Hoş Geldiniz, destek sayfasına bağlantı</string>
     <string name="content_description_whats_new_all_releases_item">Tüm Android sürüm notları, sürüm notlarına genel bakış bağlantısı</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, sürüm ayrıntılarına bağlantı</string>
@@ -235,11 +234,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="welcome_footer_text">Arkadaşlarınızla ve ailenizle sohbet etmek ister misiniz?</string>
     <string name="welcome_footer_link">Ücretsiz olarak özel bir hesap oluşturun</string>
     <string name="welcome_button_create_personal_account">Kişisel Hesap Oluşturun</string>
-    <string name="welcome_screen_carousel_item_message_1">En güvenli işbirliği platformu Wire\'a hoş geldiniz!</string>
-    <string name="welcome_screen_carousel_item_message_2">Bilgilerinizin mutlak güven içinde olduğundan\u00A0emin olabilirsiniz</string>
-    <string name="welcome_screen_carousel_item_message_3">50\'ye kadar katılımcıyla şifreli\u00A0sesli ve görüntülü konferans</string>
-    <string name="welcome_screen_carousel_item_message_4">Takımlar ve istemcilerle\u00A0güvenli dosya paylaşımı</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire bağımsız olarak denetlenir ve ISO, CCPA, GDPR, SOX ile uyumludur</string>
     <string name="welcome_button_create_team">Bir ekip oluşturun</string>
     <string name="server_details_dialog_body">Backend ismi:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Backend ismi:\n%1$s\n\nBackend URL:\n%2$s\n\nProxy URL:\n%3$s\n\nProxy authentication:\n%4$s</string>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="content_description_login_sso_code_field">digite seu código SSO ou e-mail do Wire</string>
+<string name="login_tab_email">E-MAIL</string>
+<string name="login_tab_sso">LOGIN SSO</string>
+<string name="login_sso_code_label">CÓDIGO DE SSO OU E-MAIL</string>
+<string name="login_error_invalid_sso_code_format">Insira um código SSO válido</string>
+</resources>

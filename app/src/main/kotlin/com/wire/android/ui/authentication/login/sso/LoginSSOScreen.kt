@@ -93,21 +93,22 @@ fun LoginSSOScreen(
             )
         }
     }
-    LoginSSOContent(
+    com.wire.android.ui.authentication.login.sso.LoginSSOContent(
         scrollState = scrollState,
         ssoCodeTextState = loginSSOViewModel.ssoTextState,
-        loginSSOState = loginSSOViewModel.loginState,
-        onErrorDialogDismiss = loginSSOViewModel::clearLoginErrors,
-        onRemoveDeviceOpen = { userId ->
-            loginSSOViewModel.clearLoginErrors()
-            onRemoveDeviceNeeded(userId)
-        },
+        state = com.wire.android.ui.authentication.login.sso.LoginSSOPresentationState(
+            loading = loginSSOViewModel.loginState.flowState is LoginState.Loading,
+            loginEnabled = loginSSOViewModel.loginState.loginEnabled,
+            invalidCode = loginSSOViewModel.loginState.flowState is LoginState.Error.TextFieldError.InvalidValue,
+        ),
+        text = com.wire.android.ui.authentication.login.sso.LoginSSOText(
+            login = stringResource(R.string.label_login),
+            loggingIn = stringResource(R.string.label_logging_in),
+        ),
         onLoginButtonClick = loginSSOViewModel::login,
-        onCustomServerDialogDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
-        onCustomServerDialogConfirm = loginSSOViewModel::onCustomServerDialogConfirm,
-        onSsoIdentityChangeDismissed = loginSSOViewModel::onSsoIdentityChangeDismissed,
-        onSsoIdentityChangeConfirmed = loginSSOViewModel::onSsoIdentityChangeConfirmed,
     )
+
+    LoginSSOHostDialogs(loginSSOViewModel, onRemoveDeviceNeeded)
 
     LaunchedEffect(loginSSOViewModel) {
         loginSSOViewModel.openWebUrl.onEach { (url, serverConfig) ->
@@ -122,118 +123,31 @@ fun LoginSSOScreen(
 }
 
 @Composable
-private fun LoginSSOContent(
-    scrollState: ScrollState,
-    loginSSOState: AppLoginSSOState,
-    ssoCodeTextState: TextFieldState,
-    onErrorDialogDismiss: () -> Unit,
+private fun LoginSSOHostDialogs(
+    loginSSOViewModel: AppLoginSSOViewModel,
     onRemoveDeviceOpen: (UserId) -> Unit,
-    onLoginButtonClick: () -> Unit,
-    onCustomServerDialogDismiss: () -> Unit,
-    onCustomServerDialogConfirm: () -> Unit,
-    onSsoIdentityChangeDismissed: () -> Unit,
-    onSsoIdentityChangeConfirmed: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .verticalScroll(scrollState)
-            .padding(MaterialTheme.wireDimensions.spacing16x)
-    ) {
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
-        SSOCodeInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            ssoCodeState = ssoCodeTextState,
-            error = when (loginSSOState.flowState) {
-                is LoginState.Error.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_sso_code_format)
-                else -> null
-            }
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        LoginButton(
-            modifier = Modifier.fillMaxWidth(),
-            loading = loginSSOState.flowState is LoginState.Loading,
-            enabled = loginSSOState.loginEnabled,
-            onClick = onLoginButtonClick
-        )
-    }
+    val loginSSOState = loginSSOViewModel.loginState
     val flowState = loginSSOState.flowState
     if (flowState is LoginState.Error.DialogError<*, *>) {
-        LoginErrorDialog((flowState as AppLoginDialogError).toLoginDialogErrorData(), onErrorDialogDismiss)
+        LoginErrorDialog((flowState as AppLoginDialogError).toLoginDialogErrorData(), loginSSOViewModel::clearLoginErrors)
     } else if (flowState is LoginState.Error.TooManyDevicesError<*>) {
+        loginSSOViewModel.clearLoginErrors()
         onRemoveDeviceOpen(flowState.userId as UserId)
     }
 
     loginSSOState.customServerDialogState?.let { customServerDialogState ->
         CustomServerDetailsDialog(
             serverLinks = customServerDialogState.serverLinks,
-            onDismiss = onCustomServerDialogDismiss,
-            onConfirm = onCustomServerDialogConfirm
+            onDismiss = loginSSOViewModel::onCustomServerDialogDismiss,
+            onConfirm = loginSSOViewModel::onCustomServerDialogConfirm
         )
     }
 
     if (loginSSOState.showSsoIdentityChangedDialog) {
         SsoIdentityChangedDialog(
-            onDismiss = onSsoIdentityChangeDismissed,
-            onConfirm = onSsoIdentityChangeConfirmed,
+            onDismiss = loginSSOViewModel::onSsoIdentityChangeDismissed,
+            onConfirm = loginSSOViewModel::onSsoIdentityChangeConfirmed,
         )
     }
-}
-
-@Composable
-private fun SSOCodeInput(
-    ssoCodeState: TextFieldState,
-    error: String?,
-    modifier: Modifier = Modifier
-) {
-    WireTextField(
-        textState = ssoCodeState,
-        labelText = stringResource(R.string.login_sso_code_label),
-        semanticDescription = stringResource(R.string.content_description_login_sso_code_field),
-        state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-        modifier = modifier.testTag("ssoCodeField")
-    )
-}
-
-@Composable
-private fun LoginButton(
-    loading: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Column(modifier = modifier) {
-        val text = if (loading) stringResource(R.string.label_logging_in) else stringResource(R.string.label_login)
-        WirePrimaryButton(
-            text = text,
-            onClick = onClick,
-            state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
-            loading = loading,
-            interactionSource = interactionSource,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("ssoLoginButton")
-        )
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewLoginSSOScreen() = WireTheme {
-    LoginSSOContent(
-        scrollState = rememberScrollState(),
-        loginSSOState = LoginSSOState(),
-        ssoCodeTextState = TextFieldState(),
-        onErrorDialogDismiss = { },
-        onRemoveDeviceOpen = { },
-        onLoginButtonClick = { },
-        onCustomServerDialogDismiss = { },
-        onCustomServerDialogConfirm = { },
-        onSsoIdentityChangeDismissed = { },
-        onSsoIdentityChangeConfirmed = { },
-    )
 }

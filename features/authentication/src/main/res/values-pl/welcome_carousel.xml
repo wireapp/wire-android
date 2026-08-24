@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Witaj w Wire, najbezpieczniejszej platformie do wsp&#243;&#322;pracy!</string>
+<string name="welcome_screen_carousel_item_message_2">Bezwarunkowe zaufanie, &#380;e Twoje informacje s&#261; bezpieczne</string>
+<string name="welcome_screen_carousel_item_message_3">Szyfrowane wideokonferencje z maksymalnie 50 uczestnikami</string>
+<string name="welcome_screen_carousel_item_message_4">Bezpieczne udost&#281;pnianie plik&#243;w z zespo&#322;ami i klientami</string>
+<string name="welcome_screen_carousel_item_message_5">Wire jest niezale&#380;nie audytowany i zgodny z normami ISO, CCPA, GDPR, SOX</string>
+</resources>

@@ -227,7 +227,6 @@
     <string name="content_description_login_user_identifier_field">введите свой email или псевдоним</string>
     <string name="content_description_backend_config_camera_button">Сканировать QR-код</string>
     <string name="content_description_login_password_field">введите свой пароль</string>
-    <string name="content_description_login_sso_code_field">введите свой код SSO или Wire email</string>
     <string name="content_description_whats_new_welcome_item">Добро пожаловать в новое приложение Wire для Android, ссылка на страницу поддержки</string>
     <string name="content_description_whats_new_all_releases_item">Все заметки о выпуске для Android, ссылка на обзор заметок о выпуске</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, ссылка на подробности о релизе</string>
@@ -276,11 +275,6 @@
     <string name="welcome_footer_text">Хотите пообщаться с друзьями и близкими?</string>
     <string name="welcome_footer_link">Создайте личный аккаунт бесплатно</string>
     <string name="welcome_button_create_personal_account">Создать личный аккаунт</string>
-    <string name="welcome_screen_carousel_item_message_1">Добро пожаловать в Wire, самую надежную платформу для совместной работы!</string>
-    <string name="welcome_screen_carousel_item_message_2">Абсолютная уверенность в том, что ваша информация находится в безопасности</string>
-    <string name="welcome_screen_carousel_item_message_3">Зашифрованные аудио- и видеоконференции с участием до 50 пользователей</string>
-    <string name="welcome_screen_carousel_item_message_4">Защищенный обмен файлами с командами и клиентами</string>
-    <string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Создать команду</string>
     <string name="server_details_dialog_body">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s\n\nURL прокси:\n%3$s\n\nПрокси аутентификации:\n%4$s</string>
@@ -313,9 +307,7 @@
     <!-- Login -->
     <string name="login_title">Войти</string>
     <string name="login_forgot_password">Забыли пароль?</string>
-    <string name="login_user_identifier_placeholder">maria@example.com или maria.ivanova</string>
     <string name="login_user_identifier_label">EMAIL ИЛИ ПСЕВДОНИМ</string>
-    <string name="login_proxy_identifier_label">PROXY EMAIL ИЛИ ПСЕВДОНИМ</string>
     <string name="login_error_invalid_credentials_title">Неверная информация</string>
     <string name="login_error_invalid_credentials_message">Эти учетные данные неверны. 
         Проверьте их и повторите попытку.
@@ -330,11 +322,7 @@
     <string name="sso_identity_changed_dialog_confirm">Удалить данные и продолжить</string>
     <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">ПАРОЛЬ</string>
-    <string name="login_tab_email">EMAIL</string>
-    <string name="login_tab_sso">ЛОГИН SSO</string>
-    <string name="login_sso_code_label">КОД SSO ИЛИ EMAIL</string>
     <string name="login_error_invalid_sso_code">Пожалуйста, введите действительный код доступа SSO.</string>
-    <string name="login_error_invalid_sso_code_format">Введите действительный код доступа SSO</string>
     <string name="login_error_request_2fa_with_handle_title">Войти c email</string>
     <string name="login_error_request_2fa_with_handle_message">Вы не можете использовать псевдоним, поскольку активирована двухфакторная аутентификация. Пожалуйста, авторизуйтесь, используя свой адрес email.</string>
     <string name="login_error_unauthorized_title">Неавторизован</string>
@@ -1251,7 +1239,6 @@
     <string name="conversation_label">беседа</string>
     <string name="proxy_credential_description">Этот бэкэнд настроен на использование следующего прокси: %1$s</string>
     <string name="label_proxy_credentials">НАСТРОЙКИ PROXY</string>
-    <string name="label_proxy_password">ПАРОЛЬ PROXY</string>
     <string name="label_wire_credentials">НАСТРОЙКИ WIRE</string>
     <string name="dialog_clear_content_title">Очистить контент?</string>
     <string name="dialog_clear_content_option">Очистить контент</string>

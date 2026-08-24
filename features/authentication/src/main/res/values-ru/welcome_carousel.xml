@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Добро пожаловать в Wire, самую надежную платформу для совместной работы!</string>
+<string name="welcome_screen_carousel_item_message_2">Абсолютная уверенность в том, что ваша информация находится в безопасности</string>
+<string name="welcome_screen_carousel_item_message_3">Зашифрованные аудио- и видеоконференции с участием до 50 пользователей</string>
+<string name="welcome_screen_carousel_item_message_4">Защищенный обмен файлами с командами и клиентами</string>
+<string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
+</resources>

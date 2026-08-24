@@ -158,10 +158,6 @@
     <string name="welcome_footer_text">Vous voulez discuter avec vos amis et votre famille?</string>
     <string name="welcome_footer_link">Créez un compte privé gratuitement</string>
     <string name="welcome_button_create_personal_account">Créer un compte personnel</string>
-    <string name="welcome_screen_carousel_item_message_1">Bienvenue sur Wire, la plateforme de collaboration la plus sécurisée !</string>
-    <string name="welcome_screen_carousel_item_message_2">Confiance absolue, vos informations sont\u00A0sécurisées</string>
-    <string name="welcome_screen_carousel_item_message_4">Partage sécurisé de fichiers avec les équipes et les clients\u00A0</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire est audité indépendamment et conforme ISO, CCPA, GDPR, SOX </string>
     <string name="welcome_button_create_team">Créer une équipe</string>
     <string name="server_details_dialog_title">Serveur dédié</string>
     <string name="welcome_migration_dialog_title">Bienvenue sur notre nouvelle application Android 👋</string>
@@ -190,9 +186,7 @@
     <!-- Login -->
     <string name="login_title">Se connecter</string>
     <string name="login_forgot_password">Mot de passe oublié ?</string>
-    <string name="login_user_identifier_placeholder">jeanne@exemple.com ou jeanne.doe</string>
     <string name="login_user_identifier_label">EMAIL OU NOM D\'UTILISATEUR</string>
-    <string name="login_proxy_identifier_label">PROXY EMAIL OU NOM D\'UTILISATEUR</string>
     <string name="login_error_invalid_credentials_title">Information invalide</string>
     <string name="login_error_invalid_credentials_message">Ces identifiants de compte sont incorrects.   Veuillez réessayer.    </string>
     <string name="login_error_user_already_logged_in_title">Compte utilisé</string>
@@ -201,11 +195,7 @@
     <string name="login_sso_error_invalid_cookie_message">Cette session est invalide ou a expiré ! Veuillez réessayer de vous connecter.</string>
     <string name="login_password_placeholder">Mot de passe</string>
     <string name="login_password_label">MOT DE PASSE</string>
-    <string name="login_tab_email">EMAIL</string>
-    <string name="login_tab_sso">CONNEXION SSO</string>
-    <string name="login_sso_code_label">CODE SSO OU EMAIL</string>
     <string name="login_error_invalid_sso_code">Veuillez entrer un code d’accès SSO valide.</string>
-    <string name="login_error_invalid_sso_code_format">Veuillez entrer un code d’accès SSO valide</string>
     <string name="deleted_user_error_title">Compte supprimé</string>
     <string name="deleted_user_error_message">Vous avez été déconnecté, car votre compte a été supprimé.    </string>
     <string name="removed_client_error_title">Appareil supprimé</string>

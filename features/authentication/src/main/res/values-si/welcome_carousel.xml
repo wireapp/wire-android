@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">වයර් වෙත පිළිගනිමු, වඩාත් ආරක්‍ෂිත සහයෝගිත්‍ව වේදිකාව!</string>
+<string name="welcome_screen_carousel_item_message_2">ඒකාන්තයෙන් ඔබගේ තොරතුරු\u00A0සුරක්‍ෂිතයි</string>
+<string name="welcome_screen_carousel_item_message_3">සහභාගීන් \u00A050\u00A0 කට සංකේතිත ශ්‍රව්‍ය සහ දෘශ්‍ය සම්මන්ත්‍රණ</string>
+<string name="welcome_screen_carousel_item_message_4">කණ්ඩායම් හා පුද්ගලයින් සමඟ ආරක්‍ෂිතව ගොනු බෙදාගන්න</string>
+<string name="welcome_screen_carousel_item_message_5">වයර් ස්වාධීනව විගණනය කර ඇත. ISO, CCPA, GDPR, SOX-අනුකූල වේ</string>
+</resources>

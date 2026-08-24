@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">En güvenli işbirliği platformu Wire\'a hoş geldiniz!</string>
+<string name="welcome_screen_carousel_item_message_2">Bilgilerinizin mutlak güven içinde olduğundan\u00A0emin olabilirsiniz</string>
+<string name="welcome_screen_carousel_item_message_3">50\'ye kadar katılımcıyla şifreli\u00A0sesli ve görüntülü konferans</string>
+<string name="welcome_screen_carousel_item_message_4">Takımlar ve istemcilerle\u00A0güvenli dosya paylaşımı</string>
+<string name="welcome_screen_carousel_item_message_5">Wire bağımsız olarak denetlenir ve ISO, CCPA, GDPR, SOX ile uyumludur</string>
+</resources>

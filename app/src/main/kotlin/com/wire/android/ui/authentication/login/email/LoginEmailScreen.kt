@@ -97,22 +97,41 @@ fun LoginEmailScreen(
     scrollState: ScrollState = rememberScrollState(),
     fillMaxHeight: Boolean = true,
 ) {
-    val scope = rememberCoroutineScope()
-
+    val context = LocalContext.current
     clearAutofillTree()
 
-    LoginEmailContent(
+    com.wire.android.ui.authentication.login.email.LoginEmailContent(
         scrollState = scrollState,
-        loginEmailState = loginEmailViewModel.loginState,
+        state = com.wire.android.ui.authentication.login.email.LoginEmailPresentationState(
+            loading = loginEmailViewModel.loginState.flowState is LoginState.Loading,
+            loginEnabled = loginEmailViewModel.loginState.loginEnabled,
+            userIdentifierEnabled = loginEmailViewModel.loginState.userIdentifierEnabled,
+            invalidUserIdentifier = loginEmailViewModel.loginState.flowState is LoginState.Error.TextFieldError.InvalidValue,
+            invalidProxyIdentifier = loginEmailViewModel.loginState.flowState is LoginState.Error.TextFieldError.InvalidValue,
+            showInvalidCredentialsError = loginEmailViewModel.loginState.showInvalidCredentialsError,
+            proxyAuthRequired = loginEmailViewModel.serverConfig.isProxyAuthRequired,
+            apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
+        ),
+        text = com.wire.android.ui.authentication.login.email.LoginEmailText(
+            wireCredentials = stringResource(R.string.label_wire_credentials),
+            userIdentifierLabel = stringResource(R.string.login_user_identifier_label),
+            userIdentifierDescription = stringResource(R.string.content_description_login_user_identifier_field),
+            invalidUserIdentifier = stringResource(R.string.login_error_invalid_user_identifier),
+            passwordDescription = stringResource(R.string.content_description_login_password_field),
+            invalidCredentials = stringResource(R.string.login_error_invalid_credentials_message),
+            forgotPassword = stringResource(R.string.login_forgot_password),
+            openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
+            proxyCredentials = stringResource(R.string.label_proxy_credentials),
+            proxyDescription = { host -> context.getString(R.string.proxy_credential_description, host) },
+            login = stringResource(R.string.label_login),
+            loggingIn = stringResource(R.string.label_logging_in),
+        ),
         userIdentifierTextState = loginEmailViewModel.userIdentifierTextState,
-        proxyIdentifierState = loginEmailViewModel.proxyIdentifierTextState,
-        proxyPasswordState = loginEmailViewModel.proxyPasswordTextState,
+        proxyIdentifierTextState = loginEmailViewModel.proxyIdentifierTextState,
+        proxyPasswordTextState = loginEmailViewModel.proxyPasswordTextState,
         passwordTextState = loginEmailViewModel.passwordTextState,
-        isProxyAuthRequired = loginEmailViewModel.serverConfig.isProxyAuthRequired,
-        apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
         onLoginButtonClick = loginEmailViewModel::login,
-        forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
-        scope = scope,
+        onForgotPasswordClick = { openForgotPasswordPage(context, loginEmailViewModel.serverConfig.forgotPassword) },
         fillMaxHeight = fillMaxHeight,
     )
 
@@ -123,126 +142,6 @@ fun LoginEmailScreen(
         onSuccess = onSuccess,
         onRemoveDeviceNeeded = onRemoveDeviceNeeded,
     )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun LoginEmailContent(
-    scrollState: ScrollState,
-    userIdentifierTextState: TextFieldState,
-    passwordTextState: TextFieldState,
-    proxyIdentifierState: TextFieldState,
-    proxyPasswordState: TextFieldState,
-    loginEmailState: AppLoginEmailState,
-    isProxyAuthRequired: Boolean,
-    apiProxyUrl: String?,
-    onLoginButtonClick: () -> Unit,
-    forgotPasswordUrl: String,
-    scope: CoroutineScope,
-    fillMaxHeight: Boolean = true,
-) {
-    Column(
-        modifier = Modifier.let {
-            if (fillMaxHeight) it.fillMaxHeight() else it.wrapContentHeight()
-        }
-    ) {
-
-        Column(
-            modifier = Modifier
-                .let {
-                    if (fillMaxHeight) it.weight(weight = 1f, fill = true) else it
-                }
-                .verticalScroll(scrollState)
-                .padding(MaterialTheme.wireDimensions.spacing16x)
-                .semantics {
-                    testTagsAsResourceId = true
-                }
-        ) {
-            if (isProxyAuthRequired) {
-                Text(
-                    text = stringResource(R.string.label_wire_credentials),
-                    style = MaterialTheme.wireTypography.title03.copy(
-                        color = colorsScheme().secondaryText
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            vertical = MaterialTheme.wireDimensions.spacing16x
-                        )
-                        .semantics { heading() }
-                )
-            }
-            val invalidCredentialsErrorText = if (loginEmailState.showInvalidCredentialsError) {
-                stringResource(R.string.login_error_invalid_credentials_message)
-            } else {
-                null
-            }
-            UserIdentifierInput(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                userIdentifierState = userIdentifierTextState,
-                state = userIdentifierInputState(loginEmailState),
-            )
-            PasswordInput(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                passwordState = passwordTextState,
-                state = if (loginEmailState.showInvalidCredentialsError) {
-                    WireTextFieldState.Error()
-                } else {
-                    WireTextFieldState.Default
-                },
-            )
-            if (loginEmailState.showInvalidCredentialsError) {
-                Text(
-                    text = invalidCredentialsErrorText.orEmpty(),
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.error,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
-                        .testTag("invalidCredentialsError")
-                )
-            }
-            ForgotPasswordLabel(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                forgotPasswordUrl = forgotPasswordUrl
-            )
-            if (isProxyAuthRequired) {
-                ProxyScreen(
-                    proxyIdentifierState = proxyIdentifierState,
-                    proxyPasswordState = proxyPasswordState,
-                    proxyState = loginEmailState,
-                    apiProxyUrl = apiProxyUrl,
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-        }
-
-        Surface(
-            color = MaterialTheme.wireColorScheme.surface,
-            modifier = Modifier.semantics {
-                testTagsAsResourceId = true
-            }
-        ) {
-            Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                LoginButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    loading = loginEmailState.flowState is LoginState.Loading,
-                    enabled = loginEmailState.loginEnabled,
-                ) {
-                    scope.launch {
-                        onLoginButtonClick()
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -289,123 +188,21 @@ private fun LoginEmailStateNavigationAndDialogs(
 }
 
 @Composable
-private fun userIdentifierInputState(loginEmailState: AppLoginEmailState): WireTextFieldState = when {
-    !loginEmailState.userIdentifierEnabled -> WireTextFieldState.Disabled
-    loginEmailState.flowState is LoginState.Error.TextFieldError.InvalidValue ->
-        WireTextFieldState.Error(stringResource(R.string.login_error_invalid_user_identifier))
-    loginEmailState.showInvalidCredentialsError -> WireTextFieldState.Error()
-    else -> WireTextFieldState.Default
-}
-
-@Composable
-private fun UserIdentifierInput(
-    userIdentifierState: TextFieldState,
-    state: WireTextFieldState,
-    modifier: Modifier = Modifier,
-) {
-    WireTextField(
-        autoFillType = WireAutoFillType.Login,
-        textState = userIdentifierState,
-        placeholderText = stringResource(R.string.login_user_identifier_placeholder),
-        labelText = stringResource(R.string.login_user_identifier_label),
-        state = state,
-        semanticDescription = stringResource(R.string.content_description_login_user_identifier_field),
-        keyboardOptions = KeyboardOptions.DefaultEmailNext,
-        modifier = modifier.testTag("emailField"),
-        testTag = "userIdentifierInput"
-    )
-}
-
-@Composable
-private fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modifier: Modifier = Modifier) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    WirePasswordTextField(
-        textState = passwordState,
-        state = state,
-        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
-        onKeyboardAction = { keyboardController?.hide() },
-        semanticDescription = stringResource(R.string.content_description_login_password_field),
-        modifier = modifier.testTag("passwordField"),
-        autoFill = true,
-        testTag = "PasswordInput"
-    )
-}
-
-@Composable
 fun ForgotPasswordLabel(
     forgotPasswordUrl: String,
     modifier: Modifier = Modifier,
     textColor: Color = colorsScheme().primary,
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        val context = LocalContext.current
-        val interactionSource = remember { MutableInteractionSource() }
-        val isFocused = interactionSource.collectIsFocusedAsState()
-        Text(
-            text = stringResource(R.string.login_forgot_password),
-            style = MaterialTheme.wireTypography.body02.copy(
-                textDecoration = TextDecoration.Underline,
-                color = textColor,
-            ),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .focusedBorder(isFocused.value)
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    role = Role.Button,
-                    onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
-                    onClickLabel = stringResource(commonR.string.content_description_open_link_label)
-                )
-                .testTag("Forgot password?")
-        )
-    }
+    val context = LocalContext.current
+    com.wire.android.ui.authentication.login.email.ForgotPasswordLink(
+        onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
+        modifier = modifier,
+        textColor = textColor,
+    )
 }
 
 private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) {
     CustomTabsHelper.launchUrl(context, forgotPasswordUrl).also {
         appLogger.d(forgotPasswordUrl)
     }
-}
-
-@Composable
-fun LoginButton(
-    loading: Boolean,
-    enabled: Boolean,
-    modifier: Modifier = Modifier,
-    text: String = stringResource(R.string.label_login),
-    loadingText: String = stringResource(R.string.label_logging_in),
-    onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Column(modifier = modifier) {
-        WirePrimaryButton(
-            text = if (loading) loadingText else text,
-            onClick = onClick,
-            state = if (enabled && !loading) WireButtonState.Default else WireButtonState.Disabled,
-            loading = loading,
-            interactionSource = interactionSource,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("loginButton")
-        )
-    }
-}
-
-@PreviewMultipleThemes
-@Composable
-fun PreviewLoginEmailScreen() = WireTheme {
-    LoginEmailContent(
-        scrollState = rememberScrollState(),
-        loginEmailState = LoginEmailState(),
-        userIdentifierTextState = TextFieldState(),
-        passwordTextState = TextFieldState(),
-        proxyIdentifierState = TextFieldState(),
-        proxyPasswordState = TextFieldState(),
-        isProxyAuthRequired = true,
-        apiProxyUrl = "",
-        onLoginButtonClick = { },
-        forgotPasswordUrl = "",
-        scope = rememberCoroutineScope()
-    )
 }

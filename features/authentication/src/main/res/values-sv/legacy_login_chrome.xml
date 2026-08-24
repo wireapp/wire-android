@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_tab_email">E-POSTADRESS</string>
+<string name="login_tab_sso">SSO-INLOGGNING</string>
+<string name="login_sso_code_label">SSO-KOD ELLER E-POSTADRESS</string>
+<string name="login_error_invalid_sso_code_format">Ange en giltig SSO-kod</string>
+</resources>

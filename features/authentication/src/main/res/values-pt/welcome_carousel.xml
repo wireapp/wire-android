@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Boas-vindas ao Wire, a plataforma de colaboração mais segura!</string>
+<string name="welcome_screen_carousel_item_message_2">Total confidência de que suas informações estão seguras</string>
+<string name="welcome_screen_carousel_item_message_3">Áudio e videoconferencias com até 50 participantes</string>
+<string name="welcome_screen_carousel_item_message_4">Compartilhamento seguro de arquivos com equipes e clientes</string>
+<string name="welcome_screen_carousel_item_message_5">Wire é auditado independentemente e compatível com ISO, CCPA, GDPR, SOX</string>
+</resources>

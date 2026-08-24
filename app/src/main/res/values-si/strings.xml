@@ -182,7 +182,6 @@
     <string name="content_description_login_back_btn">නව කණ්ඩායම් නිර්මාණය සහ පිවිසුම් දසුන වෙත ආපසු යන්න.</string>
     <string name="content_description_login_user_identifier_field">ඔබගේ විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය ඇතුළත් කරන්න.</string>
     <string name="content_description_login_password_field">ඔබගේ මුරපදය ඇතුළත් කරන්න.</string>
-    <string name="content_description_login_sso_code_field">ඔබගේ SSO කේතය හෝ Wire විද්‍යුත් තැපෑල ඇතුළත් කරන්න.</string>
     <string name="content_description_whats_new_welcome_item">Wire හි නව Android යෙදුමට සාදරයෙන් පිළිගනිමු, සහාය පිටුවට සබැඳිය.</string>
     <string name="content_description_whats_new_all_releases_item">සියලුම Android නිකුතු සටහන්, නිකුතු සටහන් දළ විශ්ලේෂණයට සබැඳිය</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, නිකුතු විස්තර සඳහා සබැඳිය</string>
@@ -228,11 +227,6 @@
     <string name="welcome_footer_text">යහළුවන් හා පවුලේ අය සමඟ කතා කරන්න කැමති ද?</string>
     <string name="welcome_footer_link">නොමිලේ පෞද්ගලික ගිණුමක් සාදන්න</string>
     <string name="welcome_button_create_personal_account">පෞද්. ගිණුමක් සාදන්න</string>
-    <string name="welcome_screen_carousel_item_message_1">වයර් වෙත පිළිගනිමු, වඩාත් ආරක්‍ෂිත සහයෝගිත්‍ව වේදිකාව!</string>
-    <string name="welcome_screen_carousel_item_message_2">ඒකාන්තයෙන් ඔබගේ තොරතුරු\u00A0සුරක්‍ෂිතයි</string>
-    <string name="welcome_screen_carousel_item_message_3">සහභාගීන් \u00A050\u00A0 කට සංකේතිත ශ්‍රව්‍ය සහ දෘශ්‍ය සම්මන්ත්‍රණ</string>
-    <string name="welcome_screen_carousel_item_message_4">කණ්ඩායම් හා පුද්ගලයින් සමඟ ආරක්‍ෂිතව ගොනු බෙදාගන්න</string>
-    <string name="welcome_screen_carousel_item_message_5">වයර් ස්වාධීනව විගණනය කර ඇත. ISO, CCPA, GDPR, SOX-අනුකූල වේ</string>
     <string name="welcome_button_create_team">කණ්ඩායමක් සාදන්න</string>
     <string name="server_details_dialog_body">සේවාදායකයේ නම:\n%1$s\n\nඒ.ස.නි.:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">සේවාදායකයේ නම:\n%1$s\n\nසේවාදායකයේ ඒ.ස.නි.:\n%2$s\n\nප්‍රතියුක්තයේ ඒ.ස.නි.:\n%3$s\n\nප්‍රතියුක්තය සත්‍යාපනය:\n%4$s</string>
@@ -265,9 +259,7 @@
     <!-- Login -->
     <string name="login_title">පිවිසෙන්න</string>
     <string name="login_forgot_password">මුරපදය අමතකද?</string>
-    <string name="login_user_identifier_placeholder">කසුන්@නිදසුන.ලංකා හෝ තිසර.කසුන්</string>
     <string name="login_user_identifier_label">වි-තැපෑල හෝ පරි.නාමය</string>
-    <string name="login_proxy_identifier_label">ප්‍රතියු. වි-තැපෑල හෝ පරි.නාමය</string>
     <string name="login_error_invalid_credentials_title">සාවද්‍ය තොරතුරකි</string>
     <string name="login_error_invalid_credentials_message">මෙම අක්තපත්‍ර වැරදියි.
         ඔබගේ විස්තර තහවුරු කරගෙන උත්සාහ කරන්න.</string>
@@ -278,11 +270,7 @@
     <string name="login_sso_error_invalid_cookie_message">වාරය වලංගු නොවේ හෝ කල් ඉකුත් වී ඇත! නැවත පිවිසීමට උත්සාහ කරන්න.</string>
     <string name="login_password_placeholder">මුරපදය</string>
     <string name="login_password_label">මුරපදය</string>
-    <string name="login_tab_email">වි-තැපෑල</string>
-    <string name="login_tab_sso">SSO පිවිසුම</string>
-    <string name="login_sso_code_label">SSO කේතය හෝ වි-තැපෑල</string>
     <string name="login_error_invalid_sso_code">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
-    <string name="login_error_invalid_sso_code_format">වලංගු තනි-පිවිසුම් (SSO) කේතයක් යොදන්න</string>
     <string name="login_error_request_2fa_with_handle_title">විද්‍යුත් තැපෑලෙන් පුරනය වන්න</string>
     <string name="login_error_request_2fa_with_handle_message">ද්වි-සාධක සත්‍යාපනය සක්‍රිය කර ඇති බැවින් ඔබට ඔබේ පරිශීලක නාමය භාවිතා කළ නොහැක. ඒ වෙනුවට ඔබේ විද්‍යුත් තැපෑලෙන් ලොග් වන්න.</string>
     <string name="login_error_unauthorized_title">අනවසර</string>
@@ -1036,7 +1024,6 @@
     <string name="conversation_label">සංවාදය</string>
     <string name="proxy_credential_description">පහත ප්‍රතියුක්ත සේවාදායකය භාවිතයට මෙම සේවාදායකය වින්‍යාසගත කර ඇත: %1$s</string>
     <string name="label_proxy_credentials">ප්‍රතියුක්තයේ අක්තපත්‍ර</string>
-    <string name="label_proxy_password">ප්‍රතියුක්තයේ මුරපදය</string>
     <string name="label_wire_credentials">වයර් අක්තපත්‍ර</string>
     <string name="dialog_clear_content_title">අන්තර්ගතය මකන්නද?</string>
     <string name="dialog_clear_content_option">අන්තර්ගතය මකන්න</string>

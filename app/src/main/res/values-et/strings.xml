@@ -103,7 +103,6 @@
     <!-- Welcome -->
     <string name="welcome_footer_link">Loo tasuta privaatne konto</string>
     <string name="welcome_button_create_personal_account">Loo isiklik konto</string>
-    <string name="welcome_screen_carousel_item_message_1">Tere tulemast Wire\'i - kõige turvalisemasse koostööplatvormi!</string>
     <string name="welcome_button_create_team">Loo meeskond</string>
     <string name="welcome_migration_dialog_title">Tere tulemast meie uude Androidi rakendusse 👋</string>
     <string name="welcome_migration_dialog_continue">Alusta Wire\'i kasutamist</string>
@@ -116,15 +115,11 @@
     <!-- Login -->
     <string name="login_title">Logi sisse</string>
     <string name="login_forgot_password">Unustasid parooli?</string>
-    <string name="login_user_identifier_placeholder">jaan@näide.ee või jaan.tamm</string>
     <string name="login_user_identifier_label">E-POST VÕI KASUTAJANIMI</string>
-    <string name="login_proxy_identifier_label">PROKSI E-POST VÕI KASUTAJANIMI</string>
     <string name="login_error_invalid_credentials_title">Vale info</string>
     <string name="login_error_user_already_logged_in_title">Konto on kasutusel</string>
     <string name="login_password_placeholder">Parool</string>
     <string name="login_password_label">PAROOL</string>
-    <string name="login_tab_email">E-POST</string>
-    <string name="login_tab_sso">SSO SISSELOGIMINE</string>
     <string name="deleted_user_error_title">Kustutatud konto</string>
     <!-- Second Factor Authentication -->
     <!-- Remove Device -->

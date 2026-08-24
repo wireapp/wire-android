@@ -127,11 +127,6 @@ Wybierz silne has&#322;o, aby chroni&#263; plik kopii zapasowej.</string>
     <string name="welcome_footer_text">Chcesz rozmawia&#263; z rodzin&#261; i przyjaci&#243;&#322;mi?</string>
     <string name="welcome_footer_link">Utw&#243;rz prywatne konto za darmo</string>
     <string name="welcome_button_create_personal_account">Utw&#243;rz konto osobiste</string>
-    <string name="welcome_screen_carousel_item_message_1">Witaj w Wire, najbezpieczniejszej platformie do wsp&#243;&#322;pracy!</string>
-    <string name="welcome_screen_carousel_item_message_2">Bezwarunkowe zaufanie, &#380;e Twoje informacje s&#261; bezpieczne</string>
-    <string name="welcome_screen_carousel_item_message_3">Szyfrowane wideokonferencje z maksymalnie 50 uczestnikami</string>
-    <string name="welcome_screen_carousel_item_message_4">Bezpieczne udost&#281;pnianie plik&#243;w z zespo&#322;ami i klientami</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire jest niezale&#380;nie audytowany i zgodny z normami ISO, CCPA, GDPR, SOX</string>
     <string name="welcome_button_create_team">Utw&#243;rz zesp&#243;&#322;</string>
     <string name="server_details_dialog_body">Nazwa &#347;rodowiska:
 %1$s
@@ -165,9 +160,7 @@ URL &#347;rodowiska:
     <!-- Login -->
     <string name="login_title">Zaloguj si&#281;</string>
     <string name="login_forgot_password">Zapomnia&#322;e&#347; has&#322;a?</string>
-    <string name="login_user_identifier_placeholder">adam@email.com lub adam.nowak</string>
     <string name="login_user_identifier_label">ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
-    <string name="login_proxy_identifier_label">PROXY ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
     <string name="login_error_invalid_credentials_title">Niepoprawne dane logowania</string>
     <string name="login_error_invalid_credentials_message">Podane dane logowania s&#261; niepoprawne. Sprawd&#378; swoje dane i spr&#243;buj ponownie.</string>
     <string name="login_error_user_already_logged_in_title">Konto ju&#380; zalogowane</string>
@@ -177,7 +170,6 @@ URL &#347;rodowiska:
     <string name="login_password_placeholder">Has&#322;o</string>
     <string name="login_password_label">HAS&#321;O</string>
     <string name="login_error_invalid_sso_code">Wpisz poprawny kod SSO.</string>
-    <string name="login_error_invalid_sso_code_format">Wpisz poprawny kod SSO</string>
     <string name="deleted_user_error_title">Usuni&#281;te konto</string>
     <string name="deleted_user_error_message">Zosta&#322;e&#347; wylogowany, poniewa&#380; Twoje konto zosta&#322;o usuni&#281;te.</string>
     <string name="removed_client_error_title">Usu&#324; urz&#261;dzenie</string>
@@ -597,7 +589,6 @@ Do&#322;&#261;czenie do tego po&#322;&#261;czenia spowoduje zako&#324;czenie tam
     <string name="conversation_label">Konwersacja</string>
     <string name="proxy_credential_description">To &#347;rodowisko jest skonfigurowane do u&#380;ycia nast&#281;puj&#261;cego serwera proxy: %1$s</string>
     <string name="label_proxy_credentials">DANE DOST&#280;POWE DO PROXY</string>
-    <string name="label_proxy_password">HAS&#321;O DO PROXY</string>
     <string name="label_wire_credentials">DANE DOST&#280;POWE DO WIRE</string>
     <string name="dialog_clear_content_title">Wyczy&#347;ci&#263; zawarto&#347;&#263;?</string>
     <string name="dialog_clear_content_option">Wyczy&#347;&#263; zawarto&#347;&#263;</string>

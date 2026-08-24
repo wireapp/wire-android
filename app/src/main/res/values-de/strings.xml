@@ -217,7 +217,6 @@
     <string name="content_description_login_user_identifier_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
     <string name="content_description_backend_config_camera_button">QR Code scannen</string>
     <string name="content_description_login_password_field">Geben Sie Ihr Passwort ein</string>
-    <string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
     <string name="content_description_whats_new_welcome_item">Willkommen bei der Android-App, Link zur Support-Seite</string>
     <string name="content_description_whats_new_all_releases_item">Alle Android Release Notizen, Link zur Release-Übersicht</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, verlinken zu dem Release-Details</string>
@@ -266,11 +265,6 @@
     <string name="welcome_footer_text">Möchten Sie mit Freunden und Ihrer Familie chatten?</string>
     <string name="welcome_footer_link">Erstellen Sie kostenlos ein privates Benutzerkonto</string>
     <string name="welcome_button_create_personal_account">Privates Benutzerkonto erstellen</string>
-    <string name="welcome_screen_carousel_item_message_1">Willkommen bei Wire, der sichersten Kommunikationsplattform!</string>
-    <string name="welcome_screen_carousel_item_message_2">Absolutes Vertrauen, dass Ihre Informationen \u00A0sicher sind</string>
-    <string name="welcome_screen_carousel_item_message_3">Verschlüsselte Telefon- &amp; Videokonferenzen mit bis\u00A0zu 50\u00A0Teilnehmern</string>
-    <string name="welcome_screen_carousel_item_message_4">Sicherer Dateiaustausch mit Teams und\u00A0Kunden</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire wird unabhängig geprüft und ist ISO-, CCPA-, DSGVO- und SOX-konform</string>
     <string name="welcome_button_create_team">Team erstellen</string>
     <string name="server_details_dialog_body">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s\n\nProxy-URL:\n%3$s\n\nProxy-Authentifizierung:\n%4$s</string>
@@ -303,9 +297,7 @@
     <!-- Login -->
     <string name="login_title">Anmelden</string>
     <string name="login_forgot_password">Passwort vergessen?</string>
-    <string name="login_user_identifier_placeholder">max@example.com oder max.müller</string>
     <string name="login_user_identifier_label">E-MAIL ODER BENUTZERNAME</string>
-    <string name="login_proxy_identifier_label">PROXY E-MAIL-ADRESSE ODER BENUTZERNAME</string>
     <string name="login_error_invalid_credentials_title">Ungültige Information</string>
     <string name="login_error_invalid_credentials_message">Diese Zugangsdaten sind nicht korrekt. 
         Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut.
@@ -320,11 +312,7 @@
     <string name="sso_identity_changed_dialog_confirm">Daten löschen und fortfahren</string>
     <string name="login_password_placeholder">Passwort</string>
     <string name="login_password_label">PASSWORT</string>
-    <string name="login_tab_email">E-MAIL-ADRESSE</string>
-    <string name="login_tab_sso">SSO</string>
-    <string name="login_sso_code_label">SSO-CODE ODER E-MAIL-ADRESSE</string>
     <string name="login_error_invalid_sso_code">Bitte geben Sie einen gültigen SSO-Code ein.</string>
-    <string name="login_error_invalid_sso_code_format">Geben Sie einen gültigen SSO-Code ein</string>
     <string name="login_error_request_2fa_with_handle_title">Anmeldung mit E-Mail-Adresse</string>
     <string name="login_error_request_2fa_with_handle_message">Sie können Ihren Benutzernamen nicht verwenden, da die Zwei-Faktor-Authentifizierung aktiviert ist. Bitte melden Sie sich stattdessen mit Ihrer E-Mail-Adresse an.</string>
     <string name="login_error_unauthorized_title">Nicht berechtigt</string>
@@ -1201,7 +1189,6 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="conversation_label">Unterhaltung</string>
     <string name="proxy_credential_description">Dieses Backend ist für die Verwendung des folgenden Proxy-Servers konfiguriert: %1$s</string>
     <string name="label_proxy_credentials">PROXY-ZUGANGSDATEN</string>
-    <string name="label_proxy_password">PROXY-PASSWORT</string>
     <string name="label_wire_credentials">WIRE-ZUGANGSDATEN</string>
     <string name="dialog_clear_content_title">Verlauf löschen?</string>
     <string name="dialog_clear_content_option">Verlauf löschen</string>

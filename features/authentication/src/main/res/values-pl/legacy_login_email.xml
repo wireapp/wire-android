@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_user_identifier_placeholder">adam@email.com lub adam.nowak</string>
+<string name="login_proxy_identifier_label">PROXY ADRES EMAIL LUB NAZWA U&#379;YTKOWNIKA</string>
+<string name="label_proxy_password">HAS&#321;O DO PROXY</string>
+</resources>

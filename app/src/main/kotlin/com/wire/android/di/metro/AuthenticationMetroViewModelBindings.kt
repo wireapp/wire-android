@@ -22,7 +22,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.ui.WireActivityViewModel
 import com.wire.android.ui.authentication.AuthenticationManualViewModelFactory
-import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
+import com.wire.android.ui.authentication.create.code.AppCreateAccountCodeViewModel
+import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModelHostFactory
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -75,7 +76,7 @@ object AuthenticationMetroViewModelBindings {
         createAccountOverviewFactory: CreateAccountOverviewViewModelHostFactory,
         createAccountEmailFactory: CreateAccountEmailViewModelHostFactory,
         createAccountDetailsFactory: CreateAccountDetailsViewModelHostFactory,
-        createAccountCodeFactory: CreateAccountCodeViewModel.Factory,
+        createAccountCodeFactory: CreateAccountCodeViewModelHostFactory,
         createAccountSelectorFactory: CreateAccountSelectorViewModel.Factory,
         createAccountDataDetailFactory: CreateAccountDataDetailViewModel.Factory,
         createAccountVerificationCodeFactory: CreateAccountVerificationCodeViewModel.Factory,
@@ -106,7 +107,7 @@ object AuthenticationMetroViewModelBindings {
         ): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure> =
             createAccountDetailsFactory.create(navArgs)
 
-        override fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): CreateAccountCodeViewModel =
+        override fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): AppCreateAccountCodeViewModel =
             createAccountCodeFactory.create(navArgs)
 
         override fun createAccountSelectorViewModel(

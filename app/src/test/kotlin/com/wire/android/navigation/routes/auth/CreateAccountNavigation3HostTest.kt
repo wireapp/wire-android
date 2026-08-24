@@ -205,6 +205,44 @@ class CreateAccountNavigation3HostTest {
     }
 
     @Test
+    fun givenCodeViewModel_whenInspectingHost_thenFeatureOwnsStateAndAppKeepsKaliumAndNavigation() {
+        val graph = sourceFile("ui/authentication/AuthenticationViewModelGraph.kt").readText()
+        val metro = sourceFile("di/metro/AuthenticationMetroViewModelBindings.kt").readText()
+        val entries = sourceFile("navigation/routes/auth/CreateAccountNavigation3Entries.kt").readText()
+        val screen = sourceFile("ui/authentication/create/code/CreateAccountCodeScreen.kt").readText()
+        val hostFactory = sourceFile("ui/authentication/create/code/CreateAccountCodeViewModelHostFactory.kt").readText()
+        val featureRoot = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/code",
+        )
+        val featureSources = featureRoot.listFiles().orEmpty().joinToString("\n") { it.readText() }
+        val codeEntry = entries
+            .substringAfter("private fun CreateAccountCodeNavigation3Entry(")
+            .substringBefore("private fun CreateAccountSummaryNavigation3Entry(")
+
+        assertTrue(graph.contains("AppCreateAccountCodeViewModel"))
+        assertTrue(graph.contains("fun createAccountCodeViewModel():"))
+        assertTrue(metro.contains("CreateAccountCodeViewModelHostFactory"))
+        assertFalse(metro.contains("CreateAccountCodeViewModel.Factory"))
+        assertTrue(hostFactory.contains("StoreSessionParam("))
+        assertTrue(hostFactory.contains("replace = false"))
+        assertTrue(hostFactory.contains("AndroidCreateAccountCodeResendTimer(CountdownTimer())"))
+        assertTrue(screen.contains("CreateAccountSummaryNavArgs(flowType)"))
+        assertTrue(codeEntry.contains("AuthenticationNavigationTransition.ACCOUNT_CODE_TO_SUMMARY"))
+        assertTrue(codeEntry.contains("WireBackStackMode.CLEAR_WHOLE"))
+        assertTrue(codeEntry.contains("AuthenticationLoginCompletion.RemoveDevice"))
+        assertTrue(featureSources.contains("class CreateAccountCodeViewModel<FlowT, LinksT, FailureT, UserT, CredentialsT>"))
+        listOf(
+            "CreateAccountNavArgs",
+            "CreateAccountFlowType",
+            "com.wire.kalium",
+            "BuildConfig",
+            "dev.zacsweers.metro",
+            "com.wire.android.R",
+        ).forEach { assertFalse(featureSources.contains(it), "Feature code source contains $it") }
+    }
+
+    @Test
     fun givenUsernameViewModel_whenInspectingHost_thenFeatureOwnsStateAndSessionHostOwnsAdapters() {
         val graph = sourceFile("ui/authentication/AuthenticationViewModelGraph.kt").readText()
         val sessionFactory = sourceFile("ui/authentication/SessionAuthenticationViewModelFactory.kt").readText()

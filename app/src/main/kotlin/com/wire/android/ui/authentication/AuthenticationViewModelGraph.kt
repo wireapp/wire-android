@@ -28,7 +28,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.MetroViewModelGraph
 import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.di.metro.wireMetroViewModel
-import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
+import com.wire.android.ui.authentication.create.code.AppCreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -71,7 +71,7 @@ interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory 
     fun createAccountDetailsViewModel(
         navArgs: CreateAccountNavArgs,
     ): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>
-    fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): CreateAccountCodeViewModel
+    fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): AppCreateAccountCodeViewModel
     fun createAccountSelectorViewModel(navArgs: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
     fun createAccountDataDetailViewModel(navArgs: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel
     fun createAccountVerificationCodeViewModel(
@@ -198,7 +198,7 @@ fun createAccountDetailsViewModel(): CreateAccountDetailsViewModel<ServerConfig.
     authenticationViewModel()
 
 @Composable
-fun createAccountCodeViewModel(): CreateAccountCodeViewModel =
+fun createAccountCodeViewModel(): AppCreateAccountCodeViewModel =
     authenticationViewModel()
 
 @Composable
@@ -256,8 +256,8 @@ fun createAccountDetailsViewModel(
 fun createAccountCodeViewModel(
     navArgs: CreateAccountNavArgs,
     viewModelStoreOwner: ViewModelStoreOwner,
-): CreateAccountCodeViewModel =
-    wireAssistedMetroViewModel<CreateAccountCodeViewModel, AuthenticationManualViewModelFactory>(
+): AppCreateAccountCodeViewModel =
+    wireAssistedMetroViewModel<AppCreateAccountCodeViewModel, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
         createAccountCodeViewModel(navArgs)

@@ -498,7 +498,7 @@ public fun com.wire.android.ui.authentication.clearSessionViewModel(viewModelSto
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.code.CodeContent(state: com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState, textState: androidx.compose.foundation.text.input.TextFieldState, onResendCodePressed: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
+private fun com.wire.android.ui.authentication.create.code.CodeContent(state: com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.common.error.CoreFailure>, textState: androidx.compose.foundation.text.input.TextFieldState, onResendCodePressed: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -509,7 +509,7 @@ private fun com.wire.android.ui.authentication.create.code.CodeContent(state: co
     - serverConfig: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-internal fun com.wire.android.ui.authentication.create.code.CreateAccountCodeRouteScreen(viewModel: com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel, onNavigateBack: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function2<com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs, com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onTooManyDevices: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.create.code.CreateAccountCodeRouteScreen(viewModel: com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.ui.authentication.create.code.KaliumCreateAccountCredentials>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function2<com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs, com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onTooManyDevices: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -683,13 +683,13 @@ private fun com.wire.android.ui.authentication.create.username.UsernameContent(t
     - onErrorDismiss: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountCodeViewModel(): com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
+public fun com.wire.android.ui.authentication.createAccountCodeViewModel(): com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.ui.authentication.create.code.KaliumCreateAccountCredentials>
   skippable: true
   restartable: true
   params:
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountCodeViewModel(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
+public fun com.wire.android.ui.authentication.createAccountCodeViewModel(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.ui.authentication.create.code.KaliumCreateAccountCredentials>
   skippable: false
   restartable: true
   params:

@@ -54,7 +54,6 @@ import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.registration.code.CreateAccountCodeResult
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -65,7 +64,7 @@ import kotlinx.coroutines.job
 
 @Composable
 internal fun CreateAccountCodeRouteScreen(
-    viewModel: CreateAccountCodeViewModel,
+    viewModel: AppCreateAccountCodeViewModel,
     onNavigateBack: () -> Unit,
     onSuccess: (CreateAccountSummaryNavArgs, com.wire.kalium.logic.data.user.UserId) -> Unit,
     onTooManyDevices: (com.wire.kalium.logic.data.user.UserId) -> Unit,
@@ -94,7 +93,7 @@ internal fun CreateAccountCodeRouteScreen(
         }
         LaunchedEffect(codeState.result) {
             (codeState.result as? CreateAccountCodeResult.Success)?.let {
-                onSuccess(CreateAccountSummaryNavArgs(createAccountNavArgs.flowType), it.userId)
+                onSuccess(CreateAccountSummaryNavArgs(flowType), it.userId)
             }
             val tooManyDevicesError = codeState.result as? CreateAccountCodeResult.Error.TooManyDevicesError
             if (tooManyDevicesError != null) {
@@ -108,7 +107,7 @@ internal fun CreateAccountCodeRouteScreen(
 
 @Composable
 private fun CodeContent(
-    state: CreateAccountCodeViewState,
+    state: CreateAccountCodeViewState<CreateAccountFlowType, com.wire.kalium.logic.data.user.UserId, com.wire.kalium.common.error.CoreFailure>,
     textState: TextFieldState,
     onResendCodePressed: () -> Unit,
     onBackPressed: () -> Unit,
@@ -187,7 +186,9 @@ private fun CodeContent(
 }
 
 @Composable
-private fun CreateAccountCodeResult.Error.DialogError.getResources(type: CreateAccountFlowType) = when (this) {
+private fun CreateAccountCodeResult.Error.DialogError<com.wire.kalium.common.error.CoreFailure>.getResources(
+    type: CreateAccountFlowType,
+) = when (this) {
     CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError -> DialogErrorStrings(
         stringResource(id = R.string.create_account_code_error_title),
         stringResource(id = R.string.create_account_email_already_in_use_error)
@@ -227,7 +228,7 @@ private fun CreateAccountCodeResult.Error.DialogError.getResources(type: CreateA
         DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
 
     is CreateAccountCodeResult.Error.DialogError.GenericError ->
-        this.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+        this.failure.dialogErrorStrings(LocalContext.current.resources)
 }
 
 @Composable

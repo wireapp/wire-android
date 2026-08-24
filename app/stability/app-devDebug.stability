@@ -664,7 +664,7 @@ private fun com.wire.android.ui.authentication.create.overview.OverviewTexts(ove
     - onLearnMoreClick: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.authentication.create.username.CreateAccountUsernameRouteScreen(viewModel: com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.create.username.CreateAccountUsernameRouteScreen(viewModel: com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel<com.wire.kalium.common.error.CoreFailure>, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -672,7 +672,7 @@ internal fun com.wire.android.ui.authentication.create.username.CreateAccountUse
     - onSuccess: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.username.UsernameContent(textState: androidx.compose.foundation.text.input.TextFieldState, state: com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewState, onContinuePressed: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.authentication.create.username.UsernameContent(textState: androidx.compose.foundation.text.input.TextFieldState, state: com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewState<com.wire.kalium.common.error.CoreFailure>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -766,13 +766,13 @@ public fun com.wire.android.ui.authentication.createAccountSelectorViewModel(nav
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountUsernameViewModel(): com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
+public fun com.wire.android.ui.authentication.createAccountUsernameViewModel(): com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel<com.wire.kalium.common.error.CoreFailure>
   skippable: true
   restartable: true
   params:
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountUsernameViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
+public fun com.wire.android.ui.authentication.createAccountUsernameViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel<com.wire.kalium.common.error.CoreFailure>
   skippable: false
   restartable: true
   params:

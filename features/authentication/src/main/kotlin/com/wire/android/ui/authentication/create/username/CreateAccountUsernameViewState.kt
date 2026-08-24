@@ -18,11 +18,16 @@
 
 package com.wire.android.ui.authentication.create.username
 
-import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
-
-data class CreateAccountUsernameViewState(
+data class CreateAccountUsernameViewState<FailureT>(
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
-    val error: HandleUpdateErrorState = HandleUpdateErrorState.None,
+    val error: CreateAccountUsernameError<FailureT> = CreateAccountUsernameError.None,
     val success: Boolean = false,
 )
+
+sealed interface CreateAccountUsernameError<out FailureT> {
+    data object None : CreateAccountUsernameError<Nothing>
+    data object UsernameInvalid : CreateAccountUsernameError<Nothing>
+    data object UsernameTaken : CreateAccountUsernameError<Nothing>
+    data class Generic<FailureT>(val failure: FailureT) : CreateAccountUsernameError<FailureT>
+}

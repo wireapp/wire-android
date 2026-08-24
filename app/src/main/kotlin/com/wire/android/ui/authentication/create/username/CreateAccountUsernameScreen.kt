@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
+import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WireButtonState
@@ -46,10 +47,11 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.common.error.CoreFailure
 
 @Composable
 internal fun CreateAccountUsernameRouteScreen(
-    viewModel: CreateAccountUsernameViewModel,
+    viewModel: CreateAccountUsernameViewModel<CoreFailure>,
     onSuccess: () -> Unit,
 ) {
     UsernameContent(
@@ -69,7 +71,7 @@ internal fun CreateAccountUsernameRouteScreen(
 @Composable
 private fun UsernameContent(
     textState: TextFieldState,
-    state: CreateAccountUsernameViewState,
+    state: CreateAccountUsernameViewState<CoreFailure>,
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
 ) {
@@ -105,7 +107,7 @@ private fun UsernameContent(
 
                 UsernameTextField(
                     username = textState,
-                    errorState = state.error,
+                    errorState = state.error.toHandleUpdateErrorState(),
                     onErrorDismiss = onErrorDismiss,
                 )
 
@@ -123,6 +125,13 @@ private fun UsernameContent(
             }
         }
     )
+}
+
+internal fun CreateAccountUsernameError<CoreFailure>.toHandleUpdateErrorState(): HandleUpdateErrorState = when (this) {
+    CreateAccountUsernameError.None -> HandleUpdateErrorState.None
+    CreateAccountUsernameError.UsernameInvalid -> HandleUpdateErrorState.TextFieldError.UsernameInvalidError
+    CreateAccountUsernameError.UsernameTaken -> HandleUpdateErrorState.TextFieldError.UsernameTakenError
+    is CreateAccountUsernameError.Generic -> HandleUpdateErrorState.DialogError.GenericError(failure)
 }
 
 @Composable

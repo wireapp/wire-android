@@ -166,6 +166,34 @@ class CreateAccountNavigation3HostTest {
     }
 
     @Test
+    fun givenUsernameViewModel_whenInspectingHost_thenFeatureOwnsStateAndSessionHostOwnsAdapters() {
+        val graph = sourceFile("ui/authentication/AuthenticationViewModelGraph.kt").readText()
+        val sessionFactory = sourceFile("ui/authentication/SessionAuthenticationViewModelFactory.kt").readText()
+        val screen = sourceFile("ui/authentication/create/username/CreateAccountUsernameScreen.kt").readText()
+        val hostFactory = sourceFile(
+            "ui/authentication/create/username/CreateAccountUsernameViewModelHostFactory.kt"
+        ).readText()
+        val featureRoot = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/username",
+        )
+        val featureSources = featureRoot.listFiles().orEmpty().joinToString("\n") { it.readText() }
+
+        assertTrue(graph.contains("CreateAccountUsernameViewModel<CoreFailure>"))
+        assertTrue(graph.contains("fun createAccountUsernameViewModel():"))
+        assertTrue(sessionFactory.contains("CreateAccountUsernameViewModelHostFactory"))
+        assertTrue(sessionFactory.contains("createAccountUsernameViewModelHostFactory.create()"))
+        assertFalse(sessionFactory.contains("ValidateUserHandleUseCase"))
+        assertFalse(sessionFactory.contains("SetUserHandleUseCase"))
+        assertTrue(hostFactory.contains("SetUserHandleResult.Failure.HandleExists -> SetUsernameResult.UsernameTaken"))
+        assertTrue(hostFactory.contains("AnalyticsEvent.RegistrationPersonalAccount.CreationCompleted"))
+        assertTrue(screen.contains("state.error.toHandleUpdateErrorState()"))
+        assertTrue(featureSources.contains("class CreateAccountUsernameViewModel<FailureT>"))
+        listOf("HandleUpdateErrorState", "CoreFailure", "com.wire.kalium", "AnalyticsEvent", "dev.zacsweers.metro")
+            .forEach { assertFalse(featureSources.contains(it), "Feature username source contains $it") }
+    }
+
+    @Test
     fun givenSummaryRoute_whenInspectingHost_thenStatelessFeatureUiPreservesTransitionAndRouteIdentity() {
         val entries = sourceFile("navigation/routes/auth/CreateAccountNavigation3Entries.kt").readText()
         val summaryEntry = entries

@@ -50,6 +50,7 @@ import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewMo
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
@@ -178,7 +179,7 @@ fun clearSessionViewModel(
 }
 
 @Composable
-fun createAccountUsernameViewModel(): CreateAccountUsernameViewModel =
+fun createAccountUsernameViewModel(): CreateAccountUsernameViewModel<CoreFailure> =
     authenticationViewModel()
 
 @Composable
@@ -212,7 +213,7 @@ fun createAccountVerificationCodeViewModel(): CreateAccountVerificationCodeViewM
 @Composable
 fun createAccountUsernameViewModel(
     viewModelStoreOwner: ViewModelStoreOwner,
-): CreateAccountUsernameViewModel =
+): CreateAccountUsernameViewModel<CoreFailure> =
     authenticationViewModel(viewModelStoreOwner = viewModelStoreOwner)
 
 @Composable

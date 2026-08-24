@@ -29,6 +29,8 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ActionsViewModel
+import com.wire.android.ui.authentication.PostLoginAuthenticationRequirement
+import com.wire.android.ui.authentication.PostLoginAuthenticationRequirementResolver
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
@@ -118,15 +120,17 @@ class HomeViewModel @Inject constructor(
     fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
-            when {
-                needsToRegisterClient() -> // check if the client needs to be registered
+            // Keep reads awaited and resolve once: the feature policy is deterministic and side-effect free.
+            when (PostLoginAuthenticationRequirementResolver.resolve(
+                needsDeviceRegistration = needsToRegisterClient(),
+                initialSyncCompleted = dataStore.initialSyncCompleted.first(),
+                hasUsername = !selfUser.handle.isNullOrEmpty(),
+            )) {
+                PostLoginAuthenticationRequirement.RegisterDevice ->
                     sendAction(HomeRequirement.RegisterDevice(currentAccount))
-
-                !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
-                    sendAction(HomeRequirement.InitialSync)
-
-                selfUser.handle.isNullOrEmpty() -> // check if the user handle needs to be set
-                    sendAction(HomeRequirement.CreateAccountUsername)
+                PostLoginAuthenticationRequirement.InitialSync -> sendAction(HomeRequirement.InitialSync)
+                PostLoginAuthenticationRequirement.CreateUsername -> sendAction(HomeRequirement.CreateAccountUsername)
+                null -> Unit
             }
         }
     }

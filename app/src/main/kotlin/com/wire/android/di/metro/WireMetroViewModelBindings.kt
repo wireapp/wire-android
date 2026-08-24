@@ -29,6 +29,7 @@ import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewMod
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
+import com.wire.android.ui.e2eiEnrollment.KaliumE2EIEnrollmentGateway
 import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
@@ -142,7 +143,8 @@ object WireMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelKey(E2EIEnrollmentViewModel::class)
-    fun e2EIEnrollmentViewModel(viewModel: E2EIEnrollmentViewModel): ViewModel = viewModel
+    fun e2EIEnrollmentViewModel(gateway: KaliumE2EIEnrollmentGateway): ViewModel =
+        E2EIEnrollmentViewModel(gateway)
 
     @Provides
     @IntoMap

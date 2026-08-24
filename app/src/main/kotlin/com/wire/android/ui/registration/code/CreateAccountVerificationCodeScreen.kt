@@ -45,6 +45,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent
+import com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeText
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
@@ -75,12 +77,21 @@ internal fun CreateAccountVerificationCodeRouteScreen(
     onTooManyDevices: (com.wire.kalium.logic.data.user.UserId) -> Unit,
 ) {
     with(viewModel) {
-        CodeContent(
-            state = codeState,
+        LegacyRegistrationCodeContent(
+            state = state,
             textState = codeTextState,
+            text = LegacyRegistrationCodeText(
+                title = stringResource(AuthenticationR.string.create_personal_account_title),
+                instruction = stringResource(R.string.create_account_code_text, state.email),
+                invalidCode = stringResource(R.string.create_account_code_error),
+            ),
             onResendCodePressed = ::resendCode,
             onBackPressed = onNavigateBack,
-            serverConfig = serverConfig
+            serverTitle = {
+                if (serverConfig.isOnPremises) {
+                    ServerTitle(serverLinks = serverConfig, style = MaterialTheme.wireTypography.body01)
+                }
+            },
         )
 
         (codeState.result as? CreateAccountCodeResult.Error.DialogError)?.let {

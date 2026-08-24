@@ -45,20 +45,35 @@ fun LegacyRegistrationSelectorContent(
     onPersonalAccountCreationClicked: () -> Unit,
     onTeamAccountCreationClicked: () -> Unit,
 ) {
-    NewAuthContainer(header = { NewAuthHeader(title = { Text(text.title, style = MaterialTheme.wireTypography.title01, modifier = Modifier.semantics { heading() }); serverTitle() }, canNavigateBack = true, onNavigateBack = onNavigateBack) }, contentPadding = dimensions().spacing16x) {
+    NewAuthContainer(header = { NewAuthHeader(title = { Text(text.title, style = MaterialTheme.wireTypography.title01, modifier =
+    Modifier.semantics { heading() }); serverTitle() }, canNavigateBack = true, onNavigateBack = onNavigateBack) }, contentPadding =
+    dimensions().spacing16x) {
         SelectorCard(text.team, true, checkIcon, positiveColor, onTeamAccountCreationClicked)
         SelectorCard(text.personal, false, checkIcon, positiveColor, onPersonalAccountCreationClicked)
     }
 }
 
-@Composable private fun SelectorCard(card: LegacyRegistrationSelectorText.Card, primary: Boolean, checkIcon: Painter, positiveColor: Color, onClick: () -> Unit) {
-    Column(Modifier.fillMaxHeight().padding(bottom = dimensions().spacing24x, start = dimensions().spacing16x, end = dimensions().spacing16x).border(BorderStroke(dimensions().spacing1x, if (primary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline), RoundedCornerShape(dimensions().spacing24x))) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing12x), modifier = Modifier.padding(vertical = dimensions().spacing16x, horizontal = dimensions().spacing16x)) {
-            Text(card.title.uppercase(), style = MaterialTheme.wireTypography.title03, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = dimensions().spacing8x).fillMaxWidth().semantics { heading() })
-            Text(card.subtitle, style = MaterialTheme.wireTypography.body01, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = dimensions().spacing8x).fillMaxWidth())
+@Composable private fun SelectorCard(card: LegacyRegistrationSelectorText.Card, primary: Boolean, checkIcon: Painter, positiveColor:
+    Color, onClick: () -> Unit) {
+    Column(Modifier.fillMaxHeight().padding(bottom = dimensions().spacing24x, start = dimensions().spacing16x, end =
+    dimensions().spacing16x).border(BorderStroke(dimensions().spacing1x, if (primary) MaterialTheme.colorScheme.primary else
+    MaterialTheme.colorScheme.outline), RoundedCornerShape(dimensions().spacing24x))) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement =
+    Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing12x), modifier = Modifier.padding(vertical = dimensions().spacing16x,
+    horizontal = dimensions().spacing16x)) {
+            Text(card.title.uppercase(), style = MaterialTheme.wireTypography.title03, color = MaterialTheme.colorScheme.primary,
+    textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = dimensions().spacing8x).fillMaxWidth().semantics {
+    heading() })
+            Text(card.subtitle, style = MaterialTheme.wireTypography.body01, textAlign = TextAlign.Center, modifier =
+    Modifier.padding(horizontal = dimensions().spacing8x).fillMaxWidth())
             HorizontalDivider(Modifier.padding(horizontal = dimensions().spacing16x))
-            card.highlights.forEach { highlight -> Row(verticalAlignment = Alignment.Top, modifier = Modifier.padding(horizontal = dimensions().spacing16x).fillMaxWidth()) { Icon(checkIcon, null, Modifier.size(dimensions().spacing16x), positiveColor); Text(highlight, style = MaterialTheme.wireTypography.body01, modifier = Modifier.padding(start = dimensions().spacing8x)) }; HorizontalDivider(Modifier.padding(horizontal = dimensions().spacing12x)) }
-            if (primary) WirePrimaryButton(card.continueLabel, onClick, modifier = Modifier.fillMaxWidth().padding(vertical = dimensions().spacing8x)) else WireSecondaryButton(card.continueLabel, onClick, modifier = Modifier.fillMaxWidth().padding(vertical = dimensions().spacing8x))
+            card.highlights.forEach { highlight -> Row(verticalAlignment = Alignment.Top, modifier = Modifier.padding(horizontal =
+    dimensions().spacing16x).fillMaxWidth()) { Icon(checkIcon, null, Modifier.size(dimensions().spacing16x), positiveColor);
+    Text(highlight, style = MaterialTheme.wireTypography.body01, modifier = Modifier.padding(start = dimensions().spacing8x)) };
+    HorizontalDivider(Modifier.padding(horizontal = dimensions().spacing12x)) }
+            if (primary) WirePrimaryButton(card.continueLabel, onClick, modifier = Modifier.fillMaxWidth().padding(vertical =
+    dimensions().spacing8x)) else WireSecondaryButton(card.continueLabel, onClick, modifier =
+    Modifier.fillMaxWidth().padding(vertical = dimensions().spacing8x))
         }
     }
 }

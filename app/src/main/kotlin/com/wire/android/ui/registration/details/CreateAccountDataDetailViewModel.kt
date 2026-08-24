@@ -31,11 +31,13 @@ class CreateAccountDataDetailViewModel @AssistedInject constructor(
     @KaliumCoreLogic coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links,
 ) : LegacyRegistrationDetailsViewModel<ServerConfig.Links, CoreFailure>(
-    input = LegacyRegistrationDetailsInput(createAccountNavArgs.customServerConfig, createAccountNavArgs.userRegistrationInfo.email),
+    input = LegacyRegistrationDetailsInput(createAccountNavArgs.customServerConfig,
+    createAccountNavArgs.userRegistrationInfo.email),
     defaultServerConfig = defaultServerConfig,
     gateway = KaliumLegacyRegistrationDetailsGateway(validatePassword, validateEmail, globalDataStore, analytics, coreLogic),
 ) {
-    @AssistedFactory interface Factory { fun create(createAccountNavArgs: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel }
+    @AssistedFactory interface Factory { fun create(createAccountNavArgs: CreateAccountDataNavArgs):
+    CreateAccountDataDetailViewModel }
     val detailsState get() = state
     fun tosUrl(): String = serverConfig.tos
     fun teamCreationUrl(): String = serverConfig.teams
@@ -51,13 +53,17 @@ private class KaliumLegacyRegistrationDetailsGateway(
 ) : LegacyRegistrationDetailsGateway<ServerConfig.Links, CoreFailure> {
     override fun isPasswordValid(password: String) = validatePassword(password).isValid
     override fun isEmailValid(email: String) = validateEmail(email)
-    override suspend fun setAnonymousRegistrationEnabled(enabled: Boolean) = globalDataStore.setAnonymousRegistrationEnabled(enabled)
-    override fun onAccountSetup(withPasswordTries: Boolean) = analytics.sendEventIfEnabled(RegistrationPersonalAccount.AccountSetup(withPasswordTries))
+    override suspend fun setAnonymousRegistrationEnabled(enabled: Boolean) =
+    globalDataStore.setAnonymousRegistrationEnabled(enabled)
+    override fun onAccountSetup(withPasswordTries: Boolean) =
+    analytics.sendEventIfEnabled(RegistrationPersonalAccount.AccountSetup(withPasswordTries))
     override fun onTermsOfUseDialog() = analytics.sendEventIfEnabled(RegistrationPersonalAccount.TermsOfUseDialog)
-    override suspend fun requestActivationCode(serverConfig: ServerConfig.Links, email: String): LegacyActivationCodeResult<CoreFailure> {
+    override suspend fun requestActivationCode(serverConfig: ServerConfig.Links, email: String):
+    LegacyActivationCodeResult<CoreFailure> {
         val scope = when (val result = coreLogic.versionedAuthenticationScope(serverConfig)(null)) {
             is AutoVersionAuthScopeUseCase.Result.Success -> result.authenticationScope
-            is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion, is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
+            is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion, is
+    AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
             is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> return LegacyActivationCodeResult.AuthScopeUnavailable
         }
         return when (val result = scope.registerScope.requestActivationCode(email)) {

@@ -29,9 +29,11 @@ class LegacyRegistrationOwnershipTest {
             "com/wire/android/ui/authentication/legacyregistration/details/LegacyRegistrationDetailsGateway.kt",
             "com/wire/android/ui/authentication/legacyregistration/details/LegacyRegistrationDetailsState.kt",
             "com/wire/android/ui/authentication/legacyregistration/details/LegacyRegistrationDetailsViewModel.kt",
+            "com/wire/android/ui/authentication/legacyregistration/details/LegacyRegistrationDetailsContent.kt",
             "com/wire/android/ui/authentication/legacyregistration/code/LegacyRegistrationCodeGateway.kt",
             "com/wire/android/ui/authentication/legacyregistration/code/LegacyRegistrationCodeState.kt",
             "com/wire/android/ui/authentication/legacyregistration/code/LegacyRegistrationCodeViewModel.kt",
+            "com/wire/android/ui/authentication/legacyregistration/code/LegacyRegistrationCodeContent.kt",
         )
     }
 }

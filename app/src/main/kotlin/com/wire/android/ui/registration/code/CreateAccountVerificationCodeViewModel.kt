@@ -38,11 +38,13 @@ class CreateAccountVerificationCodeViewModel @AssistedInject constructor(
     defaultServerConfig: ServerConfig.Links,
     @DefaultWebSocketEnabledByDefault webSocketEnabled: Boolean,
 ) : LegacyRegistrationCodeViewModel<ServerConfig.Links, CoreFailure, UserId, KaliumLegacyRegistrationCredentials>(
-    LegacyRegistrationCodeInput(createAccountNavArgs.customServerConfig, createAccountNavArgs.userRegistrationInfo.email, createAccountNavArgs.userRegistrationInfo.name, createAccountNavArgs.userRegistrationInfo.password),
+    LegacyRegistrationCodeInput(createAccountNavArgs.customServerConfig, createAccountNavArgs.userRegistrationInfo.email,
+    createAccountNavArgs.userRegistrationInfo.name, createAccountNavArgs.userRegistrationInfo.password),
     defaultServerConfig,
     KaliumLegacyRegistrationCodeGateway(coreLogic, addAuthenticatedUser, analytics, clientScopes, webSocketEnabled),
 ) {
-    @AssistedFactory interface Factory { fun create(createAccountNavArgs: CreateAccountDataNavArgs): CreateAccountVerificationCodeViewModel }
+    @AssistedFactory interface Factory { fun create(createAccountNavArgs: CreateAccountDataNavArgs):
+    CreateAccountVerificationCodeViewModel }
     val codeState: CreateAccountVerificationCodeViewState get() = state.toLegacy()
     fun clearCodeError() = clearError()
 }
@@ -54,9 +56,12 @@ private class KaliumLegacyRegistrationCodeGateway(
     private val clientScopes: ClientScopeProvider.Factory,
     private val webSocketEnabled: Boolean,
 ) : LegacyRegistrationCodeGateway<ServerConfig.Links, CoreFailure, UserId, KaliumLegacyRegistrationCredentials> {
-    override fun onCodeVerificationShown() = analytics.sendEventIfEnabled(AnalyticsEvent.RegistrationPersonalAccount.CodeVerification)
-    override fun onCodeVerificationFailed() = analytics.sendEventIfEnabled(AnalyticsEvent.RegistrationPersonalAccount.CodeVerificationFailed)
-    override suspend fun requestActivationCode(serverConfig: ServerConfig.Links, email: String): LegacyCodeActivationResult<CoreFailure> = when (val scope = scope(serverConfig)) {
+    override fun onCodeVerificationShown() =
+    analytics.sendEventIfEnabled(AnalyticsEvent.RegistrationPersonalAccount.CodeVerification)
+    override fun onCodeVerificationFailed() =
+    analytics.sendEventIfEnabled(AnalyticsEvent.RegistrationPersonalAccount.CodeVerificationFailed)
+    override suspend fun requestActivationCode(serverConfig: ServerConfig.Links, email: String):
+    LegacyCodeActivationResult<CoreFailure> = when (val scope = scope(serverConfig)) {
         null -> LegacyCodeActivationResult.AuthScopeUnavailable
         else -> when (val result = scope.registerScope.requestActivationCode(email)) {
             RequestActivationCodeResult.Success -> LegacyCodeActivationResult.Sent
@@ -67,7 +72,8 @@ private class KaliumLegacyRegistrationCodeGateway(
             is RequestActivationCodeResult.Failure.Generic -> LegacyCodeActivationResult.Generic(result.failure)
         }
     }
-    override suspend fun register(serverConfig: ServerConfig.Links, request: LegacyPersonalRegistrationRequest): LegacyRegistrationResult<CoreFailure, KaliumLegacyRegistrationCredentials> {
+    override suspend fun register(serverConfig: ServerConfig.Links, request: LegacyPersonalRegistrationRequest):
+    LegacyRegistrationResult<CoreFailure, KaliumLegacyRegistrationCredentials> {
         val scope = scope(serverConfig) ?: return LegacyRegistrationResult.AuthScopeUnavailable
         return when (val result = scope.registerScope.register(RegisterParam.PersonalAccount(
             name = request.name, password = request.password, email = request.email, emailActivationCode = request.activationCode(),
@@ -83,24 +89,33 @@ private class KaliumLegacyRegistrationCodeGateway(
             is RegisterResult.Failure.Generic -> LegacyRegistrationResult.Generic(result.failure)
         }
     }
-    override suspend fun storeSession(credentials: KaliumLegacyRegistrationCredentials): LegacyStoreSessionResult<CoreFailure, UserId> = when (val result = credentials.result.let {
-        addUser(StoreSessionParam(accountTokens = it.authData, ssoId = it.ssoID, serverConfigId = it.serverConfigId, proxyCredentials = it.proxyCredentials, isPersistentWebSocketEnabled = webSocketEnabled), replace = false)
+    override suspend fun storeSession(credentials: KaliumLegacyRegistrationCredentials): LegacyStoreSessionResult<CoreFailure,
+    UserId> = when (val result = credentials.result.let {
+        addUser(StoreSessionParam(accountTokens = it.authData, ssoId = it.ssoID, serverConfigId = it.serverConfigId,
+    proxyCredentials = it.proxyCredentials, isPersistentWebSocketEnabled = webSocketEnabled), replace = false)
     }) {
         is AddAuthenticatedUserUseCase.Result.Success -> LegacyStoreSessionResult.Success(result.userId)
         is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LegacyStoreSessionResult.Generic(result.genericFailure)
-        AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists, AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged, AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> LegacyStoreSessionResult.UserAlreadyExists
+        AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists, AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged,
+    AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> LegacyStoreSessionResult.UserAlreadyExists
     }
-    override suspend fun registerClient(userId: UserId, password: String): LegacyRegisterClientResult<CoreFailure> = when (val result = clientScopes.create(userId).clientScope.getOrRegister(RegisterClientParam(password = password, capabilities = null, modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null))) {
+    override suspend fun registerClient(userId: UserId, password: String): LegacyRegisterClientResult<CoreFailure> = when (val
+    result = clientScopes.create(userId).clientScope.getOrRegister(RegisterClientParam(password = password, capabilities = null,
+    modelPostfix = if (BuildConfig.PRIVATE_BUILD) " [${BuildConfig.FLAVOR}_${BuildConfig.BUILD_TYPE}]" else null))) {
         is RegisterClientResult.Success -> LegacyRegisterClientResult.Success
         is RegisterClientResult.E2EICertificateRequired -> LegacyRegisterClientResult.E2EICertificateRequired
         RegisterClientResult.Failure.TooManyClients -> LegacyRegisterClientResult.TooManyDevices
         is RegisterClientResult.Failure.Generic -> LegacyRegisterClientResult.Generic(result.genericFailure)
-        is RegisterClientResult.Failure.InvalidCredentials -> throw WillNeverOccurError("RegisterClient: wrong password when registering a new account")
-        RegisterClientResult.Failure.PasswordAuthRequired -> throw WillNeverOccurError("RegisterClient: password required after creating a new account")
+        is RegisterClientResult.Failure.InvalidCredentials -> throw
+    WillNeverOccurError("RegisterClient: wrong password when registering a new account")
+        RegisterClientResult.Failure.PasswordAuthRequired -> throw
+    WillNeverOccurError("RegisterClient: password required after creating a new account")
     }
-    private suspend fun scope(config: ServerConfig.Links) = when (val result = coreLogic.versionedAuthenticationScope(config)(null)) {
+    private suspend fun scope(config: ServerConfig.Links) = when (val result = coreLogic.versionedAuthenticationScope(config)(null))
+    {
         is AutoVersionAuthScopeUseCase.Result.Success -> result.authenticationScope
-        is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion, is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
+        is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion, is
+    AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
         is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> null
     }
 }
@@ -109,8 +124,10 @@ private fun LegacyRegistrationCodeState<UserId, CoreFailure>.toLegacy() = Create
     codeLength = codeLength, email = email, loading = loading, result = when (val value = result) {
         LegacyRegistrationCodeState.Result.None -> CreateAccountCodeResult.None
         is LegacyRegistrationCodeState.Result.Success -> CreateAccountCodeResult.Success(value.userId)
-        LegacyRegistrationCodeState.Result.InvalidActivationCode -> CreateAccountCodeResult.Error.TextFieldError.InvalidActivationCodeError
-        LegacyRegistrationCodeState.Result.AccountAlreadyExists -> CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError
+        LegacyRegistrationCodeState.Result.InvalidActivationCode ->
+    CreateAccountCodeResult.Error.TextFieldError.InvalidActivationCodeError
+        LegacyRegistrationCodeState.Result.AccountAlreadyExists ->
+    CreateAccountCodeResult.Error.DialogError.AccountAlreadyExistsError
         LegacyRegistrationCodeState.Result.Blacklisted -> CreateAccountCodeResult.Error.DialogError.BlackListedError
         LegacyRegistrationCodeState.Result.DomainBlocked -> CreateAccountCodeResult.Error.DialogError.EmailDomainBlockedError
         LegacyRegistrationCodeState.Result.InvalidEmail -> CreateAccountCodeResult.Error.DialogError.InvalidEmailError

@@ -1,7 +1,8 @@
 /* Wire Copyright (C) 2026 Wire Swiss GmbH */
 package com.wire.android.ui.authentication.legacyregistration.code
 
-data class LegacyRegistrationCodeState<UserT, FailureT>(val codeLength: Int = 6, val email: String = "", val loading: Boolean = false, val result: Result<UserT, FailureT> = Result.None) {
+data class LegacyRegistrationCodeState<UserT, FailureT>(val codeLength: Int = 6, val email: String = "", val loading: Boolean =
+    false, val result: Result<UserT, FailureT> = Result.None) {
     sealed interface Result<out UserT, out FailureT> {
         data object None : Result<Nothing, Nothing>
         data class Success<UserT>(val userId: UserT) : Result<UserT, Nothing>

@@ -19,37 +19,22 @@
 package com.wire.android.ui.registration.details
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
@@ -58,23 +43,15 @@ import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsContent
+import com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsText
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
-import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.textfield.DefaultEmailDone
-import com.wire.android.ui.common.textfield.DefaultPassword
-import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WireTextField
-import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.newauthentication.login.NewAuthContainer
-import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -146,179 +123,49 @@ private fun AccountDetailsContent(
     onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
-    serverConfig: ServerConfig.Links
-) {
-    NewAuthContainer(
-        header = {
-            NewAuthHeader(
-                title = {
-                    Text(
-                        text = stringResource(id = AuthenticationR.string.create_personal_account_title),
-                        style = MaterialTheme.wireTypography.title01,
-                        modifier = Modifier.semantics { heading() }
-                    )
-                    if (serverConfig.isOnPremises) {
-                        ServerTitle(
-                            serverLinks = serverConfig,
-                            style = MaterialTheme.wireTypography.body01
-                        )
-                    }
-                },
-                canNavigateBack = true,
-                onNavigateBack = onBackPressed
-            )
-        },
-        contentPadding = dimensions().spacing16x,
-        content = {
-            val keyboardController = LocalSoftwareKeyboardController.current
-            val nameFocusRequester = remember { FocusRequester() }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
-                modifier = Modifier
-            ) {
-                WireTextField(
-                    textState = emailTextState,
-                    placeholderText = stringResource(R.string.create_account_email_placeholder),
-                    labelText = stringResource(R.string.create_account_email_label),
-                    labelMandatoryIcon = true,
-                    state = if (!state.error.isEmailError()) {
-                        WireTextFieldState.Default
-                    } else {
-                        WireTextFieldState.Error()
-                    },
-                    keyboardOptions = KeyboardOptions.DefaultEmailDone,
-                    onKeyboardAction = { keyboardController?.hide() },
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-                        .testTag("emailField")
-                )
-
-                AnimatedContent(state.error.isEmailError()) { isEmailError ->
-                    when (isEmailError) {
-                        true -> EmailErrorDetailText(state.error)
-                        false -> VerticalSpace.x16()
-                    }
-                }
-
-                WireTextField(
-                    textState = nameTextState,
-                    placeholderText = stringResource(R.string.create_account_details_name_placeholder),
-                    labelText = stringResource(R.string.create_account_details_name_label),
-                    labelMandatoryIcon = true,
-                    state = WireTextFieldState.Default,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        autoCorrectEnabled = true,
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next,
-                    ),
-                    modifier = Modifier
-                        .padding(
-                            start = MaterialTheme.wireDimensions.spacing16x,
-                            end = MaterialTheme.wireDimensions.spacing16x,
-                            bottom = MaterialTheme.wireDimensions.spacing16x
-                        )
-                        .focusRequester(nameFocusRequester)
-                        .testTag("name"),
-                )
-
-                WirePasswordTextField(
-                    textState = passwordTextState,
-                    placeholderText = stringResource(R.string.create_account_details_password_placeholder),
-                    labelMandatoryIcon = true,
-                    descriptionText = stringResource(R.string.create_account_details_password_description),
-                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-                        .testTag("password"),
-                    state = if (state.error is CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError) {
-                        WireTextFieldState.Error()
-                    } else {
-                        WireTextFieldState.Default
-                    },
-                    autoFill = false,
-                )
-
-                WirePasswordTextField(
-                    textState = confirmPasswordTextState,
-                    placeholderText = stringResource(R.string.create_account_details_password_confirm_placeholder),
-                    labelText = stringResource(R.string.create_account_details_confirm_password_label),
-                    labelMandatoryIcon = true,
-                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
-                    onKeyboardAction = { keyboardController?.hide() },
-                    modifier = Modifier
-                        .padding(
-                            horizontal = MaterialTheme.wireDimensions.spacing16x,
-                            vertical = MaterialTheme.wireDimensions.spacing16x
-                        )
-                        .testTag("confirmPassword"),
-                    state = if (state.error is CreateAccountDataDetailViewState.DetailsError.PasswordError) {
-                        when (state.error) {
-                            CreateAccountDataDetailViewState.DetailsError.PasswordError.PasswordsNotMatchingError ->
-                                WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
-
-                            CreateAccountDataDetailViewState.DetailsError.PasswordError.InvalidPasswordError ->
-                                WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
-                        }
-                    } else {
-                        WireTextFieldState.Default
-                    },
-                    autoFill = false,
-                )
-
-                if (serverConfig.isHostValidForAnalytics()) {
-                    Row(modifier = Modifier.padding(end = MaterialTheme.wireDimensions.spacing16x)) {
-                        WireCheckbox(
-                            checked = state.privacyPolicyAccepted,
-                            onCheckedChange = onPrivacyPolicyAccepted,
-                        )
-                        WirePrivacyPolicyLink()
-                    }
-                }
-            }
-
-            LaunchedEffect(Unit) {
-                nameFocusRequester.requestFocus()
-                keyboardController?.show()
-            }
-
-            WirePrimaryButton(
-                modifier = Modifier
-                    .padding(MaterialTheme.wireDimensions.spacing16x)
-                    .fillMaxWidth(),
-                text = stringResource(R.string.label_continue),
-                onClick = onContinuePressed,
-                fillMaxWidth = true,
-                loading = state.loading,
-                state = if (state.continueEnabled) {
-                    WireButtonState.Default
-                } else {
-                    WireButtonState.Disabled
-                },
-            )
-
-            Row(modifier = Modifier.fillMaxWidth()) {
-                BackLinkToTeamCreation(teamCreationUrl)
-            }
-
-            if (state.termsDialogVisible) {
-                val context = LocalContext.current
-                TermsConditionsDialog(
-                    onDialogDismiss = onTermsDialogDismiss,
-                    onContinuePressed = onTermsAccept,
-                    onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, tosUrl) }
-                )
-            }
-            val genericError = state.error as? CreateAccountDataDetailViewState.DetailsError.GenericError
-            if (genericError != null) {
-                CoreFailureErrorDialog(genericError.failure as CoreFailure, onErrorDismiss)
+    serverConfig: ServerConfig.Links,
+) = LegacyRegistrationDetailsContent(
+    state = state,
+    emailTextState = emailTextState,
+    nameTextState = nameTextState,
+    passwordTextState = passwordTextState,
+    confirmPasswordTextState = confirmPasswordTextState,
+    text = LegacyRegistrationDetailsText(
+        title = stringResource(AuthenticationR.string.create_personal_account_title),
+        emailPlaceholder = stringResource(R.string.create_account_email_placeholder),
+        emailLabel = stringResource(R.string.create_account_email_label),
+        namePlaceholder = stringResource(R.string.create_account_details_name_placeholder),
+        nameLabel = stringResource(R.string.create_account_details_name_label),
+        passwordPlaceholder = stringResource(R.string.create_account_details_password_placeholder),
+        passwordDescription = stringResource(R.string.create_account_details_password_description),
+        confirmPasswordPlaceholder = stringResource(R.string.create_account_details_password_confirm_placeholder),
+        confirmPasswordLabel = stringResource(R.string.create_account_details_confirm_password_label),
+        invalidPassword = stringResource(R.string.create_account_details_password_error),
+        passwordsDoNotMatch = stringResource(R.string.create_account_details_password_not_matching_error),
+        continueLabel = stringResource(R.string.label_continue),
+    ),
+    serverTitle = { if (serverConfig.isOnPremises) ServerTitle(serverConfig, MaterialTheme.wireTypography.body01) },
+    emailError = { if (state.error.isEmailError()) EmailErrorDetailText(state.error) },
+    privacyPolicy = {
+        if (serverConfig.isHostValidForAnalytics()) {
+            Row(modifier = Modifier.padding(end = MaterialTheme.wireDimensions.spacing16x)) {
+                WireCheckbox(state.privacyPolicyAccepted, onPrivacyPolicyAccepted)
+                WirePrivacyPolicyLink()
             }
         }
-    )
-}
-
-@Composable
+    },
+    footer = { Row(Modifier.fillMaxWidth()) { BackLinkToTeamCreation(teamCreationUrl) } },
+    dialogs = {
+        if (state.termsDialogVisible) {
+            val context = LocalContext.current
+            TermsConditionsDialog(onTermsDialogDismiss, onTermsAccept) { CustomTabsHelper.launchUrl(context, tosUrl) }
+        }
+        val error = state.error as? CreateAccountDataDetailViewState.DetailsError.GenericError
+        if (error != null) CoreFailureErrorDialog(error.failure as CoreFailure, onErrorDismiss)
+    },
+    onBackPressed = onBackPressed,
+    onContinuePressed = onContinuePressed,
+)
 private fun RowScope.BackLinkToTeamCreation(teamCreationUrl: String) {
     val context = LocalContext.current
     val annotatedString = buildAnnotatedString {

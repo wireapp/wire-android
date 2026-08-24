@@ -277,7 +277,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="create_account_username_title">Il tuo Nome Utente</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">NOME UTENTE</string>
-    <string name="create_account_username_text">Inserisci il tuo nome utente. Aiuta gli altri a trovarti su Wire e connettersi con te.</string>
     <string name="create_account_username_taken_error">Questo nome utente &#232; gi&#224; in uso. Scegline un altro, per favore.</string>
     <string name="create_account_username_description">Almeno 2 caratteri, dalla a alla z, da 0 a 9, \"_\", \"-\" e \".\"</string>
     <!-- Conversations -->

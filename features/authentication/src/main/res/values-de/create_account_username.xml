@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_set_username_title">Benutzernamen festlegen</string>
+    <string name="create_account_username_text">Geben Sie Ihren Benutzernamen ein. Andere können Sie so leichter in Wire finden und sich mit Ihnen verbinden.</string>
+</resources>

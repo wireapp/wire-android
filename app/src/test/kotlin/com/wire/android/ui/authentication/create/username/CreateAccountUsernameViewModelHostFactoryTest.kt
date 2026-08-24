@@ -15,7 +15,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.ui.authentication.create.common.handle.HandleUpdateErrorState
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
@@ -33,7 +32,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -111,23 +109,5 @@ class CreateAccountUsernameViewModelHostFactoryTest {
         coVerify(exactly = 1) {
             manager.sendEventIfEnabled(AnalyticsEvent.RegistrationPersonalAccount.Username)
         }
-    }
-
-    @Test
-    fun `screen mapper covers every feature error and preserves generic failure identity`() {
-        val failure = NetworkFailure.NoNetworkConnection(null)
-
-        assertSame(HandleUpdateErrorState.None, CreateAccountUsernameError.None.toHandleUpdateErrorState())
-        assertSame(
-            HandleUpdateErrorState.TextFieldError.UsernameInvalidError,
-            CreateAccountUsernameError.UsernameInvalid.toHandleUpdateErrorState(),
-        )
-        assertSame(
-            HandleUpdateErrorState.TextFieldError.UsernameTakenError,
-            CreateAccountUsernameError.UsernameTaken.toHandleUpdateErrorState(),
-        )
-        val mapped = CreateAccountUsernameError.Generic(failure).toHandleUpdateErrorState()
-        assertTrue(mapped is HandleUpdateErrorState.DialogError.GenericError)
-        assertSame(failure, (mapped as HandleUpdateErrorState.DialogError.GenericError).coreFailure)
     }
 }

@@ -447,8 +447,6 @@
     <string name="create_account_username_title">Ваш псевдоним</string>
     <string name="create_account_username_placeholder">maria.ivanova</string>
     <string name="create_account_username_label">ПСЕВДОНИМ</string>
-    <string name="create_account_set_username_title">Задать псевдоним</string>
-    <string name="create_account_username_text">Введите свой псевдоним. Это поможет другим найти вас в Wire и связаться.</string>
     <string name="create_account_username_taken_error">Этот псевдоним уже занят. Пожалуйста, выберите другой.</string>
     <string name="create_account_username_description">Минимум 2 символа. Только a-z, 0-9, “_”, “-” и “.”</string>
     <!-- Conversations -->

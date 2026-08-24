@@ -77,7 +77,8 @@ class CreateAccountEmailOwnershipTest {
         assertFalse(featureContent.contains("CreateAccountNavArgs"))
 
         assertTrue(appScreen.contains("CreateAccountEmailContent("))
-        assertTrue(appScreen.contains("CustomTabsHelper.launchUrl(context, tosUrl())"))
+        assertTrue(appScreen.contains("val termsUrl = tosUrl()"))
+        assertTrue(appScreen.contains("CustomTabsHelper.launchUrl(context, termsUrl)"))
         assertTrue(appScreen.contains("CustomTabsHelper.launchUrl(context, learnMoreUrl)"))
         assertTrue(appScreen.contains("CoreFailureErrorDialog(failure, onDismiss)"))
         assertTrue(appScreen.contains("email = emailTextState.text.trim().toString().lowercase()"))

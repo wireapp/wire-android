@@ -40,6 +40,7 @@ internal fun CreateAccountEmailRouteScreen(
     val context = LocalContext.current
     val learnMoreUrl = supportUrlResource(SupportPage.CREATE_ACCOUNT)
     with(viewModel) {
+        val termsUrl = tosUrl()
         CreateAccountEmailContent(
             state = emailState,
             emailTextState = emailTextState,
@@ -69,7 +70,7 @@ internal fun CreateAccountEmailRouteScreen(
             onLoginPressed = onLogin,
             onTermsDialogDismiss = ::onTermsDialogDismiss,
             onTermsAccept = ::onTermsAccept,
-            onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, tosUrl()) },
+            onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, termsUrl) },
             onLearnMorePressed = { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
             onErrorDismiss = ::onEmailErrorDismiss,
             subtitleContent = {

@@ -596,16 +596,6 @@ internal fun com.wire.android.ui.authentication.create.username.CreateAccountUse
     - onSuccess: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.username.UsernameContent(textState: androidx.compose.foundation.text.input.TextFieldState, state: com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewState<com.wire.kalium.common.error.CoreFailure>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - textState: STABLE (marked @Stable or @Immutable)
-    - state: STABLE (class with no mutable properties)
-    - onContinuePressed: STABLE (function type)
-    - onErrorDismiss: STABLE (function type)
-
-@Composable
 public fun com.wire.android.ui.authentication.createAccountCodeViewModel(): com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel<com.wire.android.ui.authentication.create.common.CreateAccountFlowType, com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.CoreFailure, com.wire.kalium.logic.data.id.QualifiedID, com.wire.android.ui.authentication.create.code.KaliumCreateAccountCredentials>
   skippable: true
   restartable: true

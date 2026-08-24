@@ -271,7 +271,6 @@
     <string name="create_account_username_title">Votre nom d\'utilisateur</string>
     <string name="create_account_username_placeholder">jane.doe</string>
     <string name="create_account_username_label">NOM D\'UTILISATEUR</string>
-    <string name="create_account_username_text">Entrez votre nom d\'utilisateur. Il vous permet d\'être retrouvé et d\'échanger avec les autres utilisateurs de Wire.</string>
     <string name="create_account_username_taken_error">Ce nom d\'utilisateur est déjà utilisé. Veuillez en choisir un autre.</string>
     <string name="create_account_username_description">Au moins 2 characters, a-z, 0-9, “_”, “-” et “.”</string>
     <!-- Conversations -->

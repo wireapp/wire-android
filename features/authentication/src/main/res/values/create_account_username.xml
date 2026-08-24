@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_set_username_title">Set username</string>
+    <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
+</resources>

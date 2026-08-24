@@ -263,7 +263,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="create_account_username_title">Tu nombre de usuario</string>
     <string name="create_account_username_placeholder">julia.martinez</string>
     <string name="create_account_username_label">NOMBRE DE USUARIO</string>
-    <string name="create_account_username_text">Introduce tu nombre de usuario. Ayuda a otros a encontrarte en Wire y conectarse contigo.</string>
     <string name="create_account_username_taken_error">Este nombre de usuario ya est&#225; registrado. Por favor, elije otro.</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">LLAMADAS PERDIDAS</string>

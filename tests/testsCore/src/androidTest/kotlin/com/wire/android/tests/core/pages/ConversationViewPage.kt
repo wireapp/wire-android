@@ -336,6 +336,11 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertFileActionModalNotVisible(): ConversationViewPage {
+        assertElementNotVisible(modalTextLocator, "file action modal", timeoutSeconds = 1)
+        return this
+    }
+
     fun assertImageFileWithNameIsVisible(fileName: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
         Assert.assertTrue("File with name '$fileName' is not visible", !fileNameElement.visibleBounds.isEmpty)
@@ -345,6 +350,18 @@ data class ConversationViewPage(private val device: UiDevice) {
     fun assertFileWithNameIsVisible(fileName3: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName3))
         Assert.assertTrue("File with name '$fileName3' is not visible", !fileNameElement.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertReceivingFilesProhibitedForFileVisible(fileName: String): ConversationViewPage {
+        val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
+        val prohibitedMessageVisible = fileNameElement.parent.children.any {
+            it.text == "Receiving files is prohibited"
+        }
+        Assert.assertTrue(
+            "Receiving files is not prohibited for file '$fileName'",
+            prohibitedMessageVisible
+        )
         return this
     }
 
@@ -781,6 +798,10 @@ data class ConversationViewPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Sharing option '$label' is not visible", e)
         }
+    }
+
+    fun assertSharingOptionNotVisible(label: String) {
+        assertElementNotVisible(sharingOption(label), "sharing option '$label'", timeoutSeconds = 1)
     }
 
     fun iSeeSentQrCodeImageInCurrentConversation(): ConversationViewPage {

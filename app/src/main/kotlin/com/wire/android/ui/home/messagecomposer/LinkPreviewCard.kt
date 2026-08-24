@@ -20,15 +20,18 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +39,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.image.WireImage
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
+import com.wire.android.ui.home.conversations.messages.item.surface
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -49,12 +53,15 @@ fun LinkPreviewCard(
     preview: MessageLinkPreview,
     isAvailable: Boolean = true,
     messageStyle: MessageStyle = MessageStyle.NORMAL,
+    modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
 ) {
     val color = linkPreviewTextColor(messageStyle, isAvailable)
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
+            .background(messageStyle.surface())
             .combinedClickable(
                 enabled = onClick != null,
                 onClick = { onClick?.invoke() }

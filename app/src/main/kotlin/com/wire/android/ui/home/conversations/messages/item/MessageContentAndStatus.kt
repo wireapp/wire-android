@@ -228,6 +228,11 @@ private fun MessageContent(
                         preview = preview,
                         isAvailable = !message.isPending && message.isAvailable,
                         messageStyle = messageStyle,
+                        modifier = Modifier.padding(
+                            start = dimensions().spacing10x,
+                            end = dimensions().spacing10x,
+                            top = dimensions().spacing10x
+                        ),
                         onClick = { onLinkClick(preview.url) }
                     )
                 }

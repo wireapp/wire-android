@@ -36,7 +36,6 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.configuration.server.ServerConfig
 
 /** App-owned route adapter: it contains all navigation, dialogs, policies and concrete Kalium aliases. */
 @Composable

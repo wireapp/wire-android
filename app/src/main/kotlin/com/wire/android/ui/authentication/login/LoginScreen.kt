@@ -26,9 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
-import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
-import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.user.UserId
 

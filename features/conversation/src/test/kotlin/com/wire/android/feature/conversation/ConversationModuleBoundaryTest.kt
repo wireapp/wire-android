@@ -122,6 +122,42 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun checkAssetRestrictionsPresentationHasFeatureOwnershipAndExactImports() {
+        val dialogStateSource = featureSource(assetTooLargeDialogStateRelativePath)
+        val assetBundleSource = featureSource(assetBundleRelativePath)
+        val importedMediaSource = featureSource(importedMediaAssetRelativePath)
+        val viewModelSource = featureSource(checkAssetRestrictionsViewModelRelativePath)
+        val graphSource = featureSource(checkAssetRestrictionsViewModelGraphRelativePath)
+
+        assertTrue(dialogStateSource.contains("package com.wire.android.ui.home.conversations"))
+        assertTrue(assetBundleSource.contains("package com.wire.android.ui.home.conversations.model"))
+        assertTrue(importedMediaSource.contains("package com.wire.android.ui.sharing"))
+        assertTrue(viewModelSource.contains("package com.wire.android.ui.home.conversations.media"))
+        assertTrue(graphSource.contains("package com.wire.android.ui.home.conversations"))
+        assertEquals(
+            setOf("com.wire.kalium.logic.data.asset.AttachmentType"),
+            importedDeclarations(dialogStateSource),
+        )
+        assertEquals(assetBundleImports, importedDeclarations(assetBundleSource))
+        assertEquals(
+            setOf("com.wire.android.ui.home.conversations.model.AssetBundle"),
+            importedDeclarations(importedMediaSource),
+        )
+        assertEquals(checkAssetRestrictionsViewModelImports, importedDeclarations(viewModelSource))
+        assertEquals(checkAssetRestrictionsGraphImports, importedDeclarations(graphSource))
+        assertTrue(assetBundleSource.contains("@TypeParceler<Path, PathParceler>()"))
+        assertTrue(assetBundleSource.contains("parcel.readString().orEmpty().toPath()"))
+        assertTrue(assetBundleSource.contains("parcel.writeString(this.toString())"))
+        assertTrue(graphSource.contains("object CheckAssetRestrictionsMetroViewModelBindings"))
+        assertTrue(graphSource.contains("@ViewModelKey(CheckAssetRestrictionsViewModel::class)"))
+        legacyCheckAssetRestrictionsPaths.forEach { relativePath ->
+            assertFalse(File(Konsist.projectRootPath, relativePath).exists(), "$relativePath must be absent.")
+        }
+        val composerState = File(Konsist.projectRootPath, messageComposerViewStateRelativePath).readText()
+        assertFalse(composerState.contains("sealed class AssetTooLargeDialogState"))
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -698,6 +734,59 @@ class ConversationModuleBoundaryTest {
     }
 
     private companion object {
+        const val assetTooLargeDialogStateRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/AssetTooLargeDialogState.kt"
+        const val assetBundleRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/AssetBundle.kt"
+        const val importedMediaAssetRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/sharing/ImportedMediaAsset.kt"
+        const val checkAssetRestrictionsViewModelRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/media/" +
+                    "CheckAssetRestrictionsViewModel.kt"
+        const val checkAssetRestrictionsViewModelGraphRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/" +
+                    "CheckAssetRestrictionsViewModelGraph.kt"
+        const val messageComposerViewStateRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/MessageComposerViewState.kt"
+        val legacyCheckAssetRestrictionsPaths = listOf(
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationDetailsViewModelGraph.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/media/CheckAssetRestrictionsViewModel.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/model/AssetBundle.kt",
+            "app/src/main/kotlin/com/wire/android/ui/sharing/ImportedMediaAsset.kt",
+        )
+        val assetBundleImports = setOf(
+            "android.net.Uri",
+            "android.os.Parcel",
+            "android.os.Parcelable",
+            "androidx.compose.runtime.Stable",
+            "com.wire.kalium.logic.data.asset.AttachmentType",
+            "kotlin.math.roundToInt",
+            "kotlinx.parcelize.Parceler",
+            "kotlinx.parcelize.Parcelize",
+            "kotlinx.parcelize.TypeParceler",
+            "okio.Path",
+            "okio.Path.Companion.toPath",
+        )
+        val checkAssetRestrictionsViewModelImports = setOf(
+            "androidx.compose.runtime.getValue",
+            "androidx.compose.runtime.mutableStateOf",
+            "androidx.compose.runtime.setValue",
+            "androidx.lifecycle.ViewModel",
+            "com.wire.android.ui.home.conversations.AssetTooLargeDialogState",
+            "com.wire.android.ui.home.conversations.model.AssetBundle",
+            "com.wire.android.ui.sharing.ImportedMediaAsset",
+            "dev.zacsweers.metro.Inject",
+        )
+        val checkAssetRestrictionsGraphImports = setOf(
+            "androidx.compose.runtime.Composable",
+            "androidx.lifecycle.ViewModel",
+            "com.wire.android.di.metro.wireMetroViewModel",
+            "com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel",
+            "dev.zacsweers.metro.BindingContainer",
+            "dev.zacsweers.metro.IntoMap",
+            "dev.zacsweers.metro.Provides",
+            "dev.zacsweers.metrox.viewmodel.ViewModelKey",
+        )
         const val editConversationMetadataStateRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/metadata/" +
                     "EditConversationMetadataState.kt"
@@ -732,6 +821,11 @@ class ConversationModuleBoundaryTest {
                 .findAll(source)
                 .map { it.groupValues[1] }
                 .toSet()
+
+        fun featureSource(relativePath: String): String =
+            File(Konsist.projectRootPath, relativePath).also { file ->
+                assertTrue(file.isFile, "Missing feature source $relativePath.")
+            }.readText()
 
         const val configurationPackage = "com.wire.android.feature.conversation.config"
         val featureBuildScript = File(Konsist.projectRootPath, "features/conversation/build.gradle.kts")

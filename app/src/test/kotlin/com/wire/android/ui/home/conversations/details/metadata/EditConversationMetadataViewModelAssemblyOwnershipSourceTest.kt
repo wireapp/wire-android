@@ -29,10 +29,6 @@ class EditConversationMetadataViewModelAssemblyOwnershipSourceTest {
     @Test
     fun editConversationMetadataFactoryIsFeatureOwnedAndInstalledOnceByAppComposition() {
         val root = repositoryRoot()
-        val appGraph = source(
-            root,
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationDetailsViewModelGraph.kt",
-        )
         val featureGraph = source(
             root,
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/" +
@@ -52,11 +48,12 @@ class EditConversationMetadataViewModelAssemblyOwnershipSourceTest {
                         "EditConversationMetadataViewModel.kt",
             ).exists(),
         )
-        assertTrue(appGraph.contains("fun checkAssetRestrictionsViewModel()"))
-        assertTrue(appGraph.contains("wireMetroViewModel()"))
-        assertFalse(appGraph.contains("editConversationMetadataViewModel"))
-        assertFalse(appGraph.contains("wireAssistedMetroViewModel"))
-        assertFalse(appGraph.contains("ConversationDetailsManualViewModelFactoryGroup"))
+        assertFalse(
+            File(
+                root,
+                "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationDetailsViewModelGraph.kt",
+            ).exists(),
+        )
         assertTrue(featureGraph.contains("object EditConversationMetadataManualViewModelFactoryGroup"))
         assertTrue(featureGraph.contains("fun editConversationMetadataViewModel()"))
         assertTrue(featureGraph.contains("fun editConversationMetadataViewModel(args: EditConversationNameNavArgs)"))

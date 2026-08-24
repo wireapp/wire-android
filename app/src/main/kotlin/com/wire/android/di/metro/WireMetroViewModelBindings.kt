@@ -33,7 +33,6 @@ import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
 import com.wire.android.ui.home.appLock.unlock.EnterLockScreenViewModel
-import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModel
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelImpl
 import com.wire.android.ui.home.conversations.ScopedMessageManualViewModelFactory
@@ -202,11 +201,6 @@ object WireMetroViewModelBindings {
     @IntoMap
     @ViewModelKey(QuotedMultipartMessageViewModel::class)
     fun quotedMultipartMessageViewModel(viewModel: QuotedMultipartMessageViewModel): ViewModel = viewModel
-
-    @Provides
-    @IntoMap
-    @ViewModelKey(CheckAssetRestrictionsViewModel::class)
-    fun checkAssetRestrictionsViewModel(viewModel: CheckAssetRestrictionsViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

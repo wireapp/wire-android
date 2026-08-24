@@ -21,7 +21,6 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.model.Contact
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MessageId
@@ -35,16 +34,6 @@ data class MessageComposerViewState(
     val enterToSend: Boolean = false,
     val isCallOngoing: Boolean = false,
 )
-
-sealed class AssetTooLargeDialogState {
-    data object Hidden : AssetTooLargeDialogState()
-    data class Visible(
-        val assetType: AttachmentType,
-        val maxLimitInMB: Int,
-        val savedToDevice: Boolean,
-        val multipleAssets: Boolean = false
-    ) : AssetTooLargeDialogState()
-}
 
 sealed class VisitLinkDialogState {
     data object Hidden : VisitLinkDialogState()

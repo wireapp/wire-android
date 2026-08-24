@@ -15,14 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
 @file:Suppress("TooManyFunctions", "MatchingDeclarationName")
 
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.ViewModel
 import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.IntoMap
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 
 @Composable
 fun checkAssetRestrictionsViewModel(): CheckAssetRestrictionsViewModel =
     wireMetroViewModel()
+
+@BindingContainer
+object CheckAssetRestrictionsMetroViewModelBindings {
+    @Provides
+    @IntoMap
+    @ViewModelKey(CheckAssetRestrictionsViewModel::class)
+    fun checkAssetRestrictionsViewModel(viewModel: CheckAssetRestrictionsViewModel): ViewModel = viewModel
+}

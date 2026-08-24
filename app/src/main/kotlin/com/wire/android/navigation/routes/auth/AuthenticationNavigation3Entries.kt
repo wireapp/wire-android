@@ -23,7 +23,7 @@ import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.ui.authentication.newLoginViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeRouteScreen
-import com.wire.android.ui.authentication.welcome.WelcomeAction
+import com.wire.android.ui.authentication.welcome.WelcomeScreenAction
 import com.wire.android.ui.authentication.welcomeViewModel
 import com.wire.android.ui.newauthentication.login.NewLoginAction
 import com.wire.android.ui.newauthentication.login.NewLoginRouteScreen
@@ -33,7 +33,7 @@ import com.wire.android.ui.newauthentication.login.toNewLoginSsoCallback
 import com.wire.android.ui.newauthentication.login.code.NewLoginVerificationCodeRouteScreen
 import com.wire.android.ui.newauthentication.login.password.LoginStateNavigationAndDialogs
 import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordRouteScreen
-import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordAction
+import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordScreenAction
 import com.wire.android.ui.newauthentication.welcome.NewWelcomeEmptyStartScreen
 import com.wire.android.ui.newauthentication.welcome.WelcomeChooserScreen
 import com.wire.kalium.logic.data.user.UserId
@@ -127,34 +127,34 @@ private fun WelcomeNavigation3Entry(
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
         onAction = { action ->
             when (action) {
-                is WelcomeAction.Login -> router.navigate(
+                is WelcomeScreenAction.Login -> router.navigate(
                     AuthenticationNavigationTransition.WELCOME_TO_LOGIN,
                     LoginNavArgs(
-                            loginPasswordPath = LoginPasswordPath(action.links)
+                            loginPasswordPath = LoginPasswordPath(action.serverConfig)
                         ).toLoginRoute(flowId = route.flowId)
                 )
 
-                is WelcomeAction.OpenUrl -> actions.openUrl(action.url)
-                is WelcomeAction.CreateTeam -> router.navigate(
+                is WelcomeScreenAction.OpenUrl -> actions.openUrl(action.url)
+                is WelcomeScreenAction.CreateTeam -> router.navigate(
                     AuthenticationNavigationTransition.WELCOME_TO_TEAM_ACCOUNT,
                     CreateTeamAccountOverviewRoute(
-                            customServerConfig = action.links.toAuthenticationServerLinks(),
+                            customServerConfig = action.serverConfig.toAuthenticationServerLinks(),
                             flowId = route.createAccountFlowId(),
                         )
                 )
 
-                is WelcomeAction.CreatePersonal -> router.navigate(
+                is WelcomeScreenAction.CreatePersonal -> router.navigate(
                     AuthenticationNavigationTransition.WELCOME_TO_PERSONAL_ACCOUNT,
                     CreatePersonalAccountOverviewRoute(
-                            customServerConfig = action.links.toAuthenticationServerLinks(),
+                            customServerConfig = action.serverConfig.toAuthenticationServerLinks(),
                             flowId = route.createAccountFlowId(),
                         )
                 )
 
-                is WelcomeAction.CreateAccountData -> router.navigate(
+                is WelcomeScreenAction.CreateAccountData -> router.navigate(
                     AuthenticationNavigationTransition.WELCOME_TO_ACCOUNT_DATA,
                     CreateAccountDataDetailRoute(
-                            customServerConfig = action.links.toAuthenticationServerLinks(),
+                            customServerConfig = action.serverConfig.toAuthenticationServerLinks(),
                             flowId = route.createAccountFlowId(),
                         )
                 )
@@ -242,7 +242,7 @@ private fun NewLoginPasswordNavigation3Entry(
         canNavigateBack = router.canNavigateBack,
         onAction = { action ->
             when (action) {
-                is NewLoginPasswordAction.Success -> router.completeLogin(
+                is NewLoginPasswordScreenAction.Success -> router.completeLogin(
                     eventId = route.terminalLoginEventId(),
                     completion = when {
                         action.isE2EIRequired ->
@@ -253,23 +253,23 @@ private fun NewLoginPasswordNavigation3Entry(
                     },
                 )
 
-                is NewLoginPasswordAction.RemoveDevice ->
+                is NewLoginPasswordScreenAction.RemoveDevice ->
                     router.completeLogin(
                         route.terminalLoginEventId(),
                         AuthenticationLoginCompletion.RemoveDevice(action.userId.toSessionId()),
                     )
 
-                NewLoginPasswordAction.Canceled -> {
+                NewLoginPasswordScreenAction.Canceled -> {
                     router.backOrElse(actions::exitAuthentication)
                     true
                 }
-                is NewLoginPasswordAction.VerificationRequired ->
+                is NewLoginPasswordScreenAction.VerificationRequired ->
                     router.navigate(
                         AuthenticationNavigationTransition.PASSWORD_TO_VERIFICATION,
                         action.navArgs.toNewLoginVerificationCodeRoute(route.flowId),
                     )
 
-                is NewLoginPasswordAction.CreateAccountSelector ->
+                is NewLoginPasswordScreenAction.CreateAccountSelector ->
                     router.navigate(
                         AuthenticationNavigationTransition.PASSWORD_TO_ACCOUNT_SELECTOR,
                         CreateAccountSelectorRoute(
@@ -279,7 +279,7 @@ private fun NewLoginPasswordNavigation3Entry(
                             )
                     )
 
-                is NewLoginPasswordAction.CreatePersonalAccount ->
+                is NewLoginPasswordScreenAction.CreatePersonalAccount ->
                     router.navigate(
                         AuthenticationNavigationTransition.PASSWORD_TO_PERSONAL_ACCOUNT,
                         CreatePersonalAccountOverviewRoute(
@@ -307,7 +307,7 @@ private fun NewLoginVerificationCodeNavigation3Entry(
 
     LoginStateNavigationAndDialogs(viewModel) { action ->
         when (action) {
-            is NewLoginPasswordAction.Success -> router.completeLogin(
+            is NewLoginPasswordScreenAction.Success -> router.completeLogin(
                 eventId = route.terminalLoginEventId(),
                 completion = when {
                     action.isE2EIRequired ->
@@ -318,13 +318,13 @@ private fun NewLoginVerificationCodeNavigation3Entry(
                 },
             )
 
-            is NewLoginPasswordAction.RemoveDevice ->
+            is NewLoginPasswordScreenAction.RemoveDevice ->
                 router.completeLogin(
                     route.terminalLoginEventId(),
                     AuthenticationLoginCompletion.RemoveDevice(action.userId.toSessionId()),
                 )
 
-            NewLoginPasswordAction.Canceled -> {
+            NewLoginPasswordScreenAction.Canceled -> {
                 router.backOrElse(actions::exitAuthentication)
                 true
             }

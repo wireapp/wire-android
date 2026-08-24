@@ -22,7 +22,6 @@ import android.content.Context
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,20 +29,11 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.authentication.R as AuthenticationR
-import com.wire.android.ui.authentication.login.AppLoginDialogError
-import com.wire.android.ui.authentication.login.AppLoginState
-import com.wire.android.ui.authentication.login.DomainClaimedByOrg
-import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
-import com.wire.android.ui.authentication.login.toLoginDialogErrorData
-import com.wire.android.ui.authentication.login.email.LoginTerminalEffect
-import com.wire.android.ui.authentication.login.email.loginTerminalEffect
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.textfield.clearAutofillTree
-import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 
@@ -99,45 +89,6 @@ fun LoginEmailScreen(
         onClearLoginErrors = loginEmailViewModel::clearLoginErrors,
         onSuccess = onSuccess,
         onRemoveDeviceNeeded = onRemoveDeviceNeeded,
-    )
-}
-
-@Composable
-private fun LoginEmailStateNavigationAndDialogs(
-    state: AppLoginState,
-    domainClaimedByOrg: DomainClaimedByOrg?,
-    onClearLoginErrors: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
-    onRemoveDeviceNeeded: (UserId) -> Unit,
-) {
-    val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    val handleLoginStateNavigation: (AppLoginState) -> Unit = { loginState ->
-        when (val effect = loginTerminalEffect(loginState, null)) {
-            is LoginTerminalEffect.Success -> onSuccess(effect.syncCompleted, effect.e2eiRequired, effect.userId)
-            is LoginTerminalEffect.RemoveDevice -> {
-                onClearLoginErrors()
-                onRemoveDeviceNeeded(effect.userId)
-            }
-            else -> Unit
-        }
-    }
-
-    LaunchedEffect(state) {
-        when (val effect = loginTerminalEffect(state, domainClaimedByOrg)) {
-            is LoginTerminalEffect.ShowClaimedDomain -> emailAlreadyInUseClaimedDomainDialogState.show(effect.domain)
-            else -> handleLoginStateNavigation(state)
-        }
-    }
-
-    if (state is LoginState.Error.DialogError<*, *>) {
-        LoginErrorDialog((state as AppLoginDialogError).toLoginDialogErrorData(), onClearLoginErrors)
-    }
-    EmailAlreadyInUseClaimedDomainDialog(
-        dialogState = emailAlreadyInUseClaimedDomainDialogState,
-        onDismiss = {
-            emailAlreadyInUseClaimedDomainDialogState.dismiss()
-            handleLoginStateNavigation(state)
-        }
     )
 }
 

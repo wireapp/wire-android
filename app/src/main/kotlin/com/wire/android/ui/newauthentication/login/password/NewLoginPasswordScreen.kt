@@ -39,7 +39,6 @@ import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordPoli
 import com.wire.android.ui.newauthentication.login.password.showCreateAccount
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordAction
 
 /** App-owned route adapter: it contains all navigation, dialogs, policies and concrete Kalium aliases. */
 @Composable
@@ -47,14 +46,14 @@ internal fun NewLoginPasswordRouteScreen(
     navArgs: LoginNavArgs,
     loginEmailViewModel: AppLoginEmailViewModel,
     canNavigateBack: Boolean,
-    onAction: (NewLoginPasswordAction<ServerConfig.Links, *, LoginNavArgs>) -> Boolean,
+    onAction: (NewLoginPasswordScreenAction) -> Boolean,
 ) {
     clearAutofillTree()
     LoginStateNavigationAndDialogs(loginEmailViewModel, onAction)
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
             onAction(
-                NewLoginPasswordAction.VerificationRequired(
+                NewLoginPasswordScreenAction.VerificationRequired(
                     LoginNavArgs(
                         loginPasswordPath = navArgs.loginPasswordPath,
                         userHandle = PreFilledUserIdentifierType.PreFilled(loginEmailViewModel.userIdentifierTextState.text.toString()),
@@ -104,13 +103,13 @@ internal fun NewLoginPasswordRouteScreen(
         onCreateAccount = {
             if (ENABLE_NEW_REGISTRATION) {
                 onAction(
-                    NewLoginPasswordAction.CreateAccountSelector(
+                    NewLoginPasswordScreenAction.CreateAccountSelector(
                         serverConfig,
                         loginEmailViewModel.userIdentifierTextState.text.toString(),
                     ),
                 )
             } else {
-                onAction(NewLoginPasswordAction.CreatePersonalAccount(serverConfig))
+                onAction(NewLoginPasswordScreenAction.CreatePersonalAccount(serverConfig))
             }
         },
         onForgotPassword = {

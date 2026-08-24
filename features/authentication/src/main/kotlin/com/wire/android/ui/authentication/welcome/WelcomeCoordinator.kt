@@ -20,7 +20,8 @@ data class WelcomePolicy<LinksT>(
     val links: LinksT,
     val proxyEnabled: Boolean,
     val newRegistrationEnabled: Boolean,
-    val teamCreationUrl: String,
+    val managementUrl: String,
+    val registrationUrl: String,
 )
 
 sealed interface WelcomeDecision<out LinksT> {
@@ -29,8 +30,8 @@ sealed interface WelcomeDecision<out LinksT> {
 }
 
 fun <LinksT> welcomeTeamDecision(policy: WelcomePolicy<LinksT>): WelcomeDecision<LinksT> = when {
-    policy.proxyEnabled -> WelcomeDecision.Dialog(WelcomeDialog.TeamBlockedByProxy(policy.teamCreationUrl))
-    policy.newRegistrationEnabled -> WelcomeDecision.Action(WelcomeAction.OpenUrl(policy.teamCreationUrl))
+    policy.proxyEnabled -> WelcomeDecision.Dialog(WelcomeDialog.TeamBlockedByProxy(policy.managementUrl))
+    policy.newRegistrationEnabled -> WelcomeDecision.Action(WelcomeAction.OpenUrl(policy.registrationUrl))
     else -> WelcomeDecision.Action(WelcomeAction.CreateTeam(policy.links))
 }
 

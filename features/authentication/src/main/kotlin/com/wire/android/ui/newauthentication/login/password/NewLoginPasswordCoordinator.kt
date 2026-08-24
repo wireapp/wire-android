@@ -9,18 +9,6 @@ data class NewLoginPasswordPolicy(
     val cloudCreationPossible: Boolean,
 )
 
-sealed interface NewLoginPasswordAction<out LinksT, out UserT, out NavigationT> {
-    data class Success<UserT>(val initialSyncCompleted: Boolean, val isE2EIRequired: Boolean, val userId: UserT) :
-        NewLoginPasswordAction<Nothing, UserT, Nothing>
-    data class RemoveDevice<UserT>(val userId: UserT) : NewLoginPasswordAction<Nothing, UserT, Nothing>
-    data object Canceled : NewLoginPasswordAction<Nothing, Nothing, Nothing>
-    data class VerificationRequired<NavigationT>(val navArgs: NavigationT) :
-        NewLoginPasswordAction<Nothing, Nothing, NavigationT>
-    data class CreateAccountSelector<LinksT>(val serverConfig: LinksT, val email: String) :
-        NewLoginPasswordAction<LinksT, Nothing, Nothing>
-    data class CreatePersonalAccount<LinksT>(val serverConfig: LinksT) : NewLoginPasswordAction<LinksT, Nothing, Nothing>
-}
-
 fun showCreateAccount(policy: NewLoginPasswordPolicy): Boolean =
     policy.accountCreationEnabled && !policy.proxyEnabled && policy.cloudCreationPossible
 

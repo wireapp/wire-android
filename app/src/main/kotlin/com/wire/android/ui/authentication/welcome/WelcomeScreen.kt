@@ -22,138 +22,28 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 internal fun WelcomeRouteScreen(
     viewModel: WelcomeViewModel<ServerConfig.Links>,
     onNavigateBack: () -> Unit,
-    onAction: (WelcomeAction<ServerConfig.Links>) -> Unit,
+    onAction: (WelcomeScreenAction) -> Unit,
 ) {
     WelcomeContent(
-        isThereActiveSession = viewModel.state.isThereActiveSession,
-        maxAccountsReached = viewModel.state.maxAccountsReached,
-        nomadAccountBlocksLogin = viewModel.state.nomadAccountBlocksLogin,
-        state = viewModel.state.links,
-        navigateBack = onNavigateBack,
-        onAction = onAction,
+        viewModel.state.isThereActiveSession,
+        viewModel.state.maxAccountsReached,
+        viewModel.state.nomadAccountBlocksLogin,
+        viewModel.state.links,
+        onNavigateBack,
+        onAction = { onAction(it.toRouteAction()) },
     )
 }
 
 internal fun ServerConfig.Links.isProxyEnabled() = apiProxy != null
-
-@Composable
-private fun WelcomeContent(
-    isThereActiveSession: Boolean,
-    maxAccountsReached: Boolean,
-    nomadAccountBlocksLogin: Boolean,
-    state: ServerConfig.Links,
-    navigateBack: () -> Unit,
-    onAction: (WelcomeAction<ServerConfig.Links>) -> Unit,
-) {
-    val maxDialog = rememberVisibilityState<MaxAccountsReachedDialogState>()
-    val nomadDialog = rememberVisibilityState<NomadAccountBlocksLoginDialogState>()
-    val enterpriseProxyDialog = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    val personalProxyDialog = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    MaxAccountsReachedDialog(maxDialog) { navigateBack() }
-    NomadAccountBlocksLoginDialog(nomadDialog) { navigateBack() }
-    FeatureDisabledWithProxyDialogContent(enterpriseProxyDialog) { onAction(WelcomeAction.OpenUrl(state.teams)) }
-    FeatureDisabledWithProxyDialogContent(personalProxyDialog)
-    if (maxAccountsReached) maxDialog.show(maxDialog.savedState ?: MaxAccountsReachedDialogState)
-    if (nomadAccountBlocksLogin) nomadDialog.show(nomadDialog.savedState ?: NomadAccountBlocksLoginDialogState)
-    val accountCreationAllowed = LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed
-    val teamCreationUrl = state.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
-    com.wire.android.ui.authentication.welcome.WelcomeScreenContent(
-        state = com.wire.android.ui.authentication.welcome.WelcomePresentationState(
-            showCloseButton = isThereActiveSession,
-            accountCreationAllowed = accountCreationAllowed,
-            showTeamCreation = true,
-            showPersonalCreation = true,
-            carouselDelayMillis = integerResource(AuthenticationR.integer.welcome_carousel_item_time_ms).toLong(),
-            carouselPages = welcomeCarouselPages(),
-        ),
-        loginLabel = stringResource(R.string.label_login),
-        createTeamLabel = stringResource(R.string.welcome_button_create_team),
-        footerText = stringResource(R.string.welcome_footer_text),
-        createPersonalLabel = stringResource(R.string.welcome_button_create_personal_account),
-        openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
-        closeContentDescription = R.string.content_description_welcome_screen_close_btn,
-        onClose = navigateBack,
-        onLogin = { onAction(WelcomeAction.Login(state)) },
-        onCreateTeam = {
-            when (val decision = welcomeTeamDecision(WelcomePolicy(state, state.isProxyEnabled(), ENABLE_NEW_REGISTRATION, teamCreationUrl))) {
-                is WelcomeDecision.Action -> onAction(decision.value)
-                is WelcomeDecision.Dialog -> enterpriseProxyDialog.show(enterpriseProxyDialog.savedState ?: FeatureDisabledWithProxyDialogState(
-                    R.string.create_team_not_supported_dialog_description, (decision.value as WelcomeDialog.TeamBlockedByProxy).url,
-                ))
-            }
-        },
-        onCreatePersonal = {
-            when (val decision = welcomePersonalDecision(WelcomePolicy(state, state.isProxyEnabled(), ENABLE_NEW_REGISTRATION, teamCreationUrl))) {
-                is WelcomeDecision.Action -> onAction(decision.value)
-                is WelcomeDecision.Dialog -> personalProxyDialog.show(personalProxyDialog.savedState ?: FeatureDisabledWithProxyDialogState(
-                    R.string.create_personal_account_not_supported_dialog_description,
-                ))
-            }
-        },
-        logoContent = {
-            Icon(
-                ImageVector.vectorResource(R.drawable.ic_wire_logo),
-                null,
-                tint = MaterialTheme.colorScheme.onBackground,
-            )
-        },
-        serverTitleContent = {
-            if (state.isOnPremises) {
-                ServerTitle(
-                    state,
-                    Modifier.padding(
-                        top = dimensions().spacing16x,
-                        start = dimensions().spacing32x,
-                        end = dimensions().spacing32x,
-                    ),
-                )
-            }
-        },
-        bodyOverride = if (!state.isConfigured()) ({
-            MissingBackendConfigContent(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding)
-                    .weight(1f, true),
-                showTitle = true, centerText = true, verticalArrangement = Arrangement.Center,
-            )
-        }) else null,
-    )
-}
-
-@Composable
-private fun welcomeCarouselPages() = listOf(
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_1,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_1),
-    ),
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_2,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_2),
-    ),
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_3,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_3),
-    ),
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_4,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_4),
-    ),
-    com.wire.android.ui.authentication.welcome.WelcomeCarouselPage(
-        AuthenticationR.drawable.ic_welcome_5,
-        stringResource(AuthenticationR.string.welcome_screen_carousel_item_message_5),
-    ),
-)
-
 @Preview
 @Composable
 fun PreviewWelcomeScreen() {
     WireTheme {
         WelcomeContent(
-            isThereActiveSession = false,
-            maxAccountsReached = false,
-            nomadAccountBlocksLogin = false,
-            state = ServerConfig.DEFAULT,
+            activeSession = false,
+            maxAccounts = false,
+            nomadBlocksLogin = false,
+            links = ServerConfig.DEFAULT,
             navigateBack = {},
             onAction = {},
         )

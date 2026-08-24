@@ -29,7 +29,8 @@ class CreateAccountCodeGatewayRegistrationTest {
             AutoVersionAuthScopeUseCase.Result.Failure.Generic(NetworkFailure.NoNetworkConnection(null)),
         ).forEach { failure ->
             coEvery { a.autoVersionAuthScope(null) } returns failure
-            assertEquals(ActivationCodeRequestResult.AuthScopeUnavailable, a.gateway.requestActivationCode(ServerConfig.PRODUCTION, "alice@example.com"))
+            assertEquals(ActivationCodeRequestResult.AuthScopeUnavailable,
+                a.gateway.requestActivationCode(ServerConfig.PRODUCTION, "alice@example.com"))
             assertEquals(AccountRegistrationResult.AuthScopeUnavailable, a.gateway.register(ServerConfig.PRODUCTION, personalRequest()))
         }
         coVerify(exactly = 0) { a.requestActivationCode(any()) }; coVerify(exactly = 0) { a.register(any()) }
@@ -52,9 +53,12 @@ class CreateAccountCodeGatewayRegistrationTest {
     }
 
     @Test fun `register resolves scope before reading activation code and maps exact parameters`() = runTest {
-        val a = createAccountCodeArrangement(); val requested = CompletableDeferred<Unit>(); val release = CompletableDeferred<Unit>(); val events = mutableListOf<String>()
-        coEvery { a.autoVersionAuthScope(null) } coAnswers { events += "scope"; requested.complete(Unit); release.await(); AutoVersionAuthScopeUseCase.Result.Success(a.authenticationScope) }
-        val parameter = slot<RegisterParam>(); coEvery { a.register(capture(parameter)) } returns RegisterResult.Failure.InvalidActivationCode
+        val a = createAccountCodeArrangement(); val requested = CompletableDeferred<Unit>();
+            val release = CompletableDeferred<Unit>(); val events = mutableListOf<String>()
+        coEvery { a.autoVersionAuthScope(null) } coAnswers { events += "scope"; requested.complete(Unit);
+            release.await(); AutoVersionAuthScopeUseCase.Result.Success(a.authenticationScope) }
+        val parameter = slot<RegisterParam>();
+            coEvery { a.register(capture(parameter)) } returns RegisterResult.Failure.InvalidActivationCode
         val result = async { a.gateway.register(ServerConfig.PRODUCTION, personalRequest { events += "code"; "654321" }) }
         runCurrent(); assertEquals(listOf("scope"), events); release.complete(Unit)
         assertEquals(AccountRegistrationResult.InvalidActivationCode, result.await()); assertEquals(listOf("scope", "code"), events)
@@ -66,14 +70,27 @@ class CreateAccountCodeGatewayRegistrationTest {
     @Test fun `register maps team parameter and every structured failure`() = runTest {
         val a = createAccountCodeArrangement().withAuthScope(); val parameter = slot<RegisterParam>()
         coEvery { a.register(capture(parameter)) } returns RegisterResult.Failure.InvalidActivationCode
-        a.gateway.register(ServerConfig.PRODUCTION, CreateAccountRegistrationRequest.Team("Alice", "Wire", "secret", "alice@example.com", { "123456" }, "Wire Team"))
+        a.gateway.register(ServerConfig.PRODUCTION, CreateAccountRegistrationRequest.Team("Alice", "Wire", "secret",
+            "alice@example.com", { "123456" }, "Wire Team"))
         val team = parameter.captured as RegisterParam.Team
         assertEquals("Alice", team.firstName); assertEquals("Wire", team.lastName); assertEquals("secret", team.password)
-        assertEquals("alice@example.com", team.email); assertEquals("123456", team.emailActivationCode); assertEquals("Wire Team", team.teamName); assertEquals("default", team.teamIcon)
+        assertEquals("alice@example.com", team.email); assertEquals("123456", team.emailActivationCode);
+            assertEquals("Wire Team", team.teamName); assertEquals("default", team.teamIcon)
         val success = mockk<RegisterResult.Success>(); coEvery { a.register(any()) } returns success
-        assertSame(success, (a.gateway.register(ServerConfig.PRODUCTION, personalRequest()) as AccountRegistrationResult.Success).credentials.result)
+        assertSame(success, (a.gateway.register(ServerConfig.PRODUCTION,
+            personalRequest()) as AccountRegistrationResult.Success).credentials.result)
         val failure = NetworkFailure.NoNetworkConnection(null)
-        listOf(RegisterResult.Failure.InvalidActivationCode to AccountRegistrationResult.InvalidActivationCode, RegisterResult.Failure.AccountAlreadyExists to AccountRegistrationResult.AccountAlreadyExists, RegisterResult.Failure.BlackListed to AccountRegistrationResult.Blacklisted, RegisterResult.Failure.EmailDomainBlocked to AccountRegistrationResult.DomainBlocked, RegisterResult.Failure.InvalidEmail to AccountRegistrationResult.InvalidEmail, RegisterResult.Failure.TeamMembersLimitReached to AccountRegistrationResult.TeamMembersLimitReached, RegisterResult.Failure.UserCreationRestricted to AccountRegistrationResult.UserCreationRestricted, RegisterResult.Failure.Generic(failure) to AccountRegistrationResult.Generic(failure)).forEach { (kalium, feature) ->
+        listOf(RegisterResult.Failure.InvalidActivationCode to AccountRegistrationResult.InvalidActivationCode,
+            RegisterResult.Failure.AccountAlreadyExists to AccountRegistrationResult.AccountAlreadyExists,
+                RegisterResult.Failure.BlackListed to AccountRegistrationResult.Blacklisted,
+                    RegisterResult.Failure.EmailDomainBlocked to AccountRegistrationResult.DomainBlocked,
+                        RegisterResult.Failure.InvalidEmail to AccountRegistrationResult.InvalidEmail,
+                            RegisterResult.Failure.TeamMembersLimitReached to
+                                AccountRegistrationResult.TeamMembersLimitReached,
+                                    RegisterResult.Failure.UserCreationRestricted to
+                                        AccountRegistrationResult.UserCreationRestricted,
+                                            RegisterResult.Failure.Generic(failure) to
+                                                AccountRegistrationResult.Generic(failure)).forEach { (kalium, feature) ->
             coEvery { a.register(any()) } returns kalium; val actual = a.gateway.register(ServerConfig.PRODUCTION, personalRequest())
             assertEquals(feature, actual); if (actual is AccountRegistrationResult.Generic) assertSame(failure, actual.failure)
         }

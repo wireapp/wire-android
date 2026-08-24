@@ -24,14 +24,16 @@ internal val authenticationViewModelStoreOwner: ViewModelStoreOwner
     }
 
 @Composable
-inline fun <reified VM> authenticationViewModel(viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): VM where VM : ViewModel =
+inline fun <reified VM> authenticationViewModel(viewModelStoreOwner: ViewModelStoreOwner =
+    authenticationViewModelStoreOwner): VM where VM : ViewModel =
     wireMetroViewModel(owner = viewModelStoreOwner)
 
 @Composable
 fun welcomeViewModel(): WelcomeViewModel<ServerConfig.Links> = authenticationViewModel()
 
 @Composable
-fun welcomeViewModel(navArgs: WelcomeNavArgs, viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): WelcomeViewModel<ServerConfig.Links> =
+fun welcomeViewModel(navArgs: WelcomeNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): WelcomeViewModel<ServerConfig.Links> =
     wireAssistedMetroViewModel<WelcomeViewModel<ServerConfig.Links>, AuthenticationManualViewModelFactory>(owner = viewModelStoreOwner) {
         welcomeViewModel(navArgs)
     }
@@ -40,19 +42,22 @@ fun welcomeViewModel(navArgs: WelcomeNavArgs, viewModelStoreOwner: ViewModelStor
 fun newLoginViewModel(): AppNewLoginViewModel = authenticationViewModel()
 
 @Composable
-fun newLoginViewModel(loginNavArgs: LoginNavArgs, viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): AppNewLoginViewModel =
+fun newLoginViewModel(loginNavArgs: LoginNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): AppNewLoginViewModel =
     wireAssistedMetroViewModel<AppNewLoginViewModel, AuthenticationManualViewModelFactory>(owner = viewModelStoreOwner) { extras ->
         newLoginViewModel(loginNavArgs, extras)
     }
 
 @Composable
-fun loginEmailViewModel(loginNavArgs: LoginNavArgs, viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): AppLoginEmailViewModel =
+fun loginEmailViewModel(loginNavArgs: LoginNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): AppLoginEmailViewModel =
     wireAssistedMetroViewModel<AppLoginEmailViewModel, AuthenticationManualViewModelFactory>(owner = viewModelStoreOwner) { extras ->
         loginEmailViewModel(loginNavArgs, extras)
     }
 
 @Composable
-fun loginSSOViewModel(loginNavArgs: LoginNavArgs, viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): AppLoginSSOViewModel =
+fun loginSSOViewModel(loginNavArgs: LoginNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): AppLoginSSOViewModel =
     wireAssistedMetroViewModel<AppLoginSSOViewModel, AuthenticationManualViewModelFactory>(owner = viewModelStoreOwner) { extras ->
         loginSSOViewModel(loginNavArgs, extras)
     }

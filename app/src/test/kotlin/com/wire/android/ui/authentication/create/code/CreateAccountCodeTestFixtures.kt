@@ -1,7 +1,6 @@
 package com.wire.android.ui.authentication.create.code
 
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.framework.TestUser
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase

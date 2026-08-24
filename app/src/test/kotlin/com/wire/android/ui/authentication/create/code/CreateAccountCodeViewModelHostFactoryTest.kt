@@ -26,7 +26,8 @@ class CreateAccountCodeViewModelHostFactoryTest {
         val custom = host.create(CreateAccountRouteFlowType.TEAM, info, ServerConfig.PRODUCTION.toAuthenticationServerLinks())
         val fallback = host.create(CreateAccountRouteFlowType.PERSONAL, info, null)
         assertEquals(CreateAccountRouteFlowType.TEAM, custom.flowType); assertEquals(ServerConfig.PRODUCTION, custom.customServerConfig)
-        assertEquals(ServerConfig.PRODUCTION, custom.serverConfig); assertNull(fallback.customServerConfig); assertEquals(ServerConfig.STAGING, fallback.serverConfig)
+        assertEquals(ServerConfig.PRODUCTION, custom.serverConfig); assertNull(fallback.customServerConfig);
+            assertEquals(ServerConfig.STAGING, fallback.serverConfig)
         val inputField = CreateAccountCodeViewModel::class.java.getDeclaredField("input").apply { isAccessible = true }
         val input = inputField.get(custom) as CreateAccountCodeInput<*, *>
         assertEquals("alice@example.com", input.email); assertEquals("Alice", input.firstName); assertEquals("Wire", input.lastName)

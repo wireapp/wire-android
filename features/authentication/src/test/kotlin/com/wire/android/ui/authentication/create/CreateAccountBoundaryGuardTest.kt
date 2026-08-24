@@ -51,7 +51,12 @@ class CreateAccountBoundaryGuardTest {
 
     @Test
     fun `new create account completion clears state before terminal routes`() {
-        val entries = Files.readString(root().resolve("app/src/main/kotlin/com/wire/android/navigation/routes/auth/CreateAccountNavigation3Entries.kt"))
+        val entries =
+            Files.readString(
+                root().resolve(
+                    "app/src/main/kotlin/com/wire/android/navigation/routes/auth/CreateAccountNavigation3Entries.kt",
+                ),
+            )
         assertTrue(entries.contains("WireBackStackMode.CLEAR_WHOLE"))
         assertTrue(entries.contains("CreateAccountSummaryRoute(type, userId.toWireSessionId(), route.flowId)"))
         assertTrue(entries.contains("AuthenticationLoginCompletion.InitialSync(route.sessionId)"))

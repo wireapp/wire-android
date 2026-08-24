@@ -27,6 +27,7 @@ import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.navigation.routes.auth.CreateAccountCodeRoute
 import com.wire.android.navigation.routes.auth.CreateAccountDetailsRoute
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
+import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.theme.wireTypography
@@ -62,7 +63,7 @@ internal fun CreateAccountDetailsRouteScreen(
         CreateAccountDetailsContent(
             state = detailsState,
             title = stringResource(route.type.titleResId()),
-            showTeamName = route.type == CreateAccountRouteFlowType.TEAM,
+            showTeamName = route.type.createAccountFlowPolicy().isTeam,
             sharedText = CreateAccountDetailsSharedText(
                 passwordDescription = stringResource(R.string.create_account_details_password_description),
                 confirmPasswordLabel = stringResource(AuthenticationR.string.create_account_details_confirm_password_label),

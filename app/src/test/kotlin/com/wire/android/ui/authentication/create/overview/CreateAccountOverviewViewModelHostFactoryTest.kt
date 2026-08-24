@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.authentication.create.overview
 
+import com.wire.android.navigation.routes.auth.toAuthenticationServerLinks
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -27,7 +28,7 @@ class CreateAccountOverviewViewModelHostFactoryTest {
     @Test
     fun `custom server config remains optional input and supplies effective pricing`() {
         val viewModel = CreateAccountOverviewViewModelHostFactory(ServerConfig.STAGING)
-            .create(CreateAccountOverviewNavArgs(ServerConfig.PRODUCTION))
+            .create(ServerConfig.PRODUCTION.toAuthenticationServerLinks())
 
         assertEquals(ServerConfig.PRODUCTION, viewModel.customServerConfig)
         assertEquals(ServerConfig.PRODUCTION, viewModel.serverConfig)
@@ -37,7 +38,7 @@ class CreateAccountOverviewViewModelHostFactoryTest {
     @Test
     fun `default server config supplies effective config and pricing without becoming custom`() {
         val viewModel = CreateAccountOverviewViewModelHostFactory(ServerConfig.STAGING)
-            .create(CreateAccountOverviewNavArgs())
+            .create(null)
 
         assertNull(viewModel.customServerConfig)
         assertEquals(ServerConfig.STAGING, viewModel.serverConfig)

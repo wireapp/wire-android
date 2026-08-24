@@ -11,8 +11,9 @@ package com.wire.android.ui.authentication.create.code
 
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.navigation.routes.auth.CreateAccountRegistrationInfo
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
+import com.wire.android.navigation.routes.auth.toAuthenticationServerLinks
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.util.WillNeverOccurError
 import com.wire.android.util.ui.CountdownTimer
@@ -245,15 +246,15 @@ class CreateAccountCodeViewModelHostFactoryTest {
     @Test
     fun `host maps nav input custom default and creates distinct timer per view model`() {
         val arrangement = Arrangement(defaultServerConfig = ServerConfig.STAGING)
-        val info = UserRegistrationInfo("alice@example.com", firstName = "Alice", lastName = "Wire", password = "secret")
+        val info = CreateAccountRegistrationInfo("alice@example.com", firstName = "Alice", lastName = "Wire", password = "secret")
         val custom = arrangement.hostFactory.create(
-            CreateAccountNavArgs(CreateAccountFlowType.CreateTeam, info, ServerConfig.PRODUCTION)
+            CreateAccountRouteFlowType.TEAM, info, ServerConfig.PRODUCTION.toAuthenticationServerLinks(),
         )
         val fallback = arrangement.hostFactory.create(
-            CreateAccountNavArgs(CreateAccountFlowType.CreatePersonalAccount, info)
+            CreateAccountRouteFlowType.PERSONAL, info, null,
         )
 
-        assertEquals(CreateAccountFlowType.CreateTeam, custom.flowType)
+        assertEquals(CreateAccountRouteFlowType.TEAM, custom.flowType)
         assertEquals(ServerConfig.PRODUCTION, custom.customServerConfig)
         assertEquals(ServerConfig.PRODUCTION, custom.serverConfig)
         assertNull(fallback.customServerConfig)

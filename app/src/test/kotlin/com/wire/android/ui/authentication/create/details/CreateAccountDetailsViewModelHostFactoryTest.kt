@@ -12,8 +12,8 @@ package com.wire.android.ui.authentication.create.details
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
+import com.wire.android.navigation.routes.auth.toAuthenticationServerLinks
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -52,12 +52,10 @@ class CreateAccountDetailsViewModelHostFactoryTest {
         val factory = factory(defaultServerConfig = ServerConfig.STAGING)
 
         val custom = factory.create(
-            CreateAccountNavArgs(
-                flowType = CreateAccountFlowType.CreatePersonalAccount,
-                customServerConfig = ServerConfig.PRODUCTION,
-            )
+            CreateAccountRouteFlowType.PERSONAL,
+            ServerConfig.PRODUCTION.toAuthenticationServerLinks(),
         )
-        val default = factory.create(CreateAccountNavArgs(CreateAccountFlowType.CreatePersonalAccount))
+        val default = factory.create(CreateAccountRouteFlowType.PERSONAL, null)
 
         assertEquals(ServerConfig.PRODUCTION, custom.customServerConfig)
         assertEquals(ServerConfig.PRODUCTION, custom.serverConfig)
@@ -68,8 +66,8 @@ class CreateAccountDetailsViewModelHostFactoryTest {
     @Test
     fun `host factory requires team name only for team flow`() = runTest {
         val factory = factory()
-        val personal = factory.create(CreateAccountNavArgs(CreateAccountFlowType.CreatePersonalAccount))
-        val team = factory.create(CreateAccountNavArgs(CreateAccountFlowType.CreateTeam))
+        val personal = factory.create(CreateAccountRouteFlowType.PERSONAL, null)
+        val team = factory.create(CreateAccountRouteFlowType.TEAM, null)
         advanceUntilIdle()
 
         listOf(personal, team).forEach(::fillPersonalFields)

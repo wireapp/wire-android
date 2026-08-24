@@ -1,12 +1,3 @@
-/*
- * Wire
- * Copyright (C) 2026 Wire Swiss GmbH
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
 package com.wire.android.ui.authentication.create.code
 
 import java.nio.file.Files
@@ -57,5 +48,17 @@ class CreateAccountCodeOwnershipTest {
                 "Forbidden feature dependency: $forbiddenImport",
             )
         }
+    }
+
+    @Test
+    fun `code engine is feature-owned and app preserves typed completion`() {
+        val feature = CreateAccountCodeOwnershipFixtures.featureCodeSource()
+        val app = Files.readString(CreateAccountCodeOwnershipFixtures.appSource("CreateAccountCodeScreen.kt"))
+
+        assertTrue(feature.contains("class CreateAccountCodeViewModel<FlowT, LinksT, FailureT, UserT, CredentialsT>"))
+        assertTrue(feature.contains("fun <FlowT, UserT, FailureT> CreateAccountCodeContent("))
+        assertFalse(feature.contains("CreateAccountNavArgs"))
+        assertTrue(app.contains("onSuccess(flowType, it.userId)"))
+        assertTrue(app.contains("WireDialog("))
     }
 }

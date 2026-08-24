@@ -11,8 +11,8 @@ package com.wire.android.ui.authentication.create.email
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
+import com.wire.android.navigation.routes.auth.toAuthenticationServerLinks
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -128,16 +128,15 @@ class CreateAccountEmailViewModelHostFactoryTest {
     fun `host factory maps flow custom default links and tos`() {
         val arrangement = Arrangement(defaultServerConfig = ServerConfig.STAGING)
         val custom = arrangement.hostFactory.create(
-            CreateAccountNavArgs(
-                flowType = CreateAccountFlowType.CreateTeam,
-                customServerConfig = ServerConfig.PRODUCTION,
-            )
+            CreateAccountRouteFlowType.TEAM,
+            ServerConfig.PRODUCTION.toAuthenticationServerLinks(),
         )
         val fallback = arrangement.hostFactory.create(
-            CreateAccountNavArgs(CreateAccountFlowType.CreatePersonalAccount)
+            CreateAccountRouteFlowType.PERSONAL,
+            null,
         )
 
-        assertEquals(CreateAccountFlowType.CreateTeam, custom.flowType)
+        assertEquals(CreateAccountRouteFlowType.TEAM, custom.flowType)
         assertEquals(ServerConfig.PRODUCTION, custom.customServerConfig)
         assertEquals(ServerConfig.PRODUCTION, custom.serverConfig)
         assertEquals(ServerConfig.PRODUCTION.tos, custom.tosUrl())

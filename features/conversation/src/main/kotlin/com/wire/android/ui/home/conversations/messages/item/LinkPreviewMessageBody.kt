@@ -22,7 +22,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 
-internal fun MessageBody.shouldHideStandalonePreviewedUrl(preview: MessageLinkPreview): Boolean {
+fun MessageBody.shouldHideStandalonePreviewedUrl(preview: MessageLinkPreview): Boolean {
     val text = (message as? UIText.DynamicString)?.value
 
     return text

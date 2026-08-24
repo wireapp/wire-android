@@ -21,9 +21,9 @@ package com.wire.android.ui.home.conversations.messages.item
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
 class LinkPreviewMessageBodyTest {
 

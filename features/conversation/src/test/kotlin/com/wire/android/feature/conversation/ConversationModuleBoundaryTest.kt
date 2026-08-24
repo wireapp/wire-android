@@ -225,6 +225,27 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun linkPreviewMessageBodyIsFeatureOwnedWithTheAppConsumerVisibilityContract() {
+        val source = featureSource(linkPreviewMessageBodyRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations.messages.item"))
+        assertEquals(
+            setOf(
+                "com.wire.android.ui.home.conversations.model.MessageBody",
+                "com.wire.android.util.ui.UIText",
+                "com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview",
+            ),
+            importedDeclarations(source),
+        )
+        assertTrue(source.contains("fun MessageBody.shouldHideStandalonePreviewedUrl(preview: MessageLinkPreview): Boolean"))
+        assertFalse(source.contains("internal fun MessageBody.shouldHideStandalonePreviewedUrl"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyLinkPreviewMessageBodyRelativePath).exists(),
+            "$legacyLinkPreviewMessageBodyRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -933,6 +954,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageClickActions.kt"
         const val legacyMessageClickActionsRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageClickActions.kt"
+        const val linkPreviewMessageBodyRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/LinkPreviewMessageBody.kt"
+        const val legacyLinkPreviewMessageBodyRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/LinkPreviewMessageBody.kt"
         const val messageResourceProviderRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageResourceProvider.kt"
         const val legacyMessageResourceProviderRelativePath =
@@ -1504,6 +1529,9 @@ class ConversationModuleBoundaryTest {
         val messageClickActionsSources = mapOf(
             messageClickActionsRelativePath to "com.wire.android.ui.home.conversations.messages.item",
         )
+        val linkPreviewMessageBodySources = mapOf(
+            linkPreviewMessageBodyRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+        )
         val messageResourceProviderSources = mapOf(
             messageResourceProviderRelativePath to "com.wire.android.mapper",
         )
@@ -1541,6 +1569,7 @@ class ConversationModuleBoundaryTest {
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
+                    linkPreviewMessageBodySources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
                     messageContentAndFinalMapperSources + messagePreviewContentMapperSources

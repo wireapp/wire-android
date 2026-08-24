@@ -1,0 +1,9 @@
+<resources>
+    <string name="label_message_sent_failure">Poruka se ne može poslati zbog problema s konekcijom.</string>
+    <string name="label_message_edit_sent_failure">Uređena poruka nije mogla biti poslana zbog problema konekcijom.</string>
+    <string name="label_message_sent_remotely_failure">Poruka nije mogla biti poslana jer se ne može pristupiti %s backend-u.</string>
+    <string name="label_message_edit_sent_remotely_failure">Uređena poruka nije mogla biti poslana jer se ne može pristupiti %s backend-u.</string>
+    <string name="label_message_decryption_failure_message">Poruka se ne može dešifrirati.</string>
+    <string name="label_message_status_edited_with_date">Uređeno %s</string>
+    <string name="deleted_message_text">Izbrisana poruka</string>
+</resources>

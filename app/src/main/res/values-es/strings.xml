@@ -38,13 +38,7 @@
     <string name="label_logging_in">Iniciando sesión…</string>
     <string name="label_try_again">Intentar de nuevo</string>
     <string name="label_done">Listo</string>
-    <string name="label_message_sent_failure">No se pudo enviar el mensaje debido a problemas de conectividad.</string>
-    <string name="label_message_edit_sent_failure">El mensaje editado no se pudo enviar debido a problemas de conectividad.</string>
-    <string name="label_message_sent_remotely_failure">No se pudo enviar el mensaje, ya que el servidor %s parece estar fuera de línea.</string>
-    <string name="label_message_edit_sent_remotely_failure">El mensaje editado no pudo ser enviado, ya que el servidor %s parece estar fuera de línea.</string>
     <string name="label_message_receive_failure">Errores en la descarga</string>
-    <string name="label_message_decryption_failure_message">El mensaje no se pudo descifrar.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">El mensaje no se pudo descifrar (Error %s).</string>
     <string name="label_message_decryption_failure_informative_message">Intenta restablecer la sesión para generar nuevas claves de cifrado.</string>
     <string name="label_system_message_self_user_knock">%s hizo ping</string>
     <string name="label_system_message_other_user_knock">%s hizo ping</string>
@@ -66,7 +60,6 @@
     <string name="label_show_all">Mostrar todo</string>
     <string name="label_show_details">Ver detalles</string>
     <string name="label_hide_details">Ocultar detalles</string>
-    <string name="label_message_status_edited_with_date">Editado el %s</string>
     <string name="label_on">Encendido</string>
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desactivar</string>
@@ -255,7 +248,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="delete_message_for_yourself_dialog_message">Si eliminas el mensaje para ti, s&#243;lo ser&#225; visible para otros participantes.
 
 Un mensaje eliminado no puede ser restaurado.</string>
-    <string name="deleted_message_text">Mensaje eliminado</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">No puedes ver este mensaje</string>
     <string name="label_quote_original_message_is_a_picture">Imagen</string>

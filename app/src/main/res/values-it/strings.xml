@@ -36,12 +36,7 @@
     <string name="label_learn_more">Scopri di pi&#249;</string>
     <string name="label_removing">Rimozione in corso...</string>
     <string name="label_logging_in">Accesso in corso...</string>
-    <string name="label_message_sent_failure">Il messaggio non pu&#242; essere inviato a causa di problemi di connessione.</string>
-    <string name="label_message_edit_sent_failure">Il messaggio modificato non pu&#242; essere inviato a causa di problemi di connessione.</string>
-    <string name="label_message_sent_remotely_failure">Impossibile inviare il messaggio, poiché non è stato possibile raggiungere il backend di %s.</string>
-    <string name="label_message_edit_sent_remotely_failure">Impossibile inviare il messaggio modificato, poiché non è stato possibile raggiungere il backend di %s.</string>
     <string name="label_message_receive_failure">Errore di download</string>
-    <string name="label_message_decryption_failure_message">Il messaggio non pu&#242; essere decifrato.</string>
     <string name="label_message_decryption_failure_informative_message">Prova a re-impostare la sessione per generare nuove chiavi di cifratura.</string>
     <string name="label_system_message_self_user_knock">Ping di %s</string>
     <string name="label_system_message_other_user_knock">Ping di %s</string>
@@ -63,7 +58,6 @@
     <string name="label_show_all">Mostra tutto</string>
     <string name="label_show_details">Mostra i dettagli</string>
     <string name="label_hide_details">Nascondi i dettagli</string>
-    <string name="label_message_status_edited_with_date">Modificato il %s</string>
     <string name="label_on">ACCESO</string>
     <string name="label_value_copied">%s copiato</string>
     <string name="label_disable">Disabilita</string>
@@ -270,7 +264,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="delete_message_for_yourself_dialog_message">Se elimini il messaggio solo per te, sar&#224; visibile solo agli altri partecipanti.
 
 Un messaggio eliminato non pu&#242; essere ripristinato.</string>
-    <string name="deleted_message_text">Messaggio eliminato</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Non puoi visualizzare questo messaggio</string>
     <string name="label_quote_original_message_is_a_picture">Immagine</string>

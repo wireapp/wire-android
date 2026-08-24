@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -75,7 +76,7 @@ fun MessageBubbleEphemeralItem(
 
             SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable -> {
                 Text(
-                    text = UIText.StringResource(R.string.deleted_message_text).asString(),
+                    text = UIText.StringResource(conversationR.string.deleted_message_text).asString(),
                     style = typography().body05,
                     color = if (source == MessageSource.Self) {
                         MaterialTheme.wireColorScheme.wireAccentColors.getOrDefault(

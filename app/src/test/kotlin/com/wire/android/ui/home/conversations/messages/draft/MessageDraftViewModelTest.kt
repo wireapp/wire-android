@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.conversations.messages.draft
 
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.mockUri
@@ -102,7 +103,7 @@ class MessageDraftViewModelTest {
             senderId = UserId("user_id", "domain"),
             senderName = UIText.DynamicString("John"),
             originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
-            editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
+            editedTimeDescription = UIText.StringResource(conversationR.string.label_message_status_edited_with_date, "10:32"),
             quotedContent = UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString("Any ideas?")),
             senderAccent = Accent.Unknown
         )

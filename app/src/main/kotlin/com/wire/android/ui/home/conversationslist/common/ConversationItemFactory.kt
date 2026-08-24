@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.BadgeEventType
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
@@ -512,7 +513,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             mutedStatus = MutedConversationStatus.AllAllowed,
             lastMessageContent = UILastMessageContent.SenderWithMessage(
                 "John".toUIText(),
-                UIText.StringResource(R.string.deleted_message_text),
+                UIText.StringResource(conversationR.string.deleted_message_text),
                 ":${MarkdownConstants.NON_BREAKING_SPACE}"
             ),
             badgeEventType = BadgeEventType.None,

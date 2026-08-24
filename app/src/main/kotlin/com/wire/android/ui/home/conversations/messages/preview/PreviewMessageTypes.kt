@@ -23,6 +23,7 @@ package com.wire.android.ui.home.conversations.messages.preview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
@@ -114,7 +115,7 @@ fun PreviewMessageWithReply() {
                             senderId = previewUserId,
                             senderName = UIText.DynamicString("John Doe"),
                             originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
-                            editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
+                            editedTimeDescription = UIText.StringResource(conversationR.string.label_message_status_edited_with_date, "10:32"),
                             quotedContent = UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString("Hey, can I call right now?")),
                             senderAccent = Accent.Blue
                         )

@@ -487,6 +487,9 @@ class ConversationModuleBoundaryTest {
             .toSet()
         val actualBannerResourceFiles = featureResources.walkTopDown()
             .filter { it.isFile && it.name == "strings.xml" }
+            .filter { resourceFile ->
+                stringResourceIds(resourceFile).any { it in conversationBannerStateMessageIds }
+            }
             .map { it.relativeTo(featureResources).invariantSeparatorsPath }
             .toSet()
 
@@ -509,9 +512,9 @@ class ConversationModuleBoundaryTest {
         val featureStateDefinitions = featureDefinitions.filter { it in conversationBannerStateMessageIds }
         val appDefinitions = stringResourceIds(appResources)
 
-        assertEquals(9, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
-        assertEquals(9, featureResources.listFiles().orEmpty().count { it.isDirectory })
-        assertEquals(112, featureDefinitions.size)
+        assertEquals(25, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
+        assertEquals(25, featureResources.listFiles().orEmpty().count { it.isDirectory })
+        assertEquals(232, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(

@@ -35,13 +35,7 @@
     <string name="label_learn_more">En savoir plus</string>
     <string name="label_removing">Suppression en cours…</string>
     <string name="label_logging_in">Connexion en cours…</string>
-    <string name="label_message_sent_failure">Le message n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
-    <string name="label_message_edit_sent_failure">Le message modifié n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
-    <string name="label_message_sent_remotely_failure">Le message n\'a pas pu être envoyé, car le serveur de %s n\'est pas joignable.</string>
-    <string name="label_message_edit_sent_remotely_failure">Le message n\'a pas pu être envoyé, car le serveur de %s n\'est pas joignable.</string>
     <string name="label_message_receive_failure">Erreur lors du téléchargement</string>
-    <string name="label_message_decryption_failure_message">Le message n\'a pas pu être déchiffré.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">Le message n\'a pas pu être déchiffré (Erreur %s).</string>
     <string name="label_message_decryption_failure_informative_message">Essayez de réinitialiser la session pour générer de nouvelles clés de chiffrement.</string>
     <string name="label_system_message_self_user_knock">%s pinged</string>
     <string name="label_system_message_other_user_knock">%s pinged</string>
@@ -59,7 +53,6 @@
     <string name="label_show_all">Tout afficher</string>
     <string name="label_show_details">Afficher les détails</string>
     <string name="label_hide_details">Masquer les détails</string>
-    <string name="label_message_status_edited_with_date">Modifié le %s</string>
     <string name="label_on">ON</string>
     <string name="label_value_copied">%s copié</string>
     <string name="label_disable">Désactiver</string>
@@ -266,7 +259,6 @@
     <string name="label_delete_for_everyone">Supprimer pour tout le monde</string>
     <string name="delete_message_for_yourself_dialog_title">Supprimer ce message pour vous ?</string>
     <string name="delete_message_for_yourself_dialog_message">Si vous supprimez le message pour vous-même, il ne sera visible que pour les autres participants.\n\nUn message supprimé ne peut pas être restauré.</string>
-    <string name="deleted_message_text">Message supprimé</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Vous ne pouvez pas voir ce message</string>
     <string name="label_quote_original_message_is_a_picture">Image</string>

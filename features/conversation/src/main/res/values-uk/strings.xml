@@ -1,0 +1,4 @@
+<resources>
+    <string name="label_message_sent_failure">Не вдалося надіслати повідомлення.</string>
+    <string name="label_message_status_edited_with_date">Відредаговано %s</string>
+</resources>

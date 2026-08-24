@@ -39,13 +39,7 @@
     <string name="label_logging_in">Авторизация…</string>
     <string name="label_try_again">Повторить</string>
     <string name="label_done">Готово</string>
-    <string name="label_message_sent_failure">Не удалось отправить сообщение из-за проблем с подключением.</string>
-    <string name="label_message_edit_sent_failure">Не удалось изменить сообщение из-за проблем с подключением.</string>
-    <string name="label_message_sent_remotely_failure">Сообщение не может быть отправлено, поскольку бэкэнд %s недоступен.</string>
-    <string name="label_message_edit_sent_remotely_failure">Измененное сообщение не может быть отправлено, поскольку бэкэнд %s недоступен.</string>
     <string name="label_message_receive_failure">Ошибка загрузки</string>
-    <string name="label_message_decryption_failure_message">Не удалось расшифровать сообщение.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">Не удалось расшифровать сообщение (ошибка %s).</string>
     <string name="label_message_decryption_failure_informative_message">Попробуйте сбросить сессию для генерации новых ключей шифрования.</string>
     <string name="label_system_message_offline">**Вы не в сети.** Ваши сообщения будут отправлены, как только вы снова подключитесь к сети.</string>
     <string name="label_system_message_self_user_knock">%s отправили пинг</string>
@@ -70,7 +64,6 @@
     <string name="label_show_all">Показать все</string>
     <string name="label_show_details">Подробнее</string>
     <string name="label_hide_details">Скрыть сведения</string>
-    <string name="label_message_status_edited_with_date">Изменено %s</string>
     <string name="label_on">ВКЛ</string>
     <string name="label_value_copied">%s скопирован</string>
     <string name="label_disable">Отключить</string>
@@ -428,7 +421,6 @@
     <string name="label_delete_for_everyone">Удалить у всех</string>
     <string name="delete_message_for_yourself_dialog_title">Удалить это сообщение у себя?</string>
     <string name="delete_message_for_yourself_dialog_message">После удаления сообщения у себя, оно останется видимым только у других участников.\n\nУдаленное сообщение не может быть восстановлено.</string>
-    <string name="deleted_message_text">Удаленное сообщение</string>
     <string name="deleted_message_options_closed">Опции были закрыты, поскольку это сообщение больше не доступно.</string>
     <string name="deleted_conversation_options_closed">Опции были закрыты, поскольку эта беседа больше не доступна.</string>
     <!-- Replies/Quotes to other messages -->

@@ -1,0 +1,9 @@
+<resources>
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_edit_sent_failure">Bağlantı sorunları nedeniyle düzenlenen mesaj gönderilemedi.</string>
+    <string name="label_message_sent_remotely_failure">%s arka ucuna ulaşılamadığından mesaj gönderilemedi.</string>
+    <string name="label_message_edit_sent_remotely_failure">%s\'in arka ucuna ulaşılamadığı için düzenlenen mesaj gönderilemedi.</string>
+    <string name="label_message_decryption_failure_message">Mesajın şifresi çözülemedi.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Mesajın şifresi çözülemedi (Hata %s).</string>
+    <string name="label_message_status_edited_with_date">%s\'de düzenlenmiş</string>
+</resources>

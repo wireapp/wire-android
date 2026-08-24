@@ -1,0 +1,10 @@
+<resources>
+    <string name="label_message_sent_failure">Le message n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
+    <string name="label_message_edit_sent_failure">Le message modifié n\'a pas pu être envoyé en raison de problèmes de connexion.</string>
+    <string name="label_message_sent_remotely_failure">Le message n\'a pas pu être envoyé, car le serveur de %s n\'est pas joignable.</string>
+    <string name="label_message_edit_sent_remotely_failure">Le message n\'a pas pu être envoyé, car le serveur de %s n\'est pas joignable.</string>
+    <string name="label_message_decryption_failure_message">Le message n\'a pas pu être déchiffré.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Le message n\'a pas pu être déchiffré (Erreur %s).</string>
+    <string name="label_message_status_edited_with_date">Modifié le %s</string>
+    <string name="deleted_message_text">Message supprimé</string>
+</resources>

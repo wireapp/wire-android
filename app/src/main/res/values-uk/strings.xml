@@ -35,7 +35,6 @@
     <string name="label_learn_more">Дізнатися більше</string>
     <string name="label_removing">Видалення...</string>
     <string name="label_logging_in">Вхід...</string>
-    <string name="label_message_sent_failure">Не вдалося надіслати повідомлення.</string>
     <string name="label_message_receive_failure">Помилка завантаження</string>
     <string name="label_system_message_self_user_knock">%s надіслали пінг</string>
     <string name="label_system_message_other_user_knock">%s надіслав(-ла) пінг</string>
@@ -51,7 +50,6 @@
     <string name="label_show_all">Розгорнути</string>
     <string name="label_show_details">Показати деталі</string>
     <string name="label_hide_details">Приховати деталі</string>
-    <string name="label_message_status_edited_with_date">Відредаговано %s</string>
     <string name="label_on">УВІМКНУТИ</string>
     <string name="label_value_copied">%s скопійовано</string>
     <string name="label_disable">Вимкнути</string>

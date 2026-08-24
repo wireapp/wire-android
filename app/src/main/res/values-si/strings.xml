@@ -38,13 +38,7 @@
     <string name="label_logging_in">පිවිසෙමින්…</string>
     <string name="label_try_again">නැවත උත්සාහ කරන්න</string>
     <string name="label_done">කළා</string>
-    <string name="label_message_sent_failure">සම්බන්ධතා ගැටලු නිසා පණිවිඩය යැවීමට නොහැකි විය.</string>
-    <string name="label_message_edit_sent_failure">සම්බන්ධතා ගැටලු නිසා සංශෝධිත පණිවිඩය යැවීමට නොහැකි විය.</string>
-    <string name="label_message_sent_remotely_failure">%s සේවාදායකයට ළඟා වීමට නොහැකි වූ නිසා පණිවිඩය නොයැවිණි.</string>
-    <string name="label_message_edit_sent_remotely_failure">%s සේවාදායකයට ළඟා වීමට නොහැකි වූ නිසා සංශෝධිත පණිවිඩය නොයැවිණි.</string>
     <string name="label_message_receive_failure">බාගැනීමේ දෝෂයකි</string>
-    <string name="label_message_decryption_failure_message">පණිවිඩය විසංකේතනයට නොහැකි විය.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">පණිවිඩය විකේතනය කළ නොහැකි විය (දෝෂය %s).</string>
     <string name="label_message_decryption_failure_informative_message">නව සංකේතන යතුරු උත්පාදනයට වාරය යළි සකසන්න.</string>
     <string name="label_system_message_self_user_knock">%s හැඬවීය</string>
     <string name="label_system_message_other_user_knock">%s හැඬවීය</string>
@@ -66,7 +60,6 @@
     <string name="label_show_all">සියල්ල පෙන්වන්න</string>
     <string name="label_show_details">විස්තර පෙන්වන්න</string>
     <string name="label_hide_details">විස්තර සඟවන්න</string>
-    <string name="label_message_status_edited_with_date">%s දී සංශෝධිතයි</string>
     <string name="label_on">සක්‍රියයි</string>
     <string name="label_value_copied">%s පිටපත් විය</string>
     <string name="label_disable">අබල කරන්න</string>
@@ -370,7 +363,6 @@
     <string name="label_delete_for_everyone">සැමට මකන්න</string>
     <string name="delete_message_for_yourself_dialog_title">ඔබ සඳහා මෙම පණිවිඩය මකන්නද?</string>
     <string name="delete_message_for_yourself_dialog_message">ඔබ සඳහා පමණක් පණිවිඩය මකා දැමුවහොත්, එය අනෙකුත් සහභාගීන්ට තවදුරටත් පෙනෙනු ඇත.\n\nමකා දැමූ පණිවිඩයක් ප්‍රත්‍යර්පණයට නොහැකිය.</string>
-    <string name="deleted_message_text">මකා දැමූ පණිවිඩයකි</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">ඔබට මෙම පණිවිඩය දැකීමට නොහැකිය</string>
     <string name="label_quote_original_message_is_a_picture">ඡායාරූපය</string>

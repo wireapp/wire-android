@@ -6,4 +6,11 @@
     <string name="conversation_banner_federated_present">Sono presenti utenti federati</string>
     <string name="conversation_banner_guests_present">Sono presenti ospiti</string>
     <string name="conversation_banner_externals_present">Sono presenti utenti esterni</string>
+    <string name="label_message_sent_failure">Il messaggio non pu&#242; essere inviato a causa di problemi di connessione.</string>
+    <string name="label_message_edit_sent_failure">Il messaggio modificato non pu&#242; essere inviato a causa di problemi di connessione.</string>
+    <string name="label_message_sent_remotely_failure">Impossibile inviare il messaggio, poiché non è stato possibile raggiungere il backend di %s.</string>
+    <string name="label_message_edit_sent_remotely_failure">Impossibile inviare il messaggio modificato, poiché non è stato possibile raggiungere il backend di %s.</string>
+    <string name="label_message_decryption_failure_message">Il messaggio non pu&#242; essere decifrato.</string>
+    <string name="label_message_status_edited_with_date">Modificato il %s</string>
+    <string name="deleted_message_text">Messaggio eliminato</string>
 </resources>

@@ -6,4 +6,12 @@
     <string name="conversation_banner_federated_present">Usuários federados estão presentes</string>
     <string name="conversation_banner_guests_present">Convidados estão presentes</string>
     <string name="conversation_banner_externals_present">Externos estão presentes</string>
+    <string name="label_message_sent_failure">A mensagem não pôde ser enviada devido a problemas de conexão.</string>
+    <string name="label_message_edit_sent_failure">A mensagem editada não pôde ser enviada devido a problemas de conexão.</string>
+    <string name="label_message_sent_remotely_failure">A mensagem não pôde ser enviada, pois o backend %s parece estar offline.</string>
+    <string name="label_message_edit_sent_remotely_failure">A mensagem não pôde ser enviada, pois o domínio %s parece estar indisponível.</string>
+    <string name="label_message_decryption_failure_message">A mensagem não pôde ser descriptografada.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">A mensagem não pôde ser descriptografada (Erro %s).</string>
+    <string name="label_message_status_edited_with_date">Editado em %s</string>
+    <string name="deleted_message_text">Mensagem excluída</string>
 </resources>

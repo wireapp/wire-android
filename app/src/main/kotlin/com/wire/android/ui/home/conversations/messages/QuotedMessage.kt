@@ -55,6 +55,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil3.compose.SubcomposeAsyncImage
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.R as commonR
@@ -419,11 +420,11 @@ private fun QuotedDeleted(
         centerContent = {
             if (style.messageStyle.isBubble()) {
                 Text(
-                    text = stringResource(R.string.deleted_message_text),
+                    text = stringResource(conversationR.string.deleted_message_text),
                     style = typography().subline01.copy(color = style.messageStyle.textColor(), fontStyle = FontStyle.Italic)
                 )
             } else {
-                StatusBox(stringResource(R.string.deleted_message_text))
+                StatusBox(stringResource(conversationR.string.deleted_message_text))
             }
         },
         footerContent = {

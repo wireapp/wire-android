@@ -1,0 +1,4 @@
+<resources>
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_sent_remotely_failure">.</string>
+</resources>

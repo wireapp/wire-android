@@ -38,13 +38,7 @@
     <string name="label_logging_in">Bejelentkezés…</string>
     <string name="label_try_again">Próbálja újra</string>
     <string name="label_done">Kész</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
-    <string name="label_message_edit_sent_failure">Az üzenetet nem sikerült elküldeni kapcsolati problémák miatt.</string>
-    <string name="label_message_sent_remotely_failure">Az üzenetet nem sikerült elküldeni, mivel a(z) %s kiszolgálót nem sikerült elérni.</string>
-    <string name="label_message_edit_sent_remotely_failure">A szerkesztett üzenetet nem sikerült elküldeni, mivel a(z) %s kiszolgálót nem sikerült elérni.</string>
     <string name="label_message_receive_failure">Letöltési hiba</string>
-    <string name="label_message_decryption_failure_message">Az üzenetet nem sikerült dekódolni.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">Az üzenetet nem sikerült dekódolni (%s hiba).</string>
     <string name="label_message_decryption_failure_informative_message">Próbálja meg újraindítani a munkamenetet, hogy új titkosítási kulcsot generáljon.</string>
     <string name="label_system_message_self_user_knock">%s kopogott</string>
     <string name="label_system_message_other_user_knock">%s kopogott</string>
@@ -66,7 +60,6 @@
     <string name="label_show_all">Összes megjelenítése</string>
     <string name="label_show_details">Részletek megjelenítése</string>
     <string name="label_hide_details">Részletek elrejtése</string>
-    <string name="label_message_status_edited_with_date">Szerkesztve ekkor: %s</string>
     <string name="label_on">BE</string>
     <string name="label_value_copied">%s másolva</string>
     <string name="label_disable">Letiltás</string>
@@ -376,7 +369,6 @@
     <string name="label_delete_for_everyone">Törlés mindenkinél</string>
     <string name="delete_message_for_yourself_dialog_title">Törli ezt az üzenetet saját magánál?</string>
     <string name="delete_message_for_yourself_dialog_message">Ha saját magánál törli az üzenetet, akkor az csak a többi résztvevő számára lesz látható.\n\nA törölt üzenet visszaállítására nincs lehetőség.</string>
-    <string name="deleted_message_text">Törölt üzenet</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Ezt az üzenetet nem látod</string>
     <string name="label_quote_original_message_is_a_picture">Kép</string>

@@ -19,6 +19,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.findUser
@@ -187,8 +188,8 @@ class RegularMessageMapper @Inject constructor(
 
                 is MessageContent.FailedDecryption -> {
                     content.errorCode?.let {
-                        UIText.StringResource(R.string.label_message_decryption_failure_message_with_error_code, it)
-                    } ?: UIText.StringResource(R.string.label_message_decryption_failure_message)
+                        UIText.StringResource(conversationR.string.label_message_decryption_failure_message_with_error_code, it)
+                    } ?: UIText.StringResource(conversationR.string.label_message_decryption_failure_message)
                 }
 
                 else -> UIText.StringResource(R.string.sent_a_message_with_unknown_content)
@@ -216,7 +217,7 @@ class RegularMessageMapper @Inject constructor(
                 isoFormatter.fromInstantToTimeFormatter(details.timeInstant)
             ),
             editedTimeDescription = details.editInstant?.let { instant ->
-                UIText.StringResource(R.string.label_message_status_edited_with_date, isoFormatter.fromInstantToTimeFormatter(instant))
+                UIText.StringResource(conversationR.string.label_message_status_edited_with_date, isoFormatter.fromInstantToTimeFormatter(instant))
             },
             quotedContent = when (val quotedContent = details.quotedContent) {
                 is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {

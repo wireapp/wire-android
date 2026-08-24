@@ -18,4 +18,12 @@
     <string name="conversation_banner_guests_present">Gäste anwesend</string>
     <string name="conversation_banner_externals_present">Externe anwesend</string>
     <string name="conversation_banner_services_active">Apps sind aktiv</string>
+    <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
+    <string name="label_message_edit_sent_failure">Bearbeitete Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
+    <string name="label_message_sent_remotely_failure">Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
+    <string name="label_message_edit_sent_remotely_failure">Bearbeitete Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
+    <string name="label_message_decryption_failure_message">Nachricht konnte nicht entschlüsselt werden.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Nachricht konnte nicht entschlüsselt werden (Fehler %s).</string>
+    <string name="label_message_status_edited_with_date">Bearbeitet am %s</string>
+    <string name="deleted_message_text">Gelöschte Nachricht</string>
 </resources>

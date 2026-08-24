@@ -39,13 +39,7 @@
     <string name="label_logging_in">Anmelden…</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_done">Fertig</string>
-    <string name="label_message_sent_failure">Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
-    <string name="label_message_edit_sent_failure">Bearbeitete Nachricht konnte aufgrund von Verbindungsproblemen nicht gesendet werden.</string>
-    <string name="label_message_sent_remotely_failure">Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
-    <string name="label_message_edit_sent_remotely_failure">Bearbeitete Nachricht nicht gesendet, da das Backend %s nicht erreichbar ist.</string>
     <string name="label_message_receive_failure">Fehler beim Herunterladen</string>
-    <string name="label_message_decryption_failure_message">Nachricht konnte nicht entschlüsselt werden.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">Nachricht konnte nicht entschlüsselt werden (Fehler %s).</string>
     <string name="label_message_decryption_failure_informative_message">Versuchen Sie, die Session zurückzusetzen, um neue Verschlüsselungsschlüssel zu erzeugen.</string>
     <string name="label_system_message_offline">**Sie sind offline.** Ihre Nachrichten werden gesendet, sobald Sie wieder online sind.</string>
     <string name="label_system_message_self_user_knock">%s haben gepingt</string>
@@ -68,7 +62,6 @@
     <string name="label_show_all">Alle anzeigen</string>
     <string name="label_show_details">Details anzeigen</string>
     <string name="label_hide_details">Details ausblenden</string>
-    <string name="label_message_status_edited_with_date">Bearbeitet am %s</string>
     <string name="label_on">EIN</string>
     <string name="label_value_copied">%s kopiert</string>
     <string name="label_disable">Deaktivieren</string>
@@ -418,7 +411,6 @@
     <string name="label_delete_for_everyone">Für alle löschen</string>
     <string name="delete_message_for_yourself_dialog_title">Diese Nachricht für Sie löschen?</string>
     <string name="delete_message_for_yourself_dialog_message">Wenn Sie die Nachricht für sich selbst löschen, ist sie noch für andere Teilnehmer sichtbar.\n\nEine gelöschte Nachricht kann nicht wiederhergestellt werden.</string>
-    <string name="deleted_message_text">Gelöschte Nachricht</string>
     <string name="deleted_message_options_closed">Die Optionen wurden geschlossen, da diese Nachricht nicht mehr verfügbar ist.</string>
     <string name="deleted_conversation_options_closed">Die Optionen wurden geschlossen, da diese Unterhaltung nicht mehr verfügbar ist.</string>
     <!-- Replies/Quotes to other messages -->

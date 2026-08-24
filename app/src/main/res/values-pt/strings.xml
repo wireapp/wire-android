@@ -38,13 +38,7 @@
     <string name="label_logging_in">Iniciando sessão…</string>
     <string name="label_try_again">Tente novamente</string>
     <string name="label_done">Pronto</string>
-    <string name="label_message_sent_failure">A mensagem não pôde ser enviada devido a problemas de conexão.</string>
-    <string name="label_message_edit_sent_failure">A mensagem editada não pôde ser enviada devido a problemas de conexão.</string>
-    <string name="label_message_sent_remotely_failure">A mensagem não pôde ser enviada, pois o backend %s parece estar offline.</string>
-    <string name="label_message_edit_sent_remotely_failure">A mensagem não pôde ser enviada, pois o domínio %s parece estar indisponível.</string>
     <string name="label_message_receive_failure">Erro ao baixar</string>
-    <string name="label_message_decryption_failure_message">A mensagem não pôde ser descriptografada.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">A mensagem não pôde ser descriptografada (Erro %s).</string>
     <string name="label_message_decryption_failure_informative_message">Tente redefinir a sessão para gerar novas chaves de criptografia.</string>
     <string name="label_system_message_self_user_knock">%s pingou</string>
     <string name="label_system_message_other_user_knock">%s pingou</string>
@@ -66,7 +60,6 @@
     <string name="label_show_all">Mostrar tudo</string>
     <string name="label_show_details">Mostrar Detalhes</string>
     <string name="label_hide_details">Ocultar Detalhes</string>
-    <string name="label_message_status_edited_with_date">Editado em %s</string>
     <string name="label_on">Ativado</string>
     <string name="label_value_copied">%s copiado</string>
     <string name="label_disable">Desabilitar</string>
@@ -368,7 +361,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="delete_message_for_yourself_dialog_message">Se você excluir a mensagem para si mesmo, ela só será visível para outros participantes.
 
 Uma mensagem excluída não pode ser restaurada.</string>
-    <string name="deleted_message_text">Mensagem excluída</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Você não pode ver esta mensagem</string>
     <string name="label_quote_original_message_is_a_picture">Imagem</string>

@@ -40,7 +40,6 @@
     <string name="label_open_asset_externally">Atverti</string>
     <string name="label_show">Rodyti</string>
     <string name="label_show_all">Rodyti viską</string>
-    <string name="label_message_status_edited_with_date">Pakeista %s</string>
     <string name="label_disable">Išjungti</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_empty"></string>

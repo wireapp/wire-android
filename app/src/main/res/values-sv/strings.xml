@@ -37,10 +37,7 @@
     <string name="label_removing">Tar bort…</string>
     <string name="label_logging_in">Loggar in…</string>
     <string name="label_done">Klar</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
-    <string name="label_message_edit_sent_failure">Det redigerade meddelandet kunde inte skickas till följd av problem med anslutningen.</string>
     <string name="label_message_receive_failure">Hämtningsfel</string>
-    <string name="label_message_decryption_failure_message">Meddelandet kunde inte avkrypteras.</string>
     <string name="label_message_decryption_failure_informative_message">Försök att återställa sessionen för att generera nya krypteringsnycklar.</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">%s kommer inte att få ditt meddelande.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">%s kommer att få ditt meddelande senare.</string>
@@ -57,7 +54,6 @@
     <string name="label_open_asset_externally">Öppna</string>
     <string name="label_show">Visa</string>
     <string name="label_show_all">Visa alla</string>
-    <string name="label_message_status_edited_with_date">Redigerades %s</string>
     <string name="label_on">PÅ</string>
     <string name="label_value_copied">%s kopierat</string>
     <string name="label_disable">Inaktivera</string>

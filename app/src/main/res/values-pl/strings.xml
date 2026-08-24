@@ -37,10 +37,7 @@
     <string name="label_logging_in">Logowanie...</string>
     <string name="label_try_again">Spróbuj ponownie</string>
     <string name="label_done">Gotowe</string>
-    <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
-    <string name="label_message_edit_sent_failure">Edytowana wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
     <string name="label_message_receive_failure">B&#322;&#261;d Pobierania</string>
-    <string name="label_message_decryption_failure_message">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; odszyfrowana.</string>
     <string name="label_message_decryption_failure_informative_message">Spr&#243;buj zresetowa&#263; sesj&#281;, aby wygenerowa&#263; nowe klucze szyfrowania.</string>
     <string name="label_reset_session">Zresetuj sesj&#281;</string>
     <string name="label_reset_session_success">Sesja zosta&#322;a pomy&#347;lnie zresetowana.</string>
@@ -49,7 +46,6 @@
     <string name="label_download">Pobierz</string>
     <string name="label_show">Poka&#380;</string>
     <string name="label_show_all">Poka&#380; wszystko</string>
-    <string name="label_message_status_edited_with_date">Edytowano %s</string>
     <string name="label_on">W&#322;&#261;czone</string>
     <string name="label_value_copied">Skopiowano %s</string>
     <string name="label_disable">Wy&#322;&#261;cz</string>
@@ -221,7 +217,6 @@ Usuni&#281;tej wiadomo&#347;ci nie mo&#380;na przywr&#243;ci&#263;.</string>
     <string name="delete_message_for_yourself_dialog_message">Je&#347;li usuniesz wiadomo&#347;&#263; dla siebie, b&#281;dzie widoczna tylko dla innych uczestnik&#243;w. 
 
 Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</string>
-    <string name="deleted_message_text">Usuni&#281;ta wiadomo&#347;&#263;</string>
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_invalid_or_not_found">Nie mo&#380;esz zobaczy&#263; tej wiadomo&#347;ci</string>
     <string name="label_quote_original_message_is_a_picture">Zdj&#281;cie</string>

@@ -17,4 +17,12 @@
     <string name="conversation_banner_guests_present">Invitados est&#225;n presentes</string>
     <string name="conversation_banner_externals_present">Externos est&#225;n presentes</string>
     <string name="conversation_banner_services_active">Aplicaciones están activas</string>
+    <string name="label_message_sent_failure">No se pudo enviar el mensaje debido a problemas de conectividad.</string>
+    <string name="label_message_edit_sent_failure">El mensaje editado no se pudo enviar debido a problemas de conectividad.</string>
+    <string name="label_message_sent_remotely_failure">No se pudo enviar el mensaje, ya que el servidor %s parece estar fuera de línea.</string>
+    <string name="label_message_edit_sent_remotely_failure">El mensaje editado no pudo ser enviado, ya que el servidor %s parece estar fuera de línea.</string>
+    <string name="label_message_decryption_failure_message">El mensaje no se pudo descifrar.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">El mensaje no se pudo descifrar (Error %s).</string>
+    <string name="label_message_status_edited_with_date">Editado el %s</string>
+    <string name="deleted_message_text">Mensaje eliminado</string>
 </resources>

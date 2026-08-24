@@ -6,4 +6,9 @@
     <string name="conversation_banner_federated_present">Obecni s&#261; u&#380;ytkownicy federowani.</string>
     <string name="conversation_banner_guests_present">Obecni s&#261; go&#347;cie.</string>
     <string name="conversation_banner_externals_present">Obecni s&#261; zewn&#281;trzni.</string>
+    <string name="label_message_sent_failure">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
+    <string name="label_message_edit_sent_failure">Edytowana wiadomo&#347;&#263; nie mog&#322;a zosta&#263; wys&#322;ana ze wzgl&#281;du na problemy z po&#322;&#261;czeniem.</string>
+    <string name="label_message_decryption_failure_message">Wiadomo&#347;&#263; nie mog&#322;a zosta&#263; odszyfrowana.</string>
+    <string name="label_message_status_edited_with_date">Edytowano %s</string>
+    <string name="deleted_message_text">Usuni&#281;ta wiadomo&#347;&#263;</string>
 </resources>

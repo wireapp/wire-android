@@ -19,6 +19,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
@@ -360,7 +361,7 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                     )
                 }
 
-                is WithUser.Deleted -> UIText.StringResource(R.string.deleted_message_text).let { message ->
+                is WithUser.Deleted -> UIText.StringResource(conversationR.string.deleted_message_text).let { message ->
                     UILastMessageContent.SenderWithMessage(
                         userUIText,
                         message,

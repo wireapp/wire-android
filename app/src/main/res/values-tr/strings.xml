@@ -38,13 +38,7 @@
     <string name="label_logging_in">Oturum açılıyor…</string>
     <string name="label_try_again">Yeniden Dene</string>
     <string name="label_done">Tamamlandı</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
-    <string name="label_message_edit_sent_failure">Bağlantı sorunları nedeniyle düzenlenen mesaj gönderilemedi.</string>
-    <string name="label_message_sent_remotely_failure">%s arka ucuna ulaşılamadığından mesaj gönderilemedi.</string>
-    <string name="label_message_edit_sent_remotely_failure">%s\'in arka ucuna ulaşılamadığı için düzenlenen mesaj gönderilemedi.</string>
     <string name="label_message_receive_failure">İndirme Hatası</string>
-    <string name="label_message_decryption_failure_message">Mesajın şifresi çözülemedi.</string>
-    <string name="label_message_decryption_failure_message_with_error_code">Mesajın şifresi çözülemedi (Hata %s).</string>
     <string name="label_message_decryption_failure_informative_message">Yeni şifreleme anahtarları oluşturmak için oturumu sıfırlamayı deneyin.</string>
     <string name="label_system_message_self_user_knock">%s senden bahsetti</string>
     <string name="label_system_message_other_user_knock">%s pingledi</string>
@@ -66,7 +60,6 @@
     <string name="label_show_all">Hepsini Göster</string>
     <string name="label_show_details">Detayları Göster</string>
     <string name="label_hide_details">Detayları Gizle</string>
-    <string name="label_message_status_edited_with_date">%s\'de düzenlenmiş</string>
     <string name="label_on">AÇIK</string>
     <string name="label_value_copied">%s kopyalandı</string>
     <string name="label_disable">Kapalı</string>

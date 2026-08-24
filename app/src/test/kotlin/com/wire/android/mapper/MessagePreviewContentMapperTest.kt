@@ -19,6 +19,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
@@ -440,6 +441,6 @@ class MessagePreviewContentMapperTest {
             .shouldBeInstanceOf<UILastMessageContent.SenderWithMessage>()
         val result = senderWithMessage.message.shouldBeInstanceOf<UIText.StringResource>()
 
-        result.resId shouldBeEqualTo R.string.deleted_message_text
+        result.resId shouldBeEqualTo conversationR.string.deleted_message_text
     }
 }

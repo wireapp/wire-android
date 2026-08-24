@@ -1,0 +1,7 @@
+<resources>
+    <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="label_message_edit_sent_failure">Upravená zpráva nemohla být odeslána z důvodu problémů s připojením.</string>
+    <string name="label_message_sent_remotely_failure">Zprávu nelze odeslat, protože nelze dosáhnout backendu %s.</string>
+    <string name="label_message_edit_sent_remotely_failure">Upravená zpráva nemohla být odeslána, protože nelze dosáhnout backendu %s.</string>
+    <string name="label_message_decryption_failure_message">Zprávu se nepodařilo rozšifrovat.</string>
+</resources>

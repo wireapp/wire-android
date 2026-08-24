@@ -18,4 +18,13 @@
     <string name="conversation_banner_guests_present">Guests are present</string>
     <string name="conversation_banner_externals_present">Externals are present</string>
     <string name="conversation_banner_services_active">Apps are active</string>
+    <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
+    <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
+    <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
+    <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>
+    <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">Message could not be decrypted (Error %s).</string>
+    <string name="label_message_status_edited_with_date">Edited on %s</string>
+    <string name="url_maps_location_coordinates_fallback" translatable="false">https://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
+    <string name="deleted_message_text">Deleted message</string>
 </resources>

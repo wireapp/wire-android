@@ -36,7 +36,6 @@
     <string name="label_learn_more">اعرف المزيد</string>
     <string name="label_removing">جارٍ الإزالة…</string>
     <string name="label_logging_in">تسجيل الدخول…</string>
-    <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_receive_failure">خطأ في التحميل</string>
     <string name="label_message_partial_delivery_participants_wont_deliver">لن يحصل %s على رسالتك.</string>
     <string name="label_message_partial_delivery_participants_one_deliver_later">سيحصل %s على رسالتك لاحقاً.</string>

@@ -21,7 +21,7 @@ package com.wire.android.ui.home.conversations.model
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.mapper.MessageDateTimeGroup
 import com.wire.android.mapper.groupedUIMessageDateTime
 import com.wire.android.mapper.shouldDisplayDatesDifferenceDivider
@@ -250,16 +250,16 @@ sealed interface MessageFlowStatus {
             @Serializable
             data class Locally(val isEdited: Boolean) : Send {
                 override val errorText: UIText = when {
-                    isEdited -> UIText.StringResource(R.string.label_message_edit_sent_failure)
-                    else -> UIText.StringResource(R.string.label_message_sent_failure)
+                    isEdited -> UIText.StringResource(conversationR.string.label_message_edit_sent_failure)
+                    else -> UIText.StringResource(conversationR.string.label_message_sent_failure)
                 }
             }
 
             @Serializable
             data class Remotely(val isEdited: Boolean, val backendWithFailure: String) : Send {
                 override val errorText: UIText = when {
-                    isEdited -> UIText.StringResource(R.string.label_message_edit_sent_remotely_failure, backendWithFailure)
-                    else -> UIText.StringResource(R.string.label_message_sent_remotely_failure, backendWithFailure)
+                    isEdited -> UIText.StringResource(conversationR.string.label_message_edit_sent_remotely_failure, backendWithFailure)
+                    else -> UIText.StringResource(conversationR.string.label_message_sent_remotely_failure, backendWithFailure)
                 }
             }
         }
@@ -267,8 +267,8 @@ sealed interface MessageFlowStatus {
         @Serializable
         data class Decryption(val isDecryptionResolved: Boolean, private val errorCode: Int?) : Failure {
             override val errorText: UIText = errorCode?.let {
-                UIText.StringResource(R.string.label_message_decryption_failure_message_with_error_code, it)
-            } ?: UIText.StringResource(R.string.label_message_decryption_failure_message)
+                UIText.StringResource(conversationR.string.label_message_decryption_failure_message_with_error_code, it)
+            } ?: UIText.StringResource(conversationR.string.label_message_decryption_failure_message)
         }
     }
 
@@ -290,9 +290,9 @@ data class MessageStatus(
 
     // text shown between the user name and the content in the outlined box with a text inside
     val badgeText: UIText? = when {
-        isDeleted -> UIText.StringResource(R.string.deleted_message_text)
+        isDeleted -> UIText.StringResource(conversationR.string.deleted_message_text)
         editStatus is MessageEditStatus.Edited -> UIText.StringResource(
-            R.string.label_message_status_edited_with_date,
+            conversationR.string.label_message_status_edited_with_date,
             editStatus.formattedEditTimeStamp
         )
 
@@ -442,7 +442,7 @@ sealed interface UIMessageContent {
         val longitude: Float,
         val name: String,
         val zoom: Int = DEFAULT_LOCATION_ZOOM,
-        @StringRes val urlCoordinates: Int = R.string.url_maps_location_coordinates_fallback,
+        @StringRes val urlCoordinates: Int = conversationR.string.url_maps_location_coordinates_fallback,
         override val deliveryStatus: DeliveryStatusContent = DeliveryStatusContent.CompleteDelivery
     ) : Regular, PartialDeliverable
 

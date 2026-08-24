@@ -7,4 +7,12 @@
     <string name="conversation_banner_federated_present">ඒකාබද්ධ පරිශ්‍රීලකයින් සිටියි</string>
     <string name="conversation_banner_guests_present">අමුත්තන් සිටියි</string>
     <string name="conversation_banner_externals_present">පිටස්තරයින් සිටියි</string>
+    <string name="label_message_sent_failure">සම්බන්ධතා ගැටලු නිසා පණිවිඩය යැවීමට නොහැකි විය.</string>
+    <string name="label_message_edit_sent_failure">සම්බන්ධතා ගැටලු නිසා සංශෝධිත පණිවිඩය යැවීමට නොහැකි විය.</string>
+    <string name="label_message_sent_remotely_failure">%s සේවාදායකයට ළඟා වීමට නොහැකි වූ නිසා පණිවිඩය නොයැවිණි.</string>
+    <string name="label_message_edit_sent_remotely_failure">%s සේවාදායකයට ළඟා වීමට නොහැකි වූ නිසා සංශෝධිත පණිවිඩය නොයැවිණි.</string>
+    <string name="label_message_decryption_failure_message">පණිවිඩය විසංකේතනයට නොහැකි විය.</string>
+    <string name="label_message_decryption_failure_message_with_error_code">පණිවිඩය විකේතනය කළ නොහැකි විය (දෝෂය %s).</string>
+    <string name="label_message_status_edited_with_date">%s දී සංශෝධිතයි</string>
+    <string name="deleted_message_text">මකා දැමූ පණිවිඩයකි</string>
 </resources>

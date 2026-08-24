@@ -33,7 +33,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
@@ -42,6 +41,7 @@ import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.authentication.devices.register.AuthenticationFailureDialog
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
@@ -56,13 +56,12 @@ import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ClientId
 
 @Composable
 internal fun RemoveDeviceRouteScreen(
-    viewModel: RemoveDeviceViewModel,
+    viewModel: RemoveDeviceViewModel<Device>,
     clearSessionViewModel: ClearSessionViewModel,
     switchAccountActions: com.wire.android.feature.SwitchAccountActions,
     onE2EIRequired: () -> Unit,
@@ -98,7 +97,7 @@ internal fun RemoveDeviceRouteScreen(
         }
     }
 
-    if (viewModel.state.error is RemoveDeviceError.InitError) {
+    if (viewModel.state.error is RemoveDeviceAuthenticationError.InitError) {
         WireDialog(
             properties = wireDialogPropertiesBuilder(dismissOnBackPress = false, dismissOnClickOutside = false),
             title = stringResource(id = R.string.label_general_error),
@@ -130,7 +129,7 @@ internal fun RemoveDeviceRouteScreen(
 
 @Composable
 private fun RemoveDeviceContent(
-    state: RemoveDeviceState,
+    state: RemoveDeviceAuthenticationState<Device>,
     passwordTextState: TextFieldState,
     clearSessionState: ClearSessionState,
     onItemClicked: (Device) -> Unit,
@@ -181,29 +180,28 @@ private fun RemoveDeviceContent(
             )
         }
         // TODO handle list loading errors
-        if (!state.isLoadingClientsList && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
+        val dialogState = state.removeDeviceDialogState
+        if (!state.isLoadingClientsList && dialogState is RemoveDeviceAuthenticationDialogState.Visible) {
             RemoveDeviceDialog(
-                errorState = state.error,
-                state = state.removeDeviceDialogState,
+                errorState = if (state.error is RemoveDeviceAuthenticationError.InvalidCredentialsError) {
+                    RemoveDeviceError.InvalidCredentialsError
+                } else {
+                    RemoveDeviceError.None
+                },
+                state = RemoveDeviceDialogState.Visible(
+                    device = dialogState.device,
+                    loading = dialogState.loading,
+                    removeEnabled = dialogState.removeEnabled,
+                ),
                 passwordTextState = passwordTextState,
                 onDialogDismiss = onDialogDismiss,
                 onRemoveConfirm = onRemoveConfirm
             )
-            if (state.error is RemoveDeviceError.GenericError) {
-                val (title, message) = state.error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-
-                WireDialog(
-                    title = title,
-                    text = message,
-                    onDismiss = onErrorDialogDismiss,
-                    optionButton1Properties = WireDialogButtonProperties(
-                        onClick = onErrorDialogDismiss,
-                        text = stringResource(id = R.string.label_ok),
-                        type = WireDialogButtonType.Primary
-                    )
-                )
-            }
         }
+    }
+    val genericError = state.error as? RemoveDeviceAuthenticationError.GenericError
+    if (genericError != null) {
+        AuthenticationFailureDialog(genericError.failure, onErrorDialogDismiss)
     }
 }
 
@@ -242,9 +240,9 @@ private fun RemoveDeviceItemsList(
 @Composable
 fun PreviewRemoveDeviceScreen() = WireTheme {
     RemoveDeviceContent(
-        state = RemoveDeviceState(
+        state = RemoveDeviceAuthenticationState(
             List(10) { Device() },
-            RemoveDeviceDialogState.Hidden,
+            RemoveDeviceAuthenticationDialogState.Hidden,
             isLoadingClientsList = false
         ),
         passwordTextState = TextFieldState(),

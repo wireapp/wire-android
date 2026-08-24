@@ -18,11 +18,12 @@
 package com.wire.android.ui.authentication.devices.remove
 
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeScreenContent
 
 @Composable
 fun RemoveDeviceVerificationCodeScreen(
-    viewModel: RemoveDeviceViewModel
+    viewModel: RemoveDeviceViewModel<Device>
 ) = VerificationCodeScreenContent(
     viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,

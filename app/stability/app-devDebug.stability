@@ -899,7 +899,7 @@ public fun com.wire.android.ui.authentication.devices.register.RegisterDeviceVer
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceContent(state: com.wire.android.ui.authentication.devices.remove.RemoveDeviceState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, clearSessionState: com.wire.android.ui.authentication.devices.common.ClearSessionState, onItemClicked: kotlin.Function1<com.wire.android.ui.authentication.devices.model.Device, kotlin.Unit>, onRemoveConfirm: kotlin.Function0<kotlin.Unit>, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, onBackButtonClicked: kotlin.Function0<kotlin.Unit>, onCancelLoginClicked: kotlin.Function0<kotlin.Unit>, onProceedLoginClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+private fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceContent(state: com.wire.android.ui.authentication.devices.remove.RemoveDeviceAuthenticationState<com.wire.android.ui.authentication.devices.model.Device>, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, clearSessionState: com.wire.android.ui.authentication.devices.common.ClearSessionState, onItemClicked: kotlin.Function1<com.wire.android.ui.authentication.devices.model.Device, kotlin.Unit>, onRemoveConfirm: kotlin.Function0<kotlin.Unit>, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, onBackButtonClicked: kotlin.Function0<kotlin.Unit>, onCancelLoginClicked: kotlin.Function0<kotlin.Unit>, onProceedLoginClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -938,7 +938,7 @@ private fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceItemsL
     - onItemClicked: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceRouteScreen(viewModel: com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel, switchAccountActions: com.wire.android.feature.SwitchAccountActions, onE2EIRequired: kotlin.Function0<kotlin.Unit>, onHomeRequired: kotlin.Function0<kotlin.Unit>, onInitialSyncRequired: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceRouteScreen(viewModel: com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel<com.wire.android.ui.authentication.devices.model.Device>, clearSessionViewModel: com.wire.android.ui.authentication.devices.common.ClearSessionViewModel, switchAccountActions: com.wire.android.feature.SwitchAccountActions, onE2EIRequired: kotlin.Function0<kotlin.Unit>, onHomeRequired: kotlin.Function0<kotlin.Unit>, onInitialSyncRequired: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -959,7 +959,7 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceTopBar(
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceVerificationCodeScreen(viewModel: com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel): kotlin.Unit
+public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceVerificationCodeScreen(viewModel: com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel<com.wire.android.ui.authentication.devices.model.Device>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1245,7 +1245,7 @@ public fun com.wire.android.ui.authentication.registerDeviceViewModel(viewModelS
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.authentication.removeDeviceViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
+public fun com.wire.android.ui.authentication.removeDeviceViewModel(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel<com.wire.android.ui.authentication.devices.model.Device>
   skippable: false
   restartable: true
   params:

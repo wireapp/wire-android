@@ -37,6 +37,7 @@ import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewV
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -157,7 +158,7 @@ fun registerDeviceViewModel(
 @Composable
 fun removeDeviceViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
-): RemoveDeviceViewModel =
+): RemoveDeviceViewModel<Device> =
     authenticationViewModel(viewModelStoreOwner)
 
 @Composable

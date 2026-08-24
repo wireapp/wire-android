@@ -24,6 +24,8 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
+import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.authentication.devices.remove.KaliumRemoveDeviceGateway
 import com.wire.android.ui.authentication.devices.register.AndroidRegisterDeviceResendTimer
 import com.wire.android.ui.authentication.devices.register.KaliumRegisterDeviceGateway
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
@@ -65,24 +67,24 @@ class SessionAuthenticationViewModelFactory @Inject constructor(
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
 ) {
     fun registerDeviceViewModel() = RegisterDeviceViewModel(
-        gateway = KaliumRegisterDeviceGateway(
-            registerClient = getOrRegisterClient,
-            isPasswordRequired = isPasswordRequired,
-            userDataStore = userDataStoreProvider.getOrCreate(currentAccount),
-            getSelfUser = getSelfUser,
-            requestSecondFactorVerificationCode = requestSecondFactorVerificationCode,
-        ),
+        gateway = registerDeviceGateway(),
         resendCodeTimer = AndroidRegisterDeviceResendTimer(countdownTimer),
     )
 
-    fun removeDeviceViewModel() = RemoveDeviceViewModel(
-        fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
-        deleteClientUseCase = deleteClient,
-        registerClientUseCase = getOrRegisterClient,
+    fun removeDeviceViewModel(): RemoveDeviceViewModel<Device> = RemoveDeviceViewModel(
+        gateway = KaliumRemoveDeviceGateway(
+            fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
+            deleteClient = deleteClient,
+            registerDeviceGateway = registerDeviceGateway(),
+        ),
+    )
+
+    private fun registerDeviceGateway() = KaliumRegisterDeviceGateway(
+        registerClient = getOrRegisterClient,
         isPasswordRequired = isPasswordRequired,
         userDataStore = userDataStoreProvider.getOrCreate(currentAccount),
         getSelfUser = getSelfUser,
-        requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode,
+        requestSecondFactorVerificationCode = requestSecondFactorVerificationCode,
     )
 
     fun clearSessionViewModel(cancelUserId: UserId?) = ClearSessionViewModel(

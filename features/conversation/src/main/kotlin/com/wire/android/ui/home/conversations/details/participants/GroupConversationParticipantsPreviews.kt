@@ -21,9 +21,9 @@ package com.wire.android.ui.home.conversations.details.participants
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewGroupConversationParticipants() = WireTheme {
     GroupConversationParticipants(
@@ -34,7 +34,7 @@ fun PreviewGroupConversationParticipants() = WireTheme {
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewGroupConversationParticipantsAdandonedOneOnOne() = WireTheme {
     GroupConversationParticipants(
@@ -45,7 +45,7 @@ fun PreviewGroupConversationParticipantsAdandonedOneOnOne() = WireTheme {
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewMLSProgressIndicator() = WireTheme {
     MLSProgressIndicator(0.25F)

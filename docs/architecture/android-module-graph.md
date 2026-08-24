@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `ee4fe6eda2cf2bca391ee0ed5c3b7c4210a56b6f`.
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `9b5c3a97b27c7ceafeb977a071648777bec0e70f`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -125,12 +125,12 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **164**, message composer **40**,
+Audited app production-file counts are: conversations **162**, message composer **40**,
 conversations list **27**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **52** unit tests and **1** Android
  test; **75** files import app `R`, **385** distinct resource-alias `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**123** production files and **49** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
+**125** production files and **49** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
 **25** values directories and contain **615** string definitions, including the exact
 **95** localized banner-state definitions. App retains the four banner span-label IDs
 with **23** localized definitions. The feature also owns all **608** definitions of the

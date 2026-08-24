@@ -1,8 +1,8 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, regular, content, final and preview mapping/formatting, image-asset paging, role projection, media/search arguments, asset restrictions, and edit-metadata presentation have facade-owned seams
+**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, participant renderers/previews, regular, content, final and preview mapping/formatting, image-asset paging, role projection, media/search arguments, asset restrictions, and edit-metadata presentation have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `ee4fe6eda2cf2bca391ee0ed5c3b7c4210a56b6f`
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `9b5c3a97b27c7ceafeb977a071648777bec0e70f`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -73,6 +73,8 @@ Self-deletion timer state and formatting are facade-owned. `MessageExpiration.kt
 Self-deletion icon metrics are facade-owned with their seven Jupiter tests. The public `iconMetrics` extension remains the narrow seam for the app expiration renderer, while raw metric calculation is feature-internal. The renderer keeps only its unchanged private canvas start angle and stroke-width fraction; no rendering policy is exported from the feature.
 
 The package-preserved `GroupConversationAvatar` is facade-owned because it renders feature-owned conversation avatar data through neutral core avatar primitives. Existing list and details callers keep the same FQN; no generic core component depends on the feature model.
+
+Participant previews are facade-owned beside the existing runtime renderers and preview state. Their six preview functions keep their packages/FQNs and use the public neutral `MultipleThemePreviews` annotation; the app-internal preview annotation no longer crosses the module boundary.
 
 Edit-conversation metadata presentation is facade-owned. `EditConversationMetadataViewModel`, its narrow state and validator, dedicated assisted Metro group/gateways, and focused test keep their packages and public FQNs in `:features:conversation`. App keeps the unchanged `GroupNameScreen`, its private edition-state adapter, Navigation 3 calls, and composition-root installation of the generated feature binding exactly once. Creation state and UI, resources, Gradle edges, profiles, Navigation 3 runtime, and KMP sources remain unchanged.
 

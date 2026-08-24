@@ -24,14 +24,14 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewGroupConversationParticipantItem() {
     WireTheme {
@@ -55,7 +55,7 @@ fun PreviewGroupConversationParticipantItem() {
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewGroupConversationTemporaryParticipantItem() {
     WireTheme {
@@ -80,7 +80,7 @@ fun PreviewGroupConversationTemporaryParticipantItem() {
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewGroupConversationReadReceiptItem() {
     WireTheme {

@@ -343,6 +343,21 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun participantPreviewsAreFeatureOwnedWithTheNeutralPreviewAnnotation() {
+        val itemPreviews = featureSource(conversationParticipantItemPreviewsRelativePath)
+        val listPreviews = featureSource(groupConversationParticipantsPreviewsRelativePath)
+
+        listOf(itemPreviews, listPreviews).forEach { source ->
+            assertTrue(source.contains("com.wire.android.ui.common.preview.MultipleThemePreviews"))
+            assertFalse(source.contains("com.wire.android.util.PreviewMultipleThemes"))
+            assertFalse(source.contains("com.wire.android.R"))
+        }
+        assertEquals(6, listOf(itemPreviews, listPreviews).sumOf { Regex("@MultipleThemePreviews").findAll(it).count() })
+        assertFalse(File(Konsist.projectRootPath, legacyConversationParticipantItemPreviewsRelativePath).exists())
+        assertFalse(File(Konsist.projectRootPath, legacyGroupConversationParticipantsPreviewsRelativePath).exists())
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -1089,6 +1104,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/GroupConversationAvatar.kt"
         const val legacyGroupConversationAvatarRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/GroupConversationAvatar.kt"
+        const val conversationParticipantItemPreviewsRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/ConversationParticipantItemPreviews.kt"
+        const val groupConversationParticipantsPreviewsRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsPreviews.kt"
+        const val legacyConversationParticipantItemPreviewsRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/ConversationParticipantItemPreviews.kt"
+        const val legacyGroupConversationParticipantsPreviewsRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/participants/GroupConversationParticipantsPreviews.kt"
         const val messageReactionsItemRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
         const val reactionPillRelativePath =
@@ -1679,6 +1702,12 @@ class ConversationModuleBoundaryTest {
         val groupConversationAvatarSources = mapOf(
             groupConversationAvatarRelativePath to "com.wire.android.ui.home.conversationslist.common",
         )
+        val participantPreviewSources = mapOf(
+            conversationParticipantItemPreviewsRelativePath to
+                    "com.wire.android.ui.home.conversations.details.participants",
+            groupConversationParticipantsPreviewsRelativePath to
+                    "com.wire.android.ui.home.conversations.details.participants",
+        )
         val reactionPresentationSources = mapOf(
             messageReactionsItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
             reactionPillRelativePath to "com.wire.android.ui.home.conversations.messages",
@@ -1721,7 +1750,8 @@ class ConversationModuleBoundaryTest {
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
-                    offlineMessageIndicatorSources + groupConversationAvatarSources + reactionPresentationSources +
+                    offlineMessageIndicatorSources + groupConversationAvatarSources + participantPreviewSources +
+                    reactionPresentationSources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
                     messageContentAndFinalMapperSources + messagePreviewContentMapperSources

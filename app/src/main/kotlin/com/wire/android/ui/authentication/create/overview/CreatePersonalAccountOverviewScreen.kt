@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.wire.android.R
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
@@ -39,37 +38,28 @@ internal fun CreateAccountOverviewRouteScreen(
 ) {
     val context = LocalContext.current
     val policy = flowType.createAccountFlowPolicy()
-    with(flowType) {
-        CreateAccountOverviewContent(
-            overviewParams = CreateAccountOverviewParams(
-                title = stringResource(id = titleResId()),
-                contentTitle = policy.overview.contentTitleResId?.let(::stringResource) ?: "",
-                contentText = stringResource(policy.overview.contentTextResId),
-                contentIconResId = policy.overview.contentIconResId,
-                learnMoreText = policy.overview.learnMoreTextResId?.let(::stringResource)
-                    ?: stringResource(R.string.label_learn_more),
-                learnMoreUrl = viewModel.learnMoreUrl(),
-            ),
-            continueText = stringResource(R.string.label_continue),
-            backContentDescription = R.string.content_description_login_back_btn,
-            onBackPressed = onNavigateBack,
-            onContinuePressed = {
-                onContinue()
-            },
-            onLearnMorePressed = { url -> CustomTabsHelper.launchUrl(context, url) },
-            subtitleContent = {
-                if (viewModel.serverConfig.isOnPremises) {
-                    ServerTitle(
-                        serverLinks = viewModel.serverConfig,
-                        style = MaterialTheme.wireTypography.body01,
-                    )
-                }
-            },
-        )
-    }
-}
-
-private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_title
-    CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
+    CreateAccountOverviewContent(
+        overviewParams = CreateAccountOverviewParams(
+            title = stringResource(policy.titleResId),
+            contentTitle = policy.overview.contentTitleResId?.let { stringResource(it) } ?: "",
+            contentText = stringResource(policy.overview.contentTextResId),
+            contentIconResId = policy.overview.contentIconResId,
+            learnMoreText = policy.overview.learnMoreTextResId?.let { stringResource(it) }
+                ?: stringResource(com.wire.android.R.string.label_learn_more),
+            learnMoreUrl = viewModel.learnMoreUrl(),
+        ),
+        continueText = stringResource(com.wire.android.R.string.label_continue),
+        backContentDescription = com.wire.android.R.string.content_description_login_back_btn,
+        onBackPressed = onNavigateBack,
+        onContinuePressed = onContinue,
+        onLearnMorePressed = { url -> CustomTabsHelper.launchUrl(context, url) },
+        subtitleContent = {
+            if (viewModel.serverConfig.isOnPremises) {
+                ServerTitle(
+                    serverLinks = viewModel.serverConfig,
+                    style = MaterialTheme.wireTypography.body01,
+                )
+            }
+        },
+    )
 }

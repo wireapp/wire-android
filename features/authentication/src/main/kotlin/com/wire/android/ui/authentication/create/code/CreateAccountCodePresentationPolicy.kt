@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.create.code
 
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
+import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 
 enum class CreateAccountCodeDialogKind {
     ACCOUNT_EXISTS,
@@ -22,7 +23,7 @@ fun CreateAccountCodeResult.Error.DialogError<*>.dialogKind(
     CreateAccountCodeResult.Error.DialogError.EmailDomainBlockedError -> CreateAccountCodeDialogKind.DOMAIN_BLOCKED
     CreateAccountCodeResult.Error.DialogError.InvalidEmailError -> CreateAccountCodeDialogKind.INVALID_EMAIL
     CreateAccountCodeResult.Error.DialogError.TeamMembersLimitError -> CreateAccountCodeDialogKind.TEAM_LIMIT
-    CreateAccountCodeResult.Error.DialogError.CreationRestrictedError -> if (flowType == CreateAccountRouteFlowType.PERSONAL) {
+    CreateAccountCodeResult.Error.DialogError.CreationRestrictedError -> if (!flowType.createAccountFlowPolicy().isTeam) {
         CreateAccountCodeDialogKind.PERSONAL_CREATION_RESTRICTED
     } else {
         CreateAccountCodeDialogKind.TEAM_CREATION_RESTRICTED

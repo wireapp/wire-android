@@ -12,9 +12,17 @@ class CreateAccountDetailsOwnershipTest {
         val app = source("app/src/main/kotlin/com/wire/android/ui/authentication/create/details/CreateAccountDetailsScreen.kt")
         assertTrue(feature.contains("class CreateAccountDetailsViewModel<LinksT, FailureT>"))
         assertTrue(feature.contains("fun <FailureT> CreateAccountDetailsContent("))
+        assertTrue(feature.contains("testTag(\"firstName\")"))
+        assertTrue(feature.contains("testTag(\"teamName\")"))
+        assertTrue(feature.contains("WirePasswordTextField("))
+        assertTrue(feature.contains("genericFailureContent(dialogError.coreFailure, onErrorDismiss)"))
         assertFalse(feature.contains("CreateAccountNavArgs"))
+        assertFalse(feature.contains("com.wire.kalium"))
+        assertFalse(feature.contains("CoreFailureErrorDialog"))
         assertTrue(app.contains("CreateAccountCodeRoute("))
-        assertTrue(app.contains("CreateAccountRouteFlowType.TEAM"))
+        assertTrue(app.contains("showTeamName = policy.isTeam"))
+        assertTrue(app.contains("firstName = firstNameTextState.text.toString().trim()"))
+        assertTrue(app.contains("password = passwordTextState.text.toString()"))
     }
 
     private fun source(path: String): String = File(root(), path).walkTopDown().filter(File::isFile).joinToString("\n") { it.readText() }

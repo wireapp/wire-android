@@ -11,6 +11,7 @@ import com.wire.android.navigation.routes.auth.AuthenticationServerLinks
 import com.wire.android.navigation.routes.auth.CreateAccountRegistrationInfo
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.navigation.routes.auth.toLegacy
+import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -51,5 +52,5 @@ private fun CreateAccountRegistrationInfo.toInput(
     lastName = lastName,
     password = password,
     teamName = teamName,
-    isTeam = type == CreateAccountRouteFlowType.TEAM,
+    isTeam = type.createAccountFlowPolicy().isTeam,
 )

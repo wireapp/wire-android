@@ -22,7 +22,11 @@ internal fun createAccountOverviewEntry(
         onContinue = {
             router.navigate(
                 flowType.overviewTransition(),
-                CreateAccountEmailRoute(flowType, customServerConfig = customServerConfig, flowId = route.flowId),
+                CreateAccountEmailRoute(
+                    type = flowType,
+                    customServerConfig = customServerConfig,
+                    flowId = checkNotNull(route.flowId),
+                ),
             )
         },
     )

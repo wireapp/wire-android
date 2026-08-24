@@ -23,6 +23,7 @@ import com.wire.android.navigation.routes.auth.CreateAccountRegistrationInfo
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
+import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -41,14 +42,15 @@ internal fun CreateAccountEmailRouteScreen(
 ) {
     val context = LocalContext.current
     val learnMoreUrl = supportUrlResource(SupportPage.CREATE_ACCOUNT)
+    val policy = route.type.createAccountFlowPolicy()
     with(viewModel) {
         val termsUrl = tosUrl()
         CreateAccountEmailContent(
             state = emailState,
             emailTextState = emailTextState,
             text = CreateAccountEmailText(
-                title = stringResource(emailState.type.titleResId()),
-                subtitle = stringResource(emailState.type.emailSubtitleResId()),
+                title = stringResource(policy.titleResId),
+                subtitle = stringResource(policy.emailSubtitleResId),
                 emailPlaceholder = stringResource(AuthenticationR.string.create_account_email_placeholder),
                 emailLabel = stringResource(AuthenticationR.string.create_account_email_label),
                 alreadyInUseError = stringResource(AuthenticationR.string.create_account_email_already_in_use_error),
@@ -56,7 +58,9 @@ internal fun CreateAccountEmailRouteScreen(
                 domainBlockedError = stringResource(AuthenticationR.string.create_account_email_domain_blocked_error),
                 invalidEmailError = stringResource(AuthenticationR.string.create_account_email_invalid_error),
                 learnMoreLabel = stringResource(R.string.label_learn_more),
-                existingAccountPrompt = stringResource(AuthenticationR.string.create_account_email_footer_text),
+                existingAccountPrompt = stringResource(
+                    com.wire.android.feature.authentication.R.string.create_account_email_footer_text,
+                ),
                 loginLabel = stringResource(R.string.label_login),
                 continueLabel = stringResource(R.string.label_continue),
             ),
@@ -101,14 +105,4 @@ internal fun CreateAccountEmailRouteScreen(
             }
         }
     }
-}
-
-private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> AuthenticationR.string.create_personal_account_title
-    CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
-}
-
-private fun CreateAccountRouteFlowType.emailSubtitleResId(): Int = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> AuthenticationR.string.create_personal_account_email_text
-    CreateAccountRouteFlowType.TEAM -> AuthenticationR.string.create_team_email_text
 }

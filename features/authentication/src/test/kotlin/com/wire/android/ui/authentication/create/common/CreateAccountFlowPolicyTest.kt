@@ -13,6 +13,8 @@ class CreateAccountFlowPolicyTest {
         val policy = CreateAccountRouteFlowType.PERSONAL.createAccountFlowPolicy()
 
         assertFalse(policy.isTeam)
+        assertEquals(R.string.create_personal_account_title, policy.titleResId)
+        assertEquals(R.string.create_personal_account_email_text, policy.emailSubtitleResId)
         assertEquals(R.string.create_personal_account_text, policy.overview.contentTextResId)
         assertEquals(R.drawable.ic_create_personal_account, policy.overview.contentIconResId)
     }
@@ -22,6 +24,8 @@ class CreateAccountFlowPolicyTest {
         val policy = CreateAccountRouteFlowType.TEAM.createAccountFlowPolicy()
 
         assertTrue(policy.isTeam)
+        assertEquals(R.string.create_team_title, policy.titleResId)
+        assertEquals(R.string.create_team_email_text, policy.emailSubtitleResId)
         assertEquals(R.string.create_team_text, policy.overview.contentTextResId)
         assertEquals(R.drawable.ic_create_team, policy.overview.contentIconResId)
     }

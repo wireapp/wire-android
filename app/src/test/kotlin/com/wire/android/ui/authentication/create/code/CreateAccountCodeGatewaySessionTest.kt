@@ -51,10 +51,12 @@ class CreateAccountCodeGatewaySessionTest {
         val failure = NetworkFailure.NoNetworkConnection(null);
             coEvery { a.getOrRegister(any()) } returns RegisterClientResult.Failure.Generic(failure)
         assertSame(failure, (a.gateway.registerClient(TestUser.SELF_USER_ID, "secret") as CreateAccountClientResult.Generic).failure)
-        listOf(RegisterClientResult.Failure.InvalidCredentials.InvalidPassword to "RegisterClient: wrong password when
-            register client after creating a new account",
-                RegisterClientResult.Failure.PasswordAuthRequired to "RegisterClient: password required to register
-                    client after creating new account with email").forEach { (kalium, message) ->
+        listOf(
+            RegisterClientResult.Failure.InvalidCredentials.InvalidPassword to
+                "RegisterClient: wrong password when register client after creating a new account",
+            RegisterClientResult.Failure.PasswordAuthRequired to
+                "RegisterClient: password required to register client after creating new account with email",
+        ).forEach { (kalium, message) ->
             coEvery { a.getOrRegister(any()) } returns kalium
             val thrown = try { a.gateway.registerClient(TestUser.SELF_USER_ID, "secret");
                 null } catch (error: WillNeverOccurError) { error }

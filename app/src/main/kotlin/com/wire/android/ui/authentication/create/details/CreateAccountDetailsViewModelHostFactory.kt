@@ -12,6 +12,7 @@ package com.wire.android.ui.authentication.create.details
 import com.wire.android.navigation.routes.auth.AuthenticationServerLinks
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.navigation.routes.auth.toLegacy
+import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -35,7 +36,7 @@ class CreateAccountDetailsViewModelHostFactory @Inject constructor(
     ): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure> = CreateAccountDetailsViewModel(
         customServerConfig = customServerConfig?.toLegacy(),
         defaultServerConfig = defaultServerConfig,
-        requiresTeamName = type == CreateAccountRouteFlowType.TEAM,
+        requiresTeamName = type.createAccountFlowPolicy().isTeam,
         gateway = gateway,
     )
 }

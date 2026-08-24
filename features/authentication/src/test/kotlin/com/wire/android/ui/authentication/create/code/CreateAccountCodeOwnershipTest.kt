@@ -54,11 +54,22 @@ class CreateAccountCodeOwnershipTest {
     fun `code engine is feature-owned and app preserves typed completion`() {
         val feature = CreateAccountCodeOwnershipFixtures.featureCodeSource()
         val app = Files.readString(CreateAccountCodeOwnershipFixtures.appSource("CreateAccountCodeScreen.kt"))
-
+        val factory = Files.readString(
+            CreateAccountCodeOwnershipFixtures.appSource("CreateAccountCodeViewModelHostFactory.kt"),
+        )
         assertTrue(feature.contains("class CreateAccountCodeViewModel<FlowT, LinksT, FailureT, UserT, CredentialsT>"))
         assertTrue(feature.contains("fun <FlowT, UserT, FailureT> CreateAccountCodeContent("))
+        assertTrue(feature.contains("CreateAccountRegistrationRequest.Team"))
+        assertTrue(feature.contains("CodeTextField("))
+        assertTrue(feature.contains("ResendCodeText("))
+        assertTrue(feature.contains("LaunchedEffect(Unit)"))
         assertFalse(feature.contains("CreateAccountNavArgs"))
+        assertFalse(feature.contains("com.wire.kalium"))
+        assertFalse(feature.contains("WireDialog("))
+        assertTrue(factory.contains("type.createAccountFlowPolicy().isTeam"))
+        assertTrue(app.contains("CreateAccountCodeContent("))
         assertTrue(app.contains("onSuccess(flowType, it.userId)"))
         assertTrue(app.contains("WireDialog("))
+        assertTrue(app.indexOf("clearCodeError()") < app.indexOf("onTooManyDevices("))
     }
 }

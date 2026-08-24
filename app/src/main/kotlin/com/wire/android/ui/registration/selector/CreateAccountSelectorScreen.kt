@@ -34,7 +34,7 @@ internal fun CreateAccountSelectorRouteScreen(
             title = stringResource(AuthenticationR.string.create_account_selector_title),
             team = LegacyRegistrationSelectorText.Card(
                 stringResource(AuthenticationR.string.create_account_selector_team_title),
-    stringResource(AuthenticationR.string.create_account_selector_team_subtitle),
+                stringResource(AuthenticationR.string.create_account_selector_team_subtitle),
                 highlights = listOf(
                     stringResource(AuthenticationR.string.create_account_selector_team_highlight_one),
                     stringResource(AuthenticationR.string.create_account_selector_team_highlight_two),
@@ -43,7 +43,7 @@ internal fun CreateAccountSelectorRouteScreen(
             ),
             personal = LegacyRegistrationSelectorText.Card(
                 stringResource(AuthenticationR.string.create_account_selector_personal_title),
-    stringResource(AuthenticationR.string.create_account_selector_personal_subtitle),
+                stringResource(AuthenticationR.string.create_account_selector_personal_subtitle),
                 highlights = listOf(
                     stringResource(AuthenticationR.string.create_account_selector_personal_highlight_one),
                     stringResource(AuthenticationR.string.create_account_selector_personal_highlight_two),

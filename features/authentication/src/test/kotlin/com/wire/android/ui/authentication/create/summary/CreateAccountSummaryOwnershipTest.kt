@@ -15,7 +15,14 @@ class CreateAccountSummaryOwnershipTest {
             "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/summary/CreateAccountSummaryScreen.kt",
         )
         assertFalse(File(app, "CreateAccountSummaryNavArgs.kt").exists())
-        assertTrue(feature.readText().contains("fun CreateAccountSummaryRouteScreen("))
+        val source = feature.readText()
+        assertTrue(source.contains("fun CreateAccountSummaryRouteScreen("))
+        assertTrue(source.contains("onContinuePressed = onContinue"))
+        assertTrue(source.contains("WirePrimaryButton("))
+        assertTrue(source.contains("CreateAccountRouteFlowType.PERSONAL"))
+        assertTrue(source.contains("CreateAccountRouteFlowType.TEAM"))
+        assertFalse(source.contains("CreateAccountSummaryNavArgs"))
+        assertFalse(source.contains("com.wire.kalium"))
     }
 
     private fun root(): File = generateSequence(File(System.getProperty("user.dir")).absoluteFile) { it.parentFile }

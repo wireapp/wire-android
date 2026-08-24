@@ -1,0 +1,4 @@
+<resources>
+    <string name="create_team_title">Team erstellen</string>
+    <string name="create_account_code_text">Bitte prüfen Sie Ihren Posteingang %1$s und geben Sie den Bestätigungscode unten ein.</string>
+</resources>

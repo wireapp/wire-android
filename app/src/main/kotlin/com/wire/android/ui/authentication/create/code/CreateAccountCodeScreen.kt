@@ -26,6 +26,7 @@ import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
+import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -39,6 +40,7 @@ internal fun CreateAccountCodeRouteScreen(
     onSuccess: (CreateAccountRouteFlowType, com.wire.kalium.logic.data.user.UserId) -> Unit,
     onTooManyDevices: (com.wire.kalium.logic.data.user.UserId) -> Unit,
 ) {
+    val policy = viewModel.flowType.createAccountFlowPolicy()
     with(viewModel) {
         CreateAccountCodeContent(
             state = codeState,
@@ -46,7 +48,7 @@ internal fun CreateAccountCodeRouteScreen(
             onResendCodePressed = ::resendCode,
             onBackPressed = onNavigateBack,
             presentation = CreateAccountCodePresentation(
-                title = stringResource(id = codeState.type.titleResId()),
+                title = stringResource(policy.titleResId),
                 codeInstruction = stringResource(AuthenticationR.string.create_account_code_text, codeState.email),
                 invalidActivationCodeError = stringResource(id = AuthenticationR.string.create_account_code_error),
                 backContentDescription = R.string.content_description_login_back_btn,
@@ -86,9 +88,4 @@ internal fun CreateAccountCodeRouteScreen(
             }
         }
     }
-}
-
-private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_title
-    CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
 }

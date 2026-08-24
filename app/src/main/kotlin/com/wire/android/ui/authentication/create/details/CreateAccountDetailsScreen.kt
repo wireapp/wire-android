@@ -26,7 +26,6 @@ import com.wire.android.R
 import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.navigation.routes.auth.CreateAccountCodeRoute
 import com.wire.android.navigation.routes.auth.CreateAccountDetailsRoute
-import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -42,6 +41,7 @@ internal fun CreateAccountDetailsRouteScreen(
     onCodeRequested: (CreateAccountCodeRoute) -> Unit,
 ) {
     with(viewModel) {
+        val policy = route.type.createAccountFlowPolicy()
         LaunchedEffect(detailsState.success) {
             if (detailsState.success) {
                 onCodeRequested(
@@ -62,8 +62,8 @@ internal fun CreateAccountDetailsRouteScreen(
 
         CreateAccountDetailsContent(
             state = detailsState,
-            title = stringResource(route.type.titleResId()),
-            showTeamName = route.type.createAccountFlowPolicy().isTeam,
+            title = stringResource(policy.titleResId),
+            showTeamName = policy.isTeam,
             sharedText = CreateAccountDetailsSharedText(
                 passwordDescription = stringResource(R.string.create_account_details_password_description),
                 confirmPasswordLabel = stringResource(AuthenticationR.string.create_account_details_confirm_password_label),
@@ -90,9 +90,4 @@ internal fun CreateAccountDetailsRouteScreen(
             genericFailureContent = { failure, onDismiss -> CoreFailureErrorDialog(failure, onDismiss) },
         )
     }
-}
-
-private fun CreateAccountRouteFlowType.titleResId(): Int = when (this) {
-    CreateAccountRouteFlowType.PERSONAL -> com.wire.android.feature.authentication.R.string.create_personal_account_title
-    CreateAccountRouteFlowType.TEAM -> R.string.create_team_title
 }

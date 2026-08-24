@@ -16,6 +16,7 @@ import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.authentication.createAccountDataDetailViewModel
 import com.wire.android.ui.authentication.createAccountSelectorViewModel

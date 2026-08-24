@@ -67,10 +67,12 @@ internal fun RegisterClientResult.toCreateAccountClientResult(): CreateAccountCl
     is RegisterClientResult.E2EICertificateRequired -> CreateAccountClientResult.E2EICertificateRequired
     RegisterClientResult.Failure.TooManyClients -> CreateAccountClientResult.TooManyDevices
     is RegisterClientResult.Failure.Generic -> CreateAccountClientResult.Generic(genericFailure)
-    is RegisterClientResult.Failure.InvalidCredentials -> throw WillNeverOccurError("RegisterClient: wrong password when
-        register client after creating a new account")
-    RegisterClientResult.Failure.PasswordAuthRequired -> throw WillNeverOccurError("RegisterClient: password required to
-        register client after creating new account with email")
+    is RegisterClientResult.Failure.InvalidCredentials -> throw WillNeverOccurError(
+        "RegisterClient: wrong password when register client after creating a new account",
+    )
+    RegisterClientResult.Failure.PasswordAuthRequired -> throw WillNeverOccurError(
+        "RegisterClient: password required to register client after creating new account with email",
+    )
 }
 
 internal data class CreateAccountCodeBuildFlags(val privateBuild: Boolean, val flavor: String, val buildType: String) {

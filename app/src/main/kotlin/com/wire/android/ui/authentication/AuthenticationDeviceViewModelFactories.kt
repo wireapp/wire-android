@@ -22,7 +22,13 @@ fun removeDeviceViewModel(viewModelStoreOwner: ViewModelStoreOwner = authenticat
     authenticationViewModel(viewModelStoreOwner)
 
 @Composable
-fun clearSessionViewModel(viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner): ClearSessionViewModel =
-    wireAssistedMetroViewModel<ClearSessionViewModel, SessionAuthenticationManualViewModelFactory>(owner = viewModelStoreOwner) {
-        clearSessionViewModel(LocalAuthenticationCancelUserId.current)
+fun clearSessionViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = authenticationViewModelStoreOwner,
+): ClearSessionViewModel {
+    val cancelUserId = LocalAuthenticationCancelUserId.current
+    return wireAssistedMetroViewModel<ClearSessionViewModel, SessionAuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        clearSessionViewModel(cancelUserId)
     }
+}

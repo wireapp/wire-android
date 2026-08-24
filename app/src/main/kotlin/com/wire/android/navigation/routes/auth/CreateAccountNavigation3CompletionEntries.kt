@@ -42,6 +42,7 @@ internal fun createAccountUsernameCompletionEntry(
     )
 }
 
+@Composable
 internal fun entryOwner(entryId: com.wire.navigation.WireNavEntryId): ViewModelStoreOwner =
     wireViewModelStoreOwner(WireViewModelOwner.Entry(entryId))
 

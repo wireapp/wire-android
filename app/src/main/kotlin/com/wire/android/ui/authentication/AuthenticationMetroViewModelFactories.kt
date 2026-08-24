@@ -18,6 +18,7 @@ import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.newauthentication.login.AppNewLoginViewModel
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
+@PublishedApi
 internal val authenticationViewModelStoreOwner: ViewModelStoreOwner
     @Composable get() = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"

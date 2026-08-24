@@ -557,20 +557,22 @@ public fun com.wire.android.ui.authentication.create.common.handle.UsernameTextF
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.ui.authentication.create.details.CreateAccountDetailsRouteScreen(viewModel: com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel, onNavigateBack: kotlin.Function0<kotlin.Unit>, onCodeRequested: kotlin.Function1<com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.create.details.CreateAccountDetailsRouteScreen(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModel: com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.NetworkFailure>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onCodeRequested: kotlin.Function1<com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
+    - navArgs: UNSTABLE (has mutable properties or unstable members)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - onNavigateBack: STABLE (function type)
     - onCodeRequested: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.details.DetailsContent(state: com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewState, firstNameTextState: androidx.compose.foundation.text.input.TextFieldState, lastNameTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, teamNameTextState: androidx.compose.foundation.text.input.TextFieldState, onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
+private fun com.wire.android.ui.authentication.create.details.DetailsContent(state: com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewState<com.wire.kalium.common.error.NetworkFailure>, flowType: com.wire.android.ui.authentication.create.common.CreateAccountFlowType, firstNameTextState: androidx.compose.foundation.text.input.TextFieldState, lastNameTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, teamNameTextState: androidx.compose.foundation.text.input.TextFieldState, onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, onErrorDismiss: kotlin.Function0<kotlin.Unit>, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - state: STABLE (class with no mutable properties)
+    - flowType: STABLE (enum)
     - firstNameTextState: STABLE (marked @Stable or @Immutable)
     - lastNameTextState: STABLE (marked @Stable or @Immutable)
     - passwordTextState: STABLE (marked @Stable or @Immutable)
@@ -708,13 +710,13 @@ public fun com.wire.android.ui.authentication.createAccountDataDetailViewModel(n
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountDetailsViewModel(): com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
+public fun com.wire.android.ui.authentication.createAccountDetailsViewModel(): com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.NetworkFailure>
   skippable: true
   restartable: true
   params:
 
 @Composable
-public fun com.wire.android.ui.authentication.createAccountDetailsViewModel(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
+public fun com.wire.android.ui.authentication.createAccountDetailsViewModel(navArgs: com.wire.android.ui.authentication.create.common.CreateAccountNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links, com.wire.kalium.common.error.NetworkFailure>
   skippable: false
   restartable: true
   params:

@@ -214,8 +214,10 @@ private fun CreateAccountDetailsNavigation3Entry(
     router: AuthenticationNavigation3Router,
 ) {
     val owner = createAccountEntryOwner(route.entryId)
+    val navArgs = route.toLegacyNavArgs()
     CreateAccountDetailsRouteScreen(
-        viewModel = createAccountDetailsViewModel(route.toLegacyNavArgs(), owner),
+        navArgs = navArgs,
+        viewModel = createAccountDetailsViewModel(navArgs, owner),
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
         onCodeRequested = {
             router.navigate(

@@ -18,25 +18,21 @@
 
 package com.wire.android.ui.authentication.create.details
 
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.kalium.common.error.NetworkFailure
-
-data class CreateAccountDetailsViewState(
-    val type: CreateAccountFlowType,
+data class CreateAccountDetailsViewState<FailureT>(
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
-    val error: DetailsError = DetailsError.None,
+    val error: DetailsError<FailureT> = DetailsError.None,
     val success: Boolean = false,
 ) {
-    sealed class DetailsError {
-        data object None : DetailsError()
-        sealed class TextFieldError : DetailsError() {
-            data object InvalidPasswordError : TextFieldError()
-            data object PasswordsNotMatchingError : TextFieldError()
+    sealed interface DetailsError<out FailureT> {
+        data object None : DetailsError<Nothing>
+        sealed interface TextFieldError : DetailsError<Nothing> {
+            data object InvalidPasswordError : TextFieldError
+            data object PasswordsNotMatchingError : TextFieldError
         }
 
-        sealed class DialogError : DetailsError() {
-            data class GenericError(val coreFailure: NetworkFailure) : DialogError()
+        sealed interface DialogError<out FailureT> : DetailsError<FailureT> {
+            data class GenericError<FailureT>(val coreFailure: FailureT) : DialogError<FailureT>
         }
     }
 }

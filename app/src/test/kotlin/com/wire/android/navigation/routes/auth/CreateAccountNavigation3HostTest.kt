@@ -83,7 +83,7 @@ class CreateAccountNavigation3HostTest {
         listOf(
             "createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs)",
             "createAccountEmailViewModel(navArgs: CreateAccountNavArgs)",
-            "createAccountDetailsViewModel(navArgs: CreateAccountNavArgs)",
+            "fun createAccountDetailsViewModel(\n        navArgs: CreateAccountNavArgs,",
             "createAccountCodeViewModel(navArgs: CreateAccountNavArgs)",
             "createAccountSelectorViewModel(navArgs: CreateAccountSelectorNavArgs)",
             "createAccountDataDetailViewModel(navArgs: CreateAccountDataNavArgs)",
@@ -124,6 +124,45 @@ class CreateAccountNavigation3HostTest {
         assertFalse(featureViewModel.contains("CreateAccountOverviewNavArgs"))
         assertFalse(featureViewModel.contains("com.wire.kalium.logic.configuration.server.ServerConfig"))
         assertFalse(featureViewModel.contains("AssistedInject"))
+    }
+
+    @Test
+    fun givenDetailsViewModel_whenInspectingHost_thenFeatureBoundaryKeepsNavArgsAndKaliumInApp() {
+        val graph = sourceFile("ui/authentication/AuthenticationViewModelGraph.kt").readText()
+        val metro = sourceFile("di/metro/AuthenticationMetroViewModelBindings.kt").readText()
+        val entries = sourceFile("navigation/routes/auth/CreateAccountNavigation3Entries.kt").readText()
+        val screen = sourceFile("ui/authentication/create/details/CreateAccountDetailsScreen.kt").readText()
+        val hostFactory = sourceFile(
+            "ui/authentication/create/details/CreateAccountDetailsViewModelHostFactory.kt"
+        ).readText()
+        val featureRoot = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/details",
+        )
+        val featureSources = featureRoot.listFiles().orEmpty().joinToString("\n") { it.readText() }
+        val detailsEntry = entries
+            .substringAfter("private fun CreateAccountDetailsNavigation3Entry(")
+            .substringBefore("private fun CreateAccountCodeNavigation3Entry(")
+
+        assertTrue(graph.contains("CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>"))
+        assertTrue(graph.contains("fun createAccountDetailsViewModel():"))
+        assertTrue(metro.contains("CreateAccountDetailsViewModelHostFactory"))
+        assertFalse(metro.contains("CreateAccountDetailsViewModel.Factory"))
+        assertTrue(hostFactory.contains("validatePassword(password).isValid"))
+        assertTrue(hostFactory.contains("navArgs.flowType == CreateAccountFlowType.CreateTeam"))
+        assertTrue(detailsEntry.contains("val navArgs = route.toLegacyNavArgs()"))
+        assertTrue(detailsEntry.contains("navArgs = navArgs"))
+        assertTrue(detailsEntry.contains("createAccountDetailsViewModel(navArgs, owner)"))
+        assertTrue(screen.contains("navArgs.userRegistrationInfo.copy("))
+        assertTrue(screen.contains("flowType = navArgs.flowType"))
+        assertTrue(featureSources.contains("class CreateAccountDetailsViewModel<LinksT, FailureT>"))
+        listOf(
+            "CreateAccountNavArgs",
+            "CreateAccountFlowType",
+            "com.wire.kalium.logic.configuration.server.ServerConfig",
+            "AssistedInject",
+        )
+            .forEach { assertFalse(featureSources.contains(it), "Feature details source contains $it") }
     }
 
     @Test

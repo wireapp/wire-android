@@ -63,11 +63,13 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 internal fun CreateAccountDetailsRouteScreen(
-    viewModel: CreateAccountDetailsViewModel,
+    navArgs: CreateAccountNavArgs,
+    viewModel: CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>,
     onNavigateBack: () -> Unit,
     onCodeRequested: (CreateAccountNavArgs) -> Unit,
 ) {
@@ -75,8 +77,8 @@ internal fun CreateAccountDetailsRouteScreen(
         LaunchedEffect(detailsState.success) {
             if (detailsState.success) {
                 onCodeRequested(
-                    createAccountNavArgs.copy(
-                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
+                    navArgs.copy(
+                        userRegistrationInfo = navArgs.userRegistrationInfo.copy(
                             firstName = firstNameTextState.text.toString().trim(),
                             lastName = lastNameTextState.text.toString().trim(),
                             password = passwordTextState.text.toString(),
@@ -89,6 +91,7 @@ internal fun CreateAccountDetailsRouteScreen(
 
         DetailsContent(
             state = detailsState,
+            flowType = navArgs.flowType,
             firstNameTextState = firstNameTextState,
             lastNameTextState = lastNameTextState,
             passwordTextState = passwordTextState,
@@ -104,7 +107,8 @@ internal fun CreateAccountDetailsRouteScreen(
 
 @Composable
 private fun DetailsContent(
-    state: CreateAccountDetailsViewState,
+    state: CreateAccountDetailsViewState<NetworkFailure>,
+    flowType: CreateAccountFlowType,
     firstNameTextState: TextFieldState,
     lastNameTextState: TextFieldState,
     passwordTextState: TextFieldState,
@@ -120,7 +124,7 @@ private fun DetailsContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
-                title = stringResource(id = state.type.titleResId),
+                title = stringResource(id = flowType.titleResId),
                 onNavigationPressed = onBackPressed,
                 subtitleContent = {
                     if (serverConfig.isOnPremises) {
@@ -199,7 +203,7 @@ private fun DetailsContent(
                         .testTag("lastName"),
                 )
 
-                if (state.type == CreateAccountFlowType.CreateTeam) {
+                if (flowType == CreateAccountFlowType.CreateTeam) {
                     WireTextField(
                         textState = teamNameTextState,
                         placeholderText = stringResource(R.string.create_account_details_team_name_placeholder),
@@ -252,6 +256,8 @@ private fun DetailsContent(
 
                         CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
                             WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
+
+                        else -> WireTextFieldState.Default
                     }
                     } else {
                         WireTextFieldState.Default
@@ -282,8 +288,9 @@ private fun DetailsContent(
             }
         }
     }
-    if (state.error is CreateAccountDetailsViewState.DetailsError.DialogError.GenericError) {
-        CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
+    val dialogError = state.error as? CreateAccountDetailsViewState.DetailsError.DialogError.GenericError<NetworkFailure>
+    if (dialogError != null) {
+        CoreFailureErrorDialog(dialogError.coreFailure, onErrorDismiss)
     }
 }
 
@@ -291,7 +298,8 @@ private fun DetailsContent(
 @PreviewMultipleThemes
 fun PreviewCreateAccountDetailsScreen() = WireTheme {
     DetailsContent(
-        state = CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam),
+        state = CreateAccountDetailsViewState(),
+        flowType = CreateAccountFlowType.CreateTeam,
         firstNameTextState = TextFieldState(),
         lastNameTextState = TextFieldState(),
         passwordTextState = TextFieldState(),

@@ -23,35 +23,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
 
-// TODO: Cover this viewModel  with unit test
-class CreateAccountDetailsViewModel @AssistedInject constructor(
-    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
-    private val validatePasswordUseCase: ValidatePasswordUseCase,
-    defaultServerConfig: ServerConfig.Links
+class CreateAccountDetailsViewModel<LinksT, FailureT>(
+    val customServerConfig: LinksT?,
+    defaultServerConfig: LinksT,
+    private val requiresTeamName: Boolean,
+    private val gateway: CreateAccountDetailsGateway,
 ) : ViewModel() {
-    @AssistedFactory
-    interface Factory {
-        fun create(createAccountNavArgs: CreateAccountNavArgs): CreateAccountDetailsViewModel
-    }
     val firstNameTextState: TextFieldState = TextFieldState()
     val lastNameTextState: TextFieldState = TextFieldState()
     val passwordTextState: TextFieldState = TextFieldState()
     val confirmPasswordTextState: TextFieldState = TextFieldState()
     val teamNameTextState: TextFieldState = TextFieldState()
-    var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(createAccountNavArgs.flowType))
+    var detailsState: CreateAccountDetailsViewState<FailureT> by mutableStateOf(CreateAccountDetailsViewState())
 
-    val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
+    val serverConfig: LinksT = customServerConfig ?: defaultServerConfig
 
     init {
         viewModelScope.launch {
@@ -62,8 +51,8 @@ class CreateAccountDetailsViewModel @AssistedInject constructor(
                 confirmPasswordTextState.textAsFlow(),
                 teamNameTextState.textAsFlow(),
             ) { firstName, lastName, password, confirmPassword, teamName ->
-                firstName.isNotBlank() && lastName.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
-                        && (detailsState.type == CreateAccountFlowType.CreatePersonalAccount || teamName.isNotBlank())
+                    firstName.isNotBlank() && lastName.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank() &&
+                        (!requiresTeamName || teamName.isNotBlank())
             }.collect { fieldsNotEmpty ->
                 detailsState = detailsState.copy(
                     error = CreateAccountDetailsViewState.DetailsError.None,
@@ -77,7 +66,7 @@ class CreateAccountDetailsViewModel @AssistedInject constructor(
         detailsState = detailsState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
             val detailsError = when {
-                !validatePasswordUseCase(passwordTextState.text.toString()).isValid ->
+                !gateway.isPasswordValid(passwordTextState.text.toString()) ->
                     CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError
 
                 passwordTextState.text.toString() != confirmPasswordTextState.text.toString() ->

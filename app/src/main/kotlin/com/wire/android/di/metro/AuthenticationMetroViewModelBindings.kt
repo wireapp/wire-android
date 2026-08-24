@@ -26,6 +26,7 @@ import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
+import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModelHostFactory
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
@@ -41,6 +42,7 @@ import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewMo
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
@@ -69,7 +71,7 @@ object AuthenticationMetroViewModelBindings {
         loginSSOFactory: LoginSSOViewModel.Factory,
         createAccountOverviewFactory: CreateAccountOverviewViewModelHostFactory,
         createAccountEmailFactory: CreateAccountEmailViewModel.Factory,
-        createAccountDetailsFactory: CreateAccountDetailsViewModel.Factory,
+        createAccountDetailsFactory: CreateAccountDetailsViewModelHostFactory,
         createAccountCodeFactory: CreateAccountCodeViewModel.Factory,
         createAccountSelectorFactory: CreateAccountSelectorViewModel.Factory,
         createAccountDataDetailFactory: CreateAccountDataDetailViewModel.Factory,
@@ -94,7 +96,9 @@ object AuthenticationMetroViewModelBindings {
         override fun createAccountEmailViewModel(navArgs: CreateAccountNavArgs): CreateAccountEmailViewModel =
             createAccountEmailFactory.create(navArgs)
 
-        override fun createAccountDetailsViewModel(navArgs: CreateAccountNavArgs): CreateAccountDetailsViewModel =
+        override fun createAccountDetailsViewModel(
+            navArgs: CreateAccountNavArgs,
+        ): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure> =
             createAccountDetailsFactory.create(navArgs)
 
         override fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): CreateAccountCodeViewModel =

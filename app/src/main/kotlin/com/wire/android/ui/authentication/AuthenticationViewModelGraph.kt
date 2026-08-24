@@ -50,6 +50,7 @@ import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewMo
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
@@ -63,7 +64,9 @@ interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory 
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginSSOViewModel
     fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel<ServerConfig.Links>
     fun createAccountEmailViewModel(navArgs: CreateAccountNavArgs): CreateAccountEmailViewModel
-    fun createAccountDetailsViewModel(navArgs: CreateAccountNavArgs): CreateAccountDetailsViewModel
+    fun createAccountDetailsViewModel(
+        navArgs: CreateAccountNavArgs,
+    ): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>
     fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): CreateAccountCodeViewModel
     fun createAccountSelectorViewModel(navArgs: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
     fun createAccountDataDetailViewModel(navArgs: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel
@@ -187,7 +190,7 @@ fun createAccountEmailViewModel(): CreateAccountEmailViewModel =
     authenticationViewModel()
 
 @Composable
-fun createAccountDetailsViewModel(): CreateAccountDetailsViewModel =
+fun createAccountDetailsViewModel(): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure> =
     authenticationViewModel()
 
 @Composable
@@ -238,8 +241,8 @@ fun createAccountEmailViewModel(
 fun createAccountDetailsViewModel(
     navArgs: CreateAccountNavArgs,
     viewModelStoreOwner: ViewModelStoreOwner,
-): CreateAccountDetailsViewModel =
-    wireAssistedMetroViewModel<CreateAccountDetailsViewModel, AuthenticationManualViewModelFactory>(
+): CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure> =
+    wireAssistedMetroViewModel<CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
         createAccountDetailsViewModel(navArgs)

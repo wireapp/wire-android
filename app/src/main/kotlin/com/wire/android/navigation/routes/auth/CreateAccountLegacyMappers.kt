@@ -45,9 +45,6 @@ internal fun CreateAccountDetailsRoute.toLegacyNavArgs(): CreateAccountNavArgs =
 internal fun CreateAccountCodeRoute.toLegacyNavArgs(): CreateAccountNavArgs =
     CreateAccountNavArgs(type.toLegacy(), registrationInfo.toLegacy(), customServerConfig?.toLegacy())
 
-internal fun CreateAccountSummaryRoute.toLegacyNavArgs(): CreateAccountSummaryNavArgs =
-    CreateAccountSummaryNavArgs(type.toLegacy())
-
 internal fun CreateAccountSummaryNavArgs.toSummaryRoute(
     flowId: String,
     sessionId: WireSessionId,

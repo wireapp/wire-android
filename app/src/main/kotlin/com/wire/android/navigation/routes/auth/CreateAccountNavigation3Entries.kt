@@ -29,7 +29,6 @@ import com.wire.android.ui.authentication.createAccountDetailsViewModel
 import com.wire.android.ui.authentication.createAccountEmailViewModel
 import com.wire.android.ui.authentication.createAccountOverviewViewModel
 import com.wire.android.ui.authentication.createAccountSelectorViewModel
-import com.wire.android.ui.authentication.createAccountSummaryViewModel
 import com.wire.android.ui.authentication.createAccountUsernameViewModel
 import com.wire.android.ui.authentication.createAccountVerificationCodeViewModel
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -258,9 +257,8 @@ private fun CreateAccountSummaryNavigation3Entry(
     route: CreateAccountSummaryRoute,
     router: AuthenticationNavigation3Router,
 ) {
-    val owner = createAccountEntryOwner(route.entryId)
     CreateAccountSummaryRouteScreen(
-        viewModel = createAccountSummaryViewModel(route.toLegacyNavArgs(), owner),
+        type = route.type,
         onContinue = {
             router.navigate(
                 AuthenticationNavigationTransition.ACCOUNT_SUMMARY_TO_USERNAME,

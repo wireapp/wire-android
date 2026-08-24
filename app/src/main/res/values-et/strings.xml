@@ -23,7 +23,6 @@
     <string name="label_confirm">Kinnita</string>
     <string name="label_continue">Jätka</string>
     <string name="label_save">Salvesta</string>
-    <string name="label_get_started">Alusta</string>
     <string name="label_remove">Eemalda</string>
     <string name="label_proceed">Jätka</string>
     <string name="label_leave">Lahku</string>
@@ -138,7 +137,6 @@
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_original_message_is_a_picture">Pilt</string>
     <!-- Create Account -->
-    <string name="create_team_summary_title">Meeskond loodud</string>
     <string name="create_team_content_title">Tasuta Wire</string>
     <string name="create_account_email_placeholder">jaan@näide.ee</string>
     <string name="create_account_email_label">E-POST</string>

@@ -30,7 +30,6 @@ enum class CreateAccountFlowType(
     @StringRes val titleResId: Int,
     val overviewResources: OverviewResources,
     val emailResources: EmailResources,
-    val summaryResources: SummaryResources
 ) : Parcelable {
     CreatePersonalAccount(
         routeArg = "create_personal_account",
@@ -44,11 +43,6 @@ enum class CreateAccountFlowType(
         emailResources = EmailResources(
             emailSubtitleResId = R.string.create_personal_account_email_text
         ),
-        summaryResources = SummaryResources(
-            summaryTitleResId = R.string.create_personal_account_title,
-            summaryTextResId = R.string.create_personal_account_summary_text,
-            summaryIconResId = R.drawable.ic_create_personal_account_success
-        )
     ),
     CreateTeam(
         routeArg = "create_team",
@@ -62,11 +56,6 @@ enum class CreateAccountFlowType(
         emailResources = EmailResources(
             emailSubtitleResId = R.string.create_team_email_text
         ),
-        summaryResources = SummaryResources(
-            summaryTitleResId = R.string.create_team_summary_title,
-            summaryTextResId = R.string.create_team_summary_text,
-            summaryIconResId = R.drawable.ic_create_team_success
-        )
     );
 
     companion object {
@@ -80,13 +69,6 @@ data class OverviewResources(
     @StringRes val overviewContentTextResId: Int,
     @DrawableRes val overviewContentIconResId: Int,
     @StringRes val overviewLearnMoreTextResId: Int
-) : Parcelable
-
-@Parcelize
-data class SummaryResources(
-    @StringRes val summaryTitleResId: Int,
-    @StringRes val summaryTextResId: Int,
-    @DrawableRes val summaryIconResId: Int
 ) : Parcelable
 
 @Parcelize

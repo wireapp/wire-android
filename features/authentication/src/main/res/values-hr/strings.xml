@@ -2,4 +2,9 @@
     <string name="create_account_code_resend">Ponovno pošalji kôd</string>
     <string name="second_factor_authentication_title">Potvrdite svoj račun</string>
     <string name="second_factor_code_error">Nevažeći kôd ili je premašen maksimalan broj pokušaja. Pokušajte ponovno ili zatražite drugi kôd</string>
+    <string name="label_get_started">Započni</string>
+    <string name="create_personal_account_summary_title">Osobni račun kreiran</string>
+    <string name="create_personal_account_summary_text">Uspješno ste kreirali svoj timski račun. Počnite komunicirati sigurno – gdje god bili!</string>
+    <string name="create_team_summary_title">Tim Kreiran</string>
+    <string name="create_team_summary_text">Uspješno ste kreirali svoj timski račun. Počnite komunicirati sigurno – gdje god bili!</string>
 </resources>

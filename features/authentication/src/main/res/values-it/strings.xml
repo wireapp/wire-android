@@ -2,4 +2,9 @@
     <string name="create_account_code_resend">Invia di nuovo il codice</string>
     <string name="second_factor_authentication_title">Verifica il tuo account</string>
     <string name="second_factor_code_error">Codice non valido o numero massimo di tentativi superato. Riprova o richiedi un altro codice.</string>
+    <string name="label_get_started">Inizia</string>
+    <string name="create_personal_account_summary_title">Account personale creato</string>
+    <string name="create_personal_account_summary_text">Hai creato il tuo account personale con successo. Inizia a comunicare in modo sicuro, ovunque ti trovi!</string>
+    <string name="create_team_summary_title">Team creato</string>
+    <string name="create_team_summary_text">Hai creato con successo il tuo account team. Inizia a comunicare in modo sicuro - ovunque tu sia!</string>
 </resources>

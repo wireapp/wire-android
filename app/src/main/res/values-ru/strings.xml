@@ -28,7 +28,6 @@
     <string name="label_continue">Продолжить</string>
     <string name="label_apply">Применить</string>
     <string name="label_save">Сохранить</string>
-    <string name="label_get_started">Начать</string>
     <string name="label_remove">Удалить</string>
     <string name="label_proceed">Продолжить</string>
     <string name="label_leave">Покинуть</string>
@@ -422,19 +421,15 @@
     <string name="create_account_selector_personal_highlight_one">Отправлять сообщения и делиться фотографиями</string>
     <string name="create_account_selector_personal_highlight_two">Всегда бесплатно</string>
     <string name="create_personal_account_title">Создать личный аккаунт</string>
-    <string name="create_personal_account_summary_title">Личный аккаунт создан</string>
     <string name="create_personal_account_text">Безопасное общение с друзьями и близкими с использованием публичного облачного сервера Wire.</string>
     <string name="create_personal_account_email_text">Введите ваш email, чтобы начать пользоваться самой надежной платформой для совместной работы.</string>
     <string name="create_personal_account_details_text">Введите ваши персональные данные:</string>
-    <string name="create_personal_account_summary_text">Вы успешно создали свой личный аккаунт. Начните общаться защищенно - где бы вы ни находились!</string>
     <string name="create_team_title">Создать команду</string>
-    <string name="create_team_summary_title">Команда создана</string>
     <string name="create_team_content_title">Wire Free</string>
     <string name="create_team_text">Обмен сообщениями для небольших организаций или консалтинговых фирм, состоящих из одного человека.\n</string>
     <string name="create_team_learn_more">Узнайте больше о тарифах и ценах</string>
     <string name="create_team_email_text">Введите свой email для создания команды:</string>
     <string name="create_team_details_text">Введите свой email для создания команды:</string>
-    <string name="create_team_summary_text">Вы успешно создали аккаунт своей команды. Начните общаться защищенно - где бы вы ни находились!</string>
     <string name="create_account_email_placeholder">maria@example.com</string>
     <string name="create_account_email_label">EMAIL</string>
     <string name="create_account_email_footer_text">Уже зарегистрированы? </string>

@@ -3,4 +3,9 @@
     <string name="second_factor_authentication_title">Vérifiez votre compte</string>
     <string name="second_factor_authentication_instructions_label">Veuillez vérifier votre email %1$s pour obtenir le code de confirmation et saisissez-le ci-dessous.</string>
     <string name="second_factor_code_error">Code invalide, ou nombre maximal de tentatives dépassé. Veuillez réessayer ou demander un autre code</string>
+    <string name="label_get_started">Commencer</string>
+    <string name="create_personal_account_summary_title">Compte personnel créé</string>
+    <string name="create_personal_account_summary_text">Vous avez créé votre compte personnel. Commencez à communiquer en toute sécurité – où que vous soyez !</string>
+    <string name="create_team_summary_title">Équipe créée</string>
+    <string name="create_team_summary_text">Vous avez créé votre compte d’équipe avec succès. Commencez à communiquer en toute sécurité – où que vous soyez!</string>
 </resources>

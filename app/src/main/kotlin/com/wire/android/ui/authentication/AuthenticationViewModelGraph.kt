@@ -35,8 +35,6 @@ import com.wire.android.ui.authentication.create.details.CreateAccountDetailsVie
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs
-import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel
-import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
@@ -65,7 +63,6 @@ interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory 
     fun createAccountEmailViewModel(navArgs: CreateAccountNavArgs): CreateAccountEmailViewModel
     fun createAccountDetailsViewModel(navArgs: CreateAccountNavArgs): CreateAccountDetailsViewModel
     fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): CreateAccountCodeViewModel
-    fun createAccountSummaryViewModel(navArgs: CreateAccountSummaryNavArgs): CreateAccountSummaryViewModel
     fun createAccountSelectorViewModel(navArgs: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
     fun createAccountDataDetailViewModel(navArgs: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel
     fun createAccountVerificationCodeViewModel(
@@ -196,10 +193,6 @@ fun createAccountCodeViewModel(): CreateAccountCodeViewModel =
     authenticationViewModel()
 
 @Composable
-fun createAccountSummaryViewModel(): CreateAccountSummaryViewModel =
-    authenticationViewModel()
-
-@Composable
 fun createAccountSelectorViewModel(): CreateAccountSelectorViewModel =
     authenticationViewModel()
 
@@ -259,17 +252,6 @@ fun createAccountCodeViewModel(
         owner = viewModelStoreOwner,
     ) {
         createAccountCodeViewModel(navArgs)
-    }
-
-@Composable
-fun createAccountSummaryViewModel(
-    navArgs: CreateAccountSummaryNavArgs,
-    viewModelStoreOwner: ViewModelStoreOwner,
-): CreateAccountSummaryViewModel =
-    wireAssistedMetroViewModel<CreateAccountSummaryViewModel, AuthenticationManualViewModelFactory>(
-        owner = viewModelStoreOwner,
-    ) {
-        createAccountSummaryViewModel(navArgs)
     }
 
 @Composable

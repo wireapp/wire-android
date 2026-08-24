@@ -3,4 +3,9 @@
     <string name="second_factor_authentication_title">Подтвердите учетную запись</string>
     <string name="second_factor_authentication_instructions_label">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
     <string name="second_factor_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
+    <string name="label_get_started">Начать</string>
+    <string name="create_personal_account_summary_title">Личный аккаунт создан</string>
+    <string name="create_personal_account_summary_text">Вы успешно создали свой личный аккаунт. Начните общаться защищенно - где бы вы ни находились!</string>
+    <string name="create_team_summary_title">Команда создана</string>
+    <string name="create_team_summary_text">Вы успешно создали аккаунт своей команды. Начните общаться защищенно - где бы вы ни находились!</string>
 </resources>

@@ -18,13 +18,14 @@
 
 package com.wire.android.ui.authentication.create.summary
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import com.wire.android.ui.common.scaffold.WireScaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,36 +34,39 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.R
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
+import com.wire.android.feature.authentication.R
+import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
+import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-internal fun CreateAccountSummaryRouteScreen(
-    viewModel: CreateAccountSummaryViewModel,
+fun CreateAccountSummaryRouteScreen(
+    type: CreateAccountRouteFlowType,
     onContinue: () -> Unit,
 ) {
     SummaryContent(
-        state = viewModel.summaryState,
+        type = type,
         onContinuePressed = onContinue,
     )
 }
 
 @Composable
 private fun SummaryContent(
-    state: CreateAccountSummaryViewState,
+    type: CreateAccountRouteFlowType,
     onContinuePressed: () -> Unit
 ) {
+    val resources = type.summaryResources()
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = dimensions().spacing0x,
-                title = stringResource(id = state.type.summaryResources.summaryTitleResId),
+                title = stringResource(id = resources.title),
                 navigationIconType = null
             )
         },
@@ -70,7 +74,7 @@ private fun SummaryContent(
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(internalPadding)) {
             Spacer(modifier = Modifier.weight(1f))
             Image(
-                painter = painterResource(id = state.type.summaryResources.summaryIconResId),
+                painter = painterResource(id = resources.icon),
                 contentDescription = null,
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.padding(
@@ -79,7 +83,7 @@ private fun SummaryContent(
                 )
             )
             Text(
-                text = stringResource(id = state.type.summaryResources.summaryTextResId),
+                text = stringResource(id = resources.text),
                 style = MaterialTheme.wireTypography.body02,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -98,8 +102,28 @@ private fun SummaryContent(
     }
 }
 
-@Preview
+@MultipleThemePreviews
 @Composable
-fun PreviewCreateAccountSummaryScreen() {
-    SummaryContent(CreateAccountSummaryViewState(CreateAccountFlowType.CreatePersonalAccount), {})
+internal fun PreviewCreateAccountSummaryScreen() = WireTheme {
+    SummaryContent(CreateAccountRouteFlowType.PERSONAL, {})
 }
+
+internal fun CreateAccountRouteFlowType.summaryResources(): CreateAccountSummaryResources = when (this) {
+    CreateAccountRouteFlowType.PERSONAL -> CreateAccountSummaryResources(
+        title = R.string.create_personal_account_summary_title,
+        text = R.string.create_personal_account_summary_text,
+        icon = R.drawable.ic_create_personal_account_success,
+    )
+
+    CreateAccountRouteFlowType.TEAM -> CreateAccountSummaryResources(
+        title = R.string.create_team_summary_title,
+        text = R.string.create_team_summary_text,
+        icon = R.drawable.ic_create_team_success,
+    )
+}
+
+internal data class CreateAccountSummaryResources(
+    @StringRes val title: Int,
+    @StringRes val text: Int,
+    @DrawableRes val icon: Int,
+)

@@ -3,4 +3,9 @@
     <string name="second_factor_authentication_title">Fiók hitelesítése</string>
     <string name="second_factor_authentication_instructions_label">Kérjük, adja meg a(z) %1$s e-mail címére küldött azonosító kódot.</string>
     <string name="second_factor_code_error">Érvénytelen kód, vagy túllépte a kísérletek maximális számát. Próbálja újra, vagy kérjen másik kódot</string>
+    <string name="label_get_started">Kezdjen hozzá</string>
+    <string name="create_personal_account_summary_title">Személyes fiók elkészítve</string>
+    <string name="create_personal_account_summary_text">Sikeresen létrehozta személyes fiókját. Kezdjen biztonságosan kommunikálni – bárhol is legyen!</string>
+    <string name="create_team_summary_title">Csapat létrehozva</string>
+    <string name="create_team_summary_text">Sikeresen létrehozta csapata fiókját. Kezdjen biztonságosan kommunikálni – bárhol is legyen!</string>
 </resources>

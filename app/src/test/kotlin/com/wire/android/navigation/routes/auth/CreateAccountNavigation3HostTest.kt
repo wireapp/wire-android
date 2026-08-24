@@ -85,13 +85,46 @@ class CreateAccountNavigation3HostTest {
             "createAccountEmailViewModel(navArgs: CreateAccountNavArgs)",
             "createAccountDetailsViewModel(navArgs: CreateAccountNavArgs)",
             "createAccountCodeViewModel(navArgs: CreateAccountNavArgs)",
-            "createAccountSummaryViewModel(navArgs: CreateAccountSummaryNavArgs)",
             "createAccountSelectorViewModel(navArgs: CreateAccountSelectorNavArgs)",
             "createAccountDataDetailViewModel(navArgs: CreateAccountDataNavArgs)",
         ).forEach {
             assertTrue(graph.contains(it), "Missing manual assisted method $it")
         }
         assertTrue(graph.contains("fun createAccountVerificationCodeViewModel("))
+    }
+
+    @Test
+    fun givenSummaryRoute_whenInspectingHost_thenStatelessFeatureUiPreservesTransitionAndRouteIdentity() {
+        val entries = sourceFile("navigation/routes/auth/CreateAccountNavigation3Entries.kt").readText()
+        val summaryEntry = entries
+            .substringAfter("private fun CreateAccountSummaryNavigation3Entry(")
+            .substringBefore("private fun CreateAccountUsernameNavigation3Entry(")
+
+        assertTrue(summaryEntry.contains("CreateAccountSummaryRouteScreen("))
+        assertTrue(summaryEntry.contains("type = route.type"))
+        assertTrue(summaryEntry.contains("AuthenticationNavigationTransition.ACCOUNT_SUMMARY_TO_USERNAME"))
+        assertTrue(summaryEntry.contains("CreateAccountUsernameRoute(route.sessionId, route.flowId)"))
+        assertTrue(summaryEntry.contains("WireBackStackMode.CLEAR_WHOLE"))
+        assertFalse(summaryEntry.contains("viewModel"))
+        assertFalse(summaryEntry.contains("owner"))
+        assertFalse(summaryEntry.contains("toLegacyNavArgs"))
+    }
+
+    @Test
+    fun givenStatelessSummaryScreen_whenInspectingHostComposition_thenSummaryViewModelPlumbingIsAbsent() {
+        val graph = sourceFile("ui/authentication/AuthenticationViewModelGraph.kt").readText()
+        val metro = sourceFile("di/metro/AuthenticationMetroViewModelBindings.kt").readText()
+        val mapper = sourceFile("navigation/routes/auth/CreateAccountLegacyMappers.kt").readText()
+        val flowType = sourceFile("ui/authentication/create/common/CreateAccountFlowType.kt").readText()
+
+        listOf(graph, metro).forEach { source ->
+            assertFalse(source.contains("CreateAccountSummaryViewModel"))
+            assertFalse(source.contains("createAccountSummaryViewModel"))
+        }
+        assertFalse(mapper.contains("CreateAccountSummaryRoute.toLegacyNavArgs"))
+        assertTrue(mapper.contains("CreateAccountSummaryNavArgs.toSummaryRoute"))
+        assertFalse(flowType.contains("SummaryResources"))
+        assertFalse(flowType.contains("summaryResources"))
     }
 
     private fun sourceFile(relativePath: String): File {

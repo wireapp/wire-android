@@ -28,7 +28,6 @@
     <string name="label_continue">ඉදිරියට</string>
     <string name="label_apply">යොදන්න</string>
     <string name="label_save">සුරකින්න</string>
-    <string name="label_get_started">පටන් ගන්න</string>
     <string name="label_remove">ඉවත් කරන්න</string>
     <string name="label_proceed">ඉදිරියට</string>
     <string name="label_leave">හැරයන්න</string>
@@ -352,18 +351,14 @@
     <string name="label_quote_invalid_or_not_found">ඔබට මෙම පණිවිඩය දැකීමට නොහැකිය</string>
     <string name="label_quote_original_message_is_a_picture">ඡායාරූපය</string>
     <!-- Create Account -->
-    <string name="create_personal_account_summary_title">පෞද්. ගිණුම සෑදිණි</string>
     <string name="create_personal_account_text">වයර් සේවාදායකයක් හරහා යහළුවන් හා පවුලේ අය සමඟ ආරක්‍ෂිතව කතාබහ කරන්න.</string>
     <string name="create_personal_account_email_text">වඩාත් ආරක්‍ෂිතම සහයෝගිත්‍ව වේදිකාව භාවිතයට වි-තැපැල් ලිපිනය යොදන්න.</string>
     <string name="create_personal_account_details_text">ඔබගේ විස්තර යොදන්න:</string>
-    <string name="create_personal_account_summary_text">ඔබගේ පෞද්ගලික ගිණුම සාර්ථකව සාදා ඇත. ඔබ කොතැනක සිටියත් – ආරක්‍ෂිතව සන්නිවේදනය කරන්න!</string>
-    <string name="create_team_summary_title">කණ්ඩායම සෑදිණි</string>
     <string name="create_team_content_title">නොමිලේ වයර්</string>
     <string name="create_team_text">කුඩා සංවිධාන හෝ තනි පුද්ගල උපදේශන ව්‍යාපාර සඳහා සන්නිවේදනය.\n</string>
     <string name="create_team_learn_more">සැලසුම් හා මිලකරණය ගැන තව දැනගන්න</string>
     <string name="create_team_email_text">කණ්ඩායම සෑදීමට ඔබගේ වි-තැපෑල යොදන්න:</string>
     <string name="create_team_details_text">කණ්ඩායම සෑදීමට ඔබගේ වි-තැපෑල යොදන්න:</string>
-    <string name="create_team_summary_text">ඔබගේ කණ්ඩායමේ ගිණුම සාර්ථකව සාදා ඇත. ඔබ කොතැනක සිටියත් – ආරක්‍ෂිතව සන්නිවේදනය කරන්න!</string>
     <string name="create_account_email_placeholder">කසුන්@නිදසුන.ලංකා</string>
     <string name="create_account_email_label">වි-තැපෑල</string>
     <string name="create_account_email_footer_text">දැනටමත් ගිණුමක් තිබේද? </string>

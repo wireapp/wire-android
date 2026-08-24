@@ -269,6 +269,33 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun messageContentAndFinalMappersAndFocusedTestsAreFeatureOwnedWithLegacyContracts() {
+        val contentMapperSource = featureSource(messageContentMapperRelativePath)
+        val messageMapperSource = featureSource(messageMapperRelativePath)
+        val contentMapperTestSource = File(Konsist.projectRootPath, messageContentMapperTestRelativePath).readText()
+        val messageMapperTestSource = File(Konsist.projectRootPath, messageMapperTestRelativePath).readText()
+
+        assertTrue(contentMapperSource.contains("package com.wire.android.mapper"))
+        assertTrue(contentMapperSource.contains("class MessageContentMapper @Inject constructor("))
+        assertTrue(contentMapperSource.contains("private val regularMessageMapper: RegularMessageMapper"))
+        assertTrue(contentMapperSource.contains("private val systemMessageMapper: SystemMessageContentMapper"))
+        assertTrue(messageMapperSource.contains("package com.wire.android.mapper"))
+        assertTrue(messageMapperSource.contains("class MessageMapper @Inject constructor("))
+        assertTrue(messageMapperSource.contains("private val userTypeMapper: UserTypeMapper"))
+        assertTrue(messageMapperSource.contains("private val messageContentMapper: MessageContentMapper"))
+        assertTrue(messageMapperSource.contains("private val isoFormatter: ISOFormatter"))
+        assertTrue(contentMapperTestSource.contains("package com.wire.android.mapper"))
+        assertTrue(contentMapperTestSource.contains("class MessageContentMapperTest"))
+        assertFalse(contentMapperTestSource.contains("com.wire.android.framework.TestMessage"))
+        assertTrue(messageMapperTestSource.contains("package com.wire.android.mapper"))
+        assertTrue(messageMapperTestSource.contains("class MessageMapperTest"))
+        assertFalse(messageMapperTestSource.contains("com.wire.android.framework.TestMessage"))
+        legacyMessageContentAndFinalMapperPaths.forEach { relativePath ->
+            assertFalse(File(Konsist.projectRootPath, relativePath).exists(), "$relativePath must be absent.")
+        }
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -882,6 +909,20 @@ class ConversationModuleBoundaryTest {
             "app/src/main/kotlin/com/wire/android/mapper/RegularMessageContentMapper.kt",
             "app/src/test/kotlin/com/wire/android/mapper/RegularMessageContentMapperTest.kt",
         )
+        const val messageContentMapperRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageContentMapper.kt"
+        const val messageMapperRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageMapper.kt"
+        const val messageContentMapperTestRelativePath =
+            "features/conversation/src/test/kotlin/com/wire/android/mapper/MessageContentMapperTest.kt"
+        const val messageMapperTestRelativePath =
+            "features/conversation/src/test/kotlin/com/wire/android/mapper/MessageMapperTest.kt"
+        val legacyMessageContentAndFinalMapperPaths = listOf(
+            "app/src/main/kotlin/com/wire/android/mapper/MessageContentMapper.kt",
+            "app/src/main/kotlin/com/wire/android/mapper/MessageMapper.kt",
+            "app/src/test/kotlin/com/wire/android/mapper/MessageContentMapperTest.kt",
+            "app/src/test/kotlin/com/wire/android/mapper/MessageMapperTest.kt",
+        )
         val legacyMessagePresentationPrimitivePaths = listOf(
             "app/src/main/kotlin/com/wire/android/mapper/MessageDateGroupingMapper.kt",
             "app/src/main/kotlin/com/wire/android/util/Copyable.kt",
@@ -1416,6 +1457,10 @@ class ConversationModuleBoundaryTest {
         val regularMessageMapperSources = mapOf(
             regularMessageMapperRelativePath to "com.wire.android.mapper",
         )
+        val messageContentAndFinalMapperSources = mapOf(
+            messageContentMapperRelativePath to "com.wire.android.mapper",
+            messageMapperRelativePath to "com.wire.android.mapper",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -1434,7 +1479,8 @@ class ConversationModuleBoundaryTest {
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageResourceProviderSources +
-                    systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources
+                    systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
+                    messageContentAndFinalMapperSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -1558,6 +1604,17 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.model.DeliveryStatusContent",
             "com.wire.android.ui.home.conversations.model.MessageBody",
             "com.wire.android.ui.home.conversations.model.MessageButton",
+            "com.wire.android.ui.home.conversations.model.ExpirationStatus",
+            "com.wire.android.ui.home.conversations.model.MessageEditStatus",
+            "com.wire.android.ui.home.conversations.model.MessageFlowStatus",
+            "com.wire.android.ui.home.conversations.model.MessageFooter",
+            "com.wire.android.ui.home.conversations.model.MessageHeader",
+            "com.wire.android.ui.home.conversations.model.MessageSenderId",
+            "com.wire.android.ui.home.conversations.model.MessageSource",
+            "com.wire.android.ui.home.conversations.model.MessageStatus",
+            "com.wire.android.ui.home.conversations.model.MessageTime",
+            "com.wire.android.ui.home.conversations.model.Reaction",
+            "com.wire.android.ui.home.conversations.model.UIMessage",
             "com.wire.android.ui.home.conversations.model.UIMessageContent",
             "com.wire.android.ui.home.conversations.model.UIQuotedMessage",
             "com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams",

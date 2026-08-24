@@ -19,7 +19,6 @@
 package com.wire.android.mapper
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -33,6 +32,8 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
@@ -222,12 +223,17 @@ class MessageMapperTest {
             visibility: Message.Visibility = Message.Visibility.VISIBLE,
             editStatus: Message.EditStatus = Message.EditStatus.NotEdited,
             date: Instant = Instant.parse("2016-09-18T17:34:02.666Z")
-        ): Message.Regular = TestMessage.TEXT_MESSAGE.copy(
+        ): Message.Regular = Message.Regular(
+            id = "messageID",
+            content = MessageContent.Text("Some Text Message"),
+            conversationId = ConversationId("convo-id", "convo.domain"),
             senderUserId = senderUserId,
             status = status,
             date = date,
             visibility = visibility,
-            editStatus = editStatus
+            editStatus = editStatus,
+            isSelfMessage = false,
+            senderClientId = ClientId("client-id"),
         )
     }
 }

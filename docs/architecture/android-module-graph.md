@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `dd49999b9`.
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `58334e842a1da959020dfd608937017f6b91fd66`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -118,7 +118,7 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Conversation role projection | `ObserveConversationRoleForUserUseCase` and `ConversationRoleData` are feature-owned with package-preserved app profile consumers | Keep the projection in the facade; app retains `OtherUserProfileScreenViewModel`, `ServiceDetailsViewModel`, and their tests through the existing facade edge |
 | Conversation media and message-search arguments | `ConversationMediaNavArgs` and `SearchConversationMessagesNavArgs` are feature-owned, package-preserved data contracts | Keep Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors in app while consuming the unchanged FQNs through the facade edge |
 | Asset restriction presentation and value models | `CheckAssetRestrictionsViewModel`, `AssetTooLargeDialogState`, `AssetBundle`, `UriAsset`, `PathParceler`, `ImportedMediaAsset`, and the ordinary Metro binding/gateway are feature-owned with package/FQN preservation | App keeps media import handling, screens/dialog rendering, Navigation 3 runtime, and one-time session installation of the feature binding |
-| Message-presentation models, primitives, mappers, and resources | The single `UIMessage`/`UIQuotedMessage` model closure, quote-content mapping, date grouping, `Copyable`, immutable `MarkdownNode`/`MarkdownPreview`, `MessageResourceProvider`, `SystemMessageContentMapper`, `RegularMessageMapper`, `ISOFormatter`, and all 17 provider/model/mapper resource IDs are feature-owned | App keeps the content/preview/final message mappers, Markdown parsing/rendering, and Compose/message-list rendering; no parallel model, mapper, formatter, or commonmark dependency is allowed |
+| Message-presentation models, primitives, mappers, and resources | The single `UIMessage`/`UIQuotedMessage` model closure, quote-content mapping, date grouping, `Copyable`, immutable `MarkdownNode`/`MarkdownPreview`, `MessageResourceProvider`, `SystemMessageContentMapper`, `RegularMessageMapper`, `MessageContentMapper`, `MessageMapper`, `ISOFormatter`, and all 17 provider/model/mapper resource IDs are feature-owned | App keeps `MessagePreviewContentMapper`, Markdown parsing/rendering, and Compose/message-list rendering; no parallel model, mapper, formatter, or commonmark dependency is allowed |
 | Edit-conversation metadata presentation | `EditConversationMetadataViewModel`, its narrow state/validator, dedicated assisted Metro group/gateways, and focused test are feature-owned with package/FQN preservation | App keeps `GroupNameScreen`, its private edition-state adapter, Navigation 3 calls, and one-time session installation of the feature-generated binding |
 | Neutral participant count at call ViewModels | The conversation feature constructs `KaliumObserveConversationParticipantCount`; the meetings call ViewModel remains app-hosted | Keep the Kalium-only producer and port in `:core:calling`; meetings adds its own direct core edge when it moves, never a feature-to-feature edge |
 | Calling coordinator runtime adapters | `JoinOrStartCallRuntimeActions.kt` and `JoinOrStartCallRuntimeDialogs.kt` contain activity/analytics handling and app dialog rendering | App owns runtime adapters; core exposes only action/dialog-state contracts and dialog-response methods |
@@ -130,7 +130,7 @@ conversations list **28**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **54** unit tests and **1** Android
  test; **77** files import app `R`, **397** distinct fully-qualified `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**110** production files and **40** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
+**112** production files and **42** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
 **25** values directories and contain **323** string definitions, including the exact
 **95** localized banner-state definitions. App retains the four banner span-label IDs
 with **23** localized definitions. The feature also owns all **211** existing

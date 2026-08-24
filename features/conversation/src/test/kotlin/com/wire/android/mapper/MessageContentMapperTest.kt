@@ -19,17 +19,20 @@
 package com.wire.android.mapper
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.framework.TestMessage
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.UserId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -42,12 +45,12 @@ class MessageContentMapperTest {
     fun givenMessagesWithDifferentVisibilities_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (_, mapper) = Arrangement().arrange()
-        val visibleMessage = TestMessage.TEXT_MESSAGE.copy(visibility = Message.Visibility.VISIBLE)
-        val deletedMessage = TestMessage.TEXT_MESSAGE.copy(
+        val visibleMessage = textMessage(visibility = Message.Visibility.VISIBLE)
+        val deletedMessage = textMessage(
             visibility = Message.Visibility.DELETED,
             content = MessageContent.Text("")
         )
-        val hiddenMessage = TestMessage.TEXT_MESSAGE.copy(
+        val hiddenMessage = textMessage(
             visibility = Message.Visibility.HIDDEN,
             content = MessageContent.Text("")
         )
@@ -60,6 +63,22 @@ class MessageContentMapperTest {
         assertTrue(resultContentDeleted == UIMessageContent.Deleted)
         assertTrue(resultContentHidden == null)
     }
+
+    private fun textMessage(
+        visibility: Message.Visibility = Message.Visibility.VISIBLE,
+        content: MessageContent.Text = MessageContent.Text("Some Text Message"),
+    ) = Message.Regular(
+        id = "messageID",
+        content = content,
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = Instant.parse("2022-03-30T15:36:00.000Z"),
+        senderUserId = UserId("user-id", "domain"),
+        senderClientId = ClientId("client-id"),
+        status = Message.Status.Sent,
+        visibility = visibility,
+        editStatus = Message.EditStatus.NotEdited,
+        isSelfMessage = false,
+    )
 
     private class Arrangement {
 

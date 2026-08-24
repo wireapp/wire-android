@@ -32,9 +32,12 @@ class NewLoginOwnershipTest {
         }
         assertTrue(Files.exists(featureDirectory.resolve("NewLoginContainer.kt")))
         assertTrue(Files.exists(featureDirectory.resolve("NewLoginContent.kt")))
-        assertTrue(Files.exists(featureDirectory.resolve("code/NewLoginVerificationCodeScreen.kt")))
+        assertTrue(Files.exists(featureDirectory.resolve("code/NewLoginVerificationCodeContent.kt")))
+        assertTrue(Files.exists(root.resolve("app/src/main/kotlin/$packagePath/code/NewLoginVerificationCodeScreen.kt")))
+        assertFalse(Files.exists(featureDirectory.resolve("code/NewLoginVerificationCodeScreen.kt")))
         assertTrue(Files.exists(featureDirectory.resolve("password/NewLoginPasswordContent.kt")))
         assertFalse(Files.exists(root.resolve("app/src/main/kotlin/$packagePath/NewLoginContainer.kt")))
+        assertTrue(source.contains("Role.Button"), "Forgot-password action must retain button semantics")
         forbidden.forEach { assertFalse(source.contains(it), "Forbidden feature dependency: $it") }
     }
 
@@ -47,16 +50,26 @@ class NewLoginOwnershipTest {
         val forbidden = listOf(
             "com.wire.kalium",
             "com.wire.android.BuildConfig",
+            "com.wire.android.R",
             "com.wire.android.datastore",
+            "com.wire.android.ui.WireActivity",
             "LoginNavArgs",
             "LoginPasswordPath",
             "DomainClaimedByOrg",
             "DeepLinkResult",
             "SSOUrlConfig",
             "com.wire.android.ui.authentication.serverconfig.ServerConfig",
+            "com.wire.kalium.logic.configuration.server.ServerConfig",
+            "CoreFailure",
+            "UserId",
             "SavedStateHandle",
             "CoreLogic",
             "dev.zacsweers.metro",
+            "BackendSelectorDropDown",
+            "android.content.Intent",
+            "android.net.Uri",
+            "android.content.Context",
+            "LocalContext",
             "CustomTabsHelper",
             "SupportUrlResolver",
             "DispatcherProvider",

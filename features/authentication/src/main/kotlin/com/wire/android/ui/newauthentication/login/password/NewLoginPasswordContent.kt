@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
@@ -88,11 +89,11 @@ fun NewLoginPasswordContent(
     passwordTextState: TextFieldState,
     proxyIdentifierState: TextFieldState,
     proxyPasswordState: TextFieldState,
+    modifier: Modifier = Modifier,
     onLoginButtonClick: () -> Unit,
     onCreateAccount: () -> Unit,
     onForgotPassword: () -> Unit,
     header: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     NewAuthContainer(
         header = header,
@@ -179,7 +180,7 @@ private fun PasswordEmailInput(
     userIdentifierState: TextFieldState,
     error: String?,
     isEnabled: Boolean,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     WireTextField(
         autoFillType = WireAutoFillType.Login,
@@ -203,7 +204,7 @@ private fun PasswordInput(
     passwordState: TextFieldState,
     state: WireTextFieldState,
     contentDescription: String,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
@@ -290,7 +291,7 @@ private fun ForgotPasswordLabel(
     text: String,
     contentDescription: String,
     onClick: () -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val interactionSource = remember { MutableInteractionSource() }
@@ -301,7 +302,13 @@ private fun ForgotPasswordLabel(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .focusedBorder(isFocused.value)
-                .clickable(interactionSource = interactionSource, indication = null, onClick = onClick, onClickLabel = contentDescription)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    role = Role.Button,
+                    onClick = onClick,
+                    onClickLabel = contentDescription,
+                )
                 .testTag("Forgot password?"),
         )
     }
@@ -311,7 +318,7 @@ private fun ForgotPasswordLabel(
 private fun CreateAccountContent(
     onCreateAccountClicked: () -> Unit,
     contentDescription: String,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
         shape = RoundedCornerShape(dimensions().buttonCornerSize),

@@ -52,9 +52,9 @@ import com.wire.android.ui.theme.wireTypography
  */
 @Composable
 fun NewAuthContainer(
+    modifier: Modifier = Modifier,
     header: @Composable () -> Unit = {},
     contentPadding: Dp = dimensions().spacing24x,
-    modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -91,9 +91,9 @@ fun NewAuthContainer(
 @Composable
 fun NewAuthHeader(
     title: @Composable ColumnScope.() -> Unit,
+    modifier: Modifier = Modifier,
     canNavigateBack: Boolean = false,
     onNavigateBack: () -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
@@ -129,8 +129,8 @@ fun NewAuthHeader(
 @Composable
 fun NewAuthTitle(
     title: String,
-    verticalPadding: Dp = dimensions().spacing2x,
     modifier: Modifier = Modifier,
+    verticalPadding: Dp = dimensions().spacing2x,
 ) {
     Text(
         text = title,
@@ -146,8 +146,8 @@ fun NewAuthTitle(
 @Composable
 fun NewAuthSubtitle(
     title: String,
-    verticalPadding: Dp = dimensions().spacing2x,
     modifier: Modifier = Modifier,
+    verticalPadding: Dp = dimensions().spacing2x,
 ) {
     Text(
         text = title,

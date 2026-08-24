@@ -3,6 +3,7 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     id(BuildPlugins.junit5)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
+    alias(libs.plugins.compose.stability.analyzer)
     alias(libs.plugins.kotlin.serialization)
 }
 

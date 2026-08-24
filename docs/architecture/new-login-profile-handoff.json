@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "status": "requires-compiled-artifacts",
+  "profileFiles": [
+    "app/src/main/baseline-prof.txt",
+    "app/src/main/startup-prof.txt"
+  ],
+  "preserve": [
+    {
+      "owner": "Lcom/ramcosta/composedestinations/generated/app/destinations/NewLoginVerificationCodeScreenDestination;",
+      "reason": "The app route facade and destination identity remain unchanged."
+    },
+    {
+      "owner": "Lcom/wire/android/ui/newauthentication/login/NewLoginContainerKt;",
+      "method": "NavigationBarBackground(Landroidx/compose/runtime/Composer;I)V",
+      "reason": "The private function retains its source signature and owner."
+    }
+  ],
+  "staleSelectors": [
+    {
+      "owner": "Lcom/wire/android/ui/newauthentication/login/ComposableSingletons$NewLoginContainerKt;",
+      "reason": "The app previews were removed with the feature-owned container."
+    },
+    {
+      "owner": "Lcom/wire/android/ui/newauthentication/login/NewLoginContainerKt;",
+      "excludeMethod": "NavigationBarBackground(Landroidx/compose/runtime/Composer;I)V",
+      "reason": "Modifier and top-bar slot parameter ordering changed the other Compose ABI descriptors."
+    },
+    {
+      "owner": "Lcom/wire/android/ui/newauthentication/login/NewLoginScreenKt;",
+      "reason": "All listed methods describe the removed app renderer; the remaining app facade is NewLoginRouteScreen."
+    },
+    {
+      "owner": "Lcom/wire/android/ui/newauthentication/login/password/NewLoginPasswordScreenKt;",
+      "reason": "All listed methods describe the removed renderer or the moved effects helper; the remaining app facade is NewLoginPasswordRouteScreen."
+    }
+  ],
+  "expectedCompiledFacades": [
+    "com.wire.android.ui.newauthentication.login.NewLoginContainerKt",
+    "com.wire.android.ui.newauthentication.login.NewLoginContentKt",
+    "com.wire.android.ui.newauthentication.login.code.NewLoginVerificationCodeContentKt",
+    "com.wire.android.ui.newauthentication.login.code.NewLoginVerificationCodeScreenKt",
+    "com.wire.android.ui.newauthentication.login.password.NewLoginPasswordContentKt",
+    "com.wire.android.ui.newauthentication.login.password.NewLoginPasswordEffectsKt",
+    "com.wire.android.ui.newauthentication.login.password.NewLoginPasswordScreenKt"
+  ],
+  "requiredVerification": [
+    "Compile :app and :features:authentication.",
+    "Use javap on every expectedCompiledFacades class before editing method descriptors.",
+    "Regenerate or compare both profile files from compiled output; do not owner-rewrite method entries blindly."
+  ]
+}

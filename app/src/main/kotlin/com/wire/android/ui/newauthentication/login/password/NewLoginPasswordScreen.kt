@@ -22,24 +22,17 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.login.AppLoginDialogError
-import com.wire.android.ui.authentication.login.AppLoginState
-import com.wire.android.ui.authentication.login.DomainClaimedByOrg
-import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
-import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.authentication.welcome.isProxyEnabled
 import com.wire.android.ui.common.R as CommonR
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
 import com.wire.android.util.CustomTabsHelper
@@ -113,7 +106,12 @@ internal fun NewLoginPasswordRouteScreen(
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
             if (ENABLE_NEW_REGISTRATION) {
-                onAction(NewLoginPasswordScreenAction.CreateAccountSelector(serverConfig, loginEmailViewModel.userIdentifierTextState.text.toString()))
+                onAction(
+                    NewLoginPasswordScreenAction.CreateAccountSelector(
+                        serverConfig,
+                        loginEmailViewModel.userIdentifierTextState.text.toString(),
+                    ),
+                )
             } else {
                 onAction(NewLoginPasswordScreenAction.CreatePersonalAccount(serverConfig))
             }
@@ -143,41 +141,4 @@ internal fun NewLoginPasswordRouteScreen(
         },
     )
     BackHandler(onBack = loginEmailViewModel::cancelLogin)
-}
-
-/** Remains host-owned because actions carry concrete [UserId] values and drive route mutation. */
-@Composable
-internal fun LoginStateNavigationAndDialogs(
-    viewModel: AppLoginEmailViewModel,
-    onAction: (NewLoginPasswordScreenAction) -> Boolean,
-) {
-    val state = viewModel.loginState.flowState
-    val claimedDomainDialog = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    val handleState: (AppLoginState) -> Boolean = {
-        when (it) {
-            is LoginState.Success<*> -> onAction(NewLoginPasswordScreenAction.Success(it.initialSyncCompleted, it.isE2EIRequired, it.userId as UserId))
-            is LoginState.Error.TooManyDevicesError<*> -> {
-                val accepted = onAction(NewLoginPasswordScreenAction.RemoveDevice(it.userId as UserId))
-                if (accepted) viewModel.clearLoginErrors()
-                accepted
-            }
-            is LoginState.Canceled -> onAction(NewLoginPasswordScreenAction.Canceled)
-            else -> false
-        }
-    }
-    LaunchedEffect(state) {
-        val claimed = viewModel.domainClaimedByOrg
-        val completed = state is LoginState.Success<*> || state is LoginState.Error.TooManyDevicesError<*>
-        if (completed && claimed is DomainClaimedByOrg.Claimed) claimedDomainDialog.show(claimed) else handleState(state)
-    }
-    if (state is LoginState.Error.DialogError<*, *>) {
-        LoginErrorDialog((state as AppLoginDialogError).toLoginDialogErrorData(), viewModel::clearLoginErrors)
-    }
-    EmailAlreadyInUseClaimedDomainDialog(
-        dialogState = claimedDomainDialog,
-        onDismiss = {
-            claimedDomainDialog.dismiss()
-            handleState(state)
-        },
-    )
 }

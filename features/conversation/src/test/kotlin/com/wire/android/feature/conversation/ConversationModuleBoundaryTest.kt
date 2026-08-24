@@ -275,6 +275,21 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun offlineMessageIndicatorIsFeatureOwnedWithTheNarrowAppConsumerContract() {
+        val source = featureSource(offlineMessageIndicatorRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations.messages.item"))
+        assertTrue(source.contains("fun PagingData<UIMessage>.withOfflineIndicator("))
+        assertFalse(source.contains("internal fun PagingData<UIMessage>.withOfflineIndicator("))
+        assertTrue(source.contains("internal fun offlineMessage("))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyOfflineMessageIndicatorRelativePath).exists(),
+            "$legacyOfflineMessageIndicatorRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -995,6 +1010,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItemLeading.kt"
         const val legacyRegularMessageItemLeadingRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/RegularMessageItemLeading.kt"
+        const val offlineMessageIndicatorRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/OfflineMessageIndicator.kt"
+        const val legacyOfflineMessageIndicatorRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/OfflineMessageIndicator.kt"
         const val messageReactionsItemRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
         const val reactionPillRelativePath =
@@ -1579,6 +1598,9 @@ class ConversationModuleBoundaryTest {
         val regularMessageItemLeadingSources = mapOf(
             regularMessageItemLeadingRelativePath to "com.wire.android.ui.home.conversations.messages.item",
         )
+        val offlineMessageIndicatorSources = mapOf(
+            offlineMessageIndicatorRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+        )
         val reactionPresentationSources = mapOf(
             messageReactionsItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
             reactionPillRelativePath to "com.wire.android.ui.home.conversations.messages",
@@ -1621,7 +1643,7 @@ class ConversationModuleBoundaryTest {
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
-                    reactionPresentationSources +
+                    offlineMessageIndicatorSources + reactionPresentationSources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
                     messageContentAndFinalMapperSources + messagePreviewContentMapperSources

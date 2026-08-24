@@ -33,7 +33,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.datetime.Clock
 
-internal fun PagingData<UIMessage>.withOfflineIndicator(
+fun PagingData<UIMessage>.withOfflineIndicator(
     conversationId: ConversationId,
     isOffline: Boolean,
 ): PagingData<UIMessage> {

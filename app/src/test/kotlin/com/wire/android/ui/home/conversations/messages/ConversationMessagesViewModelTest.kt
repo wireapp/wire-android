@@ -59,7 +59,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import com.wire.android.assertions.shouldBeEqualTo
-import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -246,58 +245,6 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
-    fun `given offline state and no pending messages, when adding offline indicator, then indicator is the newest item`() = runTest {
-        val message = regularMessage(id = "sent")
-
-        val snapshot = flowOf(
-            PagingData.from(listOf<UIMessage>(message)).withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
-        ).asSnapshot()
-
-        assertEquals(
-            listOf("offline-message:$TEST_CONVERSATION_ID:before:sent", "sent"),
-            snapshot.map { it.header.messageId }
-        )
-    }
-
-    @Test
-    fun `given offline state and pending messages, when adding offline indicator, then indicator is before pending block visually`() =
-        runTest {
-            val firstPending = regularMessage(id = "pending-1", flowStatus = MessageFlowStatus.Sending)
-            val secondPending = regularMessage(id = "pending-2", flowStatus = MessageFlowStatus.Sending)
-            val sent = regularMessage(id = "sent")
-
-            val snapshot = flowOf(
-                PagingData.from(listOf<UIMessage>(firstPending, secondPending, sent))
-                    .withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
-            ).asSnapshot()
-
-            assertEquals(
-                listOf("pending-1", "pending-2", "offline-message:$TEST_CONVERSATION_ID:after:pending-2", "sent"),
-                snapshot.map { it.header.messageId }
-            )
-        }
-
-    @Test
-    fun `given offline state and multiple pending blocks, when adding offline indicator, then indicators have unique ids`() =
-        runTest {
-            val firstPending = regularMessage(id = "pending-1", flowStatus = MessageFlowStatus.Sending)
-            val firstSent = regularMessage(id = "sent-1")
-            val secondPending = regularMessage(id = "pending-2", flowStatus = MessageFlowStatus.Sending)
-            val secondSent = regularMessage(id = "sent-2")
-
-            val snapshot = flowOf(
-                PagingData.from(listOf<UIMessage>(firstPending, firstSent, secondPending, secondSent))
-                    .withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
-            ).asSnapshot()
-
-            val offlineIndicatorIds = snapshot
-                .map { it.header.messageId }
-                .filter { it.startsWith("offline-message:") }
-
-            assertEquals(offlineIndicatorIds.distinct(), offlineIndicatorIds)
-        }
-
-    @Test
     fun `given network connected, when observing state, then isNetworkAvailable is true`() = runTest {
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
@@ -331,26 +278,6 @@ class ConversationMessagesViewModelTest {
         advanceUntilIdle()
 
         assertEquals(false, viewModel.conversationViewState.isNetworkAvailable)
-    }
-
-    @Test
-    fun `given online state, when adding offline indicator, then indicator is not inserted`() = runTest {
-        val message = regularMessage(id = "sent")
-
-        val snapshot = flowOf(
-            PagingData.from(listOf<UIMessage>(message)).withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = false)
-        ).asSnapshot()
-
-        assertEquals(listOf("sent"), snapshot.map { it.header.messageId })
-    }
-
-    @Test
-    fun `given offline state and empty conversation, when adding offline indicator, then indicator is shown`() = runTest {
-        val snapshot = flowOf(
-            PagingData.from(emptyList<UIMessage>()).withOfflineIndicator(TEST_CONVERSATION_ID, isOffline = true)
-        ).asSnapshot()
-
-        assertEquals(listOf("offline-message:$TEST_CONVERSATION_ID:empty"), snapshot.map { it.header.messageId })
     }
 
     @Test

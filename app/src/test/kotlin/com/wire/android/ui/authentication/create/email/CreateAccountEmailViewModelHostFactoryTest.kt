@@ -11,8 +11,6 @@ package com.wire.android.ui.authentication.create.email
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
-import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
-import com.wire.android.navigation.routes.auth.toAuthenticationServerLinks
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -32,7 +30,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -43,7 +40,7 @@ class CreateAccountEmailViewModelHostFactoryTest {
 
     @Test
     fun `gateway forwards exact normalized candidate to local validator`() {
-        val arrangement = Arrangement()
+        val arrangement = CreateAccountEmailArrangement()
         every { arrangement.validateEmail("alice@example.com") } returns true
         every { arrangement.validateEmail("bad") } returns false
 
@@ -55,7 +52,7 @@ class CreateAccountEmailViewModelHostFactoryTest {
 
     @Test
     fun `all auth scope failures map to unavailable`() = runTest {
-        val arrangement = Arrangement()
+        val arrangement = CreateAccountEmailArrangement()
         listOf(
             AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion,
             AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
@@ -73,7 +70,7 @@ class CreateAccountEmailViewModelHostFactoryTest {
 
     @Test
     fun `successful auth scope maps every activation result preserving generic identity`() = runTest {
-        val arrangement = Arrangement()
+        val arrangement = CreateAccountEmailArrangement()
         val failure = NetworkFailure.NoNetworkConnection(null)
         coEvery { arrangement.autoVersionAuthScope(null) } returns
             AutoVersionAuthScopeUseCase.Result.Success(arrangement.authenticationScope)
@@ -96,7 +93,7 @@ class CreateAccountEmailViewModelHostFactoryTest {
 
     @Test
     fun `gateway reads email provider only after authentication scope resolves`() = runTest {
-        val arrangement = Arrangement()
+        val arrangement = CreateAccountEmailArrangement()
         val scopeRequested = CompletableDeferred<Unit>()
         val releaseScope = CompletableDeferred<Unit>()
         val events = mutableListOf<String>()
@@ -124,39 +121,4 @@ class CreateAccountEmailViewModelHostFactoryTest {
         assertEquals(listOf("scope", "email"), events)
     }
 
-    @Test
-    fun `host factory maps flow custom default links and tos`() {
-        val arrangement = Arrangement(defaultServerConfig = ServerConfig.STAGING)
-        val custom = arrangement.hostFactory.create(
-            CreateAccountRouteFlowType.TEAM,
-            ServerConfig.PRODUCTION.toAuthenticationServerLinks(),
-        )
-        val fallback = arrangement.hostFactory.create(
-            CreateAccountRouteFlowType.PERSONAL,
-            null,
-        )
-
-        assertEquals(CreateAccountRouteFlowType.TEAM, custom.flowType)
-        assertEquals(ServerConfig.PRODUCTION, custom.customServerConfig)
-        assertEquals(ServerConfig.PRODUCTION, custom.serverConfig)
-        assertEquals(ServerConfig.PRODUCTION.tos, custom.tosUrl())
-        assertNull(fallback.customServerConfig)
-        assertEquals(ServerConfig.STAGING, fallback.serverConfig)
-        assertEquals(ServerConfig.STAGING.tos, fallback.tosUrl())
-    }
-
-    private class Arrangement(defaultServerConfig: ServerConfig.Links = ServerConfig.STAGING) {
-        val validateEmail = mockk<ValidateEmailUseCase>()
-        val coreLogic = mockk<CoreLogic>()
-        val autoVersionAuthScope = mockk<AutoVersionAuthScopeUseCase>()
-        val authenticationScope = mockk<AuthenticationScope>()
-        val requestActivationCode = mockk<RequestActivationCodeUseCase>()
-        val gateway = KaliumCreateAccountEmailGateway(validateEmail, coreLogic)
-        val hostFactory = CreateAccountEmailViewModelHostFactory(validateEmail, coreLogic, defaultServerConfig)
-
-        init {
-            coEvery { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScope
-            every { authenticationScope.registerScope.requestActivationCode } returns requestActivationCode
-        }
-    }
 }

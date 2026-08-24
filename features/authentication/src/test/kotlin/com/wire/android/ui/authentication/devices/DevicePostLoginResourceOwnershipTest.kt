@@ -39,9 +39,19 @@ class DevicePostLoginResourceOwnershipTest {
             "register_device_title", "register_device_text", "label_add_device", "devices_loading_error",
         )
         val expectedQualifiers = mapOf(
-            "register_device_title" to setOf("values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-ja", "values-pl", "values-pt", "values-ru", "values-si"),
-            "register_device_text" to setOf("values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-ja", "values-pl", "values-pt", "values-ru", "values-si", "values-tr"),
-            "label_add_device" to setOf("values", "values-ar", "values-cs", "values-de", "values-es", "values-et", "values-fr", "values-hr", "values-hu", "values-it", "values-ja", "values-lt", "values-pl", "values-pt", "values-ru", "values-si", "values-sv", "values-tr", "values-uk"),
+            "register_device_title" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu",
+                "values-it", "values-ja", "values-pl", "values-pt", "values-ru", "values-si",
+            ),
+            "register_device_text" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu",
+                "values-it", "values-ja", "values-pl", "values-pt", "values-ru", "values-si", "values-tr",
+            ),
+            "label_add_device" to setOf(
+                "values", "values-ar", "values-cs", "values-de", "values-es", "values-et",
+                "values-fr", "values-hr", "values-hu", "values-it", "values-ja", "values-lt",
+                "values-pl", "values-pt", "values-ru", "values-si", "values-sv", "values-tr", "values-uk",
+            ),
             "devices_loading_error" to setOf("values", "values-hu", "values-pt", "values-ru", "values-si"),
         )
     }

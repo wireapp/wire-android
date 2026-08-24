@@ -35,12 +35,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun MutedConversationBadge(modifier: Modifier = Modifier) {
@@ -58,15 +58,15 @@ fun MutedConversationBadge(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_mute),
-            contentDescription = stringResource(R.string.content_description_muted_conversation),
+            painter = painterResource(id = conversationR.drawable.ic_mute),
+            contentDescription = stringResource(conversationR.string.content_description_muted_conversation),
             modifier = Modifier.size(dimensions().spacing12x),
             tint = colorsScheme().onSecondaryButtonEnabled
         )
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewMutedConversationBadge() = WireTheme {
     MutedConversationBadge()

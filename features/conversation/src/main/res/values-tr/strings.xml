@@ -23,4 +23,5 @@
     <string name="conversation_options_guests_label">Misafirler</string>
     <string name="conversation_details_guest_description">Eğer bu seçenek açık ise, ekibiniz dışındaki kişiler bu sohbete katılabilir.</string>
     <string name="conversation_options_read_receipt_label">Okundu bilgisi</string>
+    <string name="content_description_muted_conversation">Sessize alınmış sohbet</string>
 </resources>

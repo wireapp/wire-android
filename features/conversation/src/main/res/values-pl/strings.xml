@@ -151,4 +151,5 @@
     <string name="guest_link_button_copy_link">Kopiuj link</string>
     <string name="guest_link_button_share_link">Udost&#281;pnij link</string>
     <string name="guest_link_button_revoke_link">Wycofaj link</string>
+    <string name="content_description_muted_conversation">Wyciszona rozmowa</string>
 </resources>

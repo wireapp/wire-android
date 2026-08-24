@@ -177,4 +177,5 @@
     <string name="guest_link_button_copy_link">Copiar enlace</string>
     <string name="guest_link_button_share_link">Compartir enlace</string>
     <string name="guest_link_button_revoke_link">Revocar enlace</string>
+    <string name="content_description_muted_conversation">Conversación silenciada</string>
 </resources>

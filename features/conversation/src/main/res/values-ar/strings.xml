@@ -1,3 +1,4 @@
 <resources>
     <string name="label_message_sent_failure">Message could not be sent.</string>
+    <string name="content_description_muted_conversation">محادثة مكتومة</string>
 </resources>

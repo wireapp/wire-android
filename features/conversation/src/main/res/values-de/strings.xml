@@ -243,4 +243,5 @@
     <string name="guest_link_button_revoke_link">Link widerrufen</string>
     <string name="label_conversation_pictures_empty">Bislang hat niemand Bilder in dieser Unterhaltung geteilt 🥲</string>
     <string name="label_conversation_files_empty">Bislang hat niemand Dateien in dieser Unterhaltung geteilt 🙀</string>
+    <string name="content_description_muted_conversation">Unterhaltung ist stummgeschaltet</string>
 </resources>

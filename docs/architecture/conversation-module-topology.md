@@ -1,8 +1,8 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, participant renderers/previews, regular, content, final and preview mapping/formatting, image/asset paging and asset-media/search state, empty-state and no-results rendering, role projection, media/search arguments, asset restrictions, guest-link action/information and record-audio information presentation, and edit-metadata presentation have facade-owned seams
+**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, participant renderers/previews, regular, content, final and preview mapping/formatting, image/asset paging and asset-media/search state, empty-state and no-results rendering, role projection, media/search arguments, asset restrictions, guest-link action/information, record-audio information, muted-list presentation, and edit-metadata presentation have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `83548612c`
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `7d8ef7d5c`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -108,6 +108,10 @@ clipboard/share intents, ViewModels, Navigation 3 runtime, and Metro assembly.
 The package-preserved `RecordAudioInfoMessageType` is facade-owned with both record-failure IDs
 and all 14 existing definitions. `EnabledMessageComposer` remains app-owned and uses the feature
 resource only for its existing Android toast; recording side effects and permissions stay in app.
+
+The package-preserved `MutedConversationBadge` is facade-owned with its accessibility label, all
+17 existing definitions, and byte-identical `ic_mute`. App retains conversation-list factories
+and the conversation bottom sheet; its remaining icon consumer uses the feature resource namespace.
 
 The package-preserved `MessageBubbleItem` is facade-owned as the regular-message layout and interaction shell. It consumes conversation-owned models and the feature-owned click interceptor plus neutral theme/UI primitives; app callers retain the same FQN.
 

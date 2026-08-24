@@ -199,4 +199,5 @@
     <string name="guest_link_button_revoke_link">Revogar Link</string>
     <string name="label_conversation_pictures_empty">Ninguém compartilhou fotos nesta conversa ainda 🥲</string>
     <string name="label_conversation_files_empty">Ninguém compartilhou arquivos nesta conversa ainda 🙀</string>
+    <string name="content_description_muted_conversation">Conversa silenciada</string>
 </resources>

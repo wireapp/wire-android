@@ -5,4 +5,5 @@
     <string name="folder_label_messaging">Обмін повідомленнями</string>
     <string name="last_key_material_update_label">Останній ключ матеріального оновлення</string>
     <string name="conversation_options_guests_label">Гість</string>
+    <string name="content_description_muted_conversation">Вимкнена бесіда</string>
 </resources>

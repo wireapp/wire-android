@@ -87,4 +87,5 @@
     <string name="guest_link_button_copy_link">Kopeeri link</string>
     <string name="guest_link_button_share_link">Jaga linki</string>
     <string name="guest_link_button_revoke_link">Tühista link</string>
+    <string name="content_description_muted_conversation">Vaigistatud vestlus</string>
 </resources>

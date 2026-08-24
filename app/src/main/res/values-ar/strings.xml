@@ -51,7 +51,6 @@
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">إظهار كلمة المرور</string>
     <string name="content_description_hide_password">إخفاء كلمة المرور</string>
-    <string name="content_description_muted_conversation">محادثة مكتومة</string>
     <string name="content_description_move_to_archive">أنقل إلى الأرشيف</string>
     <string name="content_description_unarchive">إزالة من الأرشيف</string>
     <string name="content_description_block_the_user">حظر</string>

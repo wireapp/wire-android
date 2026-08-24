@@ -184,4 +184,5 @@
     <string name="guest_link_button_revoke_link">Revoca link</string>
     <string name="label_conversation_pictures_empty">Nessuno ha ancora condiviso immagini in questa conversazione 🥲</string>
     <string name="label_conversation_files_empty">Nessuno ha ancora condiviso dei file in questa conversazione 🙀</string>
+    <string name="content_description_muted_conversation">Conversazione silenziata</string>
 </resources>

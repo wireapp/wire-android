@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
@@ -108,7 +109,7 @@ internal fun ConversationMainSheetContent(
                         title = stringResource(R.string.label_notifications),
                         leading = {
                             MenuItemIcon(
-                                id = R.drawable.ic_mute,
+                                id = conversationR.drawable.ic_mute,
                                 contentDescription = null,
                             )
                         },

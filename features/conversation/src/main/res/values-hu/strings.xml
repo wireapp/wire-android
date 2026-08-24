@@ -204,4 +204,5 @@
     <string name="guest_link_button_revoke_link">Vendég-link visszavonása</string>
     <string name="label_conversation_pictures_empty">Ebben a beszélgetésben még senki nem osztott meg képet 🥲</string>
     <string name="label_conversation_files_empty">Ebben a beszégetésben még senki nem osztott meg fájlt 🙀</string>
+    <string name="content_description_muted_conversation">Némított beszélgetés</string>
 </resources>

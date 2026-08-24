@@ -288,4 +288,5 @@
     <string name="guest_link_button_revoke_link">Отозвать ссылку</string>
     <string name="label_conversation_pictures_empty">Никто не делился фотографиями в этой беседе 🥲</string>
     <string name="label_conversation_files_empty">Никто не делился файлами в этой беседе 🙀</string>
+    <string name="content_description_muted_conversation">Беззвучные беседы</string>
 </resources>

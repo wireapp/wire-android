@@ -32,4 +32,5 @@
     <string name="conversation_details_guest_description">Lorsque cela est activé, des personnes extérieures à votre équipe peuvent rejoindre cette conversation</string>
     <string name="conversation_options_read_receipt_label">Accusés de lecture</string>
     <string name="conversation_options_read_receipt_description">Quand cette option est activée, les participants peuvent voir quand leurs messages ont été lus dans cette conversation.</string>
+    <string name="content_description_muted_conversation">Conversation en sourdine</string>
 </resources>

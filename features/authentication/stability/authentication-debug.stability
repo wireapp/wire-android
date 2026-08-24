@@ -291,27 +291,23 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceVerific
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.initialsync.InitialSyncProgressContent(topBarTitle: kotlin.String, message: androidx.compose.ui.text.AnnotatedString, icon: androidx.compose.ui.graphics.painter.Painter): kotlin.Unit
-  skippable: false
+private fun com.wire.android.ui.authentication.initialsync.InitialSyncProgressContent(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
   restartable: true
   params:
-    - topBarTitle: STABLE (String is immutable)
-    - message: STABLE (marked @Stable or @Immutable)
-    - icon: RUNTIME (requires runtime check)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.authentication.initialsync.InitialSyncRouteContent(viewModel: com.wire.android.ui.authentication.initialsync.InitialSyncViewModel, topBarTitle: kotlin.String, message: androidx.compose.ui.text.AnnotatedString, icon: androidx.compose.ui.graphics.painter.Painter, onSyncCompleted: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+public fun com.wire.android.ui.authentication.initialsync.InitialSyncRouteContent(viewModel: com.wire.android.ui.authentication.initialsync.InitialSyncViewModel, onSyncCompleted: kotlin.Function1<@[ParameterName(name = \, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - viewModel: UNSTABLE (has mutable properties or unstable members)
-    - topBarTitle: STABLE (String is immutable)
-    - message: STABLE (marked @Stable or @Immutable)
-    - icon: RUNTIME (requires runtime check)
     - onSyncCompleted: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent(state: com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeState<UserT of com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent, FailureT of com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent>, textState: androidx.compose.foundation.text.input.TextFieldState, text: com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeText, serverTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, onResendCodePressed: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent(state: com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeState<UserT of com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent, FailureT of com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeContent>, textState: androidx.compose.foundation.text.input.TextFieldState, text: com.wire.android.ui.authentication.legacyregistration.code.LegacyRegistrationCodeText, serverTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, onResendCodePressed: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -321,9 +317,32 @@ public fun com.wire.android.ui.authentication.legacyregistration.code.LegacyRegi
     - serverTitle: STABLE (composable function type)
     - onResendCodePressed: STABLE (function type)
     - onBackPressed: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsContent(state: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsState<FailureT of com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsContent>, emailTextState: androidx.compose.foundation.text.input.TextFieldState, nameTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, text: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsText, serverTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, emailError: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, privacyPolicy: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, footer: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, dialogs: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.authentication.legacyregistration.details.EmailField(state: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsState<FailureT of com.wire.android.ui.authentication.legacyregistration.details.EmailField>, text: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsText, textState: androidx.compose.foundation.text.input.TextFieldState, onKeyboardDismiss: kotlin.Function0<kotlin.Unit>, emailError: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (class with no mutable properties)
+    - text: STABLE (class with no mutable properties)
+    - textState: STABLE (marked @Stable or @Immutable)
+    - onKeyboardDismiss: STABLE (function type)
+    - emailError: STABLE (composable function type)
+
+@Composable
+internal fun com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsActions(state: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsState<FailureT of com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsActions>, continueLabel: kotlin.String, onContinuePressed: kotlin.Function0<kotlin.Unit>, footer: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, dialogs: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (class with no mutable properties)
+    - continueLabel: STABLE (String is immutable)
+    - onContinuePressed: STABLE (function type)
+    - footer: STABLE (composable function type)
+    - dialogs: STABLE (composable function type)
+
+@Composable
+public fun com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsContent(state: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsState<FailureT of com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsContent>, emailTextState: androidx.compose.foundation.text.input.TextFieldState, nameTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, text: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsText, serverTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, emailError: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, privacyPolicy: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, footer: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, dialogs: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -340,9 +359,71 @@ public fun com.wire.android.ui.authentication.legacyregistration.details.LegacyR
     - dialogs: STABLE (composable function type)
     - onBackPressed: STABLE (function type)
     - onContinuePressed: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorContent(text: com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorText, checkIcon: androidx.compose.ui.graphics.painter.Painter, positiveColor: androidx.compose.ui.graphics.Color, serverTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onPersonalAccountCreationClicked: kotlin.Function0<kotlin.Unit>, onTeamAccountCreationClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsForm(state: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsState<FailureT of com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsForm>, text: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsText, emailTextState: androidx.compose.foundation.text.input.TextFieldState, nameTextState: androidx.compose.foundation.text.input.TextFieldState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, nameFocusRequester: androidx.compose.ui.focus.FocusRequester, onKeyboardDismiss: kotlin.Function0<kotlin.Unit>, emailError: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, privacyPolicy: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (class with no mutable properties)
+    - text: STABLE (class with no mutable properties)
+    - emailTextState: STABLE (marked @Stable or @Immutable)
+    - nameTextState: STABLE (marked @Stable or @Immutable)
+    - passwordTextState: STABLE (marked @Stable or @Immutable)
+    - confirmPasswordTextState: STABLE (marked @Stable or @Immutable)
+    - nameFocusRequester: STABLE (marked @Stable or @Immutable)
+    - onKeyboardDismiss: STABLE (function type)
+    - emailError: STABLE (composable function type)
+    - privacyPolicy: STABLE (composable function type)
+
+@Composable
+private fun com.wire.android.ui.authentication.legacyregistration.details.NameField(text: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsText, textState: androidx.compose.foundation.text.input.TextFieldState, focusRequester: androidx.compose.ui.focus.FocusRequester): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - text: STABLE (class with no mutable properties)
+    - textState: STABLE (marked @Stable or @Immutable)
+    - focusRequester: STABLE (marked @Stable or @Immutable)
+
+@Composable
+internal fun com.wire.android.ui.authentication.legacyregistration.details.PasswordFields(state: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsState<FailureT of com.wire.android.ui.authentication.legacyregistration.details.PasswordFields>, text: com.wire.android.ui.authentication.legacyregistration.details.LegacyRegistrationDetailsText, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, onKeyboardDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (class with no mutable properties)
+    - text: STABLE (class with no mutable properties)
+    - passwordTextState: STABLE (marked @Stable or @Immutable)
+    - confirmPasswordTextState: STABLE (marked @Stable or @Immutable)
+    - onKeyboardDismiss: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.ui.authentication.legacyregistration.selector.CardButton(text: kotlin.String, primary: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - text: STABLE (String is immutable)
+    - primary: STABLE (primitive type)
+    - onClick: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.ui.authentication.legacyregistration.selector.CardHeader(card: com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorText.Card): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - card: RUNTIME (requires runtime check)
+
+@Composable
+internal fun com.wire.android.ui.authentication.legacyregistration.selector.CardHighlight(text: kotlin.String, checkIcon: androidx.compose.ui.graphics.painter.Painter, positiveColor: androidx.compose.ui.graphics.Color): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - text: STABLE (String is immutable)
+    - checkIcon: RUNTIME (requires runtime check)
+    - positiveColor: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorContent(text: com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorText, checkIcon: androidx.compose.ui.graphics.painter.Painter, positiveColor: androidx.compose.ui.graphics.Color, serverTitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onPersonalAccountCreationClicked: kotlin.Function0<kotlin.Unit>, onTeamAccountCreationClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -353,6 +434,7 @@ public fun com.wire.android.ui.authentication.legacyregistration.selector.Legacy
     - onNavigateBack: STABLE (function type)
     - onPersonalAccountCreationClicked: STABLE (function type)
     - onTeamAccountCreationClicked: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.ui.authentication.legacyregistration.selector.SelectorCard(card: com.wire.android.ui.authentication.legacyregistration.selector.LegacyRegistrationSelectorText.Card, primary: kotlin.Boolean, checkIcon: androidx.compose.ui.graphics.painter.Painter, positiveColor: androidx.compose.ui.graphics.Color, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit

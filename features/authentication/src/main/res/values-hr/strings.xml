@@ -7,4 +7,7 @@
     <string name="create_personal_account_summary_text">Uspješno ste kreirali svoj timski račun. Počnite komunicirati sigurno – gdje god bili!</string>
     <string name="create_team_summary_title">Tim Kreiran</string>
     <string name="create_team_summary_text">Uspješno ste kreirali svoj timski račun. Počnite komunicirati sigurno – gdje god bili!</string>
+    <string name="label_add_device">Dodaj uređaj</string>
+    <string name="register_device_title">Dodaj ovaj uređaj</string>
+    <string name="register_device_text">Unesite vašu lozinku da biste koristili Wire na ovom uređaju.</string>
 </resources>

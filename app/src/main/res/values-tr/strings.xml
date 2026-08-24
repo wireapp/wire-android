@@ -31,7 +31,6 @@
     <string name="label_remove">Kaldır</string>
     <string name="label_proceed">Devam et</string>
     <string name="label_leave">Ayrıl</string>
-    <string name="label_add_device">Cihaz Ekle</string>
     <string name="label_learn_more">Daha fazla bilgi</string>
     <string name="label_removing">Kaldırılıyor…</string>
     <string name="label_logging_in">Oturum açılıyor…</string>
@@ -271,7 +270,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="item_subtitle_serial_number_e2ei_certificate">Seri numarası</string>
     <string name="show_e2ei_certificate_details_button">Sertifika Ayrıntılarını Göster</string>
     <!-- Register Device -->
-    <string name="register_device_text">Bu cihazda Wire\'ı kullanmak için parolanızı girin.</string>
     <!-- Delete Message -->
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->

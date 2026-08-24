@@ -24,4 +24,7 @@
     <string name="login_email_placeholder">max@beispiel.com</string>
     <string name="login_email_label">E-MAIL-ADRESSE</string>
     <string name="login_error_invalid_email">Diese E-Mail-Adresse ist ungültig. Bitte überprüfen Sie Ihre Daten und versuchen Sie es erneut.</string>
+    <string name="label_add_device">Gerät hinzufügen</string>
+    <string name="register_device_title">Dieses Gerät hinzufügen</string>
+    <string name="register_device_text">Geben Sie Ihr Passwort ein, um Wire auf diesem Gerät zu verwenden.</string>
 </resources>

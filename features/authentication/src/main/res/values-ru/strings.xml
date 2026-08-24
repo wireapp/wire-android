@@ -24,4 +24,8 @@
     <string name="login_email_placeholder">maria@example.com</string>
     <string name="login_email_label">EMAIL</string>
     <string name="login_error_invalid_email">Адрес email неверен. Пожалуйста, проверьте и повторите попытку.</string>
+    <string name="label_add_device">Добавить устройство</string>
+    <string name="register_device_title">Добавить это устройство</string>
+    <string name="register_device_text">Введите пароль для использования Wire на этом устройстве.</string>
+    <string name="devices_loading_error">При попытке получить данные об устройствах возникла ошибка. Пожалуйста, проверьте подключение к интернету и повторите попытку.</string>
 </resources>

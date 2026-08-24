@@ -7,4 +7,7 @@
     <string name="create_personal_account_summary_text">Has creado tu cuenta personal con &#233;xito. &#161;Empieza a comunicarte de manera segura - donde sea que est&#233;s!</string>
     <string name="create_team_summary_title">Equipo creado</string>
     <string name="create_team_summary_text">Has creado tu cuenta de equipo con &#233;xito. &#161;Empieza a comunicarte de manera segura - donde sea que est&#233;s!</string>
+    <string name="label_add_device">Agregar Dispositivo</string>
+    <string name="register_device_title">Agregar este dispositivo</string>
+    <string name="register_device_text">Ingresa tu contrase&#241;a para usar Wire en este dispositivo.</string>
 </resources>

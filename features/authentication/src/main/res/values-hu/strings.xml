@@ -22,4 +22,8 @@
     <string name="login_email_placeholder">nev@pelda.hu</string>
     <string name="login_email_label">E-MAIL</string>
     <string name="login_error_invalid_email">Ez az e-mail-cím érvénytelen. Ellenőrizze a beírtakat, és próbálja újra.</string>
+    <string name="label_add_device">Eszköz hozzáadása</string>
+    <string name="register_device_title">Ezen eszköz hozzáadása</string>
+    <string name="register_device_text">Adja meg jelszavát a Wire ezen eszközön történő használatához.</string>
+    <string name="devices_loading_error">Hiba lépett fel az eszközlista letöltése közben. Ellenőrizze internetkapcsolatát, és próbálja újra.</string>
 </resources>

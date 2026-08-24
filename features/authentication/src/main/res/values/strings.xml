@@ -41,4 +41,8 @@
     <string name="login_email_placeholder">jane@example.com</string>
     <string name="login_email_label">EMAIL</string>
     <string name="login_error_invalid_email">This email is invalid. Please verify and try again.</string>
+    <string name="label_add_device">Add Device</string>
+    <string name="register_device_title">Add this Device</string>
+    <string name="register_device_text">Enter your password to use Wire on this device.</string>
+    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
 </resources>

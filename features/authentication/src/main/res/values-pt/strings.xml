@@ -18,4 +18,8 @@
     <string name="enterprise_login_error_invalid_user_identifier">Por favor, insira um e-mail ou código SSO válido</string>
     <string name="enterprise_login_create_account_label">Não tem uma conta Wire?</string>
     <string name="enterprise_login_verification_code_title">Você tem um e-mail</string>
+    <string name="label_add_device">Adicionar dispositivo</string>
+    <string name="register_device_title">Adicionar este dispositivo</string>
+    <string name="register_device_text">Digite sua senha para usar o Wire neste dispositivo.</string>
+    <string name="devices_loading_error">Houve um erro ao tentar obter os dispositivos. Verifique sua conexão com a Internet e tente novamente.</string>
 </resources>

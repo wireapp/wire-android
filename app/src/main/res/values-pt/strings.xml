@@ -31,7 +31,6 @@
     <string name="label_remove">Remover</string>
     <string name="label_proceed">Proceder</string>
     <string name="label_leave">Sair</string>
-    <string name="label_add_device">Adicionar dispositivo</string>
     <string name="label_learn_more">Saiba mais</string>
     <string name="label_removing">Removendo…</string>
     <string name="label_logging_in">Iniciando sessão…</string>
@@ -305,8 +304,6 @@ URL do Backend:
     <string name="e2ei_certificat_status_revoked">Revogado</string>
     <string name="e2ei_certificat_status_not_activated">Inativo</string>
     <!-- Register Device -->
-    <string name="register_device_title">Adicionar este dispositivo</string>
-    <string name="register_device_text">Digite sua senha para usar o Wire neste dispositivo.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Excluir mensagem?</string>
     <string name="delete_message_dialog_message">Se você excluir a mensagem para si mesmo, ela só será visível para outros participantes.
@@ -854,7 +851,6 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="devices_title">Seus Dispositivos</string>
     <string name="current_device_label">Dispositivos Atuais</string>
     <string name="other_devices_label">Outros Dispositivos</string>
-    <string name="devices_loading_error">Houve um erro ao tentar obter os dispositivos. Verifique sua conexão com a Internet e tente novamente.</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">uma conta ativa</item>

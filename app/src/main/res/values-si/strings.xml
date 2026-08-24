@@ -31,7 +31,6 @@
     <string name="label_remove">ඉවත් කරන්න</string>
     <string name="label_proceed">ඉදිරියට</string>
     <string name="label_leave">හැරයන්න</string>
-    <string name="label_add_device">උපාංගයක් යොදන්න</string>
     <string name="label_learn_more">තව දැනගන්න</string>
     <string name="label_removing">ඉවත් කෙරෙමින්…</string>
     <string name="label_logging_in">පිවිසෙමින්…</string>
@@ -309,8 +308,6 @@
     <string name="e2ei_certificat_status_revoked">අහෝසි කෙරිණි</string>
     <string name="e2ei_certificat_status_not_activated">සක්‍රිය කර නැත</string>
     <!-- Register Device -->
-    <string name="register_device_title">උපාංගය එක් කරන්න</string>
-    <string name="register_device_text">මෙම උපාංගයේ වයර් භාවිතයට මුරපදය යොදන්න.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">පණිවිඩය මකන්නද?</string>
     <string name="delete_message_dialog_message">ඔබට පමණක් පණිවිඩය මකා දැමුවහොත්, එය අනෙක් සහභාගීන්ට තවදුරටත් පෙනෙනු ඇත.\n\nඔබ එය සැමට මකා දැමුවහොත්, සැමගෙන් එම පණිවිඩය ඉවත් කරනු ලැබේ.\n\nමකා දැමූ පණිවිඩයක් ප්‍රත්‍යර්පණයට නොහැකිය.</string>
@@ -916,7 +913,6 @@
     <string name="devices_title">ඔබගේ උපාංග</string>
     <string name="current_device_label">වත්මන් උපාංගය</string>
     <string name="other_devices_label">වෙනත් උපාංග</string>
-    <string name="devices_loading_error">උපාංග ලබා ගැනීමට උත්සාහ කිරීමේදී දෝෂයක් ඇති විය. කරුණාකර ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">ගිණුමක් සක්‍රියයි</item>

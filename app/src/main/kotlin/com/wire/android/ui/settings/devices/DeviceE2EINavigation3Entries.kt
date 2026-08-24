@@ -21,6 +21,7 @@ import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.navigation.routes.auth.AuthenticationNavigation3Router
 import com.wire.android.navigation.routes.auth.AuthenticationNavigationTransition
 import com.wire.android.navigation.routes.auth.RegisterDeviceCompletion
+import com.wire.android.navigation.routes.auth.RemoveDeviceCompletion
 import com.wire.android.navigation.runtime.sessionCancellationSwitchAccountActions
 import com.wire.android.ui.authentication.clearSessionViewModel
 import com.wire.android.ui.authentication.registerDeviceViewModel
@@ -177,16 +178,34 @@ private fun RemoveDeviceNavigation3Entry(
             onNavigationCompleted = actions::completeSessionBackedAuthenticationCancellation,
         ),
         onE2EIRequired = {
-            authenticationRouter.removeDeviceToE2EI(route.sessionId, route.flowId)
+            authenticationRouter.completeRemoveDevice(
+                eventId = route.removeDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RemoveDeviceCompletion.E2EIEnrollment,
+            )
         },
         onHomeRequired = {
-            authenticationRouter.completeSessionSetup(route.sessionId, SessionSetupDestination.HOME)
+            authenticationRouter.completeRemoveDevice(
+                eventId = route.removeDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RemoveDeviceCompletion.Home,
+            )
         },
         onInitialSyncRequired = {
-            authenticationRouter.completeSessionSetup(route.sessionId, SessionSetupDestination.INITIAL_SYNC)
+            authenticationRouter.completeRemoveDevice(
+                eventId = route.removeDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RemoveDeviceCompletion.InitialSync,
+            )
         },
     )
 }
+
+private fun RemoveDeviceRoute.removeDeviceTerminalEventId(): String =
+    "${entryId.value}:remove-device-terminal"
 
 @Composable
 private fun E2EIEnrollmentNavigation3Entry(

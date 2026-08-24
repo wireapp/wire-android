@@ -31,7 +31,6 @@
     <string name="label_remove">Rimuovi</string>
     <string name="label_proceed">Procedi</string>
     <string name="label_leave">Lascia</string>
-    <string name="label_add_device">Aggiungi Dispositivo</string>
     <string name="label_learn_more">Scopri di pi&#249;</string>
     <string name="label_removing">Rimozione in corso...</string>
     <string name="label_logging_in">Accesso in corso...</string>
@@ -224,8 +223,6 @@ URL backend:
     <string name="e2ei_certificat_status_revoked">Revocato</string>
     <string name="e2ei_certificat_status_not_activated">Non attivato</string>
     <!-- Register Device -->
-    <string name="register_device_title">Aggiungi questo dispositivo</string>
-    <string name="register_device_text">Inserisci la tua password per usare Wire su questo dispositivo.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Eliminare questo messaggio?</string>
     <string name="delete_message_dialog_message">Se elimini il messaggio solo per te, sar&#224; visibile solo agli altri partecipanti.

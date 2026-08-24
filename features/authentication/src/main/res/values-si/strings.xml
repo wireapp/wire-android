@@ -22,4 +22,8 @@
     <string name="login_email_placeholder">ජේන්@example.com</string>
     <string name="login_email_label">විද්‍යුත් තැපෑල</string>
     <string name="login_error_invalid_email">මෙම විද්‍යුත් තැපෑල අවලංගුයි. කරුණාකර සත්‍යාපනය කර නැවත උත්සාහ කරන්න.</string>
+    <string name="label_add_device">උපාංගයක් යොදන්න</string>
+    <string name="register_device_title">උපාංගය එක් කරන්න</string>
+    <string name="register_device_text">මෙම උපාංගයේ වයර් භාවිතයට මුරපදය යොදන්න.</string>
+    <string name="devices_loading_error">උපාංග ලබා ගැනීමට උත්සාහ කිරීමේදී දෝෂයක් ඇති විය. කරුණාකර ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.</string>
 </resources>

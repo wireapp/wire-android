@@ -31,7 +31,6 @@
     <string name="label_remove">Eliminar</string>
     <string name="label_proceed">Proceder</string>
     <string name="label_leave">Salir</string>
-    <string name="label_add_device">Agregar Dispositivo</string>
     <string name="label_learn_more">Más información</string>
     <string name="label_removing">Eliminando...</string>
     <string name="label_logging_in">Iniciando sesión…</string>
@@ -211,8 +210,6 @@
     <string name="remove_device_details_description">Elimina este dispositivo si has dejado de usarlo. Se cerrar&#225; la sesi&#243;n en este dispositivo inmediatamente.</string>
     <string name="remove_device_details_description_with_wipe">Elimina tu dispositivo si has dejado de usarlo. De acuerdo con la configuraci&#243;n de seguridad de tu equipo, tu historial de conversaci&#243;n tambi&#233;n ser&#225; eliminado.</string>
     <!-- Register Device -->
-    <string name="register_device_title">Agregar este dispositivo</string>
-    <string name="register_device_text">Ingresa tu contrase&#241;a para usar Wire en este dispositivo.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">&#191;Eliminar mensaje?</string>
     <string name="delete_message_dialog_message">Si eliminas el mensaje para ti, s&#243;lo ser&#225; visible para otros participantes.

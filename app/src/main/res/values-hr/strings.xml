@@ -31,7 +31,6 @@
     <string name="label_remove">Ukloni</string>
     <string name="label_proceed">Nastavi</string>
     <string name="label_leave">Napusti</string>
-    <string name="label_add_device">Dodaj uređaj</string>
     <string name="label_learn_more">Saznaj više</string>
     <string name="label_removing">Uklanjanje…</string>
     <string name="label_logging_in">Prijava…</string>
@@ -219,8 +218,6 @@
     <string name="e2ei_certificat_status_revoked">Opozvano</string>
     <string name="e2ei_certificat_status_not_activated">Nije aktiviran</string>
     <!-- Register Device -->
-    <string name="register_device_title">Dodaj ovaj uređaj</string>
-    <string name="register_device_text">Unesite vašu lozinku da biste koristili Wire na ovom uređaju.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Obriši Poruku?</string>
     <string name="delete_message_dialog_message">Ako izbrišete poruku za sebe, ona će biti vidljiva samo drugim sudionicima.\n\nAko je izbrišete za sve, poruka će biti uklonjena za sve sudionike.\n\nIzbrisana poruka se ne može vratiti.</string>

@@ -31,7 +31,6 @@
     <string name="label_remove">Eltávolítás</string>
     <string name="label_proceed">Tovább</string>
     <string name="label_leave">Kilépés</string>
-    <string name="label_add_device">Eszköz hozzáadása</string>
     <string name="label_learn_more">További információ</string>
     <string name="label_removing">Eltávolít…</string>
     <string name="label_logging_in">Bejelentkezés…</string>
@@ -313,8 +312,6 @@
     <string name="e2ei_certificat_status_revoked">Visszavont</string>
     <string name="e2ei_certificat_status_not_activated">Nem aktivált</string>
     <!-- Register Device -->
-    <string name="register_device_title">Ezen eszköz hozzáadása</string>
-    <string name="register_device_text">Adja meg jelszavát a Wire ezen eszközön történő használatához.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Üzenet törlése?</string>
     <string name="delete_message_dialog_message">Ha saját magánál törli az üzenetet, akkor az csak a többi résztvevő számára lesz látható.\n\nHa mindenkinél törli, akkor az összes résztvevőnél eltávolításra kerül.\n\nA törölt üzenet visszaállítására nincs lehetőség.</string>
@@ -901,7 +898,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="devices_title">Saját eszközei</string>
     <string name="current_device_label">Ez az eszköz</string>
     <string name="other_devices_label">Egyéb eszközök</string>
-    <string name="devices_loading_error">Hiba lépett fel az eszközlista letöltése közben. Ellenőrizze internetkapcsolatát, és próbálja újra.</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">egy fiók aktív</item>

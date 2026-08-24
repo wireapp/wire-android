@@ -31,7 +31,6 @@
     <string name="label_remove">Удалить</string>
     <string name="label_proceed">Продолжить</string>
     <string name="label_leave">Покинуть</string>
-    <string name="label_add_device">Добавить устройство</string>
     <string name="label_learn_more">Подробнее</string>
     <string name="label_learn_more_about_mls">Узнайте больше о MLS</string>
     <string name="label_removing">Удаление...</string>
@@ -364,8 +363,6 @@
     <string name="e2ei_certificat_status_revoked">Отозван</string>
     <string name="e2ei_certificat_status_not_activated">Не активирован</string>
     <!-- Register Device -->
-    <string name="register_device_title">Добавить это устройство</string>
-    <string name="register_device_text">Введите пароль для использования Wire на этом устройстве.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Удалить сообщение?</string>
     <string name="delete_message_dialog_message">После удаления сообщения у себя, оно останется видимым только у других участников.\n\nЕсли удалить сообщение у всех, оно будет удалено у всех участников.\n\nУдаленное сообщение не может быть восстановлено.</string>
@@ -1118,7 +1115,6 @@
     <string name="devices_title">Ваши устройства</string>
     <string name="current_device_label">Текущее устройство</string>
     <string name="other_devices_label">Другие устройства</string>
-    <string name="devices_loading_error">При попытке получить данные об устройствах возникла ошибка. Пожалуйста, проверьте подключение к интернету и повторите попытку.</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">активен один аккаунт</item>

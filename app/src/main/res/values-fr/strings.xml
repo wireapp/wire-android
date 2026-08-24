@@ -30,7 +30,6 @@
     <string name="label_remove">Supprimer</string>
     <string name="label_proceed">Continuer</string>
     <string name="label_leave">Quitter</string>
-    <string name="label_add_device">Ajouter un appareil</string>
     <string name="label_learn_more">En savoir plus</string>
     <string name="label_removing">Suppression en cours…</string>
     <string name="label_logging_in">Connexion en cours…</string>
@@ -225,8 +224,6 @@
     <string name="e2ei_certificat_status_revoked">Révoqué</string>
     <string name="e2ei_certificat_status_not_activated">Non activé</string>
     <!-- Register Device -->
-    <string name="register_device_title">Ajouter cet appareil</string>
-    <string name="register_device_text">Entrez votre mot de passe pour utiliser Wire sur cet appareil.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Supprimer le message ?</string>
     <string name="delete_message_dialog_message">Si vous supprimez ce message pour vous-même, il sera toujours visible pour les autres participants.\n\nSi vous supprimez ce message pour tout le monde, il sera supprimé pour tous les participants. \n\nUn message supprimé ne peut pas être restauré.</string>

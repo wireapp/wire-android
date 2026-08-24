@@ -30,7 +30,6 @@
     <string name="label_remove">Usu&#324;</string>
     <string name="label_proceed">Przejd&#378;</string>
     <string name="label_leave">Opu&#347;&#263;</string>
-    <string name="label_add_device">Dodaj urz&#261;dzenie</string>
     <string name="label_learn_more">Dowiedz si&#281; wi&#281;cej</string>
     <string name="label_removing">Usuwanie...</string>
     <string name="label_logging_in">Logowanie...</string>
@@ -184,8 +183,6 @@ URL &#347;rodowiska:
     <string name="remove_device_details_description">Usu&#324; to urz&#261;dzenie, je&#347;li przesta&#322;e&#347; z niego korzysta&#263;. Natychmiast zostaniesz wylogowany z tego urz&#261;dzenia.</string>
     <string name="remove_device_details_description_with_wipe">Usu&#324; swoje urz&#261;dzenie, je&#347;li przesta&#322;e&#347; z niego korzysta&#263;. Zgodnie z ustawieniami bezpiecze&#324;stwa Twojego zespo&#322;u historia rozm&#243;w zostanie r&#243;wnie&#380; usuni&#281;ta.</string>
     <!-- Register Device -->
-    <string name="register_device_title">Dodaj to urz&#261;dzenie</string>
-    <string name="register_device_text">Wpisz swoje has&#322;o, aby korzysta&#263; z Wire na tym urz&#261;dzeniu.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Usun&#261;&#263; wiadomo&#347;&#263;?</string>
     <string name="delete_message_dialog_message">Je&#347;li usuniesz wiadomo&#347;&#263; dla siebie, b&#281;dzie ona widoczna tylko dla innych uczestnik&#243;w.

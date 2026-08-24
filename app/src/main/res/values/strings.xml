@@ -40,7 +40,6 @@
     <string name="label_remove">Remove</string>
     <string name="label_proceed">Proceed</string>
     <string name="label_leave">Leave</string>
-    <string name="label_add_device">Add Device</string>
     <string name="label_learn_more">Learn more</string>
     <string name="label_learn_more_about_mls">Learn more about MLS</string>
     <string name="label_removing">Removing…</string>
@@ -381,8 +380,6 @@
     <string name="e2ei_certificat_status_revoked">Revoked</string>
     <string name="e2ei_certificat_status_not_activated">Not activated</string>
     <!-- Register Device -->
-    <string name="register_device_title">Add this Device</string>
-    <string name="register_device_text">Enter your password to use Wire on this device.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Delete Message?</string>
     <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
@@ -1119,7 +1116,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>
     <string name="other_devices_label">Other Devices</string>
-    <string name="devices_loading_error">There was an error when trying to fetch devices. Please check your Internet connection and try again.</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">one account active</item>

@@ -31,7 +31,6 @@
     <string name="label_remove">Entfernen</string>
     <string name="label_proceed">Fortfahren</string>
     <string name="label_leave">Verlassen</string>
-    <string name="label_add_device">Gerät hinzufügen</string>
     <string name="label_learn_more">Mehr erfahren</string>
     <string name="label_learn_more_about_mls">Erfahren Sie mehr über MLS</string>
     <string name="label_removing">Entfernen…</string>
@@ -354,8 +353,6 @@
     <string name="e2ei_certificat_status_revoked">Widerrufen</string>
     <string name="e2ei_certificat_status_not_activated">Nicht aktiviert</string>
     <!-- Register Device -->
-    <string name="register_device_title">Dieses Gerät hinzufügen</string>
-    <string name="register_device_text">Geben Sie Ihr Passwort ein, um Wire auf diesem Gerät zu verwenden.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Nachricht löschen?</string>
     <string name="delete_message_dialog_message">Wenn Sie die Nachricht für sich selbst löschen, ist sie noch für andere Teilnehmer sichtbar.\n\nWenn Sie sie für alle löschen, wird die Nachricht für alle Teilnehmer entfernt.\n\nEine gelöschte Nachricht kann nicht wiederhergestellt werden.</string>

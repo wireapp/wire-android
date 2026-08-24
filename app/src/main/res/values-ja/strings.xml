@@ -31,7 +31,6 @@
     <string name="label_remove">削除</string>
     <string name="label_proceed">次へ</string>
     <string name="label_leave">退室</string>
-    <string name="label_add_device">デバイスを追加</string>
     <string name="label_learn_more">もっと知る</string>
     <string name="label_removing">削除中…</string>
     <string name="label_logging_in">ログイン中…</string>
@@ -226,8 +225,6 @@
     <string name="e2ei_certificat_status_revoked">失効済み</string>
     <string name="e2ei_certificat_status_not_activated">有効化されていません</string>
     <!-- Register Device -->
-    <string name="register_device_title">このデバイスを追加</string>
-    <string name="register_device_text">このデバイスでWireを使用するにはパスワードを入力してください。</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">メッセージを削除しますか？</string>
     <string name="delete_message_dialog_message">メッセージを自分の会話から削除しても、他の参加者からはそのメッセージは見えます。\n\nメッセージを全員の会話から削除すると、全ての参加者の会話から削除されます。\n\n削除したメッセージは復元できません。</string>

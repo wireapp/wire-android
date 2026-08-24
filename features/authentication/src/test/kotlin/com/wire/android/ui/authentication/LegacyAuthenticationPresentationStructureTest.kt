@@ -10,7 +10,7 @@ class LegacyAuthenticationPresentationStructureTest {
 
     @Test
     fun `backend adapter delegates presentation and keeps platform tags`() {
-        val source = appSource("BackendConfigSetup.kt")
+        val source = appSource("BackendConfigSetup.kt") + appSource("BackendConfigHostContent.kt")
         val content = featureSource("BackendConfigContent.kt")
         assertTrue(source.contains("BackendConfigFormContent("))
         assertTrue(source.contains("BackendConfigSuccessContent("))

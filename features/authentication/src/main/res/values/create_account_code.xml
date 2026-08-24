@@ -1,4 +1,0 @@
-<resources>
-    <string name="create_team_title">Create Team</string>
-    <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
-</resources>

@@ -39,8 +39,9 @@ class CreateAccountCodePresentationOwnershipTest {
             "CreateAccountCodePresentation(",
             "ServerTitle(",
             "WireDialog(",
-            "CreateAccountSummaryNavArgs(flowType)",
+            "onSuccess(flowType, it.userId)",
         ).forEach { value -> assertContains(appScreen, value) }
+        assertFalse(appScreen.contains("CreateAccountSummaryNavArgs"))
         listOf("WireScaffold(", "CodeTextField(", "FocusRequester").forEach { value ->
             assertFalse(appScreen.contains(value))
         }

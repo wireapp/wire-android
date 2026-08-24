@@ -1,4 +1,0 @@
-<resources>
-    <string name="create_team_title">Создать команду</string>
-    <string name="create_account_code_text">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
-</resources>

@@ -37,7 +37,7 @@ class CreateAccountBoundaryGuardTest {
     }
 
     @Test
-    fun `exclusive overview resources are feature-owned with stable contents`() {
+    fun `create account resources are exclusively feature-owned with stable contents`() {
         val root = root()
         val names = listOf(
             "create_personal_account_text",
@@ -49,9 +49,8 @@ class CreateAccountBoundaryGuardTest {
         )
         val app = resourceDefinitions(root.resolve("app/src/main/res"), names)
         val feature = resourceDefinitions(root.resolve("features/authentication/src/main/res"), names)
-        assertEquals(12, app.size)
-        assertTrue(app.all { it.contains("name=\"create_account_code_text\"") })
-        assertEquals(app, feature.filter { it.contains("name=\"create_account_code_text\"") })
+
+        assertTrue(app.isEmpty(), "Create Account resource definitions remain in app: $app")
         assertEquals(60, feature.size)
         assertEquals("ba6fab33fea30d230a9fefe82c9706c6f549cdb0b56662155160bc45618f1de1", sha256(feature))
     }

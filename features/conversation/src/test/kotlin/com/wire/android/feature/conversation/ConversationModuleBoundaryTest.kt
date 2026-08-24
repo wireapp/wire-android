@@ -202,6 +202,29 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun messageClickActionsAreFeatureOwnedWithTheLegacyContract() {
+        val source = featureSource(messageClickActionsRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations.messages.item"))
+        assertEquals(
+            setOf(
+                "com.wire.android.ui.home.conversations.model.MessageSenderId",
+                "com.wire.android.ui.home.conversations.model.UIMessage",
+                "com.wire.kalium.logic.data.id.ConversationId",
+                "com.wire.kalium.logic.data.user.UserId",
+            ),
+            importedDeclarations(source),
+        )
+        assertTrue(source.contains("sealed class MessageClickActions"))
+        assertTrue(source.contains("data class FullItem("))
+        assertTrue(source.contains("data class Content("))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyMessageClickActionsRelativePath).exists(),
+            "$legacyMessageClickActionsRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -906,6 +929,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIMessage.kt"
         const val uiQuotedMessageRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIQuotedMessage.kt"
+        const val messageClickActionsRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageClickActions.kt"
+        const val legacyMessageClickActionsRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageClickActions.kt"
         const val messageResourceProviderRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageResourceProvider.kt"
         const val legacyMessageResourceProviderRelativePath =
@@ -1474,6 +1501,9 @@ class ConversationModuleBoundaryTest {
             uiMessageRelativePath to "com.wire.android.ui.home.conversations.model",
             uiQuotedMessageRelativePath to "com.wire.android.ui.home.conversations.model",
         )
+        val messageClickActionsSources = mapOf(
+            messageClickActionsRelativePath to "com.wire.android.ui.home.conversations.messages.item",
+        )
         val messageResourceProviderSources = mapOf(
             messageResourceProviderRelativePath to "com.wire.android.mapper",
         )
@@ -1510,7 +1540,8 @@ class ConversationModuleBoundaryTest {
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
-                    conversationMediaSearchArgumentSources + uiMessageModelSources + messageResourceProviderSources +
+                    conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
+                    messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
                     messageContentAndFinalMapperSources + messagePreviewContentMapperSources
         val allowedMovedSourceImports = setOf(

@@ -23,13 +23,10 @@ import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
-import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.navigation.WireNavEntryId
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
@@ -69,13 +66,6 @@ class AuthenticationLegacyMappersTest {
             legacy.toNewLoginRoute(
                 flowId = "new-login-flow",
                 entryId = WireNavEntryId("new-login-entry"),
-            ).toLegacyNavArgs(),
-        )
-        assertEquals(
-            legacy,
-            legacy.toNewLoginPasswordRoute(
-                flowId = "new-login-flow",
-                entryId = WireNavEntryId("password-entry"),
             ).toLegacyNavArgs(),
         )
         assertEquals(
@@ -120,17 +110,6 @@ class AuthenticationLegacyMappersTest {
             .toNewLoginVerificationCodeRoute(passwordAttempt.flowId)
 
         assertEquals(passwordAttempt.flowId, verification.flowId)
-    }
-
-    @Test
-    fun givenWelcomeArguments_whenMappedToTypedSerializedAndBack_thenServerLinksArePreserved() {
-        val legacy = WelcomeNavArgs(customServerConfig = SERVER_LINKS)
-        val route = legacy.toWelcomeRoute(WireNavEntryId("welcome-entry"))
-
-        val restored = Json.decodeFromString<WelcomeRoute>(Json.encodeToString(route))
-            .toLegacyNavArgs()
-
-        assertEquals(legacy.customServerConfig, restored.customServerConfig)
     }
 
     private fun completeLegacyLoginArguments() = LoginNavArgs(

@@ -40,8 +40,6 @@ import com.wire.android.ui.home.settings.selfDevicesViewModel
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsPayload
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsRoute
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsRouteScreen
-import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
-import com.wire.android.ui.settings.devices.e2ei.toNavigationPayload
 import com.wire.android.ui.settings.devices.e2ei.toViewModelArgs
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireNavigationCommand
@@ -267,9 +265,10 @@ private fun DeviceDetailsNavigation3Entry(
                 WireNavigationCommand(
                     E2eiCertificateDetailsRoute(
                         sessionId = route.sessionId,
-                        details = E2EICertificateDetails
-                            .AfterLoginCertificateDetails(identity)
-                            .toNavigationPayload(),
+                        details = E2eiCertificateDetailsPayload.AfterLogin(
+                            certificate = identity.x509Identity?.certificate.orEmpty(),
+                            userHandle = identity.x509Identity?.handle?.handle.orEmpty(),
+                        ),
                     )
                 )
             )

@@ -332,6 +332,17 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun groupConversationAvatarIsFeatureOwnedWithTheLegacyPublicContract() {
+        val source = featureSource(groupConversationAvatarRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversationslist.common"))
+        assertTrue(source.contains("fun GroupConversationAvatar("))
+        assertTrue(source.contains("avatarData: ConversationAvatar.Group"))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(File(Konsist.projectRootPath, legacyGroupConversationAvatarRelativePath).exists())
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -1074,6 +1085,10 @@ class ConversationModuleBoundaryTest {
             "app/src/test/kotlin/com/wire/android/ui/home/conversations/messages/DeletionIconMetricsTest.kt"
         const val messageExpirationItemsRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageExpirationItems.kt"
+        const val groupConversationAvatarRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/GroupConversationAvatar.kt"
+        const val legacyGroupConversationAvatarRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/GroupConversationAvatar.kt"
         const val messageReactionsItemRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
         const val reactionPillRelativePath =
@@ -1661,6 +1676,9 @@ class ConversationModuleBoundaryTest {
         val offlineMessageIndicatorSources = mapOf(
             offlineMessageIndicatorRelativePath to "com.wire.android.ui.home.conversations.messages.item",
         )
+        val groupConversationAvatarSources = mapOf(
+            groupConversationAvatarRelativePath to "com.wire.android.ui.home.conversationslist.common",
+        )
         val reactionPresentationSources = mapOf(
             messageReactionsItemRelativePath to "com.wire.android.ui.home.conversations.messages.item",
             reactionPillRelativePath to "com.wire.android.ui.home.conversations.messages",
@@ -1703,7 +1721,7 @@ class ConversationModuleBoundaryTest {
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageClickActionsSources +
                     linkPreviewMessageBodySources + messageAuthorRowSources + regularMessageItemLeadingSources +
-                    offlineMessageIndicatorSources + reactionPresentationSources +
+                    offlineMessageIndicatorSources + groupConversationAvatarSources + reactionPresentationSources +
                     messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
                     messageContentAndFinalMapperSources + messagePreviewContentMapperSources
@@ -1850,6 +1868,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.model.UIMessage",
             "com.wire.android.ui.home.conversations.model.UIMessageContent",
             "com.wire.android.ui.home.conversations.model.UIQuotedMessage",
+            "com.wire.android.ui.home.conversations.info.ConversationAvatar",
             "com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams",
             "com.wire.android.ui.home.messagecomposer.SelfDeletionDuration",
             "com.wire.android.ui.markdown.MarkdownNode",

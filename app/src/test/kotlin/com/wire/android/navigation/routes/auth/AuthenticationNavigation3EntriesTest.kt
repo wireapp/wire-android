@@ -51,29 +51,34 @@ class AuthenticationNavigation3EntriesTest {
     }
 
     @Test
-    fun givenArgumentBackedAuthenticationViewModels_whenInspectingSources_thenTypedArgsUseFocusedAssistedFactories() {
+    fun givenArgumentBackedAuthenticationViewModels_whenInspectingSources_thenTypedArgsUseFocusedHostFactories() {
         val graph = sourceFile(
             "../../../ui/authentication/AuthenticationViewModelGraph.kt"
         ).readText()
         val bindings = sourceFile(
             "../../../di/metro/AuthenticationMetroViewModelBindings.kt"
         ).readText()
-        val welcomeViewModel = sourceFile(
-            "../../../ui/authentication/welcome/WelcomeViewModel.kt"
+        val welcomeViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/welcome/WelcomeViewModel.kt",
+        ).readText()
+        val welcomeHostFactory = sourceFile(
+            "../../../ui/authentication/welcome/WelcomeViewModelHostFactory.kt"
         ).readText()
         val newLoginViewModel = sourceFile(
             "../../../ui/newauthentication/login/NewLoginViewModel.kt"
         ).readText()
         val entries = sourceFile("AuthenticationNavigation3Entries.kt").readText()
 
-        assertTrue(graph.contains("fun welcomeViewModel(navArgs: WelcomeNavArgs)"))
+        assertTrue(graph.contains("fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
         assertTrue(graph.contains("fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras)"))
-        assertTrue(bindings.contains("WelcomeViewModel.Factory"))
+        assertTrue(bindings.contains("WelcomeViewModelHostFactory"))
         assertTrue(bindings.contains("NewLoginViewModel.Factory"))
         assertTrue(bindings.contains("welcomeFactory.create(navArgs)"))
         assertTrue(bindings.contains("newLoginFactory.create(loginNavArgs, extras.createSavedStateHandle())"))
-        assertTrue(welcomeViewModel.contains("interface Factory"))
-        assertTrue(welcomeViewModel.contains("fun create(navArgs: WelcomeNavArgs): WelcomeViewModel"))
+        assertTrue(welcomeViewModel.contains("class WelcomeViewModel<LinksT>"))
+        assertFalse(welcomeViewModel.contains("AssistedInject"))
+        assertTrue(welcomeHostFactory.contains("fun create(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
         assertTrue(newLoginViewModel.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
         assertTrue(entries.contains("welcomeViewModel(route.toLegacyNavArgs(), flowOwner)"))
         assertTrue(entries.contains("newLoginViewModel(legacyArgs, flowOwner)"))
@@ -106,13 +111,15 @@ class AuthenticationNavigation3EntriesTest {
     }
 
     private fun sourceFile(name: String): File {
-        val projectDir = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
-            .first { File(it, "app/src/main/kotlin").isDirectory }
         return File(
-            projectDir,
+            repositoryRoot(),
             "app/src/main/kotlin/com/wire/android/navigation/routes/auth/$name",
         ).also {
             assertTrue(it.isFile, "Missing source file $name")
         }
     }
+
+    private fun repositoryRoot(): File =
+        generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+            .first { File(it, "app/src/main/kotlin").isDirectory }
 }

@@ -50,13 +50,14 @@ import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewMo
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface AuthenticationViewModelGraph : MetroViewModelGraph
 
 interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel
+    fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>
     fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): NewLoginViewModel
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginSSOViewModel
@@ -90,7 +91,7 @@ inline fun <reified VM> authenticationViewModel(
     )
 
 @Composable
-fun welcomeViewModel(): WelcomeViewModel =
+fun welcomeViewModel(): WelcomeViewModel<ServerConfig.Links> =
     authenticationViewModel()
 
 @Composable
@@ -99,8 +100,8 @@ fun welcomeViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
-): WelcomeViewModel =
-    wireAssistedMetroViewModel<WelcomeViewModel, AuthenticationManualViewModelFactory>(
+): WelcomeViewModel<ServerConfig.Links> =
+    wireAssistedMetroViewModel<WelcomeViewModel<ServerConfig.Links>, AuthenticationManualViewModelFactory>(
         owner = viewModelStoreOwner,
     ) {
         welcomeViewModel(navArgs)

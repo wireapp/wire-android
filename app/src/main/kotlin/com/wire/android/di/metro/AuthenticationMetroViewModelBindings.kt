@@ -34,11 +34,13 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
+import com.wire.android.ui.authentication.welcome.WelcomeViewModelHostFactory
 import com.wire.android.ui.newauthentication.login.NewLoginViewModel
 import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewModel
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
@@ -60,7 +62,7 @@ object AuthenticationMetroViewModelBindings {
     @ManualViewModelAssistedFactoryKey(AuthenticationManualViewModelFactory::class)
     @Suppress("LongParameterList")
     fun authenticationManualViewModelFactory(
-        welcomeFactory: WelcomeViewModel.Factory,
+        welcomeFactory: WelcomeViewModelHostFactory,
         newLoginFactory: NewLoginViewModel.Factory,
         loginEmailFactory: LoginEmailViewModel.Factory,
         loginSSOFactory: LoginSSOViewModel.Factory,
@@ -72,7 +74,7 @@ object AuthenticationMetroViewModelBindings {
         createAccountDataDetailFactory: CreateAccountDataDetailViewModel.Factory,
         createAccountVerificationCodeFactory: CreateAccountVerificationCodeViewModel.Factory,
     ): ManualViewModelAssistedFactory = object : AuthenticationManualViewModelFactory {
-        override fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel =
+        override fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links> =
             welcomeFactory.create(navArgs)
 
         override fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): NewLoginViewModel =

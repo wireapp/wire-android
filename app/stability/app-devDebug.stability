@@ -1365,7 +1365,7 @@ private fun com.wire.android.ui.authentication.welcome.WelcomeFooterSection(stat
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.ui.authentication.welcome.WelcomeRouteScreen(viewModel: com.wire.android.ui.authentication.welcome.WelcomeViewModel, onNavigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.authentication.welcome.WelcomeScreenAction, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.authentication.welcome.WelcomeRouteScreen(viewModel: com.wire.android.ui.authentication.welcome.WelcomeViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.authentication.welcome.WelcomeScreenAction, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1381,13 +1381,13 @@ private fun com.wire.android.ui.authentication.welcome.typedArrayResource(id: ko
     - id: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.authentication.welcomeViewModel(): com.wire.android.ui.authentication.welcome.WelcomeViewModel
+public fun com.wire.android.ui.authentication.welcomeViewModel(): com.wire.android.ui.authentication.welcome.WelcomeViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links>
   skippable: true
   restartable: true
   params:
 
 @Composable
-public fun com.wire.android.ui.authentication.welcomeViewModel(navArgs: com.wire.android.ui.authentication.welcome.WelcomeNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.welcome.WelcomeViewModel
+public fun com.wire.android.ui.authentication.welcomeViewModel(navArgs: com.wire.android.ui.authentication.welcome.WelcomeNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.welcome.WelcomeViewModel<com.wire.kalium.logic.configuration.server.ServerConfig.Links>
   skippable: false
   restartable: true
   params:

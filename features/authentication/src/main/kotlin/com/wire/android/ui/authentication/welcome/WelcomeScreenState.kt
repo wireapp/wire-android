@@ -17,10 +17,8 @@
  */
 package com.wire.android.ui.authentication.welcome
 
-import com.wire.kalium.logic.configuration.server.ServerConfig
-
-data class WelcomeScreenState(
-    val links: ServerConfig.Links,
+data class WelcomeScreenState<LinksT>(
+    val links: LinksT,
     val isThereActiveSession: Boolean = false,
     val maxAccountsReached: Boolean = false,
     val nomadAccountBlocksLogin: Boolean = false,

@@ -111,7 +111,7 @@ internal sealed interface WelcomeScreenAction {
  */
 @Composable
 internal fun WelcomeRouteScreen(
-    viewModel: WelcomeViewModel,
+    viewModel: WelcomeViewModel<ServerConfig.Links>,
     onNavigateBack: () -> Unit,
     onAction: (WelcomeScreenAction) -> Unit,
 ) {
@@ -124,6 +124,8 @@ internal fun WelcomeRouteScreen(
         onAction,
     )
 }
+
+internal fun ServerConfig.Links.isProxyEnabled() = apiProxy != null
 
 @Composable
 private fun WelcomeContent(

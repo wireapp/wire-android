@@ -12,6 +12,6 @@ class KaliumE2EIEnrollmentGateway @Inject constructor(
     private val finalizeMLSClientAfterE2EIEnrollment: FinalizeMLSClientAfterE2EIEnrollmentUseCase,
 ) : E2EIEnrollmentGateway {
     override suspend fun finalizeEnrollment() {
-        finalizeMLSClientAfterE2EIEnrollment()
+        finalizeMLSClientAfterE2EIEnrollment.invoke()
     }
 }

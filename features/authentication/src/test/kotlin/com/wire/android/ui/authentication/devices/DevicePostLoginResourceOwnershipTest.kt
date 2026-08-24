@@ -3,10 +3,30 @@ package com.wire.android.ui.authentication.devices
 import java.nio.file.Files
 import java.nio.file.Path
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class DevicePostLoginResourceOwnershipTest {
+    @Test
+    fun `device gate presentation owns exact slide transition and terminal action adaptation`() {
+        val root = repositoryRoot()
+        val featureRoot = root.resolve("features/authentication/src/main/kotlin/com/wire/android/ui/authentication/devices")
+        val transition = Files.readString(featureRoot.resolve("DeviceAuthenticationTransitions.kt"))
+        val register = Files.readString(featureRoot.resolve("register/RegisterDeviceContent.kt"))
+        val remove = Files.readString(featureRoot.resolve("remove/RemoveDeviceContent.kt"))
+
+        assertFalse(listOf(transition, register, remove).any { it.contains("com.wire.android.navigation") })
+        assertTrue(transition.contains("Spring.StiffnessMediumLow"))
+        assertTrue(transition.contains("fullWidth / 3"))
+        assertTrue(transition.contains("fadeIn(animationSpec = deviceFadeAnimationSpec)"))
+        assertTrue(transition.contains("togetherWith(fadeOut(animationSpec = deviceFadeAnimationSpec))"))
+        assertTrue(register.contains("transitionSpec = { deviceAuthenticationSlideTransition() }"))
+        assertTrue(remove.contains("transitionSpec = { deviceAuthenticationSlideTransition() }"))
+        assertTrue(remove.contains("is OnComplete -> onComplete(action)"))
+        assertFalse(remove.contains("HandleActions(viewModel.actions, onComplete)"))
+    }
+
     @Test
     fun `register and loading error resources move exactly with every qualifier`() {
         val root = repositoryRoot()

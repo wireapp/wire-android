@@ -78,6 +78,7 @@ class RegisterDeviceOwnershipTest {
             "CoreFailure",
             "ClientId",
             "UserId",
+            "com.wire.android.navigation",
         )
     }
 }

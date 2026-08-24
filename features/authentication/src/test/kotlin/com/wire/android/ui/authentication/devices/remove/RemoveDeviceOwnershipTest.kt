@@ -98,6 +98,7 @@ class RemoveDeviceOwnershipTest {
             "DeleteClientParam",
             "RegisterClientParam",
             "SelfClientsResult",
+            "com.wire.android.navigation",
         )
     }
 }

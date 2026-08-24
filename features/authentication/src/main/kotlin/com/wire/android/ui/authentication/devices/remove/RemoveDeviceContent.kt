@@ -6,7 +6,6 @@ package com.wire.android.ui.authentication.devices.remove
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.wire.android.navigation.style.TransitionAnimationType
+import com.wire.android.ui.authentication.devices.deviceAuthenticationSlideTransition
 import com.wire.android.ui.authentication.devices.register.AuthenticationFailure
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
@@ -51,9 +50,7 @@ fun <DeviceT> RemoveDeviceContent(
     val codeRequired = viewModel.secondFactorVerificationCodeState.isCodeInputNecessary
     AnimatedContent(
         targetState = codeRequired,
-        transitionSpec = {
-            TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
-        },
+        transitionSpec = { deviceAuthenticationSlideTransition() },
         modifier = modifier.fillMaxSize(),
     ) { needsCode ->
         if (needsCode) RemoveDeviceVerificationCodeScreen(viewModel)
@@ -75,7 +72,11 @@ fun <DeviceT> RemoveDeviceContent(
         is RemoveDeviceAuthenticationError.GenericError -> genericFailureDialog(error.failure, viewModel::clearDeleteClientError)
         else -> Unit
     }
-    HandleActions(viewModel.actions, onComplete)
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is OnComplete -> onComplete(action)
+        }
+    }
 }
 
 @Composable

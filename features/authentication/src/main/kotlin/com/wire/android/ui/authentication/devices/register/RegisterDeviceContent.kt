@@ -5,12 +5,11 @@
 package com.wire.android.ui.authentication.devices.register
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import com.wire.android.navigation.style.TransitionAnimationType
+import com.wire.android.ui.authentication.devices.deviceAuthenticationSlideTransition
 
 data class RegisterDeviceText(
     val title: String,
@@ -43,9 +42,7 @@ fun <SessionT> RegisterDeviceContent(
         is RegisterDeviceFlowState.Success, RegisterDeviceFlowState.TooManyDevices -> Unit
         else -> AnimatedContent(
             targetState = viewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
-            transitionSpec = {
-                TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
-            },
+            transitionSpec = { deviceAuthenticationSlideTransition() },
             modifier = modifier.fillMaxSize(),
         ) { needsCode ->
             if (needsCode) RegisterDeviceVerificationCodeScreen(viewModel)

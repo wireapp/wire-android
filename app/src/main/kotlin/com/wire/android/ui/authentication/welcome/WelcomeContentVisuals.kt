@@ -45,17 +45,22 @@ internal fun WelcomeServerTitle(links: ServerConfig.Links) {
 }
 
 @Composable
-internal fun ServerConfig.Links.welcomeBodyOverride(): (@Composable ColumnScope.() -> Unit)? = if (!isConfigured()) ({
-    MissingBackendConfigContent(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding)
-            .weight(1f, true),
-        showTitle = true,
-        centerText = true,
-        verticalArrangement = Arrangement.Center,
-    )
-}) else null
+internal fun ServerConfig.Links.welcomeBodyOverride(): (@Composable ColumnScope.() -> Unit)? =
+    if (!isConfigured()) {
+        {
+            MissingBackendConfigContent(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding)
+                    .weight(1f, true),
+                showTitle = true,
+                centerText = true,
+                verticalArrangement = Arrangement.Center,
+            )
+        }
+    } else {
+        null
+    }
 
 @Composable
 internal fun welcomeCarouselPages() = listOf(

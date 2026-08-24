@@ -28,8 +28,11 @@ internal fun NewLoginHeader(
     val credentials = presentation.mode == NewLoginContentMode.Identifier
     NewAuthHeader(
         title = {
-            if (serverConfig.isOnPremises) OnPremisesTitle(serverConfig, credentials)
-            else CloudTitle(presentation)
+            if (serverConfig.isOnPremises) {
+                OnPremisesTitle(serverConfig, credentials)
+            } else {
+                CloudTitle(presentation)
+            }
         },
         canNavigateBack = canNavigateBack,
         onNavigateBack = navigateBack,

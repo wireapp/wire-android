@@ -18,8 +18,6 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
-import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordTerminal
-import com.wire.android.ui.newauthentication.login.password.newLoginPasswordTerminal
 import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.kalium.logic.data.user.UserId

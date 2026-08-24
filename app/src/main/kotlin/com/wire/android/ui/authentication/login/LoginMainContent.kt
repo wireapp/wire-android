@@ -72,12 +72,14 @@ private fun BackendConfiguration(state: LoginEmailState.BackendConfigState, view
             modifier = Modifier.fillMaxWidth(),
             onContinue = viewModel::onBackendConfigSuccessContinue,
         )
-    } else MissingBackendConfigContent(
-        modifier = Modifier.fillMaxWidth(),
-        errorText = (state == LoginEmailState.BackendConfigState.Error)
-            .takeIf { it }
-            ?.let { stringResource(R.string.missing_backend_config_error) },
-        isLoading = state == LoginEmailState.BackendConfigState.Loading,
-        onConfigurationLinkEntered = viewModel::onBackendConfigLinkEntered,
-    )
+    } else {
+        MissingBackendConfigContent(
+            modifier = Modifier.fillMaxWidth(),
+            errorText = (state == LoginEmailState.BackendConfigState.Error)
+                .takeIf { it }
+                ?.let { stringResource(R.string.missing_backend_config_error) },
+            isLoading = state == LoginEmailState.BackendConfigState.Loading,
+            onConfigurationLinkEntered = viewModel::onBackendConfigLinkEntered,
+        )
+    }
 }

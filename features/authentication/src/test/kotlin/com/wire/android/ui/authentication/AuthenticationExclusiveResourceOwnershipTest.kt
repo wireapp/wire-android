@@ -42,7 +42,9 @@ class AuthenticationExclusiveResourceOwnershipTest {
     private fun sha256(value: String): String = MessageDigest.getInstance("SHA-256")
         .digest(value.toByteArray(StandardCharsets.UTF_8)).joinToString("") { "%02x".format(it) }
 
-    private fun repositoryRoot(): Path = generateSequence(Path.of(System.getProperty("user.dir")).toAbsolutePath()) { it.parent }
+    private fun repositoryRoot(): Path = generateSequence(Path.of(System.getProperty("user.dir")).toAbsolutePath()) {
+        it.parent
+    }
         .first { Files.isDirectory(it.resolve("app/src/main/kotlin")) }
 
     private companion object {

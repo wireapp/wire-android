@@ -63,7 +63,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -151,7 +150,9 @@ class LoginSSOViewModelHostFactoryTest {
         }
 
         val failure = NetworkFailure.NoNetworkConnection(null)
-        coEvery { arrangement.autoVersion(null) } returns AutoVersionAuthScopeUseCase.Result.Success(arrangement.authenticationScope)
+        coEvery {
+            arrangement.autoVersion(null)
+        } returns AutoVersionAuthScopeUseCase.Result.Success(arrangement.authenticationScope)
         coEvery { arrangement.authenticationScope.domainLookup("email") } returns DomainLookupUseCase.Result.Failure(failure)
         val result = arrangement.gateway.lookupDomain { "email" } as LoginSSODomainLookupResult.Failure
         assertSame(failure, result.failure)
@@ -186,7 +187,9 @@ class LoginSSOViewModelHostFactoryTest {
         val arrangement = Arrangement()
         val retained = mockk<StoreSessionParam>()
         every { retained.nomadServiceUrl } returns "nomad"
-        coEvery { arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+        coEvery {
+            arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } coAnswers {
             arg<suspend (StoreSessionParam) -> Unit>(8)(retained)
         }
         assertEquals(
@@ -199,7 +202,9 @@ class LoginSSOViewModelHostFactoryTest {
             arrangement.gateway.establishSession("cookie", "config", { null }, { null }),
         )
 
-        coEvery { arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+        coEvery {
+            arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } coAnswers {
             arg<(SSOLoginSessionResult.Failure) -> Unit>(5)(SSOLoginSessionResult.Failure.InvalidCookie)
         }
         assertEquals(
@@ -207,7 +212,9 @@ class LoginSSOViewModelHostFactoryTest {
             arrangement.gateway.establishSession("cookie", "config", { null }, { null }),
         )
 
-        coEvery { arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+        coEvery {
+            arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } coAnswers {
             arg<(AddAuthenticatedUserUseCase.Result.Failure) -> Unit>(6)(
                 AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation
             )
@@ -217,7 +224,9 @@ class LoginSSOViewModelHostFactoryTest {
             arrangement.gateway.establishSession("cookie", "config", { null }, { null }),
         )
 
-        coEvery { arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+        coEvery {
+            arrangement.ssoExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any(), any())
+        } coAnswers {
             arg<suspend (com.wire.kalium.logic.data.user.UserId) -> Unit>(7)(TestUser.SELF_USER_ID)
         }
         assertEquals(
@@ -250,7 +259,9 @@ class LoginSSOViewModelHostFactoryTest {
         coEvery { arrangement.loginExtension.registerClient(TestUser.SELF_USER_ID, null) } returns
             RegisterClientResult.Success(TestClient.CLIENT)
         coEvery { arrangement.loginExtension.isInitialSyncCompleted(TestUser.SELF_USER_ID) } returns false
-        every { arrangement.coreLogic.getSessionScope(TestUser.SELF_USER_ID).backup.setLastDeviceId } returns arrangement.setLastDevice
+        every {
+            arrangement.coreLogic.getSessionScope(TestUser.SELF_USER_ID).backup.setLastDeviceId
+        } returns arrangement.setLastDevice
         coEvery { arrangement.setLastDevice(TestClient.CLIENT_ID.value) } returns SetLastDeviceIdResult.Success
 
         assertEquals(
@@ -285,7 +296,9 @@ class LoginSSOViewModelHostFactoryTest {
     @Test
     fun `crypto restore maps success no backup synthetic failure and exact exception validity matrix`() = runTest {
         val arrangement = Arrangement()
-        every { arrangement.coreLogic.getSessionScope(TestUser.SELF_USER_ID).backup.restoreCryptoState } returns arrangement.restore
+        every {
+            arrangement.coreLogic.getSessionScope(TestUser.SELF_USER_ID).backup.restoreCryptoState
+        } returns arrangement.restore
         coEvery { arrangement.loginExtension.isInitialSyncCompleted(TestUser.SELF_USER_ID) } returns true
 
         coEvery { arrangement.restore() } returns RestoreCryptoStateResult.Success

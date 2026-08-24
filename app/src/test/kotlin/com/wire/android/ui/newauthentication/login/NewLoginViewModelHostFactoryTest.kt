@@ -42,7 +42,6 @@ import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
-import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateUseCase
 import com.wire.kalium.logic.feature.backup.SetLastDeviceIdResult
@@ -62,7 +61,6 @@ import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -174,7 +172,9 @@ class NewLoginViewModelHostFactoryTest {
     @Test
     fun `client mapping sets last device only on successful Nomad fallback and keeps impossible results synthetic`() = runTest {
         val arrangement = Arrangement()
-        every { arrangement.coreLogic.getSessionScope(TestUser.SELF_USER_ID).backup.setLastDeviceId } returns arrangement.setLastDevice
+        every {
+            arrangement.coreLogic.getSessionScope(TestUser.SELF_USER_ID).backup.setLastDeviceId
+        } returns arrangement.setLastDevice
         coEvery { arrangement.loginExtension.registerClient(TestUser.SELF_USER_ID, null) } returns
             RegisterClientResult.Success(TestClient.CLIENT)
         coEvery { arrangement.loginExtension.isInitialSyncCompleted(TestUser.SELF_USER_ID) } returns false
@@ -206,7 +206,9 @@ class NewLoginViewModelHostFactoryTest {
     @Test
     fun `restore and revert preserve synthetic failure ordering and exception validity matrix`() = runTest {
         val arrangement = Arrangement()
-        every { arrangement.coreLogic.getSessionScope(TestUser.SELF_USER_ID).backup.restoreCryptoState } returns arrangement.restore
+        every {
+            arrangement.coreLogic.getSessionScope(TestUser.SELF_USER_ID).backup.restoreCryptoState
+        } returns arrangement.restore
         coEvery { arrangement.restore() } returns RestoreCryptoStateResult.Failure
         val failure = arrangement.gateway.restoreCryptoState(TestUser.SELF_USER_ID) as NewLoginRestoreResult.Failure
         assertEquals("Failed to restore crypto state", (failure.failure as CoreFailure.Unknown).rootCause?.message)

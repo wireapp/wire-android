@@ -144,7 +144,8 @@ fun LoginEmailContent(
                 autoFill = true,
                 testTag = "PasswordInput",
             )
-            if (state.showInvalidCredentialsError) Text(
+            if (state.showInvalidCredentialsError) {
+                Text(
                 text = text.invalidCredentials,
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.error,
@@ -153,18 +154,22 @@ fun LoginEmailContent(
                     .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
                     .testTag("invalidCredentialsError"),
             )
+            }
             ForgotPasswordLink(
                 label = text.forgotPassword,
                 openLinkDescription = text.openLinkDescription,
                 onClick = onForgotPasswordClick,
                 modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             )
-            if (state.proxyAuthRequired) ProxyScreen(
+            if (state.proxyAuthRequired) {
+                ProxyScreen(
                 proxyIdentifierState = proxyIdentifierTextState,
                 proxyPasswordState = proxyPasswordTextState,
-                text = text, invalidIdentifier = state.invalidProxyIdentifier,
+                text = text,
+                    invalidIdentifier = state.invalidProxyIdentifier,
                 apiProxyUrl = state.apiProxyUrl,
             )
+            }
             Spacer(Modifier.weight(1f))
         }
         Surface(color = MaterialTheme.wireColorScheme.surface, modifier = Modifier.semantics { testTagsAsResourceId = true }) {
@@ -198,7 +203,10 @@ fun ForgotPasswordLink(
             style = MaterialTheme.wireTypography.body02.copy(textDecoration = TextDecoration.Underline, color = textColor),
             textAlign = TextAlign.Center,
             modifier = Modifier.focusedBorder(focused.value).clickable(
-                interactionSource = interactionSource, indication = null, role = Role.Button, onClick = onClick,
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.Button,
+                onClick = onClick,
                 onClickLabel = openLinkDescription,
             ).testTag("Forgot password?"),
         )
@@ -230,7 +238,8 @@ fun ProxyScreen(
         )
     }
     WireTextField(
-        textState = proxyIdentifierState, placeholderText = stringResource(R.string.login_user_identifier_placeholder),
+        textState = proxyIdentifierState,
+        placeholderText = stringResource(R.string.login_user_identifier_placeholder),
         labelText = stringResource(R.string.login_proxy_identifier_label),
         state = if (invalidIdentifier) WireTextFieldState.Error(text.invalidUserIdentifier) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions.DefaultEmailNext,

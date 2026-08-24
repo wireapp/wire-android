@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("Filename", "MatchingDeclarationName")
+
 package com.wire.android.ui.authentication.devices.remove
 
 import com.wire.android.ui.authentication.devices.model.Device

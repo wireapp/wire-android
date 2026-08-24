@@ -106,6 +106,9 @@ private fun InitialLoadErrorDialog(onCancel: () -> Unit, onRetry: () -> Unit) {
 private fun CancelRemoveDeviceDialog(state: ClearSessionState, onCancel: () -> Unit, onProceed: () -> Unit) {
     val dialogState = rememberVisibilityState<CancelLoginDialogState>()
     CancelLoginDialogContent(dialogState, onCancel, onProceed)
-    if (state.showCancelLoginDialog) dialogState.show(dialogState.savedState ?: CancelLoginDialogState)
-    else dialogState.dismiss()
+    if (state.showCancelLoginDialog) {
+        dialogState.show(dialogState.savedState ?: CancelLoginDialogState)
+    } else {
+        dialogState.dismiss()
+    }
 }

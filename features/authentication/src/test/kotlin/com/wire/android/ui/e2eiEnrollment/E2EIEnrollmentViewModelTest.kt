@@ -44,10 +44,12 @@ class E2EIEnrollmentViewModelTest {
         val gatewayEntered = CompletableDeferred<Unit>()
         val releaseGateway = CompletableDeferred<Unit>()
         var complete = false
-        val viewModel = E2EIEnrollmentViewModel(E2EIEnrollmentGateway {
+        val viewModel = E2EIEnrollmentViewModel(
+            E2EIEnrollmentGateway {
             gatewayEntered.complete(Unit)
             releaseGateway.await()
-        })
+        }
+        )
 
         viewModel.finalizeMLSClient { complete = true }
         advanceUntilIdle()

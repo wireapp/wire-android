@@ -2,6 +2,8 @@
  * Wire
  * Copyright (C) 2026 Wire Swiss GmbH
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.e2eiEnrollment
 
 import androidx.activity.compose.BackHandler
@@ -41,7 +43,8 @@ fun E2EIEnrollmentContent(
     cancelDialog: @Composable () -> Unit,
     enrollmentRequest: @Composable ((E2EIEnrollmentResult) -> Unit) -> Unit,
     errorDialog: @Composable (onRetry: () -> Unit, onDismiss: () -> Unit) -> Unit,
-    successDialog: @Composable (certificate: String, onOpenDetails: () -> Unit, onDismiss: () -> Unit, isFinalizing: Boolean) -> Unit,
+    successDialog:
+    @Composable (certificate: String, onOpenDetails: () -> Unit, onDismiss: () -> Unit, isFinalizing: Boolean) -> Unit,
     learnMoreContent: @Composable (message: String, url: String) -> Unit,
     onEnrollmentResult: (E2EIEnrollmentResult) -> Unit,
     onDismissError: () -> Unit,

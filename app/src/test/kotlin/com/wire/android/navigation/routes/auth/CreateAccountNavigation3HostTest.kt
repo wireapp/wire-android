@@ -61,7 +61,9 @@ class CreateAccountNavigation3HostTest {
         appSource("navigation/routes/auth/$fileName")
     }
 
-    private fun repositoryRoot(): File = generateSequence(File(System.getProperty("user.dir")).absoluteFile) { it.parentFile }
+    private fun repositoryRoot(): File = generateSequence(File(System.getProperty("user.dir")).absoluteFile) {
+        it.parentFile
+    }
         .first { File(it, "app/src/main/kotlin").isDirectory }
 
     private companion object {

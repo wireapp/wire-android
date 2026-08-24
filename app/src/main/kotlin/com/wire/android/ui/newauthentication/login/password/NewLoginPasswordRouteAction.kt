@@ -1,4 +1,6 @@
 /* Wire Copyright (C) 2026 Wire Swiss GmbH */
+@file:Suppress("Filename", "MatchingDeclarationName")
+
 package com.wire.android.ui.newauthentication.login.password
 
 import com.wire.android.ui.authentication.login.LoginNavArgs

@@ -87,7 +87,9 @@ private fun RegisterDevicePasswordField(
         textState = password,
         state = if (state.flowState is RegisterDeviceFlowState.Error.InvalidCredentialsError) {
             WireTextFieldState.Error(invalidPasswordMessage)
-        } else WireTextFieldState.Default,
+        } else {
+            WireTextFieldState.Default
+        },
         keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
         onKeyboardAction = { keyboard?.hide() },
         modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).testTag("password field"),

@@ -27,10 +27,20 @@ internal fun RequestActivationCodeResult.toActivationCodeResult(): ActivationCod
 
 internal fun CreateAccountRegistrationRequest.toRegisterParam(): RegisterParam = when (this) {
     is CreateAccountRegistrationRequest.Personal -> RegisterParam.PrivateAccount(
-        firstName, lastName, password, email, activationCode(),
+        firstName,
+        lastName,
+        password,
+        email,
+        activationCode(),
     )
     is CreateAccountRegistrationRequest.Team -> RegisterParam.Team(
-        firstName, lastName, password, email, activationCode(), teamName, teamIcon,
+        firstName,
+        lastName,
+        password,
+        email,
+        activationCode(),
+        teamName,
+        teamIcon,
     )
 }
 
@@ -76,13 +86,16 @@ internal fun RegisterClientResult.toCreateAccountClientResult(): CreateAccountCl
 }
 
 internal data class CreateAccountCodeBuildFlags(val privateBuild: Boolean, val flavor: String, val buildType: String) {
-    val modelPostfix: String? get() = if (privateBuild) " [${flavor}_${buildType}]" else null
+    val modelPostfix: String? get() = if (privateBuild) " [${flavor}_$buildType]" else null
     companion object {
         fun current() = CreateAccountCodeBuildFlags(BuildConfig.PRIVATE_BUILD, BuildConfig.FLAVOR, BuildConfig.BUILD_TYPE)
     }
 }
 
 internal class AndroidCreateAccountCodeResendTimer(private val countdownTimer: CountdownTimer) : CreateAccountCodeResendTimer {
-    override suspend fun start(seconds: Long, onUpdate: (String) -> Unit,
-        onFinish: () -> Unit) = countdownTimer.start(seconds, onUpdate, onFinish)
+    override suspend fun start(
+        seconds: Long,
+        onUpdate: (String) -> Unit,
+        onFinish: () -> Unit
+    ) = countdownTimer.start(seconds, onUpdate, onFinish)
 }

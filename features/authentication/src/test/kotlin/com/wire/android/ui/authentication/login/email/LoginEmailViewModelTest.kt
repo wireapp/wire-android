@@ -92,7 +92,10 @@ class LoginEmailViewModelTest {
         val release = CompletableDeferred<Unit>()
         val scopeStarted = CompletableDeferred<Unit>()
         val gateway = FakeGateway().apply {
-            beforeScopeReturn = { scopeStarted.complete(Unit); release.await() }
+            beforeScopeReturn = {
+                scopeStarted.complete(Unit)
+                release.await()
+            }
             previousSession = "previous"
         }
         val viewModel = arrange(gateway = gateway)
@@ -218,7 +221,10 @@ class LoginEmailViewModelTest {
     @Test
     fun `post-store failures rollback new session then restore previous while retained results do not`() = runTest(dispatcher) {
         val failure = TestFailure("persist")
-        val gateway = FakeGateway().apply { previousSession = "previous"; persist = LoginEmailPersistResult.Failure(failure) }
+        val gateway = FakeGateway().apply {
+            previousSession = "previous"
+            persist = LoginEmailPersistResult.Failure(failure)
+        }
         val viewModel = arrange(gateway = gateway)
         enterCredentials(viewModel)
         viewModel.login()
@@ -347,13 +353,16 @@ class LoginEmailViewModelTest {
             }
         override suspend fun storeSession(session: String) = store.also { events += "store" }
         override suspend fun persistEmailIfNeeded(userId: String, identifier: () -> String) = persist.also {
-            events += "persist"; persistEmails += identifier()
+            events += "persist"
+            persistEmails += identifier()
         }
         override suspend fun registerClient(userId: String, password: () -> String) = client.also {
-            events += "client"; clientPasswords += password()
+            events += "client"
+            clientPasswords += password()
         }
         override suspend fun requestSecondFactorCode(scope: String, email: String) = verification.also {
-            verificationScopes += scope; verificationEmails += email
+            verificationScopes += scope
+            verificationEmails += email
         }
         override suspend fun revertSession(newSessionUserId: String?, previousSessionUserId: String?) {
             reverts += newSessionUserId to previousSessionUserId
@@ -374,7 +383,6 @@ class LoginEmailViewModelTest {
     private class FakeStore(override var userIdentifier: String? = null) : LoginSavedInputStore {
         override var ssoCode: String? = null
     }
-
 }
 
 private data class TestFailure(val value: String)

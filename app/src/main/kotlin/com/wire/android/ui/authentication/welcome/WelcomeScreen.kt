@@ -35,6 +35,7 @@ internal fun WelcomeRouteScreen(
 }
 
 internal fun ServerConfig.Links.isProxyEnabled() = apiProxy != null
+
 @Preview
 @Composable
 fun PreviewWelcomeScreen() {

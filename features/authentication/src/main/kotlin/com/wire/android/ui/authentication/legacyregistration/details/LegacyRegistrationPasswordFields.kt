@@ -31,7 +31,7 @@ internal fun <FailureT> PasswordFields(
             labelMandatoryIcon = true,
             autoFill = false,
             keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
-            state = passwordFieldState(state.error, text),
+            state = passwordFieldState(state.error),
             modifier = Modifier
                 .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                 .testTag("password"),
@@ -54,7 +54,6 @@ internal fun <FailureT> PasswordFields(
 
 private fun passwordFieldState(
     error: LegacyRegistrationDetailsState.DetailsError,
-    text: LegacyRegistrationDetailsText,
 ): WireTextFieldState = if (error is LegacyRegistrationDetailsState.DetailsError.PasswordError.InvalidPasswordError) {
     WireTextFieldState.Error()
 } else {

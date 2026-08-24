@@ -110,7 +110,7 @@ internal data class RegisterDeviceBuildFlags(
     val buildType: String,
 ) {
     val modelPostfix: String?
-        get() = if (privateBuild) " [${flavor}_${buildType}]" else null
+        get() = if (privateBuild) " [${flavor}_$buildType]" else null
 
     companion object {
         fun current() = RegisterDeviceBuildFlags(

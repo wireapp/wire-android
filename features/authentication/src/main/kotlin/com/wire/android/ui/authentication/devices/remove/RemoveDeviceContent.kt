@@ -53,8 +53,10 @@ fun <DeviceT> RemoveDeviceContent(
         transitionSpec = { deviceAuthenticationSlideTransition() },
         modifier = modifier.fillMaxSize(),
     ) { needsCode ->
-        if (needsCode) RemoveDeviceVerificationCodeScreen(viewModel)
-        else RemoveDeviceListContent(
+        if (needsCode) {
+            RemoveDeviceVerificationCodeScreen(viewModel)
+        } else {
+            RemoveDeviceListContent(
             state = viewModel.state,
             password = viewModel.passwordTextState,
             placeholderDevice = placeholderDevice,
@@ -66,6 +68,7 @@ fun <DeviceT> RemoveDeviceContent(
             onDismiss = viewModel::onDialogDismissed,
             onConfirm = viewModel::onRemoveConfirmed,
         )
+        }
     }
     when (val error = viewModel.state.error) {
         RemoveDeviceAuthenticationError.InitError -> initialLoadErrorDialog(onBack, viewModel::retryFetch)

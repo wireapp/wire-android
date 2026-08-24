@@ -240,13 +240,15 @@ class NewLoginViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT, BackendR
             is NewLoginSsoCallback.Success -> {
                 val isNomadFlow = pendingNomadServiceUrl != null
                 viewModelScope.launch {
-                    when (val session = gateway.establishSession(
+                    when (
+                        val session = gateway.establishSession(
                         cookie = result.cookie,
                         serverConfigId = result.serverConfigId,
                         ssoIdentityProviderId = savedStateStore.consumePendingSsoIdentityProviderId(),
                         consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
                         consumeCookieLabel = ::consumePendingCookieLabel,
-                    )) {
+                    )
+                    ) {
                         is NewLoginSessionResult.Success -> continueAfterSsoSessionStored(session.userId, isNomadFlow)
                         is NewLoginSessionResult.IdentityChanged -> {
                             pendingSsoSession = PendingSsoSession(session.session, session.isNomadSession)
@@ -273,8 +275,11 @@ class NewLoginViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT, BackendR
             is NewLoginRegisterClientResult.Success -> {
                 sendAction(
                     NewLoginAction.Success(
-                        if (result.initialSyncCompleted) NewLoginAction.Success.NextStep.None(userId)
-                        else NewLoginAction.Success.NextStep.InitialSync(userId)
+                        if (result.initialSyncCompleted) {
+                            NewLoginAction.Success.NextStep.None(userId)
+                        } else {
+                            NewLoginAction.Success.NextStep.InitialSync(userId)
+                        }
                     )
                 )
                 updateLoginFlowState(NewLoginFlowState.Default)
@@ -297,8 +302,11 @@ class NewLoginViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT, BackendR
             is NewLoginRestoreResult.Success -> {
                 sendAction(
                     NewLoginAction.Success(
-                        if (result.initialSyncCompleted) NewLoginAction.Success.NextStep.None(userId)
-                        else NewLoginAction.Success.NextStep.InitialSync(userId)
+                        if (result.initialSyncCompleted) {
+                            NewLoginAction.Success.NextStep.None(userId)
+                        } else {
+                            NewLoginAction.Success.NextStep.InitialSync(userId)
+                        }
                     )
                 )
                 updateLoginFlowState(NewLoginFlowState.Default)

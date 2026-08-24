@@ -84,9 +84,11 @@ private fun handleTeamDecision(
     )
     when (val result = welcomeTeamDecision(policy)) {
         is WelcomeDecision.Action -> onAction(result.value.toRouteAction())
-        is WelcomeDecision.Dialog -> dialog.show(dialog.savedState ?: FeatureDisabledWithProxyDialogState(
+        is WelcomeDecision.Dialog -> dialog.show(
+            dialog.savedState ?: FeatureDisabledWithProxyDialogState(
             AuthenticationR.string.create_team_not_supported_dialog_description, (result.value as WelcomeDialog.TeamBlockedByProxy).url,
-        ))
+        )
+        )
     }
 }
 
@@ -104,8 +106,10 @@ private fun handlePersonalDecision(
     )
     when (val result = welcomePersonalDecision(policy)) {
         is WelcomeDecision.Action -> onAction(result.value.toRouteAction())
-        is WelcomeDecision.Dialog -> dialog.show(dialog.savedState ?: FeatureDisabledWithProxyDialogState(
+        is WelcomeDecision.Dialog -> dialog.show(
+            dialog.savedState ?: FeatureDisabledWithProxyDialogState(
             AuthenticationR.string.create_personal_account_not_supported_dialog_description,
-        ))
+        )
+        )
     }
 }

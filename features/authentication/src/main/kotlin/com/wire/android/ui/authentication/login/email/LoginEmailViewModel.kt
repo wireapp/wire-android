@@ -147,28 +147,33 @@ class LoginEmailViewModel<LinksT, FailureT, UserT, ScopeT, SessionT, BackendRequ
             }
             val scope = resolveCurrentAuthScope() ?: return@launch
             val secondFactorCode = secondFactorVerificationCodeTextState.text.toString()
-            when (val result = gateway.authenticate(
+            when (
+                val result = gateway.authenticate(
                 scope,
                 { userIdentifierTextState.text.toString() },
                 { passwordTextState.text.toString() },
                 secondFactorCode,
-            )) {
+            )
+            ) {
                 is LoginEmailAuthenticationResult.Success -> {
                     secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
                     val storedUserId = when (val stored = gateway.storeSession(result.session)) {
                         is LoginEmailStoreResult.Success -> stored.userId
                         LoginEmailStoreResult.UserAlreadyExists -> {
-                            updateEmailFlowState(LoginState.Error.DialogError.UserAlreadyExists); return@launch
+                            updateEmailFlowState(LoginState.Error.DialogError.UserAlreadyExists)
+                            return@launch
                         }
                         is LoginEmailStoreResult.Failure -> {
-                            updateEmailFlowState(LoginState.Error.DialogError.GenericError(stored.failure)); return@launch
+                            updateEmailFlowState(LoginState.Error.DialogError.GenericError(stored.failure))
+                            return@launch
                         }
                     }
                     loginJobData.update { it?.copy(newSessionUserId = storedUserId) }
                     when (val persisted = gateway.persistEmailIfNeeded(storedUserId) { userIdentifierTextState.text.toString() }) {
                         LoginEmailPersistResult.Success -> Unit
                         is LoginEmailPersistResult.Failure -> {
-                            updateEmailFlowState(LoginState.Error.DialogError.GenericError(persisted.failure)); return@launch
+                            updateEmailFlowState(LoginState.Error.DialogError.GenericError(persisted.failure))
+                            return@launch
                         }
                     }
                     when (val client = gateway.registerClient(storedUserId) { passwordTextState.text.toString() }) {
@@ -184,21 +189,26 @@ class LoginEmailViewModel<LinksT, FailureT, UserT, ScopeT, SessionT, BackendRequ
                             retainAuthenticatedSession = true
                             updateEmailFlowState(LoginState.Error.TooManyDevicesError(storedUserId))
                         }
-                        LoginEmailClientResult.InvalidCredentials -> updateEmailFlowState(LoginState.Error.DialogError.InvalidCredentialsError)
+                        LoginEmailClientResult.InvalidCredentials -> updateEmailFlowState(
+                            LoginState.Error.DialogError.InvalidCredentialsError
+                        )
                         LoginEmailClientResult.PasswordRequired ->
                             updateEmailFlowState(LoginState.Error.DialogError.PasswordNeededToRegisterClient)
                         is LoginEmailClientResult.Failure -> updateEmailFlowState(LoginState.Error.DialogError.GenericError(client.failure))
                     }
                 }
                 LoginEmailAuthenticationResult.MissingSecondFactor -> {
-                    updateEmailFlowState(LoginState.Default); request2FACode(scope)
+                    updateEmailFlowState(LoginState.Default)
+                    request2FACode(scope)
                 }
                 LoginEmailAuthenticationResult.InvalidSecondFactor -> {
                     updateEmailFlowState(LoginState.Default)
                     secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCurrentCodeInvalid = true)
                 }
                 LoginEmailAuthenticationResult.ProxyError -> updateEmailFlowState(LoginState.Error.DialogError.ProxyError)
-                LoginEmailAuthenticationResult.InvalidCredentials -> updateEmailFlowState(LoginState.Error.DialogError.InvalidCredentialsError)
+                LoginEmailAuthenticationResult.InvalidCredentials -> updateEmailFlowState(
+                    LoginState.Error.DialogError.InvalidCredentialsError
+                )
                 LoginEmailAuthenticationResult.InvalidIdentifier -> updateEmailFlowState(LoginState.Error.TextFieldError.InvalidValue)
                 LoginEmailAuthenticationResult.AccountSuspended -> updateEmailFlowState(LoginState.Error.DialogError.AccountSuspended)
                 LoginEmailAuthenticationResult.AccountPendingActivation ->
@@ -230,25 +240,36 @@ class LoginEmailViewModel<LinksT, FailureT, UserT, ScopeT, SessionT, BackendRequ
     private fun currentProxyCredentials(): LoginEmailProxyCredentials? =
         if (proxyIdentifierTextState.text.isNotBlank() && proxyPasswordTextState.text.isNotBlank()) {
             LoginEmailProxyCredentials(proxyIdentifierTextState.text.toString(), proxyPasswordTextState.text.toString())
-        } else null
+        } else {
+            null
+        }
 
-    private suspend fun resolveCurrentAuthScope(): ScopeT? = when (val result = gateway.resolveScope(serverConfig, ::currentProxyCredentials)) {
+    private suspend fun resolveCurrentAuthScope(): ScopeT? = when (
+        val result = gateway.resolveScope(
+            serverConfig,
+            ::currentProxyCredentials,
+        )
+    ) {
         is LoginEmailScopeResult.Success -> result.scope
         LoginEmailScopeResult.UnknownServerVersion -> {
-            updateEmailFlowState(LoginState.Error.DialogError.ServerVersionNotSupported); null
+            updateEmailFlowState(LoginState.Error.DialogError.ServerVersionNotSupported)
+            null
         }
         LoginEmailScopeResult.ClientUpdateRequired -> {
-            updateEmailFlowState(LoginState.Error.DialogError.ClientUpdateRequired); null
+            updateEmailFlowState(LoginState.Error.DialogError.ClientUpdateRequired)
+            null
         }
         is LoginEmailScopeResult.Failure -> {
-            updateEmailFlowState(LoginState.Error.DialogError.GenericError(result.failure)); null
+            updateEmailFlowState(LoginState.Error.DialogError.GenericError(result.failure))
+            null
         }
     }
 
     private suspend fun request2FACode(scope: ScopeT) {
         val email = userIdentifierTextState.text.trim().toString()
         if (!email.contains("@")) {
-            updateEmailFlowState(LoginState.Error.DialogError.Request2FAWithHandle); return
+            updateEmailFlowState(LoginState.Error.DialogError.Request2FAWithHandle)
+            return
         }
         when (val result = gateway.requestSecondFactorCode(scope, email)) {
             LoginEmailVerificationResult.Sent, LoginEmailVerificationResult.TooManyRequests -> {

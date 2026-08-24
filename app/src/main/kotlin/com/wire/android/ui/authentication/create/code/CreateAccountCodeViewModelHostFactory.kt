@@ -26,7 +26,10 @@ class CreateAccountCodeViewModelHostFactory @Inject constructor(
     @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
 ) {
     private val gateway = KaliumCreateAccountCodeGateway(
-        coreLogic, addAuthenticatedUser, clientScopeProviderFactory, defaultWebSocketEnabledByDefault,
+        coreLogic,
+        addAuthenticatedUser,
+        clientScopeProviderFactory,
+        defaultWebSocketEnabledByDefault,
     )
 
     fun create(

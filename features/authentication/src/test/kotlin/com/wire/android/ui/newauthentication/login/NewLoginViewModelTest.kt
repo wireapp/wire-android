@@ -183,7 +183,10 @@ class NewLoginViewModelTest {
         val gateway = FakeGateway()
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
-        gateway.beforeInitiate = { entered.complete(Unit); release.await() }
+        gateway.beforeInitiate = {
+            entered.complete(Unit)
+        release.await()
+        }
         gateway.initiation = NewLoginSsoInitiationResult.Success("https://sso")
         val viewModel = arrange(store = store, gateway = gateway)
         advanceUntilIdle()
@@ -226,7 +229,10 @@ class NewLoginViewModelTest {
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
         val gateway = FakeGateway().apply {
-            beforeFetch = { entered.complete(Unit); release.await() }
+            beforeFetch = {
+                entered.complete(Unit)
+            release.await()
+            }
             defaultCode = NewLoginDefaultSsoCodeResult.Success("wire-default")
         }
         val store = FakeStore()
@@ -238,9 +244,12 @@ class NewLoginViewModelTest {
         assertEquals("typed", viewModel.userIdentifierTextState.text.toString())
 
         val immediateStore = FakeStore()
-        val immediate = arrange(gateway = FakeGateway().apply {
+        val immediate = arrange(
+            gateway = FakeGateway().apply {
             defaultCode = NewLoginDefaultSsoCodeResult.Success("wire-immediate")
-        }, store = immediateStore)
+        },
+            store = immediateStore
+        )
         advanceUntilIdle()
         assertEquals("wire-immediate", immediate.userIdentifierTextState.text.toString())
         assertEquals("wire-immediate", immediateStore.userIdentifier)
@@ -434,7 +443,10 @@ class NewLoginViewModelTest {
         val release = CompletableDeferred<Unit>()
         val gateway = FakeGateway().apply {
             validation = NewLoginIdentifierValidation.Email
-            beforeEnterprise = { entered.complete(Unit); release.await() }
+            beforeEnterprise = {
+                entered.complete(Unit)
+            release.await()
+            }
         }
         val viewModel = arrange(gateway = gateway, saved = "value")
         advanceUntilIdle()
@@ -447,6 +459,7 @@ class NewLoginViewModelTest {
         assertTrue(viewModel.state.nextEnabled)
     }
 
+    @Suppress("LongParameterList")
     private fun arrange(
         gateway: FakeGateway = FakeGateway(),
         backend: FakeBackend = FakeBackend(),
@@ -499,7 +512,9 @@ private class FakeBackend : NewLoginBackendGateway<TestLinks, String> {
     val selections = mutableListOf<TestLinks>()
     var cleared = false
     override suspend fun parse(input: String): String? = parsed.also { events += "parse:$input" }
-    override suspend fun configure(request: String): NewLoginBackendResult<TestLinks> = result.also { events += "configure:$request" }
+    override suspend fun configure(request: String): NewLoginBackendResult<TestLinks> = result.also {
+        events += "configure:$request"
+    }
     override fun select(serverConfig: TestLinks) { selections += serverConfig }
     override fun clear() { cleared = true }
 }
@@ -539,7 +554,11 @@ private class FakeGateway : NewLoginGateway<TestLinks, TestFailure, String, Test
         beforeEnterprise()
         return enterprise
     }
-    override suspend fun initiateSso(serverConfig: TestLinks, code: String, cookieLabel: String?): NewLoginSsoInitiationResult<TestFailure> {
+    override suspend fun initiateSso(
+        serverConfig: TestLinks,
+        code: String,
+        cookieLabel: String?
+    ): NewLoginSsoInitiationResult<TestFailure> {
         beforeInitiate()
         return initiation
     }

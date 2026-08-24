@@ -81,5 +81,4 @@ class CreateAccountNavigation3Test {
             )
         }
     }
-
 }

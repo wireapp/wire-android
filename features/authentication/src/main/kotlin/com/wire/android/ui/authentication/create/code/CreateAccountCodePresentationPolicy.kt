@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.authentication.create.code
 
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType

@@ -8,6 +8,8 @@
  * (at your option) any later version.
  */
 
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.authentication.create.common
 
 import androidx.compose.foundation.layout.size

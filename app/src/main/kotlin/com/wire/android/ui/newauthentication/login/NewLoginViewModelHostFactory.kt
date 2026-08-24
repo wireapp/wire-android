@@ -43,7 +43,6 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
-import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase.Companion.SSO_CODE_WIRE_PREFIX
@@ -74,8 +73,11 @@ internal class SavedStateNewLoginStore(private val savedStateHandle: SavedStateH
     override var pendingSsoIdentityProviderId: String?
         get() = savedStateHandle[PENDING_SSO_IDENTITY_PROVIDER_ID_KEY]
         set(value) {
-            if (value == null) savedStateHandle.remove<String>(PENDING_SSO_IDENTITY_PROVIDER_ID_KEY)
-            else savedStateHandle[PENDING_SSO_IDENTITY_PROVIDER_ID_KEY] = value
+            if (value == null) {
+                savedStateHandle.remove<String>(PENDING_SSO_IDENTITY_PROVIDER_ID_KEY)
+            } else {
+                savedStateHandle[PENDING_SSO_IDENTITY_PROVIDER_ID_KEY] = value
+            }
         }
 
     private companion object {
@@ -218,20 +220,18 @@ internal class KaliumNewLoginGateway(
         }
     }
 
+    @Suppress("ReturnCount")
     override suspend fun restoreCryptoState(userId: UserId): NewLoginRestoreResult<CoreFailure> {
         val restoreResult = try {
             withContext(dispatchers.io()) { coreLogic.getSessionScope(userId).backup.restoreCryptoState() }
         } catch (exception: CancellationException) {
             throw exception
-        } catch (exception: Exception) {
-            when (exception) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(userId)) throw exception
-                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${exception.message}")
-                    return NewLoginRestoreResult.SessionUnavailable
-                }
-                else -> throw exception
-            }
+        } catch (exception: IllegalStateException) {
+            return cryptoRestoreUnavailableAfterConcurrentLogout(userId, exception)
+        } catch (exception: IOException) {
+            return cryptoRestoreUnavailableAfterConcurrentLogout(userId, exception)
+        } catch (exception: SQLiteException) {
+            return cryptoRestoreUnavailableAfterConcurrentLogout(userId, exception)
         }
         return when (restoreResult) {
             RestoreCryptoStateResult.Success ->
@@ -250,25 +250,40 @@ internal class KaliumNewLoginGateway(
             coreLogic.getGlobalScope().deleteSession(userId)
         } catch (exception: CancellationException) {
             throw exception
-        } catch (exception: Exception) {
-            when (exception) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(userId)) throw exception
-                    appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${exception.message}")
-                }
-                else -> throw exception
-            }
+        } catch (exception: IllegalStateException) {
+            ignoreConcurrentLogout(userId, exception)
+        } catch (exception: IOException) {
+            ignoreConcurrentLogout(userId, exception)
+        } catch (exception: SQLiteException) {
+            ignoreConcurrentLogout(userId, exception)
         }
     }
 
     override fun logSessionContinuation(isNomadFlow: Boolean) {
-        if (isNomadFlow) appLogger.i("$TAG Nomad flow, attempting crypto state restore")
-        else appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
+        if (isNomadFlow) {
+            appLogger.i("$TAG Nomad flow, attempting crypto state restore")
+        } else {
+            appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
+        }
     }
 
     private suspend fun isSessionStillValid(userId: UserId): Boolean =
         (coreLogic.getGlobalScope().doesValidSessionExist(userId) as? DoesValidSessionExistResult.Success)
             ?.doesValidSessionExist == true
+
+    private suspend fun cryptoRestoreUnavailableAfterConcurrentLogout(
+        userId: UserId,
+        exception: Exception,
+    ): NewLoginRestoreResult<CoreFailure> {
+        if (isSessionStillValid(userId)) throw exception
+        appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${exception.message}")
+        return NewLoginRestoreResult.SessionUnavailable
+    }
+
+    private suspend fun ignoreConcurrentLogout(userId: UserId, exception: Exception) {
+        if (isSessionStillValid(userId)) throw exception
+        appLogger.w("$TAG Failed to revert SSO session, may have been already logged out: ${exception.message}")
+    }
 
     private fun LoginRedirectPath.toFeatureResult(): NewLoginEnterpriseResult<ServerConfig.Links, CoreFailure> = when (this) {
         is LoginRedirectPath.SSO -> NewLoginEnterpriseResult.Sso(

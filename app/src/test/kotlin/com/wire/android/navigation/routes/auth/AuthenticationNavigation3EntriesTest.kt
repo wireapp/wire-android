@@ -51,6 +51,7 @@ class AuthenticationNavigation3EntriesTest {
     }
 
     @Test
+    @Suppress("LongMethod")
     fun givenArgumentBackedAuthenticationViewModels_whenInspectingSources_thenTypedArgsUseFocusedHostFactories() {
         val graph = sourceFile(
             "../../../ui/authentication/AuthenticationViewModelGraph.kt"
@@ -108,7 +109,11 @@ class AuthenticationNavigation3EntriesTest {
         assertTrue(newLoginHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
         assertTrue(loginSsoViewModel.contains("class LoginSSOViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT>"))
         assertTrue(loginSsoHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
-        assertTrue(loginEmailViewModel.contains("class LoginEmailViewModel<LinksT, FailureT, UserT, ScopeT, SessionT, BackendRequestT, DomainClaimT>"))
+        assertTrue(
+            loginEmailViewModel.contains(
+                "class LoginEmailViewModel<LinksT, FailureT, UserT, ScopeT, SessionT, BackendRequestT, DomainClaimT>"
+            )
+        )
         assertFalse(loginEmailViewModel.contains("LoginNavArgs"))
         assertFalse(loginEmailViewModel.contains("ServerConfig"))
         assertTrue(loginEmailHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))

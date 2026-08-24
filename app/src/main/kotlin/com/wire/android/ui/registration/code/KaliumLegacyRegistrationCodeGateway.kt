@@ -1,7 +1,6 @@
 /* Wire Copyright (C) 2026 Wire Swiss GmbH */
 package com.wire.android.ui.registration.code
 
-import com.wire.android.BuildConfig
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.feature.analytics.model.AnalyticsEvent

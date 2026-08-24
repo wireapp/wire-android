@@ -27,8 +27,10 @@ private val deviceSlideAnimationSpec: FiniteAnimationSpec<IntOffset> = spring(
 /** Loading-to-code transition retained from the former host-owned presentation. */
 @Suppress("MagicNumber")
 internal fun deviceAuthenticationSlideTransition(): ContentTransform =
-    (slideInHorizontally(
+    (
+        slideInHorizontally(
         animationSpec = deviceSlideAnimationSpec,
         initialOffsetX = { fullWidth -> fullWidth / 3 },
-    ) + fadeIn(animationSpec = deviceFadeAnimationSpec))
+    ) + fadeIn(animationSpec = deviceFadeAnimationSpec)
+    )
         .togetherWith(fadeOut(animationSpec = deviceFadeAnimationSpec))

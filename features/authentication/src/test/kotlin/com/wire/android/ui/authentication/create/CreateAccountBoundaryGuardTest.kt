@@ -14,8 +14,13 @@ class CreateAccountBoundaryGuardTest {
         val feature = root().resolve("features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create")
         val source = kotlinSources(feature).joinToString("\n") { Files.readString(it) }
         listOf(
-            "com.wire.kalium", "dev.zacsweers.metro", "CreateAccountNavArgs", "CreateAccountFlowType",
-            "CreateAccountOverviewNavArgs", "CreateAccountSummaryNavArgs", "android.os.Parcelable",
+            "com.wire.kalium",
+            "dev.zacsweers.metro",
+            "CreateAccountNavArgs",
+            "CreateAccountFlowType",
+            "CreateAccountOverviewNavArgs",
+            "CreateAccountSummaryNavArgs",
+            "android.os.Parcelable",
         ).forEach { forbidden -> assertFalse(source.contains(forbidden), "Feature leaks $forbidden") }
     }
 
@@ -83,8 +88,10 @@ class CreateAccountBoundaryGuardTest {
 
     private fun resourceDefinitions(root: Path, names: List<String>): List<String> = Files.walk(root).use { paths ->
         paths.filter { Files.isRegularFile(it) && it.parent.fileName.toString().startsWith("values") }
-            .flatMap { path -> resourceRegex(names).findAll(Files.readString(path))
-                .map { "${path.parent.fileName}|${it.value.trim()}" }.toList().stream() }.sorted().toList()
+            .flatMap { path ->
+                resourceRegex(names).findAll(Files.readString(path))
+                .map { "${path.parent.fileName}|${it.value.trim()}" }.toList().stream()
+            }.sorted().toList()
     }
 
     private fun kotlinSources(root: Path): List<Path> = Files.walk(root).use { paths ->

@@ -7,6 +7,8 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.authentication.create.details
 
 import androidx.compose.foundation.layout.Arrangement

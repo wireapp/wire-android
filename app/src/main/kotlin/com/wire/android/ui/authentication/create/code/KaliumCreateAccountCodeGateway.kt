@@ -27,21 +27,27 @@ internal class KaliumCreateAccountCodeGateway(
     private val defaultWebSocketEnabledByDefault: Boolean,
     private val buildFlags: CreateAccountCodeBuildFlags = CreateAccountCodeBuildFlags.current(),
 ) : CreateAccountCodeGateway<ServerConfig.Links, CoreFailure, UserId, KaliumCreateAccountCredentials> {
-    override suspend fun requestActivationCode(serverConfig: ServerConfig.Links,
-        email: String): ActivationCodeRequestResult<CoreFailure> {
+    override suspend fun requestActivationCode(
+        serverConfig: ServerConfig.Links,
+        email: String
+    ): ActivationCodeRequestResult<CoreFailure> {
         val scope = authenticationScope(serverConfig) ?: return ActivationCodeRequestResult.AuthScopeUnavailable
         return scope.registerScope.requestActivationCode(email).toActivationCodeResult()
     }
 
-    override suspend fun register(serverConfig: ServerConfig.Links,
-        request: CreateAccountRegistrationRequest): AccountRegistrationResult<CoreFailure, KaliumCreateAccountCredentials> {
+    override suspend fun register(
+        serverConfig: ServerConfig.Links,
+        request: CreateAccountRegistrationRequest
+    ): AccountRegistrationResult<CoreFailure, KaliumCreateAccountCredentials> {
         val scope = authenticationScope(serverConfig) ?: return AccountRegistrationResult.AuthScopeUnavailable
         return scope.registerScope.register(request.toRegisterParam()).toRegistrationResult()
     }
 
     override suspend fun storeSession(credentials: KaliumCreateAccountCredentials): StoreAccountSessionResult<CoreFailure, UserId> =
-        addAuthenticatedUser(credentials.result.toStoreSessionParam(defaultWebSocketEnabledByDefault),
-            replace = false).toStoreSessionResult()
+        addAuthenticatedUser(
+            credentials.result.toStoreSessionParam(defaultWebSocketEnabledByDefault),
+            replace = false
+        ).toStoreSessionResult()
 
     override suspend fun registerClient(userId: UserId, password: String): CreateAccountClientResult<CoreFailure> =
         clientScopeProviderFactory.create(userId).clientScope.getOrRegister(

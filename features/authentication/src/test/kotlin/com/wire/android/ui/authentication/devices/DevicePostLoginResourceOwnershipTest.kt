@@ -56,7 +56,10 @@ class DevicePostLoginResourceOwnershipTest {
 
     private companion object {
         val resourceNames = setOf(
-            "register_device_title", "register_device_text", "label_add_device", "devices_loading_error",
+            "register_device_title",
+            "register_device_text",
+            "label_add_device",
+            "devices_loading_error",
         )
         val expectedQualifiers = mapOf(
             "register_device_title" to setOf(

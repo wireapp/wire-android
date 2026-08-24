@@ -11,7 +11,6 @@ package com.wire.android.ui.authentication.login.email
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.framework.TestUser
@@ -71,9 +70,12 @@ class LoginEmailViewModelHostFactoryTest {
             AutoVersionAuthScopeUseCase.Result.Failure.Generic(failure) to LoginEmailScopeResult.Failure(failure),
         ).forEach { (kalium, feature) ->
             coEvery { arrangement.autoVersion(captureNullable(captured)) } returns kalium
-            assertEquals(feature, arrangement.gateway.resolveScope(ServerConfig.PRODUCTION) {
+            assertEquals(
+                feature,
+                arrangement.gateway.resolveScope(ServerConfig.PRODUCTION) {
                 LoginEmailProxyCredentials("proxy-user", "proxy-password")
-            })
+            }
+            )
             assertEquals("proxy-user", captured.captured?.username)
             assertEquals("proxy-password", captured.captured?.password)
         }
@@ -137,8 +139,13 @@ class LoginEmailViewModelHostFactoryTest {
             RegisterClientResult.Failure.TooManyClients
         var password = "first"
         password = "latest"
-        assertEquals(LoginEmailClientResult.TooManyDevices, arrangement.gateway.registerClient(TestUser.SELF_USER_ID) { password })
-        coEvery { arrangement.loginExtension.registerClient(any(), any()) } returns RegisterClientResult.Failure.Generic(failure)
+        assertEquals(
+            LoginEmailClientResult.TooManyDevices,
+            arrangement.gateway.registerClient(TestUser.SELF_USER_ID) { password },
+        )
+        coEvery {
+            arrangement.loginExtension.registerClient(any(), any())
+        } returns RegisterClientResult.Failure.Generic(failure)
         assertSame(
             failure,
             (arrangement.gateway.registerClient(TestUser.SELF_USER_ID) { "password" } as LoginEmailClientResult.Failure).failure,
@@ -167,7 +174,10 @@ class LoginEmailViewModelHostFactoryTest {
         val users = sessionScope.users
         val events = mutableListOf<String>()
         every { arrangement.coreLogic.getGlobalScope().validateEmailUseCase } returns validateEmail
-        coEvery { validateEmail("latest@example.com") } answers { events += "validate"; true }
+        coEvery { validateEmail("latest@example.com") } answers {
+            events += "validate"
+            true
+        }
         coEvery { users.persistSelfUserEmail("latest@example.com") } answers {
             events += "persist"
             PersistSelfUserEmailResult.Success
@@ -182,7 +192,10 @@ class LoginEmailViewModelHostFactoryTest {
         assertEquals(listOf("validate", "persist"), events)
 
         events.clear()
-        coEvery { validateEmail("handle") } answers { events += "validate-handle"; false }
+        coEvery { validateEmail("handle") } answers {
+            events += "validate-handle"
+            false
+        }
         assertEquals(
             LoginEmailPersistResult.Success,
             arrangement.gateway.persistEmailIfNeeded(TestUser.SELF_USER_ID) { "handle" },

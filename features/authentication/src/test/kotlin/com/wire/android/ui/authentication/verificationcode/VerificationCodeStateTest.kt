@@ -56,7 +56,11 @@ class VerificationCodeStateTest {
             isCurrentCodeInvalid = true,
             remainingTimerText = "00:42",
         )
-        val (codeLength, emailUsed, isCodeInputNecessary, isCurrentCodeInvalid, remainingTimerText) = copied
+        val codeLength = copied.codeLength
+        val emailUsed = copied.emailUsed
+        val isCodeInputNecessary = copied.isCodeInputNecessary
+        val isCurrentCodeInvalid = copied.isCurrentCodeInvalid
+        val remainingTimerText = copied.remainingTimerText
 
         assertEquals(expected, copied)
         assertEquals(expected.hashCode(), copied.hashCode())

@@ -25,7 +25,9 @@ class CreateAccountDetailsOwnershipTest {
         assertTrue(app.contains("password = passwordTextState.text.toString()"))
     }
 
-    private fun source(path: String): String = File(root(), path).walkTopDown().filter(File::isFile).joinToString("\n") { it.readText() }
+    private fun source(path: String): String = File(root(), path).walkTopDown().filter(File::isFile).joinToString("\n") {
+        it.readText()
+    }
     private fun root(): File = generateSequence(File(System.getProperty("user.dir")).absoluteFile) { it.parentFile }
         .first { File(it, "app/src/main/kotlin").isDirectory }
 }

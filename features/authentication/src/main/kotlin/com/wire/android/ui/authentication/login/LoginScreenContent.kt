@@ -70,7 +70,8 @@ fun LoginScreenContent(
                 onNavigationPressed = onBackPressed,
                 navigationIconType = NavigationIconType.Back(backContentDescription),
             ) {
-                if (!showBackendSetup) WireTabRow(
+                if (!showBackendSetup) {
+                    WireTabRow(
                     tabs = LoginTabItem.entries.toList(),
                     selectedTabIndex = pagerState.calculateCurrentTab(),
                     onTabChange = { index ->
@@ -82,6 +83,7 @@ fun LoginScreenContent(
                     },
                     modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x),
                 )
+                }
             }
         },
     ) { padding ->
@@ -93,8 +95,7 @@ fun LoginScreenContent(
                     .padding(MaterialTheme.wireDimensions.spacing16x),
                 content = backendConfigContent,
             )
-        }
-        else {
+        } else {
             var focusedTab by remember { mutableStateOf(initialTab.ordinal) }
             val keyboard = LocalSoftwareKeyboardController.current
             val focusManager = LocalFocusManager.current
@@ -125,6 +126,7 @@ fun shouldShowBackendSetup(isBackendConfigured: Boolean, backendConfigurationSuc
 
 enum class LoginTabChange { Animate, BlockLeavingEmail, Ignore }
 
+@Suppress("UnusedParameter")
 fun loginTabChange(isProxyEnabled: Boolean, currentPage: Int, targetPage: Int): LoginTabChange =
     when {
         !isProxyEnabled -> LoginTabChange.Animate

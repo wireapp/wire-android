@@ -1,4 +1,6 @@
 /* Wire Copyright (C) 2026 Wire Swiss GmbH */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.authentication
 
 import androidx.compose.foundation.layout.Arrangement

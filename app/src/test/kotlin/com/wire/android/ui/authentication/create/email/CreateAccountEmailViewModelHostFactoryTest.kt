@@ -12,17 +12,12 @@ package com.wire.android.ui.authentication.create.email
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.kalium.common.error.NetworkFailure
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.feature.auth.AuthenticationScope
-import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -120,5 +115,4 @@ class CreateAccountEmailViewModelHostFactoryTest {
         assertEquals(ActivationCodeResult.Sent, request.await())
         assertEquals(listOf("scope", "email"), events)
     }
-
 }

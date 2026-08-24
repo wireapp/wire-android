@@ -2,7 +2,6 @@
 package com.wire.android.ui.authentication.welcome
 
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
-import com.wire.android.R
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.kalium.logic.configuration.server.ServerConfig

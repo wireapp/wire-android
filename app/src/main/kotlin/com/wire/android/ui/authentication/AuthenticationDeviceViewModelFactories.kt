@@ -13,8 +13,10 @@ import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewMod
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 
 @Composable
-fun registerDeviceViewModel(viewModelStoreOwner: ViewModelStoreOwner =
-    authenticationViewModelStoreOwner): RegisterDeviceViewModel<com.wire.navigation.WireSessionId> =
+fun registerDeviceViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner =
+    authenticationViewModelStoreOwner
+): RegisterDeviceViewModel<com.wire.navigation.WireSessionId> =
     authenticationViewModel(viewModelStoreOwner)
 
 @Composable

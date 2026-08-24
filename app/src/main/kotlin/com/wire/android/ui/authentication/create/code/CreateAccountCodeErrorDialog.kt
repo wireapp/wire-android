@@ -14,7 +14,6 @@ import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKin
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.TEAM_CREATION_RESTRICTED
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.TEAM_LIMIT
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeDialogKind.USER_EXISTS
-import com.wire.android.ui.authentication.create.code.dialogKind
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
 

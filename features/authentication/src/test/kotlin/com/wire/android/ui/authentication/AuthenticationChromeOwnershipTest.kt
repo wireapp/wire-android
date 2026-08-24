@@ -49,9 +49,12 @@ class AuthenticationChromeOwnershipTest {
         val appDefinitions = resourceDefinitions(appResources)
         val featureDefinitions = resourceDefinitions(featureResources)
         assertTrue(appDefinitions.isEmpty(), "App still owns remove-device strings: $appDefinitions")
-        assertEquals(expectedQualifiersByResource, featureDefinitions
+        assertEquals(
+            expectedQualifiersByResource,
+            featureDefinitions
             .groupBy { definition -> resourceNames.single { name -> definition.contains("name=\"${name}\"") } }
-            .mapValues { (_, definitions) -> definitions.map { it.substringBefore('|') }.toSet() })
+            .mapValues { (_, definitions) -> definitions.map { it.substringBefore('|') }.toSet() }
+        )
         assertEquals(39, featureDefinitions.size)
         assertEquals("55d5c5aac64fd9304ce257d778db9914f04b3c8303813177c9cb2d692c090b8b", sha256(featureDefinitions.joinToString("\n")))
     }

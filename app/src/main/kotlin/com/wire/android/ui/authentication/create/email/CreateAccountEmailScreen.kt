@@ -22,7 +22,6 @@ import com.wire.android.navigation.routes.auth.CreateAccountEmailRoute
 import com.wire.android.navigation.routes.auth.CreateAccountRegistrationInfo
 import com.wire.android.navigation.routes.auth.CreateAccountRouteFlowType
 import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
 import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.theme.wireTypography

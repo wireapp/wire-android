@@ -101,7 +101,6 @@ class CreateAccountCodeViewModel<FlowT, LinksT, FailureT, UserT, CredentialsT>(
 
                 is CreateAccountClientResult.Generic ->
                     updateCodeErrorState(CreateAccountCodeResult.Error.DialogError.GenericError(result.failure))
-
             }
         }
     }

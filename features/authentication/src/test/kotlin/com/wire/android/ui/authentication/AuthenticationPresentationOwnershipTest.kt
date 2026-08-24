@@ -48,9 +48,12 @@ class AuthenticationPresentationOwnershipTest {
 
         assertTrue(appDefinitions.isEmpty(), "App still owns authentication dialog strings: $appDefinitions")
         assertEquals(175, featureDefinitions.size)
-        assertEquals(expectedQualifiers, featureDefinitions
+        assertEquals(
+            expectedQualifiers,
+            featureDefinitions
             .groupBy { definition -> resourceNames.single { definition.contains("name=\"$it\"") } }
-            .mapValues { (_, definitions) -> definitions.map { it.substringBefore('|') }.toSet() })
+            .mapValues { (_, definitions) -> definitions.map { it.substringBefore('|') }.toSet() }
+        )
         assertEquals(
             "e78bded355894f8a46785a2b33fd25220c29b8a8e031506cd324117c3eb2d355",
             sha256(featureDefinitions.joinToString("\n")),

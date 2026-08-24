@@ -2,6 +2,8 @@
  * Wire
  * Copyright (C) 2026 Wire Swiss GmbH
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.authentication.devices.register
 
 import androidx.compose.animation.AnimatedContent
@@ -45,8 +47,11 @@ fun <SessionT> RegisterDeviceContent(
             transitionSpec = { deviceAuthenticationSlideTransition() },
             modifier = modifier.fillMaxSize(),
         ) { needsCode ->
-            if (needsCode) RegisterDeviceVerificationCodeScreen(viewModel)
-            else RegisterDevicePasswordContent(viewModel, text, cancelDialog, onBack, failureDialog)
+            if (needsCode) {
+                RegisterDeviceVerificationCodeScreen(viewModel)
+            } else {
+                RegisterDevicePasswordContent(viewModel, text, cancelDialog, onBack, failureDialog)
+            }
         }
     }
 }

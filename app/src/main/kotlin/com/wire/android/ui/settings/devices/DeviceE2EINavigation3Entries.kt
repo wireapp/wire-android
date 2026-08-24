@@ -121,13 +121,13 @@ private fun RegisterDeviceNavigation3Entry(
             sessionId = route.sessionId,
             onNavigationCompleted = actions::completeSessionBackedAuthenticationCancellation,
         ),
-        onE2EIRequired = { userId ->
+        onE2EIRequired = { sessionId ->
             authenticationRouter.completeRegisterDevice(
                 eventId = route.registerDeviceTerminalEventId(),
                 routeSessionId = route.sessionId,
                 flowId = route.flowId,
                 completion = RegisterDeviceCompletion.E2EIEnrollment(
-                    userId?.let { WireSessionId(it.value, it.domain) } ?: route.sessionId,
+                    sessionId ?: route.sessionId,
                 ),
             )
         },

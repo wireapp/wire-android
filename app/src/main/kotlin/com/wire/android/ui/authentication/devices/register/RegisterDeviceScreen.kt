@@ -48,7 +48,6 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.CancelLoginDialogContent
 import com.wire.android.ui.common.dialogs.CancelLoginDialogState
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
@@ -67,7 +66,7 @@ internal fun RegisterDeviceRouteScreen(
     viewModel: RegisterDeviceViewModel,
     clearSessionViewModel: ClearSessionViewModel,
     switchAccountActions: com.wire.android.feature.SwitchAccountActions,
-    onE2EIRequired: (com.wire.kalium.logic.data.user.UserId?) -> Unit,
+    onE2EIRequired: (com.wire.navigation.WireSessionId?) -> Unit,
     onHomeRequired: () -> Unit,
     onInitialSyncRequired: () -> Unit,
     onRemoveDeviceRequired: () -> Unit,
@@ -79,7 +78,7 @@ internal fun RegisterDeviceRouteScreen(
         when (flowState) {
             is RegisterDeviceFlowState.Success -> {
                 when {
-                    flowState.isE2EIRequired -> onE2EIRequired(flowState.userId)
+                    flowState.isE2EIRequired -> onE2EIRequired(flowState.e2eiSessionId)
                     flowState.initialSyncCompleted -> onHomeRequired()
                     else -> onInitialSyncRequired()
                 }
@@ -200,8 +199,9 @@ private fun RegisterDeviceContent(
             )
         }
     }
-    if (state.flowState is RegisterDeviceFlowState.Error.GenericError) {
-        CoreFailureErrorDialog(state.flowState.coreFailure, onErrorDismiss)
+    val genericError = state.flowState as? RegisterDeviceFlowState.Error.GenericError
+    if (genericError != null) {
+        AuthenticationFailureDialog(genericError.failure, onErrorDismiss)
     }
 }
 

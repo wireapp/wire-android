@@ -24,6 +24,8 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
+import com.wire.android.ui.authentication.devices.register.AndroidRegisterDeviceResendTimer
+import com.wire.android.ui.authentication.devices.register.KaliumRegisterDeviceGateway
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.util.ui.CountdownTimer
@@ -63,12 +65,14 @@ class SessionAuthenticationViewModelFactory @Inject constructor(
     private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
 ) {
     fun registerDeviceViewModel() = RegisterDeviceViewModel(
-        registerClientUseCase = getOrRegisterClient,
-        isPasswordRequired = isPasswordRequired,
-        userDataStore = userDataStoreProvider.getOrCreate(currentAccount),
-        getSelfUser = getSelfUser,
-        requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode,
-        resendCodeTimer = countdownTimer,
+        gateway = KaliumRegisterDeviceGateway(
+            registerClient = getOrRegisterClient,
+            isPasswordRequired = isPasswordRequired,
+            userDataStore = userDataStoreProvider.getOrCreate(currentAccount),
+            getSelfUser = getSelfUser,
+            requestSecondFactorVerificationCode = requestSecondFactorVerificationCode,
+        ),
+        resendCodeTimer = AndroidRegisterDeviceResendTimer(countdownTimer),
     )
 
     fun removeDeviceViewModel() = RemoveDeviceViewModel(

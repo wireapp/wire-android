@@ -18,9 +18,7 @@
 
 package com.wire.android.ui.authentication.devices.register
 
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.navigation.WireSessionId
 
 data class RegisterDeviceState(
     val continueEnabled: Boolean = false,
@@ -34,12 +32,11 @@ sealed class RegisterDeviceFlowState {
     data class Success(
         val initialSyncCompleted: Boolean,
         val isE2EIRequired: Boolean,
-        val clientId: ClientId,
-        val userId: UserId? = null
+        val e2eiSessionId: WireSessionId? = null,
     ) : RegisterDeviceFlowState()
 
     sealed class Error : RegisterDeviceFlowState() {
         data object InvalidCredentialsError : Error()
-        data class GenericError(val coreFailure: CoreFailure) : Error()
+        data class GenericError(val failure: AuthenticationFailure) : Error()
     }
 }

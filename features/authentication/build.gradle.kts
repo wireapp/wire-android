@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.core.uiCommon)
     implementation(libs.ktx.serialization)
     implementation(libs.coroutines.android)
+    implementation(libs.androidx.lifecycle.viewModel)
 
     val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
@@ -26,5 +27,6 @@ dependencies {
     implementation(libs.compose.ui.preview)
 
     testImplementation(libs.junit5.core)
+    testImplementation(libs.coroutines.test)
     testRuntimeOnly(libs.junit5.engine)
 }

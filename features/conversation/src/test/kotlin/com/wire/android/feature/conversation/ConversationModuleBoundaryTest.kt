@@ -947,7 +947,7 @@ class ConversationModuleBoundaryTest {
             25,
             featureResources.listFiles().orEmpty().count { it.isDirectory && it.name.startsWith("values") },
         )
-        assertEquals(947, featureDefinitions.size)
+        assertEquals(992, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -1503,6 +1503,9 @@ class ConversationModuleBoundaryTest {
         val appFacadeLeafPresentationRelativePaths = listOf(
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/" +
                     "PasswordProtectedLinkBanner.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/Buttons.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/" +
+                    "GuestLinkActionButtons.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/" +
                     "RecordAudioInfoMessageType.kt",
         )
@@ -1866,6 +1869,11 @@ class ConversationModuleBoundaryTest {
         val facadeLeafPresentationSources = mapOf(
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/" +
                     "PasswordProtectedLinkBanner.kt" to
+                    "com.wire.android.ui.home.conversations.details.editguestaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/Buttons.kt" to
+                    "com.wire.android.ui.home.conversations.details.editguestaccess",
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/details/editguestaccess/" +
+                    "GuestLinkActionButtons.kt" to
                     "com.wire.android.ui.home.conversations.details.editguestaccess",
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/messagecomposer/recordaudio/" +
                     "RecordAudioInfoMessageType.kt" to

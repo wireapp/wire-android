@@ -1306,10 +1306,6 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gäste-Link</string>
     <string name="guest_link_description">Laden Sie andere mit einem Link zu dieser Unterhaltung ein. Jeder kann mit dem Link an der Unterhaltung teilnehmen – auch ohne Wire.</string>
-    <string name="guest_link_button_create_link">Link erstellen</string>
-    <string name="guest_link_button_copy_link">Link kopieren</string>
-    <string name="guest_link_button_share_link">Link teilen</string>
-    <string name="guest_link_button_revoke_link">Link widerrufen</string>
     <string name="audio_not_available">Audio nicht verfügbar</string>
     <string name="audio_not_available_explanation">Beim Herunterladen dieser Audiodatei ist ein Fehler aufgetreten. Bitten Sie den Absender, die Datei erneut hochzuladen</string>
     <string name="audio_speed_1">1x</string>

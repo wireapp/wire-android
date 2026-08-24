@@ -25,7 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.wireSecondaryButtonColors
@@ -39,7 +39,7 @@ fun CreateGuestLinkButton(
     modifier: Modifier = Modifier
 ) {
     WireSecondaryButton(
-        text = stringResource(id = R.string.guest_link_button_create_link),
+        text = stringResource(id = conversationR.string.guest_link_button_create_link),
         fillMaxWidth = true,
         onClick = onCreateLink,
         loading = isLoading,
@@ -69,7 +69,7 @@ fun CopyLinkButton(
                 top = MaterialTheme.wireDimensions.spacing16x,
                 bottom = MaterialTheme.wireDimensions.spacing4x
             ),
-        text = stringResource(id = R.string.guest_link_button_copy_link),
+        text = stringResource(id = conversationR.string.guest_link_button_copy_link),
         fillMaxWidth = true,
         onClick = onCopy
     )
@@ -89,7 +89,7 @@ fun ShareLinkButton(
                 top = MaterialTheme.wireDimensions.spacing4x,
                 bottom = MaterialTheme.wireDimensions.spacing4x
             ),
-        text = stringResource(id = R.string.guest_link_button_share_link),
+        text = stringResource(id = conversationR.string.guest_link_button_share_link),
         fillMaxWidth = true,
         onClick = onShare
     )
@@ -107,7 +107,7 @@ fun RevokeLinkButton(onRevoke: () -> Unit, modifier: Modifier = Modifier, isLoad
                 bottom = MaterialTheme.wireDimensions.spacing12x
             ),
         colors = wireSecondaryButtonColors(),
-        text = stringResource(id = R.string.guest_link_button_revoke_link),
+        text = stringResource(id = conversationR.string.guest_link_button_revoke_link),
         fillMaxWidth = true,
         loading = isLoading,
         state = if (isLoading) WireButtonState.Disabled else WireButtonState.Error,

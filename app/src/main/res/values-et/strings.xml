@@ -336,10 +336,6 @@
     <!-- invalid link -->
     <!-- guest room link -->
     <string name="folder_label_guest_link">Külalise link</string>
-    <string name="guest_link_button_create_link">Loo link</string>
-    <string name="guest_link_button_copy_link">Kopeeri link</string>
-    <string name="guest_link_button_share_link">Jaga linki</string>
-    <string name="guest_link_button_revoke_link">Tühista link</string>
     <string name="audio_not_available">Heli pole saadaval</string>
     <!-- New Device dialog -->
     <string name="new_device_dialog_current_user_btn">Halda seadmeid</string>

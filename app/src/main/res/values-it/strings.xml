@@ -852,10 +852,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="invalid_link_dialog_body">Impossibile aprire il link</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link ospite</string>
-    <string name="guest_link_button_create_link">Crea link</string>
-    <string name="guest_link_button_copy_link">Copia link</string>
-    <string name="guest_link_button_share_link">Condividi link</string>
-    <string name="guest_link_button_revoke_link">Revoca link</string>
     <string name="audio_not_available">Audio non disponibile</string>
     <string name="audio_not_available_explanation">Qualcosa &#232; andato storto durante il download di questo file audio. Chiedi all\'utente che l\'ha inviato di caricarlo di nuovo.</string>
     <string name="guest_link_generate_error_message">Impossibile creare il link. Sei pregato di riprovare</string>

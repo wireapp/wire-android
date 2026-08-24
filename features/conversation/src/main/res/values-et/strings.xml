@@ -83,4 +83,8 @@
     </plurals>
     <string name="folder_label_access">Juurdepääs</string>
     <string name="folder_label_messaging">Sõnumside</string>
+    <string name="guest_link_button_create_link">Loo link</string>
+    <string name="guest_link_button_copy_link">Kopeeri link</string>
+    <string name="guest_link_button_share_link">Jaga linki</string>
+    <string name="guest_link_button_revoke_link">Tühista link</string>
 </resources>

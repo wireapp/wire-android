@@ -147,4 +147,8 @@
     <string name="conversation_details_guest_description">Kiedy ta opcja jest w&#322;&#261;czona, osoby spoza Twojego zespo&#322;u mog&#261; do&#322;&#261;czy&#263; do tej konwersacji</string>
     <string name="conversation_options_read_receipt_label">Potwierdzenia odczytania</string>
     <string name="conversation_options_read_receipt_description">Gdy ta opcja jest w&#322;&#261;czona, inne osoby mog&#261; zobaczy&#263; kiedy ich wiadomo&#347;ci w tej rozmowie zosta&#322;y przeczytane.</string>
+    <string name="guest_link_button_create_link">Utw&#243;rz link</string>
+    <string name="guest_link_button_copy_link">Kopiuj link</string>
+    <string name="guest_link_button_share_link">Udost&#281;pnij link</string>
+    <string name="guest_link_button_revoke_link">Wycofaj link</string>
 </resources>

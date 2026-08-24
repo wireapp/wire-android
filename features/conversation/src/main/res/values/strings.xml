@@ -239,4 +239,8 @@
     <string name="label_search_messages_no_results">No results could be found.\nPlease refine your search and try again.</string>
     <string name="password_protected_link_banner_description">People who want to join the conversation via the guest link need to enter this password first.\nForgot password? Revoke the link and create a new one.</string>
     <string name="password_protected_link_banner_title">Link is password secured</string>
+    <string name="guest_link_button_create_link">Create Link</string>
+    <string name="guest_link_button_copy_link">Copy Link</string>
+    <string name="guest_link_button_share_link">Share Link</string>
+    <string name="guest_link_button_revoke_link">Revoke Link</string>
 </resources>

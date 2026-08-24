@@ -71,4 +71,8 @@
     <string name="conversation_details_options_group_name">GRUPPNAMN</string>
     <string name="conversation_options_guests_label">Gäster</string>
     <string name="conversation_options_read_receipt_label">Läskvitton</string>
+    <string name="guest_link_button_create_link">Skapa länk</string>
+    <string name="guest_link_button_copy_link">Kopiera länk</string>
+    <string name="guest_link_button_share_link">Dela länk</string>
+    <string name="guest_link_button_revoke_link">Återkalla länk</string>
 </resources>

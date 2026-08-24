@@ -658,10 +658,6 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- invalid link -->
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link dla go&#347;ci</string>
-    <string name="guest_link_button_create_link">Utw&#243;rz link</string>
-    <string name="guest_link_button_copy_link">Kopiuj link</string>
-    <string name="guest_link_button_share_link">Udost&#281;pnij link</string>
-    <string name="guest_link_button_revoke_link">Wycofaj link</string>
     <string name="audio_not_available">Audio niedost&#281;pne</string>
     <string name="audio_not_available_explanation">Co&#347; posz&#322;o nie tak podczas pobierania tego pliku audio. Popro&#347; nadawc&#281; o ponowne wys&#322;anie pliku.</string>
     <string name="revoke_guest__room_link_dialog_text">Nowi go&#347;cie nie b&#281;d&#261; mogli do&#322;&#261;czy&#263; z tym linkiem. Obecni go&#347;cie b&#281;d&#261; mie&#263; nadal dost&#281;p.</string>

@@ -760,10 +760,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <!-- invalid link -->
     <!-- guest room link -->
     <string name="folder_label_guest_link">Enlace de invitado</string>
-    <string name="guest_link_button_create_link">Crear enlace</string>
-    <string name="guest_link_button_copy_link">Copiar enlace</string>
-    <string name="guest_link_button_share_link">Compartir enlace</string>
-    <string name="guest_link_button_revoke_link">Revocar enlace</string>
     <string name="audio_not_available">Audio no disponible</string>
     <string name="audio_not_available_explanation">Algo sali&#243; mal al descargar este archivo de audio. P&#237;dele al remitente que lo vuelva a subir.</string>
     <string name="guest_link_generate_error_message">Hubo un error al crear el enlace. Por favor, inténtalo de nuevo</string>

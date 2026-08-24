@@ -1071,10 +1071,6 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Link de convidado</string>
     <string name="guest_link_description">Convide outras pessoas com um link para esta conversa. Qualquer um com o link pode se juntar à conversa, mesmo que eles não possuam Wire.</string>
-    <string name="guest_link_button_create_link">Criar Link</string>
-    <string name="guest_link_button_copy_link">Copiar Link</string>
-    <string name="guest_link_button_share_link">Compartilhar Link</string>
-    <string name="guest_link_button_revoke_link">Revogar Link</string>
     <string name="audio_not_available">Áudio indisponível</string>
     <string name="audio_not_available_explanation">Algo deu errado ao baixar este arquivo de áudio. Por favor, peça ao remetente para fazer o upload novamente.</string>
     <string name="audio_speed_1">1x</string>

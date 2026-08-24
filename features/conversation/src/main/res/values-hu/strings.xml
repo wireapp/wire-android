@@ -198,4 +198,8 @@
     <string name="label_search_messages_no_results">Nincs találat.\nMódosítsa a keresőkifejezést, és próbálja meg újra.</string>
     <string name="password_protected_link_banner_description">A beszélgetéshez vendég-linken keresztül csatlakozni kívánóknak először meg kell adniuk ezt a jelszót.\nElfelejtette a jelszót? Vonja vissza a linket, és hozzon létre újat.</string>
     <string name="password_protected_link_banner_title">A link jelszóvédett</string>
+    <string name="guest_link_button_create_link">Vendég-link létrehozása</string>
+    <string name="guest_link_button_copy_link">Vendég-link másolása</string>
+    <string name="guest_link_button_share_link">Vendég-link megosztása</string>
+    <string name="guest_link_button_revoke_link">Vendég-link visszavonása</string>
 </resources>

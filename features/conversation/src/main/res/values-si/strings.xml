@@ -198,4 +198,8 @@
     <string name="label_search_messages_no_results">ප්‍රතිඵල හමු නොවිණි.\nනැවත උත්සාහ කරන්න.</string>
     <string name="password_protected_link_banner_description">ආගන්තුක සබැඳිය හරහා සංවාදයට එක් වන අය පළමුව මෙම මුරපදය ඇතුල් කළ යුතුය.\nමුරපදය අමතකද? සබැඳිය අහෝසි කර අළුතින් සාදන්න.</string>
     <string name="password_protected_link_banner_title">සබැඳිය මුරපදයකින් ආරක්‍ෂිතයි</string>
+    <string name="guest_link_button_create_link">සබැඳියක් සාදන්න</string>
+    <string name="guest_link_button_copy_link">සබැඳියේ පිටපතක්</string>
+    <string name="guest_link_button_share_link">සබැඳිය බෙදාගන්න</string>
+    <string name="guest_link_button_revoke_link">සබැඳිය අහෝසිය</string>
 </resources>

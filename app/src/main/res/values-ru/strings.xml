@@ -1357,10 +1357,6 @@
     <!-- guest room link -->
     <string name="folder_label_guest_link">Гостевая ссылка</string>
     <string name="guest_link_description">Приглашайте ссылкой на эту беседу. Любой, у кого есть ссылка, сможет присоединиться к беседе, даже если у него нет Wire.</string>
-    <string name="guest_link_button_create_link">Создать ссылку</string>
-    <string name="guest_link_button_copy_link">Скопировать ссылку</string>
-    <string name="guest_link_button_share_link">Поделиться ссылкой</string>
-    <string name="guest_link_button_revoke_link">Отозвать ссылку</string>
     <string name="audio_not_available">Аудио недоступно</string>
     <string name="audio_not_available_explanation">При загрузке этого аудиофайла что-то пошло не так. Пожалуйста, попросите отправителя отправить его снова</string>
     <string name="audio_speed_1">1x</string>

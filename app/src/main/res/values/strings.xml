@@ -1361,10 +1361,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Guest link</string>
     <string name="guest_link_description">Invite others with a link to this conversation. Anyone with the link can join the conversation, even if they don\'t have Wire.</string>
-    <string name="guest_link_button_create_link">Create Link</string>
-    <string name="guest_link_button_copy_link">Copy Link</string>
-    <string name="guest_link_button_share_link">Share Link</string>
-    <string name="guest_link_button_revoke_link">Revoke Link</string>
     <string name="audio_not_available">Audio not available</string>
     <string name="audio_not_available_explanation">Something went wrong while downloading this audio file. Please ask the sender to upload it again</string>
     <string name="audio_speed_1">1x</string>

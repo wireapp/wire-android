@@ -483,10 +483,6 @@
     <string name="label_invalid_link_title">Ogiltig länk</string>
     <!-- guest room link -->
     <string name="folder_label_guest_link">Gästlänk</string>
-    <string name="guest_link_button_create_link">Skapa länk</string>
-    <string name="guest_link_button_copy_link">Kopiera länk</string>
-    <string name="guest_link_button_share_link">Dela länk</string>
-    <string name="guest_link_button_revoke_link">Återkalla länk</string>
     <string name="revoke_guest__room_link_dialog_title">Återkalla gästlänk?</string>
     <string name="guest_room_link_copied">Länk kopierades till urklipp</string>
     <!-- New Device dialog -->

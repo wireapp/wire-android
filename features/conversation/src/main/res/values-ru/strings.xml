@@ -282,4 +282,8 @@
     <string name="label_search_messages_no_results">Ничего не найдено.\nПожалуйста, уточните свой поиск и попробуйте еще раз.</string>
     <string name="password_protected_link_banner_description">Для подключения к беседе по гостевой ссылке необходимо сначала ввести этот пароль.\nЗабыли пароль? Аннулируйте ссылку и создайте новую.</string>
     <string name="password_protected_link_banner_title">Ссылка защищена паролем</string>
+    <string name="guest_link_button_create_link">Создать ссылку</string>
+    <string name="guest_link_button_copy_link">Скопировать ссылку</string>
+    <string name="guest_link_button_share_link">Поделиться ссылкой</string>
+    <string name="guest_link_button_revoke_link">Отозвать ссылку</string>
 </resources>

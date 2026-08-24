@@ -1123,10 +1123,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <!-- guest room link -->
     <string name="folder_label_guest_link">Vendég-link</string>
     <string name="guest_link_description">Hívjon meg másokat a beszélgetésbe egy vendég-linkkel. Ezzel bárki csatlakozhat a beszélgetéshez, még ha nincs is Wire-je.</string>
-    <string name="guest_link_button_create_link">Vendég-link létrehozása</string>
-    <string name="guest_link_button_copy_link">Vendég-link másolása</string>
-    <string name="guest_link_button_share_link">Vendég-link megosztása</string>
-    <string name="guest_link_button_revoke_link">Vendég-link visszavonása</string>
     <string name="audio_not_available">Hang nem elérhető</string>
     <string name="audio_not_available_explanation">Hiba történt a hangfájl letöltése során. Kérje meg a küldőt, hogy töltse fel újra</string>
     <string name="audio_speed_1">1x</string>

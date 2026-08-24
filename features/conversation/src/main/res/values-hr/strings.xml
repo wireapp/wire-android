@@ -29,4 +29,5 @@
     <string name="conversation_details_options_group_name">NAZIV GRUPE</string>
     <string name="conversation_options_guests_label">Gosti</string>
     <string name="password_protected_link_banner_description">Osobe koje se žele pridružiti razgovoru putem veze za goste moraju prvo unijeti ovu lozinku.\nZaboravili ste lozinku? Opozovite vezu i stvorite novu.</string>
+    <string name="guest_link_button_create_link">Stvorite poveznicu</string>
 </resources>

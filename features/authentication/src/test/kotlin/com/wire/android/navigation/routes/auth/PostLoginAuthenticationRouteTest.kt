@@ -30,6 +30,16 @@ import org.junit.jupiter.api.Test
 class PostLoginAuthenticationRouteTest {
 
     @Test
+    fun givenInitialSyncRoute_whenSerializedAndRestored_thenIdentityAndOwnershipArePreserved() {
+        val route = InitialSyncRoute(SESSION_ID, WireNavEntryId("initial-sync-entry"))
+
+        val restored = Json.decodeFromString<InitialSyncRoute>(Json.encodeToString(route))
+
+        assertEquals(route, restored)
+        assertEquals("app/initial_sync_screen", restored.routeId)
+    }
+
+    @Test
     fun givenRemoveDeviceRoute_whenSerializedAndRestored_thenIdentityAndOwnershipArePreserved() {
         val route = RemoveDeviceRoute(
             sessionId = SESSION_ID,

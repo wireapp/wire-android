@@ -49,7 +49,8 @@ import com.wire.android.ui.home.settings.appearance.CustomizationViewModel
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModel
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
-import com.wire.android.ui.initialsync.InitialSyncViewModel
+import com.wire.android.ui.authentication.initialsync.InitialSyncViewModel
+import com.wire.android.ui.initialsync.KaliumInitialSyncGateway
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModel
@@ -128,7 +129,7 @@ object WireMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelKey(InitialSyncViewModel::class)
-    fun initialSyncViewModel(viewModel: InitialSyncViewModel): ViewModel = viewModel
+    fun initialSyncViewModel(gateway: KaliumInitialSyncGateway): ViewModel = InitialSyncViewModel(gateway)
 
     @Provides
     @IntoMap

@@ -10,24 +10,10 @@
 
 package com.wire.android.navigation.routes.utility
 
-import com.wire.navigation.AuthenticationScreenRoute
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId
 import kotlinx.serialization.Serializable
-
-@Serializable
-data class InitialSyncRoute(
-    override val sessionId: WireSessionId,
-    override val entryId: WireNavEntryId = WireNavEntryId.random(),
-) : SessionRoute, AuthenticationScreenRoute {
-    override val routeId: String
-        get() = ROUTE_ID
-
-    companion object {
-        const val ROUTE_ID = "app/initial_sync_screen"
-    }
-}
 
 @Serializable
 data class DebugRoute(

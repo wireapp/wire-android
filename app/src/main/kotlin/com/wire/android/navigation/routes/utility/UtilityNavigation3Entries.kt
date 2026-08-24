@@ -14,6 +14,7 @@ import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
+import com.wire.android.navigation.routes.auth.InitialSyncRoute
 import com.wire.android.navigation.routes.media.AuthenticatedImportMediaRoute
 import com.wire.android.ui.debug.DebugRouteScreen
 import com.wire.android.ui.debug.LogManagementRouteScreen

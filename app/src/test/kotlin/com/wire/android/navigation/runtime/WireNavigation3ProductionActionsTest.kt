@@ -23,7 +23,7 @@ import com.wire.android.navigation.routes.auth.NewLoginRoute
 import com.wire.android.navigation.routes.media.ConversationMediaRoute
 import com.wire.android.navigation.routes.media.MediaConversationId
 import com.wire.android.navigation.routes.utility.DebugRoute
-import com.wire.android.navigation.routes.utility.InitialSyncRoute
+import com.wire.android.navigation.routes.auth.InitialSyncRoute
 import com.wire.android.navigation.runtime.startup.HomeRoute
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceRoute
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceRoute

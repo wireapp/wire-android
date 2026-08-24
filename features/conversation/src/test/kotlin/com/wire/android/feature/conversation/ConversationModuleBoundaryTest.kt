@@ -249,6 +249,26 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun regularMessageMapperAndItsFocusedTestAreFeatureOwnedWithTheLegacyContract() {
+        val source = featureSource(regularMessageMapperRelativePath)
+        val testSource = File(Konsist.projectRootPath, regularMessageMapperTestRelativePath).readText()
+
+        assertTrue(source.contains("package com.wire.android.mapper"))
+        assertTrue(source.contains("class RegularMessageMapper @Inject constructor("))
+        assertTrue(source.contains("private val messageResourceProvider: MessageResourceProvider"))
+        assertTrue(source.contains("private val isoFormatter: ISOFormatter"))
+        assertTrue(source.contains("import com.wire.android.feature.conversation.R as conversationR"))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertTrue(testSource.contains("package com.wire.android.mapper"))
+        assertTrue(testSource.contains("class RegularMessageContentMapperTest"))
+        assertTrue(testSource.contains("private fun regularMessage(content: MessageContent.Regular)"))
+        assertFalse(testSource.contains("com.wire.android.framework.TestMessage"))
+        legacyRegularMessageMapperPaths.forEach { relativePath ->
+            assertFalse(File(Konsist.projectRootPath, relativePath).exists(), "$relativePath must be absent.")
+        }
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -854,6 +874,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/util/time/ISOFormatter.kt"
         const val legacyIsoFormatterRelativePath =
             "app/src/main/kotlin/com/wire/android/util/time/ISOFormatter.kt"
+        const val regularMessageMapperRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/RegularMessageContentMapper.kt"
+        const val regularMessageMapperTestRelativePath =
+            "features/conversation/src/test/kotlin/com/wire/android/mapper/RegularMessageContentMapperTest.kt"
+        val legacyRegularMessageMapperPaths = listOf(
+            "app/src/main/kotlin/com/wire/android/mapper/RegularMessageContentMapper.kt",
+            "app/src/test/kotlin/com/wire/android/mapper/RegularMessageContentMapperTest.kt",
+        )
         val legacyMessagePresentationPrimitivePaths = listOf(
             "app/src/main/kotlin/com/wire/android/mapper/MessageDateGroupingMapper.kt",
             "app/src/main/kotlin/com/wire/android/util/Copyable.kt",
@@ -1385,6 +1413,9 @@ class ConversationModuleBoundaryTest {
         val isoFormatterSources = mapOf(
             isoFormatterRelativePath to "com.wire.android.util.time",
         )
+        val regularMessageMapperSources = mapOf(
+            regularMessageMapperRelativePath to "com.wire.android.mapper",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -1403,7 +1434,7 @@ class ConversationModuleBoundaryTest {
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageResourceProviderSources +
-                    systemMessageContentMapperSources + isoFormatterSources
+                    systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -1523,7 +1554,12 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesNavArgs",
             "com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration",
             "com.wire.android.ui.home.conversations.findUser",
+            "com.wire.android.ui.home.conversations.model.DEFAULT_LOCATION_ZOOM",
+            "com.wire.android.ui.home.conversations.model.DeliveryStatusContent",
+            "com.wire.android.ui.home.conversations.model.MessageBody",
+            "com.wire.android.ui.home.conversations.model.MessageButton",
             "com.wire.android.ui.home.conversations.model.UIMessageContent",
+            "com.wire.android.ui.home.conversations.model.UIQuotedMessage",
             "com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams",
             "com.wire.android.ui.home.messagecomposer.SelfDeletionDuration",
             "com.wire.android.ui.markdown.MarkdownNode",
@@ -1543,6 +1579,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.util.AppsUtil",
             "com.wire.android.util.dispatchers.DispatcherProvider",
             "com.wire.android.util.time.TimeZoneProvider",
+            "com.wire.android.util.time.ISOFormatter",
             "com.wire.android.util.ui.FolderType",
             "com.wire.android.util.ui.UIText",
             "com.wire.android.util.formatFullDateShortTime",

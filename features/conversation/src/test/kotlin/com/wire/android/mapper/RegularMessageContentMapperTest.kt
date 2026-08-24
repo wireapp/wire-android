@@ -19,39 +19,33 @@
 package com.wire.android.mapper
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestConversation
-import com.wire.android.framework.TestMessage
-import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.DeliveryStatus
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.message.MessageEncryptionAlgorithm
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SupportedProtocol
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
-import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import okio.Path
-import okio.Path.Companion.toPath
-import okio.buffer
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -66,9 +60,9 @@ class RegularMessageContentMapperTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
         val textContent = MessageContent.Text("Some Text Message")
-        val nonTextContent = TestMessage.UNKNOWN_MESSAGE
+        val nonTextContent = unknownMessage
         // When
-        val resultText = mapper.toText(TestConversation.ID, TestMessage.TEXT_MESSAGE.content, userMembers, DeliveryStatus.CompleteDelivery)
+        val resultText = mapper.toText(TestConversation.ID, textMessage.content, userMembers, DeliveryStatus.CompleteDelivery)
         val resultNonText = mapper.toText(TestConversation.ID, nonTextContent.content, userMembers, DeliveryStatus.CompleteDelivery)
         with(resultText) {
             assertTrue(
@@ -90,7 +84,7 @@ class RegularMessageContentMapperTest {
         val (_, mapper) = Arrangement().arrange()
 
         // When
-        val result = mapper.toText(TestConversation.ID, TestMessage.TEXT_MESSAGE.content, userMembers, DeliveryStatus.CompleteDelivery)
+        val result = mapper.toText(TestConversation.ID, textMessage.content, userMembers, DeliveryStatus.CompleteDelivery)
 
         // Then
         assertNull(result.messageBody.markdownDocument)
@@ -99,67 +93,59 @@ class RegularMessageContentMapperTest {
     @Test
     fun givenAssetContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
-        val dummyPath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
-        val dummyName = "some-dummy-name"
-        val (arrangement, mapper) = Arrangement()
-            .withSuccessfulGetMessageAssetResult(dummyPath, 1, dummyName)
-            .arrange()
+        val (_, mapper) = Arrangement().arrange()
         val unknownImageMessageContent = AssetContent(
             0L,
             "name1",
             "image/xrz",
             AssetMetadata.Image(100, 100),
-            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            assetRemoteData.copy(assetId = "image-id"),
         )
         val correctJPGImage = AssetContent(
             0L,
             "name2",
             "image/jpg",
             AssetMetadata.Image(100, 100),
-            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id2"),
+            assetRemoteData.copy(assetId = "image-id2"),
         )
 
         val testMessage1 = buildAssetMessage(unknownImageMessageContent)
         val testMessage2 = buildAssetMessage(correctJPGImage)
 
-        with(arrangement) {
-            // When - Then
-            val resultContentOther =
-                mapper.toUIMessageContent(
-                    AssetMessageContentMetadata(unknownImageMessageContent),
-                    testMessage1,
-                    sender,
-                    userMembers,
-                    DeliveryStatus.CompleteDelivery
-                )
-            coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-            assertTrue(
-                resultContentOther is AssetMessage &&
-                        resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
-            )
+        // When - Then
+        val resultContentOther = mapper.toUIMessageContent(
+            AssetMessageContentMetadata(unknownImageMessageContent),
+            testMessage1,
+            sender,
+            userMembers,
+            DeliveryStatus.CompleteDelivery
+        )
+        assertTrue(
+            resultContentOther is AssetMessage &&
+                    resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
+        )
 
-            // When - Then
-            val resultContentImage = mapper.toUIMessageContent(
-                AssetMessageContentMetadata(correctJPGImage),
-                testMessage2,
-                sender,
-                userMembers,
-                DeliveryStatus.CompleteDelivery
-            )
-            assertTrue(resultContentImage is UIMessageContent.IncompleteAssetMessage)
-        }
+        // When - Then
+        val resultContentImage = mapper.toUIMessageContent(
+            AssetMessageContentMetadata(correctJPGImage),
+            testMessage2,
+            sender,
+            userMembers,
+            DeliveryStatus.CompleteDelivery
+        )
+        assertTrue(resultContentImage is UIMessageContent.IncompleteAssetMessage)
     }
 
     @Test
     fun givenSVGImageAssetContent_whenMappingToUIMessageContent_thenIsMappedToAssetMessage() = runTest {
         // Given
-        val (arrangement, mapper) = Arrangement().arrange()
+        val (_, mapper) = Arrangement().arrange()
         val contentImage = AssetContent(
             0L,
             "name",
             "image/svg",
             AssetMetadata.Image(100, 100),
-            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            assetRemoteData.copy(assetId = "image-id"),
         )
         val testMessage = buildAssetMessage(contentImage)
 
@@ -173,62 +159,52 @@ class RegularMessageContentMapperTest {
         )
 
         // Then
-        coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
         assertTrue(resultContentImage is AssetMessage)
     }
 
     @Test
     fun givenPNGImageAssetContentWith0Width_whenMappingToUIMessageContent_thenIsMappedToAssetMessage() = runTest {
         // Given
-        val dummyPath = "some-dummy-path".toPath()
-        val dummyName = "some-dummy-name"
-        val (arrangement, mapper) = Arrangement()
-            .withSuccessfulGetMessageAssetResult(dummyPath, 1, dummyName)
-            .arrange()
+        val (_, mapper) = Arrangement().arrange()
         val contentImage1 = AssetContent(
             0L,
             "name1",
             "image/png",
             AssetMetadata.Image(0, 0),
-            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            assetRemoteData.copy(assetId = "image-id"),
         )
         val contentImage2 = AssetContent(
             0L,
             "name2",
             "image/png",
             AssetMetadata.Image(100, 100),
-            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id2"),
+            assetRemoteData.copy(assetId = "image-id2"),
         )
         val testMessage1 = buildAssetMessage(contentImage1)
         val testMessage2 = buildAssetMessage(contentImage2)
 
         // When
-        with(arrangement) {
-            val resultContentImage1 = mapper.toUIMessageContent(
-                AssetMessageContentMetadata(contentImage1),
-                testMessage1,
-                sender,
-                userMembers,
-                DeliveryStatus.CompleteDelivery
-            )
-            val resultContentImage2 = mapper.toUIMessageContent(
-                AssetMessageContentMetadata(contentImage2),
-                testMessage2,
-                sender,
-                userMembers,
-                DeliveryStatus.CompleteDelivery
-            )
+        val resultContentImage1 = mapper.toUIMessageContent(
+            AssetMessageContentMetadata(contentImage1),
+            testMessage1,
+            sender,
+            userMembers,
+            DeliveryStatus.CompleteDelivery
+        )
+        val resultContentImage2 = mapper.toUIMessageContent(
+            AssetMessageContentMetadata(contentImage2),
+            testMessage2,
+            sender,
+            userMembers,
+            DeliveryStatus.CompleteDelivery
+        )
 
-            // Then
-            assertTrue(resultContentImage1 is AssetMessage)
-            assertTrue(resultContentImage2 is UIMessageContent.IncompleteAssetMessage)
-        }
+        // Then
+        assertTrue(resultContentImage1 is AssetMessage)
+        assertTrue(resultContentImage2 is UIMessageContent.IncompleteAssetMessage)
     }
 
     private class Arrangement {
-
-        @MockK
-        lateinit var getMessageAssetUseCase: GetMessageAssetUseCase
 
         @MockK
         lateinit var messageResourceProvider: MessageResourceProvider
@@ -245,25 +221,36 @@ class RegularMessageContentMapperTest {
             every { messageResourceProvider.sentAMessageWithContent } returns 45407124
         }
 
-        fun withSuccessfulGetMessageAssetResult(expectedAssetPath: Path, expectedAssetSize: Long, expectedAssetName: String): Arrangement {
-            val dummyData = "dummy-data".toByteArray()
-            fakeKaliumFileSystem.sink(expectedAssetPath).buffer().use {
-                it.write(dummyData)
-            }
-            coEvery {
-                getMessageAssetUseCase.invoke(
-                    any(),
-                    any()
-                )
-            } returns CompletableDeferred(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize, expectedAssetName))
-            return this
-        }
-
         fun arrange() = this to messageContentMapper
     }
 
     companion object {
-        val fakeKaliumFileSystem = FakeKaliumFileSystem()
+        private val assetRemoteData = AssetContent.RemoteData(
+            otrKey = ByteArray(0),
+            sha256 = ByteArray(16),
+            assetId = "asset-id",
+            assetToken = "==some-asset-token",
+            assetDomain = "some-asset-domain.com",
+            encryptionAlgorithm = MessageEncryptionAlgorithm.AES_GCM,
+        )
+
+        private val textMessage = regularMessage(MessageContent.Text("Some Text Message"))
+        private val unknownMessage = regularMessage(MessageContent.Unknown("some-unhandled-message"))
+
+        private fun buildAssetMessage(assetContent: AssetContent) = regularMessage(MessageContent.Asset(assetContent))
+
+        private fun regularMessage(content: MessageContent.Regular) = Message.Regular(
+            id = "messageID",
+            content = content,
+            conversationId = TestConversation.ID,
+            date = Instant.parse("2022-03-30T15:36:00.000Z"),
+            senderUserId = UserId("user-id", "domain"),
+            senderClientId = ClientId("client-id"),
+            status = Message.Status.Sent,
+            editStatus = Message.EditStatus.NotEdited,
+            isSelfMessage = false,
+        )
+
         val sender = OtherUser(
             id = QualifiedID(
                 value = "someSearchQuery",

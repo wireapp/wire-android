@@ -217,7 +217,6 @@ class ConversationMessageResourceOwnershipTest {
         )
         val expectedConsumers = setOf(
             "app/src/main/kotlin/com/wire/android/mapper/MessagePreviewContentMapper.kt",
-            "app/src/main/kotlin/com/wire/android/mapper/RegularMessageContentMapper.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageExpirationItems.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/preview/PreviewMessageTypes.kt",

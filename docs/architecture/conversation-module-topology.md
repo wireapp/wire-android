@@ -1,8 +1,8 @@
 # Conversation module topology
 
-**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, image-asset paging, role projection, media/search arguments, asset restrictions, and edit-metadata presentation have facade-owned seams
+**Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation primitives, image-asset paging, role projection, media/search arguments, asset restrictions, and edit-metadata presentation have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `1bf62ac32f685b7b0c0985a3d9f040458f0d294c`
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `c505335c693c9789eb6f2bf4b1fb585a15907385`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -65,6 +65,8 @@ Conversation role projection is facade-owned. `ObserveConversationRoleForUserUse
 The conversation media and message-search arguments are facade-owned. `ConversationMediaNavArgs` and `SearchConversationMessagesNavArgs` keep their packages, FQNs, fields, defaults, and data-class behavior while depending only on `ConversationId`. App Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors continue to consume the same contracts through the existing facade edge. No caller import, Gradle, resource, profile, stability, navigation-behavior, or KMP source-set change accompanies this ownership move.
 
 Asset restriction presentation and its value-model closure are facade-owned. `CheckAssetRestrictionsViewModel`, `AssetTooLargeDialogState`, `AssetBundle`, `UriAsset`, `PathParceler`, and `ImportedMediaAsset` keep their packages, public FQNs, field/default contracts, and parcel encoding in `:features:conversation`. The feature owns the ordinary Metro binding and unchanged `checkAssetRestrictionsViewModel()` gateway; app installs that binding exactly once while retaining media import handling, screens, dialogs, and Navigation 3 runtime. No caller import, Gradle edge, resource, profile, stability, or KMP source changes with this move.
+
+Message-presentation primitives are facade-owned. `MessageDateTimeGroup` and its grouping/divider functions, the `Copyable` message contract, and immutable `MarkdownNode`/`MarkdownPreview` data keep their packages, FQNs, and declarations in `:features:conversation`. App keeps Markdown parsing and Compose rendering, message-list rendering, resources, and the remaining `UIMessage`/`MessageMapper` pipeline. This is a prerequisite ownership move, not a second message model: quote, search, asset paging, and draft continue to use the existing app-owned model until its remaining resource closure is ready.
 
 Edit-conversation metadata presentation is facade-owned. `EditConversationMetadataViewModel`, its narrow state and validator, dedicated assisted Metro group/gateways, and focused test keep their packages and public FQNs in `:features:conversation`. App keeps the unchanged `GroupNameScreen`, its private edition-state adapter, Navigation 3 calls, and composition-root installation of the generated feature binding exactly once. Creation state and UI, resources, Gradle edges, profiles, Navigation 3 runtime, and KMP sources remain unchanged.
 

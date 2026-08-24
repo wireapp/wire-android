@@ -158,6 +158,29 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun messagePresentationPrimitivesAreFeatureOwnedWithExactDependencies() {
+        val dateGroupingSource = featureSource(messageDateGroupingMapperRelativePath)
+        val copyableSource = featureSource(copyableRelativePath)
+        val markdownNodeSource = featureSource(markdownNodeRelativePath)
+
+        assertTrue(dateGroupingSource.contains("package com.wire.android.mapper"))
+        assertTrue(copyableSource.contains("package com.wire.android.util"))
+        assertTrue(markdownNodeSource.contains("package com.wire.android.ui.markdown"))
+        assertEquals(messageDateGroupingImports, importedDeclarations(dateGroupingSource))
+        assertEquals(setOf("android.content.res.Resources"), importedDeclarations(copyableSource))
+        assertEquals(
+            setOf("kotlinx.collections.immutable.PersistentList"),
+            importedDeclarations(markdownNodeSource),
+        )
+        assertTrue(dateGroupingSource.contains("sealed interface MessageDateTimeGroup"))
+        assertTrue(copyableSource.contains("interface Copyable"))
+        assertTrue(markdownNodeSource.contains("data class MarkdownPreview"))
+        legacyMessagePresentationPrimitivePaths.forEach { relativePath ->
+            assertFalse(File(Konsist.projectRootPath, relativePath).exists(), "$relativePath must be absent.")
+        }
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -734,6 +757,25 @@ class ConversationModuleBoundaryTest {
     }
 
     private companion object {
+        const val messageDateGroupingMapperRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageDateGroupingMapper.kt"
+        const val copyableRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/util/Copyable.kt"
+        const val markdownNodeRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/markdown/MarkdownNode.kt"
+        val legacyMessagePresentationPrimitivePaths = listOf(
+            "app/src/main/kotlin/com/wire/android/mapper/MessageDateGroupingMapper.kt",
+            "app/src/main/kotlin/com/wire/android/util/Copyable.kt",
+            "app/src/main/kotlin/com/wire/android/ui/markdown/MarkdownNode.kt",
+            "app/src/test/kotlin/com/wire/android/mapper/MessageDateGroupingMapperTest.kt",
+        )
+        val messageDateGroupingImports = setOf(
+            "java.time.LocalDate",
+            "java.time.ZoneId",
+            "java.util.Calendar",
+            "kotlinx.datetime.Instant",
+            "kotlinx.datetime.toJavaInstant",
+        )
         const val assetTooLargeDialogStateRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/AssetTooLargeDialogState.kt"
         const val assetBundleRelativePath =

@@ -217,7 +217,6 @@ URL backend:
     <string name="conversation_history_wipe_explanation">In base alle impostazioni di sicurezza del tuo team, anche la cronologia delle conversazioni &#232; stata eliminata.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verifica il tuo account</string>
-    <string name="second_factor_code_error">Codice non valido o numero massimo di tentativi superato. Riprova o richiedi un altro codice.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Rimuovi un dispositivo</string>
     <string name="remove_device_message">Rimuovi un altro dispositivo per iniziare ad usare Wire su questo.</string>
@@ -293,7 +292,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="create_account_details_password_not_matching_error">Le password non corrispondono.</string>
     <string name="create_account_details_confirm_password_label">CONFERMA PASSWORD</string>
     <string name="create_account_code_text">Controlla la tua email %1$s per il codice di verifica e inseriscilo qui sotto.</string>
-    <string name="create_account_code_resend">Invia di nuovo il codice</string>
     <string name="create_account_code_error">Codice non valido o tentativi massimi superati. Riprova o richiedi un nuovo codice.</string>
     <string name="create_account_code_error_title">Informazione non valida</string>
     <string name="create_account_code_error_team_members_limit_reached">Questo team ha raggiunto il limite di membri.</string>

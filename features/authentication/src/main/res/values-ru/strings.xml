@@ -1,0 +1,4 @@
+<resources>
+    <string name="create_account_code_resend">Отправить код еще раз</string>
+    <string name="second_factor_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
+</resources>

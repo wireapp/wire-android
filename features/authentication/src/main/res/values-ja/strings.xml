@@ -1,0 +1,3 @@
+<resources>
+    <string name="second_factor_code_error">無効なコードであるか、最大試行回数を超えました。再試行するか、別のコードをリクエストしてください。</string>
+</resources>

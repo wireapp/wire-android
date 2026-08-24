@@ -322,7 +322,6 @@
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Fiók hitelesítése</string>
     <string name="second_factor_authentication_instructions_label">Kérjük, adja meg a(z) %1$s e-mail címére küldött azonosító kódot.</string>
-    <string name="second_factor_code_error">Érvénytelen kód, vagy túllépte a kísérletek maximális számát. Próbálja újra, vagy kérjen másik kódot</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Eszköz eltávolítása</string>
     <string name="remove_device_message">Ahhoz, hogy használni tudja a Wire-t ezen az eszközön, először távolítsa el
@@ -394,7 +393,6 @@
     <string name="create_account_details_password_not_matching_error">A jelszavak nem egyeznek</string>
     <string name="create_account_details_confirm_password_label">ERŐSÍTSE MEG A JELSZÓT</string>
     <string name="create_account_code_text">Kérjük, adja meg a(z) %1$s e-mail címére küldött azonosító kódot.</string>
-    <string name="create_account_code_resend">Kód újraküldése</string>
     <string name="create_account_code_error">Érvénytelen kód, vagy túllépte a kísérletek maximális számát. Próbálja újra, vagy kérjen másik kódot</string>
     <string name="create_account_code_error_title">Érvénytelen információ</string>
     <string name="create_account_code_error_team_members_limit_reached">Ez a csapat elérte a létszámkorlátot.</string>

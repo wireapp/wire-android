@@ -12,7 +12,17 @@ android {
 
 dependencies {
     api(projects.core.navigationKmp)
+    implementation(projects.core.uiCommon)
     implementation(libs.ktx.serialization)
+    implementation(libs.coroutines.android)
+
+    val composeBom = enforcedPlatform(libs.compose.bom)
+    implementation(composeBom)
+    implementation("androidx.compose.animation:animation")
+    implementation("androidx.compose.foundation:foundation")
+    implementation(libs.compose.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.preview)
 
     testImplementation(libs.junit5.core)
     testRuntimeOnly(libs.junit5.engine)

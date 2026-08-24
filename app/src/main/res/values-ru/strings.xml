@@ -374,7 +374,6 @@
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Подтвердите учетную запись</string>
     <string name="second_factor_authentication_instructions_label">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
-    <string name="second_factor_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Удалить устройство</string>
     <string name="remove_device_message">Удалите одно из ваших устройств, чтобы начать использовать Wire
@@ -467,7 +466,6 @@
     <string name="create_account_details_password_not_matching_error">Пароли не совпадают</string>
     <string name="create_account_details_confirm_password_label">ПОДТВЕРДИТЬ ПАРОЛЬ</string>
     <string name="create_account_code_text">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
-    <string name="create_account_code_resend">Отправить код еще раз</string>
     <string name="create_account_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <string name="create_account_code_error_title">Неверная информация</string>
     <string name="create_account_code_error_team_members_limit_reached">Эта команда достигла лимита участников.</string>

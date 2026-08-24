@@ -310,7 +310,6 @@ URL do Backend:
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verifique sua conta</string>
     <string name="second_factor_authentication_instructions_label">Por favor, verifique seu email %1$s para o código de verificação e insira-o abaixo.</string>
-    <string name="second_factor_code_error">Código inválido ou tentativas máximas excedidas. Por favor, tente novamente ou solicite outro código.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Remover um dispositivo</string>
     <string name="remove_device_message">Remova um dos seus outros dispositivos para começar a usar o Wire neste aparelho.</string>
@@ -386,7 +385,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="create_account_details_password_not_matching_error">As senhas não se correspondem</string>
     <string name="create_account_details_confirm_password_label">CONFIRMAR SENHA</string>
     <string name="create_account_code_text">Por favor, verifique seu email %1$s para o código de verificação e insira abaixo.</string>
-    <string name="create_account_code_resend">Reenviar código</string>
     <string name="create_account_code_error">Código inválido ou máximo de tentativas atingido. Por favor, tente novamente ou solicite outro código.</string>
     <string name="create_account_code_error_title">Informação inválida</string>
     <string name="create_account_code_error_team_members_limit_reached">Esta equipe atingiu seu limite de membros.</string>

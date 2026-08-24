@@ -217,7 +217,6 @@
     <string name="conversation_history_wipe_explanation">De acuerdo con la configuraci&#243;n de seguridad de tu equipo, tu historial de conversaci&#243;n tambi&#233;n ha sido eliminado.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verifica tu cuenta</string>
-    <string name="second_factor_code_error">C&#243;digo inv&#225;lido o n&#250;mero m&#225;ximo de intentos ha sido alcanzado. Por favor, int&#233;ntalo de nuevo o solicita otro c&#243;digo.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Eliminar un dispositivo</string>
     <string name="remove_device_message">Elimina uno de tus otros dispositivos para empezar a usar Wire en &#233;ste.</string>
@@ -279,7 +278,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="create_account_details_password_not_matching_error">Las contrase&#241;as no coinciden.</string>
     <string name="create_account_details_confirm_password_label">CONFIRMAR CONTRASE&#209;A</string>
     <string name="create_account_code_text">Por favor, revisa tu correo electr&#243;nico %1$s para obtener el c&#243;digo de verificaci&#243;n e ingr&#233;salo a continuaci&#243;n.</string>
-    <string name="create_account_code_resend">Reenviar c&#243;digo</string>
     <string name="create_account_code_error">C&#243;digo no v&#225;lido, o se ha excedido el n&#250;mero m&#225;ximo de intentos. Por favor, int&#233;ntalo de nuevo o solicita otro c&#243;digo.</string>
     <string name="create_account_code_error_title">Informaci&#243;n no v&#225;lida</string>
     <string name="create_account_code_error_team_members_limit_reached">Este equipo ha alcanzado su l&#237;mite de miembros.</string>

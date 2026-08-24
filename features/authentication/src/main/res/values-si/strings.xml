@@ -1,0 +1,4 @@
+<resources>
+    <string name="create_account_code_resend">කේතය නැවත යවන්න</string>
+    <string name="second_factor_code_error">වලංගු නොවන කේතයකි හෝ උපරිම තැත් කිරීම් ඉක්මවා ඇත. නැවත උත්සාහ කරන්න හෝ වෙනත් කේතයක් ඉල්ලන්න</string>
+</resources>

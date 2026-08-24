@@ -213,7 +213,6 @@
          vašeg tima, vaša povijest razgovora također je izbrisana.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Potvrdite svoj račun</string>
-    <string name="second_factor_code_error">Nevažeći kôd ili je premašen maksimalan broj pokušaja. Pokušajte ponovno ili zatražite drugi kôd</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Ukloni uređaj</string>
     <string name="remove_device_message">Uklonite jedan od Vaših ostalih uređaja kako bi ste počeli koristiti Wire na ovom.    </string>
@@ -281,7 +280,6 @@
     <string name="create_account_details_password_not_matching_error">Lozinke se ne podudaraju</string>
     <string name="create_account_details_confirm_password_label">POTVRDI LOZINKU</string>
     <string name="create_account_code_text">Provjerite svoju e-poštu %1$s za verifikacijski kod i unesite ga ispod.</string>
-    <string name="create_account_code_resend">Ponovno pošalji kôd</string>
     <string name="create_account_code_error">Nevažeći kôd ili je premašen maksimalan broj pokušaja. Molimo pokušajte ponovno ili zatražite drugi kôd</string>
     <string name="create_account_code_error_title">Nevažeća informacija</string>
     <string name="create_account_code_error_team_members_limit_reached">Ovaj tim je dosegao ograničen broja članova.</string>

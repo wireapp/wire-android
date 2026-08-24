@@ -318,7 +318,6 @@
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">ගිණුම සත්‍යාපනය කරන්න</string>
     <string name="second_factor_authentication_instructions_label">සත්‍යාපන කේතය සඳහා ඔබගේ %1$s වි-තැපෑල පරීක්‍ෂා කර එය පහතින් යොදන්න.</string>
-    <string name="second_factor_code_error">වලංගු නොවන කේතයකි හෝ උපරිම තැත් කිරීම් ඉක්මවා ඇත. නැවත උත්සාහ කරන්න හෝ වෙනත් කේතයක් ඉල්ලන්න</string>
     <!-- Remove Device -->
     <string name="remove_device_title">උපාංගයක් ඉවත් කරන්න</string>
     <string name="remove_device_message">මෙහි වයර් භාවිතා කිරීම ඇරඹීමට ඔබගේ අනෙක් උපාංග වලින් එකක් ඉවත් කරන්න.</string>
@@ -388,7 +387,6 @@
     <string name="create_account_details_password_not_matching_error">මුරපද නොගැළපේ</string>
     <string name="create_account_details_confirm_password_label">මුරපදය තහවුරු කරන්න</string>
     <string name="create_account_code_text">සත්‍යාපන කේතය සඳහා ඔබගේ %1$s වි-තැපෑල පරීක්‍ෂා කර එය පහතින් යොදන්න.</string>
-    <string name="create_account_code_resend">කේතය නැවත යවන්න</string>
     <string name="create_account_code_error">වලංගු නොවන කේතයකි හෝ උපරිම තැත් කිරීම් ඉක්මවා ඇත. නැවත උත්සාහ කරන්න හෝ වෙනත් කේතයක් ඉල්ලන්න</string>
     <string name="create_account_code_error_title">සාවද්‍ය තොරතුරකි</string>
     <string name="create_account_code_error_team_members_limit_reached">මෙම කණ්ඩායම එහි සාමාජිකත්‍ව සීමාවට ළඟා වී ඇත.</string>

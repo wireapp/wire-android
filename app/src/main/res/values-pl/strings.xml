@@ -188,7 +188,6 @@ URL &#347;rodowiska:
     <string name="conversation_history_wipe_explanation">Zgodnie z ustawieniami bezpiecze&#324;stwa Twojego zespo&#322;u historia rozm&#243;w zosta&#322;a r&#243;wnie&#380; usuni&#281;ta.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Zweryfikuj swoje konto</string>
-    <string name="second_factor_code_error">Nieprawid&#322;owy kod lub maksymalna liczba pr&#243;b wyczerpana. Spr&#243;buj ponownie lub popro&#347; o inny kod.</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Usu&#324; urz&#261;dzenie</string>
     <string name="remove_device_message">Usu&#324; jedno ze swoich innych urz&#261;dze&#324;, aby zacz&#261;&#263; u&#380;ywa&#263; Wire na tym.</string>
@@ -250,7 +249,6 @@ Usuni&#281;ta wiadomo&#347;&#263; nie mo&#380;e zosta&#263; przywr&#243;cona.</s
     <string name="create_account_details_password_not_matching_error">Has&#322;a nie s&#261; zgodne</string>
     <string name="create_account_details_confirm_password_label">POTWIERD&#377; HAS&#321;O</string>
     <string name="create_account_code_text">Sprawd&#378; swoj&#261; skrzynk&#281; e-mail %1$s w celu uzyskania kodu weryfikacyjnego i wpisz go poni&#380;ej.</string>
-    <string name="create_account_code_resend">Wy&#347;lij kod ponownie</string>
     <string name="create_account_code_error">Nieprawid&#322;owy kod lub przekroczono maksymaln&#261; liczb&#281; pr&#243;b. Spr&#243;buj ponownie lub popro&#347; o kolejny kod.</string>
     <string name="create_account_code_error_title">Nieprawid&#322;owe informacje</string>
     <string name="create_account_code_error_team_members_limit_reached">Ten zesp&#243;&#322; osi&#261;gn&#261;&#322; limit cz&#322;onk&#243;w.</string>

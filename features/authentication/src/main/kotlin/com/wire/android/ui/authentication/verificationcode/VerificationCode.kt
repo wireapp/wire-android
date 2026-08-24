@@ -36,14 +36,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import com.wire.android.R
+import com.wire.android.feature.authentication.R
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.job
 
 @Composable
@@ -112,7 +112,7 @@ fun VerificationCode(
     }
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewVerificationCode() = WireTheme {
     VerificationCode(
@@ -124,7 +124,7 @@ fun PreviewVerificationCode() = WireTheme {
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewVerificationCodeTimer() = WireTheme {
     VerificationCode(

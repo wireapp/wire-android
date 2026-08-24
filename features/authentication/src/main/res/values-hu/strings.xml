@@ -1,0 +1,4 @@
+<resources>
+    <string name="create_account_code_resend">Kód újraküldése</string>
+    <string name="second_factor_code_error">Érvénytelen kód, vagy túllépte a kísérletek maximális számát. Próbálja újra, vagy kérjen másik kódot</string>
+</resources>

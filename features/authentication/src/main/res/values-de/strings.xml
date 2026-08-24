@@ -1,0 +1,4 @@
+<resources>
+    <string name="create_account_code_resend">Code erneut senden</string>
+    <string name="second_factor_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
+</resources>

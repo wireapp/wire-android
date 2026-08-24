@@ -1,0 +1,4 @@
+<resources>
+    <string name="create_account_code_resend">Reenviar código</string>
+    <string name="second_factor_code_error">Código inválido ou tentativas máximas excedidas. Por favor, tente novamente ou solicite outro código.</string>
+</resources>

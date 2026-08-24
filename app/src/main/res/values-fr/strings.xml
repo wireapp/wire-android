@@ -218,7 +218,6 @@
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Vérifiez votre compte</string>
     <string name="second_factor_authentication_instructions_label">Veuillez vérifier votre email %1$s pour obtenir le code de confirmation et saisissez-le ci-dessous.</string>
-    <string name="second_factor_code_error">Code invalide, ou nombre maximal de tentatives dépassé. Veuillez réessayer ou demander un autre code</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Supprimer un appareil</string>
     <string name="remove_device_message">Supprimez un de vos autres appareils pour commencer à utiliser Wire sur celui-ci.    </string>
@@ -288,7 +287,6 @@
     <string name="create_account_details_password_not_matching_error">Les mots de passe ne correspondent pas</string>
     <string name="create_account_details_confirm_password_label">CONFIRMEZ LE MOT DE PASSE</string>
     <string name="create_account_code_text">Veuillez vérifier votre email %1$s pour obtenir le code de confirmation et saisissez-le ci-dessous.</string>
-    <string name="create_account_code_resend">Renvoyer le code</string>
     <string name="create_account_code_error">Code invalide, ou nombre d\'essais maximum atteint. Veuillez réessayer ou demander un nouveau code</string>
     <string name="create_account_code_error_title">Information invalide</string>
     <string name="create_account_code_error_team_members_limit_reached">Cette équipe a atteint la limite d\'utilisateurs.</string>

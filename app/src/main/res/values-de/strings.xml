@@ -364,7 +364,6 @@
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Überprüfen Sie Ihr Benutzerkonto</string>
     <string name="second_factor_authentication_instructions_label">Bitte prüfen Sie Ihren Posteingang %1$s und geben Sie den Bestätigungscode ein.</string>
-    <string name="second_factor_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Bitte ein Gerät entfernen</string>
     <string name="remove_device_message">Entfernen Sie eines Ihrer anderen Geräte, um Wire
@@ -457,7 +456,6 @@
     <string name="create_account_details_password_not_matching_error">Passwörter stimmen nicht überein</string>
     <string name="create_account_details_confirm_password_label">PASSWORT BESTÄTIGEN</string>
     <string name="create_account_code_text">Bitte prüfen Sie Ihren Posteingang %1$s und geben Sie den Bestätigungscode unten ein.</string>
-    <string name="create_account_code_resend">Code erneut senden</string>
     <string name="create_account_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
     <string name="create_account_code_error_title">Ungültige Informationen</string>
     <string name="create_account_code_error_team_members_limit_reached">Dieses Team hat die Höchstanzahl an Mitgliedern erreicht.</string>

@@ -28,11 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import com.wire.android.R
+import com.wire.android.feature.authentication.R
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun ResendCodeText(
@@ -68,7 +68,7 @@ fun ResendCodeText(
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewResendCodeText() = WireTheme {
     ResendCodeText(onResendCodePressed = {}, clickEnabled = true)

@@ -391,7 +391,6 @@
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Verify your account</string>
     <string name="second_factor_authentication_instructions_label">Please, check your email %1$s for the verification code and enter it below.</string>
-    <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on
@@ -485,7 +484,6 @@
     <string name="create_account_details_password_not_matching_error">Passwords do not match</string>
     <string name="create_account_details_confirm_password_label">CONFIRM PASSWORD</string>
     <string name="create_account_code_text">Please, check your email %1$s for the verification code and enter it below.</string>
-    <string name="create_account_code_resend">Resend code</string>
     <string name="create_account_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
     <string name="create_account_code_error_title">Invalid information</string>
     <string name="create_account_code_error_team_members_limit_reached">This team has reached its membership limit.</string>

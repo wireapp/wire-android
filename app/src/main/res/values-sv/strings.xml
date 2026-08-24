@@ -189,7 +189,6 @@
         inställningar, din konversationshistorik har också tagits bort.</string>
     <!-- Second Factor Authentication -->
     <string name="second_factor_authentication_title">Bekräfta ditt konto</string>
-    <string name="second_factor_code_error">Ogiltig kod eller så har maximalt antal försök att använda den överskridits. Vänligen försök igen eller begär en annan kod</string>
     <!-- Remove Device -->
     <string name="remove_device_title">Ta bort en enhet</string>
     <string name="remove_device_label">DINA ENHETER</string>
@@ -216,7 +215,6 @@
     <string name="create_account_details_password_not_matching_error">Lösenorden matchar inte</string>
     <string name="create_account_details_confirm_password_label">BEKRÄFTA LÖSENORD</string>
     <string name="create_account_code_text">Kontrollera din e-post %1$s för verifieringskoden och ange den nedan.</string>
-    <string name="create_account_code_resend">Skicka om koden igen</string>
     <string name="create_account_code_error_title">Ogiltig information</string>
     <string name="create_account_code_error_team_members_limit_reached">Det här teamet har nått sin gräns för antalet medlemmar.</string>
     <string name="create_account_code_error_personal_account_creation_restricted">Den här applikationens version tillåter inte skapandet av personliga konton.</string>

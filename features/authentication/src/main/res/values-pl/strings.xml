@@ -1,0 +1,4 @@
+<resources>
+    <string name="create_account_code_resend">Wy&#347;lij kod ponownie</string>
+    <string name="second_factor_code_error">Nieprawid&#322;owy kod lub maksymalna liczba pr&#243;b wyczerpana. Spr&#243;buj ponownie lub popro&#347; o inny kod.</string>
+</resources>

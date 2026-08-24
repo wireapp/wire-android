@@ -1,0 +1,4 @@
+<resources>
+    <string name="create_account_code_resend">Ponovno pošalji kôd</string>
+    <string name="second_factor_code_error">Nevažeći kôd ili je premašen maksimalan broj pokušaja. Pokušajte ponovno ili zatražite drugi kôd</string>
+</resources>

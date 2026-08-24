@@ -68,7 +68,7 @@
     <string name="folder_label_messaging">Mesajlaşma</string>
     <string name="label_and">ve</string>
     <string name="label_retry">Yeniden Dene</string>
-    <string name="label_draft">Taslaklar</string>
+
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">Şifreyi göster</string>
     <string name="content_description_hide_password">Parolayı gizle</string>
@@ -340,7 +340,7 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- System messages -->
     <string name="label_system_message_conversation_history_lost">YOU HAVEN\'T USED THIS DEVICE FOR A WHILE. SOME MESSAGES MAY NOT APPEAR HERE.</string>
     <!-- Last messages -->
-    <string name="last_message_other_user_joined_conversation">sohbete katıldı.</string>
+
     <!-- Unread Events -->
     <!--Typing Indicator-->
     <!-- Search Messages -->

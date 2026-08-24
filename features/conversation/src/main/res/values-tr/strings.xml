@@ -6,4 +6,9 @@
     <string name="label_message_decryption_failure_message">Mesajın şifresi çözülemedi.</string>
     <string name="label_message_decryption_failure_message_with_error_code">Mesajın şifresi çözülemedi (Hata %s).</string>
     <string name="label_message_status_edited_with_date">%s\'de düzenlenmiş</string>
+
+
+<string name="label_draft">Taslaklar</string>
+
+<string name="last_message_other_user_joined_conversation">sohbete katıldı.</string>
 </resources>

@@ -211,43 +211,31 @@
     <string name="label_system_message_activated">aktiveeritud</string>
     <string name="label_system_message_deactivated">desaktiveeritud</string>
     <!-- Last messages -->
-    <string name="last_message_self_user_shared_asset">jagas faili.</string>
-    <string name="last_message_other_user_shared_asset">jagas faili.</string>
-    <string name="last_message_self_user_shared_image">jagas pilti.</string>
-    <string name="last_message_other_user_shared_image">jagas pilti.</string>
-    <string name="last_message_self_user_shared_video">jagas videot.</string>
-    <string name="last_message_other_user_shared_video">jagas videot.</string>
-    <string name="last_message_self_user_shared_audio">jagas häälsõnumit.</string>
+
+
+
+
+
+
+
     <string name="last_message_other_user_shared_audio">jagas häälsõnumit.</string>
-    <string name="last_message_self_user_knock">pingis.</string>
-    <string name="last_message_other_user_knock">pingis.</string>
-    <string name="last_message_call">helistas.</string>
-    <string name="last_message_mentioned">mainis sind</string>
-    <string name="last_message_replied">vastas sulle</string>
-    <string name="last_message_other_changed_conversation_name">muutis vestluse nime</string>
-    <string name="last_message_self_changed_conversation_name">muutsid vestluse nime</string>
+
+
+
+
+
+
+
     <string name="last_message_calling">%1$s helistab...</string>
-    <string name="last_message_self_user_joined_conversation">ühinesid vestlusega.</string>
-    <string name="last_message_self_user_left_conversation">lahkusid vestlusest.</string>
-    <string name="last_message_other_user_joined_conversation">ühines vestlusega.</string>
-    <string name="last_message_other_user_left_conversation">lahkus vestlusest.</string>
+
+
+
+
     <!-- Unread Events -->
-    <plurals name="unread_event_call">
-        <item quantity="one">%1$d vastamata kõne</item>
-        <item quantity="other">%1$d vastamata kõnet</item>
-    </plurals>
-    <plurals name="unread_event_mention">
-        <item quantity="one">%1$d mainimine</item>
-        <item quantity="other">%1$d mainimist</item>
-    </plurals>
-    <plurals name="unread_event_reply">
-        <item quantity="one">%1$d vastus</item>
-        <item quantity="other">%1$d vastust</item>
-    </plurals>
-    <plurals name="unread_event_message">
-        <item quantity="one">%1$d sõnum</item>
-        <item quantity="other">%1$d sõnumit</item>
-    </plurals>
+
+
+
+
     <!--Typing Indicator-->
     <!-- Search Messages -->
     <!-- Conversation Media -->

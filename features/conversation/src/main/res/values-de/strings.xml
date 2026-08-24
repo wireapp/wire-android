@@ -34,4 +34,125 @@
     <string name="label_system_message_receipt_mode_off">aus</string>
     <string name="label_quote_original_message_date">Ursprüngliche Nachricht vom %s</string>
     <string name="sent_a_message_with_unknown_content">hat eine Nachricht mit unbekanntem Inhalt gesendet</string>
+
+
+<string name="label_draft">*Entwurf*</string>
+
+<plurals name="last_message_self_added_users">
+        <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
+        <item quantity="other">Sie haben %1$d Personen zur Unterhaltung hinzugefügt</item>
+    </plurals>
+
+<string name="last_message_other_added_only_self_user">Sie wurden zur Unterhaltung hinzugefügt</string>
+
+<plurals name="last_message_other_added_self_user">
+        <item quantity="one">Sie und 1 weitere Person wurden zur Unterhaltung hinzugefügt</item>
+        <item quantity="other">Sie und %1$d weitere Personen wurden zur Unterhaltung hinzugefügt</item>
+    </plurals>
+
+<plurals name="last_message_other_added_other_users">
+        <item quantity="one">1 Person wurde zur Unterhaltung hinzugefügt</item>
+        <item quantity="other">%1$d Personen wurden zur Unterhaltung hinzugefügt</item>
+    </plurals>
+
+<plurals name="last_message_self_removed_users">
+        <item quantity="one">Sie haben 1 Person aus der Unterhaltung entfernt</item>
+        <item quantity="other">Sie haben %1$d Personen aus der Unterhaltung entfernt</item>
+    </plurals>
+
+<plurals name="last_message_team_member_removed">
+        <item quantity="one">1 Person wurde aus dem Team entfernt</item>
+        <item quantity="other">%1$d Personen wurden aus dem Team entfernt</item>
+    </plurals>
+
+<string name="last_message_other_removed_only_self_user">Sie wurden aus der Unterhaltung entfernt</string>
+
+<plurals name="last_message_other_removed_self_user_and_others">
+        <item quantity="one">Sie und 1 weitere Person wurden aus der Unterhaltung entfernt</item>
+        <item quantity="other">Sie und %1$d weitere Personen wurden aus der Unterhaltung entfernt</item>
+    </plurals>
+
+<plurals name="last_message_other_removed_other_users">
+        <item quantity="one">1 Person wurde aus der Unterhaltung entfernt</item>
+        <item quantity="other">%1$d Personen wurden aus der Unterhaltung entfernt</item>
+    </plurals>
+
+<string name="last_message_self_user_shared_asset">haben eine Datei geteilt.</string>
+
+<string name="last_message_other_user_shared_asset">hat eine Datei geteilt.</string>
+
+<string name="last_message_self_user_shared_image">haben ein Bild geteilt.</string>
+
+<string name="last_message_other_user_shared_image">hat ein Bild geteilt.</string>
+
+<string name="last_message_self_user_shared_video">haben ein Video geteilt.</string>
+
+<string name="last_message_other_user_shared_video">hat ein Video geteilt.</string>
+
+<string name="last_message_self_user_shared_audio">haben eine Audionachricht geteilt.</string>
+
+<string name="last_message_self_user_shared_location">haben einen Standort geteilt.</string>
+
+<string name="last_message_other_user_shared_location">hat einen Standort geteilt.</string>
+
+<string name="last_message_self_user_knock">haben gepingt.</string>
+
+<string name="last_message_other_user_knock">hat gepingt.</string>
+
+<string name="last_message_call">hat angerufen.</string>
+
+<string name="last_message_mentioned">hat Sie erwähnt.</string>
+
+<string name="last_message_replied">hat Ihnen geantwortet.</string>
+
+<string name="last_message_other_changed_conversation_name">hat die Unterhaltung umbenannt.</string>
+
+<string name="last_message_self_changed_conversation_name">haben die Unterhaltung umbenannt.</string>
+
+<string name="last_message_self_user_joined_conversation">sind der Unterhaltung beigetreten.</string>
+
+<string name="last_message_self_user_left_conversation">haben die Unterhaltung verlassen.</string>
+
+<string name="last_message_other_user_joined_conversation">ist der Unterhaltung beigetreten.</string>
+
+<string name="last_message_other_user_left_conversation">hat die Unterhaltung verlassen.</string>
+
+<string name="last_message_verified_conversation_proteus">Alle Fingerabdrücke sind überprüft (Proteus)</string>
+
+<string name="last_message_verified_conversation_mls">Alle Geräte sind überprüft (Ende-zu-Ende-Identität)</string>
+
+<string name="last_message_conversations_verification_degraded_mls">Unterhaltung nicht mehr überprüft</string>
+
+<string name="last_message_conversations_verification_degraded_proteus">Unterhaltung nicht mehr überprüft</string>
+
+<plurals name="unread_event_knock">
+        <item quantity="one">%1$d Ping</item>
+        <item quantity="other">%1$d Pings</item>
+    </plurals>
+
+<plurals name="unread_event_call">
+        <item quantity="one">%1$d verpasster Anruf</item>
+        <item quantity="other">%1$d verpasste Anrufe</item>
+    </plurals>
+
+<plurals name="unread_event_mention">
+        <item quantity="one">%1$d Erwähnung</item>
+        <item quantity="other">%1$d Erwähnungen</item>
+    </plurals>
+
+<plurals name="unread_event_reply">
+        <item quantity="one">%1$d Antwort</item>
+        <item quantity="other">%1$d Antworten</item>
+    </plurals>
+
+<plurals name="unread_event_message">
+        <item quantity="one">%1$d Nachricht</item>
+        <item quantity="other">%1$d Nachrichten</item>
+    </plurals>
+
+<string name="ephemeral_one_to_one_event_message">"Hat eine Nachricht gesendet"</string>
+
+<string name="ephemeral_group_channel_event_message">"Jemand hat eine Nachricht gesendet"</string>
+
+<string name="last_message_composite_with_missing_text">hat eine interaktive Nachricht gesendet</string>
 </resources>

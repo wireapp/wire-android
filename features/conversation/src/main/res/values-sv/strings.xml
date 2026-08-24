@@ -7,4 +7,42 @@
     <string name="member_name_you_label_titlecase">Du</string>
     <string name="member_name_you_label_lowercase">du</string>
     <string name="sent_a_message_with_unknown_content">skickade ett meddelande med okänt innehåll</string>
+
+
+<string name="label_draft">*Utkast*</string>
+
+<string name="last_message_self_user_shared_asset">delade en fil.</string>
+
+<string name="last_message_other_user_shared_asset">delade en fil.</string>
+
+<string name="last_message_self_user_shared_image">delade en bild.</string>
+
+<string name="last_message_other_user_shared_image">delade en bild.</string>
+
+<string name="last_message_self_user_shared_video">delade en video.</string>
+
+<string name="last_message_self_user_shared_audio">delade ett ljudmeddelande.</string>
+
+<string name="last_message_mentioned">nämnde dig</string>
+
+<string name="last_message_replied">svarade dig</string>
+
+<string name="last_message_self_user_left_conversation">lämnade konversationen.</string>
+
+<string name="last_message_other_user_left_conversation">lämnade konversationen.</string>
+
+<plurals name="unread_event_call">
+        <item quantity="one">%1$d missat samtal</item>
+        <item quantity="other">%1$d missade samtal</item>
+    </plurals>
+
+<plurals name="unread_event_reply">
+        <item quantity="one">%1$d svar</item>
+        <item quantity="other">%1$d svar</item>
+    </plurals>
+
+<plurals name="unread_event_message">
+        <item quantity="one">%1$d meddelande</item>
+        <item quantity="other">%1$d meddelanden</item>
+    </plurals>
 </resources>

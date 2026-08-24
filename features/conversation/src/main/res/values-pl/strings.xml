@@ -18,4 +18,122 @@
     <string name="label_system_message_receipt_mode_on">w&#322;&#261;czone</string>
     <string name="label_system_message_receipt_mode_off">wy&#322;&#261;czone</string>
     <string name="label_quote_original_message_date">Oryginalna wiadomo&#347;&#263; z %s</string>
+
+
+<plurals name="last_message_self_added_users">
+        <item quantity="one">Doda&#322;e&#347;(a&#347;) 1 osob&#281; do rozmowy</item>
+        <item quantity="few">Doda&#322;e&#347;(a&#347;) %1$d osoby do rozmowy</item>
+        <item quantity="many">Doda&#322;e&#347;(a&#347;) %1$d os&#243;b do rozmowy</item>
+        <item quantity="other">Doda&#322;e&#347;(a&#347;) %1$d os&#243;b do rozmowy</item>
+    </plurals>
+
+<string name="last_message_other_added_only_self_user">Zosta&#322;e&#347;(a&#347;) dodany(a) do konwersacji</string>
+
+<plurals name="last_message_other_added_self_user">
+        <item quantity="one">Ty i 1 inna osoba zosta&#322;y dodane do rozmowy</item>
+        <item quantity="few">Ty i %1$d inne osoby zosta&#322;y dodane do rozmowy</item>
+        <item quantity="many">Ty i %1$d innych os&#243;b zosta&#322;o dodanych do rozmowy</item>
+        <item quantity="other">Ty i %1$d innych os&#243;b zosta&#322;o dodanych do rozmowy</item>
+    </plurals>
+
+<plurals name="last_message_other_added_other_users">
+        <item quantity="one">1 osoba zosta&#322;a dodana do rozmowy</item>
+        <item quantity="few">%1$d osoby zosta&#322;y dodane do rozmowy</item>
+        <item quantity="many">%1$d os&#243;b zosta&#322;o dodanych do rozmowy</item>
+        <item quantity="other">%1$d os&#243;b zosta&#322;o dodanych do rozmowy</item>
+    </plurals>
+
+<plurals name="last_message_self_removed_users">
+        <item quantity="one">Usun&#261;&#322;e&#347;(a&#347;) 1 osob&#281; z rozmowy</item>
+        <item quantity="few">Usun&#261;&#322;e&#347;(a&#347;) %1$d osoby z rozmowy</item>
+        <item quantity="many">Usun&#261;&#322;e&#347;(a&#347;) %1$d os&#243;b z rozmowy</item>
+        <item quantity="other">Usun&#261;&#322;e&#347;(a&#347;) %1$d os&#243;b z rozmowy</item>
+    </plurals>
+
+<string name="last_message_other_removed_only_self_user">Zosta&#322;e&#347;(a&#347;) usuni&#281;ty(a) z rozmowy</string>
+
+<plurals name="last_message_other_removed_self_user_and_others">
+        <item quantity="one">Ty i 1 inna osoba zosta&#322;y usuni&#281;te z rozmowy</item>
+        <item quantity="few">Ty i %1$d inne osoby zosta&#322;y usuni&#281;te z rozmowy</item>
+        <item quantity="many">Ty i %1$d innych os&#243;b zosta&#322;a usuni&#281;tych z rozmowy</item>
+        <item quantity="other">Ty i %1$d innych os&#243;b zosta&#322;a usuni&#281;tych z rozmowy</item>
+    </plurals>
+
+<plurals name="last_message_other_removed_other_users">
+        <item quantity="one">1 osoba zosta&#322;a usuni&#281;ta z rozmowy</item>
+        <item quantity="few">%1$d osoby zosta&#322;y usuni&#281;te z rozmowy</item>
+        <item quantity="many">%1$d os&#243;b zosta&#322;o usuni&#281;tych z rozmowy</item>
+        <item quantity="other">%1$d os&#243;b zosta&#322;o usuni&#281;tych z rozmowy</item>
+    </plurals>
+
+<string name="last_message_self_user_shared_asset">udost&#281;pni&#322;e&#347;(a&#347;) zas&#243;b multimedialny</string>
+
+<string name="last_message_other_user_shared_asset">udost&#281;pni&#322; zas&#243;b multimedialny</string>
+
+<string name="last_message_self_user_shared_image">dost&#281;pni&#322;e&#347;(a&#347;) obraz</string>
+
+<string name="last_message_other_user_shared_image">udost&#281;pni&#322;(a) obraz</string>
+
+<string name="last_message_self_user_shared_video">dost&#281;pni&#322;e&#347;(a&#347;) film</string>
+
+<string name="last_message_other_user_shared_video">udost&#281;pni&#322;(a) film</string>
+
+<string name="last_message_self_user_shared_audio">dost&#281;pni&#322;e&#347;(a&#347;) plik d&#378;wi&#281;kowy</string>
+
+<string name="last_message_self_user_knock">zaczepi&#322;e&#347;(a&#347;)</string>
+
+<string name="last_message_other_user_knock">zaczepi&#322;.</string>
+
+<string name="last_message_call">zadzwoni&#322;.</string>
+
+<string name="last_message_mentioned">oznaczy&#322; Ci&#281;</string>
+
+<string name="last_message_replied">odpowiedzia&#322; Tobie</string>
+
+<string name="last_message_other_changed_conversation_name">zmieni&#322; nazw&#281; konwersacji</string>
+
+<string name="last_message_self_changed_conversation_name">zmieni&#322;e&#347;(a&#347;) nazw&#281; konwersacji</string>
+
+<string name="last_message_self_user_joined_conversation">do&#322;&#261;czy&#322;e&#347; do rozmowy.</string>
+
+<string name="last_message_self_user_left_conversation">opu&#347;ci&#322;e&#347; rozmow&#281;.</string>
+
+<string name="last_message_other_user_joined_conversation">do&#322;&#261;czy&#322; do rozmowy.</string>
+
+<string name="last_message_other_user_left_conversation">opu&#347;ci&#322; rozmow&#281;.</string>
+
+<plurals name="unread_event_knock">
+        <item quantity="one">%1$d zaczepka</item>
+        <item quantity="few">%1$d zaczepki</item>
+        <item quantity="many">%1$d zaczepek</item>
+        <item quantity="other">%1$d zaczepek</item>
+    </plurals>
+
+<plurals name="unread_event_call">
+        <item quantity="one">%1$d nieodebrane po&#322;&#261;czenie</item>
+        <item quantity="few">%1$d nieodebrane po&#322;&#261;czenia</item>
+        <item quantity="many">%1$d nieodebranych po&#322;&#261;cze&#324;</item>
+        <item quantity="other">%1$d nieodebranych po&#322;&#261;cze&#324;</item>
+    </plurals>
+
+<plurals name="unread_event_mention">
+        <item quantity="one">%1$d oznaczenie</item>
+        <item quantity="few">%1$d oznaczenia</item>
+        <item quantity="many">%1$d oznacze&#324;</item>
+        <item quantity="other">%1$d oznacze&#324;</item>
+    </plurals>
+
+<plurals name="unread_event_reply">
+        <item quantity="one">%1$d odpowied&#378;</item>
+        <item quantity="few">%1$d odpowiedzi</item>
+        <item quantity="many">%1$d odpowiedzi</item>
+        <item quantity="other">%1$d odpowiedzi</item>
+    </plurals>
+
+<plurals name="unread_event_message">
+        <item quantity="one">%1$d wiadomo&#347;&#263;</item>
+        <item quantity="few">%1$d wiadomo&#347;ci</item>
+        <item quantity="many">%1$d wiadomo&#347;ci</item>
+        <item quantity="other">%1$d wiadomo&#347;ci</item>
+    </plurals>
 </resources>

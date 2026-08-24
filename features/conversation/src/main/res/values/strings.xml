@@ -35,4 +35,125 @@
     <string name="label_system_message_receipt_mode_off">off</string>
     <string name="label_quote_original_message_date">Original message from %s</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
+
+
+<string name="label_draft">*Draft*</string>
+
+<plurals name="last_message_self_added_users">
+        <item quantity="one">You added 1 person to the conversation</item>
+        <item quantity="other">You added %1$d people to the conversation</item>
+    </plurals>
+
+<string name="last_message_other_added_only_self_user">You were added to the conversation</string>
+
+<plurals name="last_message_other_added_self_user">
+        <item quantity="one">You and 1 other person were added to the conversation</item>
+        <item quantity="other">You and %1$d people were added to the conversation</item>
+    </plurals>
+
+<plurals name="last_message_other_added_other_users">
+        <item quantity="one">1 person was added to the conversation</item>
+        <item quantity="other">%1$d people were added to the conversation</item>
+    </plurals>
+
+<plurals name="last_message_self_removed_users">
+        <item quantity="one">You removed 1 person from the conversation</item>
+        <item quantity="other">You removed %1$d people from the conversation</item>
+    </plurals>
+
+<plurals name="last_message_team_member_removed">
+        <item quantity="one">1 person was removed from the team</item>
+        <item quantity="other">%1$d people were removed from the team</item>
+    </plurals>
+
+<string name="last_message_other_removed_only_self_user">You were removed from the conversation</string>
+
+<plurals name="last_message_other_removed_self_user_and_others">
+        <item quantity="one">You and 1 other person were removed from the conversation</item>
+        <item quantity="other">You and %1$d people were removed from the conversation</item>
+    </plurals>
+
+<plurals name="last_message_other_removed_other_users">
+        <item quantity="one">1 person was removed from the conversation</item>
+        <item quantity="other">%1$d people were removed from the conversation</item>
+    </plurals>
+
+<string name="last_message_self_user_shared_asset">shared a file.</string>
+
+<string name="last_message_other_user_shared_asset">shared a file.</string>
+
+<string name="last_message_self_user_shared_image">shared an image.</string>
+
+<string name="last_message_other_user_shared_image">shared an image.</string>
+
+<string name="last_message_self_user_shared_video">shared a video.</string>
+
+<string name="last_message_other_user_shared_video">shared a video.</string>
+
+<string name="last_message_self_user_shared_audio">shared an audio message.</string>
+
+<string name="last_message_self_user_shared_location">shared a location.</string>
+
+<string name="last_message_other_user_shared_location">shared a location.</string>
+
+<string name="last_message_self_user_knock">pinged.</string>
+
+<string name="last_message_other_user_knock">pinged.</string>
+
+<string name="last_message_call">called.</string>
+
+<string name="last_message_mentioned">mentioned you</string>
+
+<string name="last_message_replied">replied to you</string>
+
+<string name="last_message_other_changed_conversation_name">changed conversation name</string>
+
+<string name="last_message_self_changed_conversation_name">changed conversation name</string>
+
+<string name="last_message_self_user_joined_conversation">joined the conversation.</string>
+
+<string name="last_message_self_user_left_conversation">left the conversation.</string>
+
+<string name="last_message_other_user_joined_conversation">joined the conversation.</string>
+
+<string name="last_message_other_user_left_conversation">left the conversation.</string>
+
+<string name="last_message_verified_conversation_proteus">All device fingerprints are verified (Proteus)</string>
+
+<string name="last_message_verified_conversation_mls">All devices are verified (End-to-end Identity)</string>
+
+<string name="last_message_conversations_verification_degraded_mls">Conversation is no longer verified</string>
+
+<string name="last_message_conversations_verification_degraded_proteus">Conversation is no longer verified</string>
+
+<plurals name="unread_event_knock">
+        <item quantity="one">%1$d ping</item>
+        <item quantity="other">%1$d pings</item>
+    </plurals>
+
+<plurals name="unread_event_call">
+        <item quantity="one">%1$d missed call</item>
+        <item quantity="other">%1$d missed calls</item>
+    </plurals>
+
+<plurals name="unread_event_mention">
+        <item quantity="one">%1$d mention</item>
+        <item quantity="other">%1$d mentions</item>
+    </plurals>
+
+<plurals name="unread_event_reply">
+        <item quantity="one">%1$d reply</item>
+        <item quantity="other">%1$d replies</item>
+    </plurals>
+
+<plurals name="unread_event_message">
+        <item quantity="one">%1$d message</item>
+        <item quantity="other">%1$d messages</item>
+    </plurals>
+
+<string name="ephemeral_one_to_one_event_message">"Sent a message"</string>
+
+<string name="ephemeral_group_channel_event_message">"Someone sent a message"</string>
+
+<string name="last_message_composite_with_missing_text">sent an interactive message</string>
 </resources>

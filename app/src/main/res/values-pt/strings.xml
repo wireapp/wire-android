@@ -68,7 +68,7 @@
     <string name="folder_label_messaging">Mensagens</string>
     <string name="label_and">e</string>
     <string name="label_retry">Tentar novamente</string>
-    <string name="label_draft">*Rascunho*</string>
+
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">Mostrar senha</string>
     <string name="content_description_hide_password">Ocultar senha</string>
@@ -638,84 +638,48 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_conversations_details_verified_proteus">Verificado (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verificado (identidade ponta a ponta)</string>
     <!-- Last messages -->
-    <plurals name="last_message_self_added_users">
-        <item quantity="one">Você adicionou uma pessoa à conversa</item>
-        <item quantity="other">Você adicionou %1$d pessoas à conversa</item>
-    </plurals>
-    <string name="last_message_other_added_only_self_user">Você foi adicionado à conversa</string>
-    <plurals name="last_message_other_added_self_user">
-        <item quantity="one">Você e uma outra pessoa foram adicionados à conversa</item>
-        <item quantity="other">Você e %1$d pessoas foram adicionadas à conversa</item>
-    </plurals>
-    <plurals name="last_message_other_added_other_users">
-        <item quantity="one">Uma pessoa foi adicionada à conversa</item>
-        <item quantity="other">%1$d pessoas foram adicionadas à conversa</item>
-    </plurals>
-    <plurals name="last_message_self_removed_users">
-        <item quantity="one">Você removeu uma pessoa da conversa</item>
-        <item quantity="other">Você removeu %1$d pessoas da conversa</item>
-    </plurals>
-    <plurals name="last_message_team_member_removed">
-        <item quantity="one">1 pessoa foi removida da equipe</item>
-        <item quantity="other">%1$d pessoas foram removidas da equipe</item>
-    </plurals>
-    <string name="last_message_other_removed_only_self_user">Você foi removido da conversa</string>
-    <plurals name="last_message_other_removed_self_user_and_others">
-        <item quantity="one">Você e uma outra pessoa foram removidos da conversa</item>
-        <item quantity="other">Você e %1$d pessoas foram removidos da conversa</item>
-    </plurals>
-    <plurals name="last_message_other_removed_other_users">
-        <item quantity="one">Uma pessoa foi removida da conversa</item>
-        <item quantity="other">%1$d pessoas foram removidas da conversa</item>
-    </plurals>
-    <string name="last_message_self_user_shared_asset">compartilhou um arquivo de mídia</string>
-    <string name="last_message_other_user_shared_asset">compartilhou um arquivo de mídia</string>
-    <string name="last_message_self_user_shared_image">compartilhou uma imagem</string>
-    <string name="last_message_other_user_shared_image">compartilhou uma imagem</string>
-    <string name="last_message_self_user_shared_video">compartilhou um vídeo</string>
-    <string name="last_message_other_user_shared_video">compartilhou um vídeo</string>
-    <string name="last_message_self_user_shared_audio">compartilhou uma mensagem de áudio</string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <string name="last_message_other_user_shared_audio">compartilhou uma mensagem de áudio</string>
-    <string name="last_message_self_user_shared_location">compartilhou uma localização.</string>
-    <string name="last_message_other_user_shared_location">compartilhou uma localização.</string>
-    <string name="last_message_self_user_knock">pingou</string>
-    <string name="last_message_other_user_knock">pingou</string>
-    <string name="last_message_call">chamou</string>
-    <string name="last_message_mentioned">mencionou você</string>
-    <string name="last_message_replied">respondeu a você</string>
-    <string name="last_message_other_changed_conversation_name">alterou o nome da conversa</string>
-    <string name="last_message_self_changed_conversation_name">alterou o nome da conversa</string>
+
+
+
+
+
+
+
+
+
     <string name="last_message_calling">%1$s está ligando…</string>
-    <string name="last_message_self_user_joined_conversation">entrou na conversa</string>
-    <string name="last_message_self_user_left_conversation">saiu da conversa</string>
-    <string name="last_message_other_user_joined_conversation">entrou na conversa</string>
-    <string name="last_message_other_user_left_conversation">saiu da conversa</string>
-    <string name="last_message_verified_conversation_proteus">Todas as impressões digitais do dispositivo estão verificadas (Protetor)</string>
-    <string name="last_message_verified_conversation_mls">Todos os dispositivos estão verificados (identidade de ponta a ponta)</string>
-    <string name="last_message_conversations_verification_degraded_mls">A conversa não é mais verificada</string>
-    <string name="last_message_conversations_verification_degraded_proteus">A conversa não é mais verificada</string>
+
+
+
+
+
+
+
+
     <!-- Unread Events -->
-    <plurals name="unread_event_knock">
-        <item quantity="one">%1$d chamada de atenção</item>
-        <item quantity="other">%1$d chamadas de atenção</item>
-    </plurals>
-    <plurals name="unread_event_call">
-        <item quantity="one">%1$d chamada perdida</item>
-        <item quantity="other">%1$d chamadas perdidads</item>
-    </plurals>
-    <plurals name="unread_event_mention">
-        <item quantity="one">%1$d menção</item>
-        <item quantity="other">%1$d menções</item>
-    </plurals>
-    <plurals name="unread_event_reply">
-        <item quantity="one">%1$d respsota</item>
-        <item quantity="other">%1$d respostas</item>
-    </plurals>
-    <plurals name="unread_event_message">
-        <item quantity="one">%1$d mensagem</item>
-        <item quantity="other">%1$d mensagens</item>
-    </plurals>
-    <string name="ephemeral_one_to_one_event_message">"Enviou uma mensagem"</string>
+
+
+
+
+
+
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s está digitando</item>
@@ -1266,7 +1230,7 @@ registrado. Tente novamente.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Você não pode gravar uma mensagem de áudio durante uma chamada.</string>
     <string name="record_audio_unable_due_to_error">Algo deu errado ao tentar gravar a mensagem de áudio. Por favor, tente novamente.</string>
     <string name="label_not_now">Agora Não</string>
-    <string name="last_message_composite_with_missing_text">enviou uma mensagem interativa</string>
+
     <string name="join_conversation_dialog_password_label">Senha da conversa</string>
     <string name="join_conversation_dialog_password_placeholder">Insira a senha</string>
     <string name="participant_tile_call_connecting_label">Conectando…</string>

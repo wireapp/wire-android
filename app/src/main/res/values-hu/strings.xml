@@ -68,7 +68,7 @@
     <string name="folder_label_messaging">Üzenetküldés</string>
     <string name="label_and">és</string>
     <string name="label_retry">Újra</string>
-    <string name="label_draft">*Piszkozat*</string>
+
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">Jelszó megjelenítése</string>
     <string name="content_description_hide_password">Jelszó elrejtése</string>
@@ -674,85 +674,49 @@
     <string name="label_conversations_details_verified_proteus">Ellenőrzött (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Ellenőrzött (végpontok közötti azonosítás)</string>
     <!-- Last messages -->
-    <plurals name="last_message_self_added_users">
-        <item quantity="one">Hozzáadott 1 személyt a beszélgetéshez</item>
-        <item quantity="other">Hozzáadott %1$d személyt a beszélgetéshez</item>
-    </plurals>
-    <string name="last_message_other_added_only_self_user">Ön hozzá lett adva a beszélgetéshez</string>
-    <plurals name="last_message_other_added_self_user">
-        <item quantity="one">Ön és 1 másik személy hozzá lett adva a beszélgetéshez</item>
-        <item quantity="other">Ön és %1$d másik személy hozzá lett adva a beszélgetéshez</item>
-    </plurals>
-    <plurals name="last_message_other_added_other_users">
-        <item quantity="one">1 személy hozzá lett adva a beszélgetéshez</item>
-        <item quantity="other">%1$d személy hozzá lett adva a beszélgetéshez</item>
-    </plurals>
-    <plurals name="last_message_self_removed_users">
-        <item quantity="one">Eltávolított 1 személyt a beszélgetésből</item>
-        <item quantity="other">Eltávolított %1$d személyt a beszélgetésből</item>
-    </plurals>
-    <plurals name="last_message_team_member_removed">
-        <item quantity="one">1 személy el lett távolítva a csapatból</item>
-        <item quantity="other">%1$d személy el lett távolítva a csapatból</item>
-    </plurals>
-    <string name="last_message_other_removed_only_self_user">Ön el lett távolítva a beszélgetésből</string>
-    <plurals name="last_message_other_removed_self_user_and_others">
-        <item quantity="one">Ön és 1 másik személy el lett távolítva a beszélgetésből</item>
-        <item quantity="other">Ön és %1$d másik személy el lett távolítva a beszélgetésből</item>
-    </plurals>
-    <plurals name="last_message_other_removed_other_users">
-        <item quantity="one">1 személy el lett távolítva a beszélgetésből</item>
-        <item quantity="other">%1$d személy el lett távolítva a beszélgetésből</item>
-    </plurals>
-    <string name="last_message_self_user_shared_asset">megosztott egy fájlt.</string>
-    <string name="last_message_other_user_shared_asset">megosztott egy fájlt.</string>
-    <string name="last_message_self_user_shared_image">megosztott egy képet.</string>
-    <string name="last_message_other_user_shared_image">megosztott egy képet.</string>
-    <string name="last_message_self_user_shared_video">megosztott egy videót.</string>
-    <string name="last_message_other_user_shared_video">megosztott egy videót.</string>
-    <string name="last_message_self_user_shared_audio">megosztott egy hangüzenetet.</string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <string name="last_message_other_user_shared_audio">megosztott egy hangüzenetet.</string>
-    <string name="last_message_self_user_shared_location">megosztott egy helyet.</string>
-    <string name="last_message_other_user_shared_location">megosztott egy helyet.</string>
-    <string name="last_message_self_user_knock">kopogott.</string>
-    <string name="last_message_other_user_knock">kopogott.</string>
-    <string name="last_message_call">hívta.</string>
-    <string name="last_message_mentioned">megemlítette Önt</string>
-    <string name="last_message_replied">válaszolt Önnek</string>
-    <string name="last_message_other_changed_conversation_name">megváltoztatta a beszélgetés nevét</string>
-    <string name="last_message_self_changed_conversation_name">megváltoztatta a beszélgetés nevét</string>
+
+
+
+
+
+
+
+
+
     <string name="last_message_calling">%1$s hívja...</string>
-    <string name="last_message_self_user_joined_conversation">csatlakozott a beszélgetéshez.</string>
-    <string name="last_message_self_user_left_conversation">kilépett a beszélgetésből.</string>
-    <string name="last_message_other_user_joined_conversation">csatlakozott a beszélgetéshez.</string>
-    <string name="last_message_other_user_left_conversation">kilépett a beszélgetésből.</string>
-    <string name="last_message_verified_conversation_proteus">Minden eszköz ujjlenyomata ellenőrizve (Proteus)</string>
-    <string name="last_message_verified_conversation_mls">Minden eszköz ellenőrzött (végpontok közötti azonosítás)</string>
-    <string name="last_message_conversations_verification_degraded_mls">A beszélgetés többé nem ellenőrzött</string>
-    <string name="last_message_conversations_verification_degraded_proteus">A beszélgetés többé nem ellenőrzött</string>
+
+
+
+
+
+
+
+
     <!-- Unread Events -->
-    <plurals name="unread_event_knock">
-        <item quantity="one">%1$d kopogás</item>
-        <item quantity="other">%1$d kopogás</item>
-    </plurals>
-    <plurals name="unread_event_call">
-        <item quantity="one">%1$d nem fogadott hívás</item>
-        <item quantity="other">%1$d nem fogadott hívás</item>
-    </plurals>
-    <plurals name="unread_event_mention">
-        <item quantity="one">%1$d említés</item>
-        <item quantity="other">%1$d említés</item>
-    </plurals>
-    <plurals name="unread_event_reply">
-        <item quantity="one">%1$d válasz</item>
-        <item quantity="other">%1$d válasz</item>
-    </plurals>
-    <plurals name="unread_event_message">
-        <item quantity="one">%1$d üzenet</item>
-        <item quantity="other">%1$d üzenet</item>
-    </plurals>
-    <string name="ephemeral_one_to_one_event_message">"Üzenetet küldött"</string>
-    <string name="ephemeral_group_channel_event_message">"Valaki egy üzenetet küldött"</string>
+
+
+
+
+
+
+
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s gépel</item>
@@ -1322,7 +1286,7 @@ Kérjük, próbálja meg újra.</string>
     <string name="record_audio_unable_due_to_ongoing_call">Hívás közben nem rögzíthet hangüzenetet.</string>
     <string name="record_audio_unable_due_to_error">Hiba történt a hangüzenet rögzítése közben. Próbálja újra.</string>
     <string name="label_not_now">Most nem</string>
-    <string name="last_message_composite_with_missing_text">interaktív üzenet elküldve</string>
+
     <string name="join_conversation_dialog_password_label">Beszélgetés jelszava</string>
     <string name="join_conversation_dialog_password_placeholder">Adja meg a jelszót</string>
     <string name="participant_tile_call_connecting_label">Csatlakozás…</string>

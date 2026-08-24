@@ -381,9 +381,9 @@
     <!-- System messages -->
     <string name="label_system_message_deactivated">deaktivirano</string>
     <!-- Last messages -->
-    <string name="last_message_self_user_shared_asset">podijelio/la datoteku.</string>
-    <string name="last_message_other_user_shared_asset">podijelio/la datoteku.</string>
-    <string name="last_message_call">zvao.</string>
+
+
+
     <string name="last_message_calling">%1$s zove...</string>
     <!-- Unread Events -->
     <!--Typing Indicator-->

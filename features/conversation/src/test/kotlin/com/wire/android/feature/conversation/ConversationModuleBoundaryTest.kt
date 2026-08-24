@@ -296,6 +296,27 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun messagePreviewContentMapperAndFocusedTestAreFeatureOwnedWithTheLegacyContract() {
+        val source = featureSource(messagePreviewContentMapperRelativePath)
+        val testSource = File(Konsist.projectRootPath, messagePreviewContentMapperTestRelativePath).readText()
+
+        assertTrue(source.contains("package com.wire.android.mapper"))
+        assertTrue(source.contains("import com.wire.android.feature.conversation.R as conversationR"))
+        assertTrue(source.contains("private const val NON_BREAKING_SPACE = \"&nbsp;\""))
+        assertTrue(source.contains("fun MessagePreview?.toUIPreview("))
+        assertTrue(source.contains("fun MessagePreview.uiLastMessageContent("))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(source.contains("MarkdownConstants"))
+        assertTrue(testSource.contains("package com.wire.android.mapper"))
+        assertTrue(testSource.contains("class MessagePreviewContentMapperTest"))
+        assertFalse(testSource.contains("com.wire.android.framework.TestMessage"))
+        assertFalse(testSource.contains("CoroutineTestExtension"))
+        legacyMessagePreviewContentMapperPaths.forEach { relativePath ->
+            assertFalse(File(Konsist.projectRootPath, relativePath).exists(), "$relativePath must be absent.")
+        }
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -629,7 +650,7 @@ class ConversationModuleBoundaryTest {
 
         assertEquals(25, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
         assertEquals(25, featureResources.listFiles().orEmpty().count { it.isDirectory })
-        assertEquals(323, featureDefinitions.size)
+        assertEquals(609, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -913,6 +934,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageContentMapper.kt"
         const val messageMapperRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageMapper.kt"
+        const val messagePreviewContentMapperRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/MessagePreviewContentMapper.kt"
+        const val messagePreviewContentMapperTestRelativePath =
+            "features/conversation/src/test/kotlin/com/wire/android/mapper/MessagePreviewContentMapperTest.kt"
+        val legacyMessagePreviewContentMapperPaths = listOf(
+            "app/src/main/kotlin/com/wire/android/mapper/MessagePreviewContentMapper.kt",
+            "app/src/test/kotlin/com/wire/android/mapper/MessagePreviewContentMapperTest.kt",
+        )
         const val messageContentMapperTestRelativePath =
             "features/conversation/src/test/kotlin/com/wire/android/mapper/MessageContentMapperTest.kt"
         const val messageMapperTestRelativePath =
@@ -1457,6 +1486,9 @@ class ConversationModuleBoundaryTest {
         val regularMessageMapperSources = mapOf(
             regularMessageMapperRelativePath to "com.wire.android.mapper",
         )
+        val messagePreviewContentMapperSources = mapOf(
+            messagePreviewContentMapperRelativePath to "com.wire.android.mapper",
+        )
         val messageContentAndFinalMapperSources = mapOf(
             messageContentMapperRelativePath to "com.wire.android.mapper",
             messageMapperRelativePath to "com.wire.android.mapper",
@@ -1480,7 +1512,7 @@ class ConversationModuleBoundaryTest {
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
                     conversationMediaSearchArgumentSources + uiMessageModelSources + messageResourceProviderSources +
                     systemMessageContentMapperSources + isoFormatterSources + regularMessageMapperSources +
-                    messageContentAndFinalMapperSources
+                    messageContentAndFinalMapperSources + messagePreviewContentMapperSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",
@@ -1603,6 +1635,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.ui.home.conversations.model.DEFAULT_LOCATION_ZOOM",
             "com.wire.android.ui.home.conversations.model.DeliveryStatusContent",
             "com.wire.android.ui.home.conversations.model.MessageBody",
+            "com.wire.android.ui.home.conversations.model.UILastMessageContent",
             "com.wire.android.ui.home.conversations.model.MessageButton",
             "com.wire.android.ui.home.conversations.model.ExpirationStatus",
             "com.wire.android.ui.home.conversations.model.MessageEditStatus",
@@ -1639,6 +1672,7 @@ class ConversationModuleBoundaryTest {
             "com.wire.android.util.time.ISOFormatter",
             "com.wire.android.util.ui.FolderType",
             "com.wire.android.util.ui.UIText",
+            "com.wire.android.util.ui.UiTextResolver",
             "com.wire.android.util.formatFullDateShortTime",
             "com.wire.android.util.ui.toUIText",
             "com.wire.android.util.uiMessageDateTime",

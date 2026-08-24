@@ -34,4 +34,149 @@
     <string name="label_system_message_receipt_mode_off">выкл</string>
     <string name="label_quote_original_message_date">Исходное сообщение от %s</string>
     <string name="sent_a_message_with_unknown_content">отправлено сообщение с неизвестным контентом</string>
+
+
+<string name="label_draft">*Черновик*</string>
+
+<plurals name="last_message_self_added_users">
+        <item quantity="one">Вы добавили 1 пользователя в беседу</item>
+        <item quantity="few">Вы добавили %1$d пользователей в беседу</item>
+        <item quantity="many">Вы добавили %1$d пользователей в беседу</item>
+        <item quantity="other">Вы добавили %1$d пользователей в беседу</item>
+    </plurals>
+
+<string name="last_message_other_added_only_self_user">Вы были добавлены в беседу</string>
+
+<plurals name="last_message_other_added_self_user">
+        <item quantity="one">Вы и еще 1 пользователь были добавлены к беседе</item>
+        <item quantity="few">Вы и еще %1$d пользователя были добавлены к беседе</item>
+        <item quantity="many">Вы и еще %1$d пользователей были добавлены к беседе</item>
+        <item quantity="other">Вы и еще %1$d пользователя были добавлены к беседе</item>
+    </plurals>
+
+<plurals name="last_message_other_added_other_users">
+        <item quantity="one">В беседу был добавлен 1 пользователь</item>
+        <item quantity="few">В беседу были добавлены %1$d пользователя</item>
+        <item quantity="many">В беседу были добавлены %1$d пользователей</item>
+        <item quantity="other">В беседу были добавлены %1$d пользователя</item>
+    </plurals>
+
+<plurals name="last_message_self_removed_users">
+        <item quantity="one">Вы удалили из беседы 1 пользователя</item>
+        <item quantity="few">Вы удалили из беседы %1$d пользователей</item>
+        <item quantity="many">Вы удалили из беседы %1$d пользователей</item>
+        <item quantity="other">Вы удалили из беседы %1$d пользователя</item>
+    </plurals>
+
+<plurals name="last_message_team_member_removed">
+        <item quantity="one">1 пользователь был удален из команды</item>
+        <item quantity="few">%1$d пользователя были удалены из команды</item>
+        <item quantity="many">%1$d пользователей были удалены из команды</item>
+        <item quantity="other">%1$d пользователя были удалены из команды</item>
+    </plurals>
+
+<string name="last_message_other_removed_only_self_user">Вы были удалены из беседы</string>
+
+<plurals name="last_message_other_removed_self_user_and_others">
+        <item quantity="one">Вы и еще 1 пользователь были удалены из беседы</item>
+        <item quantity="few">Вы и еще %1$d пользователя были удалены из беседы</item>
+        <item quantity="many">Вы и еще %1$d пользователей были удалены из беседы</item>
+        <item quantity="other">Вы и еще %1$d пользователя были удалены из беседы</item>
+    </plurals>
+
+<plurals name="last_message_other_removed_other_users">
+        <item quantity="one">1 пользователь был удален из беседы</item>
+        <item quantity="few">%1$d пользователя были удалены из беседы</item>
+        <item quantity="many">%1$d пользователей были удалены из беседы</item>
+        <item quantity="other">%1$d пользователя были удалены из беседы</item>
+    </plurals>
+
+<string name="last_message_self_user_shared_asset">поделились файлом.</string>
+
+<string name="last_message_other_user_shared_asset">поделился(-лась) файлом.</string>
+
+<string name="last_message_self_user_shared_image">поделились изображением.</string>
+
+<string name="last_message_other_user_shared_image">поделился(-лась) изображением.</string>
+
+<string name="last_message_self_user_shared_video">поделились видео.</string>
+
+<string name="last_message_other_user_shared_video">поделился(-лась) видео.</string>
+
+<string name="last_message_self_user_shared_audio">поделились аудиосообщением.</string>
+
+<string name="last_message_self_user_shared_location">поделились местоположением.</string>
+
+<string name="last_message_other_user_shared_location">поделился(-лась) местоположением.</string>
+
+<string name="last_message_self_user_knock">отправили пинг.</string>
+
+<string name="last_message_other_user_knock">отправил(-а) пинг.</string>
+
+<string name="last_message_call">звонил(-а).</string>
+
+<string name="last_message_mentioned">упомянул(-а) вас</string>
+
+<string name="last_message_replied">ответил(-а) вам</string>
+
+<string name="last_message_other_changed_conversation_name">изменено название беседы</string>
+
+<string name="last_message_self_changed_conversation_name">изменено название беседы</string>
+
+<string name="last_message_self_user_joined_conversation">присоединился(-лась) к беседе.</string>
+
+<string name="last_message_self_user_left_conversation">покинул(-а) беседу.</string>
+
+<string name="last_message_other_user_joined_conversation">присоединился(-лась) к беседе.</string>
+
+<string name="last_message_other_user_left_conversation">покинул(-а) беседу.</string>
+
+<string name="last_message_verified_conversation_proteus">Все отпечатки устройств верифицированы (Proteus)</string>
+
+<string name="last_message_verified_conversation_mls">Все устройства верифицированы (сквозная идентификация)</string>
+
+<string name="last_message_conversations_verification_degraded_mls">Беседа больше не является верифицированной</string>
+
+<string name="last_message_conversations_verification_degraded_proteus">Беседа больше не является верифицированной</string>
+
+<plurals name="unread_event_knock">
+        <item quantity="one">%1$d пинг</item>
+        <item quantity="few">%1$d пинга</item>
+        <item quantity="many">%1$d пингов</item>
+        <item quantity="other">%1$d пинга</item>
+    </plurals>
+
+<plurals name="unread_event_call">
+        <item quantity="one">%1$d пропущенный вызов</item>
+        <item quantity="few">%1$d пропущенных вызова</item>
+        <item quantity="many">%1$d пропущенных вызовов</item>
+        <item quantity="other">%1$d пропущенных вызовов</item>
+    </plurals>
+
+<plurals name="unread_event_mention">
+        <item quantity="one">%1$d упоминание</item>
+        <item quantity="few">%1$d упоминания</item>
+        <item quantity="many">%1$d упоминаний</item>
+        <item quantity="other">%1$d упоминания</item>
+    </plurals>
+
+<plurals name="unread_event_reply">
+        <item quantity="one">%1$d ответ</item>
+        <item quantity="few">%1$d ответа</item>
+        <item quantity="many">%1$d ответов</item>
+        <item quantity="other">%1$d ответа</item>
+    </plurals>
+
+<plurals name="unread_event_message">
+        <item quantity="one">%1$d сообщение</item>
+        <item quantity="few">%1$d сообщения</item>
+        <item quantity="many">%1$d сообщений</item>
+        <item quantity="other">%1$d сообщения</item>
+    </plurals>
+
+<string name="ephemeral_one_to_one_event_message">"Отправил(-а) сообщение"</string>
+
+<string name="ephemeral_group_channel_event_message">"Кто-то прислал сообщение"</string>
+
+<string name="last_message_composite_with_missing_text">отправил интерактивное сообщение</string>
 </resources>

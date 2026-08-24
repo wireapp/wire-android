@@ -487,80 +487,47 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="label_conversations_details_verified_proteus">Verificata (Proteus)</string>
     <string name="label_conversations_details_verified_mls">Verificata (Identità end-to-end)</string>
     <!-- Last messages -->
-    <plurals name="last_message_self_added_users">
-        <item quantity="one">Hai aggiunto un partecipante alla conversazione</item>
-        <item quantity="other">Hai aggiunto %1$d partecipanti alla conversazione</item>
-    </plurals>
-    <string name="last_message_other_added_only_self_user">Sei stato aggiunto alla conversazione</string>
-    <plurals name="last_message_other_added_self_user">
-        <item quantity="one">Tu ed un altro partecipante siete stati aggiunti alla conversazione</item>
-        <item quantity="other">Te e %1$d altri partecipanti siete stati aggiunti alla conversazione</item>
-    </plurals>
-    <plurals name="last_message_other_added_other_users">
-        <item quantity="one">1 partecipante é satato aggiunto alla conversazione</item>
-        <item quantity="other">%1$d partecipanti sono stati aggiunti alla conversazione</item>
-    </plurals>
-    <plurals name="last_message_self_removed_users">
-        <item quantity="one">Hai rimosso 1 partecipante dalla conversazione</item>
-        <item quantity="other">Hai rimosso %1$d partecipanti dalla conversazione</item>
-    </plurals>
-    <string name="last_message_other_removed_only_self_user">Sei stato rimosso dalla conversazione</string>
-    <plurals name="last_message_other_removed_self_user_and_others">
-        <item quantity="one">Tu ed un altro partecipante siete stati rimossi dalla conversazione</item>
-        <item quantity="other">Tu e %1$d altri partecipanti siete stati rimossi dalla conversazione</item>
-    </plurals>
-    <plurals name="last_message_other_removed_other_users">
-        <item quantity="one">1 partecipante é stato rimosso dalla conversazione</item>
-        <item quantity="other">%1$d partecipanti sono stati rimossi dalla conversazione</item>
-    </plurals>
-    <string name="last_message_self_user_shared_asset">hai condiviso un contenuto multimediale</string>
-    <string name="last_message_other_user_shared_asset">ha condiviso un contenuto multimediale</string>
-    <string name="last_message_self_user_shared_image">hai condiviso un\'immagine</string>
-    <string name="last_message_other_user_shared_image">ha condiviso un\'immagine</string>
-    <string name="last_message_self_user_shared_video">hai condiviso un video</string>
-    <string name="last_message_other_user_shared_video">ha condiviso un video</string>
-    <string name="last_message_self_user_shared_audio">hai condiviso un messaggio audio</string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <string name="last_message_other_user_shared_audio">ha condiviso un messaggio audio</string>
-    <string name="last_message_self_user_shared_location">ha condiviso una posizione.</string>
-    <string name="last_message_other_user_shared_location">ha condiviso una posizione.</string>
-    <string name="last_message_self_user_knock">hai fatto ping</string>
-    <string name="last_message_other_user_knock">ha fatto ping</string>
-    <string name="last_message_call">ha chiamato</string>
-    <string name="last_message_mentioned">ti ha menzionato</string>
-    <string name="last_message_replied">ha risposto a un tuo messaggio</string>
-    <string name="last_message_other_changed_conversation_name">ha cambiato il nome della conversazione</string>
-    <string name="last_message_self_changed_conversation_name">hai cambiato il nome della conversazione</string>
+
+
+
+
+
+
+
+
+
     <string name="last_message_calling">%1$s sta chiamando...</string>
-    <string name="last_message_self_user_joined_conversation">si &#232; unito alla conversazione.</string>
-    <string name="last_message_self_user_left_conversation">ha lasciato la conversazione.</string>
-    <string name="last_message_other_user_joined_conversation">si &#232; unito alla conversazione.</string>
-    <string name="last_message_other_user_left_conversation">ha lasciato la conversazione.</string>
-    <string name="last_message_verified_conversation_proteus">Tutte le impronte digitali del dispositivo sono verificate (Proteus)</string>
-    <string name="last_message_verified_conversation_mls">Tutti i dispositivi sono verificati (Identità end-to-end)</string>
-    <string name="last_message_conversations_verification_degraded_mls">Conversazione non più verificata</string>
-    <string name="last_message_conversations_verification_degraded_proteus">Conversazione non più verificata</string>
+
+
+
+
+
+
+
+
     <!-- Unread Events -->
-    <plurals name="unread_event_knock">
-        <item quantity="one">%1$d ping</item>
-        <item quantity="other">%1$d ping</item>
-    </plurals>
-    <plurals name="unread_event_call">
-        <item quantity="one">%1$d chiamata persa</item>
-        <item quantity="other">%1$d chiamate perse</item>
-    </plurals>
-    <plurals name="unread_event_mention">
-        <item quantity="one">%1$d menzione</item>
-        <item quantity="other">%1$d menzioni</item>
-    </plurals>
-    <plurals name="unread_event_reply">
-        <item quantity="one">%1$d risposta</item>
-        <item quantity="other">%1$d resposte</item>
-    </plurals>
-    <plurals name="unread_event_message">
-        <item quantity="one">%1$d messaggio</item>
-        <item quantity="other">%1$d messaggi</item>
-    </plurals>
-    <string name="ephemeral_one_to_one_event_message">"Ha inviato un messaggio"</string>
+
+
+
+
+
+
     <!--Typing Indicator-->
     <plurals name="typing_indicator_event_message">
         <item quantity="one">%s sta scrivendo</item>
@@ -1020,7 +987,7 @@ registrato. Sei pregato di riprovare.</string>
     <string name="record_audio_max_file_size_reached_text">Le dimensioni dei file per i messaggi vocali sono limitate a %1$d MB.</string>
     <string name="record_audio_unable_due_to_error">Qualcosa è andato storto provando a registrare il messaggio audio. Ti preghiamo di riprovare.</string>
     <string name="label_not_now">Non adesso</string>
-    <string name="last_message_composite_with_missing_text">invia un messaggio interattivo</string>
+
     <string name="join_conversation_dialog_password_label">Password della conversazione</string>
     <string name="join_conversation_dialog_password_placeholder">Inserisci la password</string>
     <string name="participant_tile_call_connecting_label">Connessione…</string>

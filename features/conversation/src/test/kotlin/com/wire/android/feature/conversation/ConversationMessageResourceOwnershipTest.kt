@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test
 class ConversationMessageResourceOwnershipTest {
 
     @Test
-    fun messagePresentationStringsAreFeatureOwnedWithUnchangedQualifierCoverage() {
+    fun messagePresentationResourcesAreFeatureOwnedWithUnchangedQualifierCoverage() {
         assertTrue(
             resourceDefinitions(appResources).isEmpty(),
             "Message-presentation strings must not remain in :app.",
@@ -35,8 +35,9 @@ class ConversationMessageResourceOwnershipTest {
 
         val definitions = resourceDefinitions(featureResources)
 
-        assertEquals(211, definitions.size)
-        assertEquals(expectedQualifierCoverage, definitions.groupBy({ it.name }, { it.qualifier }).mapValues { it.value.toSet() })
+        assertEquals(608, definitions.size)
+        assertEquals(59, definitions.map { it.name }.toSet().size)
+        assertEquals(messageResourceNames, definitions.map { it.name }.toSet())
         assertEquals(expectedDefinitionFingerprint, definitions.fingerprint())
     }
 
@@ -71,16 +72,17 @@ class ConversationMessageResourceOwnershipTest {
         directory.walkTopDown()
             .filter { it.isFile && it.name == "strings.xml" }
             .flatMap { file ->
-                stringDefinitionPattern.findAll(file.readText()).mapNotNull { match ->
-                    val name = match.groupValues[1]
+                resourceDefinitionPattern.findAll(file.readText()).mapNotNull { match ->
+                    val name = match.groupValues[2]
                     if (name !in messageResourceNames) {
                         null
                     } else {
                         ResourceDefinition(
                             qualifier = requireNotNull(file.parentFile).name,
+                            type = match.groupValues[1],
                             name = name,
-                            attributes = match.groupValues[2].trim(),
-                            value = match.groupValues[3],
+                            attributes = match.groupValues[3].trim(),
+                            value = match.groupValues[4],
                         )
                     }
                 }
@@ -96,11 +98,12 @@ class ConversationMessageResourceOwnershipTest {
 
     private data class ResourceDefinition(
         val qualifier: String,
+        val type: String,
         val name: String,
         val attributes: String,
         val value: String,
     ) {
-        val canonicalValue: String = "$qualifier|$name|$attributes|$value"
+        val canonicalValue: String = "$qualifier|$type|$name|$attributes|$value"
     }
 
     private companion object {
@@ -114,7 +117,10 @@ class ConversationMessageResourceOwnershipTest {
             File(repositoryRoot(), "app/src/main/kotlin"),
             File(repositoryRoot(), "app/src/test/kotlin"),
         )
-        val stringDefinitionPattern = Regex("""<string\s+name="([^"]+)"([^>]*)>(.*?)</string>""")
+        val resourceDefinitionPattern = Regex(
+            """<(string|plurals)\s+name="([^"]+)"([^>]*)>(.*?)</\1>""",
+            setOf(RegexOption.DOT_MATCHES_ALL),
+        )
         val messageResourceNames = setOf(
             "label_message_edit_sent_failure",
             "label_message_sent_failure",
@@ -133,6 +139,48 @@ class ConversationMessageResourceOwnershipTest {
             "label_system_message_receipt_mode_off",
             "sent_a_message_with_unknown_content",
             "label_quote_original_message_date",
+            "ephemeral_group_channel_event_message",
+            "ephemeral_one_to_one_event_message",
+            "label_draft",
+            "last_message_call",
+            "last_message_composite_with_missing_text",
+            "last_message_conversations_verification_degraded_mls",
+            "last_message_conversations_verification_degraded_proteus",
+            "last_message_mentioned",
+            "last_message_other_added_only_self_user",
+            "last_message_other_added_other_users",
+            "last_message_other_added_self_user",
+            "last_message_other_changed_conversation_name",
+            "last_message_other_removed_only_self_user",
+            "last_message_other_removed_other_users",
+            "last_message_other_removed_self_user_and_others",
+            "last_message_other_user_joined_conversation",
+            "last_message_other_user_knock",
+            "last_message_other_user_left_conversation",
+            "last_message_other_user_shared_asset",
+            "last_message_other_user_shared_image",
+            "last_message_other_user_shared_location",
+            "last_message_other_user_shared_video",
+            "last_message_replied",
+            "last_message_self_added_users",
+            "last_message_self_changed_conversation_name",
+            "last_message_self_removed_users",
+            "last_message_self_user_joined_conversation",
+            "last_message_self_user_knock",
+            "last_message_self_user_left_conversation",
+            "last_message_self_user_shared_asset",
+            "last_message_self_user_shared_audio",
+            "last_message_self_user_shared_image",
+            "last_message_self_user_shared_location",
+            "last_message_self_user_shared_video",
+            "last_message_team_member_removed",
+            "last_message_verified_conversation_mls",
+            "last_message_verified_conversation_proteus",
+            "unread_event_call",
+            "unread_event_knock",
+            "unread_event_mention",
+            "unread_event_message",
+            "unread_event_reply",
         )
         val messageResourceReferencePattern = Regex(
             """([A-Za-z0-9_]*R)\.string\.(label_message_edit_sent_failure|label_message_sent_failure|""" +
@@ -145,83 +193,12 @@ class ConversationMessageResourceOwnershipTest {
                 """label_system_message_receipt_mode_off|sent_a_message_with_unknown_content|""" +
                 """label_quote_original_message_date)\b""",
         )
-        const val expectedDefinitionFingerprint = "dfb6b3a5b81f7db207ea6121129c90bd858f78b16404021dc6b326d21aae216a"
-        val expectedQualifierCoverage = mapOf(
-            "label_message_edit_sent_failure" to setOf(
-                "values", "values-cs", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it",
-                "values-ja", "values-pl", "values-pt", "values-ru", "values-si", "values-sv", "values-tr",
-            ),
-            "label_message_sent_failure" to setOf(
-                "values", "values-ar", "values-cs", "values-da", "values-de", "values-el", "values-es", "values-fi",
-                "values-fr", "values-hr", "values-hu", "values-it", "values-ja", "values-nl", "values-pl", "values-pt",
-                "values-ro", "values-ru", "values-si", "values-sr", "values-sv", "values-tr", "values-uk",
-            ),
-            "label_message_edit_sent_remotely_failure" to setOf(
-                "values", "values-cs", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it",
-                "values-ja", "values-pt", "values-ru", "values-si", "values-tr",
-            ),
-            "label_message_sent_remotely_failure" to setOf(
-                "values", "values-cs", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it",
-                "values-ja", "values-nl", "values-pt", "values-ru", "values-si", "values-tr",
-            ),
-            "label_message_decryption_failure_message_with_error_code" to setOf(
-                "values", "values-de", "values-es", "values-fr", "values-hu", "values-pt", "values-ru", "values-si",
-                "values-tr",
-            ),
-            "label_message_decryption_failure_message" to setOf(
-                "values", "values-cs", "values-de", "values-es", "values-et", "values-fr", "values-hr", "values-hu",
-                "values-it", "values-ja", "values-pl", "values-pt", "values-ru", "values-si", "values-sv", "values-tr",
-            ),
-            "deleted_message_text" to setOf(
-                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-ja",
-                "values-pl", "values-pt", "values-ru", "values-si",
-            ),
-            "label_message_status_edited_with_date" to setOf(
-                "values", "values-de", "values-es", "values-et", "values-fr", "values-hr", "values-hu", "values-it",
-                "values-ja", "values-lt", "values-pl", "values-pt", "values-ru", "values-si", "values-sv", "values-tr",
-                "values-uk",
-            ),
-            "url_maps_location_coordinates_fallback" to setOf("values"),
-            "member_name_deleted_label" to setOf(
-                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
-                "values-pt", "values-ru", "values-si",
-            ),
-            "member_name_you_label_lowercase" to setOf(
-                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
-                "values-pt", "values-ru", "values-si", "values-sv",
-            ),
-            "member_name_you_label_titlecase" to setOf(
-                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
-                "values-pt", "values-ru", "values-si", "values-sv",
-            ),
-            "sent_a_message_with_content" to setOf(
-                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
-                "values-pt", "values-ru", "values-si", "values-sv",
-            ),
-            "label_system_message_receipt_mode_on" to setOf(
-                "values", "values-de", "values-es", "values-et", "values-hu", "values-it", "values-pl", "values-pt",
-                "values-ru", "values-si",
-            ),
-            "label_system_message_receipt_mode_off" to setOf(
-                "values", "values-de", "values-es", "values-et", "values-hu", "values-it", "values-pl", "values-pt",
-                "values-ru", "values-si",
-            ),
-            "sent_a_message_with_unknown_content" to setOf(
-                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pt",
-                "values-ru", "values-si", "values-sv",
-            ),
-            "label_quote_original_message_date" to setOf(
-                "values", "values-de", "values-es", "values-et", "values-fr", "values-hr", "values-hu", "values-it",
-                "values-ja", "values-pl", "values-pt", "values-ru", "values-si",
-            ),
-        )
+        const val expectedDefinitionFingerprint = "c26e4ffaccb869fab3ba7ce8055528552ec1e9877d790f5f353f6e7f1d5a97b9"
         val expectedConsumers = setOf(
-            "app/src/main/kotlin/com/wire/android/mapper/MessagePreviewContentMapper.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageExpirationItems.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/preview/PreviewMessageTypes.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/ConversationItemFactory.kt",
-            "app/src/test/kotlin/com/wire/android/mapper/MessagePreviewContentMapperTest.kt",
             "app/src/test/kotlin/com/wire/android/ui/home/conversations/messages/draft/MessageDraftViewModelTest.kt",
             "app/src/main/kotlin/com/wire/android/ui/common/bottomsheet/conversation/ConversationOptionsData.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationInfoViewModelAppAdapter.kt",

@@ -23,4 +23,125 @@
     <string name="label_system_message_receipt_mode_off">අක්‍රියයි</string>
     <string name="label_quote_original_message_date">%s මුල් පණිවිඩය</string>
     <string name="sent_a_message_with_unknown_content">නොදන්නා අන්තර්ගතයක් සහිත පණිවිඩයක් යවා ඇත</string>
+
+
+<string name="label_draft">*කටුපිටපත*</string>
+
+<plurals name="last_message_self_added_users">
+        <item quantity="one">ඔබ පුද්ගලයෙක් සංවාදයට එක් කළා</item>
+        <item quantity="other">ඔබ %1$d දෙනෙක් සංවාදයට එක් කළා</item>
+    </plurals>
+
+<string name="last_message_other_added_only_self_user">ඔබව සංවාදයට එක් කර ඇත</string>
+
+<plurals name="last_message_other_added_self_user">
+        <item quantity="one">ඔබව සහ තවත් පුද්ගලයෙක් සංවාදයට එක් කර ඇත</item>
+        <item quantity="other">ඔබව සහ තවත් %1$d දෙනෙක් සංවාදයට එක් කර ඇත</item>
+    </plurals>
+
+<plurals name="last_message_other_added_other_users">
+        <item quantity="one">පුද්ගලයෙක් සංවාදයට එක් කර ඇත</item>
+        <item quantity="other">%1$d දෙනෙක් සංවාදයට එක් කර ඇත</item>
+    </plurals>
+
+<plurals name="last_message_self_removed_users">
+        <item quantity="one">ඔබ පුද්ගලයෙක් සංවාදයෙන් ඉවත් කළා</item>
+        <item quantity="other">ඔබ %1$d දෙනෙක් සංවාදයෙන් ඉවත් කළා</item>
+    </plurals>
+
+<plurals name="last_message_team_member_removed">
+        <item quantity="one">1 පුද්ගලයෙකු කණ්ඩායමෙන් ඉවත් කරන ලදී.</item>
+        <item quantity="other">%1$d පිරිසක් කණ්ඩායමෙන් ඉවත් කරන ලදී.</item>
+    </plurals>
+
+<string name="last_message_other_removed_only_self_user">ඔබව සංවාදයෙන් ඉවත් කළා</string>
+
+<plurals name="last_message_other_removed_self_user_and_others">
+        <item quantity="one">ඔබව සහ තවත් පුද්ගලයෙක් සංවාදයෙන් ඉවත් කර ඇත</item>
+        <item quantity="other">ඔබව සහ තවත් %1$d දෙනෙක් සංවාදයෙන් ඉවත් කර ඇත</item>
+    </plurals>
+
+<plurals name="last_message_other_removed_other_users">
+        <item quantity="one">පුද්ගලයෙක් සංවාදයෙන් ඉවත් කර ඇත</item>
+        <item quantity="other">%1$d දෙනෙක් සංවාදයෙන් ඉවත් කර ඇත</item>
+    </plurals>
+
+<string name="last_message_self_user_shared_asset">ගොනුවක් බෙදාගත්තා.</string>
+
+<string name="last_message_other_user_shared_asset">ගොනුවක් බෙදාගත්තා.</string>
+
+<string name="last_message_self_user_shared_image">රූපයක් බෙදාගත්තා.</string>
+
+<string name="last_message_other_user_shared_image">රූපයක් බෙදාගත්තා.</string>
+
+<string name="last_message_self_user_shared_video">දෘශ්‍යකයක් බෙදාගත්තා.</string>
+
+<string name="last_message_other_user_shared_video">දෘශ්‍යකයක් බෙදාගත්තා.</string>
+
+<string name="last_message_self_user_shared_audio">හඬ පණිවිඩයක් බෙදාගත්තා.</string>
+
+<string name="last_message_self_user_shared_location">ස්ථානයක් බෙදාගත්තා.</string>
+
+<string name="last_message_other_user_shared_location">ස්ථානයක් බෙදාගත්තා.</string>
+
+<string name="last_message_self_user_knock">හැඬවීය.</string>
+
+<string name="last_message_other_user_knock">හැඬවීය.</string>
+
+<string name="last_message_call">අමතා ඇත.</string>
+
+<string name="last_message_mentioned">ඔබව සඳහන් කළා</string>
+
+<string name="last_message_replied">ඔබට පිළිතුරු දී ඇත</string>
+
+<string name="last_message_other_changed_conversation_name">සංවාදයේ නම වෙනස් කළා</string>
+
+<string name="last_message_self_changed_conversation_name">සංවාදයේ නම වෙනස් කළා</string>
+
+<string name="last_message_self_user_joined_conversation">සංවාදයට එක්වුණා.</string>
+
+<string name="last_message_self_user_left_conversation">සංවාදය හැරගියා.</string>
+
+<string name="last_message_other_user_joined_conversation">සංවාදයට එක්වුණා.</string>
+
+<string name="last_message_other_user_left_conversation">සංවාදය හැරගියා.</string>
+
+<string name="last_message_verified_conversation_proteus">සියලු උපාංගවල ඇඟිලි සටහන් සත්‍යාපිතයි (ප්‍රෝටියස්)</string>
+
+<string name="last_message_verified_conversation_mls">සියලු උපාංග සත්‍යාපිතයි (අන්ත අනන්‍යතාව)</string>
+
+<string name="last_message_conversations_verification_degraded_mls">සංවාදය තවදුරටත් සත්‍යාපිත නොවේ</string>
+
+<string name="last_message_conversations_verification_degraded_proteus">සංවාදය තවදුරටත් සත්‍යාපිත නොවේ</string>
+
+<plurals name="unread_event_knock">
+        <item quantity="one">හැඬවීම් %1$d</item>
+        <item quantity="other">හැඬවීම් %1$d</item>
+    </plurals>
+
+<plurals name="unread_event_call">
+        <item quantity="one">මගහැරුණු ඇමතුමක්</item>
+        <item quantity="other">මගහැරුණු ඇමතුම් %1$d</item>
+    </plurals>
+
+<plurals name="unread_event_mention">
+        <item quantity="one">සැඳහුම් %1$d</item>
+        <item quantity="other">සැඳහුම් %1$d</item>
+    </plurals>
+
+<plurals name="unread_event_reply">
+        <item quantity="one">පිළිතුරු %1$d</item>
+        <item quantity="other">පිළිතුරු %1$d</item>
+    </plurals>
+
+<plurals name="unread_event_message">
+        <item quantity="one">පණිවිඩ %1$d</item>
+        <item quantity="other">පණිවිඩ %1$d</item>
+    </plurals>
+
+<string name="ephemeral_one_to_one_event_message">"පණිවිඩයක් එවා ඇත"</string>
+
+<string name="ephemeral_group_channel_event_message">"කෙනෙක් පණිවිඩයක් එව්වා"</string>
+
+<string name="last_message_composite_with_missing_text">අන්‍යෝන්‍ය පණිවිඩයක් යවා ඇත</string>
 </resources>

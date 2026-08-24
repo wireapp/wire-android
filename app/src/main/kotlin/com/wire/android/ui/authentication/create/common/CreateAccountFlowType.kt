@@ -22,6 +22,7 @@ import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -33,7 +34,7 @@ enum class CreateAccountFlowType(
 ) : Parcelable {
     CreatePersonalAccount(
         routeArg = "create_personal_account",
-        titleResId = R.string.create_personal_account_title,
+        titleResId = AuthenticationR.string.create_personal_account_title,
         overviewResources = OverviewResources(
             overviewContentTitleResId = null,
             overviewContentTextResId = R.string.create_personal_account_text,

@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
@@ -151,7 +152,7 @@ private fun AccountDetailsContent(
             NewAuthHeader(
                 title = {
                     Text(
-                        text = stringResource(id = R.string.create_personal_account_title),
+                        text = stringResource(id = AuthenticationR.string.create_personal_account_title),
                         style = MaterialTheme.wireTypography.title01,
                         modifier = Modifier.semantics { heading() }
                     )

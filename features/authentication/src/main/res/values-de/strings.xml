@@ -5,6 +5,7 @@
     <string name="second_factor_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
     <string name="label_get_started">Loslegen</string>
     <string name="create_personal_account_summary_title">Privates Benutzerkonto erstellt</string>
+    <string name="create_personal_account_title">Privates Benutzerkonto erstellen</string>
     <string name="create_personal_account_summary_text">Sie haben Ihr persönliches Benutzerkonto erstellt. Kommunizieren Sie sicher – wo immer Sie sind!</string>
     <string name="create_team_summary_title">Team erstellt</string>
     <string name="create_team_summary_text">Sie haben Ihr Team erstellt. Kommunizieren Sie sicher – wo immer Sie sind!</string>

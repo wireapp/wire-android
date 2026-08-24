@@ -110,7 +110,7 @@ internal fun PreviewCreateAccountSummaryScreen() = WireTheme {
 
 internal fun CreateAccountRouteFlowType.summaryResources(): CreateAccountSummaryResources = when (this) {
     CreateAccountRouteFlowType.PERSONAL -> CreateAccountSummaryResources(
-        title = R.string.create_personal_account_summary_title,
+        title = R.string.create_personal_account_title,
         text = R.string.create_personal_account_summary_text,
         icon = R.drawable.ic_create_personal_account_success,
     )

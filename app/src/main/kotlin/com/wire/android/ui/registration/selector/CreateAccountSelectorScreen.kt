@@ -44,6 +44,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.UserRegistrationInfo
@@ -147,7 +148,7 @@ fun CreateAccountSelectorContent(
                     containerBorderColor = MaterialTheme.colorScheme.outline,
                     shouldUsePrimaryButton = false
                 ),
-                onContinueButtonText = stringResource(R.string.create_personal_account_title),
+                onContinueButtonText = stringResource(AuthenticationR.string.create_personal_account_title),
                 onContinuePressed = onPersonalAccountCreationClicked
             )
         }

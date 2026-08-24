@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Test
 class CreateAccountSummaryOwnershipTest {
 
     @Test
-    fun givenPersonalAndTeamFlows_whenMappingSummaryResources_thenFeatureResourcesAreSelected() {
+    fun givenPersonalAndTeamFlows_whenMappingSummaryResources_thenPredecessorResourcesAreSelected() {
         assertEquals(
             CreateAccountSummaryResources(
-                title = R.string.create_personal_account_summary_title,
+                title = R.string.create_personal_account_title,
                 text = R.string.create_personal_account_summary_text,
                 icon = R.drawable.ic_create_personal_account_success,
             ),
@@ -88,7 +88,7 @@ class CreateAccountSummaryOwnershipTest {
         val featureDefinitions = resourceDefinitions(featureResources)
 
         assertTrue(appDefinitions.isEmpty(), "App still owns summary strings: $appDefinitions")
-        assertEquals(65, featureDefinitions.size)
+        assertEquals(68, featureDefinitions.size)
         assertEquals(
             expectedQualifiersByResource,
             featureDefinitions
@@ -156,11 +156,12 @@ class CreateAccountSummaryOwnershipTest {
     private companion object {
         const val packageName = "com.wire.android.ui.authentication.create.summary"
         const val packagePath = "com/wire/android/ui/authentication/create/summary"
-        const val expectedResourceFingerprint = "860ddcaf56de7066d4e4ec9bc9249f54adb0787c5e59c41ec99ed1694a43019f"
+        const val expectedResourceFingerprint = "fc116011181b2926dfb55af950f22f521ad2d0d98ef512f73db5ccda78234d1e"
 
         val resourceNames = setOf(
             "create_personal_account_summary_title",
             "create_personal_account_summary_text",
+            "create_personal_account_title",
             "create_team_summary_title",
             "create_team_summary_text",
             "label_get_started",
@@ -177,6 +178,7 @@ class CreateAccountSummaryOwnershipTest {
                 "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu",
                 "values-it", "values-pl", "values-pt", "values-ru", "values-si",
             ),
+            "create_personal_account_title" to setOf("values", "values-de", "values-ru"),
             "create_team_summary_title" to setOf(
                 "values", "values-de", "values-es", "values-et", "values-fr", "values-hr",
                 "values-hu", "values-it", "values-pl", "values-pt", "values-ru", "values-si",

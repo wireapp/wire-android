@@ -22,6 +22,7 @@
     <string name="second_factor_code_error">Invalid code, or maximum attempts exceeded. Please retry, or request another code</string>
     <string name="label_get_started">Get Started</string>
     <string name="create_personal_account_summary_title">Personal Account Created</string>
+    <string name="create_personal_account_title">Create Personal Account</string>
     <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
     <string name="create_team_summary_title">Team Created</string>
     <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>

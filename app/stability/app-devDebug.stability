@@ -662,22 +662,6 @@ private fun com.wire.android.ui.authentication.create.overview.OverviewTexts(ove
     - onLearnMoreClick: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.authentication.create.summary.CreateAccountSummaryRouteScreen(viewModel: com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel, onContinue: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - viewModel: UNSTABLE (has mutable properties or unstable members)
-    - onContinue: STABLE (function type)
-
-@Composable
-private fun com.wire.android.ui.authentication.create.summary.SummaryContent(state: com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewState, onContinuePressed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - state: STABLE (class with no mutable properties)
-    - onContinuePressed: STABLE (function type)
-
-@Composable
 internal fun com.wire.android.ui.authentication.create.username.CreateAccountUsernameRouteScreen(viewModel: com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -777,20 +761,6 @@ public fun com.wire.android.ui.authentication.createAccountSelectorViewModel(nav
   restartable: true
   params:
     - navArgs: UNSTABLE (has mutable properties or unstable members)
-    - viewModelStoreOwner: RUNTIME (requires runtime check)
-
-@Composable
-public fun com.wire.android.ui.authentication.createAccountSummaryViewModel(): com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
-public fun com.wire.android.ui.authentication.createAccountSummaryViewModel(navArgs: com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs, viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel
-  skippable: false
-  restartable: true
-  params:
-    - navArgs: STABLE (class with no mutable properties)
     - viewModelStoreOwner: RUNTIME (requires runtime check)
 
 @Composable

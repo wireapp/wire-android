@@ -26,4 +26,19 @@
     <string name="create_personal_account_summary_text">You have successfully created your personal account. Start communicating securely – wherever you are!</string>
     <string name="create_team_summary_title">Team Created</string>
     <string name="create_team_summary_text">You have successfully created your team account. Start communicating securely – wherever you are!</string>
+    <string name="content_description_login_email_field">enter your email</string>
+    <string name="content_description_enterprise_login_email_field">enter your email or sso code</string>
+    <string name="enterprise_login_welcome">Enter your email to start!</string>
+    <string name="enterprise_login_password_title">Enter your password to log in</string>
+    <string name="enterprise_login_credentials_title">Enter your credentials to log in</string>
+    <string name="enterprise_login_next">Next</string>
+    <string name="enterprise_login_user_identifier_label">EMAIL OR SSO CODE</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">Enter Email or SSO Code</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Please enter a valid email or SSO code</string>
+    <string name="enterprise_login_create_account_label">Don\'t have a Wire account?</string>
+    <string name="enterprise_login_create_account_text_button">Create account or team</string>
+    <string name="enterprise_login_verification_code_title">You have mail</string>
+    <string name="login_email_placeholder">jane@example.com</string>
+    <string name="login_email_label">EMAIL</string>
+    <string name="login_error_invalid_email">This email is invalid. Please verify and try again.</string>
 </resources>

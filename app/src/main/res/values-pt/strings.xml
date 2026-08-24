@@ -177,7 +177,6 @@
     <string name="content_description_change_picture_back_btn">Voltar para a visão geral do seu perfil</string>
     <string name="content_description_welcome_screen_close_btn">Fechar nova visualização de criação de nova equipe e “login”</string>
     <string name="content_description_login_back_btn">Voltar para a visualização de criação de nova equipe e login</string>
-    <string name="content_description_enterprise_login_email_field">digite seu e-mail ou código SSO</string>
     <string name="content_description_login_password_field">digite sua senha</string>
     <string name="content_description_login_sso_code_field">digite seu código SSO ou e-mail do Wire</string>
     <string name="content_description_whats_new_welcome_item">Bem-vindo ao Novo Aplicativo Android do Wire, link para a página de suporte</string>
@@ -264,16 +263,7 @@ URL do Backend:
     <string name="migration_cancel_title">Cancelar a migração</string>
     <string name="migration_cancel_message">Tem certeza de que deseja fechar o aplicativo e cancelar a migração em andamento?</string>
     <!-- Enterprise Login -->
-    <string name="enterprise_login_welcome">Digite seu e-mail para iniciar!</string>
-    <string name="enterprise_login_password_title">Digite sua senha para fazer login</string>
-    <string name="enterprise_login_credentials_title">Insira suas credenciais para fazer login</string>
-    <string name="enterprise_login_next">Próximo</string>
-    <string name="enterprise_login_user_identifier_label">E-MAIL OU CÓDIGO DE SSO</string>
-    <string name="enterprise_login_user_identifier_label_placeholder">Digite o e-mail ou código SSO</string>
-    <string name="enterprise_login_error_invalid_user_identifier">Por favor, insira um e-mail ou código SSO válido</string>
-    <string name="enterprise_login_create_account_label">Não tem uma conta Wire?</string>
     <string name="enterprise_login_on_prem_welcome_title">Bem-vindo ao Wire Enterprise para %s!</string>
-    <string name="enterprise_login_verification_code_title">Você tem um e-mail</string>
     <!-- Login -->
     <string name="login_title">Entrar</string>
     <string name="login_forgot_password">Esqueceu a senha?</string>

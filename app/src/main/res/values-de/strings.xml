@@ -215,8 +215,6 @@
     <string name="content_description_welcome_screen_close_btn">Ansicht zur Team-Erstellung und Anmeldung schließen</string>
     <string name="content_description_login_back_btn">Zurück zur Ansicht zur Team-Erstellung und Anmeldung</string>
     <string name="content_description_login_user_identifier_field">Geben Sie Ihre E-Mail-Adresse oder Ihren Benutzernamen ein</string>
-    <string name="content_description_login_email_field">Geben Sie Ihre E-Mail-Adresse ein</string>
-    <string name="content_description_enterprise_login_email_field">Geben Sie Ihre E-Mail-Adresse oder Ihren SSO-Code ein</string>
     <string name="content_description_backend_config_camera_button">QR Code scannen</string>
     <string name="content_description_login_password_field">Geben Sie Ihr Passwort ein</string>
     <string name="content_description_login_sso_code_field">Geben Sie Ihren SSO-Code oder Wire E-Mail-Adresse ein</string>
@@ -301,23 +299,11 @@
     <string name="migration_cancel_title">Migration abbrechen</string>
     <string name="migration_cancel_message">Sind Sie sicher, dass Sie die App schließen und die laufende Migration abbrechen möchten?</string>
     <!-- Enterprise Login -->
-    <string name="enterprise_login_welcome">Geben Sie Ihre E-Mail-Adresse ein, um zu beginnen.</string>
-    <string name="enterprise_login_password_title">Geben Sie Ihr Passwort ein, um sich anzumelden</string>
-    <string name="enterprise_login_credentials_title">Geben Sie Ihre Anmeldedaten ein</string>
-    <string name="enterprise_login_next">Weiter</string>
-    <string name="enterprise_login_user_identifier_label">E-MAIL-ADRESSE ODER SSO-CODE</string>
-    <string name="enterprise_login_user_identifier_label_placeholder">E-Mail-Adresse oder SSO-Code eingeben</string>
-    <string name="enterprise_login_error_invalid_user_identifier">Bitte eine gültige E-Mail-Adresse oder den SSO-Code eingeben</string>
-    <string name="enterprise_login_create_account_label">Sie haben kein Benutzerkonto?</string>
-    <string name="enterprise_login_create_account_text_button">Konto oder Team erstellen</string>
     <string name="enterprise_login_on_prem_welcome_title">Willkommen bei Wire Enterprise für %s!</string>
-    <string name="enterprise_login_verification_code_title">Posteingang prüfen</string>
     <!-- Login -->
     <string name="login_title">Anmelden</string>
     <string name="login_forgot_password">Passwort vergessen?</string>
     <string name="login_user_identifier_placeholder">max@example.com oder max.müller</string>
-    <string name="login_email_placeholder">max@beispiel.com</string>
-    <string name="login_email_label">E-MAIL-ADRESSE</string>
     <string name="login_user_identifier_label">E-MAIL ODER BENUTZERNAME</string>
     <string name="login_proxy_identifier_label">PROXY E-MAIL-ADRESSE ODER BENUTZERNAME</string>
     <string name="login_error_invalid_credentials_title">Ungültige Information</string>
@@ -325,7 +311,6 @@
         Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut.
     </string>
     <string name="login_error_invalid_user_identifier">E-Mail-Adresse oder Benutzername ist ungültig. Bitte überprüfen Sie Ihre Daten und versuchen Sie es erneut.</string>
-    <string name="login_error_invalid_email">Diese E-Mail-Adresse ist ungültig. Bitte überprüfen Sie Ihre Daten und versuchen Sie es erneut.</string>
     <string name="login_error_user_already_logged_in_title">Benutzerkonto in Gebrauch</string>
     <string name="login_error_user_already_logged_in_message">Sie sind bereits mit diesen Daten auf diesem Gerät angemeldet.</string>
     <string name="login_sso_error_invalid_cookie_title">Ungültiger Cookie!</string>

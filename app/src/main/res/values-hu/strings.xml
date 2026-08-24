@@ -181,8 +181,6 @@
     <string name="content_description_welcome_screen_close_btn">Az új csapat létrehozása és bejelentkezés lap bezárása</string>
     <string name="content_description_login_back_btn">Vissza az új csapat létrehozása és bejelentkezés lapra</string>
     <string name="content_description_login_user_identifier_field">adja meg e-mail-címét vagy felhasználónevét</string>
-    <string name="content_description_login_email_field">adja meg e-mail-címét</string>
-    <string name="content_description_enterprise_login_email_field">adja meg e-mail-címét vagy sso-kódját</string>
     <string name="content_description_login_password_field">adja meg jelszavát</string>
     <string name="content_description_login_sso_code_field">adja meg SSO-kódját vagy Wire-e-mailjét</string>
     <string name="content_description_whats_new_welcome_item">Üdvözöljük a Wire új androidos appjában, link a támogatási oldalhoz</string>
@@ -263,22 +261,11 @@
     <string name="migration_cancel_title">Költöztetés leállítása</string>
     <string name="migration_cancel_message">Biztos benne, hogy be szeretné zárni az alkalmazást és leállítani a folyamatban lévő költöztetést?</string>
     <!-- Enterprise Login -->
-    <string name="enterprise_login_welcome">Adja meg kezdésként az e-mail-címét!</string>
-    <string name="enterprise_login_password_title">Belépéshez adja meg a jelszavát</string>
-    <string name="enterprise_login_credentials_title">Belépéshez adja meg azonosítóit</string>
-    <string name="enterprise_login_next">Tovább</string>
-    <string name="enterprise_login_user_identifier_label">E-MAIL-CÍM VAGY SSO-KÓD</string>
-    <string name="enterprise_login_user_identifier_label_placeholder">Adja meg e-mail-címét vagy SSO-kódját</string>
-    <string name="enterprise_login_error_invalid_user_identifier">Kérjük, adjon meg érvényes e-mail-címet vagy SSO-kódot</string>
-    <string name="enterprise_login_create_account_label">Nincsen Wire-fiókja?</string>
     <string name="enterprise_login_on_prem_welcome_title">Üdvözöljük a(z) %s számára nyújtott Wire Vállalati szolgáltatásban!</string>
-    <string name="enterprise_login_verification_code_title">E-mailje érkezett</string>
     <!-- Login -->
     <string name="login_title">Bejelentkezés</string>
     <string name="login_forgot_password">Elfelejtette a jelszavát?</string>
     <string name="login_user_identifier_placeholder">jane@example.com vagy jane.doe</string>
-    <string name="login_email_placeholder">nev@pelda.hu</string>
-    <string name="login_email_label">E-MAIL</string>
     <string name="login_user_identifier_label">E-MAIL VAGY FELHASZNÁLÓNÉV</string>
     <string name="login_proxy_identifier_label">PROXY E-MAIL VAGY FELHASZNÁLÓNÉV</string>
     <string name="login_error_invalid_credentials_title">Érvénytelen információ</string>
@@ -286,7 +273,6 @@
         Ellenőrizze a bevitt adatokat, és próbálja újra.
     </string>
     <string name="login_error_invalid_user_identifier">Ez az e-mail-cím vagy felhasználónév érvénytelen. Ellenőrizze a beírtakat, és próbálja újra.</string>
-    <string name="login_error_invalid_email">Ez az e-mail-cím érvénytelen. Ellenőrizze a beírtakat, és próbálja újra.</string>
     <string name="login_error_user_already_logged_in_title">A fiók már használatban van</string>
     <string name="login_error_user_already_logged_in_message">A megadott azonosítókkal már bejelentkezett ezen az eszközön.</string>
     <string name="login_sso_error_invalid_cookie_title">Érvénytelen süti!</string>

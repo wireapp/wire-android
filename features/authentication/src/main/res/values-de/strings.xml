@@ -9,4 +9,19 @@
     <string name="create_personal_account_summary_text">Sie haben Ihr persönliches Benutzerkonto erstellt. Kommunizieren Sie sicher – wo immer Sie sind!</string>
     <string name="create_team_summary_title">Team erstellt</string>
     <string name="create_team_summary_text">Sie haben Ihr Team erstellt. Kommunizieren Sie sicher – wo immer Sie sind!</string>
+    <string name="content_description_login_email_field">Geben Sie Ihre E-Mail-Adresse ein</string>
+    <string name="content_description_enterprise_login_email_field">Geben Sie Ihre E-Mail-Adresse oder Ihren SSO-Code ein</string>
+    <string name="enterprise_login_welcome">Geben Sie Ihre E-Mail-Adresse ein, um zu beginnen.</string>
+    <string name="enterprise_login_password_title">Geben Sie Ihr Passwort ein, um sich anzumelden</string>
+    <string name="enterprise_login_credentials_title">Geben Sie Ihre Anmeldedaten ein</string>
+    <string name="enterprise_login_next">Weiter</string>
+    <string name="enterprise_login_user_identifier_label">E-MAIL-ADRESSE ODER SSO-CODE</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">E-Mail-Adresse oder SSO-Code eingeben</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Bitte eine gültige E-Mail-Adresse oder den SSO-Code eingeben</string>
+    <string name="enterprise_login_create_account_label">Sie haben kein Benutzerkonto?</string>
+    <string name="enterprise_login_create_account_text_button">Konto oder Team erstellen</string>
+    <string name="enterprise_login_verification_code_title">Posteingang prüfen</string>
+    <string name="login_email_placeholder">max@beispiel.com</string>
+    <string name="login_email_label">E-MAIL-ADRESSE</string>
+    <string name="login_error_invalid_email">Diese E-Mail-Adresse ist ungültig. Bitte überprüfen Sie Ihre Daten und versuchen Sie es erneut.</string>
 </resources>

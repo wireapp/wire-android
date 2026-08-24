@@ -8,4 +8,18 @@
     <string name="create_personal_account_summary_text">ඔබගේ පෞද්ගලික ගිණුම සාර්ථකව සාදා ඇත. ඔබ කොතැනක සිටියත් – ආරක්‍ෂිතව සන්නිවේදනය කරන්න!</string>
     <string name="create_team_summary_title">කණ්ඩායම සෑදිණි</string>
     <string name="create_team_summary_text">ඔබගේ කණ්ඩායමේ ගිණුම සාර්ථකව සාදා ඇත. ඔබ කොතැනක සිටියත් – ආරක්‍ෂිතව සන්නිවේදනය කරන්න!</string>
+    <string name="content_description_login_email_field">ඔබගේ විද්‍යුත් තැපෑල ඇතුළත් කරන්න.</string>
+    <string name="content_description_enterprise_login_email_field">ඔබගේ විද්‍යුත් තැපෑල හෝ SSO කේතය ඇතුළත් කරන්න.</string>
+    <string name="enterprise_login_welcome">ආරම්භ කිරීමට ඔබගේ විද්‍යුත් තැපෑල ඇතුළත් කරන්න!</string>
+    <string name="enterprise_login_password_title">පුරනය වීමට ඔබගේ මුරපදය ඇතුළත් කරන්න.</string>
+    <string name="enterprise_login_credentials_title">පුරනය වීමට ඔබේ අක්තපත්‍ර ඇතුළත් කරන්න</string>
+    <string name="enterprise_login_next">ඊළඟ</string>
+    <string name="enterprise_login_user_identifier_label">ඊමේල් හෝ SSO කේතය</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">ඊමේල් හෝ SSO කේතය ඇතුළත් කරන්න</string>
+    <string name="enterprise_login_error_invalid_user_identifier">කරුණාකර වලංගු විද්‍යුත් තැපෑලක් හෝ SSO කේතයක් ඇතුළත් කරන්න.</string>
+    <string name="enterprise_login_create_account_label">Wire ගිණුමක් නැද්ද?</string>
+    <string name="enterprise_login_verification_code_title">ඔබට තැපෑලක් තිබේ.</string>
+    <string name="login_email_placeholder">ජේන්@example.com</string>
+    <string name="login_email_label">විද්‍යුත් තැපෑල</string>
+    <string name="login_error_invalid_email">මෙම විද්‍යුත් තැපෑල අවලංගුයි. කරුණාකර සත්‍යාපනය කර නැවත උත්සාහ කරන්න.</string>
 </resources>

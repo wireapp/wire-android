@@ -185,8 +185,6 @@
     <string name="content_description_welcome_screen_close_btn">Yeni ekip oluşturma ve oturum açma görünümünü kapatın</string>
     <string name="content_description_login_back_btn">Yeni takım oluşturma ve oturum açma görünümüne geri dön</string>
     <string name="content_description_login_user_identifier_field">e-posta adresinizi ya da kullanıcı adınızı girin</string>
-    <string name="content_description_login_email_field">e-posta adresi girin</string>
-    <string name="content_description_enterprise_login_email_field">e-postanızı veya SSO kodunuzu girin</string>
     <string name="content_description_login_password_field">parolanızı girin</string>
     <string name="content_description_login_sso_code_field">SSO kodunuzu veya Wire e-postanızı girin</string>
     <string name="content_description_whats_new_welcome_item">Wire\'ın Yeni Android Uygulamasına Hoş Geldiniz, destek sayfasına bağlantı</string>
@@ -269,15 +267,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <string name="migration_cancel_title">Taşımayı iptal et</string>
     <string name="migration_cancel_message">Uygulamayı kapatmak ve devam eden taşımanı iptal etmek istediğinizden emin misiniz?</string>
     <!-- Enterprise Login -->
-    <string name="enterprise_login_welcome">Başlamak için e-postanızı girin!</string>
-    <string name="enterprise_login_password_title">Giriş yapmak için parolanızı girin</string>
-    <string name="enterprise_login_credentials_title">Giriş yapmak için kimlik bilgilerinizi girin</string>
-    <string name="enterprise_login_next">İleri</string>
-    <string name="enterprise_login_user_identifier_label">E-POSTA VEYA SSO KODU</string>
-    <string name="enterprise_login_user_identifier_label_placeholder">E-posta veya SSO Kodunu Girin</string>
-    <string name="enterprise_login_error_invalid_user_identifier">Lütfen geçerli bir e-posta veya SSO kodu girin</string>
-    <string name="enterprise_login_create_account_label">Wire hesabınız yok mu?</string>
-    <string name="enterprise_login_create_account_text_button">Hesap veya takım oluşturun</string>
     <!-- Login -->
     <string name="login_forgot_password">Parolanızı mı unuttunuz?</string>
     <string name="login_password_placeholder">Parola</string>

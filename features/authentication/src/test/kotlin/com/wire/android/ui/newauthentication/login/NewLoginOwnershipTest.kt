@@ -20,8 +20,8 @@ class NewLoginOwnershipTest {
     fun `feature owns the generic NewLogin engine without host dependencies`() {
         val root = repositoryRoot()
         val featureDirectory = root.resolve("features/authentication/src/main/kotlin/$packagePath")
-        val source = Files.list(featureDirectory).use { paths ->
-            paths.filter { it.fileName.toString().startsWith("NewLogin") && it.fileName.toString().endsWith(".kt") }
+        val source = Files.walk(featureDirectory).use { paths ->
+            paths.filter { it.fileName.toString().endsWith(".kt") }
                 .map(Files::readString)
                 .toList()
                 .joinToString("\n")
@@ -30,8 +30,11 @@ class NewLoginOwnershipTest {
             assertFalse(Files.exists(root.resolve("app/src/main/kotlin/$packagePath/$it")), "Legacy app source remains: $it")
             assertTrue(Files.exists(featureDirectory.resolve(it)), "Missing feature source: $it")
         }
-        assertTrue(source.contains("class NewLoginViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT, BackendRequestT>"))
-        assertTrue(source.contains("interface NewLoginGateway<LinksT, FailureT, UserT, SessionT>"))
+        assertTrue(Files.exists(featureDirectory.resolve("NewLoginContainer.kt")))
+        assertTrue(Files.exists(featureDirectory.resolve("NewLoginContent.kt")))
+        assertTrue(Files.exists(featureDirectory.resolve("code/NewLoginVerificationCodeScreen.kt")))
+        assertTrue(Files.exists(featureDirectory.resolve("password/NewLoginPasswordContent.kt")))
+        assertFalse(Files.exists(root.resolve("app/src/main/kotlin/$packagePath/NewLoginContainer.kt")))
         forbidden.forEach { assertFalse(source.contains(it), "Forbidden feature dependency: $it") }
     }
 

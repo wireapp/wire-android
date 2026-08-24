@@ -242,7 +242,10 @@ fun createAccountEmailViewModel(
     customServerConfig: AuthenticationServerLinks?,
     viewModelStoreOwner: ViewModelStoreOwner,
 ): CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure> =
-    wireAssistedMetroViewModel<CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure>, AuthenticationManualViewModelFactory>(
+    wireAssistedMetroViewModel<
+        CreateAccountEmailViewModel<CreateAccountRouteFlowType, ServerConfig.Links, CoreFailure>,
+        AuthenticationManualViewModelFactory,
+    >(
         owner = viewModelStoreOwner,
     ) {
         createAccountEmailViewModel(type, customServerConfig)

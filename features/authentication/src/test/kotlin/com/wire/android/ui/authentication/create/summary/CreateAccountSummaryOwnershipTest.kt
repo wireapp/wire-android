@@ -10,7 +10,10 @@ class CreateAccountSummaryOwnershipTest {
     fun `summary has no app parcel arguments and owns its stateless rendering`() {
         val root = root()
         val app = File(root, "app/src/main/kotlin/com/wire/android/ui/authentication/create/summary")
-        val feature = File(root, "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/summary/CreateAccountSummaryScreen.kt")
+        val feature = File(
+            root,
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/summary/CreateAccountSummaryScreen.kt",
+        )
         assertFalse(File(app, "CreateAccountSummaryNavArgs.kt").exists())
         assertTrue(feature.readText().contains("fun CreateAccountSummaryRouteScreen("))
     }

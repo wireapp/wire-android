@@ -141,4 +141,24 @@
 <string name="ephemeral_one_to_one_event_message">"Enviou uma mensagem"</string>
 
 <string name="last_message_composite_with_missing_text">enviou uma mensagem interativa</string>
+    <plurals name="weeks_left">
+        <item quantity="one">1 semana restante</item>
+        <item quantity="other">%1$d semanas restantes</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 dia restante</item>
+        <item quantity="other">%1$d dias restantes</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="one">1 hora restante</item>
+        <item quantity="other">%1$d horas restantes</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="one">1 minuto restante</item>
+        <item quantity="other">%1$d minutos restantes</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="one">1 segundo restante</item>
+        <item quantity="other">%1$d segundos restantes</item>
+    </plurals>
 </resources>

@@ -1216,26 +1216,6 @@ Kérjük, próbálja meg újra.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Miután egy résztvevő látta az Ön üzenetét, és az időzítő lejárt nála, ez a bejegyzés eltűnik.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Miután %1$s látta az Ön üzenetét, és az időzítő lejárt nála, ez a bejegyzés eltűnik.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Amint Ön online lesz, ez a megjegyzés eltűnik.</string>
-    <plurals name="weeks_left">
-        <item quantity="one">1 hét van hátra</item>
-        <item quantity="other">%1$d hét van hátra</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">1 nap van hátra</item>
-        <item quantity="other">%1$d nap van hátra</item>
-    </plurals>
-    <plurals name="hours_left">
-        <item quantity="one">1 óra van hátra</item>
-        <item quantity="other">%1$d óra van hátra</item>
-    </plurals>
-    <plurals name="minutes_left">
-        <item quantity="one">1 perc van hátra</item>
-        <item quantity="other">%1$d perc van hátra</item>
-    </plurals>
-    <plurals name="seconds_left">
-        <item quantity="one">1 másodperc van hátra</item>
-        <item quantity="other">%1$d másodperc van hátra</item>
-    </plurals>
     <string name="label_debug_data">Hibakeresési információ</string>
     <string name="title_internal_debugging">Belső hibakeresés</string>
     <string name="label_log_options_description">"Ez helyileg tárolja az anonimizált hibaelhárítási információkat. "</string>

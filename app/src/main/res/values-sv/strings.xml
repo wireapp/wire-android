@@ -504,26 +504,6 @@
     <string name="create_account_handle_title">Ditt användarnamn</string>
     <!-- Asset limits error messages -->
     <!-- Expiring messages -->
-    <plurals name="weeks_left">
-        <item quantity="one">1 vecka kvar</item>
-        <item quantity="other">%1$d veckor kvar</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">1 dag kvar</item>
-        <item quantity="other">%1$d dagar kvar</item>
-    </plurals>
-    <plurals name="hours_left">
-        <item quantity="one">1 timme kvar</item>
-        <item quantity="other">%1$d timmar kvar</item>
-    </plurals>
-    <plurals name="minutes_left">
-        <item quantity="one">1 minut kvar</item>
-        <item quantity="other">%1$d minuter kvar</item>
-    </plurals>
-    <plurals name="seconds_left">
-        <item quantity="one">1 sekund kvar</item>
-        <item quantity="other">%1$d sekunder kvar</item>
-    </plurals>
     <string name="settings_myaccount_logout">Radera konto</string>
     <string name="delete_acount_dialog_title">Radera konto</string>
     <string name="end_to_end_identity_required_dialog_snooze_button">Påminn mig senare</string>

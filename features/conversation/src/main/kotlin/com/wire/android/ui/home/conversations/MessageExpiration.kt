@@ -28,7 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.Companion.HIGH_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable.Companion.LOW_END_TIME_ELAPSED_RATIO_BOUNDARY_FOR_PROPORTIONAL_ALPHA_CHANGE
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
@@ -65,11 +65,11 @@ private fun stringResourceProvider(): StringResourceProvider {
             override fun quantityString(type: StringResourceType, quantity: Int, withLeftText: Boolean): String = if (withLeftText) {
                 getQuantityString(
                     when (type) {
-                        StringResourceType.WEEKS -> R.plurals.weeks_left
-                        StringResourceType.DAYS -> R.plurals.days_left
-                        StringResourceType.HOURS -> R.plurals.hours_left
-                        StringResourceType.MINUTES -> R.plurals.minutes_left
-                        StringResourceType.SECONDS -> R.plurals.seconds_left
+                        StringResourceType.WEEKS -> conversationR.plurals.weeks_left
+                        StringResourceType.DAYS -> conversationR.plurals.days_left
+                        StringResourceType.HOURS -> conversationR.plurals.hours_left
+                        StringResourceType.MINUTES -> conversationR.plurals.minutes_left
+                        StringResourceType.SECONDS -> conversationR.plurals.seconds_left
                     },
                     quantity,
                     quantity
@@ -77,11 +77,11 @@ private fun stringResourceProvider(): StringResourceProvider {
             } else {
                 getQuantityString(
                     when (type) {
-                        StringResourceType.WEEKS -> R.plurals.weeks
-                        StringResourceType.DAYS -> R.plurals.days
-                        StringResourceType.HOURS -> R.plurals.hours
-                        StringResourceType.MINUTES -> R.plurals.minutes
-                        StringResourceType.SECONDS -> R.plurals.seconds
+                        StringResourceType.WEEKS -> conversationR.plurals.weeks
+                        StringResourceType.DAYS -> conversationR.plurals.days
+                        StringResourceType.HOURS -> conversationR.plurals.hours
+                        StringResourceType.MINUTES -> conversationR.plurals.minutes
+                        StringResourceType.SECONDS -> conversationR.plurals.seconds
                     },
                     quantity,
                     quantity

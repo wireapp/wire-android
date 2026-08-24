@@ -1400,46 +1400,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Nachdem eine Person Ihre Nachricht gesehen hat und deren Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Nachdem %1$s Ihre Nachricht gesehen hat und der Timer abgelaufen ist, verschwindet diese Notiz.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Sobald Sie online sind, verschwindet diese Notiz.</string>
-    <plurals name="weeks">
-        <item quantity="one">1 Woche</item>
-        <item quantity="other">%1$d Wochen</item>
-    </plurals>
-    <plurals name="days">
-        <item quantity="one">1 Tag</item>
-        <item quantity="other">%1$d Tage</item>
-    </plurals>
-    <plurals name="hours">
-        <item quantity="one">1 Stunde</item>
-        <item quantity="other">%1$d Stunden</item>
-    </plurals>
-    <plurals name="minutes">
-        <item quantity="one">1 Minute</item>
-        <item quantity="other">%1$d Minuten</item>
-    </plurals>
-    <plurals name="seconds">
-        <item quantity="one">1 Sekunde</item>
-        <item quantity="other">%1$d Sekunden</item>
-    </plurals>
-    <plurals name="weeks_left">
-        <item quantity="one">Noch 1 Woche</item>
-        <item quantity="other">Noch %1$d Wochen</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">Noch 1 Tag</item>
-        <item quantity="other">Noch %1$d Tage</item>
-    </plurals>
-    <plurals name="hours_left">
-        <item quantity="one">Noch 1 Stunde</item>
-        <item quantity="other">Noch %1$d Stunden</item>
-    </plurals>
-    <plurals name="minutes_left">
-        <item quantity="one">Noch 1 Minute</item>
-        <item quantity="other">Noch %1$d Minuten</item>
-    </plurals>
-    <plurals name="seconds_left">
-        <item quantity="one">Noch 1 Sekunde</item>
-        <item quantity="other">Noch %1$d Sekunden</item>
-    </plurals>
     <plurals name="months_long_label">
         <item quantity="one">1 Monat</item>
         <item quantity="other">%1$d Monate</item>

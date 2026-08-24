@@ -258,7 +258,7 @@ fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
                 statusText = stringResource(
                     R.string.self_deleting_message_time_left,
                     context.resources.getQuantityString(
-                        R.plurals.seconds_left,
+                        conversationR.plurals.seconds_left,
                         0,
                         0
                     )

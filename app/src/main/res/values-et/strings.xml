@@ -351,26 +351,6 @@
     <string name="create_account_email_title">Sinu e-post</string>
     <!-- Asset limits error messages -->
     <!-- Expiring messages -->
-    <plurals name="weeks_left">
-        <item quantity="one">1 nädal jäänud</item>
-        <item quantity="other">%1$d nädalat jäänud</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">1 päev jäänud</item>
-        <item quantity="other">%1$d päeva jäänud</item>
-    </plurals>
-    <plurals name="hours_left">
-        <item quantity="one">1 tund jäänud</item>
-        <item quantity="other">%1$d tundi jäänud</item>
-    </plurals>
-    <plurals name="minutes_left">
-        <item quantity="one">1 minut jäänud</item>
-        <item quantity="other">%1$d minutit jäänud</item>
-    </plurals>
-    <plurals name="seconds_left">
-        <item quantity="one">1 sekund jäänud</item>
-        <item quantity="other">%1$d sekundit jäänud</item>
-    </plurals>
     <!-- Record Audio -->
     <!--    biometrics-->
     <!--    e2ei-->

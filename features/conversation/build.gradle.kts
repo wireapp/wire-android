@@ -26,6 +26,7 @@ dependencies {
     api(projects.core.uiCommon)
     api("com.wire.kalium:kalium-logic")
     api(libs.androidx.lifecycle.viewModel)
+    implementation(libs.androidx.lifecycle.viewModelCompose)
     api(libs.androidx.paging3)
     api(libs.coroutines.android)
     api(libs.ktx.dateTime)

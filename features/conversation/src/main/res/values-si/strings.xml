@@ -144,4 +144,24 @@
 <string name="ephemeral_group_channel_event_message">"කෙනෙක් පණිවිඩයක් එව්වා"</string>
 
 <string name="last_message_composite_with_missing_text">අන්‍යෝන්‍ය පණිවිඩයක් යවා ඇත</string>
+    <plurals name="weeks_left">
+        <item quantity="one">සතියක් ඉතිරිය</item>
+        <item quantity="other">සති %1$d ක් ඉතිරිය</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">දවසක් ඉතිරිය</item>
+        <item quantity="other">දවස් %1$d ක් ඉතිරිය</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="one">පැයක් ඉතිරිය</item>
+        <item quantity="other">පැය %1$d ක් ඉතිරිය</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="one">විනාඩියක් ඉතිරිය</item>
+        <item quantity="other">විනාඩි %1$d ක් ඉතිරිය</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="one">තත්පරයක් ඉතිරිය</item>
+        <item quantity="other">තත්. %1$d ක් ඉතිරිය</item>
+    </plurals>
 </resources>

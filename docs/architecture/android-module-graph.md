@@ -2,7 +2,7 @@
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `b7c4068d45a499ca89f9d8e3905fc3e574e098d1`.
+**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `fd2375634fe2e89ffdc20db2329895e3a6136ba8`.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
 declared edges. Dashed edges are proposed. The canonical target diagram source is
@@ -118,23 +118,23 @@ These are not Gradle edges and must not be mistaken for module ownership:
 | Conversation role projection | `ObserveConversationRoleForUserUseCase` and `ConversationRoleData` are feature-owned with package-preserved app profile consumers | Keep the projection in the facade; app retains `OtherUserProfileScreenViewModel`, `ServiceDetailsViewModel`, and their tests through the existing facade edge |
 | Conversation media and message-search arguments | `ConversationMediaNavArgs` and `SearchConversationMessagesNavArgs` are feature-owned, package-preserved data contracts | Keep Navigation 3 mappers, graphs, ViewModels, tests, and profile descriptors in app while consuming the unchanged FQNs through the facade edge |
 | Asset restriction presentation and value models | `CheckAssetRestrictionsViewModel`, `AssetTooLargeDialogState`, `AssetBundle`, `UriAsset`, `PathParceler`, `ImportedMediaAsset`, and the ordinary Metro binding/gateway are feature-owned with package/FQN preservation | App keeps media import handling, screens/dialog rendering, Navigation 3 runtime, and one-time session installation of the feature binding |
-| Message-presentation models, actions, chrome, mappers, and resources | The single `UIMessage`/`UIQuotedMessage` model closure, quote-content mapping, package-preserved `MessageClickActions`, public package-preserved `MessageBody.shouldHideStandalonePreviewedUrl`, author, reaction, regular-message leading, and offline paging presentation, date grouping, `Copyable`, immutable `MarkdownNode`/`MarkdownPreview`, `MessageResourceProvider`, `SystemMessageContentMapper`, `RegularMessageMapper`, `MessageContentMapper`, `MessageMapper`, `MessagePreviewContentMapper`, `ISOFormatter`, all 59 provider/model/mapper resource IDs, and the 2 reaction accessibility IDs are feature-owned; neutral `UiTextResolver` remains in `:core:ui-common` | App keeps Markdown parsing/rendering, remaining Compose/message-list rendering, and all action consumers; no parallel model, chrome, action contract, mapper, formatter, or commonmark dependency is allowed |
+| Message-presentation models, actions, chrome, mappers, and resources | The single `UIMessage`/`UIQuotedMessage` model closure, quote-content mapping, package-preserved `MessageClickActions`, public package-preserved `MessageBody.shouldHideStandalonePreviewedUrl`, author, reaction, regular-message leading, offline paging, and self-deletion timer presentation, date grouping, `Copyable`, immutable `MarkdownNode`/`MarkdownPreview`, `MessageResourceProvider`, `SystemMessageContentMapper`, `RegularMessageMapper`, `MessageContentMapper`, `MessageMapper`, `MessagePreviewContentMapper`, `ISOFormatter`, all 59 provider/model/mapper resource IDs, 2 reaction accessibility IDs, and 10 timer plural IDs are feature-owned; neutral `UiTextResolver` remains in `:core:ui-common` | App keeps Markdown parsing/rendering, remaining Compose/message-list rendering, and all action consumers; no parallel model, chrome, action contract, mapper, formatter, or commonmark dependency is allowed |
 | Edit-conversation metadata presentation | `EditConversationMetadataViewModel`, its narrow state/validator, dedicated assisted Metro group/gateways, and focused test are feature-owned with package/FQN preservation | App keeps `GroupNameScreen`, its private edition-state adapter, Navigation 3 calls, and one-time session installation of the feature-generated binding |
 | Neutral participant count at call ViewModels | The conversation feature constructs `KaliumObserveConversationParticipantCount`; the meetings call ViewModel remains app-hosted | Keep the Kalium-only producer and port in `:core:calling`; meetings adds its own direct core edge when it moves, never a feature-to-feature edge |
 | Calling coordinator runtime adapters | `JoinOrStartCallRuntimeActions.kt` and `JoinOrStartCallRuntimeDialogs.kt` contain activity/analytics handling and app dialog rendering | App owns runtime adapters; core exposes only action/dialog-state contracts and dialog-response methods |
 | Navigation runtime consumes feature contracts | `navigation/runtime/WireNavigation3Contributions.kt`, `WireNavigation3ProductionActions.kt`, and `navigation/routes/media/MediaNavigation3Entries.kt` import conversation/meetings contracts | App remains the Navigation3 runtime adapter; features export route/contribution contracts |
 | Meetings legacy conversation-list names | meetings imports `Membership` and group avatar package names, but the declarations are physically in `:core:ui-common` | Keep them in `:core:ui-common`; legacy package names are not module ownership |
 
-Audited app production-file counts are: conversations **166**, message composer **40**,
+Audited app production-file counts are: conversations **165**, message composer **40**,
 conversations list **28**, gallery **6**, calling **60**, and feature meetings
 **27**. The strict app conversations directory has **53** unit tests and **1** Android
- test; **76** files import app `R`, **395** distinct fully-qualified `R.type.name`
+ test; **75** files import app `R`, **385** distinct resource-alias `R.type.name`
 IDs occur there, and **3** files use `BuildConfig`. `:features:conversation` now owns
-**120** production files and **46** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
+**121** production files and **48** unit-test files. Its **25** Crowdin-tracked `strings.xml` files span
 **25** values directories and contain **615** string definitions, including the exact
 **95** localized banner-state definitions. App retains the four banner span-label IDs
 with **23** localized definitions. The feature also owns all **608** definitions of the
-59 message-presentation, provider, mapper, and formatting IDs across their exact qualifiers, plus all **6** definitions of the 2 reaction accessibility IDs. The first live internal capability,
+59 message-presentation, provider, mapper, and formatting IDs across their exact qualifiers, plus all **6** definitions of the 2 reaction accessibility IDs and all **65** definitions of the 10 self-deletion timer plural IDs. The first live internal capability,
 `:features:conversation:folders`, owns **6** production files and **2** unit-test files.
 The temporary source SCC is conversation,
 message-composer, conversations-list, gallery, calling, and the app meetings host;
@@ -147,7 +147,7 @@ for p in app/src/main/kotlin/com/wire/android/ui/home/conversations app/src/main
 find app/src/test/kotlin/com/wire/android/ui/home/conversations -type f -name '*.kt' | wc -l
 find app/src/androidTest/kotlin/com/wire/android/ui/home/conversations -type f -name '*.kt' | wc -l
 rg -l 'com\.wire\.android\.R|import com\.wire\.android\.R' app/src/main/kotlin/com/wire/android/ui/home/conversations --glob '*.kt' | wc -l
-rg --no-filename -o 'R\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+' app/src/main/kotlin/com/wire/android/ui/home/conversations --glob '*.kt' | sort -u | wc -l
+rg --no-filename -o '\b(?:[A-Za-z][A-Za-z0-9_]*)?R\.[A-Za-z0-9_]+\.[A-Za-z0-9_]+' app/src/main/kotlin/com/wire/android/ui/home/conversations --glob '*.kt' | sort -u | wc -l
 rg -l 'BuildConfig' app/src/main/kotlin/com/wire/android/ui/home/conversations --glob '*.kt' | wc -l
 find features/conversation/src/main -type f -name '*.kt' | wc -l
 find features/conversation/src/test -type f -name '*.kt' | wc -l

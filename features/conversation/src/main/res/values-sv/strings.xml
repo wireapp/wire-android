@@ -45,4 +45,24 @@
         <item quantity="one">%1$d meddelande</item>
         <item quantity="other">%1$d meddelanden</item>
     </plurals>
+    <plurals name="weeks_left">
+        <item quantity="one">1 vecka kvar</item>
+        <item quantity="other">%1$d veckor kvar</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 dag kvar</item>
+        <item quantity="other">%1$d dagar kvar</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="one">1 timme kvar</item>
+        <item quantity="other">%1$d timmar kvar</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="one">1 minut kvar</item>
+        <item quantity="other">%1$d minuter kvar</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="one">1 sekund kvar</item>
+        <item quantity="other">%1$d sekunder kvar</item>
+    </plurals>
 </resources>

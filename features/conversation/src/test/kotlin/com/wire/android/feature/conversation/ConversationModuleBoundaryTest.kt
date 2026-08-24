@@ -290,6 +290,28 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun selfDeletionTimerStateAndItsTestAreFeatureOwnedWithTheLegacyContract() {
+        val source = featureSource(messageExpirationRelativePath)
+        val testSource = File(Konsist.projectRootPath, selfDeletionTimerTestRelativePath).readText()
+
+        assertTrue(source.contains("package com.wire.android.ui.home.conversations"))
+        assertTrue(source.contains("fun rememberSelfDeletionTimer(expirationStatus: ExpirationStatus)"))
+        assertTrue(source.contains("class SelfDeletionTimerHelper"))
+        assertTrue(source.contains("import com.wire.android.feature.conversation.R as conversationR"))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertTrue(testSource.contains("package com.wire.android"))
+        assertTrue(testSource.contains("class SelfDeletionTimerTest"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyMessageExpirationRelativePath).exists(),
+            "$legacyMessageExpirationRelativePath must be absent.",
+        )
+        assertFalse(
+            File(Konsist.projectRootPath, legacySelfDeletionTimerTestRelativePath).exists(),
+            "$legacySelfDeletionTimerTestRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
         val source = featureSource(messageResourceProviderRelativePath)
 
@@ -1014,6 +1036,14 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/OfflineMessageIndicator.kt"
         const val legacyOfflineMessageIndicatorRelativePath =
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/OfflineMessageIndicator.kt"
+        const val messageExpirationRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/MessageExpiration.kt"
+        const val selfDeletionTimerTestRelativePath =
+            "features/conversation/src/test/kotlin/com/wire/android/SelfDeletionTimerTest.kt"
+        const val legacyMessageExpirationRelativePath =
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/MessageExpiration.kt"
+        const val legacySelfDeletionTimerTestRelativePath =
+            "app/src/test/kotlin/com/wire/android/SelfDeletionTimerTest.kt"
         const val messageReactionsItemRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageReactionsItem.kt"
         const val reactionPillRelativePath =

@@ -1453,66 +1453,6 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">После того как один из участников просмотрит ваше сообщение и таймер на его стороне истечет, эта заметка исчезнет.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">После того как %1$s просмотрит ваше сообщение и таймер на его стороне истечет, эта заметка исчезнет.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">После подключения к сети эта заметка исчезает.</string>
-    <plurals name="weeks">
-        <item quantity="one">1 неделя</item>
-        <item quantity="few">%1$d недели</item>
-        <item quantity="many">%1$d недель</item>
-        <item quantity="other">%1$d недель</item>
-    </plurals>
-    <plurals name="days">
-        <item quantity="one">1 день</item>
-        <item quantity="few">%1$d дня</item>
-        <item quantity="many">%1$d дней</item>
-        <item quantity="other">%1$d дней</item>
-    </plurals>
-    <plurals name="hours">
-        <item quantity="one">1 час</item>
-        <item quantity="few">%1$d часа</item>
-        <item quantity="many">%1$d часов</item>
-        <item quantity="other">%1$d часов</item>
-    </plurals>
-    <plurals name="minutes">
-        <item quantity="one">1 минута</item>
-        <item quantity="few">%1$d минуты</item>
-        <item quantity="many">%1$d минут</item>
-        <item quantity="other">%1$d минут</item>
-    </plurals>
-    <plurals name="seconds">
-        <item quantity="one">1 секунда</item>
-        <item quantity="few">%1$d секунды</item>
-        <item quantity="many">%1$d секунд</item>
-        <item quantity="other">%1$d секунд</item>
-    </plurals>
-    <plurals name="weeks_left">
-        <item quantity="one">Осталась 1 неделя</item>
-        <item quantity="few">Осталось %1$d недели</item>
-        <item quantity="many">Осталось %1$d недель</item>
-        <item quantity="other">Осталось %1$d недели</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">Остался 1 день</item>
-        <item quantity="few">Осталось %1$d дня</item>
-        <item quantity="many">Осталось %1$d дней</item>
-        <item quantity="other">Осталось %1$d дня</item>
-    </plurals>
-    <plurals name="hours_left">
-        <item quantity="one">Остался 1 час</item>
-        <item quantity="few">Осталось %1$d часа</item>
-        <item quantity="many">Осталось %1$d часов</item>
-        <item quantity="other">Осталось %1$d часа</item>
-    </plurals>
-    <plurals name="minutes_left">
-        <item quantity="one">Осталась 1 минута</item>
-        <item quantity="few">Осталось %1$d минуты</item>
-        <item quantity="many">Осталась %1$d минут</item>
-        <item quantity="other">Осталась %1$d минуты</item>
-    </plurals>
-    <plurals name="seconds_left">
-        <item quantity="one">Осталась 1 секунда</item>
-        <item quantity="few">Осталось %1$d секунды</item>
-        <item quantity="many">Осталось %1$d секунд</item>
-        <item quantity="other">Осталось %1$d секунды</item>
-    </plurals>
     <plurals name="months_long_label">
         <item quantity="one">1 мес.</item>
         <item quantity="few">%1$d мес.</item>

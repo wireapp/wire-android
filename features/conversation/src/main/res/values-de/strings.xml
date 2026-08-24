@@ -158,4 +158,44 @@
     <string name="content_description_add_this_reaction">Doppeltippen, um diese Reaktion hinzuzufügen</string>
 
     <string name="content_description_remove_your_reaction">Doppeltippen, um die Reaktion zu entfernen</string>
+    <plurals name="weeks">
+        <item quantity="one">1 Woche</item>
+        <item quantity="other">%1$d Wochen</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">1 Tag</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">1 Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">1 Minute</item>
+        <item quantity="other">%1$d Minuten</item>
+    </plurals>
+    <plurals name="seconds">
+        <item quantity="one">1 Sekunde</item>
+        <item quantity="other">%1$d Sekunden</item>
+    </plurals>
+    <plurals name="weeks_left">
+        <item quantity="one">Noch 1 Woche</item>
+        <item quantity="other">Noch %1$d Wochen</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">Noch 1 Tag</item>
+        <item quantity="other">Noch %1$d Tage</item>
+    </plurals>
+    <plurals name="hours_left">
+        <item quantity="one">Noch 1 Stunde</item>
+        <item quantity="other">Noch %1$d Stunden</item>
+    </plurals>
+    <plurals name="minutes_left">
+        <item quantity="one">Noch 1 Minute</item>
+        <item quantity="other">Noch %1$d Minuten</item>
+    </plurals>
+    <plurals name="seconds_left">
+        <item quantity="one">Noch 1 Sekunde</item>
+        <item quantity="other">Noch %1$d Sekunden</item>
+    </plurals>
 </resources>

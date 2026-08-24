@@ -1225,26 +1225,6 @@
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">එක් සහභාගියෙක් ඔබගේ පණිවිඩය දැකීමෙන් පසුව සහ එම පාර්ශ්වයේ කාලය ඉකුත් වූ පසු, මෙම සටහන අතුරුදහන් වේ.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">%1$s ඔබගේ පණිවිඩය දැකීමෙන් පසුව සහ එම පාර්ශ්වයේ කාලය ඉකුත් වූ පසු, මෙම සටහන අතුරුදහන් වේ.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">ඔබ මාර්ගගත වූ විගස, මෙම සටහන අතුරුදහන් වේ.</string>
-    <plurals name="weeks_left">
-        <item quantity="one">සතියක් ඉතිරිය</item>
-        <item quantity="other">සති %1$d ක් ඉතිරිය</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">දවසක් ඉතිරිය</item>
-        <item quantity="other">දවස් %1$d ක් ඉතිරිය</item>
-    </plurals>
-    <plurals name="hours_left">
-        <item quantity="one">පැයක් ඉතිරිය</item>
-        <item quantity="other">පැය %1$d ක් ඉතිරිය</item>
-    </plurals>
-    <plurals name="minutes_left">
-        <item quantity="one">විනාඩියක් ඉතිරිය</item>
-        <item quantity="other">විනාඩි %1$d ක් ඉතිරිය</item>
-    </plurals>
-    <plurals name="seconds_left">
-        <item quantity="one">තත්පරයක් ඉතිරිය</item>
-        <item quantity="other">තත්. %1$d ක් ඉතිරිය</item>
-    </plurals>
     <string name="label_debug_data">නිදෝස්කරණ දත්ත</string>
     <string name="title_internal_debugging">අභ්‍යන්තර නිදොස්කරණය</string>
     <string name="label_log_options_description">"මෙය නිර්නාමික දෝෂ නිරාකරණ තොරතුරු ස්ථානීයව ගබඩා කරයි. "</string>

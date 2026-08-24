@@ -927,26 +927,6 @@ registrato. Sei pregato di riprovare.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Dopo che un partecipante ha visualizzato il tuo messaggio e il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Dopo che %1$s ha visto il tuo messaggio e che il timer è scaduto dalla sua parte, questa nota scomparirà.</string>
     <string name="label_information_waiting_for_deleation_when_self_not_sender">Una volta online, questa nota scompare.</string>
-    <plurals name="weeks_left">
-        <item quantity="one">1 settimana rimanente</item>
-        <item quantity="other">%1$d settimane rimanenti</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">1 giorno rimanente</item>
-        <item quantity="other">%1$d giorni rimanenti</item>
-    </plurals>
-    <plurals name="hours_left">
-        <item quantity="one">1 ora rimanente</item>
-        <item quantity="other">%1$d ore rimanenti</item>
-    </plurals>
-    <plurals name="minutes_left">
-        <item quantity="one">1 minuto rimanente</item>
-        <item quantity="other">%1$d minuti rimanenti</item>
-    </plurals>
-    <plurals name="seconds_left">
-        <item quantity="one">1 secondo rimanente</item>
-        <item quantity="other">%1$d secondi rimanenti</item>
-    </plurals>
     <string name="label_debug_data">Dati di debug</string>
     <string name="title_internal_debugging">Debug interno</string>
     <string name="label_log_options_description">"Questo memorizza localmente le informazioni anonime di risoluzione dei problemi. "</string>

@@ -829,26 +829,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="automatically_delete_message_after">Borrar el mensaje automáticamente después de:</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_group">Una vez que un participante haya visto tu mensaje y su temporizador de éste haya finalizado, esta nota desaparecerá.</string>
     <string name="label_information_waiting_for_recipient_timer_to_expire_one_to_one">Después de que %1$s haya visto tu mensaje y el temporizador haya caducado en su lado, esta nota desaparecerá.</string>
-    <plurals name="weeks_left">
-        <item quantity="one">Falta 1 semana</item>
-        <item quantity="other">Faltan %1$d semanas</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">Falta 1 día</item>
-        <item quantity="other">Faltan %1$d días</item>
-    </plurals>
-    <plurals name="hours_left">
-        <item quantity="one">Falta 1 hora</item>
-        <item quantity="other">Faltan %1$d horas</item>
-    </plurals>
-    <plurals name="minutes_left">
-        <item quantity="one">Falta 1 minuto</item>
-        <item quantity="other">Faltan %1$d minutos</item>
-    </plurals>
-    <plurals name="seconds_left">
-        <item quantity="one">Falta 1 segundo</item>
-        <item quantity="other">Faltan %1$d segundos</item>
-    </plurals>
     <string name="label_debug_data">Datos de depuración</string>
     <string name="title_internal_debugging">Depuración interna</string>
     <string name="label_log_options_description">"Esto almacena información anónima de solución de problemas localmente. "</string>

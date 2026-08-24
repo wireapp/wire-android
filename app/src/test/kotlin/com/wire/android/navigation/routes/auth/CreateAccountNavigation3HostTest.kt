@@ -108,6 +108,12 @@ class CreateAccountNavigation3HostTest {
             "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/overview/" +
                 "CreateAccountOverviewViewModel.kt",
         ).readText()
+        val featureContent = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/create/overview/" +
+                "CreateAccountOverviewContent.kt",
+        ).readText()
+        val flowType = sourceFile("ui/authentication/create/common/CreateAccountFlowType.kt").readText()
 
         assertTrue(
             graph.contains(
@@ -118,8 +124,24 @@ class CreateAccountNavigation3HostTest {
         assertTrue(metro.contains("CreateAccountOverviewViewModelHostFactory"))
         assertFalse(metro.contains("CreateAccountOverviewViewModel.Factory"))
         assertTrue(hostFactory.contains("pricingUrl = { it.pricing }"))
+        assertTrue(screen.contains("CreateAccountOverviewContent("))
+        assertTrue(screen.contains("learnMoreUrl = viewModel.learnMoreUrl()"))
         assertTrue(screen.contains("customServerConfig = viewModel.customServerConfig"))
+        assertTrue(screen.contains("CustomTabsHelper.launchUrl(context, url)"))
+        assertTrue(screen.contains("if (viewModel.serverConfig.isOnPremises)"))
+        assertTrue(screen.contains("ServerTitle("))
+        assertTrue(screen.contains("continueText = stringResource(R.string.label_continue)"))
+        assertTrue(screen.contains("backContentDescription = R.string.content_description_login_back_btn"))
         assertFalse(screen.contains("viewModel.navArgs.customServerConfig"))
+        assertFalse(screen.contains("WireScaffold("))
+        assertTrue(featureContent.contains("fun CreateAccountOverviewContent("))
+        assertTrue(featureContent.contains("onLearnMorePressed(overviewParams.learnMoreUrl)"))
+        assertFalse(featureContent.contains("CustomTabsHelper"))
+        assertFalse(featureContent.contains("ServerConfig"))
+        assertTrue(flowType.contains("AuthenticationR.string.create_personal_account_text"))
+        assertTrue(flowType.contains("AuthenticationR.drawable.ic_create_personal_account"))
+        assertTrue(flowType.contains("AuthenticationR.string.create_team_content_title"))
+        assertTrue(flowType.contains("AuthenticationR.drawable.ic_create_team"))
         assertTrue(featureViewModel.contains("class CreateAccountOverviewViewModel<LinksT>"))
         assertFalse(featureViewModel.contains("CreateAccountOverviewNavArgs"))
         assertFalse(featureViewModel.contains("com.wire.kalium.logic.configuration.server.ServerConfig"))

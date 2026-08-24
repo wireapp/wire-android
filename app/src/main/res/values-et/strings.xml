@@ -136,7 +136,6 @@
     <!-- Replies/Quotes to other messages -->
     <string name="label_quote_original_message_is_a_picture">Pilt</string>
     <!-- Create Account -->
-    <string name="create_team_content_title">Tasuta Wire</string>
     <string name="create_account_email_placeholder">jaan@näide.ee</string>
     <string name="create_account_email_label">E-POST</string>
     <string name="create_account_email_footer_text">Konto juba olemas? </string>

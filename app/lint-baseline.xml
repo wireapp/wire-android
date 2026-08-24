@@ -4,28 +4,6 @@
     <issue
         id="ComposeViewModelForwarding"
         message="Forwarding a ViewModel through multiple @Composable functions should be avoided. Consider using state hoisting.See https://slackhq.github.io/compose-lints/rules/#hoist-all-the-things for more information."
-        errorLine1="    CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreatePersonalAccount, viewModel)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/authentication/create/overview/CreatePersonalAccountOverviewScreen.kt"
-            line="71"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeViewModelForwarding"
-        message="Forwarding a ViewModel through multiple @Composable functions should be avoided. Consider using state hoisting.See https://slackhq.github.io/compose-lints/rules/#hoist-all-the-things for more information."
-        errorLine1="    CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreateTeam, viewModel)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/com/wire/android/ui/authentication/create/overview/CreatePersonalAccountOverviewScreen.kt"
-            line="81"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposeViewModelForwarding"
-        message="Forwarding a ViewModel through multiple @Composable functions should be avoided. Consider using state hoisting.See https://slackhq.github.io/compose-lints/rules/#hoist-all-the-things for more information."
         errorLine1="    LoginContent("
         errorLine2="    ^">
         <location

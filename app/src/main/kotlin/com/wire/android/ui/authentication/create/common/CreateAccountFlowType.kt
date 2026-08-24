@@ -37,8 +37,8 @@ enum class CreateAccountFlowType(
         titleResId = AuthenticationR.string.create_personal_account_title,
         overviewResources = OverviewResources(
             overviewContentTitleResId = null,
-            overviewContentTextResId = R.string.create_personal_account_text,
-            overviewContentIconResId = R.drawable.ic_create_personal_account,
+            overviewContentTextResId = AuthenticationR.string.create_personal_account_text,
+            overviewContentIconResId = AuthenticationR.drawable.ic_create_personal_account,
             overviewLearnMoreTextResId = R.string.label_learn_more
         ),
         emailResources = EmailResources(
@@ -49,10 +49,10 @@ enum class CreateAccountFlowType(
         routeArg = "create_team",
         titleResId = R.string.create_team_title,
         overviewResources = OverviewResources(
-            overviewContentTitleResId = R.string.create_team_content_title,
-            overviewContentTextResId = R.string.create_team_text,
-            overviewContentIconResId = R.drawable.ic_create_team,
-            overviewLearnMoreTextResId = R.string.create_team_learn_more
+            overviewContentTitleResId = AuthenticationR.string.create_team_content_title,
+            overviewContentTextResId = AuthenticationR.string.create_team_text,
+            overviewContentIconResId = AuthenticationR.drawable.ic_create_team,
+            overviewLearnMoreTextResId = AuthenticationR.string.create_team_learn_more
         ),
         emailResources = EmailResources(
             emailSubtitleResId = R.string.create_team_email_text

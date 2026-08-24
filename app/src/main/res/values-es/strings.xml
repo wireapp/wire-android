@@ -240,11 +240,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_quote_invalid_or_not_found">No puedes ver este mensaje</string>
     <string name="label_quote_original_message_is_a_picture">Imagen</string>
     <!-- Create Account -->
-    <string name="create_personal_account_text">Chatea de manera segura con amigos y familiares utilizando el servidor en la nube p&#250;blica de Wire.</string>
     <string name="create_personal_account_email_text">Ingresa tu correo electr&#243;nico para empezar a utilizar la plataforma de colaboraci&#243;n m&#225;s segura.</string>
-    <string name="create_team_content_title">Wire gratis</string>
-    <string name="create_team_text">Mensajer&#237;a para peque&#241;as organizaciones o empresas de consultor&#237;a personales.</string>
-    <string name="create_team_learn_more">M&#225;s informaci&#243;n sobre planes y precios</string>
     <string name="create_team_email_text">Ingresa tu correo electr&#243;nico para crear tu equipo:</string>
     <string name="create_team_details_text">Ingresa tu correo electr&#243;nico para crear tu equipo:</string>
     <string name="create_account_email_placeholder">juan@example.com</string>

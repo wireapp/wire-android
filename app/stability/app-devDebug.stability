@@ -629,25 +629,6 @@ internal fun com.wire.android.ui.authentication.create.overview.CreateAccountOve
     - onContinue: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.create.overview.OverviewContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onContinuePressed: kotlin.Function0<kotlin.Unit>, overviewParams: com.wire.android.ui.authentication.create.overview.CreateAccountOverviewParams, serverConfig: com.wire.kalium.logic.configuration.server.ServerConfig.Links): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - onBackPressed: STABLE (function type)
-    - onContinuePressed: STABLE (function type)
-    - overviewParams: STABLE (class with no mutable properties)
-    - serverConfig: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
-private fun com.wire.android.ui.authentication.create.overview.OverviewTexts(overviewParams: com.wire.android.ui.authentication.create.overview.CreateAccountOverviewParams, modifier: androidx.compose.ui.Modifier, onLearnMoreClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - overviewParams: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - onLearnMoreClick: STABLE (function type)
-
-@Composable
 internal fun com.wire.android.ui.authentication.create.username.CreateAccountUsernameRouteScreen(viewModel: com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel<com.wire.kalium.common.error.CoreFailure>, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true

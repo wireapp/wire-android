@@ -76,8 +76,9 @@ class CreateAccountEmailViewModel<FlowT, LinksT, FailureT>(
     fun onTermsAccept() {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val email = emailTextState.text.toString().trim().lowercase()
-            val emailError = when (val result = gateway.requestActivationCode(serverConfig, email)) {
+            val emailError = when (val result = gateway.requestActivationCode(serverConfig) {
+                emailTextState.text.toString().trim().lowercase()
+            }) {
                 ActivationCodeResult.AuthScopeUnavailable -> return@launch
                 ActivationCodeResult.Sent -> CreateAccountEmailViewState.EmailError.None
                 ActivationCodeResult.AlreadyInUse -> CreateAccountEmailViewState.EmailError.TextFieldError.AlreadyInUseError

@@ -11,7 +11,7 @@ package com.wire.android.ui.authentication.create.email
 
 interface CreateAccountEmailGateway<LinksT, FailureT> {
     fun isEmailValid(email: String): Boolean
-    suspend fun requestActivationCode(serverConfig: LinksT, email: String): ActivationCodeResult<FailureT>
+    suspend fun requestActivationCode(serverConfig: LinksT, email: () -> String): ActivationCodeResult<FailureT>
 }
 
 sealed interface ActivationCodeResult<out FailureT> {

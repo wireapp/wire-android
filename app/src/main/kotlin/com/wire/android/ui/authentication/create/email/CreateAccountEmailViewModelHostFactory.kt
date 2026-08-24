@@ -28,7 +28,7 @@ internal class KaliumCreateAccountEmailGateway(
 
     override suspend fun requestActivationCode(
         serverConfig: ServerConfig.Links,
-        email: String,
+        email: () -> String,
     ): ActivationCodeResult<CoreFailure> {
         val authScope = when (val result = coreLogic.versionedAuthenticationScope(serverConfig)(null)) {
             is AutoVersionAuthScopeUseCase.Result.Success -> result.authenticationScope
@@ -36,7 +36,7 @@ internal class KaliumCreateAccountEmailGateway(
             is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion,
             is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> return ActivationCodeResult.AuthScopeUnavailable
         }
-        return when (val result = authScope.registerScope.requestActivationCode(email)) {
+        return when (val result = authScope.registerScope.requestActivationCode(email())) {
             RequestActivationCodeResult.Success -> ActivationCodeResult.Sent
             RequestActivationCodeResult.Failure.AlreadyInUse -> ActivationCodeResult.AlreadyInUse
             RequestActivationCodeResult.Failure.BlacklistedEmail -> ActivationCodeResult.Blacklisted

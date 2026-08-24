@@ -26,7 +26,10 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -62,7 +65,7 @@ class CreateAccountEmailViewModelHostFactoryTest {
 
             assertEquals(
                 ActivationCodeResult.AuthScopeUnavailable,
-                arrangement.gateway.requestActivationCode(ServerConfig.PRODUCTION, "alice@example.com"),
+                arrangement.gateway.requestActivationCode(ServerConfig.PRODUCTION) { "alice@example.com" },
             )
         }
         coVerify(exactly = 0) { arrangement.requestActivationCode(any()) }
@@ -84,11 +87,41 @@ class CreateAccountEmailViewModelHostFactoryTest {
         ).forEach { (kaliumResult, expected) ->
             coEvery { arrangement.requestActivationCode("alice@example.com") } returns kaliumResult
 
-            val actual = arrangement.gateway.requestActivationCode(ServerConfig.PRODUCTION, "alice@example.com")
+            val actual = arrangement.gateway.requestActivationCode(ServerConfig.PRODUCTION) { "alice@example.com" }
             assertEquals(expected, actual)
             if (actual is ActivationCodeResult.Generic) assertSame(failure, actual.failure)
         }
         coVerify(exactly = 6) { arrangement.requestActivationCode("alice@example.com") }
+    }
+
+    @Test
+    fun `gateway reads email provider only after authentication scope resolves`() = runTest {
+        val arrangement = Arrangement()
+        val scopeRequested = CompletableDeferred<Unit>()
+        val releaseScope = CompletableDeferred<Unit>()
+        val events = mutableListOf<String>()
+        coEvery { arrangement.autoVersionAuthScope(null) } coAnswers {
+            events += "scope"
+            scopeRequested.complete(Unit)
+            releaseScope.await()
+            AutoVersionAuthScopeUseCase.Result.Success(arrangement.authenticationScope)
+        }
+        coEvery { arrangement.requestActivationCode("latest@example.com") } returns RequestActivationCodeResult.Success
+
+        val request = async {
+            arrangement.gateway.requestActivationCode(ServerConfig.PRODUCTION) {
+                events += "email"
+                "latest@example.com"
+            }
+        }
+        runCurrent()
+        assertEquals(listOf("scope"), events)
+        assertEquals(true, scopeRequested.isCompleted)
+
+        releaseScope.complete(Unit)
+
+        assertEquals(ActivationCodeResult.Sent, request.await())
+        assertEquals(listOf("scope", "email"), events)
     }
 
     @Test

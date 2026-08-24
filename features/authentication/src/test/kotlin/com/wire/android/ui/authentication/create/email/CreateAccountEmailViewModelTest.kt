@@ -13,11 +13,13 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
@@ -157,6 +159,32 @@ class CreateAccountEmailViewModelTest {
     }
 
     @Test
+    fun `terms acceptance reads latest normalized email after gateway suspension`() = runTest(dispatcher) {
+        val scopeResolved = CompletableDeferred<Unit>()
+        val releaseScope = CompletableDeferred<Unit>()
+        val gateway = FakeGateway(
+            beforeEmailRead = {
+                scopeResolved.complete(Unit)
+                releaseScope.await()
+            }
+        )
+        val viewModel = arrange(gateway = gateway)
+        advanceUntilIdle()
+        viewModel.emailTextState.setTextAndPlaceCursorAtEnd("old@example.com")
+        advanceUntilIdle()
+
+        viewModel.onTermsAccept()
+        runCurrent()
+        assertTrue(scopeResolved.isCompleted)
+        viewModel.emailTextState.setTextAndPlaceCursorAtEnd("  Latest@Example.COM ")
+        runCurrent()
+        releaseScope.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(listOf(TestLinks("default", "default-tos") to "latest@example.com"), gateway.requests)
+    }
+
+    @Test
     fun `all activation results map exactly and generic preserves failure identity`() = runTest(dispatcher) {
         val failure = TestFailure("offline")
         listOf(
@@ -239,6 +267,7 @@ class CreateAccountEmailViewModelTest {
     private class FakeGateway(
         var valid: Boolean = true,
         var activationResult: ActivationCodeResult<TestFailure> = ActivationCodeResult.Sent,
+        var beforeEmailRead: suspend () -> Unit = {},
     ) : CreateAccountEmailGateway<TestLinks, TestFailure> {
         val validatedEmails = mutableListOf<String>()
         val requests = mutableListOf<Pair<TestLinks, String>>()
@@ -247,8 +276,11 @@ class CreateAccountEmailViewModelTest {
 
         override suspend fun requestActivationCode(
             serverConfig: TestLinks,
-            email: String,
-        ): ActivationCodeResult<TestFailure> = activationResult.also { requests += serverConfig to email }
+            email: () -> String,
+        ): ActivationCodeResult<TestFailure> {
+            beforeEmailRead()
+            return activationResult.also { requests += serverConfig to email() }
+        }
     }
 
     private companion object {

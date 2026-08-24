@@ -22,7 +22,7 @@ fun CreateAccountCodeResult.Error.DialogError<com.wire.kalium.common.error.CoreF
     PERSONAL_CREATION_RESTRICTED -> dialog(R.string.create_account_code_error_personal_account_creation_restricted)
     TEAM_CREATION_RESTRICTED -> dialog(R.string.create_account_code_error_team_creation_restricted)
     USER_EXISTS -> DialogErrorStrings("User Already LoggedIn", "UserAlreadyLoggedIn")
-    GENERIC -> (this as CreateAccountCodeResult.Error.DialogError.GenericError).failure
+    GENERIC -> (this as CreateAccountCodeResult.Error.DialogError.GenericError<com.wire.kalium.common.error.CoreFailure>).failure
         .dialogErrorStrings(LocalContext.current.resources)
 }
 

@@ -211,7 +211,7 @@ private fun GeneralConversationItem(
                     },
                     title = {
                         ConversationTitle(
-                            name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
+                            name = groupName.ifEmpty { stringResource(id = conversationR.string.member_name_deleted_label) },
                             showLegalHoldIndicator = showLegalHoldIndicator,
                             searchQuery = searchQuery
                         )

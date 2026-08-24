@@ -202,6 +202,25 @@ class ConversationModuleBoundaryTest {
     }
 
     @Test
+    fun messageResourceProviderIsFeatureOwnedWithTheLegacyContract() {
+        val source = featureSource(messageResourceProviderRelativePath)
+
+        assertTrue(source.contains("package com.wire.android.mapper"))
+        assertTrue(source.contains("import androidx.annotation.StringRes"))
+        assertTrue(source.contains("import com.wire.android.feature.conversation.R"))
+        assertTrue(source.contains("data class MessageResourceProvider("))
+        assertTrue(source.contains("memberNameDeleted: Int = R.string.member_name_deleted_label"))
+        assertTrue(source.contains("memberNameYouLowercase: Int = R.string.member_name_you_label_lowercase"))
+        assertTrue(source.contains("memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase"))
+        assertTrue(source.contains("sentAMessageWithContent: Int = R.string.sent_a_message_with_content"))
+        assertFalse(source.contains("com.wire.android.R"))
+        assertFalse(
+            File(Konsist.projectRootPath, legacyMessageResourceProviderRelativePath).exists(),
+            "$legacyMessageResourceProviderRelativePath must be absent.",
+        )
+    }
+
+    @Test
     fun conversationHostConfigurationContractIsPure() {
         val configurationSource = Konsist.scopeFromFile(conversationHostConfigurationRelativePath).files
 
@@ -535,7 +554,7 @@ class ConversationModuleBoundaryTest {
 
         assertEquals(25, featureResources.walkTopDown().count { it.isFile && it.extension == "xml" })
         assertEquals(25, featureResources.listFiles().orEmpty().count { it.isDirectory })
-        assertEquals(232, featureDefinitions.size)
+        assertEquals(279, featureDefinitions.size)
         assertEquals(95, featureStateDefinitions.size)
         assertEquals(conversationBannerStateMessageIds, featureStateDefinitions.toSet())
         assertTrue(
@@ -791,6 +810,10 @@ class ConversationModuleBoundaryTest {
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIMessage.kt"
         const val uiQuotedMessageRelativePath =
             "features/conversation/src/main/kotlin/com/wire/android/ui/home/conversations/model/UIQuotedMessage.kt"
+        const val messageResourceProviderRelativePath =
+            "features/conversation/src/main/kotlin/com/wire/android/mapper/MessageResourceProvider.kt"
+        const val legacyMessageResourceProviderRelativePath =
+            "app/src/main/kotlin/com/wire/android/mapper/MessageResourceProvider.kt"
         val legacyMessagePresentationPrimitivePaths = listOf(
             "app/src/main/kotlin/com/wire/android/mapper/MessageDateGroupingMapper.kt",
             "app/src/main/kotlin/com/wire/android/util/Copyable.kt",
@@ -1313,6 +1336,9 @@ class ConversationModuleBoundaryTest {
             uiMessageRelativePath to "com.wire.android.ui.home.conversations.model",
             uiQuotedMessageRelativePath to "com.wire.android.ui.home.conversations.model",
         )
+        val messageResourceProviderSources = mapOf(
+            messageResourceProviderRelativePath to "com.wire.android.mapper",
+        )
         val movedConversationSources =
             participantTypingSources + participantAggregationSources + conversationBannerSources + messageDetailsReactionSources +
                     messageDetailsReceiptSources + messageDetailsStateSources + messageDetailsViewModelSources +
@@ -1330,7 +1356,7 @@ class ConversationModuleBoundaryTest {
                     memberItemToMentionSources +
                     messageDetailsEmptyScreenTextSources + compositeMessageSources +
                     getUsersForMessageUseCaseSources + conversationRoleProjectionSources + imageAssetPagingSources +
-                    conversationMediaSearchArgumentSources + uiMessageModelSources
+                    conversationMediaSearchArgumentSources + uiMessageModelSources + messageResourceProviderSources
         val allowedMovedSourceImports = setOf(
             "com.wire.android.di.ScopedArgs",
             "com.wire.android.di.ViewModelScopedPreview",

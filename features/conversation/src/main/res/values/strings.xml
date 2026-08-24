@@ -27,4 +27,8 @@
     <string name="label_message_status_edited_with_date">Edited on %s</string>
     <string name="url_maps_location_coordinates_fallback" translatable="false">https://maps.google.com/maps?z=%1d&amp;q=loc:%2f+%2f</string>
     <string name="deleted_message_text">Deleted message</string>
+    <string name="sent_a_message_with_content">sent a message with %s content</string>
+    <string name="member_name_deleted_label">Deleted account</string>
+    <string name="member_name_you_label_titlecase">You</string>
+    <string name="member_name_you_label_lowercase">you</string>
 </resources>

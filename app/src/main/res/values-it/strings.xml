@@ -328,7 +328,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="conversations_all_tab_title">Tutte</string>
     <string name="conversations_calls_tab_title">Chiamate</string>
     <string name="conversations_mentions_tab_title">Menzioni</string>
-    <string name="sent_a_message_with_content">ha inviato un messaggio con contenuto %s</string>
     <string name="sent_a_message_with_unknown_content">invia un messaggio con contenuti sconosciuti</string>
     <string name="new_group_title">Nuovo Gruppo</string>
     <string name="new_group_description">Fino a 500 persone possono unirsi a una conversazione di gruppo.</string>
@@ -349,9 +348,6 @@ Un messaggio eliminato non pu&#242; essere ripristinato.</string>
     <string name="asset_download_dialog_text">Desideri aprire il file, o salvarlo nella cartella dei download del tuo dispositivo? </string>
     <string name="asset_download_dialog_open_text">Apri</string>
     <string name="asset_download_dialog_save_text">Salva</string>
-    <string name="member_name_deleted_label">Account eliminato</string>
-    <string name="member_name_you_label_titlecase">Tu</string>
-    <string name="member_name_you_label_lowercase">tu</string>
     <string name="label_add_participants">Aggiungi partecipanti</string>
     <string name="conversation_details_title">Dettagli della conversazione</string>
     <string name="conversation_details_options_tab">OPZIONI</string>

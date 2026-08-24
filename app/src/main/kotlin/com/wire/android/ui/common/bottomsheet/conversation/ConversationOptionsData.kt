@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.common.bottomsheet.conversation
 
-import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversationslist.model.BlockState
@@ -101,7 +101,7 @@ fun ConversationDetails.toConversationOptionsData(selfUser: SelfUser): Conversat
         is ConversationDetails.Group -> ConversationOptionsData(
             conversationId = conversation.id,
             title = if (conversation.name.isNullOrEmpty()) {
-                UIText.StringResource(R.string.member_name_deleted_label)
+                UIText.StringResource(conversationR.string.member_name_deleted_label)
             } else {
                 UIText.DynamicString(conversation.name.orEmpty())
             },

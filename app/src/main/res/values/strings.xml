@@ -525,7 +525,6 @@
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
-    <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="sent_a_message_with_unknown_content">sent a message with unknown content</string>
     <string name="new_group_title">New Group</string>
     <string name="new_channel_title">New Channel</string>
@@ -582,9 +581,6 @@
  </string>
     <string name="asset_download_dialog_open_text">Open</string>
     <string name="asset_download_dialog_save_text">Save</string>
-    <string name="member_name_deleted_label">Deleted account</string>
-    <string name="member_name_you_label_titlecase">You</string>
-    <string name="member_name_you_label_lowercase">you</string>
     <string name="label_add_participants">Add Participants</string>
     <string name="conversation_unavailable_label">Conversation name not available</string>
     <string name="conversation_details_title">Conversation Details</string>

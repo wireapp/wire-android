@@ -112,7 +112,7 @@ private fun multipleUnreadEventsToLastMessage(unreadEventCount: UnreadEventCount
 }
 
 private fun String?.userUiText(isSelfMessage: Boolean): UIText = when {
-    isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
+    isSelfMessage -> UIText.StringResource(conversationR.string.member_name_you_label_titlecase)
     this != null -> UIText.DynamicString(this)
     else -> UIText.StringResource(commonR.string.username_unavailable_label)
 }

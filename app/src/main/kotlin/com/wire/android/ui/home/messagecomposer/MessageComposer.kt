@@ -50,6 +50,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import com.wire.android.R
+import com.wire.android.feature.conversation.R as conversationR
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
@@ -108,7 +109,7 @@ fun MessageComposer(
                     conversationId = conversationId,
                     warningText = warningTextWithStyledArgs(
                         R.string.label_system_message_blocked_user,
-                        stringResource(id = R.string.member_name_you_label_titlecase)
+                        stringResource(id = conversationR.string.member_name_you_label_titlecase)
                     ),
                     messageListContent = messageListContent
                 )

@@ -35,7 +35,7 @@ class ConversationMessageResourceOwnershipTest {
 
         val definitions = resourceDefinitions(featureResources)
 
-        assertEquals(120, definitions.size)
+        assertEquals(167, definitions.size)
         assertEquals(expectedQualifierCoverage, definitions.groupBy({ it.name }, { it.qualifier }).mapValues { it.value.toSet() })
         assertEquals(expectedDefinitionFingerprint, definitions.fingerprint())
     }
@@ -125,15 +125,21 @@ class ConversationMessageResourceOwnershipTest {
             "deleted_message_text",
             "label_message_status_edited_with_date",
             "url_maps_location_coordinates_fallback",
+            "member_name_deleted_label",
+            "member_name_you_label_lowercase",
+            "member_name_you_label_titlecase",
+            "sent_a_message_with_content",
         )
         val messageResourceReferencePattern = Regex(
             """([A-Za-z0-9_]*R)\.string\.(label_message_edit_sent_failure|label_message_sent_failure|""" +
                 """label_message_edit_sent_remotely_failure|label_message_sent_remotely_failure|""" +
                 """label_message_decryption_failure_message_with_error_code|""" +
                 """label_message_decryption_failure_message|deleted_message_text|""" +
-                """label_message_status_edited_with_date|url_maps_location_coordinates_fallback)\b""",
+                """label_message_status_edited_with_date|url_maps_location_coordinates_fallback|""" +
+                """member_name_deleted_label|member_name_you_label_lowercase|member_name_you_label_titlecase|""" +
+                """sent_a_message_with_content)\b""",
         )
-        const val expectedDefinitionFingerprint = "584f1d09e6f579a9b1dc08ba6fdef9573c26a3f368086d3a01b75889d999f468"
+        const val expectedDefinitionFingerprint = "db7575c9aab257e848b4ba7e0c40e81d2b900dc78512abd76a87875b500675af"
         val expectedQualifierCoverage = mapOf(
             "label_message_edit_sent_failure" to setOf(
                 "values", "values-cs", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it",
@@ -170,6 +176,22 @@ class ConversationMessageResourceOwnershipTest {
                 "values-uk",
             ),
             "url_maps_location_coordinates_fallback" to setOf("values"),
+            "member_name_deleted_label" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
+                "values-pt", "values-ru", "values-si",
+            ),
+            "member_name_you_label_lowercase" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
+                "values-pt", "values-ru", "values-si", "values-sv",
+            ),
+            "member_name_you_label_titlecase" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
+                "values-pt", "values-ru", "values-si", "values-sv",
+            ),
+            "sent_a_message_with_content" to setOf(
+                "values", "values-de", "values-es", "values-fr", "values-hr", "values-hu", "values-it", "values-pl",
+                "values-pt", "values-ru", "values-si", "values-sv",
+            ),
         )
         val expectedConsumers = setOf(
             "app/src/main/kotlin/com/wire/android/mapper/MessagePreviewContentMapper.kt",
@@ -180,6 +202,10 @@ class ConversationMessageResourceOwnershipTest {
             "app/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/ConversationItemFactory.kt",
             "app/src/test/kotlin/com/wire/android/mapper/MessagePreviewContentMapperTest.kt",
             "app/src/test/kotlin/com/wire/android/ui/home/conversations/messages/draft/MessageDraftViewModelTest.kt",
+            "app/src/main/kotlin/com/wire/android/ui/common/bottomsheet/conversation/ConversationOptionsData.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/conversations/ConversationInfoViewModelAppAdapter.kt",
+            "app/src/main/kotlin/com/wire/android/ui/home/messagecomposer/MessageComposer.kt",
+            "app/src/test/kotlin/com/wire/android/ui/home/conversations/ConversationInfoViewModelAssemblyOwnershipSourceTest.kt",
         )
     }
 }

@@ -427,7 +427,6 @@
     <string name="conversations_all_tab_title">සියල්ල</string>
     <string name="conversations_calls_tab_title">ඇමතුම්</string>
     <string name="conversations_mentions_tab_title">සැඳහුම්</string>
-    <string name="sent_a_message_with_content">%s අන්තර්ගතය සහිත පණිවිඩයක් යවා ඇත</string>
     <string name="sent_a_message_with_unknown_content">නොදන්නා අන්තර්ගතයක් සහිත පණිවිඩයක් යවා ඇත</string>
     <string name="new_group_title">නව සමූහය</string>
     <string name="new_channel_title">නව නාලිකාව</string>
@@ -467,9 +466,6 @@
     <string name="asset_download_dialog_text">ඔබට ගොනුව ඇරීමට හෝ එය ඔබගේ උපාංගයේ බාගැනීම් බහාලුමට සුරැකීමට වුවමනා ද?</string>
     <string name="asset_download_dialog_open_text">අරින්න</string>
     <string name="asset_download_dialog_save_text">සුරකින්න</string>
-    <string name="member_name_deleted_label">මකාදැමූ ගිණුමකි</string>
-    <string name="member_name_you_label_titlecase">ඔබ</string>
-    <string name="member_name_you_label_lowercase">ඔබ</string>
     <string name="label_add_participants">සහභාගීන් යොදන්න</string>
     <string name="conversation_unavailable_label">සංවාද නම නොමැත.</string>
     <string name="conversation_details_title">සංවාදයේ විස්තර</string>

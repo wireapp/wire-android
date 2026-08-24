@@ -18,7 +18,7 @@
 package com.wire.android.mapper
 
 import androidx.annotation.StringRes
-import com.wire.android.R
+import com.wire.android.feature.conversation.R
 
 data class MessageResourceProvider(
     @StringRes val memberNameDeleted: Int = R.string.member_name_deleted_label,

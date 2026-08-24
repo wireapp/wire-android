@@ -25,4 +25,8 @@
     <string name="label_message_decryption_failure_message_with_error_code">El mensaje no se pudo descifrar (Error %s).</string>
     <string name="label_message_status_edited_with_date">Editado el %s</string>
     <string name="deleted_message_text">Mensaje eliminado</string>
+    <string name="sent_a_message_with_content">envi&#243; un mensaje con contenido %s</string>
+    <string name="member_name_deleted_label">Cuenta eliminada</string>
+    <string name="member_name_you_label_titlecase">Tú</string>
+    <string name="member_name_you_label_lowercase">tú</string>
 </resources>

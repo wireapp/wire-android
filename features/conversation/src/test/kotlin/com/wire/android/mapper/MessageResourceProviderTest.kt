@@ -16,19 +16,21 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversations
+package com.wire.android.mapper
 
-import androidx.compose.runtime.Composable
-import com.wire.android.feature.conversation.R as conversationR
-import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
-import com.wire.android.ui.home.conversations.info.ConversationInfoViewModelArgs
-import com.wire.android.util.ui.UIText
+import com.wire.android.feature.conversation.R
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
-@Composable
-fun conversationInfoViewModel(args: ConversationNavArgs): ConversationInfoViewModel =
-    conversationInfoViewModel(
-        ConversationInfoViewModelArgs(
-            conversationId = args.conversationId,
-            deletedAccountLabel = UIText.StringResource(conversationR.string.member_name_deleted_label),
-        ),
-    )
+class MessageResourceProviderTest {
+
+    @Test
+    fun defaultsUseConversationFeatureResources() {
+        val provider = MessageResourceProvider()
+
+        assertEquals(R.string.member_name_deleted_label, provider.memberNameDeleted)
+        assertEquals(R.string.member_name_you_label_lowercase, provider.memberNameYouLowercase)
+        assertEquals(R.string.member_name_you_label_titlecase, provider.memberNameYouTitlecase)
+        assertEquals(R.string.sent_a_message_with_content, provider.sentAMessageWithContent)
+    }
+}

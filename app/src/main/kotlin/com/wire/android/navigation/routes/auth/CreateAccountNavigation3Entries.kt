@@ -71,10 +71,10 @@ internal fun createAccountNavigation3Entries(
         CreateAccountCodeNavigation3Entry(route, actions, router)
     }
     wireEntry<CreateAccountSummaryRoute> { route ->
-        CreateAccountSummaryNavigation3Entry(route, router)
+        createAccountSummaryCompletionEntry(route, router)
     }
     wireEntry<CreateAccountUsernameRoute>(presentation = WireEntryPresentation.PopUp) { route ->
-        CreateAccountUsernameNavigation3Entry(route, router)
+        createAccountUsernameCompletionEntry(route, router)
     }
 }
 
@@ -262,40 +262,6 @@ private fun CreateAccountCodeNavigation3Entry(
             router.completeLogin(
                 route.terminalLoginEventId(),
                 AuthenticationLoginCompletion.RemoveDevice(it.toWireSessionId()),
-            )
-        },
-    )
-}
-
-@Composable
-private fun CreateAccountSummaryNavigation3Entry(
-    route: CreateAccountSummaryRoute,
-    router: AuthenticationNavigation3Router,
-) {
-    CreateAccountSummaryRouteScreen(
-        type = route.type,
-        onContinue = {
-            router.navigate(
-                AuthenticationNavigationTransition.ACCOUNT_SUMMARY_TO_USERNAME,
-                CreateAccountUsernameRoute(route.sessionId, route.flowId),
-                WireBackStackMode.CLEAR_WHOLE,
-            )
-        },
-    )
-}
-
-@Composable
-private fun CreateAccountUsernameNavigation3Entry(
-    route: CreateAccountUsernameRoute,
-    router: AuthenticationNavigation3Router,
-) {
-    val owner = createAccountEntryOwner(route.entryId)
-    CreateAccountUsernameRouteScreen(
-        viewModel = createAccountUsernameViewModel(owner),
-        onSuccess = {
-            router.completeLogin(
-                route.terminalLoginEventId(),
-                AuthenticationLoginCompletion.InitialSync(route.sessionId),
             )
         },
     )

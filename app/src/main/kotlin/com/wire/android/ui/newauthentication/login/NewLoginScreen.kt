@@ -35,43 +35,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import com.wire.android.ui.authentication.newLoginViewModel
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireNewLoginDestination
-import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
-import com.wire.android.ui.authentication.login.LoginPasswordPath
-import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.sso.SsoIdentityChangedDialog
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.ui.authentication.BackendConfigSuccessContent
 import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.common.HandleActions
@@ -88,66 +67,20 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@WireNewLoginDestination(
-    start = true,
-    style = AuthPopUpNavigationAnimation::class,
-    navArgs = LoginNavArgs::class,
-)
+/**
+ * Navigation-neutral adapter. Cross-flow effects are exposed as semantic [NewLoginAction] values.
+ */
 @Composable
-fun NewLoginScreen(
-    navigator: Navigator,
+internal fun NewLoginRouteScreen(
     navArgs: LoginNavArgs,
-    viewModel: NewLoginViewModel = newLoginViewModel()
+    viewModel: NewLoginViewModel,
+    canNavigateBack: Boolean,
+    navigateBack: () -> Unit,
+    onAction: (NewLoginAction) -> Unit,
 ) {
-    val context = LocalContext.current
-    val currentKeyboardController by rememberUpdatedState(LocalSoftwareKeyboardController.current)
-    val handleNewLoginAction = { newLoginAction: NewLoginAction ->
-        when (newLoginAction) {
-            is NewLoginAction.EmailPassword -> {
-                val loginNavArgs = LoginNavArgs(
-                    userHandle = PreFilledUserIdentifierType.PreFilled(newLoginAction.userIdentifier),
-                    loginPasswordPath = newLoginAction.loginPasswordPath
-                )
-                navigator.navigate(NavigationCommand(NewLoginPasswordScreenDestination(loginNavArgs)))
-            }
-
-            is NewLoginAction.CustomConfig -> {
-                val loginNavArgs = LoginNavArgs(
-                    userHandle = PreFilledUserIdentifierType.PreFilled(newLoginAction.userIdentifier),
-                    loginPasswordPath = LoginPasswordPath(customServerConfig = newLoginAction.customServerConfig)
-                )
-                navigator.navigate(NavigationCommand(NewLoginScreenDestination(loginNavArgs), BackStackMode.CLEAR_WHOLE))
-            }
-
-            is NewLoginAction.SSO -> {
-                currentKeyboardController?.hide()
-                CustomTabsHelper.launchUrl(context, newLoginAction.url)
-            }
-
-            is NewLoginAction.Success -> {
-                navigator.navigate(NavigationCommand(newLoginAction.nextStep.toDestination(), BackStackMode.CLEAR_WHOLE))
-            }
-
-            is NewLoginAction.EnterpriseLoginNotSupported -> {
-                navigator.navigate(NavigationCommand(WelcomeScreenDestination(viewModel.serverConfig), BackStackMode.CLEAR_WHOLE))
-                val loginNavArgs = LoginNavArgs(
-                    userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier = newLoginAction.userIdentifier, editable = true),
-                    loginPasswordPath = LoginPasswordPath(viewModel.serverConfig),
-                )
-                navigator.navigate(NavigationCommand(LoginScreenDestination(loginNavArgs)))
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        navigator.navController.currentBackStackEntry?.savedStateHandle
-            ?.let { viewModel.observeSSOResult(it) }
-    }
-
     // Handle SSO code auto-login from intent parameter
     LaunchedEffect(navArgs.ssoCodeAutoLogin) {
         navArgs.ssoCodeAutoLogin?.let {
@@ -188,20 +121,11 @@ fun NewLoginScreen(
         onBackendConfigLinkEntered = viewModel::onBackendConfigLinkEntered,
         onBackendConfigSuccessContinue = viewModel::onBackendConfigSuccessContinue,
         onNoBackendSelected = viewModel::onNoBackendSelected,
-        canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
-        navigateBack = navigator::navigateBack,
+        canNavigateBack = canNavigateBack,
+        navigateBack = navigateBack,
     )
 
-    HandleActions(viewModel.actions, handleNewLoginAction)
-}
-
-private fun NewLoginAction.Success.NextStep.toDestination(): Direction = when (this) {
-    NewLoginAction.Success.NextStep.None -> HomeScreenDestination
-    is NewLoginAction.Success.NextStep.E2EIEnrollment ->
-        E2EIEnrollmentScreenDestination(SessionBackedAuthenticationNavArgs.from(userId))
-    NewLoginAction.Success.NextStep.InitialSync -> InitialSyncScreenDestination
-    is NewLoginAction.Success.NextStep.TooManyDevices ->
-        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(userId))
+    HandleActions(viewModel.actions, onAction)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

@@ -74,7 +74,6 @@ jobs:
     name: Lint
     needs: [workflow-security]
     runs-on: warp-ubuntu-2404-x64-8x
-    # Override JVM args from gradle.properties which sets 10GB heap
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -82,24 +81,9 @@ jobs:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 1 # Keep the large Kalium submodule checkout shallow
-      - name: Set up JDK 21
-        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-      - uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
       - name: Run Linter
-        env:
-          GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
         run: make lint
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
@@ -119,21 +103,8 @@ jobs:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 1 # Keep the large Kalium submodule checkout shallow
-      - name: Set up JDK 21
-        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-      - uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
       - name: Run Detekt
         run: make style
       - name: Cleanup Gradle Cache
@@ -154,24 +125,9 @@ jobs:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 1 # Keep the large Kalium submodule checkout shallow
-      - name: Set up JDK 21
-        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-      - uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
       - name: Run Compose stability check
-        env:
-          GRADLE_OPTS: "-Xmx6G -XX:+UseParallelGC -XX:MaxMetaspaceSize=2g"
         run: make compose-stability
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
@@ -224,12 +180,8 @@ jobs:
           submodules: recursive
           fetch-depth: 1 # Keep the large Kalium submodule checkout shallow
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: gradle
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
 
       - name: Setup Keystore
         uses: ./.github/actions/setup-keystore

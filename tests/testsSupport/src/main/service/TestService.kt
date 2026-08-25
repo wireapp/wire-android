@@ -883,7 +883,9 @@ class TestService(private val baseUri: String, private val testName: String) {
         for (i in 0 until messages.length()) {
             val message = messages.getJSONObject(i)
             val content = message.optJSONObject("content")
-            if (content != null && (content.optString("text") == text || content.optString("value") == text)) {
+            val messageText = content?.optString("text")?.takeIf(String::isNotEmpty)
+                ?: content?.optString("value")
+            if (messageText == text) {
                 return message.getString("id")
             }
         }

@@ -19,7 +19,6 @@ package com.wire.android.ui.userprofile.other
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
@@ -30,7 +29,6 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.mapper.UsernameMapper.fromOtherUser
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ChangeGroupRoleError
@@ -63,7 +61,10 @@ import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class OtherUserProfileScreenViewModel @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeUserInfo: ObserveUserInfoUseCase,
@@ -77,15 +78,19 @@ class OtherUserProfileScreenViewModel @AssistedInject constructor(
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val isE2EIEnabled: IsE2EIEnabledUseCase,
-    @Assisted savedStateHandle: SavedStateHandle
+    @Assisted navigationArgs: OtherUserProfileViewModelArgs,
 ) : ActionsViewModel<OtherUserProfileViewAction>(), OtherUserProfileEventsHandler {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): OtherUserProfileScreenViewModel
+        fun create(navigationArgs: OtherUserProfileViewModelArgs): OtherUserProfileScreenViewModel
     }
-    private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
-    private val userId: QualifiedID = otherUserProfileNavArgs.userId
-    private val groupConversationId: QualifiedID? = otherUserProfileNavArgs.groupConversationId
+    private val userId: QualifiedID = QualifiedID(
+        navigationArgs.targetUserId.value,
+        navigationArgs.targetUserId.domain,
+    )
+    private val groupConversationId: QualifiedID? = navigationArgs.groupConversationId?.let {
+        QualifiedID(it.value, it.domain)
+    }
     var state: OtherUserProfileState by mutableStateOf(
         OtherUserProfileState(
             userId = userId,

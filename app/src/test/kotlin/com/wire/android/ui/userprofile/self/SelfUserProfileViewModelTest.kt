@@ -18,7 +18,6 @@
 package com.wire.android.ui.userprofile.self
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import io.mockk.coEvery
 import io.mockk.coVerify
 import com.wire.android.ui.legalhold.banner.LegalHoldUIState
@@ -32,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class SelfUserProfileViewModelTest {
 
     @Test

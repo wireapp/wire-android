@@ -16,9 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.home.whatsnew
 
-import com.wire.android.navigation.annotation.app.WireHomeDestination
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -27,39 +28,43 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.debug.whatsNewViewModel
-import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.HomeShellState
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.UIText
 
-@WireHomeDestination
+internal sealed interface WhatsNewNavigation3Target {
+    data object Welcome : WhatsNewNavigation3Target
+    data object AllAndroidReleaseNotes : WhatsNewNavigation3Target
+    data class ExternalReleaseNote(val url: String) : WhatsNewNavigation3Target
+}
+
+internal fun WhatsNewItem.toNavigation3Target(): WhatsNewNavigation3Target = when (this) {
+    WhatsNewItem.WelcomeToNewAndroidApp -> WhatsNewNavigation3Target.Welcome
+    is WhatsNewItem.AllAndroidReleaseNotes -> WhatsNewNavigation3Target.AllAndroidReleaseNotes
+    is WhatsNewItem.AndroidReleaseNotes -> WhatsNewNavigation3Target.ExternalReleaseNote(url)
+}
+
+/**
+ * Navigation-neutral What's New renderer used by the Navigation 3 Home shell.
+ */
 @Composable
-fun WhatsNewScreen(
-    homeStateHolder: HomeStateHolder,
-    whatsNewViewModel: WhatsNewViewModel = whatsNewViewModel()
+internal fun WhatsNewScreen(
+    homeShellState: HomeShellState,
+    onOpenTarget: (WhatsNewNavigation3Target) -> Unit,
+    whatsNewViewModel: WhatsNewViewModel = whatsNewViewModel(),
 ) {
-    val context = LocalContext.current
     WhatsNewScreenContent(
         state = whatsNewViewModel.state,
-        lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.WhatsNew),
-        onItemClicked = remember {
-            {
-                it.direction.handleNavigation(
-                    context = context,
-                    handleOtherDirection = { homeStateHolder.navigator.navigate(NavigationCommand(it)) }
-                )
-            }
-        }
+        lazyListState = homeShellState.lazyListStateFor(HomeDestination.WhatsNew),
+        onItemClicked = { onOpenTarget(it.toNavigation3Target()) },
     )
 }
 
@@ -70,7 +75,6 @@ fun WhatsNewScreenContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
-    val context = LocalContext.current
     val openLinkLabel = stringResource(commonR.string.content_description_open_link_label)
     LazyColumn(
         state = lazyListState,

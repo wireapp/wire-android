@@ -67,7 +67,6 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val cancelButton = UiSelectorParams(text = "Cancel")
 
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
-    private val videoDurationLocator = UiSelectorParams(text = "00:03")
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
 
@@ -88,6 +87,8 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val deleteForEveryoneButton = UiSelectorParams(text = "Delete for Everyone")
     private val deleteForMeConfirmationText = UiSelectorParams(text = "Delete this Message for yourself?")
     private val deletedMessageLabel = UiSelectorParams(text = "Deleted message")
+    private val imageContextMenuButton = UiSelectorParams(description = "More options")
+    private val deleteImageOption = UiSelectorParams(text = "Delete")
 
     private val selfDeleteTimerButton = UiSelectorParams(description = "Set timer for self-deleting messages")
 
@@ -375,6 +376,11 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertFileActionModalNotVisible(): ConversationViewPage {
+        assertElementNotVisible(modalTextLocator, "file action modal", timeoutSeconds = 1)
+        return this
+    }
+
     fun assertImageFileWithNameIsVisible(fileName: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
         Assert.assertTrue("File with name '$fileName' is not visible", !fileNameElement.visibleBounds.isEmpty)
@@ -384,6 +390,18 @@ data class ConversationViewPage(private val device: UiDevice) {
     fun assertFileWithNameIsVisible(fileName3: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName3))
         Assert.assertTrue("File with name '$fileName3' is not visible", !fileNameElement.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertReceivingFilesProhibitedForFileVisible(fileName: String): ConversationViewPage {
+        val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
+        val prohibitedMessageVisible = fileNameElement.parent.children.any {
+            it.text == "Receiving files is prohibited"
+        }
+        Assert.assertTrue(
+            "Receiving files is not prohibited for file '$fileName'",
+            prohibitedMessageVisible
+        )
         return this
     }
 
@@ -527,8 +545,14 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun tapToPlayVideoFile(): ConversationViewPage {
-        UiWaitUtils.waitElement(videoDurationLocator).click()
+    fun tapToPlayVideoFile(fileName: String): ConversationViewPage {
+        val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
+        val videoPreview = fileNameElement.parent.children.firstOrNull {
+            it.className == "android.view.View" && it.isClickable
+        }
+            ?: throw AssertionError("Video preview for '$fileName' was not visible.")
+        val bounds = videoPreview.visibleBounds
+        device.click(bounds.centerX(), bounds.centerY())
         return this
     }
 
@@ -601,9 +625,10 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private fun isConversationViewStillVisible(): Boolean {
         return try {
+            val backButtonVisible = findElementOrNull(backButton)?.let { !it.visibleBounds.isEmpty } == true
             val typeMessageVisible = findElementOrNull(typeMessageField)?.let { !it.visibleBounds.isEmpty } == true
             val sendButtonVisible = findElementOrNull(sendButton)?.let { !it.visibleBounds.isEmpty } == true
-            typeMessageVisible || sendButtonVisible
+            backButtonVisible || typeMessageVisible || sendButtonVisible
         } catch (_: StaleObjectException) {
             false
         }
@@ -816,6 +841,10 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
     }
 
+    fun assertSharingOptionNotVisible(label: String) {
+        assertElementNotVisible(sharingOption(label), "sharing option '$label'", timeoutSeconds = 1)
+    }
+
     fun iSeeSentQrCodeImageInCurrentConversation(): ConversationViewPage {
 
         try {
@@ -828,6 +857,36 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun assertImageIsVisible(): ConversationViewPage {
         UiWaitUtils.waitElement(sentQRImage)
+        return this
+    }
+
+    fun tapImageMessage(): ConversationViewPage {
+        UiWaitUtils.waitElement(sentQRImage).click()
+        return this
+    }
+
+    fun assertImageContextMenuButtonVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(imageContextMenuButton)
+        return this
+    }
+
+    fun tapImageContextMenuButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(imageContextMenuButton).click()
+        return this
+    }
+
+    fun assertImageContextMenuOptionsVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(downloadButton)
+        UiWaitUtils.waitElement(deleteImageOption)
+        return this
+    }
+
+    fun assertImageSavedToDownloadsToastVisible(): ConversationViewPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(text = "Saved to Downloads folder"),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Saved to Downloads folder toast was not visible."
+        )
         return this
     }
 

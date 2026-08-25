@@ -88,6 +88,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_FOUND
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.collections.immutable.PersistentList
 import okio.Path
 
@@ -102,6 +103,7 @@ internal fun MessageBody(
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     buttonList: PersistentList<MessageButton>?,
     onLinkClick: (String) -> Unit,
+    conversationId: ConversationId? = null,
     searchQuery: String = "",
     clickable: Boolean = true,
     messageStyle: MessageStyle = MessageStyle.NORMAL,
@@ -160,6 +162,7 @@ internal fun MessageBody(
     buttonList?.also {
         VerticalSpace.x4()
         MessageButtonsContent(
+            conversationId = requireNotNull(conversationId),
             messageId = messageId,
             buttonList = it,
             messageStyle = messageStyle
@@ -169,13 +172,14 @@ internal fun MessageBody(
 
 @Composable
 fun MessageButtonsContent(
+    conversationId: ConversationId,
     messageId: String,
     buttonList: List<MessageButton>,
     messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     viewModel: CompositeMessageViewModel =
         compositeMessageViewModel(
-            CompositeMessageArgs(messageId)
+            CompositeMessageArgs(conversationId, messageId)
         )
 ) {
     Column(

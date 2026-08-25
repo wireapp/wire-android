@@ -18,11 +18,8 @@
 package com.wire.android.feature.meetings.ui.create
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.meetings.navArgs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
@@ -78,7 +75,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.Duration.Companion.hours
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class NewMeetingViewModelTest {
     private val dispatcher = StandardTestDispatcher()
 
@@ -720,9 +717,6 @@ class NewMeetingViewModelTest {
         }
 
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var createNewMeeting: CreateNewMeetingUseCase
 
         @MockK
@@ -744,9 +738,6 @@ class NewMeetingViewModelTest {
 
         init {
             MockKAnnotations.init(this)
-            every {
-                savedStateHandle.navArgs<NewMeetingNavArgs>()
-            } answers { NewMeetingNavArgs(type = newMeetingType) }
             coEvery { getNextMeetingOccurrence(any(), any()) } returns null
             coEvery { observeConversationMembers(any()) } returns flowOf(emptyList())
         }
@@ -788,7 +779,7 @@ class NewMeetingViewModelTest {
         }
 
         fun arrange() = this to NewMeetingViewModelImpl(
-            savedStateHandle = savedStateHandle,
+            navArgs = NewMeetingNavArgs(type = newMeetingType),
             currentTimeProvider = currentTimeProvider,
             createNewMeeting = createNewMeeting,
             updateMeeting = updateMeeting,

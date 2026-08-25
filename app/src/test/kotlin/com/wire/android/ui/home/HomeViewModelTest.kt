@@ -17,25 +17,24 @@
  */
 package com.wire.android.ui.home
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.WireActivityViewModelTest.Companion.TEST_ACCOUNT_INFO
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -114,6 +113,20 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `given a session graph account, when checking requirements, then use that account without global session lookup`() = runTest {
+        val graphAccount = UserId("graph-account", "wire.test")
+        val (_, viewModel) = Arrangement(currentAccount = graphAccount)
+            .withNeedsToRegisterClientReturning(true)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.checkRequirements()
+
+            assertEquals(HomeRequirement.RegisterDevice(graphAccount), expectMostRecentItem())
+        }
+    }
+
+    @Test
     fun `given initial sync not completed, when checking requirements, then return HomeRequirement InitialSync`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
@@ -166,16 +179,15 @@ class HomeViewModelTest {
             assertEquals(false, viewModel.homeState.shouldShowCreateTeamUnreadIndicator)
         }
 
-    internal class Arrangement {
-
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
-        lateinit var globalDataStore: GlobalDataStore
+    internal class Arrangement(
+        private val currentAccount: UserId = TEST_ACCOUNT_INFO.userId,
+    ) {
 
         @MockK
         lateinit var dataStore: UserDataStore
+
+        @MockK
+        lateinit var userDataStoreProvider: UserDataStoreProvider
 
         @MockK
         lateinit var observeSelfUser: ObserveSelfUserUseCase
@@ -189,18 +201,14 @@ class HomeViewModelTest {
         @MockK
         lateinit var canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase
 
-        @MockK
-        lateinit var currentSessionFlow: CurrentSessionFlowUseCase
-
         private val viewModel by lazy {
             HomeViewModel(
-                savedStateHandle = savedStateHandle,
-                dataStore = dataStore,
+                userDataStoreProvider = userDataStoreProvider,
+                currentAccount = currentAccount,
                 observeSelf = observeSelfUser,
                 needsToRegisterClient = needsToRegisterClient,
                 observeLegalHoldStatusForSelfUser = observeLegalHoldStatusForSelfUser,
                 canMigrateFromPersonalToTeam = canMigrateFromPersonalToTeam,
-                currentSessionFlow = lazyOf(currentSessionFlow),
             )
         }
 
@@ -209,7 +217,7 @@ class HomeViewModelTest {
             withSelfUser(flowOf(TestUser.SELF_USER))
             withCanMigrateFromPersonalToTeamReturning(true)
             withLegalHoldStatus(flowOf(LegalHoldStateForSelfUser.Disabled))
-            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+            every { userDataStoreProvider.getOrCreate(currentAccount) } returns dataStore
         }
 
         fun withSelfUser(result: Flow<SelfUser>) = apply {

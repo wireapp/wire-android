@@ -66,7 +66,6 @@ class AuthenticationExclusiveResourceOwnershipTest {
             "app/src/main/kotlin/com/wire/android/ui/authentication/login/LoginMainContent.kt",
             "app/src/main/kotlin/com/wire/android/ui/authentication/login/email/LoginEmailScreen.kt",
             "app/src/main/kotlin/com/wire/android/ui/authentication/welcome/WelcomeContent.kt",
-            "app/src/main/kotlin/com/wire/android/ui/authentication/welcome/WelcomeAccountCreation.kt",
             "app/src/main/kotlin/com/wire/android/ui/authentication/create/username/CreateAccountUsernameScreen.kt",
             "app/src/main/kotlin/com/wire/android/ui/authentication/create/common/handle/UsernameTextField.kt",
             "app/src/main/kotlin/com/wire/android/ui/authentication/create/code/CreateAccountCodeScreen.kt",

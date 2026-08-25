@@ -44,6 +44,34 @@ files: [
         "translation": "/features/authentication/src/main/res/values-%two_letters_code%/%original_file_name%"
     },
     {
+        "source": "/features/authentication/src/main/res/values/create_account_details.xml",
+        "translation": "/features/authentication/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
+        "source": "/features/authentication/src/main/res/values/create_account_email.xml",
+        "translation": "/features/authentication/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
+        "source": "/features/authentication/src/main/res/values/create_account_overview.xml",
+        "translation": "/features/authentication/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
+        "source": "/features/authentication/src/main/res/values/initial_sync.xml",
+        "translation": "/features/authentication/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
+        "source": "/features/authentication/src/main/res/values/legacy_registration.xml",
+        "translation": "/features/authentication/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
+        "source": "/features/authentication/src/main/res/values/login_dialogs.xml",
+        "translation": "/features/authentication/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
+        "source": "/features/authentication/src/main/res/values/remove_device.xml",
+        "translation": "/features/authentication/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
         "source": "/features/cells/src/main/res/values/strings.xml",
         "translation": "/features/cells/src/main/res/values-%two_letters_code%/%original_file_name%"
     },

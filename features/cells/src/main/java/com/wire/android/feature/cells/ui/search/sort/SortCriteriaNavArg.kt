@@ -17,11 +17,14 @@
  */
 package com.wire.android.feature.cells.ui.search.sort
 
+import kotlinx.serialization.Serializable
+
 /**
  * Navigation-safe enum representation of [SortingCriteria].
  * Passed as a nav arg when entering the search screen so the search view
  * inherits the sort state that was active in the parent view.
  */
+@Serializable
 enum class SortCriteriaNavArg {
     FoldersFirst,
     NewestFirst,

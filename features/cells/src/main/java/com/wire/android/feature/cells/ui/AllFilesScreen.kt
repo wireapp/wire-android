@@ -20,8 +20,10 @@ package com.wire.android.feature.cells.ui
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,13 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.OfflineBanner
-import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.toNavArg
-import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WireNavigator
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 
@@ -51,6 +49,13 @@ fun AllFilesScreen(
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
     val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
 
+    val sortingCriteria by viewModel.sortingCriteria.collectAsState()
+
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(sortingCriteria) {
+        lazyListState.animateScrollToItem(0)
+    }
+
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -63,7 +68,7 @@ fun AllFilesScreen(
                                 isSearchActive = false,
                                 searchBarHint = stringResource(R.string.search_label),
                                 searchQueryTextState = rememberTextFieldState(),
-                                onTap = navigationActions.openSearch,
+                                onTap = { navigationActions.openSearch(sortingCriteria.toNavArg()) },
                                 )
                             SortRowWithMenu(
                                 sortingCriteria = sortingCriteria,

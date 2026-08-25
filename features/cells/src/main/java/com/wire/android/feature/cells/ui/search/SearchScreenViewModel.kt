@@ -144,7 +144,7 @@ class SearchScreenViewModel @AssistedInject constructor(
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
             searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
-                val hasFilters = params.sortingCriteria != defaultSortingCriteria ||
+                val hasFilters = params.sortingCriteria != inheritedSortingCriteria ||
                         params.query.isNotEmpty() ||
                         params.tagIds.isNotEmpty() ||
                         params.ownerIds.isNotEmpty() ||

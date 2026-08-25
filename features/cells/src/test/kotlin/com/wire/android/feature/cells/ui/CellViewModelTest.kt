@@ -28,8 +28,11 @@ import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
+import com.wire.kalium.cells.data.SortingCriteria as KaliumSortingCriteria
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -129,7 +132,7 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given search screen args when files flow subscribed then nodes flow is empty`() = runTest {
+    fun `given search screen args when files flow subscribed then cell files are loaded`() = runTest {
         val (_, viewModel) = Arrangement()
             .withLoadSuccess()
             .withSearchScreenArgsOnly()
@@ -137,7 +140,27 @@ class CellViewModelTest {
 
         val pagingData = viewModel.nodesFlow.first()
         val items = flowOf(pagingData).asSnapshot()
-        assertTrue(items.isEmpty())
+        assertEquals(items.size, 2)
+    }
+
+    @Test
+    fun `given search screen args with initial sorting when files are loaded then inherited sorting is used`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSearchScreenArgsOnly(initialSortingCriteria = SortCriteriaNavArg.NameAZ)
+            .arrange()
+
+        viewModel.nodesFlow.first()
+
+        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.sortingCriteria.value)
+        coVerify {
+            arrangement.getCellFilesPagedUseCase(
+                any(),
+                any(),
+                any(),
+                match { it.criteria == KaliumSortingCriteria.NAME_CASE_SENSITIVE && !it.descending },
+            )
+        }
     }
 
     @Test
@@ -535,11 +558,12 @@ class CellViewModelTest {
             this.conversationId = conversationId
         }
 
-        fun withSearchScreenArgsOnly() = apply {
+        fun withSearchScreenArgsOnly(initialSortingCriteria: SortCriteriaNavArg? = null) = apply {
             searchNavArgs = SearchNavArgs(
                 conversationId = conversationId,
                 screenType = DriveSearchScreenType.SHARED_DRIVE,
                 parentRoute = null,
+                initialSortingCriteria = initialSortingCriteria,
             )
         }
 

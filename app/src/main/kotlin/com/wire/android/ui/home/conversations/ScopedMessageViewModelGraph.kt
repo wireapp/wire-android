@@ -20,11 +20,12 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.sebaslogen.resaca.KeyInScopeResolver
 import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreviews
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModelAs
 import com.wire.android.di.wireManualMetroViewModelScoped
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModel
@@ -49,7 +50,7 @@ import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import kotlin.time.Duration
 
 internal interface ScopedMessageManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun compositeMessageViewModel(savedStateHandle: SavedStateHandle, args: CompositeMessageArgs): CompositeMessageViewModelImpl
+    fun compositeMessageViewModel(args: CompositeMessageArgs): CompositeMessageViewModelImpl
     fun messageOptionsMenuViewModel(args: MessageOptionsMenuArgs): MessageOptionsMenuViewModelImpl
     fun typingIndicatorViewModel(args: TypingIndicatorArgs): TypingIndicatorViewModelImpl
     fun assetLocalPathViewModel(args: AssetLocalPathArgs): AssetLocalPathViewModelImpl
@@ -64,14 +65,14 @@ internal interface ScopedMessageManualViewModelFactory : ManualViewModelAssisted
 private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessageViewModel(
     arguments: R,
     clearDelay: Duration? = null,
-    noinline create: ScopedMessageManualViewModelFactory.(SavedStateHandle, R) -> VM,
+    noinline create: ScopedMessageManualViewModelFactory.(R) -> VM,
 ): S where VM : ViewModel, VM : S =
     wireManualMetroViewModelScoped<VM, S, R, ScopedMessageManualViewModelFactory>(
         arguments = arguments,
         previewProvider = ViewModelScopedPreviews,
         clearDelay = clearDelay,
-    ) { savedStateHandle, scopedArgs ->
-        create(savedStateHandle, scopedArgs)
+    ) { scopedArgs ->
+        create(scopedArgs)
     }
 
 @Composable
@@ -80,28 +81,15 @@ private inline fun <reified VM, reified S, reified R : ScopedArgs> scopedMessage
     arguments: R,
     noinline keyInScopeResolver: KeyInScopeResolver<String>,
     clearDelay: Duration? = null,
-    noinline create: ScopedMessageManualViewModelFactory.(SavedStateHandle, R) -> VM,
+    noinline create: ScopedMessageManualViewModelFactory.(R) -> VM,
 ): S where VM : ViewModel, VM : S =
     wireManualMetroViewModelScoped<VM, S, R, ScopedMessageManualViewModelFactory>(
         arguments = arguments,
         previewProvider = ViewModelScopedPreviews,
         keyInScopeResolver = keyInScopeResolver,
         clearDelay = clearDelay,
-    ) { savedStateHandle, scopedArgs ->
-        create(savedStateHandle, scopedArgs)
-    }
-
-@Composable
-@Suppress("BOUNDS_NOT_ALLOWED_IF_BOUNDED_BY_TYPE_PARAMETER")
-private inline fun <reified VM, reified S> scopedMessageViewModel(
-    clearDelay: Duration? = null,
-    noinline create: ScopedMessageManualViewModelFactory.(SavedStateHandle) -> VM,
-): S where VM : ViewModel, VM : S =
-    wireManualMetroViewModelScoped<VM, S, ScopedMessageManualViewModelFactory>(
-        previewProvider = ViewModelScopedPreviews,
-        clearDelay = clearDelay,
-    ) { savedStateHandle ->
-        create(savedStateHandle)
+    ) { scopedArgs ->
+        create(scopedArgs)
     }
 
 @Composable
@@ -110,24 +98,37 @@ fun compositeMessageViewModel(
 ): CompositeMessageViewModel =
     scopedMessageViewModel<CompositeMessageViewModelImpl, CompositeMessageViewModel, CompositeMessageArgs>(
         arguments = args,
-    ) { savedStateHandle, scopedArgs ->
-        compositeMessageViewModel(savedStateHandle, scopedArgs)
+    ) { scopedArgs ->
+        compositeMessageViewModel(scopedArgs)
     }
 
 @Composable
 fun messageOptionsMenuViewModel(
     args: MessageOptionsMenuArgs,
 ): MessageOptionsMenuViewModel =
-    scopedMessageViewModel<MessageOptionsMenuViewModelImpl, MessageOptionsMenuViewModel, MessageOptionsMenuArgs>(args) { _, scopedArgs ->
-        messageOptionsMenuViewModel(scopedArgs)
+    wireAssistedMetroViewModelAs<
+        MessageOptionsMenuViewModelImpl,
+        MessageOptionsMenuViewModel,
+        ScopedMessageManualViewModelFactory,
+        >(
+        previewProvider = ViewModelScopedPreviews,
+    ) { _ ->
+        messageOptionsMenuViewModel(args)
     }
 
 @Composable
 fun typingIndicatorViewModel(
     args: TypingIndicatorArgs,
 ): TypingIndicatorViewModel =
-    scopedMessageViewModel<TypingIndicatorViewModelImpl, TypingIndicatorViewModel, TypingIndicatorArgs>(args) { _, scopedArgs ->
-        typingIndicatorViewModel(scopedArgs)
+    wireAssistedMetroViewModelAs<
+        TypingIndicatorViewModelImpl,
+        TypingIndicatorViewModel,
+        ScopedMessageManualViewModelFactory,
+        >(
+        instanceKey = args.key,
+        previewProvider = ViewModelScopedPreviews,
+    ) { _ ->
+        typingIndicatorViewModel(args)
     }
 
 @Composable
@@ -139,11 +140,11 @@ fun assetLocalPathViewModel(
         scopedMessageViewModel<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(
             arguments = args,
             keyInScopeResolver = keyInScopeResolver,
-        ) { _, scopedArgs ->
+        ) { scopedArgs ->
             assetLocalPathViewModel(scopedArgs)
         }
     } else {
-        scopedMessageViewModel<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(args) { _, scopedArgs ->
+        scopedMessageViewModel<AssetLocalPathViewModelImpl, AssetLocalPathViewModel, AssetLocalPathArgs>(args) { scopedArgs ->
             assetLocalPathViewModel(scopedArgs)
         }
     }
@@ -152,25 +153,33 @@ fun assetLocalPathViewModel(
 fun selfDeletingMessageActionViewModel(
     args: SelfDeletingMessageActionArgs,
 ): SelfDeletingMessageActionViewModel =
-    scopedMessageViewModel<
-            SelfDeletingMessageActionViewModelImpl,
-            SelfDeletingMessageActionViewModel,
-            SelfDeletingMessageActionArgs,
-            >(args) { _, scopedArgs ->
-        selfDeletingMessageActionViewModel(scopedArgs)
+    wireAssistedMetroViewModelAs<
+        SelfDeletingMessageActionViewModelImpl,
+        SelfDeletingMessageActionViewModel,
+        ScopedMessageManualViewModelFactory,
+        >(
+        previewProvider = ViewModelScopedPreviews,
+    ) { _ ->
+        selfDeletingMessageActionViewModel(args)
     }
 
 @Composable
 fun isFileSharingEnabledViewModel(): IsFileSharingEnabledViewModel =
-    scopedMessageViewModel<IsFileSharingEnabledViewModelImpl, IsFileSharingEnabledViewModel> { _ ->
+    wireAssistedMetroViewModelAs<
+        IsFileSharingEnabledViewModelImpl,
+        IsFileSharingEnabledViewModel,
+        ScopedMessageManualViewModelFactory,
+        >(
+        previewProvider = ViewModelScopedPreviews,
+    ) { _ ->
         isFileSharingEnabledViewModel()
     }
 
 @Composable
 fun recordAudioViewModel(): RecordAudioViewModel =
-    wireManualMetroViewModelScoped<RecordAudioViewModel, ScopedMessageManualViewModelFactory>(
-        previewProvider = ViewModelScopedPreviews
-    ) {
+    wireAssistedMetroViewModel<RecordAudioViewModel, ScopedMessageManualViewModelFactory>(
+        previewProvider = ViewModelScopedPreviews,
+    ) { _ ->
         recordAudioViewModel()
     }
 
@@ -183,11 +192,11 @@ fun audioMessageViewModel(
         scopedMessageViewModel<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(
             arguments = args,
             keyInScopeResolver = keyInScopeResolver,
-        ) { _, scopedArgs ->
+        ) { scopedArgs ->
             audioMessageViewModel(scopedArgs)
         }
     } else {
-        scopedMessageViewModel<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(args) { _, scopedArgs ->
+        scopedMessageViewModel<AudioMessageViewModelImpl, AudioMessageViewModel, AudioMessageArgs>(args) { scopedArgs ->
             audioMessageViewModel(scopedArgs)
         }
     }

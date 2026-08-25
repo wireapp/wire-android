@@ -27,6 +27,7 @@ sealed interface CreateGroupState {
         data object Unknown : Error
         data object Forbidden : Error
         data object LackingConnection : Error
+        data class PendingMLSCreation(val isRetrying: Boolean = false) : Error
         data class ConflictedBackends(val domains: List<String>) : Error
 
         val isConflictedBackends get() = this is ConflictedBackends

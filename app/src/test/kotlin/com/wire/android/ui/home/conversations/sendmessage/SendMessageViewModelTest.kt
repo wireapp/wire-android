@@ -22,7 +22,6 @@ import android.location.Location
 import androidx.core.net.toUri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
@@ -58,7 +57,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 @Suppress("LargeClass")
 class SendMessageViewModelTest {
     private val testDispatcher = StandardTestDispatcher()

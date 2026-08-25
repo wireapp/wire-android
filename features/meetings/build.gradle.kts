@@ -3,11 +3,10 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
-    alias(libs.plugins.ksp)
-    id(libs.plugins.wire.android.navigation.get().pluginId)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 dependencies {
@@ -15,6 +14,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation(projects.core.di)
+    implementation(projects.core.navigation)
     implementation(projects.core.uiCommon)
     implementation(projects.core.search)
     implementation(libs.androidx.core)
@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material3)
+    implementation(libs.compose.activity)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
     implementation(libs.metrox.viewModelCompose)
@@ -45,11 +46,5 @@ dependencies {
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
     testImplementation(testFixtures(project(":core:ui-common")))
-}
-
-android {
-    ksp {
-        arg("compose-destinations.moduleName", "meetings")
-        arg("compose-destinations.mode", "destinations")
-    }
+    ksp(project(":ksp"))
 }

@@ -18,14 +18,13 @@
 
 package com.wire.android.ui.userprofile.other
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.userprofile.toUserProfileQualifiedId
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.kalium.logic.data.id.ConversationId
@@ -51,9 +50,6 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 
 internal class OtherUserProfileViewModelArrangement {
-
-    @MockK
-    lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     lateinit var getOneToOneConversation: GetOneToOneConversationDetailsUseCase
@@ -97,6 +93,11 @@ internal class OtherUserProfileViewModelArrangement {
     @MockK
     lateinit var isE2EIEnabled: IsE2EIEnabledUseCase
 
+    private var navigationArgs = OtherUserProfileViewModelArgs(
+        targetUserId = USER_ID.toUserProfileQualifiedId(),
+        groupConversationId = CONVERSATION_ID.toUserProfileQualifiedId(),
+    )
+
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
             TestDispatcherProvider(),
@@ -111,18 +112,13 @@ internal class OtherUserProfileViewModelArrangement {
             isOneToOneConversationCreated,
             mlsClientIdentity,
             isE2EIEnabled,
-            savedStateHandle,
+            navigationArgs,
         )
     }
 
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-
-        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
-            groupConversationId = CONVERSATION_ID,
-            userId = USER_ID
-        )
 
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())
@@ -149,9 +145,9 @@ internal class OtherUserProfileViewModelArrangement {
     }
 
     fun withConversationIdInSavedState(conversationId: ConversationId?) = apply {
-        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
-            userId = USER_ID,
-            groupConversationId = conversationId
+        navigationArgs = OtherUserProfileViewModelArgs(
+            targetUserId = USER_ID.toUserProfileQualifiedId(),
+            groupConversationId = conversationId?.toUserProfileQualifiedId(),
         )
     }
 

@@ -23,14 +23,14 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.meetings.navArgs
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.Companion.initialState
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.InitialLoadingState
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
+import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
 import com.wire.android.ui.common.ActionsManager
@@ -98,8 +98,9 @@ class NewMeetingViewModelPreview(
 }
 
 @Suppress("TooManyFunctions")
+@WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)
 class NewMeetingViewModelImpl @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted val navArgs: NewMeetingNavArgs,
     override val currentTimeProvider: CurrentTimeProvider,
     private val createNewMeeting: CreateNewMeetingUseCase,
     private val updateMeeting: UpdateMeetingUseCase,
@@ -110,10 +111,9 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): NewMeetingViewModelImpl
+        fun create(navArgs: NewMeetingNavArgs): NewMeetingViewModelImpl
     }
 
-    val navArgs: NewMeetingNavArgs = savedStateHandle.navArgs()
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider))

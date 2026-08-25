@@ -19,12 +19,10 @@ package com.wire.android.ui.userprofile.service
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.model.asSnackBarMessage
@@ -63,6 +61,8 @@ import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 @ViewModelScopedPreview
 interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
     fun serviceDetailsState(): ServiceDetailsState = ServiceDetailsState()
@@ -72,6 +72,7 @@ interface ServiceDetailsViewModel : ActionsManager<ServiceDetailsViewActions> {
 }
 
 @Suppress("LongParameterList")
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class ServiceDetailsViewModelImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     @CurrentAccount private val selfUserId: UserId,
@@ -87,16 +88,23 @@ class ServiceDetailsViewModelImpl @AssistedInject constructor(
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    @Assisted savedStateHandle: SavedStateHandle
+    @Assisted private val navigationArgs: ServiceDetailsViewModelArgs,
 ) : ServiceDetailsViewModel, ActionsViewModel<ServiceDetailsViewActions>() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ServiceDetailsViewModelImpl
+        fun create(navigationArgs: ServiceDetailsViewModelArgs): ServiceDetailsViewModelImpl
     }
-    private val serviceDetailsNavArgs: ServiceDetailsNavArgs = savedStateHandle.navArgs()
-    private val serviceId: ServiceId = serviceDetailsNavArgs.id.serviceId
-    private val userId: UserId = serviceDetailsNavArgs.id.userId
-    private val conversationId: QualifiedID? = serviceDetailsNavArgs.conversationId
+    private val serviceId: ServiceId = ServiceId(
+        navigationArgs.target.id.value,
+        navigationArgs.target.id.domain,
+    )
+    private val userId: UserId = UserId(
+        navigationArgs.target.id.value,
+        navigationArgs.target.id.domain,
+    )
+    private val conversationId: QualifiedID? = navigationArgs.conversationId?.let {
+        QualifiedID(it.value, it.domain)
+    }
     private var state by mutableStateOf(ServiceDetailsState())
     override fun serviceDetailsState(): ServiceDetailsState = state
     init {
@@ -120,14 +128,15 @@ class ServiceDetailsViewModelImpl @AssistedInject constructor(
                 isAvatarLoading = true,
                 isAppsEnabled = isAppsEnabled
             )
-            when (val id = serviceDetailsNavArgs.id) {
-                is ServiceDetailsNavArgs.Id.AppId -> {
-                    val details = getAppDetailsAndUpdateViewState(id.appId)
+            when (navigationArgs.target) {
+                is ServiceProfileTarget.App -> {
+                    val details = getAppDetailsAndUpdateViewState(userId)
                     if (details != null && isAppsEnabled) {
-                        observeIsAppConversationMember(id.appId)
+                        observeIsAppConversationMember(userId)
                     }
                 }
-                is ServiceDetailsNavArgs.Id.BotServiceId -> {
+
+                is ServiceProfileTarget.Bot -> {
                     getServiceDetailsAndUpdateViewState()?.let {
                         observeIsServiceConversationMember()
                     }
@@ -138,22 +147,22 @@ class ServiceDetailsViewModelImpl @AssistedInject constructor(
     override fun onAddService() {
         viewModelScope.launch {
             state = state.copy(isActionLoading = true)
-            val responseMessage = when (val id = serviceDetailsNavArgs.id) {
-                is ServiceDetailsNavArgs.Id.AppId -> {
+            val responseMessage = when (navigationArgs.target) {
+                is ServiceProfileTarget.App -> {
                     val response = addMemberToConversation.invoke(
                         conversationId = requireNotNull(conversationId),
-                        userIdList = listOf(id.appId)
+                        userIdList = listOf(userId)
                     )
                     when (response) {
                         is AddMemberToConversationUseCase.Result.Failure -> ServiceDetailsInfoMessageType.ErrorAddService
                         is AddMemberToConversationUseCase.Result.Success -> ServiceDetailsInfoMessageType.SuccessAddService
                     }
                 }
-                is ServiceDetailsNavArgs.Id.BotServiceId -> {
+                is ServiceProfileTarget.Bot -> {
                     val response = withContext(dispatchers.io()) {
                         addServiceToConversation.invoke(
                             conversationId = requireNotNull(conversationId),
-                            serviceId = id.serviceId
+                            serviceId = serviceId
                         )
                     }
                     when (response) {

@@ -48,7 +48,6 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private fun notificationStatusSelector(status: String) = UiSelectorParams(text = status)
 
     private val closeButton = UiSelectorParams(
-        className = "android.view.View",
         description = "Close"
     )
 

@@ -20,12 +20,9 @@ package com.wire.android.feature.cells.ui.audioplayer
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import java.io.File
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import com.wire.android.di.ApplicationContext
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -39,19 +36,16 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class AudioPlayerViewModel @AssistedInject constructor(
-    @ApplicationContext context: Context,
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted context: Context,
+    @Assisted val localPath: String?,
+    @Assisted val contentUrl: String?,
+    @Assisted val fileName: String?,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): AudioPlayerViewModel
+        fun create(context: Context, localPath: String?, contentUrl: String?, fileName: String?): AudioPlayerViewModel
     }
-
-    private val navArgs = CellAudioPlayerScreenDestination.argsFrom(savedStateHandle)
-    val localPath: String? = navArgs.localPath
-    val contentUrl: String? = navArgs.contentUrl
-    val fileName: String? = navArgs.fileName
 
     private val _state = MutableStateFlow(AudioPlaybackState())
     val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()

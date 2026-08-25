@@ -124,25 +124,87 @@ class MultiAccountSessionScope : BaseUiTest() {
     @TestCaseId("TC-11261")
     @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
     @Test
-    fun givenSingleLoggedInAccount_whenCurrentClientIsRemovedRemotely_thenLoginScreenOpens() {
+    fun givenSingleLoggedInAccount_whenCurrentClientIsRemovedAndUserLogsInAgain_thenMlsSessionIsRestored() {
+        val backendClientsBeforeAppLogin = prepareRemovedClientScenario()
+        establishMlsConversationBeforeRelogin()
+        removeClientAndLogInAgain(backendClientsBeforeAppLogin)
+        verifyMlsConversationAfterRelogin()
+    }
+
+    private fun prepareRemovedClientScenario(): Set<String> {
+        var backendClientsBeforeAppLogin = emptySet<String>()
         step("Prepare staging users") {
             prepareTeamUsers(teamName = "SessionScopeMetroRemovedSingle")
+            testServiceHelper.addDevice("user2Name", null, "Device1")
+            backendSetupHelper.userHas1on1ConversationInTeam(
+                "user1Name",
+                "user2Name",
+                "SessionScopeMetroRemovedSingle"
+            )
+            backendClientsBeforeAppLogin = backendClient
+                .getBackendClientIds(requireNotNull(primaryUser))
+                .toSet()
         }
+        step("Login the first account") { loginUser(primaryUser) }
+        return backendClientsBeforeAppLogin
+    }
 
-        step("Login the first account") {
-            loginUser(primaryUser)
+    private fun establishMlsConversationBeforeRelogin() {
+        step("Establish the MLS conversation before removing the current client") {
+            testServiceHelper.userSendMessageToPersonalMlsConversation(
+                "user2Name",
+                PRE_RELOGIN_MLS_MESSAGE,
+                "Device1",
+                "user1Name"
+            )
+            pages.conversationListPage.tapConversationNameInConversationList(secondaryUser?.name.orEmpty())
+            pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation(PRE_RELOGIN_MLS_MESSAGE)
+            device.pressBack()
+            pages.conversationListPage.assertConversationListVisible()
         }
+    }
 
+    private fun removeClientAndLogInAgain(backendClientsBeforeAppLogin: Set<String>) {
         step("Remove the current client from the backend") {
-            removeCurrentBackendClient(primaryUser)
+            removeCurrentBackendClient(primaryUser, excluding = backendClientsBeforeAppLogin)
         }
-
         step("Confirm removed-device dialog and verify login screen opens") {
             pages.selfUserProfilePage.apply {
                 assertRemovedDeviceDialogVisible()
                 confirmRemovedDeviceDialog()
             }
             pages.registrationPage.assertAuthEntryVisible()
+        }
+        step("Log the removed user in again without restarting the app") {
+            loginUser(primaryUser, configureStagingBackend = false)
+        }
+    }
+
+    private fun verifyMlsConversationAfterRelogin() {
+        step("Open the existing MLS conversation from the recreated session") {
+            pages.conversationListPage.tapConversationNameInConversationList(secondaryUser?.name.orEmpty())
+        }
+        step("Receive an MLS message after the new client joins by external commit") {
+            testServiceHelper.userSendMessageToPersonalMlsConversation(
+                "user2Name",
+                POST_RELOGIN_MLS_MESSAGE,
+                "Device1",
+                "user1Name"
+            )
+            pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation(POST_RELOGIN_MLS_MESSAGE)
+        }
+        step("Send and verify an MLS message from the recreated session") {
+            pages.conversationViewPage.apply {
+                typeMessageInInputField(POST_RELOGIN_REPLY)
+                clickSendButton()
+                assertSentMessageIsVisibleInCurrentConversation(POST_RELOGIN_REPLY)
+            }
+            testServiceHelper.assertMessageReceivedInPersonalMlsConversation(
+                receiverAlias = "user2Name",
+                deviceName = "Device1",
+                conversationWithAlias = "user1Name",
+                message = POST_RELOGIN_REPLY,
+            )
         }
     }
 
@@ -301,17 +363,23 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     private fun openAddAccountFlow() {
-        pages.conversationListPage.clickUserProfileButton()
+        pages.conversationListPage
+            .waitUntilWireServiceNotificationDisappears()
+            .clickUserProfileButton()
         pages.selfUserProfilePage.apply {
             iSeeUserProfilePage()
             tapNewAccountButton()
         }
     }
 
-    private fun removeCurrentBackendClient(user: ClientUser?) {
+    private fun removeCurrentBackendClient(user: ClientUser?, excluding: Set<String> = emptySet()) {
         val clientUser = requireNotNull(user) { "Cannot remove backend client for a missing user." }
-        val clientId = backendClient.getBackendClientIds(clientUser).singleOrNull()
-            ?: throw AssertionError("Expected exactly one backend client for ${clientUser.name}.")
+        val candidateClientIds = backendClient.getBackendClientIds(clientUser) - excluding
+        val clientId = candidateClientIds.singleOrNull()
+            ?: throw AssertionError(
+                "Expected exactly one new backend client for ${clientUser.name}, " +
+                        "but found ${candidateClientIds.size}: $candidateClientIds."
+            )
         backendClient.removeBackendClient(clientUser, clientId)
     }
 
@@ -341,6 +409,9 @@ class MultiAccountSessionScope : BaseUiTest() {
 
     private companion object {
         const val EXISTING_CLIENTS_LIMIT = 7
+        const val PRE_RELOGIN_MLS_MESSAGE = "MLS before client re-registration"
+        const val POST_RELOGIN_MLS_MESSAGE = "MLS after client re-registration"
+        const val POST_RELOGIN_REPLY = "MLS reply after client re-registration"
         val POST_REMOVE_DEVICE_LOGIN_TIMEOUT = 120.seconds
     }
 }

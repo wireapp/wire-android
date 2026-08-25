@@ -84,6 +84,9 @@
     <string name="new_meeting_edit_failure_description">Что-то пошло не так при обновлении встречи. Попробуйте еще раз.</string>
     <string name="new_meeting_edit_init_failure_title">Не удалось загрузить встречу</string>
     <string name="new_meeting_edit_init_failure_description">Что-то пошло не так во время загрузки встречи для обновления. Пожалуйста, попробуйте еще раз.</string>
+    <string name="new_meeting_edit_conversation_name_failure_title">Не удалось обновить имя вызова</string>
+    <string name="new_meeting_edit_conversation_name_failure_description">Название встречи было обновлено, но имя, указанное в вызове, обновить не удалось. Пожалуйста, попробуйте снова.</string>
+    <string name="new_meeting_edit_conversation_name_failure_action">Повторить</string>
     <string name="meeting_join_failure_title">Не удалось присоединиться к встрече</string>
     <string name="meeting_join_failure_description">При подключении к встрече произошла ошибка. Попробуйте еще раз.</string>
     <plurals name="new_meeting_participants_input_more_suffix">

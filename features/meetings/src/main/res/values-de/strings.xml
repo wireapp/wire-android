@@ -29,6 +29,7 @@
     <string name="meeting_date_header_tomorrow">Morgen (%1$s)</string>
     <string name="meeting_date_header_yesterday">Gestern (%1$s)</string>
     <string name="deleted_meeting_options_closed">Die Optionen wurden geschlossen, da diese Meeting nicht mehr verfügbar ist.</string>
+    <string name="meeting_options_join_now">Jetzt beitreten</string>
     <string name="meeting_options_create_conversation">Unterhaltung erstellen</string>
     <string name="meeting_options_copy_link">Link kopieren</string>
     <string name="meeting_options_edit_meeting">Meeting bearbeiten</string>
@@ -50,6 +51,7 @@
     <string name="new_meeting_participants_input_placeholder">Teilnehmer auswählen</string>
     <string name="content_description_new_meeting_back_icon">Ansicht neues Meeting schließen</string>
     <string name="content_description_new_meeting_participants_back_icon">Teilnehmer auswählen Ansicht schließen</string>
+    <string name="new_meeting_title_name_error_empty">Titel erforderlich</string>
     <string name="new_meeting_title_name_error_exceeded_limit">Meeting-Name höchstens 64 Zeichen</string>
     <string name="new_meeting_starts_input_label">Beginnt</string>
     <string name="new_meeting_start_date_input_placeholder">Startdatum auswählen</string>
@@ -57,6 +59,9 @@
     <string name="new_meeting_ends_input_label">Endet</string>
     <string name="new_meeting_end_date_input_placeholder">Enddatum auswählen</string>
     <string name="new_meeting_end_time_input_placeholder">Endzeit auswählen</string>
+    <string name="new_meeting_start_in_past_error">Beginn des Meetings muss in der Zukunft liegen</string>
+    <string name="new_meeting_end_in_past_error">Ende des Meetings muss in der Zukunft liegen</string>
+    <string name="new_meeting_end_before_start_error">Ende des Meetings muss nach dem Beginn liegen</string>
     <string name="new_meeting_repeats_input_label">Wiederholt sich</string>
     <string name="content_description_new_meeting_repeating_options">Wiederholungsoption auswählen</string>
     <string name="new_meeting_allow_guests_label">Gäste zulassen</string>
@@ -74,10 +79,18 @@
     </plurals>
     <!-- Repeating frequency options -->
     <string name="meeting_repeating_never">Niemals</string>
+    <string name="meeting_repeating_days_2">Alle 2 Tage</string>
+    <string name="meeting_repeating_days_3">Alle 3 Tage</string>
+    <string name="meeting_repeating_days_4">Alle 4 Tage</string>
+    <string name="meeting_repeating_days_5">Alle 5 Tage</string>
+    <string name="meeting_repeating_days_6">Alle 6 Tage</string>
     <plurals name="meeting_repeating_days">
         <item quantity="one">Täglich</item>
         <item quantity="other">Alle %d Tage</item>
     </plurals>
+    <string name="meeting_repeating_weeks_2">Alle 2 Wochen</string>
+    <string name="meeting_repeating_weeks_3">Alle 3 Wochen</string>
+    <string name="meeting_repeating_weeks_4">Alle 4 Wochen</string>
     <plurals name="meeting_repeating_weeks">
         <item quantity="one">Wöchentlich</item>
         <item quantity="other">Alle %d Wochen</item>

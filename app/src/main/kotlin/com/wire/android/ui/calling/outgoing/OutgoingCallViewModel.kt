@@ -32,16 +32,22 @@ import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import java.util.Calendar
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList")
-class OutgoingCallViewModel(
-    val conversationId: ConversationId,
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
+class OutgoingCallViewModel @AssistedInject constructor(
+    @Assisted val conversationId: ConversationId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeOutgoingCall: ObserveOutgoingCallUseCase,
     private val startCall: StartCallUseCase,
@@ -49,6 +55,10 @@ class OutgoingCallViewModel(
     private val isLastCallClosed: IsLastCallClosedUseCase,
     private val callRinger: CallRinger
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): OutgoingCallViewModel
+    }
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
     private var wasCallHangUp: Boolean = false

@@ -18,20 +18,19 @@
 
 package com.wire.android.ui.home.conversationslist.all
 
-import com.wire.android.navigation.annotation.app.WireHomeDestination
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.search.rememberSearchbarState
-import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversations.conversationFoldersViewModel
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
+import com.wire.android.ui.home.conversationslist.ConversationsNavigationActions
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
@@ -39,20 +38,20 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ConversationFilter
 
-@WireHomeDestination(start = true)
 @Composable
-fun AllConversationsScreen(
-    homeStateHolder: HomeStateHolder,
+internal fun AllConversationsContent(
+    homeShellState: HomeShellState,
+    navigationActions: ConversationsNavigationActions,
     foldersViewModel: ConversationFoldersVM =
         conversationFoldersViewModel(ConversationFoldersStateArgs(null)),
 ) {
-    with(homeStateHolder) {
+    with(homeShellState) {
         Crossfade(
-            targetState = homeStateHolder.currentConversationFilter,
+            targetState = homeShellState.currentConversationFilter,
             label = "Conversation filter change animation",
         ) { filter ->
             ConversationsScreenContent(
-                navigator = navigator,
+                navigationActions = navigationActions,
                 searchBarState = searchBarState,
                 conversationsSource = when (filter) {
                     is ConversationFilter.All -> ConversationsSource.MAIN
@@ -65,19 +64,24 @@ fun AllConversationsScreen(
                 lazyListState = lazyListStateFor(HomeDestination.Conversations, filter),
                 emptySearchResultFocusRequester = emptySearchResultFocusRequester,
                 firstConversationFocusRequester = firstConversationFocusRequester,
-                onConversationOpened = homeStateHolder::requestClearSearchOnNextResume,
-                emptyListContent = { ConversationsEmptyContent(filter = filter, navigator = navigator) }
+                onConversationOpened = homeShellState::requestClearSearchOnNextResume,
+                emptyListContent = {
+                    ConversationsEmptyContent(
+                        filter = filter,
+                        onBrowseChannels = navigationActions.browseChannels,
+                    )
+                }
             )
         }
         WireModalSheetLayout(
             sheetState = conversationsFilterBottomSheetState,
             sheetContent = { sheetData ->
                 ConversationFilterSheetContent(
-                    currentFilter = homeStateHolder.currentConversationFilter,
+                    currentFilter = homeShellState.currentConversationFilter,
                     folders = foldersViewModel.state().folders,
                     onChangeFilter = { filter ->
                         conversationsFilterBottomSheetState.hide()
-                        homeStateHolder.changeConversationFilter(filter)
+                        homeShellState.changeConversationFilter(filter)
                     },
                 )
             }
@@ -89,10 +93,10 @@ fun AllConversationsScreen(
 @Composable
 fun PreviewAllConversationsEmptyScreen() = WireTheme {
     ConversationsScreenContent(
-        navigator = rememberNavigator {},
+        navigationActions = previewConversationsNavigationActions(),
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
+        emptyListContent = { ConversationsEmptyContent(onBrowseChannels = {}) },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow(list = listOf())),
     )
 }
@@ -101,10 +105,10 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
 @Composable
 fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
     ConversationsScreenContent(
-        navigator = rememberNavigator {},
+        navigationActions = previewConversationsNavigationActions(),
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
+        emptyListContent = { ConversationsEmptyContent(onBrowseChannels = {}) },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow(searchQuery = "er", list = listOf())),
     )
 }
@@ -113,10 +117,20 @@ fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
 @Composable
 fun PreviewAllConversationsSearchScreen() = WireTheme {
     ConversationsScreenContent(
-        navigator = rememberNavigator {},
+        navigationActions = previewConversationsNavigationActions(),
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
-        emptyListContent = { ConversationsEmptyContent(navigator = rememberNavigator {}) },
+        emptyListContent = { ConversationsEmptyContent(onBrowseChannels = {}) },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow("er")),
     )
 }
+
+private fun previewConversationsNavigationActions() = ConversationsNavigationActions(
+    openConversation = {},
+    openUserProfile = {},
+    startConversation = {},
+    browseChannels = {},
+    openConversationFolders = {},
+    promoteAdmin = {},
+    openDebugMenu = {},
+)

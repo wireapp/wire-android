@@ -22,9 +22,6 @@ import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -49,65 +46,52 @@ import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
  */
 @OptIn(ExperimentalComposeUiApi::class)
 class StartingCallActivity : CallActivity() {
-    private var conversationId: String? by mutableStateOf(null)
-    private var userId: String? by mutableStateOf(null)
-    private var screenType: StartingCallScreenType? by mutableStateOf(null)
-    private var shouldAnswerCall: Boolean by mutableStateOf(false)
-
-    override fun handleNewIntent(intent: Intent) {
-        conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
-        userId = intent.extras?.getString(EXTRA_USER_ID)
-        screenType = intent.extras?.getString(EXTRA_SCREEN_TYPE)?.let { StartingCallScreenType.byName(it) }
-        shouldAnswerCall = intent.extras?.getBoolean(EXTRA_SHOULD_ANSWER_CALL, false) ?: false
-        require(conversationId != null) { "$TAG No conversation ID provided in intent extras" }
-        require(userId != null) { "$TAG No user ID provided in intent extras" }
-        require(screenType != null) { "$TAG No screen type provided in intent extras" }
-        switchAccountIfNeeded(userId)
-    }
+    override val destination: CallActivityDestination = CallActivityDestination.STARTING
 
     @Composable
-    override fun Content() {
-        screenType?.let { currentScreenType ->
-            AnimatedContent(
-                targetState = currentScreenType,
-                transitionSpec = {
-                    TransitionAnimationType.POP_UP.enterTransition.togetherWith(
-                        TransitionAnimationType.POP_UP.exitTransition
-                    )
-                },
-                modifier = Modifier.semantics { testTagsAsResourceId = true },
-                label = currentScreenType.name
-            ) { screenType ->
-                conversationId?.let { conversationId ->
-                    userId?.let { userId ->
-                        when (screenType) {
-                            StartingCallScreenType.Outgoing -> {
-                                OutgoingCallScreen(
-                                    conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
-                                ) {
-                                    getOngoingCallIntent(this@StartingCallActivity, conversationId, userId).run {
-                                        this@StartingCallActivity.startActivity(this)
-                                    }
-                                    this@StartingCallActivity.finishAndRemoveTask()
-                                }
-                            }
-
-                            StartingCallScreenType.Incoming -> {
-                                IncomingCallScreen(
-                                    conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
-                                    shouldTryToAnswerCallAutomatically = shouldAnswerCall,
-                                ) {
-                                    this@StartingCallActivity.startActivity(
-                                        getOngoingCallIntent(this@StartingCallActivity, conversationId, userId)
-                                    )
-                                    this@StartingCallActivity.finishAndRemoveTask()
-                                }
-                            }
+    override fun Content(request: CallActivityRequest) {
+        val screen = (request.screen as? CallActivityScreen.Starting)?.type ?: return
+        AnimatedContent(
+            targetState = screen,
+            transitionSpec = {
+                TransitionAnimationType.POP_UP.enterTransition.togetherWith(
+                    TransitionAnimationType.POP_UP.exitTransition
+                )
+            },
+            modifier = Modifier.semantics { testTagsAsResourceId = true },
+            label = screen.name
+        ) { screenType ->
+            when (screenType) {
+                StartingCallScreenType.Outgoing -> {
+                    OutgoingCallScreen(conversationId = request.conversationId) {
+                        getOngoingCallIntent(
+                            this@StartingCallActivity,
+                            request.conversationId.toString(),
+                            request.userId.toString(),
+                        ).run {
+                            this@StartingCallActivity.startActivity(this)
                         }
+                        this@StartingCallActivity.finishAndRemoveTask()
+                    }
+                }
+
+                StartingCallScreenType.Incoming -> {
+                    IncomingCallScreen(
+                        conversationId = request.conversationId,
+                        shouldTryToAnswerCallAutomatically = request.shouldAnswerCall,
+                    ) {
+                        this@StartingCallActivity.startActivity(
+                            getOngoingCallIntent(
+                                this@StartingCallActivity,
+                                request.conversationId.toString(),
+                                request.userId.toString(),
+                            )
+                        )
+                        this@StartingCallActivity.finishAndRemoveTask()
                     }
                 }
             }
-        } ?: run { finish() }
+        }
     }
 
     override fun onResume() {
@@ -123,10 +107,6 @@ class StartingCallActivity : CallActivity() {
     override fun onDestroy() {
         cleanUpCallingFlags()
         super.onDestroy()
-    }
-
-    companion object {
-        private const val TAG = "StartingCallActivity"
     }
 }
 

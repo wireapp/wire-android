@@ -39,22 +39,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.CellScreenContent
+import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellViewModel
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.common.OfflineBanner
-import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
-import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.conversation.FilterByConversationBottomSheet
@@ -62,12 +51,6 @@ import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterB
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.searchScreenViewModel
-import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
@@ -78,17 +61,13 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@WireCellsDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = SearchNavArgs::class,
-)
 @Composable
-fun SearchScreen(
-    navigator: WireNavigator,
+internal fun SearchRouteScreen(
+    navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation,
     animatedVisibilityScope: AnimatedVisibilityScope,
     cellViewModel: CellViewModel,
+    searchScreenViewModel: SearchScreenViewModel,
     modifier: Modifier = Modifier,
-    searchScreenViewModel: SearchScreenViewModel = searchScreenViewModel(),
 ) {
     val uiState by searchScreenViewModel.uiState.collectAsStateWithLifecycle()
     val isOnlineState by cellViewModel.isOnline.collectAsState()
@@ -132,7 +111,7 @@ fun SearchScreen(
                                     DriveSearchScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
                                 },
                                 searchQueryTextState = searchState,
-                                onCloseSearchClicked = { navigator.navigateBack() },
+                                onCloseSearchClicked = navigation::back,
                                 onActiveChanged = {
                                     searchScreenViewModel.onSetSearchActive(it)
                                 },
@@ -183,7 +162,7 @@ fun SearchScreen(
                             WireCenterAlignedTopAppBar(
                                 title = "",
                                 navigationIconType = NavigationIconType.Close(),
-                                onNavigationPressed = { navigator.navigateBack() },
+                                onNavigationPressed = navigation::back,
                             )
                             OfflineBanner()
                         }
@@ -216,104 +195,22 @@ fun SearchScreen(
                 isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
                 isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
                 openFolder = { path, title, parentFolderUuid ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            ConversationFilesWithSlideInTransitionScreenDestination(
-                                conversationId = path,
-                                screenTitle = title,
-                                parentFolderUuid = parentFolderUuid,
-                            ),
-                            BackStackMode.NONE,
-                            launchSingleTop = false
+                    navigation.folder(
+                        CellFilesNavArgs(
+                            conversationId = path,
+                            screenTitle = title,
+                            parentFolderUuid = parentFolderUuid,
                         )
                     )
                 },
-                showPublicLinkScreen = { publicLinkScreenData ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            PublicLinkScreenDestination(
-                                assetId = publicLinkScreenData.assetId,
-                                fileName = publicLinkScreenData.fileName,
-                                publicLinkId = publicLinkScreenData.linkId,
-                                isFolder = publicLinkScreenData.isFolder
-                            )
-                        )
-                    )
-                },
-                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            MoveToFolderScreenDestination(
-                                currentPath = currentPath,
-                                nodeToMovePath = nodePath,
-                                uuid = uuid
-                            )
-                        )
-                    )
-                },
-                showRenameScreen = { cellNodeUi ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            RenameNodeScreenDestination(
-                                uuid = cellNodeUi.uuid,
-                                currentPath = cellNodeUi.remotePath,
-                                isFolder = cellNodeUi is CellNodeUi.Folder,
-                                nodeName = cellNodeUi.name,
-                            )
-                        )
-                    )
-                },
-                showAddRemoveTagsScreen = { node ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
-                        )
-                    )
-                },
-                showVersionHistoryScreen = { uuid, fileName ->
-                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
-                },
-                showImageViewer = { file ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            CellImageViewerScreenDestination(
-                                CellImageViewerNavArgs(
-                                    localPath = file.localPath,
-                                    contentUrl = file.contentUrl,
-                                    previewUrl = file.previewUrl,
-                                    contentHash = file.contentHash,
-                                    fileName = file.name,
-                                )
-                            )
-                        )
-                    )
-                },
-                showVideoViewer = { file ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            VideoPlayerScreenDestination(
-                                VideoViewerNavArgs(
-                                    localPath = file.localPath,
-                                    contentUrl = file.contentUrl,
-                                    fileName = file.name,
-                                )
-                            )
-                        )
-                    )
-                },
-                showAudioPlayer = { file ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            CellAudioPlayerScreenDestination(
-                                AudioPlayerNavArgs(
-                                    localPath = file.localPath,
-                                    contentUrl = file.contentUrl,
-                                    fileName = file.name,
-                                )
-                            )
-                        )
-                    )
-                },
+                showPublicLinkScreen = navigation::publicLink,
+                showMoveToFolderScreen = navigation::move,
+                showRenameScreen = navigation::rename,
+                showAddRemoveTagsScreen = navigation::tags,
+                showVersionHistoryScreen = navigation::versionHistory,
+                showImageViewer = navigation::image,
+                showVideoViewer = navigation::video,
+                showAudioPlayer = navigation::audio,
                 retryEditNodeError = { cellViewModel.editNode(it) },
                 isRefreshing = remember { mutableStateOf(false) },
                 onRefresh = { },

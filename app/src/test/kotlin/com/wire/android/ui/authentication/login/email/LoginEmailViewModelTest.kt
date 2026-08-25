@@ -27,7 +27,6 @@ import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.assertions.shouldNotBeEqualTo
 import com.wire.android.assertions.shouldNotBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -82,6 +81,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -92,7 +92,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
+@Suppress("LargeClass")
 class LoginEmailViewModelTest {
 
     private val dispatcherProvider = TestDispatcherProvider(StandardTestDispatcher())
@@ -262,6 +263,10 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
 
         loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.UserAlreadyExists>()
+        coVerify(exactly = 0) {
+            arrangement.logoutUseCase(any(), any())
+            arrangement.deleteSessionUseCase(any())
+        }
     }
 
     @Test
@@ -723,6 +728,67 @@ class LoginEmailViewModelTest {
         advanceUntilIdle()
         // then
         coVerify(exactly = 0) {
+            arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
+            arrangement.deleteSessionUseCase(newUserId)
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+    }
+
+    @Test
+    fun `given second account requires device removal, when credentials emit again, then preserve navigation state`() = runTest {
+        val previousUserId = UserId("previousUserId", "domain")
+        val newUserId = UserId("newUserId", "domain")
+        val authToken = AUTH_TOKEN.copy(userId = newUserId)
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Failure.TooManyClients)
+            .arrange()
+        viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd("second.account@example.org")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password")
+        advanceUntilIdle()
+
+        viewModel.login()
+        advanceUntilIdle()
+        viewModel.loginState.flowState shouldBeEqualTo LoginState.Error.TooManyDevicesError(newUserId)
+
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("password-updated-by-input")
+        advanceUntilIdle()
+
+        viewModel.loginState.flowState shouldBeEqualTo LoginState.Error.TooManyDevicesError(newUserId)
+        coVerify(exactly = 0) {
+            arrangement.deleteSessionUseCase(newUserId)
+            arrangement.updateCurrentSessionUseCase(previousUserId)
+        }
+    }
+
+    @Test
+    fun `given new session was stored, when login flow is canceled, then revert session before another attempt`() = runTest {
+        val previousUserId = UserId("previousUserId", "domain")
+        val newUserId = UserId("newUserId", "domain")
+        val authToken = AUTH_TOKEN.copy(userId = newUserId)
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteSessionReturning(DeleteSessionUseCase.Result.Success)
+            .withUpdateCurrentSessionReturning(UpdateCurrentSessionUseCase.Result.Success)
+            .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(previousUserId)))
+            .withLoginReturning(AuthenticationResult.Success(authToken, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(newUserId))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .arrange()
+        coEvery { arrangement.getOrRegisterClientUseCase(any()) } coAnswers { awaitCancellation() }
+
+        viewModel.login()
+        advanceUntilIdle()
+        viewModel.loginJobData.value?.job?.cancel()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
             arrangement.logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, true)
             arrangement.deleteSessionUseCase(newUserId)
             arrangement.updateCurrentSessionUseCase(previousUserId)

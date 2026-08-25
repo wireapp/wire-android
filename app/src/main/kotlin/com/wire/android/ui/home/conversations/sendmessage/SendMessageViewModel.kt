@@ -21,10 +21,8 @@ package com.wire.android.ui.home.conversations.sendmessage
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
@@ -80,6 +78,9 @@ import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseC
 import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -88,10 +89,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class SendMessageViewModel(
-    val savedStateHandle: SavedStateHandle,
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+class SendMessageViewModel @AssistedInject constructor(
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendMultipartMessage: SendMultipartMessageUseCase,
@@ -116,9 +119,15 @@ class SendMessageViewModel(
     private val sharedState: MessageSharedState,
     private val generateLinkPreview: GenerateLinkPreviewUseCase,
     private val detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: ConversationNavArgs): SendMessageViewModel
+    }
+
+    private val conversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()

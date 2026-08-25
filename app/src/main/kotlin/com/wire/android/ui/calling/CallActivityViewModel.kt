@@ -28,13 +28,14 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class CallActivityViewModel(
+class CallActivityViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val currentSession: CurrentSessionUseCase,
     private val observeScreenshotCensoringConfigUseCaseProviderFactory:
@@ -42,18 +43,12 @@ class CallActivityViewModel(
     private val accountSwitch: AccountSwitchUseCase
 ) : ViewModel() {
 
-    fun isScreenshotCensoringConfigEnabled(): Deferred<Boolean> =
+    fun isScreenshotCensoringConfigEnabled(userId: UserId): Deferred<Boolean> =
         viewModelScope.async(dispatchers.io()) {
-            val currentSession = currentSession()
-            if (currentSession is CurrentSessionResult.Success) {
-                return@async observeScreenshotCensoringConfigUseCaseProviderFactory.create(
-                    currentSession.accountInfo.userId
-                ).observeScreenshotCensoringConfig().map {
-                    it is ObserveScreenshotCensoringConfigResult.Enabled
-                }.first()
-            } else {
-                return@async false
-            }
+            observeScreenshotCensoringConfigUseCaseProviderFactory.create(userId)
+                .observeScreenshotCensoringConfig()
+                .map { it is ObserveScreenshotCensoringConfigResult.Enabled }
+                .first()
         }
 
     fun switchAccountIfNeeded(userId: UserId, actions: SwitchAccountActions) {

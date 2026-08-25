@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.CurrentAccount
 import com.wire.android.util.EMPTY
 import com.wire.android.util.logging.LogFileWriter
 import com.wire.kalium.common.logger.CoreLogger
@@ -32,6 +33,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -47,8 +49,8 @@ data class UserDebugState(
 )
 
 @Suppress("LongParameterList")
-class UserDebugViewModel(
-    val currentAccount: UserId,
+class UserDebugViewModel @Inject constructor(
+    @CurrentAccount val currentAccount: UserId,
     private val logFileWriter: LogFileWriter,
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     private val globalDataStore: GlobalDataStore,

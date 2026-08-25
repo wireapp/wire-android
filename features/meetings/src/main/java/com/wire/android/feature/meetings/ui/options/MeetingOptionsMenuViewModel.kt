@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.meetings.R
+import com.wire.android.feature.meetings.mapper.isSelfUserAttending
 import com.wire.android.feature.meetings.mapper.toItemSelfRole
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
@@ -31,14 +32,18 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
+import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -50,23 +55,31 @@ interface MeetingOptionsMenuViewModel : ActionsManager<MeetingOptionsMenuViewAct
     val deleteMeetingForEveryoneDialogState: VisibilityState<DeleteMeetingDialogState> get() = VisibilityState()
     fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState>
     fun deleteMeeting(meetingId: MeetingId, meetingTitle: String)
+    fun checkCallStatusAndSendCallAction(conversationId: ConversationId)
 }
 
 class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvider) : MeetingOptionsMenuViewModel {
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
     override fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState> = MutableStateFlow(
         meetingMocksProvider.getItem(occurrenceId)?.let {
-            MeetingOptionsMenuState.Meeting(meetingId = it.meetingId, title = it.title, selfRole = it.selfRole)
+            MeetingOptionsMenuState.Meeting(
+                meetingId = it.meetingId,
+                conversationId = it.conversationId,
+                title = it.title,
+                selfRole = it.selfRole
+            )
         } ?: MeetingOptionsMenuState.NotAvailable
     )
 
     override fun deleteMeeting(meetingId: MeetingId, meetingTitle: String) = Unit
+    override fun checkCallStatusAndSendCallAction(conversationId: ConversationId) = Unit
 }
 
-class MeetingOptionsMenuViewModelImpl(
+class MeetingOptionsMenuViewModelImpl @Inject constructor(
     private val currentTimeProvider: CurrentTimeProvider,
     private val observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase,
     private val deleteMeetingUseCase: DeleteMeetingUseCase,
+    private val observeActiveCallsUseCase: ObserveActiveCallsUseCase,
 ) : MeetingOptionsMenuViewModel, ActionsViewModel<MeetingOptionsMenuViewAction>() {
     private val stateFlow: ConcurrentHashMap<String, StateFlow<MeetingOptionsMenuState>> = ConcurrentHashMap()
     override val deleteMeetingForEveryoneDialogState: VisibilityState<DeleteMeetingDialogState> by mutableStateOf(VisibilityState())
@@ -79,6 +92,7 @@ class MeetingOptionsMenuViewModelImpl(
                         val hasEnded = it.occurrenceEndTime < currentTimeProvider()
                         MeetingOptionsMenuState.Meeting(
                             meetingId = it.meeting.meetingId,
+                            conversationId = it.meeting.conversationId,
                             title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
                             editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && !hasEnded,
@@ -119,6 +133,18 @@ class MeetingOptionsMenuViewModelImpl(
             deleteMeetingForEveryoneDialogState.dismiss()
         }
     }
+
+    override fun checkCallStatusAndSendCallAction(conversationId: ConversationId) {
+        viewModelScope.launch {
+            val call = observeActiveCallsUseCase().firstOrNull()?.firstOrNull { it.conversationId == conversationId }
+            val action = when {
+                call != null && call.status.isSelfUserAttending() -> MeetingOptionsMenuViewAction.ReturnToCall(conversationId)
+                call != null -> MeetingOptionsMenuViewAction.JoinCall(conversationId)
+                else -> MeetingOptionsMenuViewAction.StartCall(conversationId)
+            }
+            sendAction(action)
+        }
+    }
 }
 
 sealed interface MeetingOptionsMenuState {
@@ -126,6 +152,7 @@ sealed interface MeetingOptionsMenuState {
     data object NotAvailable : MeetingOptionsMenuState
     data class Meeting(
         val meetingId: MeetingId,
+        val conversationId: ConversationId,
         val title: String,
         val selfRole: MeetingItem.SelfRole = MeetingItem.SelfRole.Member,
         val deleteOption: DeleteOption = DeleteOption.None,
@@ -141,4 +168,7 @@ sealed interface MeetingOptionsMenuState {
 
 sealed interface MeetingOptionsMenuViewAction {
     data class Message(val message: SnackBarMessage) : MeetingOptionsMenuViewAction
+    data class StartCall(val conversationId: ConversationId) : MeetingOptionsMenuViewAction
+    data class JoinCall(val conversationId: ConversationId) : MeetingOptionsMenuViewAction
+    data class ReturnToCall(val conversationId: ConversationId) : MeetingOptionsMenuViewAction
 }

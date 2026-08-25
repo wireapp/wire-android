@@ -27,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.CurrentAccount
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.ReactionSender
@@ -62,6 +63,9 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -81,11 +85,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class OngoingCallViewModel(
-    val conversationId: ConversationId,
-    val currentUserId: UserId,
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
+class OngoingCallViewModel @AssistedInject constructor(
+    @Assisted val conversationId: ConversationId,
+    @CurrentAccount val currentUserId: UserId,
     private val globalDataStore: GlobalDataStore,
     private val networkStateObserver: NetworkStateObserver,
     private val observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase,
@@ -101,6 +108,10 @@ class OngoingCallViewModel(
     private val dispatchers: DispatcherProvider,
     private val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Default,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): OngoingCallViewModel
+    }
 
     var state by mutableStateOf(OngoingCallState())
         private set

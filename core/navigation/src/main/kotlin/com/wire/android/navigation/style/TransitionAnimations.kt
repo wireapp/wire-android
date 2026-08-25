@@ -117,3 +117,32 @@ internal fun fadeOutFromView(): ExitTransition {
         animationSpec = fadeAnimationSpec,
     )
 }
+
+/**
+ * Transition animations shared by Navigation 3 entries and standalone Activity hosts.
+ */
+enum class TransitionAnimationType(
+    val enterTransition: EnterTransition,
+    val exitTransition: ExitTransition,
+    val popEnterTransition: EnterTransition,
+    val popExitTransition: ExitTransition,
+) {
+    SLIDE(
+        enterTransition = smoothSlideInFromRight(),
+        exitTransition = fadeOutFromView(),
+        popEnterTransition = fadeInToView(),
+        popExitTransition = smoothSlideOutFromLeft(),
+    ),
+    POP_UP(
+        enterTransition = expandInToView(),
+        exitTransition = fadeOutFromView(),
+        popEnterTransition = fadeInToView(),
+        popExitTransition = shrinkOutFromView(),
+    ),
+    NONE(
+        enterTransition = EnterTransition.None,
+        exitTransition = ExitTransition.None,
+        popEnterTransition = EnterTransition.None,
+        popExitTransition = ExitTransition.None,
+    ),
+}

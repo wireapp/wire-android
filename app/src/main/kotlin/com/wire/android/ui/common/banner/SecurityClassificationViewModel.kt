@@ -18,30 +18,40 @@
 
 package com.wire.android.ui.common.banner
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.common.CommonManualViewModelFactoryGroup
 @ViewModelScopedPreview
 interface SecurityClassificationViewModel {
     fun state(): SecurityClassificationType = SecurityClassificationType.NONE
 }
 
-class SecurityClassificationViewModelImpl(
+@WireAssistedViewModelBinding(CommonManualViewModelFactoryGroup::class)
+class SecurityClassificationViewModelImpl @AssistedInject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val args: SecurityClassificationArgs
+    @CurrentAccount private val currentAccount: UserId,
+    @Assisted private val args: SecurityClassificationArgs,
 ) : SecurityClassificationViewModel, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: SecurityClassificationArgs): SecurityClassificationViewModelImpl
+    }
 
     private var state by mutableStateOf(SecurityClassificationType.NONE)
 
@@ -49,24 +59,10 @@ class SecurityClassificationViewModelImpl(
 
     init {
         viewModelScope.launch {
-            coreLogic.getGlobalScope().session.currentSessionFlow()
-                .flatMapLatest { currentSession ->
-                    when (currentSession) {
-                        is CurrentSessionResult.Success -> when (args) {
-                            is SecurityClassificationArgs.Conversation -> observeConversationClassificationType(
-                                currentSession.accountInfo.userId,
-                                args.id
-                            )
-
-                            is SecurityClassificationArgs.User -> observeUserClassificationType(
-                                currentSession.accountInfo.userId,
-                                args.id
-                            )
-                        }
-
-                        is CurrentSessionResult.Failure -> flowOf(SecurityClassificationType.NONE)
-                    }
-                }
+            when (args) {
+                is SecurityClassificationArgs.Conversation -> observeConversationClassificationType(currentAccount, args.id)
+                is SecurityClassificationArgs.User -> observeUserClassificationType(currentAccount, args.id)
+            }
                 .collect { classificationType ->
                     state = classificationType
                 }

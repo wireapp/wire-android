@@ -18,9 +18,7 @@
 
 package com.wire.android.ui.home.conversations.messages
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.media.audiomessage.AudioSpeed
@@ -83,9 +81,6 @@ class ConversationMessagesViewModelArrangement {
     val networkState = MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet)
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 
     @MockK
@@ -138,7 +133,7 @@ class ConversationMessagesViewModelArrangement {
 
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
-            savedStateHandle,
+            ConversationNavArgs(conversationId = conversationId),
             observeConversationDetails,
             getMessageAsset,
             getMessageById,
@@ -164,7 +159,6 @@ class ConversationMessagesViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
         coEvery { toggleReaction(any(), any(), any()) } returns ToggleReactionResult.Success
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesFlow

@@ -25,17 +25,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.folder.MoveConversationToFolderUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+
 @ViewModelScopedPreview
 interface MoveConversationToFolderVM {
     val infoMessage: SharedFlow<UIText>
@@ -45,11 +51,19 @@ interface MoveConversationToFolderVM {
     fun moveConversationToFolder(folder: ConversationFolder) {}
 }
 
-class MoveConversationToFolderVMImpl(
+@WireAssistedViewModelBinding(
+    ConversationSearchFolderManualViewModelFactoryGroup::class,
+    factoryMethod = "moveConversationToFolderViewModel",
+)
+class MoveConversationToFolderVMImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
-    private val args: MoveConversationToFolderArgs,
+    @Assisted private val args: MoveConversationToFolderArgs,
     private val moveConversationToFolder: MoveConversationToFolderUseCase,
 ) : MoveConversationToFolderVM, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
+    }
 
     private var state: MoveConversationToFolderState by mutableStateOf(MoveConversationToFolderState())
 

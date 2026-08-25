@@ -18,9 +18,12 @@
 
 package com.wire.android.ui.home.messagecomposer
 
+import android.view.KeyCharacterMap
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -29,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -40,14 +44,31 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.utf16CodePoint
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -55,6 +76,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.wire.android.R
+import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -87,6 +109,7 @@ fun ActiveMessageComposerInput(
     focusRequester: FocusRequester,
     keyboardOptions: KeyboardOptions,
     onKeyboardAction: KeyboardActionHandler?,
+    onHardwareEnter: (isShiftPressed: Boolean) -> Boolean,
     canSendMessage: Boolean,
     onSendButtonClicked: () -> Unit,
     onEditButtonClicked: () -> Unit,
@@ -98,19 +121,25 @@ fun ActiveMessageComposerInput(
     onSelectedLineIndexChanged: (Int) -> Unit,
     onLineBottomYCoordinateChanged: (Float) -> Unit,
     showOptions: Boolean,
+    showInlinePlusButton: Boolean,
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
+    useKeyboardActivationGate: Boolean,
     modifier: Modifier = Modifier,
+    onHardwareTab: (isShiftPressed: Boolean) -> Boolean = { false },
+    onHardwareEscape: () -> Boolean = { false },
 ) {
+    var isCollapseButtonFocused by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .background(inputType.backgroundColor())
     ) {
         HorizontalDivider(color = MaterialTheme.wireColorScheme.outline)
-        if (showOptions) {
+        if (showOptions || isCollapseButtonFocused) {
             CollapseButton(
                 isCollapsed = !isTextExpanded,
-                onCollapseClick = onToggleInputSize
+                onCollapseClick = onToggleInputSize,
+                onFocusChanged = { isCollapseButtonFocused = it },
             )
         }
 
@@ -134,14 +163,18 @@ fun ActiveMessageComposerInput(
             onSendButtonClicked = onSendButtonClicked,
             keyboardOptions = keyboardOptions,
             onKeyboardAction = onKeyboardAction,
+            onHardwareEnter = onHardwareEnter,
+            onHardwareTab = onHardwareTab,
+            onHardwareEscape = onHardwareEscape,
             canSendMessage = canSendMessage,
             onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
             onFocused = onFocused,
             onSelectedLineIndexChanged = onSelectedLineIndexChanged,
             onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-            showOptions = showOptions,
+            showInlinePlusButton = showInlinePlusButton,
             optionsSelected = optionsSelected,
             onPlusClick = onPlusClick,
+            useKeyboardActivationGate = useKeyboardActivationGate,
             modifier = Modifier
                 .fillMaxWidth()
                 .let {
@@ -172,15 +205,19 @@ private fun InputContent(
     focusRequester: FocusRequester,
     keyboardOptions: KeyboardOptions,
     onKeyboardAction: KeyboardActionHandler?,
+    onHardwareEnter: (isShiftPressed: Boolean) -> Boolean,
+    onHardwareTab: (isShiftPressed: Boolean) -> Boolean,
+    onHardwareEscape: () -> Boolean,
     canSendMessage: Boolean,
     onSendButtonClicked: () -> Unit,
     onChangeSelfDeletionClicked: (currentlySelected: SelfDeletionTimer) -> Unit,
     onFocused: () -> Unit,
     onSelectedLineIndexChanged: (Int) -> Unit,
     onLineBottomYCoordinateChanged: (Float) -> Unit,
-    showOptions: Boolean,
+    showInlinePlusButton: Boolean,
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
+    useKeyboardActivationGate: Boolean,
     modifier: Modifier = Modifier,
     viewModel: SelfDeletingMessageActionViewModel =
         selfDeletingMessageActionViewModel(
@@ -197,7 +234,7 @@ private fun InputContent(
                 bottom.linkTo(parent.bottom)
             }
         ) {
-            if (!showOptions && inputType is InputType.Composing) {
+            if (showInlinePlusButton && inputType is InputType.Composing) {
                 AdditionalOptionButton(
                     isSelected = optionsSelected,
                     onClick = onPlusClick,
@@ -218,6 +255,10 @@ private fun InputContent(
             onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
             keyboardOptions = keyboardOptions,
             onKeyBoardAction = onKeyboardAction,
+            onHardwareEnter = onHardwareEnter,
+            onHardwareTab = onHardwareTab,
+            onHardwareEscape = onHardwareEscape,
+            useKeyboardActivationGate = useKeyboardActivationGate,
             modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(input) {
@@ -267,6 +308,7 @@ private fun InputContent(
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
+@Suppress("CyclomaticComplexMethod") // Focus gating keeps hardware and touch keyboard states in one text-field owner.
 @Composable
 private fun MessageComposerTextInput(
     messageTextState: TextFieldState,
@@ -276,12 +318,52 @@ private fun MessageComposerTextInput(
     onFocused: () -> Unit,
     keyboardOptions: KeyboardOptions,
     onKeyBoardAction: KeyboardActionHandler?,
+    onHardwareEnter: (isShiftPressed: Boolean) -> Boolean,
+    onHardwareTab: (isShiftPressed: Boolean) -> Boolean,
+    onHardwareEscape: () -> Boolean,
+    useKeyboardActivationGate: Boolean,
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val activationGateInteractionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+    val inputFocusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val softwareKeyboardController = LocalSoftwareKeyboardController.current
+    var isActivationGateFocused by remember { mutableStateOf(false) }
+    var hasComposerFocus by remember { mutableStateOf(false) }
+    var isInputActive by remember(useKeyboardActivationGate) {
+        mutableStateOf(!useKeyboardActivationGate)
+    }
+
+    fun activateInput(initialText: String? = null) {
+        initialText?.let { text ->
+            messageTextState.edit { append(text) }
+        }
+        isInputActive = true
+        onFocused()
+    }
+
+    LaunchedEffect(isInputActive, useKeyboardActivationGate) {
+        if (useKeyboardActivationGate && isInputActive) {
+            inputFocusRequester.requestFocus()
+            withFrameNanos { }
+            softwareKeyboardController?.hide()
+        }
+    }
+
+    LaunchedEffect(hasComposerFocus, useKeyboardActivationGate) {
+        if (useKeyboardActivationGate && !hasComposerFocus) {
+            // Focus briefly leaves the activation gate before reaching the text field. Wait one frame so this
+            // internal hand-off is not mistaken for leaving the composer and deactivating the input again.
+            withFrameNanos { }
+            if (!hasComposerFocus) {
+                isInputActive = false
+            }
+        }
+    }
 
     LaunchedEffect(isPressed) {
         if (isPressed) {
@@ -289,35 +371,148 @@ private fun MessageComposerTextInput(
         }
     }
 
-    WireTextField(
-        textState = messageTextState,
-        colors = colors,
-        textStyle = MaterialTheme.wireTypography.body01,
-        // Add an extra space so that the cursor is placed one space before "Type a message"
-        placeholderText = " $placeHolderText",
-        state = WireTextFieldState.Default,
-        keyboardOptions = keyboardOptions,
-        onKeyboardAction = onKeyBoardAction,
+    Box(
         modifier = modifier
-            .focusable(true)
-            .focusRequester(focusRequester)
-            .onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    onFocused()
+            .applyIf(useKeyboardActivationGate) {
+                focusRequester(focusRequester)
+                    .onPreviewKeyEvent { event ->
+                        event.handleInputActivation(isInputActive) { initialText ->
+                            activateInput(initialText)
+                        }
+                    }
+                    .onFocusChanged { focusState ->
+                        isActivationGateFocused = focusState.isFocused
+                        hasComposerFocus = focusState.hasFocus
+                    }
+                    .applyIf(isActivationGateFocused) {
+                        background(
+                            color = MaterialTheme.wireColorScheme.primaryVariant,
+                            shape = RoundedCornerShape(8.dp),
+                        )
+                    }
+                    .focusable(
+                        enabled = !isInputActive,
+                        interactionSource = activationGateInteractionSource,
+                    )
+                    .applyIf(!isInputActive) {
+                        pointerInput(Unit) {
+                            awaitEachGesture {
+                                awaitFirstDown(
+                                    requireUnconsumed = false,
+                                    pass = PointerEventPass.Initial,
+                                )
+                                activateInput()
+                            }
+                        }
+                    }
+            }
+    ) {
+        WireTextField(
+            textState = messageTextState,
+            colors = colors,
+            textStyle = MaterialTheme.wireTypography.body01,
+            // Add an extra space so that the cursor is placed one space before "Type a message"
+            placeholderText = " $placeHolderText",
+            state = WireTextFieldState.Default,
+            keyboardOptions = keyboardOptions,
+            onKeyboardAction = onKeyBoardAction,
+            modifier = Modifier
+                .fillMaxWidth()
+                .applyIf(!useKeyboardActivationGate) {
+                    focusable(true)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                onFocused()
+                            }
+                        }
+                },
+            inputModifier = Modifier
+                .applyIf(useKeyboardActivationGate) {
+                    focusRequester(inputFocusRequester)
+                        .focusProperties { canFocus = isInputActive }
                 }
-            },
-        interactionSource = interactionSource,
-        onSelectedLineIndexChanged = onSelectedLineIndexChanged,
-        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
-        lineLimits = TextFieldLineLimits.Default,
-    )
+                .onPreviewKeyEvent { event ->
+                    if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                    when {
+                        event.key == Key.Escape -> onHardwareEscape()
+
+                        event.key == Key.Tab -> onHardwareTab(event.isShiftPressed) ||
+                            focusManager.moveFocus(
+                                if (event.isShiftPressed) FocusDirection.Previous else FocusDirection.Next
+                            )
+
+                        event.key == Key.Enter || event.key == Key.NumPadEnter ->
+                            onHardwareEnter(event.isShiftPressed)
+
+                        else -> false
+                    }
+                },
+            interactionSource = interactionSource,
+            onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+            onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged,
+            onTap = null,
+            lineLimits = TextFieldLineLimits.Default,
+        )
+    }
 }
+
+private inline fun KeyEvent.handleInputActivation(
+    isInputActive: Boolean,
+    activateInput: (initialText: String?) -> Unit,
+): Boolean = if (isInputActive || type != KeyEventType.KeyDown) {
+    false
+} else {
+    when (key) {
+        Key.Enter, Key.NumPadEnter, Key.Spacebar -> {
+            activateInput(null)
+            true
+        }
+
+        else -> printableCharacter?.let { initialText ->
+            activateInput(initialText)
+            true
+        } ?: false
+    }
+}
+
+private val KeyEvent.printableCharacter: String?
+    get() {
+        if (type != KeyEventType.KeyDown || key in NON_PRINTABLE_COMPOSER_KEYS) return null
+        return unicodeCharToPrintableString(utf16CodePoint)
+    }
+
+internal fun unicodeCharToPrintableString(unicodeChar: Int): String? {
+    val codePoint = unicodeChar and KeyCharacterMap.COMBINING_ACCENT_MASK
+    return codePoint
+        .takeIf { it != 0 && Character.isValidCodePoint(it) }
+        ?.let { String(Character.toChars(it)) }
+}
+
+private val NON_PRINTABLE_COMPOSER_KEYS = setOf(
+    Key.Tab,
+    Key.DirectionUp,
+    Key.DirectionDown,
+    Key.DirectionLeft,
+    Key.DirectionRight,
+    Key.Back,
+    Key.Escape,
+    Key.Backspace,
+    Key.Delete,
+    Key.Enter,
+    Key.NumPadEnter,
+    Key.MoveHome,
+    Key.MoveEnd,
+    Key.PageUp,
+    Key.PageDown,
+)
 
 @Composable
 fun CollapseButton(
     isCollapsed: Boolean,
     onCollapseClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onFocusChanged: (Boolean) -> Unit = {},
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -331,7 +526,9 @@ fun CollapseButton(
             onClick = {
                 onCollapseClick()
             },
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier
+                .onFocusChanged { onFocusChanged(it.isFocused) }
+                .size(20.dp)
         ) {
             Icon(
                 painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_collapse),
@@ -357,6 +554,7 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         inputType = inputType,
         keyboardOptions = KeyboardOptions.Companion.MessageComposerDefault,
         onKeyboardAction = null,
+        onHardwareEnter = { false },
         canSendMessage = true,
         focusRequester = remember { FocusRequester() },
         onSendButtonClicked = {},
@@ -369,8 +567,10 @@ private fun PreviewActiveMessageComposerInput(inputType: InputType, isTextExpand
         onSelectedLineIndexChanged = {},
         onLineBottomYCoordinateChanged = {},
         showOptions = true,
+        showInlinePlusButton = false,
         optionsSelected = true,
-        onPlusClick = {}
+        onPlusClick = {},
+        useKeyboardActivationGate = false,
     )
 }
 

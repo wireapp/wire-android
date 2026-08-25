@@ -17,9 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.promoteadmin
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.avatar
@@ -30,6 +28,9 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,16 +38,21 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
 
-class PromoteAdminViewModel(
+@WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class)
+class PromoteAdminViewModel @AssistedInject constructor(
     private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: PromoteAdminNavArgs,
 ) : ActionsViewModel<PromoteAdminAction>() {
-
-    private val navArgs: PromoteAdminNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: PromoteAdminNavArgs): PromoteAdminViewModel
+    }
 
     private val clientEligibleMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
     private val allConversationMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())

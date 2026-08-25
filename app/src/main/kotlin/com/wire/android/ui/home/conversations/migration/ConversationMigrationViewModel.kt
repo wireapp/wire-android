@@ -20,24 +20,33 @@ package com.wire.android.ui.home.conversations.migration
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
-class ConversationMigrationViewModel(
-    val savedStateHandle: SavedStateHandle,
-    private val observeConversationDetails: ObserveConversationDetailsUseCase
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+class ConversationMigrationViewModel @AssistedInject constructor(
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: ConversationNavArgs): ConversationMigrationViewModel
+    }
 
     /**
      * Represents the target conversation, after a conversation migration.
@@ -48,7 +57,7 @@ class ConversationMigrationViewModel(
     var migratedConversationId by mutableStateOf<ConversationId?>(null)
         private set
 
-    private val conversationNavArgs = savedStateHandle.navArgs<ConversationNavArgs>()
+    private val conversationNavArgs = navigationArgs
     private val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     init {

@@ -39,8 +39,6 @@
 #-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 #-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
 
--keepnames class * extends com.ramcosta.composedestinations.spec.Route
-
 # For JNA
 -dontwarn java.awt.Component
 -dontwarn java.awt.GraphicsEnvironment
@@ -58,6 +56,9 @@
 -keep class com.waz.call.CaptureDevice { *; }
 -keep class com.waz.media.manager.** { *; }
 -keep class com.waz.service.call.** { *; }
+-keep class org.jni_zero.JniZero {
+    private static java.lang.Object[] init();
+}
 -keep class com.waz.soundlink.SoundLinkAPI { *; }
 -dontwarn org.webrtc.CalledByNative
 -dontwarn org.webrtc.JniCommon

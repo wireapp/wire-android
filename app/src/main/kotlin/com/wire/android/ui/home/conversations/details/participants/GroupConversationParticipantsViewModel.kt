@@ -21,42 +21,49 @@ package com.wire.android.ui.home.conversations.details.participants
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
 
-class GroupConversationParticipantsViewModel(
-    savedStateHandle: SavedStateHandle,
+@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+class GroupConversationParticipantsViewModel @AssistedInject constructor(
+    @Assisted navigationArgs: GroupConversationAllParticipantsNavArgs,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     maxNumberOfItems: Int = -1, // -1 means return whole list
 ) : ViewModel(),
     GroupConversationParticipantsManager by GroupConversationParticipantsManagerImpl(
-        savedStateHandle = savedStateHandle,
+        conversationId = navigationArgs.conversationId,
         observeConversationMembers = observeConversationMembers,
         refreshUsersWithoutMetadata = refreshUsersWithoutMetadata,
         maxNumberOfItems = maxNumberOfItems
-    )
+    ) {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: GroupConversationAllParticipantsNavArgs): GroupConversationParticipantsViewModel
+    }
+}
 
 interface GroupConversationParticipantsManager {
     var groupParticipantsState: GroupConversationParticipantsState
 }
 
 class GroupConversationParticipantsManagerImpl(
-    savedStateHandle: SavedStateHandle,
+    private val conversationId: QualifiedID,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     val maxNumberOfItems: Int = -1 // -1 means return whole list
 ) : ViewModel(), GroupConversationParticipantsManager {
     override var groupParticipantsState: GroupConversationParticipantsState by mutableStateOf(GroupConversationParticipantsState())
-    private val groupConversationAllParticipantsNavArgs: GroupConversationAllParticipantsNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = groupConversationAllParticipantsNavArgs.conversationId
-
     init {
         runRefreshUsersWithoutMetadata()
         observeConversationMembers()

@@ -740,6 +740,7 @@
     <string name="label_message_details">Nachrichtendetails</string>
     <string name="label_copy">Text kopieren</string>
     <string name="label_share">Teilen</string>
+    <string name="label_share_via_wire">Weiterleiten</string>
     <string name="label_edit">Text bearbeiten</string>
     <string name="label_delete">Löschen</string>
     <string name="info_message_copied">Nachricht kopiert</string>
@@ -1198,6 +1199,7 @@
     <string name="settings_myaccount_display_name_title">Ihr Profilname</string>
     <string name="settings_myaccount_display_name_description">Ihr Profilname wird in Unterhaltungen, Anrufen und bei der Benutzersuche angezeigt. Er ist in Wire nicht eindeutig.</string>
     <string name="settings_myaccount_display_name_error">Bitte geben Sie Ihren Profilnamen ein</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Mindestens ein und höchstens 128 Zeichen</string>
     <string name="settings_myaccount_display_name_updated">Ihr Profilname wurde geändert</string>
     <string name="settings_myaccount_handle_updated">Ihr Benutzername wurde geändert</string>
     <string name="settings_myaccount_user_color_title">Profilfarbe</string>
@@ -1279,6 +1281,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="label_logs_option_title">Protokolle</string>
     <string name="label_share_logs">Protokolle teilen</string>
     <string name="label_share_logs_failed">Fehlerbericht konnte nicht zum Teilen erstellt werden</string>
+    <string name="label_share_logs_via_wire">Weiterleiten</string>
     <string name="label_delete_logs">Alle Protokolle löschen</string>
     <string name="restart_slowsync_for_recovery_button">Neu starten</string>
     <string name="label_mls_option_title">MLS-Optionen</string>

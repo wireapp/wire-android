@@ -22,10 +22,8 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -56,6 +54,9 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -66,10 +67,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class MessageComposerViewModel(
-    val savedStateHandle: SavedStateHandle,
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+class MessageComposerViewModel @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
@@ -86,7 +89,13 @@ class MessageComposerViewModel(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val globalDataStore: GlobalDataStore,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: ConversationNavArgs): MessageComposerViewModel
+    }
 
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
         private set
@@ -97,7 +106,7 @@ class MessageComposerViewModel(
     var tempWritableImageUri: Uri? = null
         private set
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var visitLinkDialogState: VisitLinkDialogState by mutableStateOf(

@@ -24,7 +24,6 @@ import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.assertions.shouldNotBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStoreProvider
@@ -88,7 +87,7 @@ import android.database.sqlite.SQLiteException
 import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 @Suppress("LargeClass")
 class LoginSSOViewModelTest {
 

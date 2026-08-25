@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.search
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
@@ -25,7 +24,6 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -53,6 +51,9 @@ import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.UserAssetId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -71,8 +72,8 @@ import kotlin.time.Duration.Companion.milliseconds
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
 
 @Suppress("TooManyFunctions")
-class SearchScreenViewModel(
-    val savedStateHandle: SavedStateHandle,
+class SearchScreenViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: SearchNavArgs,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
@@ -80,6 +81,11 @@ class SearchScreenViewModel(
     private val sharedPathCache: CellFileLocalPathCache,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: SearchNavArgs): SearchScreenViewModel
+    }
 
     private data class SearchParams(
         val query: String,
@@ -90,8 +96,6 @@ class SearchScreenViewModel(
         val sortingCriteria: SortingCriteria,
         val conversationId: String?,
     )
-
-    private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
 
     val screenType = navArgs.screenType
     val parentRoute = navArgs.parentRoute

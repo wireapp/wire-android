@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -25,8 +24,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
@@ -66,6 +63,10 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -91,8 +92,9 @@ import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
-class CellViewModel(
-    val savedStateHandle: SavedStateHandle,
+class CellViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: CellFilesNavArgs,
+    @Assisted private val searchNavArgs: SearchNavArgs?,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
@@ -112,20 +114,13 @@ class CellViewModel(
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
-    val offlineFilesEnabled: Boolean,
-    private val inAppImageViewerEnabled: Boolean,
+    @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
+    @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
-    private val searchNavArgs: SearchNavArgs? = try {
-        SearchScreenDestination.argsFrom(savedStateHandle)
-    } catch (_: RuntimeException) {
-        // Not coming from Search screen, ignore
-        null
-    }
-    private val navArgs: CellFilesNavArgs = try {
-        ConversationFilesScreenDestination.argsFrom(savedStateHandle)
-    } catch (_: RuntimeException) {
-        searchNavArgs?.toCellFilesNavArgs() ?: CellFilesNavArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: CellFilesNavArgs, searchNavArgs: SearchNavArgs?): CellViewModel
     }
 
     // Show menu with actions for the selected file.
@@ -708,7 +703,7 @@ data class MenuOptions(
     val actions: List<NodeMenuItem>
 )
 
-private fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
+internal fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
     CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L

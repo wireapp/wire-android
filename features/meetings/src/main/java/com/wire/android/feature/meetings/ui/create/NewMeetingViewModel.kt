@@ -23,28 +23,34 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.meetings.navArgs
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.Companion.initialState
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.InitialLoadingState
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
+import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.UpsertMeeting
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RenamingResult
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
@@ -76,6 +82,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun submitCreation() {}
     fun submitUpdate() {}
     fun dismissCreationError() {}
+    fun retryUpdateConversationName(conversationId: ConversationId) {}
 
     companion object {
         const val MEETING_NAME_MAX_COUNT = 64
@@ -90,16 +97,23 @@ class NewMeetingViewModelPreview(
     override val state: NewMeetingState = initialState(currentTimeProvider)
 }
 
-class NewMeetingViewModelImpl(
-    savedStateHandle: SavedStateHandle,
+@Suppress("TooManyFunctions")
+@WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)
+class NewMeetingViewModelImpl @AssistedInject constructor(
+    @Assisted val navArgs: NewMeetingNavArgs,
     override val currentTimeProvider: CurrentTimeProvider,
     private val createNewMeeting: CreateNewMeetingUseCase,
     private val updateMeeting: UpdateMeetingUseCase,
     private val getNextMeetingOccurrence: GetNextMeetingOccurrenceUseCase,
     private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val renameConversationUseCase: RenameConversationUseCase,
     private val contactMapper: ContactMapper,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
-    val navArgs: NewMeetingNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: NewMeetingNavArgs): NewMeetingViewModelImpl
+    }
+
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider))
@@ -166,9 +180,11 @@ class NewMeetingViewModelImpl(
 
     override fun updateStartTime(startTime: Instant) {
         val currentDuration = state.endTime - state.startTime
+        val latestEndTime = startTime.latestEndTimeOnSameDay()
         state = state.copy(
             startTime = startTime,
-            endTime = startTime.plus(currentDuration) // adjust end time based on the new start time but keep the same duration
+            // adjust end time based on the new start time but try to keep the same duration, unless it extends into the next day
+            endTime = minOf(startTime.plus(currentDuration), latestEndTime)
         )
         validateStartAndEndTime()
     }
@@ -272,7 +288,28 @@ class NewMeetingViewModelImpl(
                 state = state.copy(isSubmitting = false, continueButtonEnabled = true)
                 when (updateResult) {
                     is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
-                    is UpdateMeetingUseCase.Result.Failure -> state = state.copy(submitError = NewMeetingState.SubmitError.Other)
+                    is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
+                        submitError = when (updateResult) {
+                            is UpdateMeetingUseCase.Result.Failure.UpdateConversationNameFailure ->
+                                NewMeetingState.SubmitError.UpdateConversationNameFailure(updateResult.conversationId)
+
+                            else -> NewMeetingState.SubmitError.Other
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    override fun retryUpdateConversationName(conversationId: ConversationId) {
+        viewModelScope.launch {
+            state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+            renameConversationUseCase(conversationId = conversationId, conversationName = titleTextState.text.trim().toString()).let {
+                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                when (it) {
+                    is RenamingResult.Failure ->
+                        state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))
+                    RenamingResult.Success -> sendAction(NewMeetingViewActions.Success)
                 }
             }
         }
@@ -292,6 +329,21 @@ internal fun getNextFullHour(now: Instant, timeZone: TimeZone = TimeZone.current
         dayOfMonth = localFuture.dayOfMonth,
         hour = localFuture.hour,
         minute = 0,
+        second = 0,
+        nanosecond = 0
+    ).toInstant(timeZone)
+}
+
+// Find the latest possible end time on the same day as the given Instant, in the given time zone.
+// The latest possible end time is 23:59:00 on the same day in the given time zone.
+private fun Instant.latestEndTimeOnSameDay(timeZone: TimeZone = TimeZone.currentSystemDefault()): Instant {
+    val localStartTime = toLocalDateTime(timeZone)
+    return LocalDateTime(
+        year = localStartTime.year,
+        monthNumber = localStartTime.monthNumber,
+        dayOfMonth = localStartTime.dayOfMonth,
+        hour = 23,
+        minute = 59,
         second = 0,
         nanosecond = 0
     ).toInstant(timeZone)
@@ -327,6 +379,7 @@ data class NewMeetingState(
     }
 
     sealed interface SubmitError {
+        data class UpdateConversationNameFailure(val conversationId: ConversationId) : SubmitError
         data object Other : SubmitError // TODO Add more specific error types in the future
     }
 

@@ -23,9 +23,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.avatar.UserProfileAvatar
@@ -42,7 +44,8 @@ fun MemberItemToMention(
     membership: Membership,
     searchQuery: String,
     clickable: Clickable,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = colorsScheme().surface,
 ) {
     RowItemTemplate(
         leadingIcon = {
@@ -70,7 +73,8 @@ fun MemberItemToMention(
         },
         actions = { },
         clickable = clickable,
-        modifier = modifier.padding(start = dimensions().spacing8x)
+        modifier = modifier.padding(start = dimensions().spacing8x),
+        backgroundColor = backgroundColor,
     )
 }
 

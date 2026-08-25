@@ -20,12 +20,12 @@ package com.wire.android.feature.cells.ui.audioplayer
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import java.io.File
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,15 +35,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class AudioPlayerViewModel(
-    @ApplicationContext context: Context,
-    savedStateHandle: SavedStateHandle,
+class AudioPlayerViewModel @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted val localPath: String?,
+    @Assisted val contentUrl: String?,
+    @Assisted val fileName: String?,
 ) : ViewModel() {
 
-    private val navArgs = CellAudioPlayerScreenDestination.argsFrom(savedStateHandle)
-    val localPath: String? = navArgs.localPath
-    val contentUrl: String? = navArgs.contentUrl
-    val fileName: String? = navArgs.fileName
+    @AssistedFactory
+    interface Factory {
+        fun create(context: Context, localPath: String?, contentUrl: String?, fileName: String?): AudioPlayerViewModel
+    }
 
     private val _state = MutableStateFlow(AudioPlaybackState())
     val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()

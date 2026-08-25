@@ -18,9 +18,7 @@
 
 package com.wire.android.ui.home.conversations.details
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -50,6 +48,9 @@ import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCa
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -62,9 +63,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
 
 @Suppress("TooManyFunctions", "LongParameterList")
-class GroupConversationDetailsViewModel(
+@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+class GroupConversationDetailsViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     observeConversationMembers: ObserveParticipantsForConversationUseCase,
@@ -72,19 +76,22 @@ class GroupConversationDetailsViewModel(
     private val updateConversationReceiptMode: UpdateConversationReceiptModeUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted navigationArgs: GroupConversationDetailsNavArgs,
     private val isMLSEnabled: IsMLSEnabledUseCase,
     refreshUsersWithoutMetadata: RefreshUsersWithoutMetadataUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
 ) : ActionsViewModel<GroupConversationDetailsViewAction>(),
     GroupConversationParticipantsManager by GroupConversationParticipantsManagerImpl(
-        savedStateHandle = savedStateHandle,
+        conversationId = navigationArgs.conversationId,
         observeConversationMembers = observeConversationMembers,
         refreshUsersWithoutMetadata = refreshUsersWithoutMetadata
     ) {
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: GroupConversationDetailsNavArgs): GroupConversationDetailsViewModel
+    }
 
-    private val groupConversationDetailsNavArgs: GroupConversationDetailsNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = groupConversationDetailsNavArgs.conversationId
+    val conversationId: QualifiedID = navigationArgs.conversationId
 
     private val _groupOptionsState = MutableStateFlow(GroupConversationOptionsState(conversationId))
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState

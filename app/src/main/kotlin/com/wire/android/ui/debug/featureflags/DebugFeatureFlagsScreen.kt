@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.debug.featureflags
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -29,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.debug.debugFeatureFlagsViewModel
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -38,10 +36,9 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.typography
 
-@WireRootDestination
 @Composable
-fun DebugFeatureFlagsScreen(
-    navigator: Navigator,
+internal fun DebugFeatureFlagsRouteScreen(
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DebugFeatureFlagsViewModel = debugFeatureFlagsViewModel(),
 ) {
@@ -61,7 +58,7 @@ fun DebugFeatureFlagsScreen(
                 },
                 navigationIconType = NavigationIconType.Close(R.string.content_description_conversation_details_close_btn),
                 onNavigationPressed = {
-                    navigator.navigateBack()
+                    onBack()
                 }
             )
         },

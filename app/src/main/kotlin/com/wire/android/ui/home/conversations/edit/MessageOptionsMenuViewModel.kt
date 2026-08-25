@@ -17,9 +17,12 @@
  */
 package com.wire.android.ui.home.conversations.edit
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.ScopedArgs
 import com.wire.android.di.ViewModelScopedPreview
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -42,10 +45,14 @@ interface MessageOptionsMenuViewModel {
         MutableStateFlow(MessageOptionsMenuState.Message(mockMessageWithText))
 }
 
-class MessageOptionsMenuViewModelImpl(
+class MessageOptionsMenuViewModelImpl @AssistedInject constructor(
     private val observeMessageForConversation: ObserveMessageForConversationUseCase,
-    private val args: MessageOptionsMenuArgs,
+    @Assisted private val args: MessageOptionsMenuArgs,
 ) : MessageOptionsMenuViewModel, ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(args: MessageOptionsMenuArgs): MessageOptionsMenuViewModelImpl
+    }
 
     private val currentIdFlow = MutableStateFlow<String?>(null)
     private val stateFlow = currentIdFlow
@@ -75,13 +82,7 @@ class MessageOptionsMenuViewModelImpl(
 }
 
 @Serializable
-data class MessageOptionsMenuArgs(val conversationId: QualifiedID) : ScopedArgs {
-    override val key = "$ARGS_KEY:$conversationId"
-
-    companion object {
-        const val ARGS_KEY = "MessageOptionsMenuArgsKey"
-    }
-}
+data class MessageOptionsMenuArgs(val conversationId: QualifiedID)
 
 sealed interface MessageOptionsMenuState {
     data object Loading : MessageOptionsMenuState

@@ -31,6 +31,8 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -57,6 +59,9 @@ class ConversationInfoViewModelArrangement {
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
+    lateinit var createRegularGroup: CreateRegularGroupUseCase
+
+    @MockK
     lateinit var fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase
 
     @MockK
@@ -67,6 +72,7 @@ class ConversationInfoViewModelArrangement {
             qualifiedIdMapper = qualifiedIdMapper,
             savedStateHandle = savedStateHandle,
             observeConversationDetails = observeConversationDetails,
+            createRegularGroup = createRegularGroup,
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
             selfUserId = TestUser.SELF_USER_ID,
             isWireCellFeatureEnabled = isCellsEnabled,
@@ -86,6 +92,7 @@ class ConversationInfoViewModelArrangement {
         }
         coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
         coEvery { isCellsEnabled() } returns false
+        coEvery { createRegularGroup.retryPendingMLSGroupCreation(any()) } returns ConversationCreationResult.SyncFailure
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

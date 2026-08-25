@@ -83,6 +83,9 @@
     <string name="new_meeting_edit_failure_description">Something went wrong while updating the meeting. Please try again.</string>
     <string name="new_meeting_edit_init_failure_title">Could not load meeting</string>
     <string name="new_meeting_edit_init_failure_description">Something went wrong while loading the meeting for update. Please try again.</string>
+    <string name="new_meeting_edit_conversation_name_failure_title">Could not update call name</string>
+    <string name="new_meeting_edit_conversation_name_failure_description">The meeting title was updated, but the name shown in the call could not be updated. Please try again.</string>
+    <string name="new_meeting_edit_conversation_name_failure_action">Retry</string>
     <string name="meeting_join_failure_title">Could not join meeting</string>
     <string name="meeting_join_failure_description">Something went wrong while joining the meeting. Please try again.</string>
 

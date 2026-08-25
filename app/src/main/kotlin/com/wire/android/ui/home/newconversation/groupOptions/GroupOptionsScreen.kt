@@ -127,6 +127,7 @@ fun GroupOptionScreen(
             newConversationViewModel.onCreateGroupErrorDismiss()
             navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
         },
+        onRetryPendingCreation = newConversationViewModel::retryPendingMLSGroupCreation,
         onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss,
         onEnableWireCellChanged = newConversationViewModel::onEnableWireCellChanged
     )
@@ -150,6 +151,7 @@ private fun GroupOptionScreenContent(
     onErrorDismissed: () -> Unit,
     onEditParticipantsClick: () -> Unit,
     onDiscardGroupCreationClick: () -> Unit,
+    onRetryPendingCreation: () -> Unit,
     onBackPressed: () -> Unit,
     channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
     mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
@@ -193,7 +195,14 @@ private fun GroupOptionScreenContent(
         }
 
         (createGroupState as? CreateGroupState.Error)?.let {
-            CreateGroupErrorDialog(it, onErrorDismissed, onEditParticipantsClick, onDiscardGroupCreationClick)
+            CreateGroupErrorDialog(
+                error = it,
+                onDismiss = onErrorDismissed,
+                onRetryPendingCreation = onRetryPendingCreation,
+                onPendingCreationAcknowledged = onDiscardGroupCreationClick,
+                onEditParticipantsList = onEditParticipantsClick,
+                onCancel = onDiscardGroupCreationClick,
+            )
         }
         if (showAllowGuestsDialog) {
             AllowGuestsDialog(onAllowGuestsDialogDismissed, onNotAllowGuestsClicked, onAllowGuestsClicked)
@@ -465,6 +474,7 @@ private fun PreviewGroupOptionScreen(
         onErrorDismissed = {},
         onEditParticipantsClick = {},
         onDiscardGroupCreationClick = {},
+        onRetryPendingCreation = {},
         onBackPressed = {},
         channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
         mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,

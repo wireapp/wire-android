@@ -41,8 +41,11 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
     private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
     private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
+    private val notificationsButton = UiSelectorParams(text = "Notifications")
 
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
+
+    private fun notificationStatusSelector(status: String) = UiSelectorParams(text = status)
 
     private val closeButton = UiSelectorParams(
         className = "android.view.View",
@@ -90,6 +93,21 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun clickShowMoreOptions(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(showMoreOptions).click()
+        return this
+    }
+
+    fun tapNotificationsButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationsButton).click()
+        return this
+    }
+
+    fun tapNotificationStatus(status: String): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationStatusSelector(status)).click()
+        return this
+    }
+
+    fun assertNotificationStatusVisible(status: String): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationStatusSelector(status))
         return this
     }
 

@@ -50,6 +50,38 @@ class NotificationsPage(private val device: UiDevice) {
         return this
     }
 
+    fun closeNotificationCenter(): NotificationsPage {
+        device.pressBack()
+        return this
+    }
+
+    fun assertGroupMessageNotificationVisible(
+        message: String,
+        senderName: String,
+        groupName: String
+    ): NotificationsPage {
+        listOf(message, senderName, groupName).forEach { expectedText ->
+            UiWaitUtils.waitElement(
+                UiSelectorParams(textContains = expectedText),
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT
+            )
+        }
+        return this
+    }
+
+    fun assertOneOnOneMessageNotificationVisible(
+        message: String,
+        senderName: String
+    ): NotificationsPage {
+        listOf(message, senderName).forEach { expectedText ->
+            UiWaitUtils.waitElement(
+                UiSelectorParams(textContains = expectedText),
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT
+            )
+        }
+        return this
+    }
+
     fun iSeeOneOnOneIncomingCallNotification(userName: String): NotificationsPage {
         UiWaitUtils.waitElement(
             UiSelectorParams(textContains = userName),

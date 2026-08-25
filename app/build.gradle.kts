@@ -50,9 +50,9 @@ repositories {
     google()
 }
 
-val nonFreeFlavors = setOf("prod", "alpha", "staging", "beta", "dev")
+val nonFreeFlavors = setOf("prod", "alpha", "beta", "dev")
 val fossFlavors = setOf("fdroid")
-val internalFlavors = setOf("alpha", "staging", "beta", "dev")
+val internalFlavors = setOf("alpha", "beta", "dev")
 val allFlavors = nonFreeFlavors + fossFlavors
 
 private fun getFlavorsSettings(): NormalizedFlavorSettings =
@@ -356,16 +356,14 @@ dependencies {
     // oauth dependencies
     implementation(libs.openIdAppOauth)
 
-    // Alpha, dev, beta and staging only tracking & logging
+    // Alpha, dev, and beta only tracking & logging
     devImplementation(libs.dataDog.core)
     alphaImplementation(libs.dataDog.core)
     betaImplementation(libs.dataDog.core)
-    stagingImplementation(libs.dataDog.core)
 
     devImplementation(libs.dataDog.compose)
     alphaImplementation(libs.dataDog.compose)
     betaImplementation(libs.dataDog.compose)
-    stagingImplementation(libs.dataDog.compose)
 
     implementation(projects.ksp)
     ksp(project(":ksp"))

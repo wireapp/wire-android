@@ -36,18 +36,15 @@ internal class MeetingsNavigation3SourceTest {
         val graph = File(
             "src/main/java/com/wire/android/feature/meetings/ui/MeetingsViewModelGraph.kt"
         ).readText()
-        val bindings = File(
-            "src/main/java/com/wire/android/feature/meetings/ui/MeetingsMetroViewModelBindings.kt"
-        ).readText()
         val viewModel = File(
             "src/main/java/com/wire/android/feature/meetings/ui/create/NewMeetingViewModel.kt"
         ).readText()
 
-        assertTrue(graph.contains("newMeetingViewModel(navArgs: NewMeetingNavArgs)"))
-        assertTrue(bindings.contains("newMeetingFactory.create(navArgs)"))
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("newMeetingViewModel(navArgs)"))
+        assertTrue(viewModel.contains("@WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)"))
         assertTrue(viewModel.contains("@Assisted val navArgs: NewMeetingNavArgs"))
-        assertTrue(viewModel.contains("interface Factory"))
-        assertFalse(bindings.contains("MeetingsViewModelFactory"))
+        assertTrue(viewModel.contains("fun create(navArgs: NewMeetingNavArgs): NewMeetingViewModelImpl"))
     }
 
     private fun source(name: String) =

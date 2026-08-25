@@ -152,7 +152,7 @@ class EntryOwnedViewModelGatewaySourceTest {
     @Test
     fun givenPreviouslyDeferredHelpers_whenInspectingSources_thenLegacyGatewayIsGone() {
         val home = sourceFile("com/wire/android/ui/home/HomeViewModelGraph.kt").readText()
-        val calling = sourceFile("com/wire/android/ui/calling/CallingManualViewModelFactory.kt").readText()
+        val calling = sourceFile("com/wire/android/ui/calling/CallingManualViewModelFactoryGroup.kt").readText()
         val misc = sourceFile("com/wire/android/ui/MiscViewModelGraph.kt").readText()
 
         listOf(home, calling, misc).forEach { source ->
@@ -180,7 +180,7 @@ class EntryOwnedViewModelGatewaySourceTest {
     @Test
     fun givenMultipleInstancesInsideOneEntry_whenInspectingSources_thenExplicitInstanceKeysArePreserved() {
         val home = sourceFile("com/wire/android/ui/home/HomeViewModelGraph.kt").readText()
-        val calling = sourceFile("com/wire/android/ui/calling/CallingManualViewModelFactory.kt").readText()
+        val calling = sourceFile("com/wire/android/ui/calling/CallingManualViewModelFactoryGroup.kt").readText()
         val core = sourceFile(
             "com/wire/android/ui/home/conversations/ConversationCoreViewModelGraph.kt"
         ).readText()

@@ -265,7 +265,7 @@ class CommonTopAppBarViewModelTest {
     }
 
     @Test
-    fun givenFailedSync_whenCurrentSessionExpires_thenWaitingConnectionIsCleared() = runTest {
+    fun givenFailedSync_whenGlobalCurrentSessionExpires_thenInjectedAccountConnectivityIsPreserved() = runTest {
         val currentSessionFlow = MutableStateFlow<CurrentSessionResult>(
             CurrentSessionResult.Success(AccountInfo.Valid(userId))
         )
@@ -290,7 +290,7 @@ class CommonTopAppBarViewModelTest {
         currentSessionFlow.value = CurrentSessionResult.Failure.SessionNotFound
         advanceUntilIdle()
 
-        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
     }
 
     @Test

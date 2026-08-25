@@ -18,16 +18,23 @@ internal class DebugMetroViewModelBindingsSourceTest {
 
     @Test
     fun givenDebugViewModels_whenInspectingCreation_thenFeatureOwnsNarrowContracts() {
-        val bindings = source("DebugMetroViewModelBindings.kt")
+        val graph = source("DebugInfoViewModelGraph.kt")
         val assistedViewModel = source("conversation/DebugConversationViewModel.kt")
 
-        assertTrue(bindings.contains("object DebugMetroViewModelBindings"))
-        assertTrue(bindings.contains("factory: DebugConversationViewModel.Factory"))
-        assertTrue(bindings.contains("factory.create(args)"))
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertTrue(graph.contains("debugConversationViewModel(args)"))
+        assertTrue(
+            assistedViewModel.contains(
+                "@WireAssistedViewModelBinding(DebugInfoManualViewModelFactoryGroup::class)"
+            )
+        )
         assertTrue(assistedViewModel.contains("class DebugConversationViewModel @AssistedInject constructor"))
         assertTrue(assistedViewModel.contains("@Assisted val args: DebugConversationScreenNavArgs"))
-        assertTrue(assistedViewModel.contains("@AssistedFactory\n    interface Factory"))
-        assertFalse(bindings.contains("DebugInfoViewModelFactory"))
+        assertTrue(
+            assistedViewModel.contains(
+                "fun create(args: DebugConversationScreenNavArgs): DebugConversationViewModel"
+            )
+        )
         assertFalse(File("src/main/kotlin/com/wire/android/ui/debug/DebugInfoViewModelFactory.kt").exists())
     }
 

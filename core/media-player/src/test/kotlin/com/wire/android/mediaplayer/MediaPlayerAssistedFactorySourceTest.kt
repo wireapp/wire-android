@@ -19,7 +19,7 @@ internal class MediaPlayerAssistedFactorySourceTest {
     @Test
     fun givenVideoRouteArguments_whenInspectingCreation_thenNarrowAssistedFactoryOwnsOnlyThoseArguments() {
         val viewModel = source("VideoPlayerViewModel.kt")
-        val bindings = source("MediaPlayerMetroViewModelBindings.kt")
+        val graph = source("MediaPlayerViewModelGraph.kt")
 
         assertTrue(viewModel.contains("class VideoPlayerViewModel @AssistedInject constructor"))
         assertTrue(viewModel.contains("@ApplicationContext context: Context"))
@@ -27,8 +27,9 @@ internal class MediaPlayerAssistedFactorySourceTest {
         assertTrue(viewModel.contains("@Assisted val contentUrl: String?"))
         assertTrue(viewModel.contains("@Assisted val fileName: String?"))
         assertTrue(viewModel.contains("@AssistedFactory\n    interface Factory"))
-        assertTrue(bindings.contains("factory.create(localPath, contentUrl, fileName)"))
-        assertFalse(bindings.contains("MediaPlayerViewModelFactory"))
+        assertTrue(viewModel.contains("@WireAssistedViewModelBinding(MediaPlayerManualViewModelFactoryGroup::class)"))
+        assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
+        assertFalse(File("src/main/kotlin/com/wire/android/mediaplayer/MediaPlayerMetroViewModelBindings.kt").exists())
         assertFalse(File("src/main/kotlin/com/wire/android/mediaplayer/MediaPlayerViewModelFactory.kt").exists())
     }
 

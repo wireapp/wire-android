@@ -21,13 +21,11 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -61,8 +59,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
 class EditGuestAccessViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
@@ -76,16 +77,15 @@ class EditGuestAccessViewModel @AssistedInject constructor(
     private val syncConversationCode: SyncConversationCodeUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val selfUser: ObserveSelfUserUseCase,
-    @Assisted savedStateHandle: SavedStateHandle
+    @Assisted navigationArgs: EditGuestAccessNavArgs,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): EditGuestAccessViewModel
+        fun create(navigationArgs: EditGuestAccessNavArgs): EditGuestAccessViewModel
     }
 
-    private val editGuestAccessNavArgs: EditGuestAccessNavArgs = savedStateHandle.navArgs()
-    val conversationId: QualifiedID = editGuestAccessNavArgs.conversationId
-    private val accessParams = editGuestAccessNavArgs.editGuessAccessParams
+    val conversationId: QualifiedID = navigationArgs.conversationId
+    private val accessParams = navigationArgs.editGuessAccessParams
 
     var editGuestAccessState by mutableStateOf(
         EditGuestAccessState(

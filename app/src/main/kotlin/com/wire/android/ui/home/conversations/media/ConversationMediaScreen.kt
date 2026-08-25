@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.media
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -44,9 +43,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
@@ -62,8 +58,6 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialog
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -73,28 +67,24 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.edit.assetOptionsMenuItems
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
-import com.wire.android.ui.sharing.ImportMediaNavArgs
-import com.wire.android.ui.sharing.ImportSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.util.fileShareUri
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.openDownloadFolder
+import com.wire.android.util.fileShareUri
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
-@WireRootDestination(
-    navArgs = ConversationMediaNavArgs::class,
-    style = PopUpNavigationAnimation::class
-)
 @Composable
-fun ConversationMediaScreen(
-    navigator: Navigator,
-    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel = conversationAssetMessagesViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel()
+internal fun ConversationMediaRouteScreen(
+    conversationAssetMessagesViewModel: ConversationAssetMessagesViewModel,
+    conversationMessagesViewModel: ConversationMessagesViewModel,
+    onNavigateBack: () -> Unit,
+    onShareAssetViaWire: (android.net.Uri) -> Unit,
+    onOpenGallery: (ConversationId, String, Boolean, String?) -> Unit,
 ) {
     val permissionPermanentlyDeniedDialogState = rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
     val context = LocalContext.current
@@ -106,21 +96,8 @@ fun ConversationMediaScreen(
 
     Content(
         state = state,
-        onNavigationPressed = { navigator.navigateBack() },
-        onImageFullScreenMode = { conversationId, messageId, isSelfAsset, cellAssetId ->
-            navigator.navigate(
-                NavigationCommand(
-                    MediaGalleryScreenDestination(
-                        conversationId = conversationId,
-                        messageId = messageId,
-                        isSelfAsset = isSelfAsset,
-                        isEphemeral = false,
-                        messageOptionsEnabled = false,
-                        cellAssetId = cellAssetId,
-                    )
-                )
-            )
-        },
+        onNavigationPressed = onNavigateBack,
+        onImageFullScreenMode = onOpenGallery,
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetOptions = remember { onOpenAssetOptions },
     )
@@ -131,19 +108,10 @@ fun ConversationMediaScreen(
             conversationMessagesViewModel.deleteMessageDialogState
                 .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
         },
-        shareAssetExternally = { conversationMessagesViewModel.shareAsset(context, it) },
+        shareAssetExternally = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
         shareAssetViaWire = { messageId ->
             conversationMessagesViewModel.prepareAssetForWireShare(messageId) { path, assetName ->
-                navigator.navigate(
-                    NavigationCommand(
-                        ImportMediaScreenDestination(
-                            ImportMediaNavArgs(
-                                source = ImportSource.INTERNAL_SHARE,
-                                internalAssetUriList = arrayListOf(context.fileShareUri(path, assetName))
-                            )
-                        )
-                    )
-                )
+                onShareAssetViaWire(context.fileShareUri(path, assetName))
             }
         },
         downloadAsset = conversationMessagesViewModel::openOrFetchAsset,

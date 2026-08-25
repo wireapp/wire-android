@@ -26,9 +26,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ApplicationContext
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.util.withContext
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
 
 class LicensesViewModel @Inject constructor(
     @ApplicationContext context: Context

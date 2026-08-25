@@ -24,8 +24,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
-import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelImpl
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
@@ -33,35 +33,32 @@ import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
-import dev.zacsweers.metro.Provider
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
 interface HomeManualViewModelFactory : ManualViewModelAssistedFactory {
     fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModelImpl
 }
 
-interface HomeViewModelGraph : MetroViewModelGraph {
-    val featureFlagNotificationViewModel: Provider<FeatureFlagNotificationViewModel>
-}
+interface HomeViewModelGraph : MetroViewModelGraph
 
 @Composable
 fun homeViewModel(): HomeViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
 
 @Composable
 fun appSyncViewModel(): AppSyncViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
 
 @Composable
 fun homeDrawerViewModel(): HomeDrawerViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
 
 @Composable
 fun conversationListViewModel(conversationsSource: ConversationsSource): ConversationListViewModel = when {
     LocalInspectionMode.current -> ConversationListViewModelPreview()
-    else -> sessionKeyedAssistedMetroViewModel<ConversationListViewModelImpl, HomeManualViewModelFactory>(
-        key = "list_$conversationsSource",
-    ) {
+    else -> wireAssistedMetroViewModel<ConversationListViewModelImpl, HomeManualViewModelFactory>(
+        instanceKey = "list_$conversationsSource",
+    ) { _ ->
         conversationListViewModel(conversationsSource)
     }
 }
@@ -72,10 +69,10 @@ fun newConversationViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
 ): NewConversationViewModel =
-    sessionKeyedMetroViewModel(
-        viewModelStoreOwner = viewModelStoreOwner,
+    wireMetroViewModel(
+        owner = viewModelStoreOwner,
     )
 
 @Composable
 fun featureFlagNotificationViewModel(): FeatureFlagNotificationViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()

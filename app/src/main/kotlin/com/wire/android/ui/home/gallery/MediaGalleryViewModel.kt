@@ -21,14 +21,12 @@ package com.wire.android.ui.home.gallery
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
@@ -53,10 +51,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class MediaGalleryViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted private val navigationArgs: MediaGalleryNavArgs,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
@@ -69,14 +70,12 @@ class MediaGalleryViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): MediaGalleryViewModel
+        fun create(navigationArgs: MediaGalleryNavArgs): MediaGalleryViewModel
     }
 
-    private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
-
-    private val messageId = mediaGalleryNavArgs.messageId
-    private val conversationId = mediaGalleryNavArgs.conversationId
-    private val cellAssetId = mediaGalleryNavArgs.cellAssetId
+    private val messageId = navigationArgs.messageId
+    private val conversationId = navigationArgs.conversationId
+    private val cellAssetId = navigationArgs.cellAssetId
 
     var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState())
         private set
@@ -104,10 +103,10 @@ class MediaGalleryViewModel @AssistedInject constructor(
             mediaGalleryViewState = mediaGalleryViewState.copy(
                 imageAsset = MediaGalleryImage.PrivateAsset(
                     asset = ImageAsset.PrivateAsset(
-                        mediaGalleryNavArgs.conversationId,
-                        mediaGalleryNavArgs.messageId,
-                        mediaGalleryNavArgs.isSelfAsset,
-                        mediaGalleryNavArgs.isEphemeral
+                        navigationArgs.conversationId,
+                        navigationArgs.messageId,
+                        navigationArgs.isSelfAsset,
+                        navigationArgs.isEphemeral
                     )
                 )
             )
@@ -154,6 +153,14 @@ class MediaGalleryViewModel @AssistedInject constructor(
                 .onFailure {
                     sendAction(MediaGalleryAction.ShowError)
                 }
+        }
+    }
+
+    private fun shareAssetViaWire() = viewModelScope.launch {
+        if (cellAssetId == null) {
+            assetDataPath(conversationId, messageId)?.run {
+                sendAction(MediaGalleryAction.ShareViaWire(first, second))
+            }
         }
     }
 
@@ -206,14 +213,6 @@ class MediaGalleryViewModel @AssistedInject constructor(
         }
     }
 
-    private fun shareAssetViaWire() = viewModelScope.launch {
-        if (cellAssetId == null) {
-            assetDataPath(conversationId, messageId)?.run {
-                sendAction(MediaGalleryAction.ShareViaWire(first, second))
-            }
-        }
-    }
-
     private fun onSnackbarMessage(messageCode: MediaGallerySnackbarMessages) {
         viewModelScope.launch {
             _snackbarMessage.emit(messageCode)
@@ -240,7 +239,7 @@ class MediaGalleryViewModel @AssistedInject constructor(
             MenuIntent.ShowDetails -> sendAction(
                 MediaGalleryAction.ShowDetails(
                     messageId = messageId,
-                    isSelfAsset = mediaGalleryNavArgs.isSelfAsset
+                    isSelfAsset = navigationArgs.isSelfAsset
                 )
             )
 
@@ -253,11 +252,12 @@ class MediaGalleryViewModel @AssistedInject constructor(
             MenuIntent.Download -> sendAction(MediaGalleryAction.Download)
 
             MenuIntent.ShareExternally -> shareAsset()
+
             MenuIntent.ShareViaWire -> shareAssetViaWire()
 
             MenuIntent.Delete -> {
                 deleteMessageDialogState.show(
-                    DeleteMessageDialogState(mediaGalleryNavArgs.isSelfAsset, messageId, conversationId)
+                    DeleteMessageDialogState(navigationArgs.isSelfAsset, messageId, conversationId)
                 )
             }
         }
@@ -278,7 +278,7 @@ class MediaGalleryViewModel @AssistedInject constructor(
     }
 
     private fun buildMenuOptions() = buildList {
-        if (mediaGalleryNavArgs.messageOptionsEnabled) {
+        if (navigationArgs.messageOptionsEnabled) {
             when {
                 cellAssetId != null -> {
                     add(MediaGalleryMenuItem.REACT)
@@ -289,7 +289,7 @@ class MediaGalleryViewModel @AssistedInject constructor(
                     }
                 }
 
-                mediaGalleryNavArgs.isEphemeral -> {
+                navigationArgs.isEphemeral -> {
                     add(MediaGalleryMenuItem.SHOW_DETAILS)
                     add(MediaGalleryMenuItem.DOWNLOAD)
                     add(MediaGalleryMenuItem.DELETE)
@@ -307,7 +307,7 @@ class MediaGalleryViewModel @AssistedInject constructor(
             }
         } else if (cellAssetId == null) {
             add(MediaGalleryMenuItem.DOWNLOAD)
-            if (!mediaGalleryNavArgs.isEphemeral) {
+            if (!navigationArgs.isEphemeral) {
                 add(MediaGalleryMenuItem.SHARE_VIA_WIRE)
                 add(MediaGalleryMenuItem.SHARE_EXTERNALLY)
             }

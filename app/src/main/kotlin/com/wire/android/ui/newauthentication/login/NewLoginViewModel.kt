@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
@@ -60,8 +59,8 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
@@ -76,11 +75,9 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.io.IOException
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -89,6 +86,7 @@ import dev.zacsweers.metro.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class NewLoginViewModel(
+    loginNavArgs: LoginNavArgs,
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
     private val savedStateHandle: SavedStateHandle,
@@ -97,7 +95,7 @@ class NewLoginViewModel(
     private val loginExtension: LoginViewModelExtension,
     private val ssoExtension: LoginSSOViewModelExtension,
     private val dispatchers: DispatcherProvider,
-    defaultServerConfig: ServerConfig.Links,
+    private val defaultServerConfig: ServerConfig.Links,
     defaultSSOCodeConfig: String,
     private val isDefaultBackendConfigured: Boolean,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>? = null,
@@ -106,6 +104,7 @@ class NewLoginViewModel(
 
     @AssistedInject
     constructor(
+        @Assisted loginNavArgs: LoginNavArgs,
         validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
         @Assisted savedStateHandle: SavedStateHandle,
@@ -120,6 +119,7 @@ class NewLoginViewModel(
         @Named("isDefaultBackendConfigured") isDefaultBackendConfigured: Boolean,
         @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
     ) : this(
+        loginNavArgs,
         validateEmailOrSSOCode,
         coreLogic,
         savedStateHandle,
@@ -137,11 +137,10 @@ class NewLoginViewModel(
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): NewLoginViewModel
+        fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle): NewLoginViewModel
     }
 
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
+    private var preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
     private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
     private var pendingSsoSession: StoreSessionParam? = null
@@ -166,7 +165,7 @@ class NewLoginViewModel(
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
-                preFilledUserIdentifier.userIdentifier
+                (preFilledUserIdentifier as PreFilledUserIdentifierType.PreFilled).userIdentifier
             } else if (defaultSSOCodeConfig.isNotEmpty() && customServerConfig == null) {
                 defaultSSOCodeConfig.ssoCodeWithPrefix()
             } else {
@@ -207,6 +206,38 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Default)
         if (userIdentifierTextState.text.isEmpty() && preFilledUserIdentifier is PreFilledUserIdentifierType.None) {
             fetchDefaultSSOCodeIfNeeded()
+        }
+    }
+
+    /**
+     * Reconciles arguments when Navigation 3 replaces the login root while retaining its flow
+     * owner. Assisted factory arguments are creation-time only, so a reused flow-scoped
+     * ViewModel must receive route updates explicitly instead of continuing with stale backend
+     * or automatic-login state.
+     */
+    fun onNavigationArgumentsChanged(loginNavArgs: LoginNavArgs) {
+        preFilledUserIdentifier = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
+        pendingNomadServiceUrl = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
+        pendingCookieLabel = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
+
+        (preFilledUserIdentifier as? PreFilledUserIdentifierType.PreFilled)?.let {
+            userIdentifierTextState.setTextAndPlaceCursorAtEnd(it.userIdentifier)
+        }
+
+        val updatedCustomServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig
+        serverConfig = updatedCustomServerConfig ?: defaultServerConfig
+        canUseBackend = if (updatedCustomServerConfig != null) {
+            updatedCustomServerConfig.api.isNotBlank()
+        } else {
+            isDefaultServerConfigured
+        }
+        CustomTabsHelper.setBackendWebsiteUrl(serverConfig.website)
+        SupportUrlResolver.setBaseUrl(serverConfig.website)
+
+        when {
+            !canUseBackend -> updateLoginFlowState(NewLoginFlowState.MissingBackendConfig)
+            loginNavArgs.showBackendConfigSuccess && updatedCustomServerConfig != null ->
+                updateLoginFlowState(NewLoginFlowState.BackendConfigSuccess)
         }
     }
 
@@ -419,18 +450,6 @@ class NewLoginViewModel(
             )
         }
 
-    fun observeSSOResult(backStackSavedState: SavedStateHandle) {
-        viewModelScope.launch {
-            backStackSavedState
-                .getStateFlow<String?>(SSO_LOGIN_RESULT_KEY, null)
-                .filterNotNull()
-                .collect { json ->
-                    handleSSOResult(Json.decodeFromString(json))
-                    backStackSavedState.remove<String>(SSO_LOGIN_RESULT_KEY)
-                }
-        }
-    }
-
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
@@ -482,8 +501,8 @@ class NewLoginViewModel(
                 when (result) {
                     is RegisterClientResult.Success -> {
                         when (loginExtension.isInitialSyncCompleted(userId)) {
-                            true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                            false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                            true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None(userId)))
+                            false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync(userId)))
                         }
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
@@ -539,8 +558,8 @@ class NewLoginViewModel(
             is RestoreCryptoStateResult.Success -> {
                 withContext(dispatchers.main()) {
                     when (loginExtension.isInitialSyncCompleted(storedUserId)) {
-                        true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                        false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                        true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None(storedUserId)))
+                        false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync(storedUserId)))
                     }
                     updateLoginFlowState(NewLoginFlowState.Default)
                 }

@@ -21,7 +21,6 @@ package com.wire.android.ui.home.conversations.info
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
@@ -30,7 +29,6 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.common.error.StorageFailure
@@ -49,24 +47,27 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class ConversationInfoViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
-    @Assisted val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     @CurrentAccount private val selfUserId: UserId,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ConversationInfoViewModel
+        fun create(navigationArgs: ConversationNavArgs): ConversationInfoViewModel
     }
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState(conversationId))

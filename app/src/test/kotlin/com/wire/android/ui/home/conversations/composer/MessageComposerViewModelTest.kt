@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.conversations.composer
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -36,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 @Suppress("LargeClass")
 class MessageComposerViewModelTest {
 

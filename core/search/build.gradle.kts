@@ -4,6 +4,7 @@ plugins {
     id(BuildPlugins.junit5)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -25,17 +26,16 @@ dependencies {
 
     val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
+    implementation(libs.compose.activity)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material3)
-    implementation(libs.compose.navigation)
     implementation(libs.compose.ui.preview)
     implementation(libs.metrox.viewModelCompose)
 
     implementation(libs.visibilityModifiers)
     implementation(libs.androidx.paging3)
     implementation(libs.androidx.paging3Compose)
-    implementation(libs.resaca.core)
     implementation(libs.compose.edgetoedge.preview)
     implementation(libs.ktx.dateTime)
     debugImplementation(libs.compose.ui.tooling)
@@ -47,4 +47,5 @@ dependencies {
     testImplementation(testFixtures(projects.core.uiCommon))
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
+    ksp(project(":ksp"))
 }

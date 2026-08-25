@@ -29,14 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.feature.cells.ui.createFileViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.FileNameError
-import com.wire.android.navigation.PreviewNavigator
-import com.wire.android.navigation.PreviewResultBackNavigator
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -55,16 +49,12 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
   import androidx.compose.ui.platform.LocalLocale
 
-@WireCellsDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = CreateFileScreenNavArgs::class,
-)
 @Composable
-fun CreateFileScreen(
-    navigator: WireNavigator,
-    resultNavigator: ResultBackNavigator<Boolean>,
+internal fun CreateFileRouteScreen(
+    onNavigateBack: () -> Unit,
+    onCreated: () -> Unit,
+    createFileViewModel: CreateFileViewModel,
     modifier: Modifier = Modifier,
-    createFileViewModel: CreateFileViewModel = createFileViewModel(),
 ) {
     val showErrorDialog = remember { mutableStateOf(false) }
 
@@ -86,7 +76,7 @@ fun CreateFileScreen(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = { navigator.navigateBack() },
+                onNavigationPressed = onNavigateBack,
                 navigationIconType = NavigationIconType.Close(),
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.create_file_screen_title, createFileViewModel.fileExtension),
@@ -138,8 +128,7 @@ fun CreateFileScreen(
     HandleActions(createFileViewModel.actions) { action ->
         when (action) {
             CreateFileViewModelAction.Success -> {
-                resultNavigator.setResult(true)
-                resultNavigator.navigateBack()
+                onCreated()
             }
 
             CreateFileViewModelAction.Failure -> {
@@ -166,9 +155,10 @@ private fun computeNameErrorState(error: FileNameError?): WireTextFieldState {
 @Composable
 fun PreviewCreateFileScreen() {
     WireTheme {
-        CreateFileScreen(
-            navigator = PreviewNavigator,
-            resultNavigator = PreviewResultBackNavigator as ResultBackNavigator<Boolean>,
+        CreateFileRouteScreen(
+            onNavigateBack = {},
+            onCreated = {},
+            createFileViewModel = createFileViewModel(CreateFileScreenNavArgs("", FileType.DOCUMENT)),
         )
     }
 }

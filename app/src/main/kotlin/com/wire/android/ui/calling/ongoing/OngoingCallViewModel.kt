@@ -85,8 +85,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
 class OngoingCallViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     @CurrentAccount val currentUserId: UserId,

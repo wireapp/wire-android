@@ -196,7 +196,6 @@ class ConversationMessageResourceOwnershipTest {
         const val expectedDefinitionFingerprint = "c26e4ffaccb869fab3ba7ce8055528552ec1e9877d790f5f353f6e7f1d5a97b9"
         val expectedConsumers = setOf(
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/QuotedMessage.kt",
-            "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/item/MessageExpirationItems.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversations/messages/preview/PreviewMessageTypes.kt",
             "app/src/main/kotlin/com/wire/android/ui/home/conversationslist/common/ConversationItemFactory.kt",
             "app/src/test/kotlin/com/wire/android/ui/home/conversations/messages/draft/MessageDraftViewModelTest.kt",

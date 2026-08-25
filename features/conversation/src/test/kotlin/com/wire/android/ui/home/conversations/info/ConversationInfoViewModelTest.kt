@@ -45,7 +45,7 @@ class ConversationInfoViewModelTest {
         val pendingProtocol = TestConversation.MLS_PROTOCOL_INFO.copy(
             groupState = Conversation.ProtocolInfo.MLSCapable.GroupState.PENDING_CREATION
         )
-        val pendingConversationDetails = mockConversationDetailsGroup("Pending conversation").let { details ->
+        val pendingConversationDetails = conversationInfoGroupDetails("Pending conversation").let { details ->
             details.copy(conversation = details.conversation.copy(protocol = pendingProtocol))
         }
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement().arrange()
@@ -64,7 +64,7 @@ class ConversationInfoViewModelTest {
 
     @Test
     fun `given established conversation, when opening conversation, then do not retry creation`() = runTest {
-        val conversationDetails = mockConversationDetailsGroup("Established conversation")
+        val conversationDetails = conversationInfoGroupDetails("Established conversation")
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement().arrange()
 
         launch { viewModel.observeConversationDetails() }.run {

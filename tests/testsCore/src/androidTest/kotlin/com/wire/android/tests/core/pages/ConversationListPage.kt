@@ -34,8 +34,9 @@ import kotlin.time.Duration
 data class ConversationListPage(private val device: UiDevice) {
 
     private val searchField = UiSelectorParams(description = "Search conversations")
-    private val userProfileButtonNoPhoto = UiSelectorParams(description = "Your profile")
-    private val userProfileButton = UiSelectorParams(resourceId = "User avatar")
+    private val userProfileButton = UiSelectorParams(description = "Your profile")
+    private val userProfileButtonWithNotification =
+        UiSelectorParams(description = "Your profile, one unread hint.")
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
     )
@@ -279,6 +280,12 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationSubtitleVisible(expectedSubtitle: String): ConversationListPage {
+        val subtitle = UiWaitUtils.waitElement(UiSelectorParams(text = expectedSubtitle))
+        assertTrue("Conversation subtitle '$expectedSubtitle' is not visible", !subtitle.visibleBounds.isEmpty)
+        return this
+    }
+
     fun tapSearchConversationField(): ConversationListPage {
         val element = UiWaitUtils.waitElement(searchField)
         element.click()
@@ -295,6 +302,10 @@ data class ConversationListPage(private val device: UiDevice) {
             .executeShellCommand("input text $encodedText") // removed single quotes
 
         return this
+    }
+
+    fun typeConversationNameInSearchField(conversationName: String): ConversationListPage {
+        return typeFirstNCharsInSearchField(conversationName, conversationName.length)
     }
 
     fun clickGroupConversation(
@@ -533,7 +544,6 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun clickCloseButtonOnNewConversationScreen(timeout: Duration = UiWaitUtils.SHORT_TIMEOUT): ConversationListPage {
         val closeButton = UiSelectorParams(
-            className = "android.view.View",
             description = "Close new conversation view"
         )
 
@@ -603,22 +613,18 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-  fun clickUserProfileButton(): ConversationListPage {
-    val buttonWithPhoto = UiWaitUtils.findElementOrNull(userProfileButton)
-    if (buttonWithPhoto != null && !buttonWithPhoto.visibleBounds.isEmpty) {
-        buttonWithPhoto.click()
-    } else {
-        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
-        buttonNoPhoto.click()
+    fun clickUserProfileButton(): ConversationListPage {
+        val button = UiWaitUtils.waitAnyVisible(
+            listOf(userProfileButton, userProfileButtonWithNotification)
+        ) ?: throw AssertionError("Self user profile button is not displayed")
+        button.click()
+        return this
     }
-    return this
-}
 
     fun clickUserProfileButtonNoPhoto(): ConversationListPage {
-        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
-        buttonNoPhoto.click()
-    return this
-}
+        UiWaitUtils.waitElement(userProfileButton).click()
+        return this
+    }
 
     fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationListPage {
         try {

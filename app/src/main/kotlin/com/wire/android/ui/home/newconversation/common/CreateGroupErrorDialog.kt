@@ -25,8 +25,10 @@ import com.wire.android.ui.common.DialogTextSuffixLink
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.SupportPage
@@ -38,9 +40,20 @@ import com.wire.android.util.ui.stringWithStyledArgs
 fun CreateGroupErrorDialog(
     error: CreateGroupState.Error,
     onDismiss: () -> Unit,
+    onRetryPendingCreation: () -> Unit,
+    onPendingCreationAcknowledged: () -> Unit,
     onEditParticipantsList: () -> Unit,
     onCancel: () -> Unit
 ) {
+    if (error is CreateGroupState.Error.PendingMLSCreation) {
+        PendingMLSGroupCreationDialog(
+            isRetrying = error.isRetrying,
+            onRetry = onRetryPendingCreation,
+            onAcknowledged = onPendingCreationAcknowledged,
+        )
+        return
+    }
+
     val (dialogStrings, dialogSuffixLink) = when (error) {
         is CreateGroupState.Error.LackingConnection -> DialogErrorStrings(
             title = stringResource(R.string.error_no_network_title),
@@ -51,6 +64,8 @@ fun CreateGroupErrorDialog(
             title = stringResource(R.string.error_unknown_title),
             message = stringResource(R.string.error_unknown_message),
         ) to null
+
+        is CreateGroupState.Error.PendingMLSCreation -> error("Pending MLS creation is handled separately")
 
         is CreateGroupState.Error.ConflictedBackends -> DialogErrorStrings(
             title = stringResource(id = R.string.conversation_can_not_be_created_title),
@@ -102,11 +117,43 @@ fun CreateGroupErrorDialog(
     )
 }
 
+@Composable
+private fun PendingMLSGroupCreationDialog(
+    isRetrying: Boolean,
+    onRetry: () -> Unit,
+    onAcknowledged: () -> Unit,
+) {
+    val buttonState = if (isRetrying) WireButtonState.Disabled else WireButtonState.Default
+    WireDialog(
+        title = stringResource(R.string.conversation_creation_pending_title),
+        text = stringResource(R.string.conversation_creation_pending_message),
+        onDismiss = onAcknowledged,
+        buttonsHorizontalAlignment = false,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onRetry,
+            text = stringResource(R.string.label_retry),
+            type = WireDialogButtonType.Primary,
+            state = buttonState,
+            loading = isRetrying,
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            onClick = onAcknowledged,
+            text = stringResource(R.string.label_ok),
+            type = WireDialogButtonType.Secondary,
+            state = buttonState,
+        ),
+        properties = wireDialogPropertiesBuilder(
+            dismissOnBackPress = !isRetrying,
+            dismissOnClickOutside = !isRetrying,
+        ),
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewCreateGroupErrorDialogLackingConnection() {
     WireTheme {
-        CreateGroupErrorDialog(CreateGroupState.Error.LackingConnection, {}, {}, {})
+        CreateGroupErrorDialog(CreateGroupState.Error.LackingConnection, {}, {}, {}, {}, {})
     }
 }
 
@@ -114,7 +161,7 @@ private fun PreviewCreateGroupErrorDialogLackingConnection() {
 @Composable
 private fun PreviewCreateGroupErrorDialogUnknown() {
     WireTheme {
-        CreateGroupErrorDialog(CreateGroupState.Error.Unknown, {}, {}, {})
+        CreateGroupErrorDialog(CreateGroupState.Error.Unknown, {}, {}, {}, {}, {})
     }
 }
 
@@ -122,6 +169,14 @@ private fun PreviewCreateGroupErrorDialogUnknown() {
 @Composable
 private fun PreviewCreateGroupErrorDialogConflictedBackends() {
     WireTheme {
-        CreateGroupErrorDialog(CreateGroupState.Error.ConflictedBackends(listOf("some.com", "other.com")), {}, {}, {})
+        CreateGroupErrorDialog(CreateGroupState.Error.ConflictedBackends(listOf("some.com", "other.com")), {}, {}, {}, {}, {})
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewCreateGroupErrorDialogPendingMLS() {
+    WireTheme {
+        CreateGroupErrorDialog(CreateGroupState.Error.PendingMLSCreation(), {}, {}, {}, {}, {})
     }
 }

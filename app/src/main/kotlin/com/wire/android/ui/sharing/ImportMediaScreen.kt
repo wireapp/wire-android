@@ -20,6 +20,7 @@
 
 package com.wire.android.ui.sharing
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -56,19 +57,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -86,14 +79,13 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.FeatureFlagState
-import com.wire.android.ui.home.featureFlagNotificationViewModel
 import com.wire.android.ui.home.conversations.AssetTooLargeDialog
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.checkAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.media.RestrictionCheckState
 import com.wire.android.ui.home.conversations.media.preview.AssetTilePreview
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
@@ -102,7 +94,6 @@ import com.wire.android.ui.home.conversationslist.common.previewConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
-import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.importMediaAuthenticatedViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -123,54 +114,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import okio.Path.Companion.toPath
 
-@WireRootDestination(navArgs = ImportMediaNavArgs::class)
 @Composable
-fun ImportMediaScreen(
-    navArgs: ImportMediaNavArgs,
-    navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = featureFlagNotificationViewModel(),
-) {
-    val navigateBack = when (navArgs.source) {
-        ImportSource.EXTERNAL_SHARE -> navigator.finish
-        ImportSource.INTERNAL_SHARE -> navigator::navigateBack
-    }
-
-    when (val fileSharingRestrictedState = featureFlagNotificationViewModel.featureFlagState.isFileSharingState) {
-        FeatureFlagState.FileSharingState.Loading -> {
-            ImportMediaLoadingContent(
-                navigateBack = navigateBack
-            )
-        }
-
-        FeatureFlagState.FileSharingState.NoUser -> {
-            ImportMediaLoggedOutContent(
-                fileSharingRestrictedState = fileSharingRestrictedState,
-                navigateBack = navigateBack,
-                openWireAction = {
-                    val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
-                    navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
-                }
-            )
-        }
-
-        FeatureFlagState.FileSharingState.DisabledByTeam,
-        FeatureFlagState.FileSharingState.AllowAll,
-        is FeatureFlagState.FileSharingState.AllowSome -> {
-            ImportMediaAuthenticatedContent(
-                navArgs = navArgs,
-                navigator = navigator,
-                isRestrictedInTeam = fileSharingRestrictedState == FeatureFlagState.FileSharingState.DisabledByTeam,
-                navigateBack = navigateBack,
-            )
-        }
-    }
-
-    BackHandler { navigateBack() }
-}
-
-@Composable
-private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
+internal fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -201,11 +146,11 @@ private fun ImportMediaLoadingContent(navigateBack: () -> Unit) {
 }
 
 @Composable
-private fun ImportMediaAuthenticatedContent(
-    navArgs: ImportMediaNavArgs,
-    navigator: Navigator,
+internal fun ImportMediaAuthenticatedContent(
     isRestrictedInTeam: Boolean,
     navigateBack: () -> Unit,
+    onConversationReady: (ConversationId, List<AssetBundle>, String?) -> Unit,
+    internalAssetUris: List<Uri> = emptyList(),
     checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = checkAssetRestrictionsViewModel(),
     importMediaViewModel: ImportMediaAuthenticatedViewModel = importMediaAuthenticatedViewModel(),
 ) {
@@ -213,24 +158,17 @@ private fun ImportMediaAuthenticatedContent(
         ImportMediaRestrictedContent(
             importMediaAuthenticatedState = importMediaViewModel.importMediaState,
             avatarAsset = null,
-            navigateBack = navigateBack
+            navigateBack = navigateBack,
         )
     } else {
         LaunchedEffect(checkAssetRestrictionsViewModel.state) {
             with(checkAssetRestrictionsViewModel.state) {
                 if (this is RestrictionCheckState.Success) {
                     importMediaViewModel.importMediaState.selectedConversationItem.firstOrNull()?.let { conversationItem ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                ConversationScreenDestination(
-                                    ConversationNavArgs(
-                                        conversationId = conversationItem,
-                                        pendingBundles = ArrayList(this.assetBundleList),
-                                        pendingTextBundle = importMediaViewModel.importMediaState.importedText,
-                                    )
-                                ),
-                                BackStackMode.REMOVE_CURRENT_AND_REPLACE
-                            ),
+                        onConversationReady(
+                            conversationItem,
+                            this.assetBundleList,
+                            importMediaViewModel.importMediaState.importedText,
                         )
                     }
                 }
@@ -258,22 +196,19 @@ private fun ImportMediaAuthenticatedContent(
 
         val context = LocalContext.current
         with(importMediaViewModel.importMediaState) {
-            LaunchedEffect(navArgs.source, navArgs.internalAssetUriList) {
+            LaunchedEffect(internalAssetUris) {
                 if (!hasImportedContent()) {
-                    when (navArgs.source) {
-                        ImportSource.EXTERNAL_SHARE -> context.getActivity()
+                    if (internalAssetUris.isNotEmpty()) {
+                        importMediaViewModel.handleReceivedDataFromInternalShare(internalAssetUris)
+                    } else {
+                        context.getActivity()
                             ?.let { activity -> importMediaViewModel.handleReceivedDataFromSharingIntent(activity) }
-
-                        ImportSource.INTERNAL_SHARE ->
-                            importMediaViewModel.handleReceivedDataFromInternalShare(navArgs.internalAssetUriList)
                     }
                 }
             }
         }
     }
 }
-
-private fun ImportMediaNavArgs.isInternalShare(): Boolean = internalAssetUriList.isNotEmpty()
 
 @Composable
 fun ImportMediaRestrictedContent(

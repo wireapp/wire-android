@@ -18,11 +18,8 @@
 
 package com.wire.android.ui.authentication.welcome
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.mockUri
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
@@ -30,7 +27,6 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -41,11 +37,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class WelcomeViewModelTest {
-
-    @MockK
-    lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     lateinit var getSessions: GetSessionsUseCase
@@ -54,20 +47,21 @@ class WelcomeViewModelTest {
     lateinit var doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase
 
     private lateinit var welcomeViewModel: WelcomeViewModel
+    private lateinit var welcomeNavArgs: WelcomeNavArgs
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
         val authServer = newServerConfig(1)
-        every { savedStateHandle.navArgs<WelcomeNavArgs>() } returns WelcomeNavArgs(authServer.links)
+        welcomeNavArgs = WelcomeNavArgs(authServer.links)
         coEvery { getSessions() } returns GetAllSessionsResult.Success(listOf())
         coEvery { doesValidNomadAccountExist() } returns false
     }
 
     @Test
     fun `given no nomad account exists, when checking sessions, then nomadAccountBlocksLogin is false`() = runTest {
-        welcomeViewModel = WelcomeViewModel(savedStateHandle, getSessions, doesValidNomadAccountExist, ServerConfig.STAGING)
+        welcomeViewModel = WelcomeViewModel(welcomeNavArgs, getSessions, doesValidNomadAccountExist, ServerConfig.STAGING)
         advanceUntilIdle()
 
         assertEquals(false, welcomeViewModel.state.nomadAccountBlocksLogin)
@@ -77,7 +71,7 @@ class WelcomeViewModelTest {
     fun `given nomad account exists, when checking sessions, then nomadAccountBlocksLogin is true`() = runTest {
         coEvery { doesValidNomadAccountExist() } returns true
 
-        welcomeViewModel = WelcomeViewModel(savedStateHandle, getSessions, doesValidNomadAccountExist, ServerConfig.STAGING)
+        welcomeViewModel = WelcomeViewModel(welcomeNavArgs, getSessions, doesValidNomadAccountExist, ServerConfig.STAGING)
         advanceUntilIdle()
 
         assertEquals(true, welcomeViewModel.state.nomadAccountBlocksLogin)

@@ -18,11 +18,8 @@
 
 package com.wire.android.ui
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.di.metro.AppSessionViewModelGraph
+import com.wire.android.navigation.runtime.SessionGraphStoreViewModel
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.every
@@ -30,80 +27,78 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertNotSame
 import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class SessionGraphStoreViewModelTest {
 
     @Test
-    fun givenSessionGraphIsInvalidated_whenSameUserLogsInAgain_thenGraphAndViewModelsAreRecreated() {
+    fun givenRemovedSessionIsConfirmedAvailable_whenSameUserLogsInAgain_thenGraphAndViewModelsAreRecreated() {
         val oldImageLoader = mockk<WireSessionImageLoader>(relaxed = true)
         val oldGraph = graphWith(oldImageLoader)
         val newGraph = graphWith(mockk(relaxed = true))
         val graphs = ArrayDeque(listOf(oldGraph, newGraph))
-        val store = SessionGraphStoreViewModel { graphs.removeFirst() }
-        val oldRetainedGraph = store.retainedGraphFor(USER_ID)
-        val oldViewModel = TrackingViewModel()
-        ViewModelProvider(
-            oldRetainedGraph,
-            viewModelFactory { initializer { oldViewModel } }
-        )[TrackingViewModel::class.java]
+        val store = SessionGraphStoreViewModel(createSessionGraph = { graphs.removeFirst() })
+        val oldRetainedGraph = store.graphFor(USER_ID)
 
-        store.invalidate(USER_ID)
-        val newRetainedGraph = store.retainedGraphFor(USER_ID)
+        store.markInvalidating(USER_ID)
+        store.markRemoved(USER_ID)
+        store.markAvailable(USER_ID)
+        val newRetainedGraph = store.graphFor(USER_ID)
 
         assertNotSame(oldRetainedGraph, newRetainedGraph)
-        assertSame(newGraph, newRetainedGraph.graph)
-        assertTrue(oldViewModel.wasCleared)
+        assertSame(newGraph, newRetainedGraph)
         verify(exactly = 1) { oldImageLoader.shutdown() }
     }
 
     @Test
-    fun givenActivityIsRecreated_whenActiveGraphIsInvalidated_thenSameUserGetsFreshGraph() {
+    fun givenSessionIsRemovedAndConfirmedAgain_whenResolvingGraph_thenSameUserGetsFreshGraph() {
         val oldImageLoader = mockk<WireSessionImageLoader>(relaxed = true)
         val oldGraph = graphWith(oldImageLoader)
         val newGraph = graphWith(mockk(relaxed = true))
         val graphs = ArrayDeque(listOf(oldGraph, newGraph))
-        val store = SessionGraphStoreViewModel { graphs.removeFirst() }
-        val oldRetainedGraph = store.retainedGraphFor(USER_ID)
+        val store = SessionGraphStoreViewModel(createSessionGraph = { graphs.removeFirst() })
+        val oldRetainedGraph = store.graphFor(USER_ID)
 
-        store.invalidateActive()
-        val newRetainedGraph = store.retainedGraphFor(USER_ID)
+        store.markInvalidating(USER_ID)
+        store.markRemoved(USER_ID)
+        store.markAvailable(USER_ID)
+        val newRetainedGraph = store.graphFor(USER_ID)
 
         assertNotSame(oldRetainedGraph, newRetainedGraph)
-        assertSame(newGraph, newRetainedGraph.graph)
+        assertSame(newGraph, newRetainedGraph)
         verify(exactly = 1) { oldImageLoader.shutdown() }
     }
 
     @Test
     fun givenSessionGraphIsStillValid_whenRequestedAgain_thenGraphIsReused() {
         val graph = graphWith(mockk(relaxed = true))
-        val store = SessionGraphStoreViewModel { graph }
+        val store = SessionGraphStoreViewModel(createSessionGraph = { graph })
 
-        val first = store.retainedGraphFor(USER_ID)
-        val second = store.retainedGraphFor(USER_ID)
+        val first = store.graphFor(USER_ID)
+        val second = store.graphFor(USER_ID)
 
         assertSame(first, second)
     }
 
     @Test
-    fun givenSameUserIsRemovedAndLogsInRepeatedly_whenGraphsAreInvalidated_thenEveryLoginGetsAFreshGraph() {
+    fun givenSameUserIsRemovedAndLogsInRepeatedly_whenLifecycleIsConfirmed_thenEveryLoginGetsAFreshGraph() {
         val imageLoaders = List(RELOGIN_COUNT) { mockk<WireSessionImageLoader>(relaxed = true) }
         val graphs = ArrayDeque(imageLoaders.map(::graphWith))
-        val store = SessionGraphStoreViewModel { graphs.removeFirst() }
+        val store = SessionGraphStoreViewModel(createSessionGraph = { graphs.removeFirst() })
 
         val retainedGraphs = buildList {
             repeat(RELOGIN_COUNT) { index ->
-                add(store.retainedGraphFor(USER_ID))
+                add(store.graphFor(USER_ID))
                 if (index < RELOGIN_COUNT - 1) {
-                    store.invalidate(USER_ID)
+                    store.markInvalidating(USER_ID)
+                    store.markRemoved(USER_ID)
+                    store.markAvailable(USER_ID)
                 }
             }
         }
 
         retainedGraphs.zipWithNext().forEach { (oldGraph, newGraph) ->
             assertNotSame(oldGraph, newGraph)
-            assertNotSame(oldGraph.graph, newGraph.graph)
         }
         imageLoaders.dropLast(1).forEach { imageLoader ->
             verify(exactly = 1) { imageLoader.shutdown() }
@@ -112,36 +107,36 @@ class SessionGraphStoreViewModelTest {
     }
 
     @Test
-    fun givenTwoRetainedUsers_whenRemovedUserIsInvalidated_thenOtherUsersGraphRemainsActive() {
+    fun givenTwoRetainedUsers_whenOneIsRemoved_thenOtherUsersGraphRemainsActive() {
         val removedUserImageLoader = mockk<WireSessionImageLoader>(relaxed = true)
         val otherUserImageLoader = mockk<WireSessionImageLoader>(relaxed = true)
-        val graphsByUser = mapOf(
-            USER_ID to graphWith(removedUserImageLoader),
-            OTHER_USER_ID to graphWith(otherUserImageLoader),
+        val removedUserGraphs = ArrayDeque(
+            listOf(
+                graphWith(removedUserImageLoader),
+                graphWith(mockk(relaxed = true)),
+            )
         )
-        val store = SessionGraphStoreViewModel { userId -> graphsByUser.getValue(userId) }
-        val otherUsersGraph = store.retainedGraphFor(OTHER_USER_ID)
-        val removedUsersGraph = store.retainedGraphFor(USER_ID)
+        val otherUserGraph = graphWith(otherUserImageLoader)
+        val store = SessionGraphStoreViewModel(
+            createSessionGraph = { userId ->
+                if (userId == USER_ID) removedUserGraphs.removeFirst() else otherUserGraph
+            }
+        )
+        val removedUsersGraph = store.graphFor(USER_ID)
+        val otherUsersGraph = store.graphFor(OTHER_USER_ID)
 
-        store.invalidateActive()
+        store.markInvalidating(USER_ID)
+        store.markRemoved(USER_ID)
+        store.markAvailable(USER_ID)
 
-        assertSame(otherUsersGraph, store.retainedGraphFor(OTHER_USER_ID))
-        assertNotSame(removedUsersGraph, store.retainedGraphFor(USER_ID))
+        assertSame(otherUsersGraph, store.graphFor(OTHER_USER_ID))
+        assertNotSame(removedUsersGraph, store.graphFor(USER_ID))
         verify(exactly = 1) { removedUserImageLoader.shutdown() }
         verify(exactly = 0) { otherUserImageLoader.shutdown() }
     }
 
     private fun graphWith(imageLoader: WireSessionImageLoader) = mockk<AppSessionViewModelGraph> {
         every { wireSessionImageLoader } returns imageLoader
-    }
-
-    private class TrackingViewModel : ViewModel() {
-        var wasCleared = false
-            private set
-
-        override fun onCleared() {
-            wasCleared = true
-        }
     }
 
     private companion object {

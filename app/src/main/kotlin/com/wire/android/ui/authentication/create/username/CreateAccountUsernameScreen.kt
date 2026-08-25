@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.create.username
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,19 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import com.wire.android.ui.authentication.createAccountUsernameViewModel
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
@@ -54,13 +47,10 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireRootDestination(
-    style = AuthPopUpNavigationAnimation::class
-)
 @Composable
-fun CreateAccountUsernameScreen(
-    navigator: Navigator,
-    viewModel: CreateAccountUsernameViewModel = createAccountUsernameViewModel()
+internal fun CreateAccountUsernameRouteScreen(
+    viewModel: CreateAccountUsernameViewModel,
+    onSuccess: () -> Unit,
 ) {
     UsernameContent(
         textState = viewModel.textState,
@@ -71,12 +61,7 @@ fun CreateAccountUsernameScreen(
 
     LaunchedEffect(viewModel.state.success) {
         if (viewModel.state.success) {
-            navigator.navigate(
-                NavigationCommand(
-                    InitialSyncScreenDestination,
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
+            onSuccess()
         }
     }
 }

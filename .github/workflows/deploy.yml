@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       build-flavor:
-        description: "Build flavor (dev, staging, internal, beta, prod, fdroid)"
+        description: "Build flavor (dev, alpha, beta, prod, fdroid)"
         required: true
         type: string
       build-variant:

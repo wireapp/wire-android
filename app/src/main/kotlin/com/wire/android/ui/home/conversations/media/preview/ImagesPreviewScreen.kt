@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.media.preview
 import com.wire.android.ui.home.conversations.checkAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.imagesPreviewViewModel
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -52,10 +51,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -83,28 +79,23 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 
-@WireRootDestination(
-    navArgs = ImagesPreviewNavArgs::class,
-    style = PopUpNavigationAnimation::class
-)
 @Composable
-fun ImagesPreviewScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<ImagesPreviewNavBackArgs>,
-    imagesPreviewViewModel: ImagesPreviewViewModel = imagesPreviewViewModel(),
-    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel = checkAssetRestrictionsViewModel()
+internal fun ImagesPreviewRouteScreen(
+    imagesPreviewViewModel: ImagesPreviewViewModel,
+    checkAssetRestrictionsViewModel: CheckAssetRestrictionsViewModel,
+    onNavigateBack: () -> Unit,
+    onCompleted: (List<AssetBundle>) -> Unit,
 ) {
     LaunchedEffect(checkAssetRestrictionsViewModel.state) {
         with(checkAssetRestrictionsViewModel.state) {
             if (this is RestrictionCheckState.Success) {
-                resultNavigator.setResult(ImagesPreviewNavBackArgs(this.assetBundleList))
-                resultNavigator.navigateBack()
+                onCompleted(this.assetBundleList)
             }
         }
     }
     Content(
         previewState = imagesPreviewViewModel.viewState,
-        onNavigationPressed = navigator::navigateBack,
+        onNavigationPressed = onNavigateBack,
         onSendMessages = { mediaAssets ->
             checkAssetRestrictionsViewModel.checkRestrictions(importedMediaList = mediaAssets)
         },

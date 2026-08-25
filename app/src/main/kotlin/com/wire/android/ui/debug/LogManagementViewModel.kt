@@ -24,12 +24,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.logging.LogFileWriter
+import dev.zacsweers.metro.Inject
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
 
 data class LogManagementState(
     val isLoggingEnabled: Boolean = false,

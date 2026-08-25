@@ -46,7 +46,6 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.BadgeEventType
@@ -112,16 +111,8 @@ fun ConversationList(
     ) {
         items(
             count = lazyPagingConversations.itemCount,
-            key = lazyPagingConversations.itemKey {
-                when (it) {
-                    is ConversationSection.Custom -> "section_custom_${it.sectionName}"
-                    is ConversationSection.WithoutHeader -> "section_without_header"
-                    is ConversationItem -> it.conversationId.toString()
-                    ConversationSection.Predefined.BrowseChannels -> "section_predefined_browse_channels"
-                    ConversationSection.Predefined.Conversations -> "section_predefined_conversations"
-                    ConversationSection.Predefined.Favorites -> "section_predefined_favorites"
-                    ConversationSection.Predefined.NewActivities -> "section_predefined_new_activities"
-                }
+            key = { index ->
+                conversationListItemKey(lazyPagingConversations.peek(index), index)
             },
             contentType = lazyPagingConversations.itemContentType {
                 when (it) {

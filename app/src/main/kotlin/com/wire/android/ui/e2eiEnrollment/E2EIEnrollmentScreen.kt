@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.e2eiEnrollment
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,16 +31,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.wire.android.R
-import com.wire.android.feature.NavigationSwitchAccountActions
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.authentication.clearSessionViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.common.TextWithLearnMore
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -53,12 +44,8 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.e2EIEnrollmentViewModel
-import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.home.E2EIEnrollmentErrorWithDismissDialog
 import com.wire.android.ui.home.E2EISuccessDialog
-import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -67,18 +54,13 @@ import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
 
-@WireRootDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = SessionBackedAuthenticationNavArgs::class,
-)
 @Composable
-@Suppress("UnusedParameter")
-fun E2EIEnrollmentScreen(
-    navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
-    sessionBackedAuthenticationNavArgs: SessionBackedAuthenticationNavArgs,
-    viewModel: E2EIEnrollmentViewModel = e2EIEnrollmentViewModel(),
-    clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
+internal fun E2EIEnrollmentRouteScreen(
+    viewModel: E2EIEnrollmentViewModel,
+    clearSessionViewModel: ClearSessionViewModel,
+    switchAccountActions: com.wire.android.feature.SwitchAccountActions,
+    onInitialSyncRequired: () -> Unit,
+    onOpenCertificateDetails: (String) -> Unit,
 ) {
     val state = viewModel.state
 
@@ -87,26 +69,16 @@ fun E2EIEnrollmentScreen(
         clearSessionState = clearSessionViewModel.state,
         dismissSuccess = {
             viewModel.finalizeMLSClient {
-                navigator.navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
+                onInitialSyncRequired()
             }
         },
         dismissErrorDialog = viewModel::dismissErrorDialog,
         enrollE2EICertificate = viewModel::enrollE2EICertificate,
         handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
-        openCertificateDetails = {
-            navigator.navigate(
-                NavigationCommand(
-                    E2EiCertificateDetailsScreenDestination(
-                        E2EICertificateDetails.DuringLoginCertificateDetails(state.certificate)
-                    )
-                )
-            )
-        },
+        openCertificateDetails = { onOpenCertificateDetails(state.certificate) },
         onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
         onCancelEnrollmentClicked = {
-            clearSessionViewModel.onCancelLoginClicked(
-                NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
-            )
+            clearSessionViewModel.onCancelLoginClicked(switchAccountActions)
         },
         onProceedEnrollmentClicked = clearSessionViewModel::onProceedLoginClicked,
     )

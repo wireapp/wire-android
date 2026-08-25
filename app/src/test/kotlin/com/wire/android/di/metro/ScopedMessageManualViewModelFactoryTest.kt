@@ -17,7 +17,6 @@
  */
 package com.wire.android.di.metro
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
 import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
@@ -45,19 +44,18 @@ import org.junit.jupiter.api.Test
 class ScopedMessageManualViewModelFactoryTest {
 
     @Test
-    fun givenCompositeArguments_whenCreatingViewModel_thenDelegatesExactSavedStateHandleAndArguments() {
+    fun givenCompositeArguments_whenCreatingViewModel_thenDelegatesExactArguments() {
         val (arrangement, factory) = Arrangement().arrange()
-        val savedStateHandle = SavedStateHandle()
         val args = mockk<CompositeMessageArgs>()
         every {
-            arrangement.compositeMessageFactory.create(savedStateHandle, args)
+            arrangement.compositeMessageFactory.create(args)
         } returns arrangement.compositeMessageViewModel
 
-        val result = factory.compositeMessageViewModel(savedStateHandle, args)
+        val result = factory.compositeMessageViewModel(args)
 
         assertSame(arrangement.compositeMessageViewModel, result)
         verify(exactly = 1) {
-            arrangement.compositeMessageFactory.create(savedStateHandle, args)
+            arrangement.compositeMessageFactory.create(args)
         }
     }
 

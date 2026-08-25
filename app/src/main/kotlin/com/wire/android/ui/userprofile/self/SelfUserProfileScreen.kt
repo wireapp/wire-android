@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.userprofile.self
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
@@ -47,22 +46,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.home.settings.selfUserProfileViewModel
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.R as UICommonR
-import com.wire.android.appLogger
-import com.wire.android.feature.NavigationSwitchAccountActions
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.LoginTypeSelector
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationTeamPlanStepScreenDestination
 import com.wire.android.ui.common.VisibilityState
-import com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanNavArgs
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.avatar.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
@@ -77,12 +65,6 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
-import com.ramcosta.composedestinations.generated.app.destinations.AppSettingsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.AvatarPickerScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MyAccountScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfQRCodeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.legalhold.banner.LegalHoldPendingBanner
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
@@ -91,7 +73,6 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileSelfDialog
-import com.wire.android.ui.legalHoldRequestedViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -112,94 +93,57 @@ val LocalSelfUserProfileLogoutAction = staticCompositionLocalOf<((wipeData: Bool
     null
 }
 
-@WireRootDestination(
-    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
-)
 @Composable
 @SuppressLint("ComposeModifierMissing")
-fun SelfUserProfileScreen(
-    navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
-    avatarPickerResultRecipient: ResultRecipient<AvatarPickerScreenDestination, String?>,
-    viewModelSelf: SelfUserProfileViewModel = selfUserProfileViewModel(),
-    legalHoldRequestedViewModel: LegalHoldRequestedViewModel = legalHoldRequestedViewModel()
+@Suppress("LongParameterList")
+internal fun SelfUserProfileRouteScreen(
+    viewModelSelf: SelfUserProfileViewModel,
+    legalHoldRequestedViewModel: LegalHoldRequestedViewModel,
+    onClose: () -> Unit,
+    onLogout: (Boolean) -> Unit,
+    onChangeAvatar: () -> Unit,
+    onEditProfile: () -> Unit,
+    onAddAccount: () -> Unit,
+    onSwitchAccount: (UserId) -> Unit,
+    onOpenQrCode: (userHandle: String, isTeamMember: Boolean) -> Unit,
+    onCreateTeam: (wasMigrationDotActive: Boolean) -> Unit,
+    onOpenAccountDetails: () -> Unit,
 ) {
     val legalHoldSubjectDialogState = rememberVisibilityState<Unit>()
     val logoutAction = LocalSelfUserProfileLogoutAction.current
 
     LaunchedEffect(Unit) {
-        // Check if the user is able to migrate to a team account, every time the screen is shown
         viewModelSelf.checkIfUserAbleToMigrateToTeamAccount()
     }
 
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
-        onCloseClick = navigator::navigateBack,
-        logout = {
-            logoutAction?.invoke(it)
-                ?: viewModelSelf.logout(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
-        },
-        onChangeUserProfilePicture = {
-            navigator.navigate(
-                NavigationCommand(
-                    AvatarPickerScreenDestination
-                )
-            )
-        },
-        onEditClick = { navigator.navigate(NavigationCommand(AppSettingsScreenDestination)) },
+        onCloseClick = onClose,
+        logout = { wipeData -> logoutAction?.invoke(wipeData) ?: onLogout(wipeData) },
+        onChangeUserProfilePicture = onChangeAvatar,
+        onEditClick = onEditProfile,
         onStatusClicked = viewModelSelf::changeStatusClick,
-        onAddAccountClick = {
-            val destination = if (loginTypeSelector.canUseNewLogin()) NewLoginScreenDestination() else WelcomeScreenDestination()
-            navigator.navigate(NavigationCommand(destination))
-        },
+        onAddAccountClick = onAddAccount,
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
         onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onLegalHoldAcceptClick = legalHoldRequestedViewModel::show,
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
-        onOtherAccountClick = {
-            viewModelSelf.switchAccount(it, NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin))
-        },
+        onOtherAccountClick = onSwitchAccount,
         onQrCodeClick = {
             viewModelSelf.trackQrCodeClick()
-            navigator.navigate(
-                NavigationCommand(
-                    SelfQRCodeScreenDestination(
-                        viewModelSelf.userProfileState.userName,
-                        !viewModelSelf.userProfileState.teamName.isNullOrBlank()
-                    )
-                )
+            onOpenQrCode(
+                viewModelSelf.userProfileState.userName,
+                !viewModelSelf.userProfileState.teamName.isNullOrBlank(),
             )
         },
         onCreateAccount = {
-            navigator.navigate(
-                NavigationCommand(
-                    TeamMigrationTeamPlanStepScreenDestination(
-                        TeamMigrationTeamPlanNavArgs(viewModelSelf.wasMigrationDotActiveWhenProfileOpened())
-                    )
-                )
-            )
+            onCreateTeam(viewModelSelf.wasMigrationDotActiveWhenProfileOpened())
         },
-        onAccountDetailsClick = { navigator.navigate(NavigationCommand(MyAccountScreenDestination)) },
+        onAccountDetailsClick = onOpenAccountDetails,
         isUserInCall = viewModelSelf::isUserInCall,
     )
-
-    avatarPickerResultRecipient.onNavResult { result ->
-        when (result) {
-            is NavResult.Canceled -> {
-                appLogger.i("Error with receiving navigation back args from avatar picker in SelfUserProfileScreen")
-            }
-
-            is NavResult.Value -> {
-                result.value?.let { avatarAssetId ->
-                    viewModelSelf.reloadNewPickedAvatar(
-                        avatarAssetId = avatarAssetId
-                    )
-                }
-            }
-        }
-    }
 
     if (legalHoldRequestedViewModel.state is LegalHoldRequestedState.Visible) {
         LegalHoldRequestedDialog(

@@ -21,7 +21,6 @@ package com.wire.android.ui.home.drawer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.HomeDestination
@@ -32,9 +31,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversat
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -42,20 +39,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
-class HomeDrawerViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+class HomeDrawerViewModel @Inject constructor(
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
     private val observeIsWireMeetingsEnabled: ObserveIsMeetingsEnabledUseCase,
 ) : ViewModel() {
-
-    @AssistedFactory
-    interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): HomeDrawerViewModel
-    }
-
     var drawerState by mutableStateOf(HomeDrawerState())
         private set
 
@@ -78,7 +68,6 @@ class HomeDrawerViewModel @AssistedInject constructor(
             combine(
                 flowOf(isWireCellsEnabled()),
                 observeIsWireMeetingsEnabled(),
-
                 observeArchivedUnreadConversationsCount.value.invoke(),
                 observeTeamManagementUrlForUser(),
             ) { wireCellsEnabled, wireMeetingsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->

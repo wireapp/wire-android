@@ -24,6 +24,7 @@ import com.wire.android.assertions.shouldHaveSize
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -55,6 +56,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.Duration
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -250,15 +252,45 @@ class CommonTopAppBarViewModelTest {
     }
 
     @Test
-    fun givenNoCurrentSession_whenGettingState_thenNone() = runTest {
+    fun givenGlobalCurrentSessionIsMissing_whenSessionOwnedViewModelGetsState_thenKeepsUsingInjectedAccount() = runTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
             .withNotCurrentSession()
+            .withCurrentScreen(CurrentScreen.Home)
             .arrange()
 
         advanceUntilIdle()
         val state = commonTopAppBarViewModel.state
 
         state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
+    }
+
+    @Test
+    fun givenFailedSync_whenGlobalCurrentSessionExpires_thenInjectedAccountConnectivityIsPreserved() = runTest {
+        val currentSessionFlow = MutableStateFlow<CurrentSessionResult>(
+            CurrentSessionResult.Success(AccountInfo.Valid(userId))
+        )
+        val (_, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionFlow(currentSessionFlow)
+            .withoutOngoingCall()
+            .withoutOutgoingCall()
+            .withoutIncomingCall()
+            .withCurrentScreen(CurrentScreen.Home)
+            .withSyncState(
+                SyncState.Failed(
+                    NetworkFailure.ServerMiscommunication(RuntimeException("refresh failed")),
+                    Duration.ZERO
+                )
+            )
+            .arrange()
+
+        advanceUntilIdle()
+        val connectivityState = commonTopAppBarViewModel.state.connectivityState
+        connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
+
+        currentSessionFlow.value = CurrentSessionResult.Failure.SessionNotFound
+        advanceUntilIdle()
+
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
     }
 
     @Test
@@ -417,6 +449,7 @@ class CommonTopAppBarViewModelTest {
             CommonTopAppBarViewModel(
                 currentScreenManager = currentScreenManager,
                 coreLogic = lazyOf(coreLogic),
+                currentAccount = userId,
                 params = params
             )
         }
@@ -475,6 +508,10 @@ class CommonTopAppBarViewModelTest {
                     AccountInfo.Valid(userId)
                 )
             )
+        }
+
+        fun withCurrentSessionFlow(currentSessionFlow: Flow<CurrentSessionResult>) = apply {
+            every { coreLogic.globalScope { session.currentSessionFlow() } } returns currentSessionFlow
         }
 
         fun withCurrentScreen(currentScreen: CurrentScreen) = apply {

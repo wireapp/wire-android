@@ -60,7 +60,7 @@ fun LinkPreviewCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(dimensions().messageAttachmentCornerSize))
+            .clip(RoundedCornerShape(dimensions().corner10x))
             .background(messageStyle.surface())
             .combinedClickable(
                 enabled = onClick != null,

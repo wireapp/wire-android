@@ -11,6 +11,9 @@ import com.google.zxing.qrcode.QRCodeWriter
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 private const val DOWNLOAD_DIR = "/sdcard/Download"
 
@@ -103,4 +106,37 @@ object QrCodeTestUtils {
         }
         return file
     }
+}
+
+fun createOneKbFileInDeviceDownloadsFolder(fileName: String) {
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    device.executeShellCommand("dd if=/dev/zero of=$DOWNLOAD_DIR/$fileName bs=1024 count=1")
+}
+
+fun getDownloadedFileNames(dir: String = DOWNLOAD_DIR): Set<String> {
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    return device.executeShellCommand("ls $dir")
+        .lineSequence()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .toSet()
+}
+
+fun waitForNewDownloadedFileName(
+    fileNamePrefix: String,
+    existingFiles: Set<String>,
+    timeout: Duration = 15.seconds,
+    dir: String = DOWNLOAD_DIR
+): String {
+    var downloadedFile: String? = null
+    val downloaded = UiWaitUtils.retryUntilTimeout(timeout) {
+        downloadedFile = (getDownloadedFileNames(dir) - existingFiles)
+            .firstOrNull { it.startsWith(fileNamePrefix) }
+        downloadedFile != null
+    }
+
+    if (!downloaded) {
+        throw AssertionError("A new '$fileNamePrefix' file was not downloaded within ${timeout.inWholeSeconds} seconds.")
+    }
+    return requireNotNull(downloadedFile)
 }

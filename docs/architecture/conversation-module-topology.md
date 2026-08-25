@@ -2,7 +2,7 @@
 
 **Status:** Staged implementation; folders is live and conversation calling, migration, banner state, message-user resolution, message-presentation models/primitives/resources/provider/system, message-click actions, link-preview visibility, author, reaction, regular-message leading, offline paging, self-deletion timer state and icon metrics, participant renderers/previews, regular, content, final and preview mapping/formatting, image/asset paging and asset-media/search state, empty-state and no-results rendering, role projection, media/search arguments, asset restrictions, guest-link action/information, record-audio information, muted-list presentation, and edit-metadata presentation have facade-owned seams
 **Scope:** Conversation extraction after Navigation 3 migration
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `7d8ef7d5c`
+**Last verified:** 2026-08-25, `chore/android-modularization`, HEAD `0af9fc2de`
 
 > The target topology is now partially live. `:features:conversation:folders` is the first internal capability, while the remaining conversation implementation stays in the Android-first `:features:conversation` facade.
 
@@ -16,35 +16,45 @@ The target contains a small public facade and internal capability modules. `:fea
 flowchart TD
     App[":app<br/>composition, Navigation 3 runtime, Android adapters"] --> Facade[":features:conversation<br/>public facade"]
 
-    Facade --> Contract[":features:conversation:contract"]
-    Facade --> Details[":features:conversation:details"]
-    Facade --> Participants[":features:conversation:participants"]
     Facade --> Folders[":features:conversation:folders"]
-    Facade --> Messages[":features:conversation:messages"]
-    Facade --> Media[":features:conversation:media"]
-    Facade --> ConversationCalling[":features:conversation:calling"]
-
-    Details --> Contract
-    Participants --> Contract
-    Folders --> Contract
-    Messages --> Contract
-    Media --> Contract
-    ConversationCalling --> Contract
-
-    Details --> UiCommon[":core:ui-common"]
-    Participants --> UiCommon
     Folders --> UiCommon
-    Messages --> UiCommon
-    Media --> UiCommon
-    ConversationCalling --> CoreCalling[":core:calling"]
-    Participants --> Kalium["Kalium"]
+    Folders --> Di[":core:di"]
     Folders --> Kalium
-    Messages --> Kalium
-    Media --> Kalium
-    ConversationCalling --> Kalium
+    Facade --> CoreCalling[":core:calling"]
+    Facade --> UiCommon[":core:ui-common"]
+    Facade --> Search[":core:search"]
+    Facade --> Di
+    Facade --> Kalium["Kalium Logic"]
+
+    Facade -. target .-> Contract[":features:conversation:contract"]
+    Facade -. target .-> Details[":features:conversation:details"]
+    Facade -. target .-> Participants[":features:conversation:participants"]
+    Facade -. target .-> Messages[":features:conversation:messages"]
+    Facade -. target .-> Media[":features:conversation:media"]
+    Facade -. target .-> ConversationCalling[":features:conversation:calling"]
+
+    Details -. target .-> Contract
+    Participants -. target .-> Contract
+    Folders -. target .-> Contract
+    Messages -. target .-> Contract
+    Media -. target .-> Contract
+    ConversationCalling -. target .-> Contract
+
+    Details -. target .-> UiCommon
+    Participants -. target .-> UiCommon
+    Messages -. target .-> UiCommon
+    Media -. target .-> UiCommon
+    ConversationCalling -. target .-> CoreCalling
+    Participants -. target .-> Kalium
+    Messages -. target .-> Kalium
+    Media -. target .-> Kalium
+    ConversationCalling -. target .-> Kalium
 ```
 
-The graph shows permitted direction, not mandatory dependencies. Every capability takes only the smallest core, Kalium, or third-party dependency it needs.
+Solid edges are current declared Gradle dependencies. Dashed edges show permitted
+target direction to modules that do not exist yet; they are not mandatory future
+dependencies. Every capability takes only the smallest core, Kalium, or third-party
+dependency it needs.
 
 ## Current transition model
 
@@ -119,7 +129,7 @@ System-message leading presentation and the stable `SystemMessageContent` data c
 
 Edit-conversation metadata presentation is facade-owned. `EditConversationMetadataViewModel`, its narrow state and validator, dedicated assisted Metro group/gateways, and focused test keep their packages and public FQNs in `:features:conversation`. App keeps the unchanged `GroupNameScreen`, its private edition-state adapter, Navigation 3 calls, and composition-root installation of the generated feature binding exactly once. Creation state and UI, resources, Gradle edges, profiles, Navigation 3 runtime, and KMP sources remain unchanged.
 
-The image-asset paging seam is now facade-owned. `ObserveImageAssetMessagesFromConversationUseCase`, `UIAssetMapper`, `TimeZoneProvider`, and the focused paging test keep their packages and FQNs in `:features:conversation`; Paging 3 runtime is a direct public-API dependency and paging-testing remains test-only. `:app` retains `ConversationAssetMessagesViewModel`, media screens and navigation, the file-asset pipeline, platform pickers and permissions, and Android runtime composition.
+The image-asset paging closure is now facade-owned. `ObserveImageAssetMessagesFromConversationUseCase`, `UIAssetMapper`, `TimeZoneProvider`, `ConversationAssetMessagesViewModel`, its state and Metro gateway, and the focused paging test keep their packages and FQNs in `:features:conversation`; Paging 3 runtime is a direct public-API dependency and paging-testing remains test-only. `:app` retains media screens and navigation, the file-asset pipeline, platform pickers and permissions, and Android runtime composition.
 
 - Feature-owned ViewModels, immutable UI state, use cases, pure mappers, local resources, and Metro gateway code may move into the current module.
 - `:app` stays the composition root: Navigation 3 runtime registration, activities, services, providers, manifest declarations, flavor selection, app `BuildConfig`, and host-only side effects remain app-owned.
@@ -165,7 +175,7 @@ Forbidden:
 - `:core:calling` to app or any feature.
 - App `R`, app `BuildConfig`, flavor implementations, Navigation 3 runtime, services, or activity code in an extracted capability.
 
-When two independent features need a thing, extract the smallest stable contract or implementation to neutral core. `:core:calling` is the model: conversation and meetings use it directly; activities, services, dialogs, AVS, and flavor-selected analytics remain app runtime adapters.
+When two independent features need a thing, extract the smallest stable contract or implementation to neutral core. `:core:calling` is the model: conversation uses it directly today; the meetings call state is still app-hosted and will add its own direct core edge only when it moves. Activities, services, dialogs, AVS, and flavor-selected analytics remain app runtime adapters.
 
 ## Extraction criteria and anti-junk-drawer rule
 

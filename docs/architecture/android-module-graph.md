@@ -1,66 +1,138 @@
-# Android module dependency graph
+# Android app module dependency graph
 
 **Owner:** `TODO: Android architecture owner`
 
-**Last verified:** 2026-08-24, `chore/android-modularization`, baseline HEAD `7d8ef7d5c`.
+**Last verified:** 2026-08-25, `chore/android-modularization`, HEAD `0af9fc2de`.
+
+**Scope:** Production and coverage edges reachable from `:app` across Android
+`:features:*` and `:core:*` modules, plus the architecturally relevant Kalium/AVS
+chain. Test-only and test-fixture edges, KSP/build tooling, the unconsumed
+`:features:template` scaffold, and KMP-only roots not reached by the Android app are
+excluded. `:core:navigation-kmp` is included because Android modules consume it.
 
 `A --> B` means **A declares or uses B**. Solid edges are verified current
-declared edges. Dashed edges are proposed. The canonical target diagram source is
+declared edges. Dashed edges are proposed. The canonical diagram source is
 [`android-module-graph.mmd`](android-module-graph.mmd); its body is embedded
 verbatim below.
 
 ```mermaid
 graph TD
     App[":app<br/>composition root and runtime adapters"]
+
+    Authentication[":features:authentication"]
+    Cells[":features:cells"]
+    Sketch[":features:sketch"]
+    Meetings[":features:meetings"]
+    Sync[":features:sync"]
     Conversation[":features:conversation"]
     Folders[":features:conversation:folders"]
-    Meetings[":features:meetings"]
+
     Calling[":core:calling"]
     Navigation[":core:navigation"]
+    NavigationKmp[":core:navigation-kmp"]
     Search[":core:search"]
     Di[":core:di"]
     UiCommon[":core:ui-common"]
+    QueryMatching[":core:query-matching"]
+    InteractionModel[":core:interaction-model"]
+    DesignSystem[":core:design-system"]
+    Media[":core:media"]
+    MediaPlayer[":core:media-player"]
+    Notification[":core:notification"]
     Analytics[":core:analytics"]
     AnalyticsEnabled[":core:analytics-enabled"]
     AnalyticsDisabled[":core:analytics-disabled"]
+
+    KaliumCommon["Kalium Common"]
     KaliumLogic["Kalium Logic"]
+    KaliumUtil["Kalium Util"]
     KaliumCalling["Kalium Domain Calling"]
     Avs["AVS Android runtime"]
 
-    App --> Conversation
+    App --> Authentication
+    App --> Cells
+    App --> Sketch
     App --> Meetings
+    App --> Sync
+    App --> Conversation
     App --> Calling
     App --> Navigation
     App --> Search
     App --> Di
     App --> UiCommon
+    App --> QueryMatching
+    App --> InteractionModel
+    App --> DesignSystem
+    App --> Media
+    App --> MediaPlayer
+    App --> Notification
     App -->|enabled flavor| AnalyticsEnabled
     App -->|disabled flavor| AnalyticsDisabled
     App --> KaliumLogic
-    Conversation --> Di
-    Conversation --> UiCommon
-    Conversation --> KaliumLogic
-    Conversation --> Folders
-    Conversation --> Calling
-    Conversation -. proposed .-> Analytics
-    Conversation -. proposed .-> Navigation
-    Conversation --> Search
-    Folders --> Di
-    Folders --> UiCommon
-    Folders --> KaliumLogic
-    Meetings -. proposed .-> Calling
+    App --> KaliumUtil
+
+    Authentication --> NavigationKmp
+    Authentication --> UiCommon
+    Cells --> Di
+    Cells --> Navigation
+    Cells --> UiCommon
+    Cells --> InteractionModel
+    Cells --> MediaPlayer
+    Cells --> KaliumCommon
+    Cells --> KaliumLogic
+    Sketch --> Di
+    Sketch --> Navigation
+    Sketch --> UiCommon
+    Sketch --> InteractionModel
+    Sketch --> DesignSystem
     Meetings --> Navigation
     Meetings --> Search
     Meetings --> Di
     Meetings --> UiCommon
+    Meetings --> KaliumCommon
     Meetings --> KaliumLogic
+    Meetings --> KaliumUtil
+    Meetings -. proposed .-> Calling
+    Sync --> Notification
+    Sync --> Di
+    Sync --> UiCommon
+    Sync --> KaliumCommon
+    Sync --> KaliumLogic
+    Conversation --> Folders
+    Conversation --> Calling
+    Conversation --> Di
+    Conversation --> Search
+    Conversation --> UiCommon
+    Conversation --> KaliumLogic
+    Conversation -. proposed .-> Analytics
+    Conversation -. proposed .-> Navigation
+    Folders --> Di
+    Folders --> UiCommon
+    Folders --> KaliumLogic
+
     Calling --> UiCommon
+    Calling --> KaliumCommon
     Calling --> KaliumLogic
+    Navigation --> NavigationKmp
+    Navigation --> DesignSystem
+    Navigation --> UiCommon
     Search --> Di
     Search --> UiCommon
+    Search --> QueryMatching
+    Search --> InteractionModel
     Search --> KaliumLogic
+    UiCommon --> Di
+    UiCommon --> DesignSystem
+    UiCommon --> InteractionModel
+    UiCommon --> KaliumLogic
+    UiCommon --> KaliumUtil
+    MediaPlayer --> Di
+    MediaPlayer --> UiCommon
+    Notification --> Media
+    Notification --> KaliumCommon
     AnalyticsEnabled --> Analytics
     AnalyticsDisabled --> Analytics
+
     KaliumLogic --> KaliumCalling
     KaliumCalling --> Avs
 ```
@@ -69,7 +141,17 @@ graph TD
 
 | From | To | Scope | Status | Reason | Allowed rule |
 |---|---|---|---|---|---|
-| `:app` | `:features:conversation` | `implementationWithCoverage` | current | Composition and runtime assembly | App may depend on a feature |
+| `:app` | `:features:authentication`, `:features:cells`, `:features:sketch`, `:features:meetings`, `:features:sync`, `:features:conversation` | `implementationWithCoverage` | current | Feature composition and runtime assembly | App may depend on features |
+| `:app` | `:core:ui-common`, `:core:calling`, `:core:query-matching`, `:core:interaction-model`, `:core:design-system`, `:core:di`, `:core:media`, `:core:media-player`, `:core:notification`, `:core:navigation`, `:core:search` | implementation / coverage helper | current | Android runtime composition | App may depend on neutral core modules |
+| `:app` | `:core:analytics-enabled` or `:core:analytics-disabled` | flavor implementation | current | App selects one analytics runtime adapter per flavor | Runtime adapter only |
+| `:app` | Kalium Logic, Kalium Util | implementation coordinate | current | Application runtime | Allowed external dependency |
+| `:features:authentication` | `:core:navigation-kmp` | api | current | Public route contracts expose Navigation KMP types | Feature to core only; public ABI requires `api` |
+| `:features:authentication` | `:core:ui-common` | implementation | current | Authentication presentation uses neutral UI primitives | Feature to core only |
+| `:features:cells` | `:core:di`, `:core:navigation`, `:core:ui-common`, `:core:interaction-model`, `:core:media-player` | implementation | current | Cells presentation and runtime integration | Feature to core only |
+| `:features:cells` | Kalium Common, Kalium Logic | implementation coordinate | current | Cells data and domain APIs | Feature to external libraries only |
+| `:features:sketch` | `:core:di`, `:core:navigation`, `:core:ui-common`, `:core:interaction-model`, `:core:design-system` | implementation | current | Sketch presentation and navigation | Feature to core only |
+| `:features:sync` | `:core:notification`, `:core:ui-common`, `:core:di` | implementation | current | Sync presentation and notification integration | Feature to core only |
+| `:features:sync` | Kalium Common, Kalium Logic | implementation coordinate | current | Sync state and use cases | Feature to external libraries only |
 | `:features:conversation` | `:features:conversation:folders` | api + kover | current | Re-export the first internal conversation capability while preserving facade-only app access | Facade to internal capability only |
 | `:features:conversation:folders` | `:core:ui-common` | api | current | Public folder state and UI text contracts use shared UI-common types | Internal capability to neutral core only |
 | `:features:conversation:folders` | `:core:di` | implementation | current | Folder ViewModel markers and Metro gateway helpers | Internal capability to neutral core only |
@@ -80,20 +162,19 @@ graph TD
 | `:features:conversation` | `:core:search` | implementation | current | Participant renderers use neutral query highlighting widgets | Feature to core only |
 | `:features:conversation` | Kalium Logic | api | current | Public participant and typing contracts expose Kalium IDs and user types | Feature to third-party library only |
 | `:features:conversation` | Paging 3 runtime | api | current | The public image-asset paging seam exposes `PagingData` and paging transformations | Feature to third-party library only; public ABI requires `api` |
-| `:app` | `:features:meetings` | `implementationWithCoverage` | current | Composition | App may depend on a feature |
-| `:app` | `:core:calling`, `:core:navigation`, `:core:di`, `:core:ui-common` | implementation / coverage helper | current | Android runtime composition | Allowed |
-| `:app` | Kalium Logic | implementation coordinate | current | Application runtime | Allowed |
 | `:features:meetings` | `:core:di`, `:core:navigation`, `:core:ui-common`, `:core:search` | implementation | current | Existing feature dependencies | Feature to core only |
-| `:features:meetings` | Kalium Logic | implementation coordinate | current | Meeting state and actions use Kalium APIs directly | Feature to third-party library only |
+| `:features:meetings` | Kalium Common, Kalium Logic, Kalium Util | implementation coordinate | current | Meeting state and actions use Kalium APIs directly | Feature to third-party libraries only |
 | `:core:search` | `:core:di`, `:core:ui-common`, `:core:query-matching`, `:core:interaction-model` | implementation | current | Shared contact/app search UI and matching primitives | Core to core only |
 | `:core:search` | Kalium Logic | implementation | current | Search data/use-case access | Core to third-party library only |
 | `:core:navigation` | `:core:navigation-kmp`, `:core:design-system`, `:core:ui-common` | api / implementation | current | Navigation primitives | Core to core only |
 | `:core:ui-common` | `:core:design-system`, `:core:interaction-model`, `:core:di` | api / implementation | current | Shared Android UI primitives, including the package-preserved settings switch/state and its neutral labels | Core to core only |
+| `:core:ui-common` | Kalium Logic, Kalium Util | implementation coordinate | current | Shared Kalium-aware UI adapters | Core to external libraries only |
 | `:core:calling` | `:core:ui-common`, Kalium Logic, coroutines | api | current | Public `ActionsManager`, Kalium and `Flow` types in the coordinator API | No app/feature/navigation edge |
-| `:core:calling` | Kalium common, Compose Runtime, AndroidX | implementation | current | Coordinator implementation and `VisibleForTesting` | No app/feature/navigation edge |
+| `:core:calling` | Kalium Common, Compose Runtime, AndroidX | implementation | current | Coordinator implementation and `VisibleForTesting` | No app/feature/navigation edge |
+| `:core:media-player` | `:core:di`, `:core:ui-common` | implementation | current | Media player composition and shared UI | Core to core only |
+| `:core:notification` | `:core:media`, Kalium Common | implementation | current | Notification media and domain access | Core/external dependencies only |
 | Kalium Logic | Kalium Domain Calling | api | current | Kalium calling domain | Kalium-owned edge |
 | Kalium Domain Calling | AVS Android runtime | Android `api` | current | AVS platform binding | Kalium-owned edge |
-| `:app` | `:core:analytics-enabled` or `:core:analytics-disabled` | flavor implementation | current | App selects one analytics runtime adapter per flavor | Runtime adapter only |
 | `:core:analytics-enabled`, `:core:analytics-disabled` | `:core:analytics` | api | current | Both runtime adapters implement and re-export the neutral analytics contract | Core to core only |
 
 The source paths and Gradle declarations above were verified with:
@@ -101,9 +182,9 @@ The source paths and Gradle declarations above were verified with:
 ```text
 git branch --show-current
 git rev-parse HEAD
-rg -n 'implementationWithCoverage\(projects\.features|projects\.(core|features)' app/build.gradle.kts features/meetings/build.gradle.kts
-sed -n '1,120p' core/navigation/build.gradle.kts
-sed -n '1,120p' core/ui-common/build.gradle.kts
+rg -n 'projects\.|project\(":(core|features)' app core features --glob '**/build.gradle.kts'
+rg -n 'com\.wire\.kalium:kalium-(common|logic|util)' app core features --glob '**/build.gradle.kts'
+sed -n '225,245p' app/build.gradle.kts
 sed -n '1,120p' kalium/domain/calling/build.gradle.kts
 sed -n '1,140p' kalium/logic/build.gradle.kts
 ```

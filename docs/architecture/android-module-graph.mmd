@@ -1,53 +1,119 @@
 graph TD
     App[":app<br/>composition root and runtime adapters"]
+
+    Authentication[":features:authentication"]
+    Cells[":features:cells"]
+    Sketch[":features:sketch"]
+    Meetings[":features:meetings"]
+    Sync[":features:sync"]
     Conversation[":features:conversation"]
     Folders[":features:conversation:folders"]
-    Meetings[":features:meetings"]
+
     Calling[":core:calling"]
     Navigation[":core:navigation"]
+    NavigationKmp[":core:navigation-kmp"]
     Search[":core:search"]
     Di[":core:di"]
     UiCommon[":core:ui-common"]
+    QueryMatching[":core:query-matching"]
+    InteractionModel[":core:interaction-model"]
+    DesignSystem[":core:design-system"]
+    Media[":core:media"]
+    MediaPlayer[":core:media-player"]
+    Notification[":core:notification"]
     Analytics[":core:analytics"]
     AnalyticsEnabled[":core:analytics-enabled"]
     AnalyticsDisabled[":core:analytics-disabled"]
+
+    KaliumCommon["Kalium Common"]
     KaliumLogic["Kalium Logic"]
+    KaliumUtil["Kalium Util"]
     KaliumCalling["Kalium Domain Calling"]
     Avs["AVS Android runtime"]
 
-    App --> Conversation
+    App --> Authentication
+    App --> Cells
+    App --> Sketch
     App --> Meetings
+    App --> Sync
+    App --> Conversation
     App --> Calling
     App --> Navigation
     App --> Search
     App --> Di
     App --> UiCommon
+    App --> QueryMatching
+    App --> InteractionModel
+    App --> DesignSystem
+    App --> Media
+    App --> MediaPlayer
+    App --> Notification
     App -->|enabled flavor| AnalyticsEnabled
     App -->|disabled flavor| AnalyticsDisabled
     App --> KaliumLogic
-    Conversation --> Di
-    Conversation --> UiCommon
-    Conversation --> KaliumLogic
-    Conversation --> Folders
-    Conversation --> Calling
-    Conversation -. proposed .-> Analytics
-    Conversation -. proposed .-> Navigation
-    Conversation --> Search
-    Folders --> Di
-    Folders --> UiCommon
-    Folders --> KaliumLogic
-    Meetings -. proposed .-> Calling
+    App --> KaliumUtil
+
+    Authentication --> NavigationKmp
+    Authentication --> UiCommon
+    Cells --> Di
+    Cells --> Navigation
+    Cells --> UiCommon
+    Cells --> InteractionModel
+    Cells --> MediaPlayer
+    Cells --> KaliumCommon
+    Cells --> KaliumLogic
+    Sketch --> Di
+    Sketch --> Navigation
+    Sketch --> UiCommon
+    Sketch --> InteractionModel
+    Sketch --> DesignSystem
     Meetings --> Navigation
     Meetings --> Search
     Meetings --> Di
     Meetings --> UiCommon
+    Meetings --> KaliumCommon
     Meetings --> KaliumLogic
+    Meetings --> KaliumUtil
+    Meetings -. proposed .-> Calling
+    Sync --> Notification
+    Sync --> Di
+    Sync --> UiCommon
+    Sync --> KaliumCommon
+    Sync --> KaliumLogic
+    Conversation --> Folders
+    Conversation --> Calling
+    Conversation --> Di
+    Conversation --> Search
+    Conversation --> UiCommon
+    Conversation --> KaliumLogic
+    Conversation -. proposed .-> Analytics
+    Conversation -. proposed .-> Navigation
+    Folders --> Di
+    Folders --> UiCommon
+    Folders --> KaliumLogic
+
     Calling --> UiCommon
+    Calling --> KaliumCommon
     Calling --> KaliumLogic
+    Navigation --> NavigationKmp
+    Navigation --> DesignSystem
+    Navigation --> UiCommon
     Search --> Di
     Search --> UiCommon
+    Search --> QueryMatching
+    Search --> InteractionModel
     Search --> KaliumLogic
+    UiCommon --> Di
+    UiCommon --> DesignSystem
+    UiCommon --> InteractionModel
+    UiCommon --> KaliumLogic
+    UiCommon --> KaliumUtil
+    MediaPlayer --> Di
+    MediaPlayer --> UiCommon
+    Notification --> Media
+    Notification --> KaliumCommon
     AnalyticsEnabled --> Analytics
     AnalyticsDisabled --> Analytics
+
     KaliumLogic --> KaliumCalling
     KaliumCalling --> Avs

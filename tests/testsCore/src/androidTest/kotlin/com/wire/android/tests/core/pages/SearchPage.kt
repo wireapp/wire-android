@@ -28,7 +28,6 @@ data class SearchPage(private val device: UiDevice) {
     private val createNewGroupButton = UiSelectorParams(text = "New Group")
     private val continueButton = UiSelectorParams(text = "Continue")
     private val closeSearchInputFieldButton = UiSelectorParams(
-        className = "android.view.View",
         description = "Go back to add participants view"
     )
 

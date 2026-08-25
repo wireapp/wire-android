@@ -26,11 +26,11 @@ import com.wire.kalium.logic.feature.debug.ConversationCryptoStats
 import com.wire.kalium.logic.feature.debug.DetailGroupState
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsResult
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
 
 enum class ProtocolFilter(val label: String) {
     ALL("All"),

@@ -18,25 +18,18 @@
 package com.wire.android.ui.home.conversations.banner
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.common.banner.SecurityClassificationArgs
 import com.wire.android.ui.common.banner.SecurityClassificationViewModelImpl
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -44,7 +37,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class SecurityClassificationViewModelTest {
 
     @Test
@@ -82,42 +74,19 @@ class SecurityClassificationViewModelTest {
     }
 
     @Test
-    fun `given logout while observing classification, when current session disappears, then should reset state to none`() = runTest {
-        // Given
-        val arrangement = Arrangement(
-            conversationId = CONVERSATION_ID,
-            userId = null
-        )
-        arrangement.withCurrentSessionsFlow(arrangement.currentSessionStateFlow)
-        val (_, viewModel) = arrangement.arrange()
-
-        // When
-        arrangement.currentSessionStateFlow.emit(CurrentSessionResult.Success(AccountInfo.Valid(USER_ID)))
-        arrangement.classificationChannel.send(SecurityClassificationType.CLASSIFIED)
-        advanceUntilIdle()
-        arrangement.currentSessionStateFlow.emit(CurrentSessionResult.Failure.SessionNotFound)
-        advanceUntilIdle()
-
-        // Then
-        assertEquals(SecurityClassificationType.NONE, viewModel.state())
-    }
-
-    @Test
-    fun `given no current session, when creating view model, then should stay in none state without querying session scope`() = runTest {
-        // Given
+    fun `given session-owned entry, when observing classification, then injected account selects graph regardless of global session`() = runTest {
         val (arrangement, viewModel) = Arrangement(
             conversationId = CONVERSATION_ID,
             userId = null
         )
-            .withCurrentSessionsFlow(flowOf(CurrentSessionResult.Failure.SessionNotFound))
             .arrange()
 
+        arrangement.classificationChannel.send(SecurityClassificationType.CLASSIFIED)
         advanceUntilIdle()
 
-        // Then
-        assertEquals(SecurityClassificationType.NONE, viewModel.state())
-        coVerify(exactly = 0) {
-            arrangement.coreLogic.getSessionScope(any()).observeSecurityClassificationLabel(any())
+        assertEquals(SecurityClassificationType.CLASSIFIED, viewModel.state())
+        coVerify(exactly = 1) {
+            arrangement.coreLogic.getSessionScope(USER_ID)
         }
     }
 
@@ -134,12 +103,8 @@ class SecurityClassificationViewModelTest {
         @MockK
         lateinit var coreLogic: CoreLogic
 
-        @MockK
-        lateinit var currentSessionFlowUseCase: CurrentSessionFlowUseCase
-
         val classificationChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
         val classificationUserChannel = Channel<SecurityClassificationType>(capacity = Channel.UNLIMITED)
-        val currentSessionStateFlow = MutableSharedFlow<CurrentSessionResult>(replay = 1)
         private val navArg: SecurityClassificationArgs = when {
             conversationId != null -> SecurityClassificationArgs.Conversation(conversationId)
             userId != null -> SecurityClassificationArgs.User(userId)
@@ -148,8 +113,6 @@ class SecurityClassificationViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { coreLogic.getGlobalScope().session.currentSessionFlow } returns currentSessionFlowUseCase
-            coEvery { currentSessionFlowUseCase() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(USER_ID)))
             coEvery {
                 coreLogic.getSessionScope(any()).observeSecurityClassificationLabel(any())
             } returns classificationChannel.consumeAsFlow()
@@ -157,13 +120,10 @@ class SecurityClassificationViewModelTest {
                 classificationUserChannel.consumeAsFlow()
         }
 
-        fun withCurrentSessionsFlow(result: kotlinx.coroutines.flow.Flow<CurrentSessionResult>) = apply {
-            coEvery { currentSessionFlowUseCase() } returns result
-        }
-
         fun arrange() = this to SecurityClassificationViewModelImpl(
-            coreLogic,
-            navArg
+            coreLogic = coreLogic,
+            currentAccount = USER_ID,
+            args = navArg,
         )
     }
 }

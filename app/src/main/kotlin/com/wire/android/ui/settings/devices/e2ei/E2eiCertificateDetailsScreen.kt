@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices.e2ei
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -35,8 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
@@ -47,21 +44,16 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.e2eiCertificateDetailsViewModel
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.createPemFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@WireRootDestination(
-    navArgs = E2eiCertificateDetailsScreenNavArgs::class,
-    style = PopUpNavigationAnimation::class,
-)
 @Composable
-fun E2eiCertificateDetailsScreen(
-    navigator: Navigator,
-    e2eiCertificateDetailsViewModel: E2eiCertificateDetailsViewModel = e2eiCertificateDetailsViewModel()
+internal fun E2eiCertificateDetailsRouteScreen(
+    viewModel: E2eiCertificateDetailsViewModel,
+    onNavigateBack: () -> Unit,
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
@@ -71,7 +63,7 @@ fun E2eiCertificateDetailsScreen(
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = navigator::navigateBack,
+                onNavigationPressed = onNavigateBack,
                 title = stringResource(R.string.e2ei_certificate_details_screen_title),
                 navigationIconType = NavigationIconType.Back(),
                 actions = {
@@ -86,7 +78,7 @@ fun E2eiCertificateDetailsScreen(
     ) {
         val clipboardManager = LocalClipboardManager.current
 
-        with(e2eiCertificateDetailsViewModel) {
+        with(viewModel) {
             val copiedToClipboardString =
                 stringResource(id = R.string.e2ei_certificate_details_certificate_copied_to_clipboard)
 

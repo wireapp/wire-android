@@ -22,25 +22,21 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.UserDataStore
+import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.CurrentAccount
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ActionsViewModel
-import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.personaltoteamaccount.CanMigrateFromPersonalToTeamUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -48,20 +44,16 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
-class HomeViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
-    private val dataStore: UserDataStore,
+class HomeViewModel @Inject constructor(
+    userDataStoreProvider: UserDataStoreProvider,
+    @CurrentAccount private val currentAccount: UserId,
     private val observeSelf: ObserveSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val canMigrateFromPersonalToTeam: CanMigrateFromPersonalToTeamUseCase,
     private val observeLegalHoldStatusForSelfUser: ObserveLegalHoldStateForSelfUserUseCase,
-    private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
 ) : ActionsViewModel<HomeRequirement>() {
 
-    @AssistedFactory
-    interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): HomeViewModel
-    }
+    private val dataStore = userDataStoreProvider.getOrCreate(currentAccount)
 
     @VisibleForTesting
     var homeState by mutableStateOf(HomeState())
@@ -126,10 +118,9 @@ class HomeViewModel @AssistedInject constructor(
     fun checkRequirements() {
         viewModelScope.launch {
             val selfUser = selfUserFlow.firstOrNull() ?: return@launch
-            val accountInfo = currentValidAccountInfo() ?: return@launch
             when {
                 needsToRegisterClient() -> // check if the client needs to be registered
-                    sendAction(HomeRequirement.RegisterDevice(accountInfo.userId))
+                    sendAction(HomeRequirement.RegisterDevice(currentAccount))
 
                 !dataStore.initialSyncCompleted.first() -> // check if the initial sync needs to be completed
                     sendAction(HomeRequirement.InitialSync)
@@ -139,8 +130,4 @@ class HomeViewModel @AssistedInject constructor(
             }
         }
     }
-
-    private suspend fun currentValidAccountInfo(): AccountInfo.Valid? =
-        (currentSessionFlow.value.invoke().firstOrNull() as? CurrentSessionResult.Success)
-            ?.accountInfo as? AccountInfo.Valid
 }

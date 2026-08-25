@@ -29,8 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -41,10 +39,9 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.debug.securityProvidersViewModel
 import com.wire.android.ui.home.settings.SettingsItem
 
-@WireRootDestination
 @Composable
-fun SecurityProvidersScreen(
-    navigator: Navigator,
+internal fun SecurityProvidersRouteScreen(
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SecurityProvidersViewModel = securityProvidersViewModel(),
 ) {
@@ -63,9 +60,7 @@ fun SecurityProvidersScreen(
                     )
                 },
                 navigationIconType = NavigationIconType.Close(R.string.content_description_conversation_details_close_btn),
-                onNavigationPressed = {
-                    navigator.navigateBack()
-                }
+                onNavigationPressed = onBack
             )
         },
         content = { paddingValues ->

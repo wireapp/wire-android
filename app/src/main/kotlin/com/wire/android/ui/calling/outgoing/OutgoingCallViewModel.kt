@@ -41,8 +41,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import java.util.Calendar
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList")
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
 class OutgoingCallViewModel @AssistedInject constructor(
     @Assisted val conversationId: ConversationId,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,

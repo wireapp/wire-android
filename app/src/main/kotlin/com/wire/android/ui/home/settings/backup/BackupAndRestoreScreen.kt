@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.settings.backup
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,16 +42,12 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.settings.backupAndRestoreViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogFlow
 import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupDialogFlow
@@ -63,10 +58,10 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.time.convertTimestampToDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireRootDestination
 @Composable
 fun BackupAndRestoreScreen(
-    navigator: Navigator,
+    onBackPressed: () -> Unit,
+    onOpenConversations: () -> Unit,
     viewModel: BackupAndRestoreViewModel = backupAndRestoreViewModel()
 ) {
     BackupAndRestoreContent(
@@ -80,8 +75,8 @@ fun BackupAndRestoreScreen(
         onRestoreBackup = viewModel::restorePasswordProtectedBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
-        onOpenConversations = { navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE)) },
-        onBackPressed = navigator::navigateBack
+        onOpenConversations = onOpenConversations,
+        onBackPressed = onBackPressed,
     )
 }
 

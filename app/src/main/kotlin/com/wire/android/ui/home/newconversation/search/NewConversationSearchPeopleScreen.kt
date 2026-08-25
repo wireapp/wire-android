@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.newconversation.search
 
-import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,43 +24,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationTeamPlanStepScreenDestination
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.CreateRegularGroupOrChannelButtons
-import com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanNavArgs
-import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.BotService
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 
-@WireNewConversationDestination(
-    start = true,
-    style = PopUpNavigationAnimation::class
-)
+/**
+ * Navigation-neutral adapter for the root step. Primitive identity values keep its callback
+ * boundary independent from legacy Parcelable destination arguments.
+ */
 @Composable
-fun NewConversationSearchPeopleScreen(
-    navigator: Navigator,
+internal fun NewConversationSearchPeopleRouteScreen(
     newConversationViewModel: NewConversationViewModel,
+    onNavigateBack: () -> Unit,
+    onOpenUserProfile: (value: String, domain: String) -> Unit,
+    onOpenServiceDetails: (value: String, domain: String, useNewAppsUi: Boolean) -> Unit,
+    onStartGroupOrChannel: () -> Unit,
+    onOpenTeamPlan: () -> Unit,
 ) {
     val showCreateTeamDialog = remember { mutableStateOf(false) }
     SearchUsersAndAppsScreen(
         searchTitle = stringResource(id = R.string.label_new_conversation),
         onOpenUserProfile = { contact ->
-            OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
-                .let { navigator.navigate(NavigationCommand(it)) }
+            onOpenUserProfile(contact.id, contact.domain)
         },
         onContactChecked = newConversationViewModel::updateSelectedContacts,
-        onClose = navigator::navigateBack,
+        onClose = onNavigateBack,
         navigationIconType = NavigationIconType.Close(R.string.content_description_new_conversation_close_btn),
         itemActionType = ItemActionType.CLICK,
         shouldHideBottomActionForSearch = true,
@@ -69,24 +59,10 @@ fun NewConversationSearchPeopleScreen(
         isAppsTabVisible = (newConversationViewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Enabled),
         conversationProtocol = null,
         onAppClicked = { contact ->
-            val serviceDetailsNavArgsId: ServiceDetailsNavArgs.Id =
-                if (newConversationViewModel.groupOptionsState.shouldShowNewAppsUi) {
-                    ServiceDetailsNavArgs.Id.AppId(
-                        UserId(contact.id, contact.domain)
-                    )
-                } else {
-                    ServiceDetailsNavArgs.Id.BotServiceId(
-                        BotService(id = contact.id, provider = contact.domain)
-                    )
-                }
-
-            navigator.navigate(
-                NavigationCommand(
-                    ServiceDetailsScreenDestination(
-                        null,
-                        serviceDetailsNavArgsId
-                    )
-                )
+            onOpenServiceDetails(
+                contact.id,
+                contact.domain,
+                newConversationViewModel.groupOptionsState.shouldShowNewAppsUi,
             )
         },
         peopleBottomActions = if (newConversationViewModel.newGroupState.isGroupCreatingAllowed == true) {
@@ -96,11 +72,11 @@ fun NewConversationSearchPeopleScreen(
                     isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
                     onCreateNewRegularGroup = {
                         newConversationViewModel.setIsChannel(false)
-                        navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
+                        onStartGroupOrChannel()
                     },
                     onCreateNewChannel = {
                         newConversationViewModel.setIsChannel(true)
-                        navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination))
+                        onStartGroupOrChannel()
                     },
                     firstVisibleButtonModifier = Modifier.focusRequester(focusRequester),
                 )
@@ -117,9 +93,7 @@ fun NewConversationSearchPeopleScreen(
             },
             onCreateTeam = {
                 showCreateTeamDialog.value = false
-                navigator.navigate(
-                    NavigationCommand(TeamMigrationTeamPlanStepScreenDestination(TeamMigrationTeamPlanNavArgs()))
-                )
+                onOpenTeamPlan()
             }
         )
     }

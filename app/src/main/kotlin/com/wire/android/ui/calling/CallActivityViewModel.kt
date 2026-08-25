@@ -43,18 +43,12 @@ class CallActivityViewModel @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase
 ) : ViewModel() {
 
-    fun isScreenshotCensoringConfigEnabled(): Deferred<Boolean> =
+    fun isScreenshotCensoringConfigEnabled(userId: UserId): Deferred<Boolean> =
         viewModelScope.async(dispatchers.io()) {
-            val currentSession = currentSession()
-            if (currentSession is CurrentSessionResult.Success) {
-                return@async observeScreenshotCensoringConfigUseCaseProviderFactory.create(
-                    currentSession.accountInfo.userId
-                ).observeScreenshotCensoringConfig().map {
-                    it is ObserveScreenshotCensoringConfigResult.Enabled
-                }.first()
-            } else {
-                return@async false
-            }
+            observeScreenshotCensoringConfigUseCaseProviderFactory.create(userId)
+                .observeScreenshotCensoringConfig()
+                .map { it is ObserveScreenshotCensoringConfigResult.Enabled }
+                .first()
         }
 
     fun switchAccountIfNeeded(userId: UserId, actions: SwitchAccountActions) {

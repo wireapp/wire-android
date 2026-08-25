@@ -32,37 +32,12 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.cellImageViewerViewModel
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.image.ZoomableImageContainer
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
-
-@WireCellsDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = CellImageViewerNavArgs::class,
-)
-@Composable
-fun CellImageViewerScreen(
-    navigator: WireNavigator,
-    modifier: Modifier = Modifier,
-    viewModel: CellImageViewerViewModel = cellImageViewerViewModel(),
-) {
-    CellImageViewerScreenContent(
-        localPath = viewModel.localPath,
-        contentUrl = viewModel.contentUrl,
-        previewUrl = viewModel.previewUrl,
-        contentHash = viewModel.contentHash,
-        fileName = viewModel.fileName,
-        onNavigateBack = navigator::navigateBack,
-        modifier = modifier,
-    )
-}
 
 @Composable
 internal fun CellImageViewerScreenContent(

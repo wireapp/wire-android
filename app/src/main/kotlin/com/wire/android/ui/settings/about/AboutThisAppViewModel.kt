@@ -26,8 +26,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ApplicationContext
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.getGitBuildId
-import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.launch
 
 class AboutThisAppViewModel @Inject constructor(
     @ApplicationContext private val context: Context

@@ -18,11 +18,9 @@
 
 package com.wire.android.ui.home.conversations.info
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -31,6 +29,8 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
+import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificationStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -51,10 +51,10 @@ class ConversationInfoViewModelArrangement {
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
+    lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
-    lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+    lateinit var createRegularGroup: CreateRegularGroupUseCase
 
     @MockK
     lateinit var fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase
@@ -65,8 +65,9 @@ class ConversationInfoViewModelArrangement {
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper = qualifiedIdMapper,
-            savedStateHandle = savedStateHandle,
+            navigationArgs = ConversationNavArgs(conversationId),
             observeConversationDetails = observeConversationDetails,
+            createRegularGroup = createRegularGroup,
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
             selfUserId = TestUser.SELF_USER_ID,
             isWireCellFeatureEnabled = isCellsEnabled,
@@ -76,7 +77,6 @@ class ConversationInfoViewModelArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
@@ -86,6 +86,7 @@ class ConversationInfoViewModelArrangement {
         }
         coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
         coEvery { isCellsEnabled() } returns false
+        coEvery { createRegularGroup.retryPendingMLSGroupCreation(any()) } returns ConversationCreationResult.SyncFailure
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

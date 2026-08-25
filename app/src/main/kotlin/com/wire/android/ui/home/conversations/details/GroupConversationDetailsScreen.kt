@@ -61,15 +61,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
-import com.wire.android.appLogger
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.LoadingWireTabRow
@@ -91,43 +82,22 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.AddMembersSearchScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ChannelAccessOnUpdateScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationFoldersScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationMediaScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DebugConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.EditConversationNameScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.EditGuestAccessScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.EditSelfDeletingMessagesScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SearchConversationMessagesScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.UpdateAppsAccessScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.PromoteAdminScreenDestination
-import com.wire.android.ui.home.conversations.details.editguestaccess.EditGuestAccessParams
-import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
-import com.wire.android.ui.home.conversations.promoteadmin.toPromoteAdminEligibleMemberArgs
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.options.LoadingGroupConversation
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessParams
-import com.wire.android.ui.home.conversations.details.updatechannelaccess.UpdateChannelAccessArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
-import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavBackArgs
-import com.wire.android.ui.home.conversations.groupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
+import com.wire.android.ui.home.newconversation.channelaccess.ChannelAddPermissionType
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectConversationDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -137,52 +107,29 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-@Suppress("CyclomaticComplexMethod")
-@SuppressLint("ComposeViewModelForwarding")
-@WireRootDestination(
-    navArgs = GroupConversationDetailsNavArgs::class,
-    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
-)
+/**
+ * Navigation-neutral renderer used by the typed Navigation 3 entry.
+ *
+ * Navigation callbacks and typed results are supplied by the Navigation 3 entry.
+ */
+@Suppress("ComposeViewModelForwarding")
 @Composable
-fun GroupConversationDetailsScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
-    groupConversationDetailResultRecipient: ResultRecipient<EditConversationNameScreenDestination, Boolean>,
-    editChannelAccessResultRecipient: ResultRecipient<ChannelAccessOnUpdateScreenDestination, UpdateChannelAccessArgs>,
-    conversationFoldersScreenResultRecipient:
-    ResultRecipient<ConversationFoldersScreenDestination, ConversationFoldersNavBackArgs>,
-    viewModel: GroupConversationDetailsViewModel = groupConversationDetailsViewModel(),
+internal fun GroupConversationDetailsRouteScreen(
+    viewModel: GroupConversationDetailsViewModel,
+    actions: GroupConversationDetailsRouteScreenActions,
+    renameResult: Boolean? = null,
 ) {
     val scope = rememberCoroutineScope()
     val resources = LocalContext.current.resources
     val snackbarHostState = LocalSnackbarHostState.current
     val sheetState = rememberWireModalSheetState<ConversationSheetState>()
     val groupOptions by viewModel.groupOptionsState.collectAsStateWithLifecycle()
+    val renameFailureMessage = stringResource(id = R.string.error_unknown_message)
+    val renameSuccessMessage = stringResource(id = R.string.conversation_options_renamed)
 
-    val onSearchConversationMessagesClick: () -> Unit = {
-        navigator.navigate(
-            NavigationCommand(
-                SearchConversationMessagesScreenDestination(
-                    conversationId = viewModel.conversationId,
-                    isCellsConversation = groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled,
-                    groupName = groupOptions.groupName,
-                )
-            )
-        )
-    }
-
-    val onConversationMediaClick: () -> Unit = {
-        if (groupOptions.isWireCellEnabled) {
-            navigator.navigate(
-                NavigationCommand(
-                    ConversationFilesScreenDestination(
-                        conversationId = viewModel.conversationId.toString(),
-                        breadcrumbs = arrayOf(groupOptions.groupName)
-                    )
-                )
-            )
-        } else {
-            navigator.navigate(NavigationCommand(ConversationMediaScreenDestination(viewModel.conversationId)))
+    LaunchedEffect(renameResult) {
+        renameResult?.let {
+            snackbarHostState.showSnackbar(if (it) renameSuccessMessage else renameFailureMessage)
         }
     }
 
@@ -198,175 +145,84 @@ fun GroupConversationDetailsScreen(
         sheetState = sheetState,
         groupConversationOptionsState = groupOptions,
         viewModel = viewModel,
-        onBackPressed = navigator::navigateBack,
-        onProfilePressed = { participant ->
-            when {
-                participant.isSelf -> navigator.navigate(NavigationCommand(SelfUserProfileScreenDestination))
-                participant.isService && participant.botService != null ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            ServiceDetailsScreenDestination(
-                                viewModel.conversationId,
-                                ServiceDetailsNavArgs.Id.BotServiceId(participant.botService)
-                            )
-                        )
-                    )
-                participant.isService ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            ServiceDetailsScreenDestination(
-                                viewModel.conversationId,
-                                ServiceDetailsNavArgs.Id.AppId(participant.id)
-                            )
-                        )
-                    )
-
-                else -> navigator.navigate(NavigationCommand(OtherUserProfileScreenDestination(participant.id, viewModel.conversationId)))
-            }
-        },
+        onBackPressed = actions.onBackPressed,
+        onProfilePressed = actions.onProfilePressed,
         onAddParticipantsPressed = {
-            navigator.navigate(
-                NavigationCommand(
-                    AddMembersSearchScreenDestination(
-                        conversationId = viewModel.conversationId,
-                        isConversationAppsEnabled = groupOptions.isAppsAllowed,
-                        isSelfPartOfATeam = groupOptions.isSelfPartOfATeam,
-                        protocolInfo = groupOptions.protocolInfo,
-                        shouldUseNewAppsUi = groupOptions.shouldUseNewAppsUi
-                    )
-                )
+            actions.onAddParticipants(
+                groupOptions.isAppsAllowed,
+                groupOptions.isSelfPartOfATeam,
+                groupOptions.protocolInfo,
+                groupOptions.shouldUseNewAppsUi,
             )
         },
         groupParticipantsState = viewModel.groupParticipantsState,
         onEditGuestAccess = {
-            navigator.navigate(
-                NavigationCommand(
-                    EditGuestAccessScreenDestination(
-                        viewModel.conversationId,
-                        EditGuestAccessParams(
-                            groupOptions.isGuestAllowed,
-                            groupOptions.isAppsAllowed,
-                            groupOptions.isUpdatingGuestAllowed
-                        )
-                    )
-                )
+            actions.onEditGuestAccess(
+                groupOptions.isGuestAllowed,
+                groupOptions.isAppsAllowed,
+                groupOptions.isUpdatingGuestAllowed,
             )
         },
         onAppsAccessItemClicked = {
-            navigator.navigate(
-                NavigationCommand(
-                    UpdateAppsAccessScreenDestination(
-                        viewModel.conversationId,
-                        UpdateAppsAccessParams(
-                            isGuestAllowed = groupOptions.isGuestAllowed,
-                            isAppsAllowed = groupOptions.isAppsAllowed,
-                            shouldUseNewAppsUi = groupOptions.shouldUseNewAppsUi
-                        )
-                    )
-                )
+            actions.onAppsAccess(
+                groupOptions.isGuestAllowed,
+                groupOptions.isAppsAllowed,
+                groupOptions.shouldUseNewAppsUi,
             )
         },
         onChannelAccessItemClicked = {
-            navigator.navigate(
-                NavigationCommand(
-                    ChannelAccessOnUpdateScreenDestination(
-                        viewModel.conversationId.toString(),
-                        groupOptions.channelAccessType!!,
-                        groupOptions.channelAddPermissionType!!
-                    )
-                )
+            actions.onChannelAccess(
+                checkNotNull(groupOptions.channelAccessType),
+                checkNotNull(groupOptions.channelAddPermissionType),
             )
         },
-        onEditSelfDeletingMessages = {
-            navigator.navigate(NavigationCommand(EditSelfDeletingMessagesScreenDestination(viewModel.conversationId)))
-        },
-        onEditGroupName = {
-            navigator.navigate(NavigationCommand(EditConversationNameScreenDestination(viewModel.conversationId)))
-        },
+        onEditSelfDeletingMessages = actions.onEditSelfDeletingMessages,
+        onEditGroupName = actions.onEditGroupName,
         isWireCellEnabled = groupOptions.isWireCellEnabled,
-        onSearchConversationMessagesClick = onSearchConversationMessagesClick,
-        onConversationMediaClick = onConversationMediaClick,
-        isAbandonedOneOnOneConversation = groupOptions.isAbandonedOneOnOneConversation(viewModel.groupParticipantsState.data.allCount),
-        onMoveToFolder = {
-            navigator.navigate(NavigationCommand(ConversationFoldersScreenDestination(it)))
+        onSearchConversationMessagesClick = {
+            actions.onSearchConversationMessages(
+                groupOptions.isWireCellEnabled && groupOptions.isWireCellFeatureEnabled,
+                groupOptions.groupName,
+            )
+        },
+        onConversationMediaClick = {
+            actions.onConversationMedia(groupOptions.isWireCellEnabled, groupOptions.groupName)
+        },
+        isAbandonedOneOnOneConversation =
+        groupOptions.isAbandonedOneOnOneConversation(viewModel.groupParticipantsState.data.allCount),
+        onMoveToFolder = { args ->
+            actions.onMoveToFolder(args) { message ->
+                scope.launch { snackbarHostState.showSnackbar(message) }
+            }
         },
         onLeftConversation = {
-            resultNavigator.navigateBack(
-                GroupConversationDetailsNavBackArgs(
-                    groupConversationActionType = GroupConversationActionType.LEAVE_GROUP,
-                    conversationName = groupOptions.groupName
-                )
-            )
+            actions.onConversationCompleted(GroupConversationActionType.LEAVE_GROUP, groupOptions.groupName)
         },
         onDeletedConversation = {
-            resultNavigator.navigateBack(
-                GroupConversationDetailsNavBackArgs(
-                    groupConversationActionType = GroupConversationActionType.DELETE_GROUP,
-                    conversationName = groupOptions.groupName
-                )
-            )
+            actions.onConversationCompleted(GroupConversationActionType.DELETE_GROUP, groupOptions.groupName)
         },
-        onPromoteAdmin = { conversationId, eligibleMembers ->
-            navigator.navigate(
-                NavigationCommand(
-                    PromoteAdminScreenDestination(
-                        PromoteAdminNavArgs(conversationId, eligibleMembers.toPromoteAdminEligibleMemberArgs())
-                    )
-                )
-            )
-        },
-        openConversationDebugMenu = {
-            navigator.navigate(
-                NavigationCommand(
-                    DebugConversationScreenDestination(conversationId = it)
-                )
-            )
-        },
-        isScreenLoading = viewModel.isFetchingInitialData
+        onPromoteAdmin = actions.onPromoteAdmin,
+        openConversationDebugMenu = actions.onOpenConversationDebugMenu,
+        isScreenLoading = viewModel.isFetchingInitialData,
     )
-
-    val tryAgainSnackBarMessage = stringResource(id = R.string.error_unknown_message)
-    val successSnackBarMessage = stringResource(id = R.string.conversation_options_renamed)
-
-    groupConversationDetailResultRecipient.onNavResult { result ->
-        when (result) {
-            is NavResult.Canceled -> {
-                appLogger.i("Error with receiving navigation back args from editGroupName in GroupConversationDetailsScreen")
-            }
-
-            is NavResult.Value -> {
-                scope.launch {
-                    if (result.value) {
-                        snackbarHostState.showSnackbar(successSnackBarMessage)
-                    } else {
-                        snackbarHostState.showSnackbar(tryAgainSnackBarMessage)
-                    }
-                }
-            }
-        }
-    }
-
-    conversationFoldersScreenResultRecipient.onNavResult { result ->
-        when (result) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                scope.launch {
-                    snackbarHostState.showSnackbar(result.value.message)
-                }
-            }
-        }
-    }
-
-    editChannelAccessResultRecipient.onNavResult { result ->
-        when (result) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                viewModel.updateChannelAccess(result.value.accessType)
-                viewModel.updateChannelAddPermission(result.value.permissionType)
-            }
-        }
-    }
 }
+
+internal data class GroupConversationDetailsRouteScreenActions(
+    val onBackPressed: () -> Unit,
+    val onProfilePressed: (UIParticipant) -> Unit,
+    val onAddParticipants: (Boolean, Boolean, Conversation.ProtocolInfo, Boolean) -> Unit,
+    val onEditGuestAccess: (Boolean, Boolean, Boolean) -> Unit,
+    val onAppsAccess: (Boolean, Boolean, Boolean) -> Unit,
+    val onChannelAccess: (ChannelAccessType, ChannelAddPermissionType) -> Unit,
+    val onEditSelfDeletingMessages: () -> Unit,
+    val onEditGroupName: () -> Unit,
+    val onSearchConversationMessages: (Boolean, String) -> Unit,
+    val onConversationMedia: (Boolean, String) -> Unit,
+    val onMoveToFolder: (ConversationFoldersNavArgs, onMessage: (String) -> Unit) -> Unit,
+    val onConversationCompleted: (GroupConversationActionType, String) -> Unit,
+    val onPromoteAdmin: (ConversationId, List<UserId>) -> Unit,
+    val onOpenConversationDebugMenu: (ConversationId) -> Unit,
+)
 
 @Suppress("CyclomaticComplexMethod")
 @SuppressLint("ComposeViewModelForwarding")

@@ -17,22 +17,17 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
-import com.wire.android.feature.cells.ui.search.sort.SortBy
-import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
@@ -57,7 +52,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,10 +69,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
-@ExtendWith(NavigationTestExtension::class)
 class CellViewModelTest {
 
     private companion object {
@@ -415,63 +407,12 @@ class CellViewModelTest {
         }
     }
 
-    @Test
-    fun `GIVEN AllFiles context WHEN setSortBy called with Name THEN sortingCriteria changes to ByName AtoZ`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-
-        assertEquals(SortingCriteria.ByDate.NewestFirst, viewModel.sortingCriteria.value)
-
-        viewModel.setSortBy(SortBy.Name)
-
-        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.sortingCriteria.value)
-    }
-
-    @Test
-    fun `GIVEN AllFiles context WHEN setSorting called THEN sortingCriteria updates`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-
-        viewModel.setSorting(SortingCriteria.ByName.ZtoA)
-
-        assertEquals(SortingCriteria.ByName.ZtoA, viewModel.sortingCriteria.value)
-    }
-
-    @Test
-    fun `GIVEN same sortBy WHEN setSortBy called with same criteria THEN sortingCriteria unchanged`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-
-        val initial = viewModel.sortingCriteria.value
-        viewModel.setSortBy(SortBy.Modified)
-
-        assertEquals(initial, viewModel.sortingCriteria.value)
-    }
-
-    @Test
-    fun `GIVEN conversation context WHEN setSortBy called with Size THEN sortingCriteria changes to BySize SmallestFirst`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .withConversationId("conversationId")
-            .arrange()
-
-        assertEquals(SortingCriteria.FoldersFirst, viewModel.sortingCriteria.value)
-
-        viewModel.setSortBy(SortBy.Size)
-
-        assertEquals(SortingCriteria.BySize.SmallestFirst, viewModel.sortingCriteria.value)
-    }
-
     private class Arrangement(
         private var conversationId: String? = null,
         private var inAppImageViewerEnabled: Boolean = false,
     ) {
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+        private var searchNavArgs: SearchNavArgs? = null
 
         @MockK
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
@@ -529,16 +470,6 @@ class CellViewModelTest {
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            mockkObject(ConversationFilesScreenDestination)
-            mockkObject(SearchScreenDestination)
-            every { SearchScreenDestination.argsFrom(savedStateHandle) } throws RuntimeException("Not a search screen")
-            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
-                conversationId = conversationId
-            )
-
-            every { savedStateHandle.get<String>(any()) } returns conversationId
-            every { savedStateHandle.get<String>("conversationId") } returns conversationId
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
 
@@ -602,18 +533,14 @@ class CellViewModelTest {
 
         fun withConversationId(conversationId: String) = apply {
             this.conversationId = conversationId
-            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
-                conversationId = conversationId
-            )
-            every { savedStateHandle.get<String>(any()) } returns conversationId
-            every { savedStateHandle.get<String>("conversationId") } returns conversationId
         }
 
         fun withSearchScreenArgsOnly() = apply {
-            every { SearchScreenDestination.argsFrom(savedStateHandle) } returns SearchNavArgs(
-                conversationId = conversationId
+            searchNavArgs = SearchNavArgs(
+                conversationId = conversationId,
+                screenType = DriveSearchScreenType.SHARED_DRIVE,
+                parentRoute = null,
             )
-            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } throws RuntimeException("Not a files screen")
         }
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
@@ -639,7 +566,8 @@ class CellViewModelTest {
             )
 
             return this to CellViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = CellFilesNavArgs(conversationId = conversationId),
+                searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,

@@ -41,6 +41,9 @@ runs:
         enabled=false
         read_only=false
 
+        # This event gate is defense-in-depth because this local action is loaded
+        # from the checked-out ref. Cache backends must also enforce VCS-ref scope
+        # so PR cache writes cannot be restored by develop or sibling refs.
         # Only the trusted develop lifecycle can restore or save Gradle state.
         if [[ "${EVENT_NAME}" == "push" && "${REF}" == "refs/heads/develop" ]]; then
           enabled=true
@@ -70,10 +73,11 @@ runs:
     - name: Set up Gradle
       uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
       with:
-        # Gradle caching is handled exclusively by WarpCache on Warp runners.
-        # Selecting the basic provider keeps the proprietary provider unloaded.
+        # Warp runners use WarpCache below. Trusted non-Warp jobs use GitHub's
+        # ref-scoped basic provider, which preserves their previous Gradle cache.
         cache-provider: basic
-        cache-disabled: true
+        cache-disabled: ${{ steps.cache_backend.outputs.warp == 'true' || steps.cache_policy.outputs.enabled != 'true' }}
+        cache-read-only: ${{ steps.cache_policy.outputs.read_only == 'true' }}
 
     - name: Restore and save Warp Gradle state
       if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only != 'true' && steps.cache_backend.outputs.warp == 'true' }}
@@ -84,7 +88,7 @@ runs:
           ~/.gradle/caches/*/kotlin-dsl
           ~/.gradle/caches/*/scripts
           ~/.gradle/caches/modules-2
-          ~/.gradle/caches/transforms-*
+          ~/.gradle/caches/*/transforms
           ~/.gradle/caches/jars-*
           ~/.gradle/wrapper
         key: warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}
@@ -100,7 +104,7 @@ runs:
           ~/.gradle/caches/*/kotlin-dsl
           ~/.gradle/caches/*/scripts
           ~/.gradle/caches/modules-2
-          ~/.gradle/caches/transforms-*
+          ~/.gradle/caches/*/transforms
           ~/.gradle/caches/jars-*
           ~/.gradle/wrapper
         key: warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}

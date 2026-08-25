@@ -18,119 +18,54 @@
 
 package com.wire.android.ui.authentication.create.username
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
-import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
-import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.preview.EdgeToEdgePreview
+import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.common.error.CoreFailure
 
 @Composable
 internal fun CreateAccountUsernameRouteScreen(
-    viewModel: CreateAccountUsernameViewModel,
+    viewModel: CreateAccountUsernameViewModel<CoreFailure>,
     onSuccess: () -> Unit,
 ) {
-    UsernameContent(
+    CreateAccountUsernameContent(
         textState = viewModel.textState,
         state = viewModel.state,
+        text = CreateAccountUsernameText(
+            title = stringResource(AuthenticationR.string.create_account_set_username_title),
+            description = stringResource(AuthenticationR.string.create_account_username_text),
+            usernamePlaceholder = stringResource(AuthenticationR.string.create_account_username_placeholder),
+            usernameLabel = stringResource(AuthenticationR.string.create_account_username_label),
+            usernameDescription = stringResource(AuthenticationR.string.create_account_username_description),
+            usernameTakenError = stringResource(AuthenticationR.string.create_account_username_taken_error),
+            mentionContentDescription = stringResource(R.string.content_description_mention_icon),
+            confirmLabel = stringResource(R.string.label_confirm),
+        ),
+        mentionIconResId = R.drawable.ic_mention,
         onContinuePressed = viewModel::onContinue,
         onErrorDismiss = viewModel::onErrorDismiss,
+        layout = { title, content ->
+            NewAuthContainer(
+                header = {
+                    NewAuthHeader(
+                        title = { title() },
+                        canNavigateBack = false,
+                    )
+                },
+                contentPadding = dimensions().spacing16x,
+                content = { content() },
+            )
+        },
+        genericFailureContent = { failure, onDismiss -> CoreFailureErrorDialog(failure, onDismiss) },
     )
 
     LaunchedEffect(viewModel.state.success) {
-        if (viewModel.state.success) {
-            onSuccess()
-        }
-    }
-}
-
-@Composable
-private fun UsernameContent(
-    textState: TextFieldState,
-    state: CreateAccountUsernameViewState,
-    onContinuePressed: () -> Unit,
-    onErrorDismiss: () -> Unit,
-) {
-    NewAuthContainer(
-        header = {
-            NewAuthHeader(
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.create_account_set_username_title),
-                        style = MaterialTheme.wireTypography.title01,
-                        modifier = Modifier.semantics { heading() }
-                    )
-                },
-                canNavigateBack = false
-            )
-        },
-        contentPadding = dimensions().spacing16x,
-        content = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
-            ) {
-                Text(
-                    text = stringResource(id = R.string.create_account_username_text),
-                    style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = MaterialTheme.wireDimensions.spacing16x,
-                            vertical = MaterialTheme.wireDimensions.spacing24x
-                        )
-                )
-
-                UsernameTextField(
-                    username = textState,
-                    errorState = state.error,
-                    onErrorDismiss = onErrorDismiss,
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-                WirePrimaryButton(
-                    text = stringResource(R.string.label_confirm),
-                    onClick = onContinuePressed,
-                    fillMaxWidth = true,
-                    loading = state.loading,
-                    state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(MaterialTheme.wireDimensions.spacing16x)
-                )
-            }
-        }
-    )
-}
-
-@Composable
-@PreviewMultipleThemes
-private fun PreviewCreateAccountUsernameScreen() = WireTheme {
-    EdgeToEdgePreview(useDarkIcons = false) {
-        WireAuthBackgroundLayout {
-            UsernameContent(TextFieldState(), CreateAccountUsernameViewState(), {}, {})
-        }
+        if (viewModel.state.success) onSuccess()
     }
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="content_description_login_sso_code_field">введите свой код SSO или Wire email</string>
+<string name="login_tab_email">EMAIL</string>
+<string name="login_tab_sso">ЛОГИН SSO</string>
+<string name="login_sso_code_label">КОД SSO ИЛИ EMAIL</string>
+<string name="login_error_invalid_sso_code_format">Введите действительный код доступа SSO</string>
+    <string name="login_title">Войти</string>
+    <string name="content_description_login_back_btn">Вернуться к просмотру создания новой команды и авторизации</string>
+    <string name="content_description_login_user_identifier_field">введите свой email или псевдоним</string>
+    <string name="content_description_login_password_field">введите свой пароль</string>
+    <string name="sso_not_supported_dialog_description">Нельзя авторизоваться через SSO во внутреннем бэкэнде с поддержкой прокси.</string>
+    <string name="missing_backend_config_title">Настройте приложение</string>
+    <string name="missing_backend_config_error">Произошла ошибка. Проверьте ссылку и подключение, а затем попробуйте еще раз.</string>
+</resources>

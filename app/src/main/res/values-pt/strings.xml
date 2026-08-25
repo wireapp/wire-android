@@ -28,11 +28,9 @@
     <string name="label_continue">Continuar</string>
     <string name="label_apply">Aplicar</string>
     <string name="label_save">Salvar</string>
-    <string name="label_get_started">Começar</string>
     <string name="label_remove">Remover</string>
     <string name="label_proceed">Proceder</string>
     <string name="label_leave">Sair</string>
-    <string name="label_add_device">Adicionar dispositivo</string>
     <string name="label_learn_more">Saiba mais</string>
     <string name="label_removing">Removendo…</string>
     <string name="label_logging_in">Iniciando sessão…</string>
@@ -176,11 +174,6 @@
     <string name="content_description_self_profile_new_account_btn">Criar uma nova equipe ou conta pessoal ou entrar</string>
     <string name="content_description_self_profile_manage_team_btn">Gerenciar equipe</string>
     <string name="content_description_change_picture_back_btn">Voltar para a visão geral do seu perfil</string>
-    <string name="content_description_welcome_screen_close_btn">Fechar nova visualização de criação de nova equipe e “login”</string>
-    <string name="content_description_login_back_btn">Voltar para a visualização de criação de nova equipe e login</string>
-    <string name="content_description_enterprise_login_email_field">digite seu e-mail ou código SSO</string>
-    <string name="content_description_login_password_field">digite sua senha</string>
-    <string name="content_description_login_sso_code_field">digite seu código SSO ou e-mail do Wire</string>
     <string name="content_description_whats_new_welcome_item">Bem-vindo ao Novo Aplicativo Android do Wire, link para a página de suporte</string>
     <string name="content_description_whats_new_all_releases_item">Todas as notas de lançamento do Android, link para a publicação da nota</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, link para os detalhes do lançamento</string>
@@ -225,15 +218,7 @@ Escolha uma senha forte para proteger o arquivo de backup.</string>
     <string name="settings_backup_create">Criar um backup</string>
     <string name="settings_backup_restore">Restaurar de um backup</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Quer conversar com amigos e familiares?</string>
     <string name="welcome_footer_link">Crie uma conta privada gratuitamente</string>
-    <string name="welcome_button_create_personal_account">Criar uma conta pessoal</string>
-    <string name="welcome_screen_carousel_item_message_1">Boas-vindas ao Wire, a plataforma de colaboração mais segura!</string>
-    <string name="welcome_screen_carousel_item_message_2">Total confidência de que suas informações estão seguras</string>
-    <string name="welcome_screen_carousel_item_message_3">Áudio e videoconferencias com até 50 participantes</string>
-    <string name="welcome_screen_carousel_item_message_4">Compartilhamento seguro de arquivos com equipes e clientes</string>
-    <string name="welcome_screen_carousel_item_message_5">Wire é auditado independentemente e compatível com ISO, CCPA, GDPR, SOX</string>
-    <string name="welcome_button_create_team">Criar equipe</string>
     <string name="server_details_dialog_body">Nome do Backend:
 %1$s
 
@@ -250,8 +235,6 @@ URL do Backend:
     <string name="api_versioning_server_version_not_supported_title">Versão do servidor não suportada</string>
     <string name="api_versioning_server_version_not_supported_message">Seu servidor do Wire precisa ser atualizado. Por favor, notifique o administrador do sistema.</string>
     <!-- Migration -->
-    <string name="migration_title">Configurando o Wire</string>
-    <string name="migration_message">Por favor, aguarde enquanto configuramos o aplicativo para você</string>
     <string name="migration_message_unknown">Por favor, aguarde enquanto migrarmos os dados para você</string>
     <string name="migration_accounts_message">Migrando suas contas…</string>
     <string name="migration_messages_message">Migrando suas mensagens…</string>
@@ -265,41 +248,10 @@ URL do Backend:
     <string name="migration_cancel_title">Cancelar a migração</string>
     <string name="migration_cancel_message">Tem certeza de que deseja fechar o aplicativo e cancelar a migração em andamento?</string>
     <!-- Enterprise Login -->
-    <string name="enterprise_login_welcome">Digite seu e-mail para iniciar!</string>
-    <string name="enterprise_login_password_title">Digite sua senha para fazer login</string>
-    <string name="enterprise_login_credentials_title">Insira suas credenciais para fazer login</string>
-    <string name="enterprise_login_next">Próximo</string>
-    <string name="enterprise_login_user_identifier_label">E-MAIL OU CÓDIGO DE SSO</string>
-    <string name="enterprise_login_user_identifier_label_placeholder">Digite o e-mail ou código SSO</string>
-    <string name="enterprise_login_error_invalid_user_identifier">Por favor, insira um e-mail ou código SSO válido</string>
-    <string name="enterprise_login_create_account_label">Não tem uma conta Wire?</string>
     <string name="enterprise_login_on_prem_welcome_title">Bem-vindo ao Wire Enterprise para %s!</string>
-    <string name="enterprise_login_verification_code_title">Você tem um e-mail</string>
     <!-- Login -->
-    <string name="login_title">Entrar</string>
-    <string name="login_forgot_password">Esqueceu a senha?</string>
-    <string name="login_user_identifier_placeholder">jane@exemplo.com ou jane.doe</string>
-    <string name="login_user_identifier_label">E-MAIL OU USUÁRIO</string>
-    <string name="login_proxy_identifier_label">E-MAIL OU USUÁRIO DE PROXY</string>
-    <string name="login_error_invalid_credentials_title">Informações inválidas</string>
-    <string name="login_error_invalid_credentials_message">As credenciais da conta estão incorretas. Por favor, verifique seus detalhes e tente novamente.</string>
-    <string name="login_error_user_already_logged_in_title">Conta em uso</string>
-    <string name="login_error_user_already_logged_in_message">Você já está logado com essas credenciais neste dispositivo.</string>
-    <string name="login_sso_error_invalid_cookie_title">Cookie inválido!</string>
-    <string name="login_sso_error_invalid_cookie_message">A sessão é inválida ou expirou! Por favor, tente fazer login novamente.</string>
     <string name="login_password_placeholder">Senha</string>
     <string name="login_password_label">SENHA</string>
-    <string name="login_tab_email">E-MAIL</string>
-    <string name="login_tab_sso">LOGIN SSO</string>
-    <string name="login_sso_code_label">CÓDIGO DE SSO OU E-MAIL</string>
-    <string name="login_error_invalid_sso_code">Por favor, insira um código SSO válido.</string>
-    <string name="login_error_invalid_sso_code_format">Insira um código SSO válido</string>
-    <string name="login_error_request_2fa_with_handle_title">Entrar com E-mail</string>
-    <string name="login_error_request_2fa_with_handle_message">Você não pode usar seu nome de usuário porque a autenticação de dois fatores está ativada. Entre com seu e-mail.</string>
-    <string name="login_error_unauthorized_title">Não autorizado</string>
-    <string name="login_error_unauthorized_message">Esta conta não está mais autorizada a entrar.</string>
-    <string name="login_error_pending_activation_title">Pendente de ativação</string>
-    <string name="login_error_pending_activation_message">A conta que você está tentando acessar está pendente de ativação. Verifique seus dados.</string>
     <string name="deleted_user_error_title">Conta excluída</string>
     <string name="deleted_user_error_message">Você foi desconectado porque sua conta foi excluída.</string>
     <string name="removed_client_error_title">Dispositivo removido</string>
@@ -308,13 +260,7 @@ URL do Backend:
     <string name="session_expired_error_message">O aplicativo não se comunicou com o servidor por um longo período de tempo, ou sua sessão foi invalidada remotamente.</string>
     <string name="conversation_history_wipe_explanation">De acordo com as configurações de segurança da sua equipe, seu histórico de conversas também foi excluído.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Verifique sua conta</string>
-    <string name="second_factor_authentication_instructions_label">Por favor, verifique seu email %1$s para o código de verificação e insira-o abaixo.</string>
-    <string name="second_factor_code_error">Código inválido ou tentativas máximas excedidas. Por favor, tente novamente ou solicite outro código.</string>
     <!-- Remove Device -->
-    <string name="remove_device_title">Remover um dispositivo</string>
-    <string name="remove_device_message">Remova um dos seus outros dispositivos para começar a usar o Wire neste aparelho.</string>
-    <string name="remove_device_label">SEUS DISPOSITIVOS</string>
     <string name="remove_device_id_and_time_label">ID Proteus: %1$s\nAdicionado: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">ID Proteus: %1$s\nAdicionado: %2$s\nAtivo: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
@@ -334,8 +280,6 @@ URL do Backend:
     <string name="e2ei_certificat_status_revoked">Revogado</string>
     <string name="e2ei_certificat_status_not_activated">Inativo</string>
     <!-- Register Device -->
-    <string name="register_device_title">Adicionar este dispositivo</string>
-    <string name="register_device_text">Digite sua senha para usar o Wire neste dispositivo.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Excluir mensagem?</string>
     <string name="delete_message_dialog_message">Se você excluir a mensagem para si mesmo, ela só será visível para outros participantes.
@@ -353,51 +297,9 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="label_quote_invalid_or_not_found">Você não pode ver esta mensagem</string>
     <string name="label_quote_original_message_is_a_picture">Imagem</string>
     <!-- Create Account -->
-    <string name="create_personal_account_summary_title">Conta Pessoal Criada</string>
-    <string name="create_personal_account_text">Converse com segurança com amigos e familiares usando o servidor de nuvem público do Wire.</string>
-    <string name="create_personal_account_email_text">Digite seu e-mail para começar a usar a plataforma de colaboração mais segura.</string>
-    <string name="create_personal_account_details_text">Digite seus detalhes pessoais:</string>
-    <string name="create_personal_account_summary_text">Você criou sua conta pessoal com sucesso. Comece a se comunicar com segurança - onde quer que esteja!</string>
-    <string name="create_team_summary_title">Equipe Criada</string>
-    <string name="create_team_content_title">Wire Grátis</string>
-    <string name="create_team_text">Mensagens para pequenas organizações ou empresas de consultoria de uma pessoa.</string>
-    <string name="create_team_learn_more">Saiba mais sobre planos e preços</string>
-    <string name="create_team_email_text">Digite seu email para criar sua equipe:</string>
     <string name="create_team_details_text">Digite seu email para criar sua equipe:</string>
-    <string name="create_team_summary_text">Sua conta de equipe foi criada com sucesso. Comece a se comunicar com segurança - onde quer que esteja!</string>
-    <string name="create_account_email_placeholder">maria@exemplo.org</string>
-    <string name="create_account_email_label">E-MAIL</string>
-    <string name="create_account_email_footer_text">Já possui uma conta?</string>
-    <string name="create_account_email_terms_dialog_title">Termos de Uso</string>
-    <string name="create_account_email_terms_dialog_text">Ao clicar em continuar, você concorda com nossos Termos de Uso e Política de Privacidade.</string>
-    <string name="create_account_email_terms_dialog_view_policy">Ver Termos de Uso e Política de Privacidade</string>
-    <string name="create_account_email_already_in_use_error">Este endereço de email já está em uso.</string>
-    <string name="create_account_email_blacklisted_error">Seu email foi identificado como não confiável, por exemplo, devido a uma rejeição por um filtro anti-spam.</string>
-    <string name="create_account_email_invalid_error">Por favor, insira um formato válido de email.</string>
-    <string name="create_account_email_domain_blocked_error">Você não pode criar esta conta, pois o seu domínio de email está bloqueado.</string>
-    <string name="create_account_details_first_name_placeholder">Maria</string>
-    <string name="create_account_details_first_name_label">NOME</string>
-    <string name="create_account_details_last_name_placeholder">Silva</string>
-    <string name="create_account_details_last_name_label">SOBRENOME</string>
-    <string name="create_account_details_team_name_placeholder">Time Incrível</string>
-    <string name="create_account_details_team_name_label">NOME DA EQUIPE</string>
     <string name="create_account_details_password_description">Use pelo menos 8 caracteres, com uma letra minúscula, uma letra maiúscula, um número e um caractere especial.</string>
-    <string name="create_account_details_password_error">Senha inválida</string>
-    <string name="create_account_details_password_not_matching_error">As senhas não se correspondem</string>
-    <string name="create_account_details_confirm_password_label">CONFIRMAR SENHA</string>
-    <string name="create_account_code_text">Por favor, verifique seu email %1$s para o código de verificação e insira abaixo.</string>
-    <string name="create_account_code_resend">Reenviar código</string>
-    <string name="create_account_code_error">Código inválido ou máximo de tentativas atingido. Por favor, tente novamente ou solicite outro código.</string>
-    <string name="create_account_code_error_title">Informação inválida</string>
-    <string name="create_account_code_error_team_members_limit_reached">Esta equipe atingiu seu limite de membros.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Esta versão de aplicativo não permite a criação de contas pessoais.</string>
-    <string name="create_account_code_error_team_creation_restricted">Esta versão de aplicativo não permite a criação de equipes.</string>
     <string name="create_account_username_title">Seu nome de usuário</string>
-    <string name="create_account_username_placeholder">maria.silva</string>
-    <string name="create_account_username_label">NOME DE USUÁRIO</string>
-    <string name="create_account_username_text">Digite seu nome de usuário. Isso ajuda outras pessoas a te encontrarem e conectarem contigo no Wire.</string>
-    <string name="create_account_username_taken_error">Esse nome de usuário já está sendo usado. Por favor escolha outro.</string>
-    <string name="create_account_username_description">Pelo menos 2 caracteres, a-z, 0-9, \"_\", \"-\" e \".\"</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">CHAMADAS PERDIDAS</string>
     <string name="calls_label_calls_history">HISTÓRICO DE CHAMADAS</string>
@@ -689,8 +591,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="error_unknown_message">Por favor, tente novamente.</string>
     <string name="error_server_miscommunication_title">Erro do servidor</string>
     <string name="error_server_miscommunication_message">Por favor, tente novamente.</string>
-    <string name="error_socket_title">Informação inválida</string>
-    <string name="error_socket_message">As credenciais do proxy estão incorretas. Por favor, verifique suas informações e tente novamente.</string>
     <string name="error_no_network_title">Aguardando conexão</string>
     <string name="error_no_network_message">Por favor, verifique sua conexão com a Internet e tente novamente.</string>
     <string name="error_downloading_self_user_profile_picture">Ocorreu um erro ao baixar a sua foto de perfil. Por favor, verifique sua conexão com a Internet.</string>
@@ -806,8 +706,6 @@ Uma mensagem excluída não pode ser restaurada.</string>
     <string name="media_gallery_on_image_downloaded">Salvo na pasta de Downloads</string>
     <string name="media_gallery_on_image_download_error">Ocorreu um erro ao salvar a imagem na pasta de Downloads. Verifique sua conexão com a internet e tente novamente.</string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Não foi possível fazer login com SSO</string>
-    <string name="sso_error_dialog_message">Por favor tente novamente. Se isso não resolver, contate um administrador e forneça este código:\n%d\"</string>
     <string name="asset_download_dialog_default_title">Baixar arquivo</string>
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">O recebimento de imagens está desabilitado</string>
@@ -903,7 +801,6 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="devices_title">Seus Dispositivos</string>
     <string name="current_device_label">Dispositivos Atuais</string>
     <string name="other_devices_label">Outros Dispositivos</string>
-    <string name="devices_loading_error">Houve um erro ao tentar obter os dispositivos. Verifique sua conexão com a Internet e tente novamente.</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">uma conta ativa</item>
@@ -1009,18 +906,10 @@ Em conversas de grupo, o administrador do grupo pode substituir essa configuraç
     <string name="conversation_content_delete_failure">Não foi possível excluir o conteúdo da conversa</string>
     <string name="group_label">grupo</string>
     <string name="conversation_label">conversa</string>
-    <string name="proxy_credential_description">Este backend está configurado para utilizar o seguinte servidor proxy: %1$s</string>
-    <string name="label_proxy_credentials">CREDENCIAIS DE PROXY</string>
-    <string name="label_proxy_password">SENHA DE PROXY</string>
-    <string name="label_wire_credentials">CREDENCIAIS DO WIRE</string>
     <string name="dialog_clear_content_title">Apagar conteúdo?</string>
     <string name="dialog_clear_content_option">Apagar conteúdo</string>
     <string name="dialog_clear_content_text">Isso apagará o histórico da conversa anterior em todos os seus dispositivos. Você permanecerá no %1$s e terá acesso a toda nova atividade do %1$s.</string>
     <string name="not_supported_dialog_title">Não suportado</string>
-    <string name="sso_not_supported_dialog_description">Você não pode entrar via SSO em um backend local com suporte de proxy.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Não é possível criar uma conta pessoal em um backend local com suporte de proxy.</string>
-    <string name="create_team_not_supported_dialog_description">Você não pode criar uma nova equipe em um backend local com suporte de proxy no aplicativo.
-Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="to_team_management_action">Abrir Gerenciamento de Equipe</string>
     <!-- Claimed Domain dialog -->
     <string name="claimed_domain_email_already_in_use_dialog_title">Email recebido por um backend local</string>

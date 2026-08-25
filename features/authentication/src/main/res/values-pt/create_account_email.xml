@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_email_text">Digite seu e-mail para começar a usar a plataforma de colaboração mais segura.</string>
+    <string name="create_team_email_text">Digite seu email para criar sua equipe:</string>
+    <string name="create_account_email_footer_text">Já possui uma conta?</string>
+</resources>

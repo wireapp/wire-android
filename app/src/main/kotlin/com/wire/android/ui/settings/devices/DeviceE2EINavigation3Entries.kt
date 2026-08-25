@@ -21,6 +21,7 @@ import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.navigation.routes.auth.AuthenticationNavigation3Router
 import com.wire.android.navigation.routes.auth.AuthenticationNavigationTransition
 import com.wire.android.navigation.routes.auth.RegisterDeviceCompletion
+import com.wire.android.navigation.routes.auth.RemoveDeviceCompletion
 import com.wire.android.navigation.runtime.sessionCancellationSwitchAccountActions
 import com.wire.android.ui.authentication.clearSessionViewModel
 import com.wire.android.ui.authentication.registerDeviceViewModel
@@ -39,8 +40,6 @@ import com.wire.android.ui.home.settings.selfDevicesViewModel
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsPayload
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsRoute
 import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsRouteScreen
-import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
-import com.wire.android.ui.settings.devices.e2ei.toNavigationPayload
 import com.wire.android.ui.settings.devices.e2ei.toViewModelArgs
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireNavigationCommand
@@ -121,13 +120,13 @@ private fun RegisterDeviceNavigation3Entry(
             sessionId = route.sessionId,
             onNavigationCompleted = actions::completeSessionBackedAuthenticationCancellation,
         ),
-        onE2EIRequired = { userId ->
+        onE2EIRequired = { sessionId ->
             authenticationRouter.completeRegisterDevice(
                 eventId = route.registerDeviceTerminalEventId(),
                 routeSessionId = route.sessionId,
                 flowId = route.flowId,
                 completion = RegisterDeviceCompletion.E2EIEnrollment(
-                    userId?.let { WireSessionId(it.value, it.domain) } ?: route.sessionId,
+                    sessionId ?: route.sessionId,
                 ),
             )
         },
@@ -177,16 +176,34 @@ private fun RemoveDeviceNavigation3Entry(
             onNavigationCompleted = actions::completeSessionBackedAuthenticationCancellation,
         ),
         onE2EIRequired = {
-            authenticationRouter.removeDeviceToE2EI(route.sessionId, route.flowId)
+            authenticationRouter.completeRemoveDevice(
+                eventId = route.removeDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RemoveDeviceCompletion.E2EIEnrollment,
+            )
         },
         onHomeRequired = {
-            authenticationRouter.completeSessionSetup(route.sessionId, SessionSetupDestination.HOME)
+            authenticationRouter.completeRemoveDevice(
+                eventId = route.removeDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RemoveDeviceCompletion.Home,
+            )
         },
         onInitialSyncRequired = {
-            authenticationRouter.completeSessionSetup(route.sessionId, SessionSetupDestination.INITIAL_SYNC)
+            authenticationRouter.completeRemoveDevice(
+                eventId = route.removeDeviceTerminalEventId(),
+                routeSessionId = route.sessionId,
+                flowId = route.flowId,
+                completion = RemoveDeviceCompletion.InitialSync,
+            )
         },
     )
 }
+
+private fun RemoveDeviceRoute.removeDeviceTerminalEventId(): String =
+    "${entryId.value}:remove-device-terminal"
 
 @Composable
 private fun E2EIEnrollmentNavigation3Entry(
@@ -248,9 +265,10 @@ private fun DeviceDetailsNavigation3Entry(
                 WireNavigationCommand(
                     E2eiCertificateDetailsRoute(
                         sessionId = route.sessionId,
-                        details = E2EICertificateDetails
-                            .AfterLoginCertificateDetails(identity)
-                            .toNavigationPayload(),
+                        details = E2eiCertificateDetailsPayload.AfterLogin(
+                            certificate = identity.x509Identity?.certificate.orEmpty(),
+                            userHandle = identity.x509Identity?.handle?.handle.orEmpty(),
+                        ),
                     )
                 )
             )

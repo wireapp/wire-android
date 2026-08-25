@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_error_invalid_credentials_title">Information invalide</string>
+    <string name="login_error_invalid_credentials_message">Ces identifiants de compte sont incorrects.   Veuillez réessayer.    </string>
+    <string name="login_error_user_already_logged_in_title">Compte utilisé</string>
+    <string name="login_error_user_already_logged_in_message">Vous êtes déjà connecté avec ces identifiants sur cet appareil.</string>
+    <string name="login_sso_error_invalid_cookie_title">Cookie invalide  !</string>
+    <string name="login_sso_error_invalid_cookie_message">Cette session est invalide ou a expiré ! Veuillez réessayer de vous connecter.</string>
+    <string name="login_error_invalid_sso_code">Veuillez entrer un code d’accès SSO valide.</string>
+</resources>

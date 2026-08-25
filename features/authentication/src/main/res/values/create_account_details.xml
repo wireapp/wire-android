@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_details_text">Enter your personal details:</string>
+    <string name="create_account_details_first_name_placeholder">Jane</string>
+    <string name="create_account_details_first_name_label">FIRST NAME</string>
+    <string name="create_account_details_last_name_placeholder">Doe</string>
+    <string name="create_account_details_last_name_label">LAST NAME</string>
+    <string name="create_account_details_team_name_placeholder">Team Awesome</string>
+    <string name="create_account_details_team_name_label">TEAM NAME</string>
+</resources>

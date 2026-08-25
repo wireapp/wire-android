@@ -25,7 +25,7 @@ import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
-import com.wire.android.ui.initialsync.InitialSyncViewModel
+import com.wire.android.ui.authentication.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel

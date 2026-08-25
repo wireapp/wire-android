@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_error_invalid_sso_code_format">Wpisz poprawny kod SSO</string>
+    <string name="login_title">Zaloguj si&#281;</string>
+    <string name="sso_not_supported_dialog_description">Nie mo&#380;esz zalogowa&#263; si&#281; przez SSO na &#347;rodowisku wewn&#281;trznym z obs&#322;ug&#261; proxy.</string>
+</resources>

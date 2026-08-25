@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remove_device_title">デバイスの削除</string>
+    <string name="remove_device_message">このデバイスでWireを使用するには、他のデバイスを 1 つ削除してください。</string>
+    <string name="remove_device_label">デバイス</string>
+</resources>

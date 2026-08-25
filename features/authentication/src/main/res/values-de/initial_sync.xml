@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="migration_title">Einrichten von Wire</string>
+    <string name="migration_message">Bitte warten Sie, während wir die App für Sie einrichten</string>
+</resources>

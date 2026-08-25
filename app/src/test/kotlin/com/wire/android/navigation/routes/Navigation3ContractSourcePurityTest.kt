@@ -47,11 +47,6 @@ class Navigation3ContractSourcePurityTest {
 
     private companion object {
         val contractSources = listOf(
-            "com/wire/android/navigation/routes/auth/AuthenticationRoutes.kt",
-            "com/wire/android/navigation/routes/auth/CreateAccountNavigation3.kt",
-            "com/wire/android/ui/authentication/devices/register/RegisterDeviceRoute.kt",
-            "com/wire/android/ui/authentication/devices/remove/RemoveDeviceRoute.kt",
-            "com/wire/android/ui/e2eiEnrollment/E2EIEnrollmentRoute.kt",
             "com/wire/android/ui/home/newconversation/channelhistory/ChannelHistoryNavigation3.kt",
             "com/wire/android/ui/home/settings/SettingsNavigation3.kt",
             "com/wire/android/ui/settings/devices/DeviceManagementNavigation3.kt",

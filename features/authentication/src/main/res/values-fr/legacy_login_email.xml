@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_user_identifier_placeholder">jeanne@exemple.com ou jeanne.doe</string>
+<string name="login_proxy_identifier_label">PROXY EMAIL OU NOM D\'UTILISATEUR</string>
+    <string name="login_user_identifier_label">EMAIL OU NOM D\'UTILISATEUR</string>
+    <string name="login_forgot_password">Mot de passe oublié ?</string>
+</resources>

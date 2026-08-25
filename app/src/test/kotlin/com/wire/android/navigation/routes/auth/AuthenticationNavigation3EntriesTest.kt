@@ -51,30 +51,72 @@ class AuthenticationNavigation3EntriesTest {
     }
 
     @Test
-    fun givenArgumentBackedAuthenticationViewModels_whenInspectingSources_thenTypedArgsUseFocusedAssistedFactories() {
+    @Suppress("LongMethod")
+    fun givenArgumentBackedAuthenticationViewModels_whenInspectingSources_thenTypedArgsUseFocusedHostFactories() {
         val graph = sourceFile(
             "../../../ui/authentication/AuthenticationViewModelGraph.kt"
         ).readText()
         val bindings = sourceFile(
             "../../../di/metro/AuthenticationMetroViewModelBindings.kt"
         ).readText()
-        val welcomeViewModel = sourceFile(
-            "../../../ui/authentication/welcome/WelcomeViewModel.kt"
+        val welcomeViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/welcome/WelcomeViewModel.kt",
         ).readText()
-        val newLoginViewModel = sourceFile(
-            "../../../ui/newauthentication/login/NewLoginViewModel.kt"
+        val welcomeHostFactory = sourceFile(
+            "../../../ui/authentication/welcome/WelcomeViewModelHostFactory.kt"
+        ).readText()
+        val newLoginViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/newauthentication/login/NewLoginViewModel.kt",
+        ).readText()
+        val newLoginHostFactory = sourceFile(
+            "../../../ui/newauthentication/login/NewLoginViewModelHostFactory.kt"
+        ).readText()
+        val loginSsoViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/login/sso/LoginSSOViewModel.kt",
+        ).readText()
+        val loginSsoHostFactory = sourceFile(
+            "../../../ui/authentication/login/sso/LoginSSOViewModelHostFactory.kt"
+        ).readText()
+        val loginEmailViewModel = File(
+            repositoryRoot(),
+            "features/authentication/src/main/kotlin/com/wire/android/ui/authentication/login/email/LoginEmailViewModel.kt",
+        ).readText()
+        val loginEmailHostFactory = sourceFile(
+            "../../../ui/authentication/login/email/LoginEmailViewModelHostFactory.kt"
         ).readText()
         val entries = sourceFile("AuthenticationNavigation3Entries.kt").readText()
 
-        assertTrue(graph.contains("fun welcomeViewModel(navArgs: WelcomeNavArgs)"))
+        assertTrue(graph.contains("fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
         assertTrue(graph.contains("fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras)"))
-        assertTrue(bindings.contains("WelcomeViewModel.Factory"))
-        assertTrue(bindings.contains("NewLoginViewModel.Factory"))
+        assertTrue(bindings.contains("WelcomeViewModelHostFactory"))
+        assertTrue(bindings.contains("NewLoginViewModelHostFactory"))
+        assertFalse(bindings.contains("NewLoginViewModel.Factory"))
+        assertTrue(bindings.contains("LoginSSOViewModelHostFactory"))
+        assertFalse(bindings.contains("LoginSSOViewModel.Factory"))
+        assertTrue(bindings.contains("LoginEmailViewModelHostFactory"))
+        assertFalse(bindings.contains("LoginEmailViewModel.Factory"))
         assertTrue(bindings.contains("welcomeFactory.create(navArgs)"))
         assertTrue(bindings.contains("newLoginFactory.create(loginNavArgs, extras.createSavedStateHandle())"))
-        assertTrue(welcomeViewModel.contains("interface Factory"))
-        assertTrue(welcomeViewModel.contains("fun create(navArgs: WelcomeNavArgs): WelcomeViewModel"))
-        assertTrue(newLoginViewModel.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
+        assertTrue(welcomeViewModel.contains("class WelcomeViewModel<LinksT>"))
+        assertFalse(welcomeViewModel.contains("AssistedInject"))
+        assertTrue(welcomeHostFactory.contains("fun create(navArgs: WelcomeNavArgs): WelcomeViewModel<ServerConfig.Links>"))
+        assertTrue(newLoginViewModel.contains("class NewLoginViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT, BackendRequestT>"))
+        assertFalse(newLoginViewModel.contains("LoginNavArgs"))
+        assertFalse(newLoginViewModel.contains("com.wire.kalium.logic.configuration.server.ServerConfig"))
+        assertTrue(newLoginHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
+        assertTrue(loginSsoViewModel.contains("class LoginSSOViewModel<LinksT, FailureT, UserT, SsoFailureT, SessionT>"))
+        assertTrue(loginSsoHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
+        assertTrue(
+            loginEmailViewModel.contains(
+                "class LoginEmailViewModel<LinksT, FailureT, UserT, ScopeT, SessionT, BackendRequestT, DomainClaimT>"
+            )
+        )
+        assertFalse(loginEmailViewModel.contains("LoginNavArgs"))
+        assertFalse(loginEmailViewModel.contains("ServerConfig"))
+        assertTrue(loginEmailHostFactory.contains("fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle)"))
         assertTrue(entries.contains("welcomeViewModel(route.toLegacyNavArgs(), flowOwner)"))
         assertTrue(entries.contains("newLoginViewModel(legacyArgs, flowOwner)"))
         assertTrue(entries.contains("WireViewModelOwner.Flow(route.flowId)"))
@@ -106,13 +148,15 @@ class AuthenticationNavigation3EntriesTest {
     }
 
     private fun sourceFile(name: String): File {
-        val projectDir = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
-            .first { File(it, "app/src/main/kotlin").isDirectory }
         return File(
-            projectDir,
+            repositoryRoot(),
             "app/src/main/kotlin/com/wire/android/navigation/routes/auth/$name",
         ).also {
             assertTrue(it.isFile, "Missing source file $name")
         }
     }
+
+    private fun repositoryRoot(): File =
+        generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+            .first { File(it, "app/src/main/kotlin").isDirectory }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label_get_started">Başla</string>
+    <string name="content_description_login_email_field">e-posta adresi girin</string>
+    <string name="content_description_enterprise_login_email_field">e-postanızı veya SSO kodunuzu girin</string>
+    <string name="enterprise_login_welcome">Başlamak için e-postanızı girin!</string>
+    <string name="enterprise_login_password_title">Giriş yapmak için parolanızı girin</string>
+    <string name="enterprise_login_credentials_title">Giriş yapmak için kimlik bilgilerinizi girin</string>
+    <string name="enterprise_login_next">İleri</string>
+    <string name="enterprise_login_user_identifier_label">E-POSTA VEYA SSO KODU</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">E-posta veya SSO Kodunu Girin</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Lütfen geçerli bir e-posta veya SSO kodu girin</string>
+    <string name="enterprise_login_create_account_label">Wire hesabınız yok mu?</string>
+    <string name="enterprise_login_create_account_text_button">Hesap veya takım oluşturun</string>
+    <string name="label_add_device">Cihaz Ekle</string>
+    <string name="register_device_text">Bu cihazda Wire\'ı kullanmak için parolanızı girin.</string>
+</resources>

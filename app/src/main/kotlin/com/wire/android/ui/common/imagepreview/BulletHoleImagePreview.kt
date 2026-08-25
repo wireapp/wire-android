@@ -44,7 +44,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.core.net.toUri
 import coil3.compose.rememberAsyncImagePainter
-import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.toBitmap
 import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
@@ -77,7 +77,7 @@ fun BulletHoleImagePreview(
     ) {
         Image(
             painter = when {
-                LocalInspectionMode.current -> painterResource(id = R.drawable.ic_create_team_success)
+                LocalInspectionMode.current -> painterResource(id = AuthenticationR.drawable.ic_create_team_success)
                 else -> rememberAsyncImagePainter(loadBitMap(imageUri).value)
             },
             contentScale = FillCenterSquare,

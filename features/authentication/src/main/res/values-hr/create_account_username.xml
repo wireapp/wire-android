@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_username_text">Unesite svoje korisničko ime. Drugima pomaže da vas pronađu u Wireu i povežu se s vama.</string>
+    <string name="create_account_username_placeholder">ivana.ivanović</string>
+    <string name="create_account_username_label">KORISNIČKO IME</string>
+    <string name="create_account_username_taken_error">Ovo korisničko ime je zauzeto. Molimo odaberite drugo.</string>
+</resources>

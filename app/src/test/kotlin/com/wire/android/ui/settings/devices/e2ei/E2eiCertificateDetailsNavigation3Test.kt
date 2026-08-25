@@ -29,13 +29,10 @@ import org.junit.jupiter.api.Test
 class E2eiCertificateDetailsNavigation3Test {
 
     @Test
-    fun givenDuringLoginLegacyDetails_whenMapping_thenCertificateAndSessionArePreserved() {
-        val legacy = E2eiCertificateDetailsScreenNavArgs(
-            E2EICertificateDetails.DuringLoginCertificateDetails("certificate-data")
-        )
-
-        val route = legacy.toE2eiCertificateDetailsRoute(
+    fun givenDuringLoginRoute_whenMapping_thenCertificateAndSessionArePreserved() {
+        val route = E2eiCertificateDetailsRoute(
             sessionId = WireSessionId("user", "wire.example"),
+            details = E2eiCertificateDetailsPayload.DuringLogin("certificate-data"),
             entryId = WireNavEntryId("certificate-entry"),
         )
 

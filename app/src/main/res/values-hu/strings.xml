@@ -28,11 +28,9 @@
     <string name="label_continue">Folytatás</string>
     <string name="label_apply">Alkalmaz</string>
     <string name="label_save">Mentés</string>
-    <string name="label_get_started">Kezdjen hozzá</string>
     <string name="label_remove">Eltávolítás</string>
     <string name="label_proceed">Tovább</string>
     <string name="label_leave">Kilépés</string>
-    <string name="label_add_device">Eszköz hozzáadása</string>
     <string name="label_learn_more">További információ</string>
     <string name="label_removing">Eltávolít…</string>
     <string name="label_logging_in">Bejelentkezés…</string>
@@ -179,13 +177,6 @@
     <string name="content_description_self_profile_new_account_btn">Hozzon létre új csapatot vagy személyes fiókot vagy jelentkezzen be</string>
     <string name="content_description_self_profile_manage_team_btn">Csapat kezelése</string>
     <string name="content_description_change_picture_back_btn">Vissza a saját profil áttekintéséhez</string>
-    <string name="content_description_welcome_screen_close_btn">Az új csapat létrehozása és bejelentkezés lap bezárása</string>
-    <string name="content_description_login_back_btn">Vissza az új csapat létrehozása és bejelentkezés lapra</string>
-    <string name="content_description_login_user_identifier_field">adja meg e-mail-címét vagy felhasználónevét</string>
-    <string name="content_description_login_email_field">adja meg e-mail-címét</string>
-    <string name="content_description_enterprise_login_email_field">adja meg e-mail-címét vagy sso-kódját</string>
-    <string name="content_description_login_password_field">adja meg jelszavát</string>
-    <string name="content_description_login_sso_code_field">adja meg SSO-kódját vagy Wire-e-mailjét</string>
     <string name="content_description_whats_new_welcome_item">Üdvözöljük a Wire új androidos appjában, link a támogatási oldalhoz</string>
     <string name="content_description_whats_new_all_releases_item">Az összes androidos verzióismertető, link a verzióismertetők áttekintéséhez</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, link a verzió részleteihez</string>
@@ -228,15 +219,7 @@
     <string name="settings_backup_create">Biztonsági másolat készítése</string>
     <string name="settings_backup_restore">Visszaállítás biztonsági másolatból</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Szeretne csevegni barátokkal és családtagokkal?</string>
     <string name="welcome_footer_link">Készítsen ingyenes magánfiókot</string>
-    <string name="welcome_button_create_personal_account">Készítsen személyes fiókot</string>
-    <string name="welcome_screen_carousel_item_message_1">Üdvözli a Wire, a legbiztonságosabb együttműködési felület!</string>
-    <string name="welcome_screen_carousel_item_message_2">Teljesen biztos lehet abban, hogy adatai\u00A0biztonságban vannak</string>
-    <string name="welcome_screen_carousel_item_message_3">Titkosított hang- &amp; videókonferencia \u00A0akár 50\u00A0résztvevővel</string>
-    <string name="welcome_screen_carousel_item_message_4">Biztonságos fájlmegosztás csapattagokkal és\u00A0ügyfelekkel</string>
-    <string name="welcome_screen_carousel_item_message_5">A Wire külsőleg auditált és megfelel az ISO, CCPA, GDPR, SOX szabványoknak</string>
-    <string name="welcome_button_create_team">Csapat létrehozása</string>
     <string name="server_details_dialog_body">Kiszolgáló neve:\n%1$s\n\nKiszolgáló címe:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Kiszolgáló neve:\n%1$s\n\nKiszolgáló URL-jre:\n%2$s\n\nProxy URL-je:\n%3$s\n\nProxy hitelesítés:\n%4$s</string>
     <string name="server_details_dialog_title">Helyszíni kiszolgáló</string>
@@ -249,8 +232,6 @@
     <string name="api_versioning_server_version_not_supported_title">Nem támogatott szerververzió</string>
     <string name="api_versioning_server_version_not_supported_message">Az Ön Wire-kiszolgálója frissítést igényel. Értesítse rendszeradminisztrátorát.</string>
     <!-- Migration -->
-    <string name="migration_title">A Wire beállítása</string>
-    <string name="migration_message">Kérjük várjon, amíg beállítjuk Önnek az alkalmazást</string>
     <string name="migration_message_unknown">Kérjük várjon, amíg átköltöztetjük az adatait</string>
     <string name="migration_accounts_message">Fiókjai átköltöztetése...</string>
     <string name="migration_messages_message">Üzenetei átköltöztetése...</string>
@@ -264,47 +245,10 @@
     <string name="migration_cancel_title">Költöztetés leállítása</string>
     <string name="migration_cancel_message">Biztos benne, hogy be szeretné zárni az alkalmazást és leállítani a folyamatban lévő költöztetést?</string>
     <!-- Enterprise Login -->
-    <string name="enterprise_login_welcome">Adja meg kezdésként az e-mail-címét!</string>
-    <string name="enterprise_login_password_title">Belépéshez adja meg a jelszavát</string>
-    <string name="enterprise_login_credentials_title">Belépéshez adja meg azonosítóit</string>
-    <string name="enterprise_login_next">Tovább</string>
-    <string name="enterprise_login_user_identifier_label">E-MAIL-CÍM VAGY SSO-KÓD</string>
-    <string name="enterprise_login_user_identifier_label_placeholder">Adja meg e-mail-címét vagy SSO-kódját</string>
-    <string name="enterprise_login_error_invalid_user_identifier">Kérjük, adjon meg érvényes e-mail-címet vagy SSO-kódot</string>
-    <string name="enterprise_login_create_account_label">Nincsen Wire-fiókja?</string>
     <string name="enterprise_login_on_prem_welcome_title">Üdvözöljük a(z) %s számára nyújtott Wire Vállalati szolgáltatásban!</string>
-    <string name="enterprise_login_verification_code_title">E-mailje érkezett</string>
     <!-- Login -->
-    <string name="login_title">Bejelentkezés</string>
-    <string name="login_forgot_password">Elfelejtette a jelszavát?</string>
-    <string name="login_user_identifier_placeholder">jane@example.com vagy jane.doe</string>
-    <string name="login_email_placeholder">nev@pelda.hu</string>
-    <string name="login_email_label">E-MAIL</string>
-    <string name="login_user_identifier_label">E-MAIL VAGY FELHASZNÁLÓNÉV</string>
-    <string name="login_proxy_identifier_label">PROXY E-MAIL VAGY FELHASZNÁLÓNÉV</string>
-    <string name="login_error_invalid_credentials_title">Érvénytelen információ</string>
-    <string name="login_error_invalid_credentials_message">Ezek a fiókazonosítók helytelenek.
-        Ellenőrizze a bevitt adatokat, és próbálja újra.
-    </string>
-    <string name="login_error_invalid_user_identifier">Ez az e-mail-cím vagy felhasználónév érvénytelen. Ellenőrizze a beírtakat, és próbálja újra.</string>
-    <string name="login_error_invalid_email">Ez az e-mail-cím érvénytelen. Ellenőrizze a beírtakat, és próbálja újra.</string>
-    <string name="login_error_user_already_logged_in_title">A fiók már használatban van</string>
-    <string name="login_error_user_already_logged_in_message">A megadott azonosítókkal már bejelentkezett ezen az eszközön.</string>
-    <string name="login_sso_error_invalid_cookie_title">Érvénytelen süti!</string>
-    <string name="login_sso_error_invalid_cookie_message">A munkamenet érvénytelen vagy lejárt! Próbáljon újra bejelentkezni.</string>
     <string name="login_password_placeholder">Jelszó</string>
     <string name="login_password_label">JELSZÓ</string>
-    <string name="login_tab_email">E-MAIL</string>
-    <string name="login_tab_sso">SSO BEJELENTKEZÉS</string>
-    <string name="login_sso_code_label">SSO KÓD VAGY E-MAIL</string>
-    <string name="login_error_invalid_sso_code">Kérjük, adjon meg egy érvényes SSO kódot.</string>
-    <string name="login_error_invalid_sso_code_format">Érvényes SSO kód megadása</string>
-    <string name="login_error_request_2fa_with_handle_title">Bejelentkezés e-mail-címmel</string>
-    <string name="login_error_request_2fa_with_handle_message">Nem adhatja meg felhasználónevét, mivel kétfaktoros azonosítás van érvényben. Az e-mail-címével tud bejelentkezni.</string>
-    <string name="login_error_unauthorized_title">Nincs engedélyezve</string>
-    <string name="login_error_unauthorized_message">Ezzel az azonosítóval már nem lehet bejelentkezni.</string>
-    <string name="login_error_pending_activation_title">Aktiválásra vár</string>
-    <string name="login_error_pending_activation_message">Ez a fiók még aktiválásra vár. Kérjük, ellenőrizze a beírtakat.</string>
     <string name="deleted_user_error_title">Törölt fiók</string>
     <string name="deleted_user_error_message">Ki lett jelentkeztetve, mivel a fiókja
         törölve lett.
@@ -320,15 +264,7 @@
     <string name="conversation_history_wipe_explanation">A csapata biztonsági beállításainak
         megfelelően, beszélgetési előzményei szintén törlésre kerültek.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Fiók hitelesítése</string>
-    <string name="second_factor_authentication_instructions_label">Kérjük, adja meg a(z) %1$s e-mail címére küldött azonosító kódot.</string>
-    <string name="second_factor_code_error">Érvénytelen kód, vagy túllépte a kísérletek maximális számát. Próbálja újra, vagy kérjen másik kódot</string>
     <!-- Remove Device -->
-    <string name="remove_device_title">Eszköz eltávolítása</string>
-    <string name="remove_device_message">Ahhoz, hogy használni tudja a Wire-t ezen az eszközön, először távolítsa el
-        egy másik készülékét.
-    </string>
-    <string name="remove_device_label">ESZKÖZEI</string>
     <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nHozzáadva: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nHozzáadva: %2$s\nAktív: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
@@ -348,8 +284,6 @@
     <string name="e2ei_certificat_status_revoked">Visszavont</string>
     <string name="e2ei_certificat_status_not_activated">Nem aktivált</string>
     <!-- Register Device -->
-    <string name="register_device_title">Ezen eszköz hozzáadása</string>
-    <string name="register_device_text">Adja meg jelszavát a Wire ezen eszközön történő használatához.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Üzenet törlése?</string>
     <string name="delete_message_dialog_message">Ha saját magánál törli az üzenetet, akkor az csak a többi résztvevő számára lesz látható.\n\nHa mindenkinél törli, akkor az összes résztvevőnél eltávolításra kerül.\n\nA törölt üzenet visszaállítására nincs lehetőség.</string>
@@ -361,51 +295,9 @@
     <string name="label_quote_invalid_or_not_found">Ezt az üzenetet nem látod</string>
     <string name="label_quote_original_message_is_a_picture">Kép</string>
     <!-- Create Account -->
-    <string name="create_personal_account_summary_title">Személyes fiók elkészítve</string>
-    <string name="create_personal_account_text">Biztonságos csevegés barátokkal és családtagokkal a Wire nyilvános kiszolgálóját használva.</string>
-    <string name="create_personal_account_email_text">Adja meg e-mail címét a legbiztonságosabb együttműködési felület használatához.</string>
-    <string name="create_personal_account_details_text">Adja meg személyes adatait:</string>
-    <string name="create_personal_account_summary_text">Sikeresen létrehozta személyes fiókját. Kezdjen biztonságosan kommunikálni – bárhol is legyen!</string>
-    <string name="create_team_summary_title">Csapat létrehozva</string>
-    <string name="create_team_content_title">Ingyenes Wire</string>
-    <string name="create_team_text">Üzenetküldés kis szervezetek vagy egyszemélyes tanácsadó cégek számára.\n</string>
-    <string name="create_team_learn_more">Tudjon meg többet csomagjainkról és árazásunkról</string>
-    <string name="create_team_email_text">Adja meg e-mail címét csapata létrehozásához:</string>
     <string name="create_team_details_text">Adja meg e-mail címét csapata létrehozásához:</string>
-    <string name="create_team_summary_text">Sikeresen létrehozta csapata fiókját. Kezdjen biztonságosan kommunikálni – bárhol is legyen!</string>
-    <string name="create_account_email_placeholder">nev@pelda.hu</string>
-    <string name="create_account_email_label">E-MAIL</string>
-    <string name="create_account_email_footer_text">Már van fiókja? </string>
-    <string name="create_account_email_terms_dialog_title">Felhasználási feltételek</string>
-    <string name="create_account_email_terms_dialog_text">A Folytatás gombra kattintva elfogadja Felhasználási feltételeinket és Adatvédelmi irányelveinket.</string>
-    <string name="create_account_email_terms_dialog_view_policy">Feltételek és adatvédelem</string>
-    <string name="create_account_email_already_in_use_error">Ez az e-mail cím már használatban van.</string>
-    <string name="create_account_email_blacklisted_error">Az e-mail címe nem megbízhatóként lett azonosítva, pl. fennakadt egy spam-szűrőn.</string>
-    <string name="create_account_email_invalid_error">Adjon meg egy érvényes formátumú e-mail címet.</string>
-    <string name="create_account_email_domain_blocked_error">Nem tudja létrehozni ezt a fiókot, mivel a megadott e-mail domain ki van tiltva.</string>
-    <string name="create_account_details_first_name_placeholder">Katalin</string>
-    <string name="create_account_details_first_name_label">UTÓNÉV</string>
-    <string name="create_account_details_last_name_placeholder">Minta</string>
-    <string name="create_account_details_last_name_label">VEZETÉKNÉV</string>
-    <string name="create_account_details_team_name_placeholder">Csodacsapat</string>
-    <string name="create_account_details_team_name_label">CSAPAT NEVE</string>
     <string name="create_account_details_password_description">Használjon legalább 8 karaktert, legyen benne minimum 1 kisbetű, 1 nagybetű, 1 szám és 1 speciális karakter is.</string>
-    <string name="create_account_details_password_error">Érvénytelen jelszó</string>
-    <string name="create_account_details_password_not_matching_error">A jelszavak nem egyeznek</string>
-    <string name="create_account_details_confirm_password_label">ERŐSÍTSE MEG A JELSZÓT</string>
-    <string name="create_account_code_text">Kérjük, adja meg a(z) %1$s e-mail címére küldött azonosító kódot.</string>
-    <string name="create_account_code_resend">Kód újraküldése</string>
-    <string name="create_account_code_error">Érvénytelen kód, vagy túllépte a kísérletek maximális számát. Próbálja újra, vagy kérjen másik kódot</string>
-    <string name="create_account_code_error_title">Érvénytelen információ</string>
-    <string name="create_account_code_error_team_members_limit_reached">Ez a csapat elérte a létszámkorlátot.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Ez az alkalmazásverzió nem teszi lehetővé személyes fiókok létrehozását.</string>
-    <string name="create_account_code_error_team_creation_restricted">Ez az alkalmazásverzió nem teszi lehetővé csapatok létrehozását.</string>
     <string name="create_account_username_title">Felhasználóneve</string>
-    <string name="create_account_username_placeholder">minta.katalin</string>
-    <string name="create_account_username_label">FELHASZNÁLÓNÉV</string>
-    <string name="create_account_username_text">Adja meg felhasználónevét. Ez segít másoknak megtalálni Önt a Wire-ön, és kapcsolatba lépni Önnel.</string>
-    <string name="create_account_username_taken_error">Ez a Felhasználónév már foglalt. Kérjük, válasszon egy másikat.</string>
-    <string name="create_account_username_description">Legalább 2 karakter, a-z, 0-9, \"_\", \"-\" és \".\"</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">NEM FOGADOTT HÍVÁSOK</string>
     <string name="calls_label_calls_history">HÍVÁSNAPLÓ</string>
@@ -725,8 +617,6 @@
     <string name="error_unknown_message">Kérjük, próbálja újra</string>
     <string name="error_server_miscommunication_title">Szerverhiba</string>
     <string name="error_server_miscommunication_message">Kérjük, próbálja újra</string>
-    <string name="error_socket_title">Érvénytelen információ</string>
-    <string name="error_socket_message">Ezek a proxyazonosítók helytelenek. Ellenőrizze a bevitt adatokat, és próbálja újra.</string>
     <string name="error_no_network_title">Várakozás hálózatra</string>
     <string name="error_no_network_message">Kérjük, ellenőrizze az internetkapcsolatát, majd próbálkozzon újra</string>
     <string name="error_downloading_self_user_profile_picture">Hiba történt a profilképe letöltése közben. Ellenőrizze internetkapcsolatát</string>
@@ -852,10 +742,6 @@
         Letöltések mappába. Ellenőrizze internetkapcsolatát, és próbálja újra
     </string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Nem tud SSO-val bejelentkezni</string>
-    <string name="sso_error_dialog_message">Próbálja újra. Ha ez sem segít, vegye fel a kapcsolatot a
-        rendszergazdával, és adja át ezt a kódot:\n%d\"
-    </string>
     <string name="asset_download_dialog_default_title">Fájl letöltése</string>
     <string name="empty_conversation_label">Név nélküli beszélgetés</string>
     <!--prohibited asset messages -->
@@ -956,7 +842,6 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="devices_title">Saját eszközei</string>
     <string name="current_device_label">Ez az eszköz</string>
     <string name="other_devices_label">Egyéb eszközök</string>
-    <string name="devices_loading_error">Hiba lépett fel az eszközlista letöltése közben. Ellenőrizze internetkapcsolatát, és próbálja újra.</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">egy fiók aktív</item>
@@ -1062,17 +947,10 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="conversation_content_delete_failure">A beszélgetés tartalmát nem sikerült törölni</string>
     <string name="group_label">csoport</string>
     <string name="conversation_label">beszélgetés</string>
-    <string name="proxy_credential_description">Ez a kiszolgáló a következő proxyszerver használatára van beállítva: %1$s</string>
-    <string name="label_proxy_credentials">PROXY AZONOSÍTÓK</string>
-    <string name="label_proxy_password">PROXY JELSZÓ</string>
-    <string name="label_wire_credentials">WIRE AZONOSÍTÓK</string>
     <string name="dialog_clear_content_title">Törli a tartalmat?</string>
     <string name="dialog_clear_content_option">Tartalom törlése</string>
     <string name="dialog_clear_content_text">\"Ez törli a beszélgetés eddigi előzményeit az összes eszközén. Ön benne marad a(z) %1$s beszélgetésben, és hozzáfér majd %1$s összes új történéséhez</string>
     <string name="not_supported_dialog_title">Nem támogatott</string>
-    <string name="sso_not_supported_dialog_description">Nem jelentkezhet be SSO-val proxyt támogató helyi kiszolgálón.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Nem hozhat létre személyes fiókot proxyt támogató helyi kiszolgálón.</string>
-    <string name="create_team_not_supported_dialog_description">Az alkalmazásban nem hozhat létre új csapatot proxyt támogató helyi kiszolgálón.\nHasználja a csapatmenedzsmentet (%1$s) e kiszolgáló helyett.</string>
     <string name="to_team_management_action">Csapatmenedzsment megnyitása</string>
     <!-- Claimed Domain dialog -->
     <string name="claimed_domain_email_already_in_use_dialog_title">Az e-mail-cím már használatban van egy helyi kiszolgálónál</string>

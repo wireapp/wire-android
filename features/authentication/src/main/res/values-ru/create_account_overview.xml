@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_text">Безопасное общение с друзьями и близкими с использованием публичного облачного сервера Wire.</string>
+    <string name="create_team_content_title">Wire Free</string>
+    <string name="create_team_text">Обмен сообщениями для небольших организаций или консалтинговых фирм, состоящих из одного человека.\n</string>
+    <string name="create_team_learn_more">Узнайте больше о тарифах и ценах</string>
+</resources>

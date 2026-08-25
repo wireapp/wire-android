@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remove_device_title">උපාංගයක් ඉවත් කරන්න</string>
+    <string name="remove_device_message">මෙහි වයර් භාවිතා කිරීම ඇරඹීමට ඔබගේ අනෙක් උපාංග වලින් එකක් ඉවත් කරන්න.</string>
+    <string name="remove_device_label">ඔබගේ උපාංග</string>
+</resources>

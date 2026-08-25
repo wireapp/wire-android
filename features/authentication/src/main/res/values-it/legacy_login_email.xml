@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_user_identifier_placeholder">jane@example.com o jane.doe</string>
+<string name="login_proxy_identifier_label">EMAIL O USERNAME PROXY</string>
+<string name="label_proxy_password">Password proxy</string>
+    <string name="label_wire_credentials">Credenziali Wire</string>
+    <string name="login_user_identifier_label">EMAIL O USERNAME</string>
+    <string name="login_forgot_password">Hai dimenticato la password?</string>
+    <string name="label_proxy_credentials">Credenziali proxy</string>
+    <string name="proxy_credential_description">Questo backend &#232; configurato per utilizzare il seguente server proxy: %1$s</string>
+</resources>

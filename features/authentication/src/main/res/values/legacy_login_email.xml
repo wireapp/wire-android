@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
+<string name="login_proxy_identifier_label">PROXY EMAIL OR USERNAME</string>
+<string name="label_proxy_password">PROXY PASSWORD</string>
+    <string name="label_wire_credentials">WIRE CREDENTIALS</string>
+    <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
+    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="label_proxy_credentials">PROXY CREDENTIALS</string>
+    <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
+</resources>

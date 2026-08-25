@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_tab_email">メールアドレス</string>
+<string name="login_tab_sso">シングルサインオンでのログイン</string>
+<string name="login_sso_code_label">シングルサインオンのコードまたはメール</string>
+<string name="login_error_invalid_sso_code_format">有効なシングルサインオンのコードを入力してください</string>
+    <string name="login_title">ログイン</string>
+</resources>

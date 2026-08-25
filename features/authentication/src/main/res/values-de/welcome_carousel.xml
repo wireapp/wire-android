@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Willkommen bei Wire, der sichersten Kommunikationsplattform!</string>
+<string name="welcome_screen_carousel_item_message_2">Absolutes Vertrauen, dass Ihre Informationen \u00A0sicher sind</string>
+<string name="welcome_screen_carousel_item_message_3">Verschlüsselte Telefon- &amp; Videokonferenzen mit bis\u00A0zu 50\u00A0Teilnehmern</string>
+<string name="welcome_screen_carousel_item_message_4">Sicherer Dateiaustausch mit Teams und\u00A0Kunden</string>
+<string name="welcome_screen_carousel_item_message_5">Wire wird unabhängig geprüft und ist ISO-, CCPA-, DSGVO- und SOX-konform</string>
+    <string name="welcome_footer_text">Möchten Sie mit Freunden und Ihrer Familie chatten?</string>
+    <string name="welcome_button_create_personal_account">Privates Benutzerkonto erstellen</string>
+    <string name="content_description_welcome_screen_close_btn">Ansicht zur Team-Erstellung und Anmeldung schließen</string>
+    <string name="create_team_not_supported_dialog_description">Sie können kein neues Team auf einem lokalen Backend mit Proxy-Unterstützung in der App erstellen.\nBitte verwenden Sie stattdessen das Team-Management (%1$s) auf diesem Backend.</string>
+    <string name="create_personal_account_not_supported_dialog_description">Sie können kein privates Benutzerkonto auf einem lokalen Backend mit Proxy-Unterstützung erstellen.</string>
+</resources>

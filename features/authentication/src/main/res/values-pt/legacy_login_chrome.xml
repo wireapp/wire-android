@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="content_description_login_sso_code_field">digite seu código SSO ou e-mail do Wire</string>
+<string name="login_tab_email">E-MAIL</string>
+<string name="login_tab_sso">LOGIN SSO</string>
+<string name="login_sso_code_label">CÓDIGO DE SSO OU E-MAIL</string>
+<string name="login_error_invalid_sso_code_format">Insira um código SSO válido</string>
+    <string name="login_title">Entrar</string>
+    <string name="content_description_login_back_btn">Voltar para a visualização de criação de nova equipe e login</string>
+    <string name="content_description_login_password_field">digite sua senha</string>
+    <string name="sso_not_supported_dialog_description">Você não pode entrar via SSO em um backend local com suporte de proxy.</string>
+</resources>

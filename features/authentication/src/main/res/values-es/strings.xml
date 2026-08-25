@@ -1,0 +1,13 @@
+<resources>
+    <string name="create_account_code_resend">Reenviar c&#243;digo</string>
+    <string name="second_factor_authentication_title">Verifica tu cuenta</string>
+    <string name="second_factor_code_error">C&#243;digo inv&#225;lido o n&#250;mero m&#225;ximo de intentos ha sido alcanzado. Por favor, int&#233;ntalo de nuevo o solicita otro c&#243;digo.</string>
+    <string name="label_get_started">Empezar</string>
+    <string name="create_personal_account_summary_title">Cuenta personal creada</string>
+    <string name="create_personal_account_summary_text">Has creado tu cuenta personal con &#233;xito. &#161;Empieza a comunicarte de manera segura - donde sea que est&#233;s!</string>
+    <string name="create_team_summary_title">Equipo creado</string>
+    <string name="create_team_summary_text">Has creado tu cuenta de equipo con &#233;xito. &#161;Empieza a comunicarte de manera segura - donde sea que est&#233;s!</string>
+    <string name="label_add_device">Agregar Dispositivo</string>
+    <string name="register_device_title">Agregar este dispositivo</string>
+    <string name="register_device_text">Ingresa tu contrase&#241;a para usar Wire en este dispositivo.</string>
+</resources>

@@ -28,11 +28,9 @@
     <string name="label_continue">Fortsätt</string>
     <string name="label_apply">Verkställ</string>
     <string name="label_save">Spara</string>
-    <string name="label_get_started">Kom igång</string>
     <string name="label_remove">Ta bort</string>
     <string name="label_proceed">Gå vidare</string>
     <string name="label_leave">Lämna</string>
-    <string name="label_add_device">Lägg till enhet</string>
     <string name="label_learn_more">Läs mer</string>
     <string name="label_removing">Tar bort…</string>
     <string name="label_logging_in">Loggar in…</string>
@@ -112,7 +110,6 @@
     <string name="content_description_self_profile_avatar">Din profilbild</string>
     <string name="content_description_self_profile_profile_name">Profilnamn, %s</string>
     <string name="content_description_self_profile_username">Användarnamn, %s</string>
-    <string name="content_description_login_password_field">ange ditt lösenord</string>
     <string name="content_description_empty"></string>
     <!-- Non translatable strings-->
     <!-- Wire Urls - Non translatable -->
@@ -132,16 +129,12 @@
     <string name="settings_backup_create">Skapa en säkerhetskopia</string>
     <string name="settings_backup_restore">Återställ från säkerhetskopia</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Vill du chatta med vänner och familj?</string>
-    <string name="welcome_button_create_personal_account">Skapa ett personligt konto</string>
     <string name="welcome_migration_dialog_continue">Börja använda Wire</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Uppdatering behövs</string>
     <string name="api_versioning_server_version_not_supported_title">Server-versionen stöds inte</string>
     <string name="api_versioning_server_version_not_supported_message">Din Wire-server behöver inte uppdateras. Vänligen meddela administratören för ditt system.</string>
     <!-- Migration -->
-    <string name="migration_title">Ställer in Wire</string>
-    <string name="migration_message">Vänligen vänta medans vi ställer in appen till dig</string>
     <string name="migration_message_unknown">Vänligen vänta medans vi migrerar data för dig</string>
     <string name="migration_accounts_message">Migrerar dina konton...</string>
     <string name="migration_messages_message">Migrerar dina meddelanden...</string>
@@ -156,26 +149,8 @@
     <string name="migration_cancel_message">Är du säker på att du vill stänga ner applikationen och avbryta den pågående migreringen?</string>
     <!-- Enterprise Login -->
     <!-- Login -->
-    <string name="login_title">Logga in</string>
-    <string name="login_forgot_password">Glömt lösenord?</string>
-    <string name="login_user_identifier_placeholder">jane@example.com eller jane.doe</string>
-    <string name="login_user_identifier_label">E-POSTADRESS ELLER ANVÄNDARNAMN</string>
-    <string name="login_proxy_identifier_label">EPOST-ADRESS ELLER ANVÄNDARNAMN FÖR PROXY</string>
-    <string name="login_error_invalid_credentials_title">Ogiltig information</string>
-    <string name="login_error_invalid_credentials_message">De här kontouppgifterna är felaktiga.
-        Vänligen bekräfta dina uppgifter och försök igen.
-    </string>
-    <string name="login_error_user_already_logged_in_title">Konto som används</string>
-    <string name="login_error_user_already_logged_in_message">Du är redan inloggad med dessa uppgifter i den här enheten.</string>
-    <string name="login_sso_error_invalid_cookie_title">Ogiltig Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">Sessionen är ogiltig eller har slutat gälla! Vänligen försök igen för att logga in.</string>
     <string name="login_password_placeholder">Lösenord</string>
     <string name="login_password_label">LÖSENORD</string>
-    <string name="login_tab_email">E-POSTADRESS</string>
-    <string name="login_tab_sso">SSO-INLOGGNING</string>
-    <string name="login_sso_code_label">SSO-KOD ELLER E-POSTADRESS</string>
-    <string name="login_error_invalid_sso_code">Ange en giltig SSO-kod.</string>
-    <string name="login_error_invalid_sso_code_format">Ange en giltig SSO-kod</string>
     <string name="deleted_user_error_title">Kontot togs bort</string>
     <string name="deleted_user_error_message">Du loggades ut eftersom att ditt konto togs
         bort.
@@ -188,11 +163,7 @@
     <string name="conversation_history_wipe_explanation">Enligt dina team\'s säkerhets-
         inställningar, din konversationshistorik har också tagits bort.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Bekräfta ditt konto</string>
-    <string name="second_factor_code_error">Ogiltig kod eller så har maximalt antal försök att använda den överskridits. Vänligen försök igen eller begär en annan kod</string>
     <!-- Remove Device -->
-    <string name="remove_device_title">Ta bort en enhet</string>
-    <string name="remove_device_label">DINA ENHETER</string>
     <string name="remove_device_invalid_password">Ogiltigt lösenord</string>
     <string name="item_subtitle_status_e2ei_certificate">Status</string>
     <string name="item_subtitle_serial_number_e2ei_certificate">Serienummer</string>
@@ -204,28 +175,8 @@
     <string name="label_delete_for_everyone">Radera för alla</string>
     <!-- Replies/Quotes to other messages -->
     <!-- Create Account -->
-    <string name="create_account_email_label">E-POSTADRESS</string>
-    <string name="create_account_email_footer_text">Har du redan ett konto? </string>
-    <string name="create_account_email_terms_dialog_title">Användarvillkor</string>
-    <string name="create_account_email_invalid_error">Ange ett giltigt format för din e-postadress.</string>
-    <string name="create_account_details_first_name_label">FÖRNAMN</string>
-    <string name="create_account_details_last_name_label">EFTERNAMN</string>
-    <string name="create_account_details_team_name_label">NAMN PÅ TEAM</string>
-    <string name="create_account_details_password_description">Använd minst 8 tecken, med en gemen bokstav, en versal bokstav, en siffra och ett specialtecken.</string>
-    <string name="create_account_details_password_error">Ogiltigt lösenord</string>
-    <string name="create_account_details_password_not_matching_error">Lösenorden matchar inte</string>
-    <string name="create_account_details_confirm_password_label">BEKRÄFTA LÖSENORD</string>
-    <string name="create_account_code_text">Kontrollera din e-post %1$s för verifieringskoden och ange den nedan.</string>
-    <string name="create_account_code_resend">Skicka om koden igen</string>
-    <string name="create_account_code_error_title">Ogiltig information</string>
-    <string name="create_account_code_error_team_members_limit_reached">Det här teamet har nått sin gräns för antalet medlemmar.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Den här applikationens version tillåter inte skapandet av personliga konton.</string>
-    <string name="create_account_code_error_team_creation_restricted">Den här applikationens version tillåter inte skapandet av teams.</string>
+<string name="create_account_details_password_description">Använd minst 8 tecken, med en gemen bokstav, en versal bokstav, en siffra och ett specialtecken.</string>
     <string name="create_account_username_title">Ditt användarnamn</string>
-    <string name="create_account_username_label">ANVÄNDARNAMN</string>
-    <string name="create_account_username_text">Ange ditt användarnamn. Det hjälper andra att hitta dig i Wire och ansluta till dig.</string>
-    <string name="create_account_username_taken_error">Det här användarnamnet är redan upptaget. Vänligen välj ett annat.</string>
-    <string name="create_account_username_description">Minst 2 tecken, a-z, 0-9, “_”, “-” och “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSADE SAMTAL</string>
     <string name="calls_label_calls_history">SAMTALSHISTORIK</string>

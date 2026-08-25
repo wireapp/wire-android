@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="migration_title">වයර් පිහිටුවමින්</string>
+    <string name="migration_message">යෙදුම පිහිටුවන තෙක් රැඳී සිටින්න</string>
+</resources>

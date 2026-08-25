@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Bienvenue sur Wire, la plateforme de collaboration la plus sécurisée !</string>
+<string name="welcome_screen_carousel_item_message_2">Confiance absolue, vos informations sont\u00A0sécurisées</string>
+<string name="welcome_screen_carousel_item_message_4">Partage sécurisé de fichiers avec les équipes et les clients\u00A0</string>
+<string name="welcome_screen_carousel_item_message_5">Wire est audité indépendamment et conforme ISO, CCPA, GDPR, SOX </string>
+    <string name="welcome_footer_text">Vous voulez discuter avec vos amis et votre famille?</string>
+    <string name="welcome_button_create_personal_account">Créer un compte personnel</string>
+</resources>

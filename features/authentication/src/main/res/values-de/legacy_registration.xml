@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_selector_title">Wie werden Sie Wire verwenden?</string>
+    <string name="create_account_selector_team_subtitle">Arbeiten Sie sicher mit Ihrem Team.</string>
+    <string name="create_account_selector_team_highlight_two">Kostenlos starten, jederzeit upgraden</string>
+    <string name="create_account_selector_personal_subtitle">Chatten Sie mit Freunden und Ihrer Familie.</string>
+    <string name="create_account_selector_personal_highlight_two">Immer kostenlos</string>
+    <string name="create_account_email_label">E-MAIL-ADRESSE</string>
+    <string name="create_account_email_terms_dialog_text">Indem Sie \"Weiter\" auswählen, erklären Sie sich mit unseren Nutzungsbedingungen und unserer Datenschutzerklärung einverstanden.</string>
+    <string name="create_account_email_share_anonymous_data_link_label">Datenschutzerklärung</string>
+    <string name="create_account_email_backlink_to_team_label">Wollen Sie eher im Team zusammenarbeiten?</string>
+    <string name="create_account_email_already_in_use_error">Die E-Mail-Adresse wird bereits verwendet.</string>
+    <string name="create_account_email_invalid_error">Bitte geben Sie ein gültiges Format für Ihre E-Mail-Adresse ein.</string>
+    <string name="create_account_details_name_placeholder">Name eingeben</string>
+    <string name="create_account_details_password_confirm_placeholder">Passwort bestätigen</string>
+    <string name="create_account_details_password_not_matching_error">Passwörter stimmen nicht überein</string>
+    <string name="create_account_code_text">Bitte prüfen Sie Ihren Posteingang %1$s und geben Sie den Bestätigungscode unten ein.</string>
+    <string name="create_account_code_error_title">Ungültige Informationen</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">In dieser Version der App können Sie keine privaten Konten erstellen.</string>
+    <string name="welcome_button_create_team">Team erstellen</string>
+    <string name="create_account_selector_team_title">Für die Zusammenarbeit</string>
+    <string name="create_account_selector_team_highlight_one">Kommunizieren Sie mit Ihren Kollegen und teilen Sie Dokumente über eine einzige App</string>
+    <string name="create_account_selector_personal_title">Für den privaten Gebrauch</string>
+    <string name="create_account_selector_personal_highlight_one">Senden Sie Nachrichten und teilen Sie Bilder</string>
+    <string name="create_team_title">Team erstellen</string>
+    <string name="create_account_email_placeholder">max@beispiel.com</string>
+    <string name="create_account_email_terms_dialog_title">Nutzungsbedingungen</string>
+    <string name="create_account_email_share_anonymous_data_label">Ich bin mit dem Teilen anonymer Nutzungsdaten einverstanden. Alle Details finden Sie in unserer</string>
+    <string name="create_account_email_share_anonymous_data_optional_label">(Optional)</string>
+    <string name="create_account_email_terms_dialog_view_policy">Nutzungsbedingungen und Datenschutzerklärung anzeigen</string>
+    <string name="create_account_email_blacklisted_error">Ihre E-Mail-Adresse wurde als nicht vertrauenswürdig identifiziert, zum Beispiel aufgrund einer Ablehnung durch einen Spam-Filter.</string>
+    <string name="create_account_email_domain_blocked_error">Sie können dieses Benutzerkonto nicht einrichten, da Ihre E-Mail-Domain absichtlich blockiert ist.</string>
+    <string name="create_account_details_password_placeholder">Passwort eingeben</string>
+    <string name="create_account_details_name_label">NAME</string>
+    <string name="create_account_details_password_error">Ungültiges Passwort</string>
+    <string name="create_account_details_confirm_password_label">PASSWORT BESTÄTIGEN</string>
+    <string name="create_account_code_error">Ungültiger Code oder maximale Versuche überschritten. Bitte versuchen Sie es erneut oder fordern Sie einen anderen Code an</string>
+    <string name="create_account_code_error_team_members_limit_reached">Dieses Team hat die Höchstanzahl an Mitgliedern erreicht.</string>
+    <string name="create_account_code_error_team_creation_restricted">In dieser Version der App können Sie keine Teams erstellen.</string>
+</resources>

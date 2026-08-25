@@ -18,61 +18,17 @@
 
 package com.wire.android.ui.authentication.login
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
-import com.wire.android.R
-import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.navigation.style.TransitionAnimationType
-import com.wire.android.ui.authentication.BackendConfigSuccessContent
-import com.wire.android.ui.authentication.MissingBackendConfigContent
-import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.login.email.LoginEmailScreen
-import com.wire.android.ui.authentication.login.email.LoginEmailState
+import com.wire.android.ui.authentication.login.email.AppLoginEmailViewModel
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
-import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
-import com.wire.android.ui.common.TabItem
-import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
-import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
-import com.wire.android.ui.common.rememberTopBarElevationState
-import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.launch
 
 /**
  * Navigation-neutral adapter used by the Navigation 3 host.
@@ -80,7 +36,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun LoginRouteScreen(
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     onBackPressed: () -> Unit,
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
     onRemoveDeviceNeeded: (UserId) -> Unit,
@@ -102,18 +58,18 @@ private fun LoginContent(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
     onRemoveDeviceNeeded: (UserId) -> Unit,
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         AnimatedContent(
-            targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
+            targetState = loginSurface(loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary),
             transitionSpec = {
                 TransitionAnimationType.SLIDE.enterTransition.togetherWith(TransitionAnimationType.SLIDE.exitTransition)
             }
-        ) { isCodeInputNecessary ->
-            if (isCodeInputNecessary) {
+        ) { surface ->
+            if (surface == LoginSurface.Verification) {
                 LoginEmailVerificationCodeScreen(loginEmailViewModel)
             } else {
                 MainLoginContent(
@@ -127,169 +83,5 @@ private fun LoginContent(
                 )
             }
         }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Suppress("CyclomaticComplexMethod")
-@Composable
-private fun MainLoginContent(
-    onBackPressed: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
-    onRemoveDeviceNeeded: (UserId) -> Unit,
-    loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel,
-    ssoLoginResult: DeepLinkResult.SSOLogin?,
-    ssoCodeAutoLogin: SSOCodeAutoLogin?,
-) {
-
-    val scope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
-    val isBackendConfigured = loginEmailViewModel.isBackendConfigured
-    val backendConfigState = loginEmailViewModel.loginState.backendConfigState
-    val shouldShowBackendSetup = !isBackendConfigured || backendConfigState == LoginEmailState.BackendConfigState.Success
-    // Show SSO tab if we have either ssoLoginResult or ssoCodeAutoLogin
-    val initialPageIndex = if (ssoLoginResult != null || ssoCodeAutoLogin != null) {
-        LoginTabItem.SSO.ordinal
-    } else {
-        LoginTabItem.EMAIL.ordinal
-    }
-    val pagerState = rememberPagerState(
-        initialPage = initialPageIndex,
-        pageCount = { LoginTabItem.values().size }
-    )
-
-    val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
-    FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
-
-    WireScaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = scrollState.rememberTopBarElevationState().value,
-                title = stringResource(
-                    if (!shouldShowBackendSetup) {
-                        R.string.login_title
-                    } else {
-                        R.string.missing_backend_config_title
-                    }
-                ),
-                subtitleContent = {
-                    if (!shouldShowBackendSetup && loginEmailViewModel.serverConfig.isOnPremises) {
-                        ServerTitle(
-                            serverLinks = loginEmailViewModel.serverConfig,
-                            style = MaterialTheme.wireTypography.body01
-                        )
-                    }
-                },
-                onNavigationPressed = onBackPressed,
-                navigationIconType = NavigationIconType.Back(R.string.content_description_login_back_btn)
-            ) {
-                if (!shouldShowBackendSetup) {
-                    WireTabRow(
-                        tabs = LoginTabItem.values().toList(),
-                        selectedTabIndex = pagerState.calculateCurrentTab(),
-                        onTabChange = {
-
-                            if (loginEmailViewModel.serverConfig.isProxyEnabled) {
-                                if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
-                                    ssoDisabledWithProxyDialogState.show(
-                                        ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
-                                            R.string.sso_not_supported_dialog_description
-                                        )
-                                    )
-                                }
-                            } else {
-                                scope.launch { pagerState.animateScrollToPage(it) }
-                            }
-                        },
-                        modifier = Modifier.padding(
-                            start = MaterialTheme.wireDimensions.spacing16x,
-                            end = MaterialTheme.wireDimensions.spacing16x
-                        ),
-                    )
-                }
-            }
-        },
-        modifier = Modifier.fillMaxHeight(),
-    ) { internalPadding ->
-        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-        val keyboardController = LocalSoftwareKeyboardController.current
-        val focusManager = LocalFocusManager.current
-
-        if (!shouldShowBackendSetup) {
-            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                ) { pageIndex ->
-                    when (LoginTabItem.values()[pageIndex]) {
-                        LoginTabItem.EMAIL -> LoginEmailScreen(onSuccess, onRemoveDeviceNeeded, loginEmailViewModel, scrollState)
-                        LoginTabItem.SSO -> LoginSSOScreen(
-                            onSuccess,
-                            onRemoveDeviceNeeded,
-                            loginNavArgs,
-                            ssoLoginResult,
-                            ssoCodeAutoLogin,
-                        )
-                    }
-                }
-                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                    LaunchedEffect(Unit) {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                        focusedTabIndex = pagerState.currentPage
-                    }
-                }
-            }
-        } else {
-            if (backendConfigState == LoginEmailState.BackendConfigState.Success) {
-                BackendConfigSuccessContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                        .padding(MaterialTheme.wireDimensions.spacing16x),
-                    onContinue = loginEmailViewModel::onBackendConfigSuccessContinue,
-                )
-            } else {
-                MissingBackendConfigContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                        .padding(MaterialTheme.wireDimensions.spacing16x),
-                    errorText = if (backendConfigState == LoginEmailState.BackendConfigState.Error) {
-                        stringResource(R.string.missing_backend_config_error)
-                    } else {
-                        null
-                    },
-                    isLoading = backendConfigState == LoginEmailState.BackendConfigState.Loading,
-                    onConfigurationLinkEntered = loginEmailViewModel::onBackendConfigLinkEntered,
-                )
-            }
-        }
-    }
-}
-
-enum class LoginTabItem(@StringRes val titleResId: Int) : TabItem {
-    EMAIL(R.string.login_tab_email),
-    SSO(R.string.login_tab_sso);
-
-    override val title: UIText = UIText.StringResource(titleResId)
-}
-
-@PreviewMultipleThemes
-@Composable
-private fun PreviewLoginScreen() = WireTheme {
-    WireTheme {
-        MainLoginContent(
-            onBackPressed = {},
-            onSuccess = { _, _, _ -> },
-            onRemoveDeviceNeeded = {},
-            loginNavArgs = LoginNavArgs(),
-            loginEmailViewModel = loginEmailViewModel(LoginNavArgs()),
-            ssoLoginResult = null,
-            ssoCodeAutoLogin = null
-        )
     }
 }

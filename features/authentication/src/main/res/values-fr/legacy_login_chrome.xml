@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="login_tab_email">EMAIL</string>
+<string name="login_tab_sso">CONNEXION SSO</string>
+<string name="login_sso_code_label">CODE SSO OU EMAIL</string>
+<string name="login_error_invalid_sso_code_format">Veuillez entrer un code d’accès SSO valide</string>
+    <string name="login_title">Se connecter</string>
+</resources>

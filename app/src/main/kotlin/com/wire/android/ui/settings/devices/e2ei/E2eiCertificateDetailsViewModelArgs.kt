@@ -30,18 +30,6 @@ sealed interface E2eiCertificateDetailsViewModelArgs {
     ) : E2eiCertificateDetailsViewModelArgs
 }
 
-internal fun E2eiCertificateDetailsScreenNavArgs.toViewModelArgs(): E2eiCertificateDetailsViewModelArgs =
-    when (val details = certificateDetails) {
-        is E2EICertificateDetails.DuringLoginCertificateDetails ->
-            E2eiCertificateDetailsViewModelArgs.DuringLogin(details.certificate)
-
-        is E2EICertificateDetails.AfterLoginCertificateDetails ->
-            E2eiCertificateDetailsViewModelArgs.AfterLogin(
-                certificate = details.mlsClientIdentity.x509Identity?.certificate.orEmpty(),
-                userHandle = details.mlsClientIdentity.x509Identity?.handle?.handle.orEmpty(),
-            )
-    }
-
 internal fun E2eiCertificateDetailsRoute.toViewModelArgs(): E2eiCertificateDetailsViewModelArgs =
     when (val details = details) {
         is E2eiCertificateDetailsPayload.DuringLogin ->

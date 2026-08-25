@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Добро пожаловать в Wire, самую надежную платформу для совместной работы!</string>
+<string name="welcome_screen_carousel_item_message_2">Абсолютная уверенность в том, что ваша информация находится в безопасности</string>
+<string name="welcome_screen_carousel_item_message_3">Зашифрованные аудио- и видеоконференции с участием до 50 пользователей</string>
+<string name="welcome_screen_carousel_item_message_4">Защищенный обмен файлами с командами и клиентами</string>
+<string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
+    <string name="welcome_footer_text">Хотите пообщаться с друзьями и близкими?</string>
+    <string name="welcome_button_create_personal_account">Создать личный аккаунт</string>
+    <string name="content_description_welcome_screen_close_btn">Закрыть просмотр создания новой команды и авторизации</string>
+    <string name="create_team_not_supported_dialog_description">Вы не можете создать новую команду на локальном бэкэнде с поддержкой прокси в приложении.\nИспользуйте управление командой (%1$s) на этом бэкэнде.</string>
+    <string name="create_personal_account_not_supported_dialog_description">Нельзя создать личный аккаунт во внутреннем бэкэнде с поддержкой прокси.</string>
+</resources>

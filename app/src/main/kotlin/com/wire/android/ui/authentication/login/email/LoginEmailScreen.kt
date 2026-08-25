@@ -20,312 +20,75 @@ package com.wire.android.ui.authentication.login.email
 
 import android.content.Context
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.ui.common.R as commonR
-import com.wire.android.ui.authentication.login.DomainClaimedByOrg
-import com.wire.android.ui.authentication.login.LoginErrorDialog
+import com.wire.android.feature.authentication.R as AuthenticationR
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
-import com.wire.android.ui.authentication.login.toLoginDialogErrorData
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dialogs.EmailAlreadyInUseClaimedDomainDialog
-import com.wire.android.ui.common.textfield.DefaultEmailNext
-import com.wire.android.ui.common.textfield.DefaultPassword
-import com.wire.android.ui.common.focusedBorder
-import com.wire.android.ui.common.textfield.WireAutoFillType
-import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WireTextField
-import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
-import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun LoginEmailScreen(
     onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
     onRemoveDeviceNeeded: (UserId) -> Unit,
-    loginEmailViewModel: LoginEmailViewModel,
+    loginEmailViewModel: AppLoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState(),
     fillMaxHeight: Boolean = true,
 ) {
-    val scope = rememberCoroutineScope()
-
+    val context = LocalContext.current
     clearAutofillTree()
 
-    LoginEmailContent(
+    com.wire.android.ui.authentication.login.email.LoginEmailContent(
         scrollState = scrollState,
-        loginEmailState = loginEmailViewModel.loginState,
+        state = com.wire.android.ui.authentication.login.email.LoginEmailPresentationState(
+            loading = loginEmailViewModel.loginState.flowState is LoginState.Loading,
+            loginEnabled = loginEmailViewModel.loginState.loginEnabled,
+            userIdentifierEnabled = loginEmailViewModel.loginState.userIdentifierEnabled,
+            invalidUserIdentifier = loginEmailViewModel.loginState.flowState is LoginState.Error.TextFieldError.InvalidValue,
+            invalidProxyIdentifier = loginEmailViewModel.loginState.flowState is LoginState.Error.TextFieldError.InvalidValue,
+            showInvalidCredentialsError = loginEmailViewModel.loginState.showInvalidCredentialsError,
+            proxyAuthRequired = loginEmailViewModel.serverConfig.isProxyAuthRequired,
+            apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
+        ),
+        text = com.wire.android.ui.authentication.login.email.LoginEmailText(
+            wireCredentials = stringResource(AuthenticationR.string.label_wire_credentials),
+            userIdentifierLabel = stringResource(AuthenticationR.string.login_user_identifier_label),
+            userIdentifierDescription = stringResource(AuthenticationR.string.content_description_login_user_identifier_field),
+            invalidUserIdentifier = stringResource(AuthenticationR.string.login_error_invalid_user_identifier),
+            passwordDescription = stringResource(AuthenticationR.string.content_description_login_password_field),
+            invalidCredentials = stringResource(AuthenticationR.string.login_error_invalid_credentials_message),
+            forgotPassword = stringResource(AuthenticationR.string.login_forgot_password),
+            openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
+            proxyCredentials = stringResource(AuthenticationR.string.label_proxy_credentials),
+            proxyDescription = { host -> context.getString(AuthenticationR.string.proxy_credential_description, host) },
+            login = stringResource(R.string.label_login),
+            loggingIn = stringResource(R.string.label_logging_in),
+        ),
         userIdentifierTextState = loginEmailViewModel.userIdentifierTextState,
-        proxyIdentifierState = loginEmailViewModel.proxyIdentifierTextState,
-        proxyPasswordState = loginEmailViewModel.proxyPasswordTextState,
+        proxyIdentifierTextState = loginEmailViewModel.proxyIdentifierTextState,
+        proxyPasswordTextState = loginEmailViewModel.proxyPasswordTextState,
         passwordTextState = loginEmailViewModel.passwordTextState,
-        isProxyAuthRequired = loginEmailViewModel.serverConfig.isProxyAuthRequired,
-        apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
         onLoginButtonClick = loginEmailViewModel::login,
-        forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
-        scope = scope,
+        onForgotPasswordClick = { openForgotPasswordPage(context, loginEmailViewModel.serverConfig.forgotPassword) },
         fillMaxHeight = fillMaxHeight,
     )
 
     LoginEmailStateNavigationAndDialogs(
         state = loginEmailViewModel.loginState.flowState,
-        domainClaimedByOrg = loginEmailViewModel.loginNavArgs.loginPasswordPath?.isDomainClaimedByOrg,
+        domainClaimedByOrg = loginEmailViewModel.domainClaimedByOrg,
         onClearLoginErrors = loginEmailViewModel::clearLoginErrors,
         onSuccess = onSuccess,
         onRemoveDeviceNeeded = onRemoveDeviceNeeded,
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun LoginEmailContent(
-    scrollState: ScrollState,
-    userIdentifierTextState: TextFieldState,
-    passwordTextState: TextFieldState,
-    proxyIdentifierState: TextFieldState,
-    proxyPasswordState: TextFieldState,
-    loginEmailState: LoginEmailState,
-    isProxyAuthRequired: Boolean,
-    apiProxyUrl: String?,
-    onLoginButtonClick: () -> Unit,
-    forgotPasswordUrl: String,
-    scope: CoroutineScope,
-    fillMaxHeight: Boolean = true,
-) {
-    Column(
-        modifier = Modifier.let {
-            if (fillMaxHeight) it.fillMaxHeight() else it.wrapContentHeight()
-        }
-    ) {
-
-        Column(
-            modifier = Modifier
-                .let {
-                    if (fillMaxHeight) it.weight(weight = 1f, fill = true) else it
-                }
-                .verticalScroll(scrollState)
-                .padding(MaterialTheme.wireDimensions.spacing16x)
-                .semantics {
-                    testTagsAsResourceId = true
-                }
-        ) {
-            if (isProxyAuthRequired) {
-                Text(
-                    text = stringResource(R.string.label_wire_credentials),
-                    style = MaterialTheme.wireTypography.title03.copy(
-                        color = colorsScheme().secondaryText
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            vertical = MaterialTheme.wireDimensions.spacing16x
-                        )
-                        .semantics { heading() }
-                )
-            }
-            val invalidCredentialsErrorText = if (loginEmailState.showInvalidCredentialsError) {
-                stringResource(R.string.login_error_invalid_credentials_message)
-            } else {
-                null
-            }
-            UserIdentifierInput(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                userIdentifierState = userIdentifierTextState,
-                state = userIdentifierInputState(loginEmailState),
-            )
-            PasswordInput(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                passwordState = passwordTextState,
-                state = if (loginEmailState.showInvalidCredentialsError) {
-                    WireTextFieldState.Error()
-                } else {
-                    WireTextFieldState.Default
-                },
-            )
-            if (loginEmailState.showInvalidCredentialsError) {
-                Text(
-                    text = invalidCredentialsErrorText.orEmpty(),
-                    style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.error,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = MaterialTheme.wireDimensions.spacing16x)
-                        .testTag("invalidCredentialsError")
-                )
-            }
-            ForgotPasswordLabel(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-                forgotPasswordUrl = forgotPasswordUrl
-            )
-            if (isProxyAuthRequired) {
-                ProxyScreen(
-                    proxyIdentifierState = proxyIdentifierState,
-                    proxyPasswordState = proxyPasswordState,
-                    proxyState = loginEmailState,
-                    apiProxyUrl = apiProxyUrl,
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-        }
-
-        Surface(
-            color = MaterialTheme.wireColorScheme.surface,
-            modifier = Modifier.semantics {
-                testTagsAsResourceId = true
-            }
-        ) {
-            Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
-                LoginButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    loading = loginEmailState.flowState is LoginState.Loading,
-                    enabled = loginEmailState.loginEnabled,
-                ) {
-                    scope.launch {
-                        onLoginButtonClick()
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun LoginEmailStateNavigationAndDialogs(
-    state: LoginState,
-    domainClaimedByOrg: DomainClaimedByOrg?,
-    onClearLoginErrors: () -> Unit,
-    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
-    onRemoveDeviceNeeded: (UserId) -> Unit,
-) {
-    val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    val handleLoginStateNavigation: (LoginState) -> Unit = {
-        when (it) {
-            is LoginState.Success -> onSuccess(it.initialSyncCompleted, it.isE2EIRequired, it.userId)
-            is LoginState.Error.TooManyDevicesError -> {
-                onClearLoginErrors()
-                onRemoveDeviceNeeded(it.userId)
-            }
-            else -> {
-                /* do nothing */
-            }
-        }
-    }
-
-    LaunchedEffect(state) {
-        val isStateCompleted = state is LoginState.Success || state is LoginState.Error.TooManyDevicesError
-        if (isStateCompleted && domainClaimedByOrg is DomainClaimedByOrg.Claimed) {
-            emailAlreadyInUseClaimedDomainDialogState.show(domainClaimedByOrg)
-        } else {
-            handleLoginStateNavigation(state)
-        }
-    }
-
-    if (state is LoginState.Error.DialogError) {
-        LoginErrorDialog(state.toLoginDialogErrorData(), onClearLoginErrors)
-    }
-    EmailAlreadyInUseClaimedDomainDialog(
-        dialogState = emailAlreadyInUseClaimedDomainDialogState,
-        onDismiss = {
-            emailAlreadyInUseClaimedDomainDialogState.dismiss()
-            handleLoginStateNavigation(state)
-        }
-    )
-}
-
-@Composable
-private fun userIdentifierInputState(loginEmailState: LoginEmailState): WireTextFieldState = when {
-    !loginEmailState.userIdentifierEnabled -> WireTextFieldState.Disabled
-    loginEmailState.flowState is LoginState.Error.TextFieldError.InvalidValue ->
-        WireTextFieldState.Error(stringResource(R.string.login_error_invalid_user_identifier))
-    loginEmailState.showInvalidCredentialsError -> WireTextFieldState.Error()
-    else -> WireTextFieldState.Default
-}
-
-@Composable
-private fun UserIdentifierInput(
-    userIdentifierState: TextFieldState,
-    state: WireTextFieldState,
-    modifier: Modifier = Modifier,
-) {
-    WireTextField(
-        autoFillType = WireAutoFillType.Login,
-        textState = userIdentifierState,
-        placeholderText = stringResource(R.string.login_user_identifier_placeholder),
-        labelText = stringResource(R.string.login_user_identifier_label),
-        state = state,
-        semanticDescription = stringResource(R.string.content_description_login_user_identifier_field),
-        keyboardOptions = KeyboardOptions.DefaultEmailNext,
-        modifier = modifier.testTag("emailField"),
-        testTag = "userIdentifierInput"
-    )
-}
-
-@Composable
-private fun PasswordInput(passwordState: TextFieldState, state: WireTextFieldState, modifier: Modifier = Modifier) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    WirePasswordTextField(
-        textState = passwordState,
-        state = state,
-        keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
-        onKeyboardAction = { keyboardController?.hide() },
-        semanticDescription = stringResource(R.string.content_description_login_password_field),
-        modifier = modifier.testTag("passwordField"),
-        autoFill = true,
-        testTag = "PasswordInput"
     )
 }
 
@@ -335,35 +98,14 @@ fun ForgotPasswordLabel(
     modifier: Modifier = Modifier,
     textColor: Color = colorsScheme().primary,
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        val context = LocalContext.current
-        val interactionSource = remember { MutableInteractionSource() }
-        val isFocused = interactionSource.collectIsFocusedAsState()
-        Text(
-            text = stringResource(R.string.login_forgot_password),
-            style = MaterialTheme.wireTypography.body02.copy(
-                textDecoration = TextDecoration.Underline,
-                color = textColor,
-            ),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .focusedBorder(isFocused.value)
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null,
-                    role = Role.Button,
-                    onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
-                    onClickLabel = stringResource(commonR.string.content_description_open_link_label)
-                )
-                .testTag("Forgot password?")
-        )
-    }
-}
-
-private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) {
-    CustomTabsHelper.launchUrl(context, forgotPasswordUrl).also {
-        appLogger.d(forgotPasswordUrl)
-    }
+    val context = LocalContext.current
+    com.wire.android.ui.authentication.login.email.ForgotPasswordLink(
+        label = stringResource(AuthenticationR.string.login_forgot_password),
+        openLinkDescription = stringResource(commonR.string.content_description_open_link_label),
+        onClick = { openForgotPasswordPage(context, forgotPasswordUrl) },
+        modifier = modifier,
+        textColor = textColor,
+    )
 }
 
 @Composable
@@ -374,36 +116,17 @@ fun LoginButton(
     text: String = stringResource(R.string.label_login),
     loadingText: String = stringResource(R.string.label_logging_in),
     onClick: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Column(modifier = modifier) {
-        WirePrimaryButton(
-            text = if (loading) loadingText else text,
-            onClick = onClick,
-            state = if (enabled && !loading) WireButtonState.Default else WireButtonState.Disabled,
-            loading = loading,
-            interactionSource = interactionSource,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("loginButton")
-        )
-    }
-}
+) = com.wire.android.ui.authentication.login.email.LoginButtonContent(
+    loading = loading,
+    enabled = enabled,
+    onClick = onClick,
+    modifier = modifier,
+    text = text,
+    loadingText = loadingText,
+)
 
-@PreviewMultipleThemes
-@Composable
-fun PreviewLoginEmailScreen() = WireTheme {
-    LoginEmailContent(
-        scrollState = rememberScrollState(),
-        loginEmailState = LoginEmailState(),
-        userIdentifierTextState = TextFieldState(),
-        passwordTextState = TextFieldState(),
-        proxyIdentifierState = TextFieldState(),
-        proxyPasswordState = TextFieldState(),
-        isProxyAuthRequired = true,
-        apiProxyUrl = "",
-        onLoginButtonClick = { },
-        forgotPasswordUrl = "",
-        scope = rememberCoroutineScope()
-    )
+private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) {
+    CustomTabsHelper.launchUrl(context, forgotPasswordUrl).also {
+        appLogger.d(forgotPasswordUrl)
+    }
 }

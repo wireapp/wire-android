@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_button_create_team">Loo meeskond</string>
+    <string name="create_account_email_placeholder">jaan@näide.ee</string>
+    <string name="create_account_email_terms_dialog_title">Kasutustingimused</string>
+    <string name="create_account_email_label">E-POST</string>
+</resources>

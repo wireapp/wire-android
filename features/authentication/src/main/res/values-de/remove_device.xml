@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remove_device_title">Bitte ein Gerät entfernen</string>
+    <string name="remove_device_message">Entfernen Sie eines Ihrer anderen Geräte, um Wire
+        hier zu nutzen.
+    </string>
+    <string name="remove_device_label">IHRE GERÄTE</string>
+</resources>

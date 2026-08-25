@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_text">Securely chat with friends and family using Wire\'s public cloud server.</string>
+    <string name="create_team_content_title">Wire for Free</string>
+    <string name="create_team_text">Messaging for small organizations or single person consulting firms.\n</string>
+    <string name="create_team_learn_more">Learn more about plans and pricing</string>
+</resources>

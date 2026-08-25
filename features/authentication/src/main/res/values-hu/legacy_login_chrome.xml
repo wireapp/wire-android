@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="content_description_login_sso_code_field">adja meg SSO-kódját vagy Wire-e-mailjét</string>
+<string name="login_tab_email">E-MAIL</string>
+<string name="login_tab_sso">SSO BEJELENTKEZÉS</string>
+<string name="login_sso_code_label">SSO KÓD VAGY E-MAIL</string>
+<string name="login_error_invalid_sso_code_format">Érvényes SSO kód megadása</string>
+    <string name="login_title">Bejelentkezés</string>
+    <string name="content_description_login_back_btn">Vissza az új csapat létrehozása és bejelentkezés lapra</string>
+    <string name="content_description_login_user_identifier_field">adja meg e-mail-címét vagy felhasználónevét</string>
+    <string name="content_description_login_password_field">adja meg jelszavát</string>
+    <string name="sso_not_supported_dialog_description">Nem jelentkezhet be SSO-val proxyt támogató helyi kiszolgálón.</string>
+</resources>

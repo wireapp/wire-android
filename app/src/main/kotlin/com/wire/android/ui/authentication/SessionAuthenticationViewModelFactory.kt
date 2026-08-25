@@ -17,19 +17,20 @@
  */
 package com.wire.android.ui.authentication
 
-import com.wire.android.analytics.FinalizeRegistrationAnalyticsMetadataUseCase
-import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.AccountSwitchUseCase
-import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
+import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModelHostFactory
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
+import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.ui.authentication.devices.remove.KaliumRemoveDeviceGateway
+import com.wire.android.ui.authentication.devices.register.AndroidRegisterDeviceResendTimer
+import com.wire.android.ui.authentication.devices.register.KaliumRegisterDeviceGateway
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.util.ui.CountdownTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
@@ -38,7 +39,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import dev.zacsweers.metro.Inject
 
 /** Creates only ViewModels whose dependencies belong to one explicit session graph. */
@@ -57,28 +57,27 @@ class SessionAuthenticationViewModelFactory @Inject constructor(
     private val deleteSession: DeleteSessionUseCase,
     private val switchAccount: AccountSwitchUseCase,
     private val logout: LogoutUseCase,
-    private val validateUserHandle: ValidateUserHandleUseCase,
-    private val setUserHandle: SetUserHandleUseCase,
-    private val finalizeRegistrationAnalyticsMetadata: FinalizeRegistrationAnalyticsMetadataUseCase,
-    private val registrationAnalyticsManager: RegistrationAnalyticsManagerUseCase,
+    private val createAccountUsernameViewModelHostFactory: CreateAccountUsernameViewModelHostFactory,
 ) {
-    fun registerDeviceViewModel() = RegisterDeviceViewModel(
-        registerClientUseCase = getOrRegisterClient,
-        isPasswordRequired = isPasswordRequired,
-        userDataStore = userDataStoreProvider.getOrCreate(currentAccount),
-        getSelfUser = getSelfUser,
-        requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode,
-        resendCodeTimer = countdownTimer,
+    fun registerDeviceViewModel(): RegisterDeviceViewModel<com.wire.navigation.WireSessionId> = RegisterDeviceViewModel(
+        gateway = registerDeviceGateway(),
+        resendCodeTimer = AndroidRegisterDeviceResendTimer(countdownTimer),
     )
 
-    fun removeDeviceViewModel() = RemoveDeviceViewModel(
-        fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
-        deleteClientUseCase = deleteClient,
-        registerClientUseCase = getOrRegisterClient,
+    fun removeDeviceViewModel(): RemoveDeviceViewModel<Device> = RemoveDeviceViewModel(
+        gateway = KaliumRemoveDeviceGateway(
+            fetchSelfClientsFromRemote = fetchSelfClientsFromRemote,
+            deleteClient = deleteClient,
+            registerDeviceGateway = registerDeviceGateway(),
+        ),
+    )
+
+    private fun registerDeviceGateway() = KaliumRegisterDeviceGateway(
+        registerClient = getOrRegisterClient,
         isPasswordRequired = isPasswordRequired,
         userDataStore = userDataStoreProvider.getOrCreate(currentAccount),
         getSelfUser = getSelfUser,
-        requestSecondFactorVerificationCodeUseCase = requestSecondFactorVerificationCode,
+        requestSecondFactorVerificationCode = requestSecondFactorVerificationCode,
     )
 
     fun clearSessionViewModel(cancelUserId: UserId?) = ClearSessionViewModel(
@@ -89,10 +88,5 @@ class SessionAuthenticationViewModelFactory @Inject constructor(
         cancelUserId = cancelUserId,
     )
 
-    fun createAccountUsernameViewModel() = CreateAccountUsernameViewModel(
-        validateUserHandleUseCase = validateUserHandle,
-        setUserHandleUseCase = setUserHandle,
-        finalizeRegistrationAnalyticsMetadata = finalizeRegistrationAnalyticsMetadata,
-        registrationAnalyticsManager = registrationAnalyticsManager,
-    )
+    fun createAccountUsernameViewModel() = createAccountUsernameViewModelHostFactory.create()
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_error_invalid_credentials_title">Informazioni non valide</string>
+    <string name="login_error_invalid_credentials_message">Queste credenziali di accesso non sono corrette. Verifica le credenziali e riprova.</string>
+    <string name="login_error_user_already_logged_in_title">Account in uso</string>
+    <string name="login_error_user_already_logged_in_message">Hai gi&#224; effettuato l\'accesso con queste credenziali su questo dispositivo.</string>
+    <string name="login_sso_error_invalid_cookie_title">Cookie non valido!</string>
+    <string name="login_sso_error_invalid_cookie_message">La sessione non &#232; valida o &#232; scaduta! Prova a effettuare nuovamente l\'accesso.</string>
+    <string name="login_error_invalid_sso_code">Inserisci un codice SSO valido.</string>
+    <string name="error_socket_title">Informazioni non valide.</string>
+    <string name="error_socket_message">Le credenziali del proxy non sono corrette. Verifica i tuoi dettagli e riprova.</string>
+    <string name="sso_error_dialog_title">Impossibile effettuare l\'accesso con SSO</string>
+    <string name="sso_error_dialog_message">Riprova. Se il problema persiste, contatta l\'amministratore e fornisci questo codice:\n%d</string>
+</resources>

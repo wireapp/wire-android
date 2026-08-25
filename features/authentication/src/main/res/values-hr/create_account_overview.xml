@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_text">Sigurno razgovarajte s prijateljima i obitelji koristeći Wireov javni poslužitelj.</string>
+    <string name="create_team_text">Slanje poruka za male organizacije ili konzultantske tvrtke za jednu osobu.\n</string>
+    <string name="create_team_learn_more">Saznajte više o planovima i cijenama</string>
+</resources>

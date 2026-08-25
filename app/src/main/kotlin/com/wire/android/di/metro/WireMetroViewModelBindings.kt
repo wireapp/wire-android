@@ -29,6 +29,7 @@ import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewMod
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
+import com.wire.android.ui.e2eiEnrollment.KaliumE2EIEnrollmentGateway
 import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
@@ -48,7 +49,8 @@ import com.wire.android.ui.home.settings.appearance.CustomizationViewModel
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModel
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
-import com.wire.android.ui.initialsync.InitialSyncViewModel
+import com.wire.android.ui.authentication.initialsync.InitialSyncViewModel
+import com.wire.android.ui.initialsync.KaliumInitialSyncGateway
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModel
@@ -127,7 +129,7 @@ object WireMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelKey(InitialSyncViewModel::class)
-    fun initialSyncViewModel(viewModel: InitialSyncViewModel): ViewModel = viewModel
+    fun initialSyncViewModel(gateway: KaliumInitialSyncGateway): ViewModel = InitialSyncViewModel(gateway)
 
     @Provides
     @IntoMap
@@ -142,7 +144,8 @@ object WireMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelKey(E2EIEnrollmentViewModel::class)
-    fun e2EIEnrollmentViewModel(viewModel: E2EIEnrollmentViewModel): ViewModel = viewModel
+    fun e2EIEnrollmentViewModel(gateway: KaliumE2EIEnrollmentGateway): ViewModel =
+        E2EIEnrollmentViewModel(gateway)
 
     @Provides
     @IntoMap

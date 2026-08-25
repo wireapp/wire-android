@@ -88,8 +88,8 @@ class DeviceE2EINavigation3EntriesSourceTest {
 
     @Test
     fun givenRegisterDeviceCompletes_whenInspectingFlow_thenNavigationIsAppliedOnlyOnce() {
-        val screen = sourceFile(
-            "ui/authentication/devices/register/RegisterDeviceScreen.kt"
+        val screen = featureSourceFile(
+            "ui/authentication/devices/register/RegisterDeviceContent.kt"
         ).readText()
         val entries = sourceFile(
             "ui/settings/devices/DeviceE2EINavigation3Entries.kt"
@@ -107,8 +107,20 @@ class DeviceE2EINavigation3EntriesSourceTest {
     private fun sourceFile(relativePath: String): File {
         val projectDir = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
             .first { File(it, "app/src/main/kotlin").isDirectory }
-        return File(projectDir, "app/src/main/kotlin/com/wire/android/$relativePath").also {
-            assertTrue(it.isFile, "Missing source file $relativePath")
+        val appSource = File(projectDir, "app/src/main/kotlin/com/wire/android/$relativePath")
+        val authenticationSource = File(
+            projectDir,
+            "features/authentication/src/main/kotlin/com/wire/android/$relativePath",
+        )
+        return listOf(appSource, authenticationSource).firstOrNull(File::isFile)
+            ?: error("Missing source file $relativePath")
+    }
+
+    private fun featureSourceFile(relativePath: String): File {
+        val projectDir = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+            .first { File(it, "app/src/main/kotlin").isDirectory }
+        return File(projectDir, "features/authentication/src/main/kotlin/com/wire/android/$relativePath").also {
+            assertTrue(it.isFile, "Missing ${it.path}")
         }
     }
 }

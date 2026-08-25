@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_text">Chatta in modo sicuro con amici e familiari utilizzando il server cloud pubblico di Wire.</string>
+    <string name="create_team_content_title">Wire gratuito</string>
+    <string name="create_team_text">Messaggistica per piccole organizzazioni o per liberi professionisti.</string>
+    <string name="create_team_learn_more">Scopri di pi&#249; su piani e prezzi</string>
+</resources>

@@ -21,14 +21,7 @@ package com.wire.android.ui.authentication.devices.remove
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.common.error.CoreFailure
 
-data class RemoveDeviceState(
-    val deviceList: List<Device>,
-    val removeDeviceDialogState: RemoveDeviceDialogState = RemoveDeviceDialogState.Hidden,
-    val isLoadingClientsList: Boolean,
-    val error: RemoveDeviceError = RemoveDeviceError.None,
-    val is2FAInProgress: Boolean = false,
-)
-
+/** Shared app dialog/error models retained for the Device and formatting-aware dialog adapter. */
 sealed class RemoveDeviceDialogState {
     data object Hidden : RemoveDeviceDialogState()
     data class Visible(

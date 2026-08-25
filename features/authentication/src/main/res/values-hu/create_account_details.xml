@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_details_text">Adja meg személyes adatait:</string>
+    <string name="create_account_details_first_name_placeholder">Katalin</string>
+    <string name="create_account_details_first_name_label">UTÓNÉV</string>
+    <string name="create_account_details_last_name_placeholder">Minta</string>
+    <string name="create_account_details_last_name_label">VEZETÉKNÉV</string>
+    <string name="create_account_details_team_name_placeholder">Csodacsapat</string>
+    <string name="create_account_details_team_name_label">CSAPAT NEVE</string>
+</resources>

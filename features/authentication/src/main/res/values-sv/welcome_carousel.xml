@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_footer_text">Vill du chatta med vänner och familj?</string>
+    <string name="welcome_button_create_personal_account">Skapa ett personligt konto</string>
+</resources>

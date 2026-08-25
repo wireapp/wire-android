@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_error_invalid_credentials_title">Ungültige Information</string>
+    <string name="login_error_invalid_credentials_message">Diese Zugangsdaten sind nicht korrekt.&#32;
+        Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut.
+    </string>
+    <string name="login_error_user_already_logged_in_title">Benutzerkonto in Gebrauch</string>
+    <string name="login_error_user_already_logged_in_message">Sie sind bereits mit diesen Daten auf diesem Gerät angemeldet.</string>
+    <string name="login_sso_error_invalid_cookie_title">Ungültiger Cookie!</string>
+    <string name="login_sso_error_invalid_cookie_message">Die Sitzung ist ungültig oder abgelaufen! Bitte versuchen Sie erneut, sich anzumelden.</string>
+    <string name="sso_identity_changed_dialog_title">Identitätsanbieter geändert</string>
+    <string name="sso_identity_changed_dialog_message">Dieses Benutzerkonto wurde mit einem anderen Identitätsanbieter verwendet. Wenn Sie fortfahren, werden alle Unterhaltungen von diesem Gerät gelöscht.\nUm Ihre Daten zu behalten, wählen Sie „Abbrechen“ und melden Sie sich anschließend mit Ihrem bisherigen Identitätsanbieter an.</string>
+    <string name="sso_identity_changed_dialog_confirm">Daten löschen und fortfahren</string>
+    <string name="login_error_invalid_sso_code">Bitte geben Sie einen gültigen SSO-Code ein.</string>
+    <string name="login_error_request_2fa_with_handle_title">Anmeldung mit E-Mail-Adresse</string>
+    <string name="login_error_request_2fa_with_handle_message">Sie können Ihren Benutzernamen nicht verwenden, da die Zwei-Faktor-Authentifizierung aktiviert ist. Bitte melden Sie sich stattdessen mit Ihrer E-Mail-Adresse an.</string>
+    <string name="login_error_unauthorized_title">Nicht berechtigt</string>
+    <string name="login_error_unauthorized_message">Benutzerkonto ist nicht mehr zur Anmeldung berechtigt.</string>
+    <string name="login_error_pending_activation_title">Ausstehende Aktivierung</string>
+    <string name="login_error_pending_activation_message">Dieses Benutzerkonto ist noch nicht aktiviert. Bitte bestätigen Sie Ihre Angaben.</string>
+    <string name="error_socket_title">Ungültige Information</string>
+    <string name="error_socket_message">Die Proxy-Zugangsdaten sind nicht korrekt. Bitte überprüfen Sie Ihre Angaben und versuchen Sie es erneut.</string>
+    <string name="sso_error_dialog_title">Anmeldung mit SSO nicht möglich</string>
+    <string name="sso_error_dialog_message">Bitte erneut versuchen. Falls dies nicht hilft, wenden Sie sich an Ihren
+        Admin und geben diesen Code an: \n%d
+    </string>
+</resources>

@@ -49,7 +49,7 @@ class UtilityNavigation3SourceTest {
             .filter { it.startsWith("import ") }
             .toList()
 
-        assertEquals(6, Regex("""\) : SessionRoute""").findAll(source).count())
+        assertEquals(5, Regex("""\) : SessionRoute""").findAll(source).count())
         assertFalse(imports.any { it.startsWith("import android.") })
         assertFalse(imports.any { it.startsWith("import androidx.") })
         assertFalse(imports.any { it.startsWith("import com.ramcosta") })

@@ -28,11 +28,9 @@
     <string name="label_continue">Pokračovat</string>
     <string name="label_apply">Použít</string>
     <string name="label_save">Uložit</string>
-    <string name="label_get_started">Začínáme</string>
     <string name="label_remove">Odstranit</string>
     <string name="label_proceed">Pokračovat</string>
     <string name="label_leave">Odejít</string>
-    <string name="label_add_device">Přidat zařízení</string>
     <string name="label_learn_more">Dozvědět se více</string>
     <string name="label_removing">Odstraňování…</string>
     <string name="label_logging_in">Přihlašování…</string>

@@ -19,21 +19,15 @@
 package com.wire.android.ui.initialsync
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import com.wire.android.ui.common.SettingUpWireScreenContent
+import com.wire.android.ui.authentication.initialsync.InitialSyncRouteContent
 import com.wire.android.ui.initialSyncViewModel
 
 @Composable
 internal fun InitialSyncRouteScreen(
-    viewModel: InitialSyncViewModel = initialSyncViewModel(),
     onSyncCompleted: (shouldMoveToBackground: Boolean) -> Unit,
 ) {
-    val syncCompletionState = viewModel.syncCompletionState
-
-    SettingUpWireScreenContent()
-
-    LaunchedEffect(syncCompletionState) {
-        syncCompletionState ?: return@LaunchedEffect
-        onSyncCompleted(syncCompletionState.shouldMoveToBackground)
-    }
+    InitialSyncRouteContent(
+        viewModel = initialSyncViewModel(),
+        onSyncCompleted = onSyncCompleted,
+    )
 }

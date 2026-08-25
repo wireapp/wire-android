@@ -18,77 +18,59 @@
 
 package com.wire.android.ui.authentication.create.details
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import com.wire.android.R
+import com.wire.android.feature.authentication.R as AuthenticationR
+import com.wire.android.navigation.routes.auth.CreateAccountCodeRoute
+import com.wire.android.navigation.routes.auth.CreateAccountDetailsRoute
+import com.wire.android.ui.authentication.create.common.createAccountFlowPolicy
 import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
-import com.wire.android.ui.common.rememberBottomBarElevationState
-import com.wire.android.ui.common.rememberTopBarElevationState
-import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.textfield.DefaultPassword
-import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WireTextField
-import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 internal fun CreateAccountDetailsRouteScreen(
-    viewModel: CreateAccountDetailsViewModel,
+    route: CreateAccountDetailsRoute,
+    viewModel: CreateAccountDetailsViewModel<ServerConfig.Links, NetworkFailure>,
     onNavigateBack: () -> Unit,
-    onCodeRequested: (CreateAccountNavArgs) -> Unit,
+    onCodeRequested: (CreateAccountCodeRoute) -> Unit,
 ) {
     with(viewModel) {
+        val policy = route.type.createAccountFlowPolicy()
         LaunchedEffect(detailsState.success) {
             if (detailsState.success) {
                 onCodeRequested(
-                    createAccountNavArgs.copy(
-                        userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
+                    CreateAccountCodeRoute(
+                        type = route.type,
+                        registrationInfo = route.registrationInfo.copy(
                             firstName = firstNameTextState.text.toString().trim(),
                             lastName = lastNameTextState.text.toString().trim(),
                             password = passwordTextState.text.toString(),
                             teamName = teamNameTextState.text.toString().trim(),
-                        )
+                        ),
+                        customServerConfig = route.customServerConfig,
+                        flowId = route.flowId,
                     )
                 )
             }
         }
 
-        DetailsContent(
+        CreateAccountDetailsContent(
             state = detailsState,
+            title = stringResource(policy.titleResId),
+            showTeamName = policy.isTeam,
+            sharedText = CreateAccountDetailsSharedText(
+                passwordDescription = stringResource(R.string.create_account_details_password_description),
+                confirmPasswordLabel = stringResource(AuthenticationR.string.create_account_details_confirm_password_label),
+                invalidPasswordError = stringResource(AuthenticationR.string.create_account_details_password_error),
+                passwordsNotMatchingError = stringResource(AuthenticationR.string.create_account_details_password_not_matching_error),
+                continueLabel = stringResource(R.string.label_continue),
+            ),
             firstNameTextState = firstNameTextState,
             lastNameTextState = lastNameTextState,
             passwordTextState = passwordTextState,
@@ -97,209 +79,15 @@ internal fun CreateAccountDetailsRouteScreen(
             onBackPressed = onNavigateBack,
             onContinuePressed = ::onDetailsContinue,
             onErrorDismiss = ::onDetailsErrorDismiss,
-            serverConfig = serverConfig
-        )
-    }
-}
-
-@Composable
-private fun DetailsContent(
-    state: CreateAccountDetailsViewState,
-    firstNameTextState: TextFieldState,
-    lastNameTextState: TextFieldState,
-    passwordTextState: TextFieldState,
-    confirmPasswordTextState: TextFieldState,
-    teamNameTextState: TextFieldState,
-    onBackPressed: () -> Unit,
-    onContinuePressed: () -> Unit,
-    onErrorDismiss: () -> Unit,
-    serverConfig: ServerConfig.Links
-) {
-    val scrollState = rememberScrollState()
-    WireScaffold(
-        topBar = {
-            WireCenterAlignedTopAppBar(
-                elevation = scrollState.rememberTopBarElevationState().value,
-                title = stringResource(id = state.type.titleResId),
-                onNavigationPressed = onBackPressed,
-                subtitleContent = {
-                    if (serverConfig.isOnPremises) {
-                        ServerTitle(
-                            serverLinks = serverConfig,
-                            style = MaterialTheme.wireTypography.body01
-                        )
-                    }
-                }
-            )
-        },
-    ) { internalPadding ->
-        Column(
-            modifier = Modifier
-                .padding(internalPadding)
-                .fillMaxHeight()
-        ) {
-            val keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
-                autoCorrectEnabled = true,
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next,
-            )
-            val keyboardController = LocalSoftwareKeyboardController.current
-            val firstNameFocusRequester = remember { FocusRequester() }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-            ) {
-
-                Text(
-                    text = stringResource(R.string.create_personal_account_details_text),
-                    style = MaterialTheme.wireTypography.body01,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = MaterialTheme.wireDimensions.spacing16x,
-                            vertical = MaterialTheme.wireDimensions.spacing24x
-                        )
-                )
-
-                WireTextField(
-                    textState = firstNameTextState,
-                    placeholderText = stringResource(R.string.create_account_details_first_name_placeholder),
-                    labelText = stringResource(R.string.create_account_details_first_name_label),
-                    labelMandatoryIcon = true,
-                    state = WireTextFieldState.Default,
-                    keyboardOptions = keyboardOptions,
-                    modifier = Modifier
-                        .padding(
-                            start = MaterialTheme.wireDimensions.spacing16x,
-                            end = MaterialTheme.wireDimensions.spacing16x,
-                            bottom = MaterialTheme.wireDimensions.spacing16x
-                        )
-                        .focusRequester(firstNameFocusRequester)
-                        .testTag("firstName"),
-                )
-
-                WireTextField(
-                    textState = lastNameTextState,
-                    placeholderText = stringResource(R.string.create_account_details_last_name_placeholder),
-                    labelText = stringResource(R.string.create_account_details_last_name_label),
-                    labelMandatoryIcon = true,
-                    state = WireTextFieldState.Default,
-                    keyboardOptions = keyboardOptions,
-                    modifier = Modifier
-                        .padding(
-                            start = MaterialTheme.wireDimensions.spacing16x,
-                            end = MaterialTheme.wireDimensions.spacing16x,
-                            bottom = MaterialTheme.wireDimensions.spacing16x
-                        )
-                        .testTag("lastName"),
-                )
-
-                if (state.type == CreateAccountFlowType.CreateTeam) {
-                    WireTextField(
-                        textState = teamNameTextState,
-                        placeholderText = stringResource(R.string.create_account_details_team_name_placeholder),
-                        labelText = stringResource(R.string.create_account_details_team_name_label),
-                        labelMandatoryIcon = true,
-                        state = WireTextFieldState.Default,
-                        keyboardOptions = keyboardOptions,
-                        modifier = Modifier
-                            .padding(
-                                start = MaterialTheme.wireDimensions.spacing16x,
-                                end = MaterialTheme.wireDimensions.spacing16x,
-                                bottom = MaterialTheme.wireDimensions.spacing16x
-                            )
-                            .testTag("teamName"),
+            subtitleContent = {
+                if (serverConfig.isOnPremises) {
+                    ServerTitle(
+                        serverLinks = serverConfig,
+                        style = MaterialTheme.wireTypography.body01,
                     )
                 }
-
-                WirePasswordTextField(
-                    textState = passwordTextState,
-                    labelMandatoryIcon = true,
-                    descriptionText = stringResource(R.string.create_account_details_password_description),
-                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
-                    modifier = Modifier
-                        .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-                        .testTag("password"),
-                    state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError) {
-                        WireTextFieldState.Error()
-                    } else {
-                        WireTextFieldState.Default
-                    },
-                    autoFill = false,
-                )
-
-                WirePasswordTextField(
-                    textState = confirmPasswordTextState,
-                    labelText = stringResource(R.string.create_account_details_confirm_password_label),
-                    labelMandatoryIcon = true,
-                    keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Done),
-                    onKeyboardAction = { keyboardController?.hide() },
-                    modifier = Modifier
-                        .padding(
-                            horizontal = MaterialTheme.wireDimensions.spacing16x,
-                            vertical = MaterialTheme.wireDimensions.spacing16x
-                        )
-                        .testTag("confirmPassword"),
-                    state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError) {
-                        when (state.error) {
-                        CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError ->
-                            WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))
-
-                        CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError ->
-                            WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_error))
-                    }
-                    } else {
-                        WireTextFieldState.Default
-                    },
-                    autoFill = false,
-                )
-            }
-
-            LaunchedEffect(Unit) {
-                firstNameFocusRequester.requestFocus()
-                keyboardController?.show()
-            }
-
-            Surface(
-                shadowElevation = scrollState.rememberBottomBarElevationState().value,
-                color = MaterialTheme.wireColorScheme.background
-            ) {
-                WirePrimaryButton(
-                    modifier = Modifier
-                        .padding(MaterialTheme.wireDimensions.spacing16x)
-                        .fillMaxWidth(),
-                    text = stringResource(R.string.label_continue),
-                    onClick = onContinuePressed,
-                    fillMaxWidth = true,
-                    loading = state.loading,
-                    state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
-                )
-            }
-        }
+            },
+            genericFailureContent = { failure, onDismiss -> CoreFailureErrorDialog(failure, onDismiss) },
+        )
     }
-    if (state.error is CreateAccountDetailsViewState.DetailsError.DialogError.GenericError) {
-        CoreFailureErrorDialog(state.error.coreFailure, onErrorDismiss)
-    }
-}
-
-@Composable
-@PreviewMultipleThemes
-fun PreviewCreateAccountDetailsScreen() = WireTheme {
-    DetailsContent(
-        state = CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam),
-        firstNameTextState = TextFieldState(),
-        lastNameTextState = TextFieldState(),
-        passwordTextState = TextFieldState(),
-        confirmPasswordTextState = TextFieldState(),
-        teamNameTextState = TextFieldState(),
-        onBackPressed = {},
-        onContinuePressed = {},
-        onErrorDismiss = {},
-        serverConfig = ServerConfig.DEFAULT
-    )
 }

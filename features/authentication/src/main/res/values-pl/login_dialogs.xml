@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_error_invalid_credentials_title">Niepoprawne dane logowania</string>
+    <string name="login_error_invalid_credentials_message">Podane dane logowania s&#261; niepoprawne. Sprawd&#378; swoje dane i spr&#243;buj ponownie.</string>
+    <string name="login_error_user_already_logged_in_title">Konto ju&#380; zalogowane</string>
+    <string name="login_error_user_already_logged_in_message">Jeste&#347; ju&#380; zalogowany tymi danymi na tym urz&#261;dzeniu.</string>
+    <string name="login_sso_error_invalid_cookie_title">Nieprawid&#322;owy plik cookie!</string>
+    <string name="login_sso_error_invalid_cookie_message">Sesja jest niewa&#380;na lub wygas&#322;a! Spr&#243;buj ponownie si&#281; zalogowa&#263;.</string>
+    <string name="login_error_invalid_sso_code">Wpisz poprawny kod SSO.</string>
+    <string name="error_socket_title">Nieprawid&#322;owa informacja</string>
+    <string name="error_socket_message">Podane dane uwierzytelniaj&#261;ce s&#261; nieprawid&#322;owe. Sprawd&#378; swoje dane i spr&#243;buj ponownie.</string>
+    <string name="sso_error_dialog_title">Nie mo&#380;na zalogowa&#263; si&#281; za pomoc&#261; SSO</string>
+    <string name="sso_error_dialog_message">Spr&#243;buj ponownie. Je&#347;li to nie pomo&#380;e, skontaktuj si&#281; z administratorem i podaj ten kod:
+%d</string>
+</resources>

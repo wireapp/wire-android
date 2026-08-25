@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remove_device_title">Remove a Device</string>
+    <string name="remove_device_message">Remove one of your other devices to start using Wire on
+        this one.
+    </string>
+    <string name="remove_device_label">YOUR DEVICES</string>
+</resources>

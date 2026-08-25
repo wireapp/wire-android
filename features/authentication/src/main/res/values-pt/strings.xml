@@ -1,0 +1,25 @@
+<resources>
+    <string name="create_account_code_resend">Reenviar código</string>
+    <string name="second_factor_authentication_title">Verifique sua conta</string>
+    <string name="second_factor_authentication_instructions_label">Por favor, verifique seu email %1$s para o código de verificação e insira-o abaixo.</string>
+    <string name="second_factor_code_error">Código inválido ou tentativas máximas excedidas. Por favor, tente novamente ou solicite outro código.</string>
+    <string name="label_get_started">Começar</string>
+    <string name="create_personal_account_summary_title">Conta Pessoal Criada</string>
+    <string name="create_personal_account_summary_text">Você criou sua conta pessoal com sucesso. Comece a se comunicar com segurança - onde quer que esteja!</string>
+    <string name="create_team_summary_title">Equipe Criada</string>
+    <string name="create_team_summary_text">Sua conta de equipe foi criada com sucesso. Comece a se comunicar com segurança - onde quer que esteja!</string>
+    <string name="content_description_enterprise_login_email_field">digite seu e-mail ou código SSO</string>
+    <string name="enterprise_login_welcome">Digite seu e-mail para iniciar!</string>
+    <string name="enterprise_login_password_title">Digite sua senha para fazer login</string>
+    <string name="enterprise_login_credentials_title">Insira suas credenciais para fazer login</string>
+    <string name="enterprise_login_next">Próximo</string>
+    <string name="enterprise_login_user_identifier_label">E-MAIL OU CÓDIGO DE SSO</string>
+    <string name="enterprise_login_user_identifier_label_placeholder">Digite o e-mail ou código SSO</string>
+    <string name="enterprise_login_error_invalid_user_identifier">Por favor, insira um e-mail ou código SSO válido</string>
+    <string name="enterprise_login_create_account_label">Não tem uma conta Wire?</string>
+    <string name="enterprise_login_verification_code_title">Você tem um e-mail</string>
+    <string name="label_add_device">Adicionar dispositivo</string>
+    <string name="register_device_title">Adicionar este dispositivo</string>
+    <string name="register_device_text">Digite sua senha para usar o Wire neste dispositivo.</string>
+    <string name="devices_loading_error">Houve um erro ao tentar obter os dispositivos. Verifique sua conexão com a Internet e tente novamente.</string>
+</resources>

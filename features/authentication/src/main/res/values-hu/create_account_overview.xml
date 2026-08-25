@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_text">Biztonságos csevegés barátokkal és családtagokkal a Wire nyilvános kiszolgálóját használva.</string>
+    <string name="create_team_content_title">Ingyenes Wire</string>
+    <string name="create_team_text">Üzenetküldés kis szervezetek vagy egyszemélyes tanácsadó cégek számára.\n</string>
+    <string name="create_team_learn_more">Tudjon meg többet csomagjainkról és árazásunkról</string>
+</resources>

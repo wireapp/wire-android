@@ -28,11 +28,9 @@
     <string name="label_continue">Продолжить</string>
     <string name="label_apply">Применить</string>
     <string name="label_save">Сохранить</string>
-    <string name="label_get_started">Начать</string>
     <string name="label_remove">Удалить</string>
     <string name="label_proceed">Продолжить</string>
     <string name="label_leave">Покинуть</string>
-    <string name="label_add_device">Добавить устройство</string>
     <string name="label_learn_more">Подробнее</string>
     <string name="label_learn_more_about_mls">Узнайте больше о MLS</string>
     <string name="label_removing">Удаление...</string>
@@ -223,14 +221,7 @@
     <string name="content_description_self_profile_new_account_btn">Создать новую команду или личный аккаунт или авторизоваться</string>
     <string name="content_description_self_profile_manage_team_btn">Управлять командой</string>
     <string name="content_description_change_picture_back_btn">Вернуться к обзору вашего профиля</string>
-    <string name="content_description_welcome_screen_close_btn">Закрыть просмотр создания новой команды и авторизации</string>
-    <string name="content_description_login_back_btn">Вернуться к просмотру создания новой команды и авторизации</string>
-    <string name="content_description_login_user_identifier_field">введите свой email или псевдоним</string>
-    <string name="content_description_login_email_field">введите свой email</string>
-    <string name="content_description_enterprise_login_email_field">введите свой email или или код SSO</string>
     <string name="content_description_backend_config_camera_button">Сканировать QR-код</string>
-    <string name="content_description_login_password_field">введите свой пароль</string>
-    <string name="content_description_login_sso_code_field">введите свой код SSO или Wire email</string>
     <string name="content_description_whats_new_welcome_item">Добро пожаловать в новое приложение Wire для Android, ссылка на страницу поддержки</string>
     <string name="content_description_whats_new_all_releases_item">Все заметки о выпуске для Android, ссылка на обзор заметок о выпуске</string>
     <string name="content_description_whats_new_release_item">%1$s, %2$s, ссылка на подробности о релизе</string>
@@ -276,15 +267,7 @@
     <string name="settings_backup_create">Создать резервную копию</string>
     <string name="settings_backup_restore">Восстановить из резервной копии</string>
     <!-- Welcome -->
-    <string name="welcome_footer_text">Хотите пообщаться с друзьями и близкими?</string>
     <string name="welcome_footer_link">Создайте личный аккаунт бесплатно</string>
-    <string name="welcome_button_create_personal_account">Создать личный аккаунт</string>
-    <string name="welcome_screen_carousel_item_message_1">Добро пожаловать в Wire, самую надежную платформу для совместной работы!</string>
-    <string name="welcome_screen_carousel_item_message_2">Абсолютная уверенность в том, что ваша информация находится в безопасности</string>
-    <string name="welcome_screen_carousel_item_message_3">Зашифрованные аудио- и видеоконференции с участием до 50 пользователей</string>
-    <string name="welcome_screen_carousel_item_message_4">Защищенный обмен файлами с командами и клиентами</string>
-    <string name="welcome_screen_carousel_item_message_5">Компания Wire прошла независимый аудит и соответствует требованиям ISO, CCPA, GDPR, SOX</string>
-    <string name="welcome_button_create_team">Создать команду</string>
     <string name="server_details_dialog_body">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s</string>
     <string name="server_details_dialog_body_with_proxy">Название бэкенда:\n%1$s\n\nURL бэкенда:\n%2$s\n\nURL прокси:\n%3$s\n\nПрокси аутентификации:\n%4$s</string>
     <string name="server_details_dialog_title">Внутренний бэкэнд</string>
@@ -297,8 +280,6 @@
     <string name="api_versioning_server_version_not_supported_title">Версия сервера не поддерживается</string>
     <string name="api_versioning_server_version_not_supported_message">Ваш сервер Wire нуждается в обновлении. Пожалуйста, сообщите об этом вашему системному администратору.</string>
     <!-- Migration -->
-    <string name="migration_title">Настройка Wire</string>
-    <string name="migration_message">Пожалуйста, подождите, пока мы настроим приложение для вас</string>
     <string name="migration_message_unknown">Пожалуйста, подождите, пока мы перенесем ваши данные</string>
     <string name="migration_accounts_message">Миграция ваших учетных записей...</string>
     <string name="migration_messages_message">Перенос ваших сообщений...</string>
@@ -312,51 +293,10 @@
     <string name="migration_cancel_title">Отменить миграцию</string>
     <string name="migration_cancel_message">Вы уверены, что хотите закрыть приложение и отменить выполняющуюся миграцию?</string>
     <!-- Enterprise Login -->
-    <string name="enterprise_login_welcome">Введите ваш email, чтобы начать!</string>
-    <string name="enterprise_login_password_title">Введите пароль для входа</string>
-    <string name="enterprise_login_credentials_title">Введите ваши учетные данные для входа</string>
-    <string name="enterprise_login_next">Вперед</string>
-    <string name="enterprise_login_user_identifier_label">EMAIL ИЛИ КОД SSO</string>
-    <string name="enterprise_login_user_identifier_label_placeholder">Введите email или код SSO</string>
-    <string name="enterprise_login_error_invalid_user_identifier">Пожалуйста, введите действительный email или код доступа SSO</string>
-    <string name="enterprise_login_create_account_label">У вас нет аккаунта Wire?</string>
-    <string name="enterprise_login_create_account_text_button">Создать аккаунт или команду</string>
     <string name="enterprise_login_on_prem_welcome_title">Приветствуем вас в Wire Enterprise для %s!</string>
-    <string name="enterprise_login_verification_code_title">Вам пришло письмо</string>
     <!-- Login -->
-    <string name="login_title">Войти</string>
-    <string name="login_forgot_password">Забыли пароль?</string>
-    <string name="login_user_identifier_placeholder">maria@example.com или maria.ivanova</string>
-    <string name="login_email_placeholder">maria@example.com</string>
-    <string name="login_email_label">EMAIL</string>
-    <string name="login_user_identifier_label">EMAIL ИЛИ ПСЕВДОНИМ</string>
-    <string name="login_proxy_identifier_label">PROXY EMAIL ИЛИ ПСЕВДОНИМ</string>
-    <string name="login_error_invalid_credentials_title">Неверная информация</string>
-    <string name="login_error_invalid_credentials_message">Эти учетные данные неверны. 
-        Проверьте их и повторите попытку.
-    </string>
-    <string name="login_error_invalid_user_identifier">Адрес email или псевдоним неверны. Пожалуйста, проверьте и повторите попытку.</string>
-    <string name="login_error_invalid_email">Адрес email неверен. Пожалуйста, проверьте и повторите попытку.</string>
-    <string name="login_error_user_already_logged_in_title">Используемая учетная запись</string>
-    <string name="login_error_user_already_logged_in_message">Вы уже авторизованы с этими учетными данными на данном устройстве.</string>
-    <string name="login_sso_error_invalid_cookie_title">Неверный cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">Сессия недействительна или истекла! Пожалуйста, попробуйте авторизоваться еще раз.</string>
-    <string name="sso_identity_changed_dialog_title">Провайдер идентификации изменен</string>
-    <string name="sso_identity_changed_dialog_message">Этот аккаунт использовался с другим провайдером услуг аутентификации. Если вы продолжите, все беседы с этого устройства будут удалены.\nЧтобы сохранить свои данные, нажмите Отмена, а затем авторизуйтесь с помощью прежнего провайдера услуг аутентификации.</string>
-    <string name="sso_identity_changed_dialog_confirm">Удалить данные и продолжить</string>
     <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">ПАРОЛЬ</string>
-    <string name="login_tab_email">EMAIL</string>
-    <string name="login_tab_sso">ЛОГИН SSO</string>
-    <string name="login_sso_code_label">КОД SSO ИЛИ EMAIL</string>
-    <string name="login_error_invalid_sso_code">Пожалуйста, введите действительный код доступа SSO.</string>
-    <string name="login_error_invalid_sso_code_format">Введите действительный код доступа SSO</string>
-    <string name="login_error_request_2fa_with_handle_title">Войти c email</string>
-    <string name="login_error_request_2fa_with_handle_message">Вы не можете использовать псевдоним, поскольку активирована двухфакторная аутентификация. Пожалуйста, авторизуйтесь, используя свой адрес email.</string>
-    <string name="login_error_unauthorized_title">Неавторизован</string>
-    <string name="login_error_unauthorized_message">У этого аккаунта истек срок действия авторизации.</string>
-    <string name="login_error_pending_activation_title">Ожидание активации</string>
-    <string name="login_error_pending_activation_message">Аккаунт, к которому вы пытаетесь получить доступ, ожидает активации. Пожалуйста, проверьте свои данные.</string>
     <string name="deleted_user_error_title">Удаленный аккаунт</string>
     <string name="deleted_user_error_message">Вы деавторизованы, поскольку ваша учетная запись была
         удалена.
@@ -372,15 +312,7 @@
     <string name="conversation_history_wipe_explanation">В соответствии с настройками безопасности
         вашей команды история бесед также была удалена.</string>
     <!-- Second Factor Authentication -->
-    <string name="second_factor_authentication_title">Подтвердите учетную запись</string>
-    <string name="second_factor_authentication_instructions_label">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
-    <string name="second_factor_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
     <!-- Remove Device -->
-    <string name="remove_device_title">Удалить устройство</string>
-    <string name="remove_device_message">Удалите одно из ваших устройств, чтобы начать использовать Wire
-        на этом.
-    </string>
-    <string name="remove_device_label">ВАШИ УСТРОЙСТВА</string>
     <string name="remove_device_id_and_time_label">Proteus ID: %1$s\nДобавлено: %2$s</string>
     <string name="remove_device_id_and_time_label_active_label">Proteus ID: %1$s\nДобавлено: %2$s\nАктивность: %3$s</string>
     <string name="remove_device_id_label">Proteus ID: %1$s</string>
@@ -400,8 +332,6 @@
     <string name="e2ei_certificat_status_revoked">Отозван</string>
     <string name="e2ei_certificat_status_not_activated">Не активирован</string>
     <!-- Register Device -->
-    <string name="register_device_title">Добавить это устройство</string>
-    <string name="register_device_text">Введите пароль для использования Wire на этом устройстве.</string>
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Удалить сообщение?</string>
     <string name="delete_message_dialog_message">После удаления сообщения у себя, оно останется видимым только у других участников.\n\nЕсли удалить сообщение у всех, оно будет удалено у всех участников.\n\nУдаленное сообщение не может быть восстановлено.</string>
@@ -415,71 +345,9 @@
     <string name="label_quote_invalid_or_not_found">Вы не можете видеть это сообщение</string>
     <string name="label_quote_original_message_is_a_picture">Изображение</string>
     <!-- Create Account -->
-    <string name="create_account_selector_title">Как вы будете использовать Wire?</string>
-    <string name="create_account_selector_team_title">Для совместной работы</string>
-    <string name="create_account_selector_team_subtitle">Работайте безопасно вместе со своей командой.</string>
-    <string name="create_account_selector_team_highlight_one">Общайтесь с коллегами и делитесь документами через одно приложение</string>
-    <string name="create_account_selector_team_highlight_two">Начните бесплатно, улучшите в любое время</string>
-    <string name="create_account_selector_personal_title">Для частного использования</string>
-    <string name="create_account_selector_personal_subtitle">Общаться с друзьями и близкими.</string>
-    <string name="create_account_selector_personal_highlight_one">Отправлять сообщения и делиться фотографиями</string>
-    <string name="create_account_selector_personal_highlight_two">Всегда бесплатно</string>
-    <string name="create_personal_account_title">Создать личный аккаунт</string>
-    <string name="create_personal_account_summary_title">Личный аккаунт создан</string>
-    <string name="create_personal_account_text">Безопасное общение с друзьями и близкими с использованием публичного облачного сервера Wire.</string>
-    <string name="create_personal_account_email_text">Введите ваш email, чтобы начать пользоваться самой надежной платформой для совместной работы.</string>
-    <string name="create_personal_account_details_text">Введите ваши персональные данные:</string>
-    <string name="create_personal_account_summary_text">Вы успешно создали свой личный аккаунт. Начните общаться защищенно - где бы вы ни находились!</string>
-    <string name="create_team_title">Создать команду</string>
-    <string name="create_team_summary_title">Команда создана</string>
-    <string name="create_team_content_title">Wire Free</string>
-    <string name="create_team_text">Обмен сообщениями для небольших организаций или консалтинговых фирм, состоящих из одного человека.\n</string>
-    <string name="create_team_learn_more">Узнайте больше о тарифах и ценах</string>
-    <string name="create_team_email_text">Введите свой email для создания команды:</string>
     <string name="create_team_details_text">Введите свой email для создания команды:</string>
-    <string name="create_team_summary_text">Вы успешно создали аккаунт своей команды. Начните общаться защищенно - где бы вы ни находились!</string>
-    <string name="create_account_email_placeholder">maria@example.com</string>
-    <string name="create_account_email_label">EMAIL</string>
-    <string name="create_account_email_footer_text">Уже зарегистрированы? </string>
-    <string name="create_account_email_terms_dialog_title">Условия использования</string>
-    <string name="create_account_email_terms_dialog_text">Нажимая Продолжить, вы принимаете наши Условия использования и Политику конфиденциальности.</string>
-    <string name="create_account_email_share_anonymous_data_label">Я согласен делиться анонимными данными об использовании. Все подробности вы найдете в нашей</string>
-    <string name="create_account_email_share_anonymous_data_link_label">Политике конфиденциальности</string>
-    <string name="create_account_email_share_anonymous_data_optional_label">(Необязательно)</string>
-    <string name="create_account_email_backlink_to_team_label">Хотите сотрудничать в команде?</string>
-    <string name="create_account_email_terms_dialog_view_policy">Ознакомиться с Условиями использования и Политикой конфиденциальности</string>
-    <string name="create_account_email_already_in_use_error">Указанный вами адрес электронной почты уже зарегистрирован.</string>
-    <string name="create_account_email_blacklisted_error">Ваш email был признан недоверенным, например, из-за отклонения спам-фильтром.</string>
-    <string name="create_account_email_invalid_error">Пожалуйста, введите email в корректном формате.</string>
-    <string name="create_account_email_domain_blocked_error">Вы не можете создать аккаунт, поскольку ваш почтовый домен целенаправленно заблокирован.</string>
-    <string name="create_account_details_first_name_placeholder">Maria</string>
-    <string name="create_account_details_name_placeholder">Введите свое имя</string>
-    <string name="create_account_details_password_placeholder">Введите пароль</string>
-    <string name="create_account_details_password_confirm_placeholder">Подтвердите пароль</string>
-    <string name="create_account_details_name_label">ИМЯ</string>
-    <string name="create_account_details_first_name_label">ИМЯ</string>
-    <string name="create_account_details_last_name_placeholder">Ivanova</string>
-    <string name="create_account_details_last_name_label">ФАМИЛИЯ</string>
-    <string name="create_account_details_team_name_placeholder">Super Team</string>
-    <string name="create_account_details_team_name_label">НАЗВАНИЕ КОМАНДЫ</string>
     <string name="create_account_details_password_description">Используйте как минимум 8 символов, включая одну строчную букву, одну заглавную букву, цифру и специальный символ.</string>
-    <string name="create_account_details_password_error">Неверный пароль</string>
-    <string name="create_account_details_password_not_matching_error">Пароли не совпадают</string>
-    <string name="create_account_details_confirm_password_label">ПОДТВЕРДИТЬ ПАРОЛЬ</string>
-    <string name="create_account_code_text">Пожалуйста, введите ниже код проверки, отправленный на ваш email %1$s.</string>
-    <string name="create_account_code_resend">Отправить код еще раз</string>
-    <string name="create_account_code_error">Неверный код или превышено максимальное количество попыток. Повторите попытку или запросите другой код</string>
-    <string name="create_account_code_error_title">Неверная информация</string>
-    <string name="create_account_code_error_team_members_limit_reached">Эта команда достигла лимита участников.</string>
-    <string name="create_account_code_error_personal_account_creation_restricted">Данная версия приложения не позволяет создавать личные аккаунты.</string>
-    <string name="create_account_code_error_team_creation_restricted">Данная версия приложения не позволяет создавать команды.</string>
     <string name="create_account_username_title">Ваш псевдоним</string>
-    <string name="create_account_username_placeholder">maria.ivanova</string>
-    <string name="create_account_username_label">ПСЕВДОНИМ</string>
-    <string name="create_account_set_username_title">Задать псевдоним</string>
-    <string name="create_account_username_text">Введите свой псевдоним. Это поможет другим найти вас в Wire и связаться.</string>
-    <string name="create_account_username_taken_error">Этот псевдоним уже занят. Пожалуйста, выберите другой.</string>
-    <string name="create_account_username_description">Минимум 2 символа. Только a-z, 0-9, “_”, “-” и “.”</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">ПРОПУЩЕННЫЕ ВЫЗОВЫ</string>
     <string name="calls_label_calls_history">ИСТОРИЯ ЗВОНКОВ</string>
@@ -895,8 +763,6 @@
     <string name="error_unknown_message">Повторите попытку</string>
     <string name="error_server_miscommunication_title">Ошибка сервера</string>
     <string name="error_server_miscommunication_message">Повторите попытку</string>
-    <string name="error_socket_title">Неверная информация</string>
-    <string name="error_socket_message">Учетные данные прокси-сервера неверны. Проверьте свои данные и повторите попытку.</string>
     <string name="error_no_network_title">Ожидание сети</string>
     <string name="error_no_network_message">Проверьте подключение к интернету и повторите попытку</string>
     <string name="error_downloading_self_user_profile_picture">Произошла ошибка при загрузке изображения вашего профиля. Пожалуйста, проверьте подключение к интернету</string>
@@ -1049,10 +915,6 @@
         папку загрузок. Пожалуйста, проверьте подключение к интернету и повторите попытку
     </string>
     <!--sso dialog-->
-    <string name="sso_error_dialog_title">Невозможно авторизоваться с помощью SSO</string>
-    <string name="sso_error_dialog_message">Пожалуйста, попробуйте еще раз. Если это не помогло, свяжитесь с вашим
-        администратором и сообщите этот код:\n%d\"
-    </string>
     <string name="asset_download_dialog_default_title">Загрузить файл</string>
     <string name="empty_conversation_label">Безымянная беседа</string>
     <!--prohibited asset messages -->
@@ -1176,7 +1038,6 @@
     <string name="devices_title">Ваши устройства</string>
     <string name="current_device_label">Текущее устройство</string>
     <string name="other_devices_label">Другие устройства</string>
-    <string name="devices_loading_error">При попытке получить данные об устройствах возникла ошибка. Пожалуйста, проверьте подключение к интернету и повторите попытку.</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
         <item quantity="one">активен один аккаунт</item>
@@ -1295,17 +1156,10 @@
     <string name="conversation_content_delete_failure">Не удалось удалить контент беседы</string>
     <string name="group_label">группы</string>
     <string name="conversation_label">беседа</string>
-    <string name="proxy_credential_description">Этот бэкэнд настроен на использование следующего прокси: %1$s</string>
-    <string name="label_proxy_credentials">НАСТРОЙКИ PROXY</string>
-    <string name="label_proxy_password">ПАРОЛЬ PROXY</string>
-    <string name="label_wire_credentials">НАСТРОЙКИ WIRE</string>
     <string name="dialog_clear_content_title">Очистить контент?</string>
     <string name="dialog_clear_content_option">Очистить контент</string>
     <string name="dialog_clear_content_text">Будет выполнена очистка беседы на всех ваших устройствах. Вы по-прежнему будете участником %1$s и будете иметь доступ ко всем новым действиям %1$s</string>
     <string name="not_supported_dialog_title">Не поддерживается</string>
-    <string name="sso_not_supported_dialog_description">Нельзя авторизоваться через SSO во внутреннем бэкэнде с поддержкой прокси.</string>
-    <string name="create_personal_account_not_supported_dialog_description">Нельзя создать личный аккаунт во внутреннем бэкэнде с поддержкой прокси.</string>
-    <string name="create_team_not_supported_dialog_description">Вы не можете создать новую команду на локальном бэкэнде с поддержкой прокси в приложении.\nИспользуйте управление командой (%1$s) на этом бэкэнде.</string>
     <string name="to_team_management_action">Открыть управление командой</string>
     <!-- Claimed Domain dialog -->
     <string name="claimed_domain_email_already_in_use_dialog_title">Email, заявленный в локальном бэкенде</string>
@@ -1653,12 +1507,10 @@
     <string name="restriction_keep_websocket_description">Принудительное подключение к WebSocket для всех пользователей</string>
     <string name="settings_keep_websocket_enforced_by_organization">Этот параметр управляется вашей организацией.</string>
     <string name="enterprise_login_error_missing_backend_config">Требуется настройка бэкенда. Перейдите по ссылке для настройки или обратитесь к администратору.</string>
-    <string name="missing_backend_config_title">Настройте приложение</string>
     <string name="missing_backend_config_description">Чтобы начать, введите ссылку или сосканируйте QR-код, предоставленный вашей администрацией.</string>
     <string name="missing_backend_config_input_label">Конфигурационная ссылка</string>
     <string name="missing_backend_config_input_placeholder">Введите ссылку или сосканируйте QR-код</string>
     <string name="missing_backend_config_button_setup">Настроить</string>
-    <string name="missing_backend_config_error">Произошла ошибка. Проверьте ссылку и подключение, а затем попробуйте еще раз.</string>
     <string name="backend_config_success_title">Приложение настроено</string>
     <string name="backend_config_success_description">На следующем шаге вы можете войти</string>
     <!--    channel not available dialog-->

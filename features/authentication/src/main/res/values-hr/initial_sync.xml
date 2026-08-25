@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="migration_title">Podešavanje Wire-a</string>
+    <string name="migration_message">Molimo pričekajte dok ne postavimo aplikaciju za vas</string>
+</resources>

@@ -81,6 +81,13 @@ internal sealed interface RegisterDeviceCompletion {
     data object RemoveDevice : RegisterDeviceCompletion
 }
 
+/** Terminal outcome produced by the remove-device flow. Guarded per navigation entry. */
+internal sealed interface RemoveDeviceCompletion {
+    data object E2EIEnrollment : RemoveDeviceCompletion
+    data object Home : RemoveDeviceCompletion
+    data object InitialSync : RemoveDeviceCompletion
+}
+
 @Suppress("TooManyFunctions")
 internal class AuthenticationNavigation3Router(
     private val runtime: WireNavigation3Runtime,
@@ -201,6 +208,19 @@ internal class AuthenticationNavigation3Router(
 
             RegisterDeviceCompletion.RemoveDevice ->
                 registerDeviceToRemoveDevice(routeSessionId, flowId)
+        }
+    }
+
+    fun completeRemoveDevice(
+        eventId: String,
+        routeSessionId: WireSessionId,
+        flowId: String,
+        completion: RemoveDeviceCompletion,
+    ): Boolean = executeTerminalTransitionOnce(eventId, "REMOVE_DEVICE_TERMINAL") {
+        when (completion) {
+            RemoveDeviceCompletion.E2EIEnrollment -> removeDeviceToE2EI(routeSessionId, flowId)
+            RemoveDeviceCompletion.Home -> completeSessionSetup(routeSessionId, SessionSetupDestination.HOME)
+            RemoveDeviceCompletion.InitialSync -> completeSessionSetup(routeSessionId, SessionSetupDestination.INITIAL_SYNC)
         }
     }
 

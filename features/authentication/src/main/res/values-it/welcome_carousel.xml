@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="welcome_screen_carousel_item_message_1">Benvenuto su Wire, la piattaforma di collaborazione pi&#249; sicura!</string>
+<string name="welcome_screen_carousel_item_message_2">Assoluta sicurezza delle tue informazioni</string>
+<string name="welcome_screen_carousel_item_message_3">Conferenze audio e video crittografate con un massimo di 50 partecipanti</string>
+<string name="welcome_screen_carousel_item_message_4">Condivisione sicura dei file con i tuoi team e clienti</string>
+<string name="welcome_screen_carousel_item_message_5">Wire &#232; indipendentemente verificato e conforme ad ISO, CCPA, GDPR, SOX</string>
+    <string name="welcome_footer_text">Vuoi chattare con amici e familiari?</string>
+    <string name="welcome_button_create_personal_account">Crea un Account Personale</string>
+    <string name="create_team_not_supported_dialog_description">Non puoi creare un nuovo team su un backend in loco con supporto proxy nell\'app. Utilizza invece la gestione del team (%1$s) su questo backend.</string>
+    <string name="create_personal_account_not_supported_dialog_description">Non puoi creare un account personale su un backend in loco con supporto proxy.</string>
+</resources>

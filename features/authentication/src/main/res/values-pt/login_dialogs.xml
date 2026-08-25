@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_error_invalid_credentials_title">Informações inválidas</string>
+    <string name="login_error_invalid_credentials_message">As credenciais da conta estão incorretas. Por favor, verifique seus detalhes e tente novamente.</string>
+    <string name="login_error_user_already_logged_in_title">Conta em uso</string>
+    <string name="login_error_user_already_logged_in_message">Você já está logado com essas credenciais neste dispositivo.</string>
+    <string name="login_sso_error_invalid_cookie_title">Cookie inválido!</string>
+    <string name="login_sso_error_invalid_cookie_message">A sessão é inválida ou expirou! Por favor, tente fazer login novamente.</string>
+    <string name="login_error_invalid_sso_code">Por favor, insira um código SSO válido.</string>
+    <string name="login_error_request_2fa_with_handle_title">Entrar com E-mail</string>
+    <string name="login_error_request_2fa_with_handle_message">Você não pode usar seu nome de usuário porque a autenticação de dois fatores está ativada. Entre com seu e-mail.</string>
+    <string name="login_error_unauthorized_title">Não autorizado</string>
+    <string name="login_error_unauthorized_message">Esta conta não está mais autorizada a entrar.</string>
+    <string name="login_error_pending_activation_title">Pendente de ativação</string>
+    <string name="login_error_pending_activation_message">A conta que você está tentando acessar está pendente de ativação. Verifique seus dados.</string>
+    <string name="error_socket_title">Informação inválida</string>
+    <string name="error_socket_message">As credenciais do proxy estão incorretas. Por favor, verifique suas informações e tente novamente.</string>
+    <string name="sso_error_dialog_title">Não foi possível fazer login com SSO</string>
+    <string name="sso_error_dialog_message">Por favor tente novamente. Se isso não resolver, contate um administrador e forneça este código:\n%d\"</string>
+</resources>

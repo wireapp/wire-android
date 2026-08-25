@@ -1,0 +1,7 @@
+<resources>
+    <string name="create_account_code_resend">Skicka om koden igen</string>
+    <string name="second_factor_authentication_title">Bekräfta ditt konto</string>
+    <string name="second_factor_code_error">Ogiltig kod eller så har maximalt antal försök att använda den överskridits. Vänligen försök igen eller begär en annan kod</string>
+    <string name="label_get_started">Kom igång</string>
+    <string name="label_add_device">Lägg till enhet</string>
+</resources>

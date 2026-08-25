@@ -28,7 +28,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
 fun LoginEmailVerificationCodeScreen(
-    viewModel: LoginEmailViewModel
+    viewModel: AppLoginEmailViewModel
 ) = VerificationCodeScreenContent(
     viewModel.secondFactorVerificationCodeTextState,
     viewModel.secondFactorVerificationCodeState,

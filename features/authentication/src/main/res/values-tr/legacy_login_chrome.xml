@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="content_description_login_sso_code_field">SSO kodunuzu veya Wire e-postanızı girin</string>
+    <string name="content_description_login_back_btn">Yeni takım oluşturma ve oturum açma görünümüne geri dön</string>
+    <string name="content_description_login_user_identifier_field">e-posta adresinizi ya da kullanıcı adınızı girin</string>
+    <string name="content_description_login_password_field">parolanızı girin</string>
+</resources>

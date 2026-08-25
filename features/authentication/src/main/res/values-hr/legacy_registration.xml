@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_account_email_label">EMAIL</string>
+    <string name="create_account_email_terms_dialog_text">Klikom na nastavak slažete se s našim Uvjetima korištenja i Politikom privatnosti.</string>
+    <string name="create_account_email_already_in_use_error">Ova e-mail adresa se već koristi.</string>
+    <string name="create_account_email_invalid_error">Unesite važeći format svoje e-pošte.</string>
+    <string name="create_account_details_password_not_matching_error">Lozinke se ne podudaraju</string>
+    <string name="create_account_code_text">Provjerite svoju e-poštu %1$s za verifikacijski kod i unesite ga ispod.</string>
+    <string name="create_account_code_error_title">Nevažeća informacija</string>
+    <string name="create_account_code_error_personal_account_creation_restricted">Ova verzija aplikacije ne dopušta stvaranje osobnih računa.</string>
+    <string name="welcome_button_create_team">Stvorite tim</string>
+    <string name="create_account_email_placeholder">vašeIme@primjer.com</string>
+    <string name="create_account_email_terms_dialog_title">Uvjeti korištenja</string>
+    <string name="create_account_email_terms_dialog_view_policy">Pogledajte Uvjete kotištenja i Pravila privatnosti</string>
+    <string name="create_account_email_blacklisted_error">Vaša je e-pošta identificirana kao nepouzdana, na primjer, zbog odbijanja od strane filtra neželjene pošte.</string>
+    <string name="create_account_email_domain_blocked_error">Ne možete stvoriti ovaj račun jer je vaša e-mail domena blokirana.</string>
+    <string name="create_account_details_password_error">Neispravna lozinka</string>
+    <string name="create_account_details_confirm_password_label">POTVRDI LOZINKU</string>
+    <string name="create_account_code_error">Nevažeći kôd ili je premašen maksimalan broj pokušaja. Molimo pokušajte ponovno ili zatražite drugi kôd</string>
+    <string name="create_account_code_error_team_members_limit_reached">Ovaj tim je dosegao ograničen broja članova.</string>
+    <string name="create_account_code_error_team_creation_restricted">Ova verzija aplikacije ne dopušta stvaranje timova.</string>
+</resources>

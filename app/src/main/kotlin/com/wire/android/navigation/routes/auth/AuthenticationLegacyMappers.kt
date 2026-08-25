@@ -87,11 +87,6 @@ internal fun LoginNavArgs.toNewLoginRoute(
 
 internal fun NewLoginRoute.toLegacyNavArgs(): LoginNavArgs = args.toLegacy()
 
-internal fun LoginNavArgs.toNewLoginPasswordRoute(
-    flowId: String,
-    entryId: WireNavEntryId = WireNavEntryId.random(),
-): NewLoginPasswordRoute = NewLoginPasswordRoute(toAuthenticationArguments(), flowId, entryId)
-
 /**
  * Starts an isolated password attempt within the wider authentication flow.
  *
@@ -118,11 +113,6 @@ internal fun LoginNavArgs.toNewLoginVerificationCodeRoute(
     NewLoginVerificationCodeRoute(toAuthenticationArguments(), flowId, entryId)
 
 internal fun NewLoginVerificationCodeRoute.toLegacyNavArgs(): LoginNavArgs = args.toLegacy()
-
-internal fun WelcomeNavArgs.toWelcomeRoute(
-    entryId: WireNavEntryId = WireNavEntryId.random(),
-    flowId: String = entryId.value,
-): WelcomeRoute = WelcomeRoute(customServerConfig?.toAuthenticationServerLinks(), entryId, flowId)
 
 internal fun WelcomeRoute.toLegacyNavArgs(): WelcomeNavArgs =
     WelcomeNavArgs(customServerConfig?.toLegacy())

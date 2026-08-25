@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_personal_account_email_text">වඩාත් ආරක්‍ෂිතම සහයෝගිත්‍ව වේදිකාව භාවිතයට වි-තැපැල් ලිපිනය යොදන්න.</string>
+    <string name="create_team_email_text">කණ්ඩායම සෑදීමට ඔබගේ වි-තැපෑල යොදන්න:</string>
+    <string name="create_account_email_footer_text">දැනටමත් ගිණුමක් තිබේද? </string>
+</resources>

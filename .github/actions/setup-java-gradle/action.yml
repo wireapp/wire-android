@@ -70,6 +70,39 @@ runs:
           echo "warp=false" >> "$GITHUB_OUTPUT"
         fi
 
+    - name: Summarize Gradle cache policy
+      shell: bash
+      env:
+        CACHE_ENABLED: ${{ steps.cache_policy.outputs.enabled }}
+        CACHE_READ_ONLY: ${{ steps.cache_policy.outputs.read_only }}
+        WARP_RUNNER: ${{ steps.cache_backend.outputs.warp }}
+      run: |
+        if [[ "${CACHE_ENABLED}" != "true" ]]; then
+          backend=disabled
+        elif [[ "${WARP_RUNNER}" == "true" ]]; then
+          backend=warp
+        else
+          backend=github-basic
+        fi
+
+        {
+          echo "### Gradle cache policy"
+          echo
+          echo "| Setting | Value |"
+          echo "| --- | --- |"
+          printf '| Enabled | `%s` |\n' "${CACHE_ENABLED}"
+          printf '| Read only | `%s` |\n' "${CACHE_READ_ONLY}"
+          printf '| Backend | `%s` |\n' "${backend}"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Validate Gradle cache configuration
+      if: ${{ inputs.isolate-gradle-home == 'true' && steps.cache_policy.outputs.enabled == 'true' }}
+      shell: bash
+      run: |
+        echo "::error::isolate-gradle-home cannot be combined with shared Gradle caching because their cache paths differ"
+        exit 1
+
+    # setup-gradle validates Gradle wrapper checksums by default.
     - name: Set up Gradle
       uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
       with:

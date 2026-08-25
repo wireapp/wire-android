@@ -82,6 +82,11 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
     private val copyMessageOption = UiSelectorParams(description = "Copy the message")
+    private val deleteMessageOption = UiSelectorParams(description = "Delete the message")
+    private val deleteForMeButton = UiSelectorParams(text = "Delete for Me")
+    private val deleteForEveryoneButton = UiSelectorParams(text = "Delete for Everyone")
+    private val deleteForMeConfirmationText = UiSelectorParams(text = "Delete this Message for yourself?")
+    private val deletedMessageLabel = UiSelectorParams(text = "Deleted message")
     private val imageContextMenuButton = UiSelectorParams(description = "More options")
     private val deleteImageOption = UiSelectorParams(text = "Delete")
 
@@ -247,6 +252,41 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun tapCopyMessageOption(): ConversationViewPage {
         UiWaitUtils.waitElement(copyMessageOption).click()
+        return this
+    }
+
+    fun tapDeleteMessageOption(): ConversationViewPage {
+        UiWaitUtils.waitElement(deleteMessageOption).click()
+        return this
+    }
+
+    fun assertDeleteMessageOptionsVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(deleteForMeButton)
+        return this
+    }
+
+    fun tapDeleteForEveryoneButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(deleteForEveryoneButton).click()
+        return this
+    }
+
+    fun tapDeleteForMeButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(deleteForMeButton).click()
+        return this
+    }
+
+    fun assertDeleteForMeConfirmationVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(deleteForMeConfirmationText)
+        return this
+    }
+
+    fun tapDeleteForMeConfirmButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(deleteForMeButton).click()
+        return this
+    }
+
+    fun assertDeletedMessageLabelVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(deletedMessageLabel)
         return this
     }
 

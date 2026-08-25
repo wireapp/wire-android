@@ -8,6 +8,7 @@ package com.wire.android.feature.cells.ui
 import com.wire.android.feature.cells.ui.create.file.FileType
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 
 @Suppress("TooManyFunctions")
 internal interface CellsFilesNavigation {
@@ -15,7 +16,7 @@ internal interface CellsFilesNavigation {
     fun createFolder(parentUuid: String?)
     fun createFile(parentUuid: String, fileType: FileType)
     fun recycleBin(args: CellFilesNavArgs, popConsecutive: Boolean = false)
-    fun search(conversationId: String)
+    fun search(conversationId: String, sortCriteria: SortCriteriaNavArg? = null)
     fun folder(args: CellFilesNavArgs)
     fun publicLink(data: PublicLinkScreenData)
     fun move(currentPath: String, nodePath: String, uuid: String)
@@ -33,7 +34,7 @@ internal object NoOpCellsFilesNavigation : CellsFilesNavigation {
     override fun createFolder(parentUuid: String?) = Unit
     override fun createFile(parentUuid: String, fileType: FileType) = Unit
     override fun recycleBin(args: CellFilesNavArgs, popConsecutive: Boolean) = Unit
-    override fun search(conversationId: String) = Unit
+    override fun search(conversationId: String, sortCriteria: SortCriteriaNavArg?) = Unit
     override fun folder(args: CellFilesNavArgs) = Unit
     override fun publicLink(data: PublicLinkScreenData) = Unit
     override fun move(currentPath: String, nodePath: String, uuid: String) = Unit

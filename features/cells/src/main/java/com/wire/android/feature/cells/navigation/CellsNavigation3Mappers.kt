@@ -72,6 +72,7 @@ internal fun SearchRoute.toScreenArgs() = SearchNavArgs(
         CellsSearchType.DRIVE -> DriveSearchScreenType.DRIVE
     },
     parentRoute,
+    sortCriteria,
 )
 
 internal fun PublicLinkExpirationResult.toNavigation3() =

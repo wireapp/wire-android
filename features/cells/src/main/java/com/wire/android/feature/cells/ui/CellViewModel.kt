@@ -40,6 +40,7 @@ import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
+import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
@@ -159,7 +160,11 @@ class CellViewModel @AssistedInject constructor(
         SortingCriteria.FoldersFirst
     }
 
-    private val _sortingCriteria = MutableStateFlow(defaultSortingCriteria)
+    // When this instance backs the search screen, start from the sort order that was active in the
+    // parent listing so the unfiltered list shown on entry matches what the user was looking at.
+    private val _sortingCriteria = MutableStateFlow(
+        searchNavArgs?.initialSortingCriteria?.toSortingCriteria() ?: defaultSortingCriteria
+    )
     val sortingCriteria: StateFlow<SortingCriteria> = _sortingCriteria.asStateFlow()
 
     val isOnline: StateFlow<Boolean> = networkStateObserver.observeNetworkState()
@@ -275,7 +280,7 @@ class CellViewModel @AssistedInject constructor(
         cellAvailable to online
     }.flatMapLatest { (cellAvailable, online) ->
         when {
-            !cellAvailable || searchNavArgs != null -> flowOf(emptyData)
+            !cellAvailable -> flowOf(emptyData)
             offlineFilesEnabled && !online -> offlineNodesFlow
             else -> sharedNodesFlow
         }

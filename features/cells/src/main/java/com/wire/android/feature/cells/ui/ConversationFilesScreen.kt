@@ -24,10 +24,10 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -56,6 +56,7 @@ import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.search.sort.toNavArg
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.navigation.transition.SHARED_ELEMENT_TOP_APP_BAR_KEY
@@ -240,7 +241,7 @@ internal fun ConversationFilesScreenContent(
                             searchQueryTextState = TextFieldState(),
                             onTap = {
                                 currentNodeUuid?.let {
-                                    navigation.search(it)
+                                    navigation.search(it, sortingCriteria.toNavArg())
                                 }
                             },
                         )

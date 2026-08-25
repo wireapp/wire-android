@@ -11,6 +11,8 @@
 package com.wire.android.feature.cells.navigation
 
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.navigation.WireSessionId
 import java.io.File
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -67,6 +69,24 @@ class CellsNavigation3Test {
         )
 
         assertEquals(screenArgs, screenArgs.toNavigation3().toScreenArgs())
+    }
+
+    @Test
+    fun givenSearchRoute_whenMappedToScreenArgs_thenSortCriteriaIsPreserved() {
+        val route = SearchRoute(
+            sessionId = WireSessionId("session", "wire.com"),
+            conversationId = "conversationUuid",
+            sortCriteria = SortCriteriaNavArg.NameAZ,
+            screenType = CellsSearchType.DRIVE,
+            parentRoute = "parent",
+        )
+
+        val screenArgs = route.toScreenArgs()
+
+        assertEquals("conversationUuid", screenArgs.conversationId)
+        assertEquals(DriveSearchScreenType.DRIVE, screenArgs.screenType)
+        assertEquals("parent", screenArgs.parentRoute)
+        assertEquals(SortCriteriaNavArg.NameAZ, screenArgs.initialSortingCriteria)
     }
 
     @Test

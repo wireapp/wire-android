@@ -140,8 +140,14 @@ internal class WireNavigation3ProductionActions(
         private set
 
     override val cells: AllFilesNavigationActions = AllFilesNavigationActions(
-        openSearch = {
-            navigate(SearchRoute(requireSession(), screenType = CellsSearchType.DRIVE))
+        openSearch = { sortCriteria ->
+            navigate(
+                SearchRoute(
+                    sessionId = requireSession(),
+                    sortCriteria = sortCriteria,
+                    screenType = CellsSearchType.DRIVE,
+                )
+            )
         },
         showPublicLink = {
             navigate(

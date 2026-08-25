@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.sessionKeyedMetroViewModel
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
+import com.wire.android.ui.debug.experimental.DebugExperimentalFeaturesViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
 import com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModel
@@ -69,6 +70,10 @@ fun conversationCryptoStatsViewModel(): ConversationCryptoStatsViewModel =
 
 @Composable
 fun debugFeatureFlagsViewModel(): DebugFeatureFlagsViewModel =
+    debugInfoViewModel()
+
+@Composable
+fun debugExperimentalFeaturesViewModel(): DebugExperimentalFeaturesViewModel =
     debugInfoViewModel()
 
 @Composable

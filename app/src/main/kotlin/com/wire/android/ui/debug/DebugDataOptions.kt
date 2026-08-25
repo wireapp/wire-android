@@ -68,6 +68,7 @@ fun DebugDataOptions(
     buildVariant: String,
     onCopyText: (String) -> Unit,
     onShowFeatureFlags: () -> Unit,
+    onShowExperimentalFeatures: () -> Unit,
     onShowCryptoStats: () -> Unit,
     onShowSecurityProviders: () -> Unit,
     viewModel: DebugDataOptionsViewModel,
@@ -90,6 +91,7 @@ fun DebugDataOptions(
         onForceCRLExpirationAfterOneMinuteChange = viewModel::forceCRLExpirationAfterOneMinute,
         onResendFCMToken = viewModel::forceSendFCMToken,
         onShowFeatureFlags = onShowFeatureFlags,
+        onShowExperimentalFeatures = onShowExperimentalFeatures,
         onShowCryptoStats = onShowCryptoStats,
         onShowSecurityProviders = onShowSecurityProviders,
         onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys,
@@ -115,6 +117,7 @@ fun DebugDataOptionsContent(
     onForceCRLExpirationAfterOneMinuteChange: (Boolean) -> Unit,
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
+    onShowExperimentalFeatures: () -> Unit,
     onShowCryptoStats: () -> Unit,
     onShowSecurityProviders: () -> Unit,
     onRepairFaultyRemovalKeys: () -> Unit,
@@ -200,6 +203,15 @@ fun DebugDataOptionsContent(
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = onShowFeatureFlags
+                ),
+                trailingIcon = commonR.drawable.ic_arrow_right,
+            )
+
+            SettingsItem(
+                text = stringResource(R.string.debug_settings_experimental_features),
+                onRowPressed = Clickable(
+                    enabled = true,
+                    onClick = onShowExperimentalFeatures
                 ),
                 trailingIcon = commonR.drawable.ic_arrow_right,
             )
@@ -425,6 +437,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onForceCRLExpirationAfterOneMinuteChange = {},
         onResendFCMToken = {},
         onShowFeatureFlags = {},
+        onShowExperimentalFeatures = {},
         onShowCryptoStats = {},
         onShowSecurityProviders = {},
         onRepairFaultyRemovalKeys = {}

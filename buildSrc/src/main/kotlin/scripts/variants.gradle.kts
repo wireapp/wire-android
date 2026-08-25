@@ -22,6 +22,7 @@ import com.android.build.api.dsl.ApplicationProductFlavor
 import com.android.build.api.dsl.ProductFlavor
 import customization.ConfigType
 import customization.Customization.getBuildtimeConfiguration
+import customization.EXPERIMENTAL_FEATURE_PREFIX
 import customization.FeatureConfigs
 import customization.FeatureFlags
 import customization.Features
@@ -254,7 +255,28 @@ android {
                 }
             }
         }
+
+        buildExperimentalFeaturesConfig(flavor, flavorMap[flavor.name].orEmpty())
     }
+}
+
+/**
+ * Exposes every boolean config prefixed with [EXPERIMENTAL_FEATURE_PREFIX] as a single
+ * `BuildConfig.EXPERIMENTAL_FEATURES` map of "json key" to "compile time value", so that the debug
+ * screen can list and override them without having to duplicate the list of flags by hand.
+ */
+fun buildExperimentalFeaturesConfig(productFlavour: ProductFlavor, flavorConfigs: Map<String, Any?>) {
+    val entries = FeatureConfigs.values()
+        .filter { it.configType == ConfigType.BOOLEAN && it.value.startsWith(EXPERIMENTAL_FEATURE_PREFIX) }
+        .joinToString("\n") { config ->
+            """put("${config.value}", ${flavorConfigs[config.value].toString().toBoolean()});"""
+        }
+    buildNonStringConfig(
+        productFlavour,
+        "java.util.HashMap<String, Boolean>",
+        "EXPERIMENTAL_FEATURES",
+        "new java.util.HashMap<String, Boolean>() {{\n$entries\n}}"
+    )
 }
 
 fun buildStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String?) {

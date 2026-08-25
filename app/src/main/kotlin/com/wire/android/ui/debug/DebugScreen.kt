@@ -51,6 +51,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
+import com.ramcosta.composedestinations.generated.app.destinations.DebugExperimentalFeaturesScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.ramcosta.composedestinations.generated.app.destinations.SecurityProvidersScreenDestination
@@ -89,6 +90,9 @@ fun DebugScreen(
                 onCopyText = debugContentState::copyToClipboard,
                 onShowFeatureFlags = {
                     navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
+                },
+                onShowExperimentalFeatures = {
+                    navigator.navigate(NavigationCommand(DebugExperimentalFeaturesScreenDestination))
                 },
                 onShowCryptoStats = {
                     navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
@@ -296,6 +300,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
                 buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
                 onCopyText = it::copyToClipboard,
                 onShowFeatureFlags = {},
+                onShowExperimentalFeatures = {},
                 onShowCryptoStats = {},
                 onShowSecurityProviders = {},
                 viewModel = object : DebugDataOptionsViewModel {},

@@ -26,6 +26,14 @@ enum class ConfigType(val type: String) {
     ListOfStrings("java.util.List<String>")
 }
 
+/**
+ * Configs using this prefix are considered "experimental features": compile time flags that can be
+ * flipped at runtime from the debug screen (the new value is only picked up after an app restart).
+ *
+ * @see "ExperimentalFeaturesStore.kt" in the app module.
+ */
+const val EXPERIMENTAL_FEATURE_PREFIX = "feature_"
+
 enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     /**
      * General APP Coordinates
@@ -143,11 +151,11 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     IS_BUBBLE_UI_ENABLED("is_bubble_ui_enabled", ConfigType.BOOLEAN),
 
-    COLLABORA_INTEGRATION_ENABLED("collabora_integration", ConfigType.BOOLEAN),
+    COLLABORA_INTEGRATION_ENABLED("feature_collabora_integration", ConfigType.BOOLEAN),
 
-    OFFLINE_FILES_ENABLED("offline_files_enabled", ConfigType.BOOLEAN),
+    OFFLINE_FILES_ENABLED("feature_offline_files_enabled", ConfigType.BOOLEAN),
 
-    IN_APP_IMAGE_VIEWER_ENABLED("in_app_image_viewer_enabled", ConfigType.BOOLEAN),
+    IN_APP_IMAGE_VIEWER_ENABLED("feature_in_app_image_viewer_enabled", ConfigType.BOOLEAN),
 
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 
@@ -165,5 +173,5 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     PENDING_MESSAGES("pending_messages", ConfigType.BOOLEAN),
 
-    LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
+    LINK_PREVIEW_ENABLED("feature_link_preview_enabled", ConfigType.BOOLEAN),
 }

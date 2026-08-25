@@ -37,6 +37,8 @@ import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameter
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.GetMediaMetadataUseCaseImpl
+import com.wire.android.util.debug.ExperimentalFeatureKeys
+import com.wire.android.util.debug.ExperimentalFeaturesStore
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.AndroidUiTextResolver
@@ -124,11 +126,13 @@ object AppModule {
 
     @Provides
     @Named("offlineFilesEnabled")
-    fun provideOfflineFilesEnabled(): Boolean = BuildConfig.OFFLINE_FILES_ENABLED
+    fun provideOfflineFilesEnabled(experimentalFeatures: ExperimentalFeaturesStore): Boolean =
+        experimentalFeatures.isEnabled(ExperimentalFeatureKeys.OFFLINE_FILES)
 
     @Provides
     @Named("inAppImageViewerEnabled")
-    fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
+    fun provideInAppImageViewerEnabled(experimentalFeatures: ExperimentalFeaturesStore): Boolean =
+        experimentalFeatures.isEnabled(ExperimentalFeatureKeys.IN_APP_IMAGE_VIEWER)
 
     @Provides
     @SingleIn(AppScope::class)

@@ -83,7 +83,6 @@ class GlobalObserversManager @Inject constructor(
         }
         scope.handleLogouts()
         scope.handleDeleteEphemeralMessageEndDate()
-        scope.retryPendingMessagesOnAppOpen()
     }
 
     private suspend fun setUpNotifications() {

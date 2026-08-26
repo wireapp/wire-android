@@ -22,9 +22,6 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -36,7 +33,6 @@ import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.FileNameResolver
-import com.wire.kalium.cells.data.SortingCriteria as KaliumSortingCriteria
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -80,6 +76,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
+import com.wire.kalium.cells.data.SortingCriteria as KaliumSortingCriteria
 
 class CellViewModelTest {
 

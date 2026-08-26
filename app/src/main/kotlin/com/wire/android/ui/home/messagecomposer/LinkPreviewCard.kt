@@ -51,9 +51,9 @@ import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 @Composable
 fun LinkPreviewCard(
     preview: MessageLinkPreview,
+    modifier: Modifier = Modifier,
     isAvailable: Boolean = true,
     messageStyle: MessageStyle = MessageStyle.NORMAL,
-    modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
 ) {
     val color = linkPreviewTextColor(messageStyle, isAvailable)

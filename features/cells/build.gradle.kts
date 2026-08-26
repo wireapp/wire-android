@@ -12,6 +12,7 @@ dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-cells")
+    implementation(project(":core:datastore"))
     implementation(project(":core:di"))
     implementation(project(":core:navigation"))
     implementation(project(":core:ui-common"))

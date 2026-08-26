@@ -25,7 +25,7 @@ import app.cash.turbine.test
 import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
 import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.config.NavigationTestExtension
-import com.wire.android.feature.cells.data.ViewerAccessBannerStore
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
@@ -478,7 +478,7 @@ class CellViewModelTest {
         lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
 
         @MockK
-        lateinit var viewerAccessBannerStore: ViewerAccessBannerStore
+        lateinit var userDataStore: UserDataStore
 
         @MockK
         lateinit var qualifiedIdMapper: QualifiedIdMapper
@@ -495,7 +495,7 @@ class CellViewModelTest {
             coEvery { getConversationNames(any()) } returns null
             coEvery { getUserNames(any()) } returns null
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
-            every { viewerAccessBannerStore.isDismissed(any()) } returns flowOf(false)
+            every { userDataStore.isViewerAccessBannerDismissed(any()) } returns flowOf(false)
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
@@ -606,7 +606,7 @@ class CellViewModelTest {
                 getConversationName = getConversationNames,
                 getUserName = getUserNames,
                 isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
-                viewerAccessBannerStore = viewerAccessBannerStore,
+                userDataStore = userDataStore,
                 qualifiedIdMapper = qualifiedIdMapper,
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,

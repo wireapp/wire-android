@@ -24,8 +24,8 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.data.ViewerAccessBannerStore
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -117,7 +117,7 @@ class CellViewModel @AssistedInject constructor(
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
-    private val viewerAccessBannerStore: ViewerAccessBannerStore,
+    private val userDataStore: UserDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
@@ -188,7 +188,7 @@ class CellViewModel @AssistedInject constructor(
      */
     internal val showViewerAccessBanner: StateFlow<Boolean> = combine(
         isViewerOnly,
-        rootConversationId?.let { viewerAccessBannerStore.isDismissed(it) } ?: flowOf(true),
+        rootConversationId?.let { userDataStore.isViewerAccessBannerDismissed(it) } ?: flowOf(true),
     ) { viewerOnly, dismissed ->
         viewerOnly && !dismissed
     }.stateIn(
@@ -211,7 +211,7 @@ class CellViewModel @AssistedInject constructor(
     internal fun onViewerAccessBannerDismissed() {
         val conversationId = rootConversationId ?: return
         viewModelScope.launch {
-            viewerAccessBannerStore.setDismissed(conversationId)
+            userDataStore.setViewerAccessBannerDismissed(conversationId)
         }
     }
 

@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.LogoutCallbackManager
 import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
@@ -272,6 +273,21 @@ class GlobalObserversManagerTest {
     }
 
     @Test
+    fun `given pending messages disabled when app becomes visible then never retry sending pending messages`() {
+        val appVisibleFlow = MutableStateFlow(false)
+        val (arrangement, manager) = Arrangement()
+            .withPendingMessagesDisabled()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            .withAppVisibleFlow(appVisibleFlow)
+            .arrange()
+
+        manager.observe()
+        appVisibleFlow.value = true
+
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+    }
+
+    @Test
     fun `given app visible and session failure, when handling ephemeral messages, then do not call deleteEphemeralMessageEndDate`() {
         val (arrangement, manager) = Arrangement()
             .withCurrentSessionFlow(CurrentSessionResult.Failure.Generic(CoreFailure.Unknown(RuntimeException("error"))))
@@ -364,6 +380,8 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var networkStateObserver: NetworkStateObserver
 
+        private var pendingMessagesEnabled = true
+
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),
@@ -374,6 +392,7 @@ class GlobalObserversManagerTest {
                 currentScreenManager = currentScreenManager,
                 sendPendingMessagesAfterForegroundSync = sendPendingMessagesAfterForegroundSync,
                 networkStateObserver = networkStateObserver,
+                kaliumConfigs = KaliumConfigs(pendingMessages = pendingMessagesEnabled),
             )
         }
 
@@ -431,6 +450,10 @@ class GlobalObserversManagerTest {
 
         fun withAppVisibleFlow(flow: MutableStateFlow<Boolean>) = apply {
             coEvery { currentScreenManager.isAppVisibleFlow() } returns flow
+        }
+
+        fun withPendingMessagesDisabled() = apply {
+            pendingMessagesEnabled = false
         }
 
         fun arrange() = this to manager

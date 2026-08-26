@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -70,10 +71,12 @@ fun ViewerAccessBanner(
             )
     ) {
         Text(
+            modifier = Modifier
+                .padding(end = dimensions().spacing8x)
+                .weight(1f),
             text = stringResource(id = R.string.conversation_viewer_access_banner),
-            style = MaterialTheme.wireTypography.subline01,
+            style = MaterialTheme.wireTypography.subline01
         )
-        Spacer(modifier = Modifier.weight(1f))
         Icon(
             painter = painterResource(id = R.drawable.ic_close),
             contentDescription = stringResource(id = R.string.content_description_close_access_info),

@@ -5,6 +5,7 @@
 
 package com.wire.android.feature.cells.navigation
 
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireNavResultContract
@@ -207,6 +208,7 @@ enum class CellsSearchType { SHARED_DRIVE, DRIVE }
 data class SearchRoute(
     override val sessionId: WireSessionId,
     val conversationId: String? = null,
+    val sortCriteria: SortCriteriaNavArg? = null,
     val screenType: CellsSearchType = CellsSearchType.SHARED_DRIVE,
     val parentRoute: String? = null,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),

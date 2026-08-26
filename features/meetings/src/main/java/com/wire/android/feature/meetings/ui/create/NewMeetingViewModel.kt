@@ -46,7 +46,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseC
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
-import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -103,7 +103,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     override val currentTimeProvider: CurrentTimeProvider,
     private val createNewMeeting: CreateNewMeetingUseCase,
     private val updateMeeting: UpdateMeetingUseCase,
-    private val getNextMeetingOccurrence: GetNextMeetingOccurrenceUseCase,
+    private val getNextUnfinishedMeetingOccurrence: GetNextUnfinishedMeetingOccurrenceUseCase,
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val renameConversationUseCase: RenameConversationUseCase,
     private val contactMapper: ContactMapper,
@@ -129,7 +129,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             try {
                 val meetingType = navArgs.type
                 if (meetingType is NewMeetingType.Edit) {
-                    val meetingOccurrence = getNextMeetingOccurrence(meetingType.id, currentTimeProvider())
+                    val meetingOccurrence = getNextUnfinishedMeetingOccurrence(meetingType.id, currentTimeProvider())
                     if (meetingOccurrence != null) {
                         val otherContacts = observeConversationMembers(meetingOccurrence.meeting.conversationId).firstOrNull()?.let {
                             it.map { it.user }.filterIsInstance<OtherUser>().map { contactMapper.fromOtherUser(it) }.toPersistentSet()
@@ -215,12 +215,13 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     }
 
     private fun validateStartAndEndTime(): Boolean {
+        val editing = type is NewMeetingType.Edit // for editing, we allow times in the past
         val startTimeError = when {
-            state.startTime < currentTimeProvider() -> NewMeetingState.TimeError.StartTimeInPastError
+            !editing && state.startTime < currentTimeProvider() -> NewMeetingState.TimeError.StartTimeInPastError
             else -> null
         }
         val endTimeError = when {
-            state.endTime < currentTimeProvider() -> NewMeetingState.TimeError.EndTimeInPastError
+            !editing && state.endTime < currentTimeProvider() -> NewMeetingState.TimeError.EndTimeInPastError
             state.endTime < state.startTime -> NewMeetingState.TimeError.EndTimeBeforeStartTimeError
             else -> null
         }

@@ -8523,13 +8523,14 @@ private fun com.wire.android.ui.home.messagecomposer.KeyboardRichTextOption(inde
     - content: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.LinkPreviewCard(preview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview, isAvailable: kotlin.Boolean, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, onClick: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.LinkPreviewCard(preview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview, isAvailable: kotlin.Boolean, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, modifier: androidx.compose.ui.Modifier, onClick: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - preview: UNSTABLE (has mutable properties or unstable members)
     - isAvailable: STABLE (primitive type)
     - messageStyle: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
     - onClick: STABLE (function type)
 
 @Composable
@@ -12055,3 +12056,4 @@ public fun com.wire.android.util.ui.WireScrollableThemePreview(content: @[Compos
   restartable: true
   params:
     - content: STABLE (composable function type)
+

@@ -44,22 +44,11 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import com.wire.android.feature.cells.ui.publicLinkViewModel
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.TypedDestinationSpec
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkExpirationScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkPasswordScreenDestination
 import com.wire.android.feature.cells.ui.publiclink.settings.PublicLinkSettingsSection
 import com.wire.android.feature.cells.ui.publiclink.settings.RemovePublicLinkDialog
-import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireSwitch
 import com.wire.android.ui.common.colorsScheme
@@ -72,19 +61,14 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.uiLinkExpirationDate
 import com.wire.android.util.uiLinkExpirationTime
 
-@WireCellsDestination(
-    navArgs = PublicLinkNavArgs::class,
-    style = PopUpNavigationAnimation::class,
-)
 @Composable
-fun PublicLinkScreen(
-    navigator: WireNavigator,
-    onPasswordChange: ResultRecipient<PublicLinkPasswordScreenDestination, Boolean>,
-    onExpirationChange: ResultRecipient<PublicLinkExpirationScreenDestination, PublicLinkExpirationResult>,
+internal fun PublicLinkRouteScreen(
+    onNavigateBack: () -> Unit,
+    onOpenPasswordSettings: (String, Boolean) -> Unit,
+    onOpenExpirationSettings: (String, Long?) -> Unit,
+    viewModel: PublicLinkViewModel,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkViewModel = publicLinkViewModel(),
 ) {
-
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val state by viewModel.state.collectAsState()
@@ -96,7 +80,7 @@ fun PublicLinkScreen(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = { navigator.navigateBack() },
+                onNavigationPressed = onNavigateBack,
                 title = if (state.isFolder) {
                     stringResource(R.string.share_folder_via_link)
                 } else {
@@ -172,7 +156,7 @@ fun PublicLinkScreen(
                 Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
 
                 if (action.closeScreen) {
-                    navigator.navigateBack()
+                    onNavigateBack()
                 }
             }
 
@@ -181,38 +165,20 @@ fun PublicLinkScreen(
                 showLinkCopiedToast(context)
             }
 
-            is OpenPasswordSettings ->
-                navigator.navigate(
-                    NavigationCommand(
-                        PublicLinkPasswordScreenDestination(
-                            linkUuid = action.linkUuid,
-                            passwordEnabled = action.isPasswordEnabled,
-                        )
-                    )
-                )
+            is OpenPasswordSettings -> onOpenPasswordSettings(
+                action.linkUuid,
+                action.isPasswordEnabled,
+            )
 
-            is OpenExpirationSettings ->
-                navigator.navigate(
-                    NavigationCommand(
-                        PublicLinkExpirationScreenDestination(
-                            linkUuid = action.linkUuid,
-                            expiresAt = action.expiresAt,
-                        )
-                    )
-                )
+            is OpenExpirationSettings -> onOpenExpirationSettings(
+                action.linkUuid,
+                action.expiresAt,
+            )
 
             ShowRemoveConfirmation -> showRemoveConfirmationDialog = true
 
             is ShowErrorDialog -> showErrorDialog = action.error
         }
-    }
-
-    onPasswordChange.handleNavResult { result ->
-        viewModel.onPasswordUpdate(result)
-    }
-
-    onExpirationChange.handleNavResult { result ->
-        viewModel.onExpirationUpdate(result)
     }
 }
 
@@ -269,16 +235,6 @@ private fun EnableLinkSection(
 private fun showLinkCopiedToast(context: Context) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         Toast.makeText(context, R.string.copied_to_clipboard_message, Toast.LENGTH_SHORT).show()
-    }
-}
-
-@Composable
-private fun <D : TypedDestinationSpec<*>, R> ResultRecipient<D, R>.handleNavResult(block: (R) -> Unit) {
-    onNavResult { result ->
-        when (result) {
-            is NavResult.Value -> block(result.value)
-            NavResult.Canceled -> {}
-        }
     }
 }
 

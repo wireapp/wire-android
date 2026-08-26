@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.create.code
 
-import com.wire.android.navigation.annotation.app.WireCreateTeamAccountDestination
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,16 +40,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.authentication.createAccountCodeViewModel
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -61,8 +54,6 @@ import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSummaryScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.registration.code.CreateAccountCodeResult
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -72,25 +63,19 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.job
 
-@WireCreateTeamAccountDestination(navArgs = CreateAccountNavArgs::class)
 @Composable
-fun CreateAccountCodeScreen(
-    navigator: Navigator,
-    createAccountCodeViewModel: CreateAccountCodeViewModel = createAccountCodeViewModel()
+internal fun CreateAccountCodeRouteScreen(
+    viewModel: CreateAccountCodeViewModel,
+    onNavigateBack: () -> Unit,
+    onSuccess: (CreateAccountSummaryNavArgs, com.wire.kalium.logic.data.user.UserId) -> Unit,
+    onTooManyDevices: (com.wire.kalium.logic.data.user.UserId) -> Unit,
 ) {
-    with(createAccountCodeViewModel) {
-        fun navigateToSummaryScreen() = navigator.navigate(
-            NavigationCommand(
-                CreateAccountSummaryScreenDestination(CreateAccountSummaryNavArgs(createAccountNavArgs.flowType)),
-                BackStackMode.CLEAR_WHOLE
-            )
-        )
-
+    with(viewModel) {
         CodeContent(
             state = codeState,
             textState = codeTextState,
             onResendCodePressed = ::resendCode,
-            onBackPressed = navigator::navigateBack,
+            onBackPressed = onNavigateBack,
             serverConfig = serverConfig
         )
 
@@ -108,19 +93,14 @@ fun CreateAccountCodeScreen(
             )
         }
         LaunchedEffect(codeState.result) {
-            if (codeState.result is CreateAccountCodeResult.Success) {
-                navigateToSummaryScreen()
+            (codeState.result as? CreateAccountCodeResult.Success)?.let {
+                onSuccess(CreateAccountSummaryNavArgs(createAccountNavArgs.flowType), it.userId)
             }
             val tooManyDevicesError = codeState.result as? CreateAccountCodeResult.Error.TooManyDevicesError
             if (tooManyDevicesError != null) {
                 clearCodeError()
                 clearCodeField()
-                navigator.navigate(
-                    NavigationCommand(
-                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(tooManyDevicesError.userId)),
-                        BackStackMode.CLEAR_WHOLE
-                    )
-                )
+                onTooManyDevices(tooManyDevicesError.userId)
             }
         }
     }

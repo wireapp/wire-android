@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -25,10 +24,8 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.data.ViewerAccessBannerStore
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -44,6 +41,7 @@ import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
+import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
@@ -99,7 +97,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class CellViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: CellFilesNavArgs,
+    @Assisted private val searchNavArgs: SearchNavArgs?,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
@@ -119,7 +118,7 @@ class CellViewModel @AssistedInject constructor(
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
-    private val viewerAccessBannerStore: ViewerAccessBannerStore,
+    private val userDataStore: UserDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
@@ -128,19 +127,7 @@ class CellViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): CellViewModel
-    }
-
-    private val searchNavArgs: SearchNavArgs? = try {
-        SearchScreenDestination.argsFrom(savedStateHandle)
-    } catch (_: RuntimeException) {
-        // Not coming from Search screen, ignore
-        null
-    }
-    private val navArgs: CellFilesNavArgs = try {
-        ConversationFilesScreenDestination.argsFrom(savedStateHandle)
-    } catch (_: RuntimeException) {
-        searchNavArgs?.toCellFilesNavArgs() ?: CellFilesNavArgs()
+        fun create(navArgs: CellFilesNavArgs, searchNavArgs: SearchNavArgs?): CellViewModel
     }
 
     // Show menu with actions for the selected file.
@@ -179,7 +166,11 @@ class CellViewModel @AssistedInject constructor(
         SortingCriteria.FoldersFirst
     }
 
-    private val _sortingCriteria = MutableStateFlow(defaultSortingCriteria)
+    // When this instance backs the search screen, start from the sort order that was active in the
+    // parent listing so the unfiltered list shown on entry matches what the user was looking at.
+    private val _sortingCriteria = MutableStateFlow(
+        searchNavArgs?.initialSortingCriteria?.toSortingCriteria() ?: defaultSortingCriteria
+    )
     val sortingCriteria: StateFlow<SortingCriteria> = _sortingCriteria.asStateFlow()
 
     val isOnline: StateFlow<Boolean> = networkStateObserver.observeNetworkState()
@@ -202,7 +193,7 @@ class CellViewModel @AssistedInject constructor(
      */
     internal val showViewerAccessBanner: StateFlow<Boolean> = combine(
         isViewerOnly,
-        rootConversationId?.let { viewerAccessBannerStore.isDismissed(it) } ?: flowOf(true),
+        rootConversationId?.let { userDataStore.isViewerAccessBannerDismissed(it) } ?: flowOf(true),
     ) { viewerOnly, dismissed ->
         viewerOnly && !dismissed
     }.stateIn(
@@ -225,7 +216,7 @@ class CellViewModel @AssistedInject constructor(
     internal fun onViewerAccessBannerDismissed() {
         val conversationId = rootConversationId ?: return
         viewModelScope.launch {
-            viewerAccessBannerStore.setDismissed(conversationId)
+            userDataStore.setViewerAccessBannerDismissed(conversationId)
         }
     }
 
@@ -326,7 +317,7 @@ class CellViewModel @AssistedInject constructor(
         cellAvailable to online
     }.flatMapLatest { (cellAvailable, online) ->
         when {
-            !cellAvailable || searchNavArgs != null -> flowOf(emptyData)
+            !cellAvailable -> flowOf(emptyData)
             offlineFilesEnabled && !online -> offlineNodesFlow
             else -> sharedNodesFlow
         }
@@ -754,7 +745,7 @@ data class MenuOptions(
     val actions: List<NodeMenuItem>
 )
 
-private fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
+internal fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
     CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L

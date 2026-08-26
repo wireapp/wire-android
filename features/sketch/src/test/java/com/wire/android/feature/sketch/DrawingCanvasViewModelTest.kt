@@ -1,21 +1,12 @@
 package com.wire.android.feature.sketch
 
-import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
-import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
-import io.mockk.MockKAnnotations
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(NavigationTestExtension::class)
 class DrawingCanvasViewModelTest {
 
     @Test
@@ -191,22 +182,10 @@ class DrawingCanvasViewModelTest {
 
     private class Arrangement {
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
-        lateinit var tempWritableUri: Uri
-
         private val viewModel by lazy {
-            DrawingCanvasViewModel(savedStateHandle)
+            DrawingCanvasViewModel()
         }
 
-        init {
-            MockKAnnotations.init(this, relaxUnitFun = true)
-            every {
-                DrawingCanvasScreenDestination.argsFrom(savedStateHandle)
-            } returns DrawingCanvasNavArgs("Conversation Name", tempWritableUri)
-        }
         fun arrange() = this to viewModel
     }
 

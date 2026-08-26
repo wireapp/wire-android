@@ -66,17 +66,11 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
-import com.ramcosta.composedestinations.generated.meetings.destinations.NewMeetingParticipantsScreenDestination
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.model.Contact
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.meetings.WireNewMeetingDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
-import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -124,49 +118,6 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.hours
 import com.wire.android.ui.common.R as commonR
-
-@WireNewMeetingDestination(
-    start = true,
-    navArgs = NewMeetingNavArgs::class,
-    style = PopUpNavigationAnimation::class,
-)
-@Composable
-fun NewMeetingScreen(
-    navigator: WireNavigator,
-    navArgs: NewMeetingNavArgs,
-    newMeetingViewModel: NewMeetingViewModel,
-) {
-    NewMeetingContent(
-        type = navArgs.type,
-        onBackPressed = navigator::navigateBack,
-        state = newMeetingViewModel.state,
-        titleState = newMeetingViewModel.titleTextState,
-        onParticipantsClicked = {
-            navigator.navigate(NavigationCommand(NewMeetingParticipantsScreenDestination))
-        },
-        onCreateClicked = newMeetingViewModel::submitCreation,
-        onUpdateClicked = newMeetingViewModel::submitUpdate,
-        onStartTimeChanged = newMeetingViewModel::updateStartTime,
-        onEndTimeChanged = newMeetingViewModel::updateEndTime,
-        onRepeatingIntervalChanged = newMeetingViewModel::updateRepeatingInterval,
-    )
-
-    if (newMeetingViewModel.state.submitError != null) {
-        NewMeetingErrorDialog(
-            type = newMeetingViewModel.type,
-            onDismiss = newMeetingViewModel::dismissCreationError
-        )
-    }
-    if (newMeetingViewModel.state.initialLoading == NewMeetingState.InitialLoadingState.Error) {
-        FailedToLoadEditMeetingDataError(navigateBack = navigator::navigateBack)
-    }
-
-    HandleActions(newMeetingViewModel.actions) { action ->
-        when (action) {
-            is NewMeetingViewActions.Success -> navigator.navigateBack()
-        }
-    }
-}
 
 @Composable
 fun NewMeetingContent(
@@ -599,7 +550,7 @@ private fun RepeatingIntervalDropDown(
 }
 
 @Composable
-private fun FailedToLoadEditMeetingDataError(navigateBack: () -> Unit) {
+internal fun FailedToLoadEditMeetingDataError(navigateBack: () -> Unit) {
     WireDialog(
         title = stringResource(R.string.new_meeting_edit_init_failure_title),
         text = stringResource(R.string.new_meeting_edit_init_failure_description),

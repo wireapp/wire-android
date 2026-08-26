@@ -21,13 +21,11 @@ package com.wire.android.ui.home.conversations.banner
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -45,23 +43,26 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class ConversationBannerViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val notifyConversationIsOpen: NotifyConversationIsOpenUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): ConversationBannerViewModel
+        fun create(navigationArgs: ConversationNavArgs): ConversationBannerViewModel
     }
 
     var bannerState by mutableStateOf<UIText?>(null)
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     init {

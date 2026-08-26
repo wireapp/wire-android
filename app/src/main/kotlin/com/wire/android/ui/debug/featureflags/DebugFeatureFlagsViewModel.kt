@@ -24,12 +24,12 @@ import com.wire.kalium.logic.data.featureConfig.ChannelFeatureConfiguration
 import com.wire.kalium.logic.data.featureConfig.Status
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigResult
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import dev.zacsweers.metro.Inject
 
 class DebugFeatureFlagsViewModel @Inject constructor(
     private val getFeatureConfig: GetFeatureConfigUseCase,

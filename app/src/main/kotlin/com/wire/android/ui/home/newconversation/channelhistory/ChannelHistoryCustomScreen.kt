@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.newconversation.channelhistory
 
-import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -37,9 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -52,27 +49,20 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.collections.immutable.toImmutableList
 
-@WireNewConversationDestination(
-    navArgs = ChannelHistoryCustomArgs::class,
-    style = SlideNavigationAnimation::class,
-)
 @Composable
-fun ChannelHistoryCustomScreen(
-    navArgs: ChannelHistoryCustomArgs,
-    resultNavigator: ResultBackNavigator<ChannelHistoryCustomNavBackArgs>,
+internal fun ChannelHistoryCustomRouteScreen(
+    currentType: ChannelHistoryType,
+    onNavigateBack: (ChannelHistoryType.On.Specific?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val specificCurrentType = navArgs.currentType as? ChannelHistoryType.On.Specific
+    val specificCurrentType = currentType as? ChannelHistoryType.On.Specific
     val amountState = rememberTextFieldState(specificCurrentType?.amount?.toString().orEmpty())
     var timeState by rememberSaveable {
         mutableStateOf(specificCurrentType?.type ?: ChannelHistoryType.On.Specific.AmountType.Days)
     }
 
     fun navigateBack() {
-        amountState.text.toString().toIntOrNull()?.takeIf { it > 0 }?.let {
-            resultNavigator.setResult(ChannelHistoryCustomNavBackArgs(ChannelHistoryType.On.Specific(it, timeState)))
-        }
-        resultNavigator.navigateBack()
+        onNavigateBack(channelHistorySpecificOrNull(amountState.text.toString(), timeState))
     }
 
     BackHandler(enabled = true, onBack = ::navigateBack)
@@ -85,6 +75,14 @@ fun ChannelHistoryCustomScreen(
         modifier = modifier,
     )
 }
+
+internal fun channelHistorySpecificOrNull(
+    amount: String,
+    type: ChannelHistoryType.On.Specific.AmountType,
+): ChannelHistoryType.On.Specific? =
+    amount.toIntOrNull()
+        ?.takeIf { it > 0 }
+        ?.let { ChannelHistoryType.On.Specific(it, type) }
 
 @Composable
 fun ChannelHistoryCustomScreenContent(

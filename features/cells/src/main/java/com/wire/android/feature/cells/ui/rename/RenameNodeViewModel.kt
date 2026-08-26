@@ -21,9 +21,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.ui.common.ActionsViewModel
@@ -44,16 +42,14 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
 class RenameNodeViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: RenameNodeNavArgs,
     private val renameNodeUseCase: RenameNodeUseCase,
 ) : ActionsViewModel<RenameNodeViewModelAction>() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): RenameNodeViewModel
+        fun create(navArgs: RenameNodeNavArgs): RenameNodeViewModel
     }
-
-    private val navArgs: RenameNodeNavArgs = RenameNodeScreenDestination.argsFrom(savedStateHandle)
 
     private var clearErrorJob: Job? = null
 

@@ -3,9 +3,7 @@ package com.wire.android.ui.newauthentication.login
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -19,7 +17,6 @@ import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
-import com.wire.android.ui.authentication.login.sso.ReplaceRetainedSsoSessionResult
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.newauthentication.login.ValidateEmailOrSSOCodeUseCase.Result.ValidEmail
 import com.wire.android.util.EMPTY
@@ -32,7 +29,6 @@ import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.logout.LogoutReason
-import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
@@ -74,7 +70,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class NewLoginViewModelTest {
     private val dispatchers = TestDispatcherProvider()
 
@@ -356,68 +352,6 @@ class NewLoginViewModelTest {
         }
     }
 
-    @Test
-    fun `given retained account has different SSO identity, when handling SSO result, then show confirmation`() =
-        runTest(dispatchers.main()) {
-            val pendingSession = mockk<StoreSessionParam>()
-            every { pendingSession.nomadServiceUrl } returns null
-            val (_, viewModel) = Arrangement()
-                .withEstablishSSOSessionIdentityChanged(pendingSession)
-                .arrange()
-
-            viewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("cookie", "server-config-id"))
-            advanceUntilIdle()
-
-            assertEquals(NewLoginFlowState.SsoIdentityChanged, viewModel.state.flowState)
-        }
-
-    @Test
-    fun `given SSO identity change confirmation, when dismissed, then retained account is not replaced`() =
-        runTest(dispatchers.main()) {
-            val pendingSession = mockk<StoreSessionParam>()
-            every { pendingSession.nomadServiceUrl } returns null
-            val (arrangement, viewModel) = Arrangement()
-                .withEstablishSSOSessionIdentityChanged(pendingSession)
-                .arrange()
-
-            viewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("cookie", "server-config-id"))
-            advanceUntilIdle()
-            viewModel.onSsoIdentityChangeDismissed()
-            viewModel.onSsoIdentityChangeConfirmed()
-            advanceUntilIdle()
-
-            assertEquals(NewLoginFlowState.Default, viewModel.state.flowState)
-            coVerify(exactly = 0) {
-                arrangement.loginSSOViewModelExtension.replaceRetainedSsoSession(any())
-            }
-        }
-
-    @Test
-    fun `given SSO identity change confirmation, when confirmed, then replace account and continue login`() =
-        runTest(dispatchers.main()) {
-            val pendingSession = mockk<StoreSessionParam>()
-            every { pendingSession.nomadServiceUrl } returns null
-            val userId = UserId("user-id", "domain")
-            val (arrangement, viewModel) = Arrangement()
-                .withEstablishSSOSessionIdentityChanged(pendingSession)
-                .withReplaceRetainedSsoSessionReturning(ReplaceRetainedSsoSessionResult.Success(userId))
-                .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
-                .withIsInitialSyncCompletedReturning(true)
-                .arrange()
-
-            viewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("cookie", "server-config-id"))
-            advanceUntilIdle()
-            viewModel.onSsoIdentityChangeConfirmed()
-            advanceUntilIdle()
-
-            coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.replaceRetainedSsoSession(pendingSession)
-            }
-            coVerify(exactly = 1) {
-                arrangement.loginViewModelExtension.registerClient(userId, any(), any(), any())
-            }
-        }
-
     private fun testHandleSSOResultRegisterClientResults(
         result: RegisterClientResult,
         expectedNextStep: NewLoginAction.Success.NextStep,
@@ -444,7 +378,7 @@ class NewLoginViewModelTest {
         testHandleSSOResultRegisterClientResults(
             result = RegisterClientResult.Success(TestClient.CLIENT),
             isInitialSyncCompleted = true,
-            expectedNextStep = NewLoginAction.Success.NextStep.None,
+            expectedNextStep = NewLoginAction.Success.NextStep.None(UserId("user-id", "domain")),
         )
 
     @Test
@@ -452,7 +386,7 @@ class NewLoginViewModelTest {
         testHandleSSOResultRegisterClientResults(
             result = RegisterClientResult.Success(TestClient.CLIENT),
             isInitialSyncCompleted = false,
-            expectedNextStep = NewLoginAction.Success.NextStep.InitialSync,
+            expectedNextStep = NewLoginAction.Success.NextStep.InitialSync(UserId("user-id", "domain")),
         )
 
     @Test
@@ -533,7 +467,7 @@ class NewLoginViewModelTest {
                 any(),
                 any(),
                 any(),
-                any(),
+                any()
             )
         }
         assertEquals(nomadServiceUrl, consumeNomadServiceUrlProviders[0]())
@@ -592,6 +526,33 @@ class NewLoginViewModelTest {
                 )
             ),
         )
+
+    @Test
+    fun givenReusedLoginFlow_whenNavigationBackendChanges_thenViewModelUsesNewBackend() = runTest(dispatchers.main()) {
+        val (_, viewModel) = Arrangement().arrange()
+        val updatedServerConfig = newServerConfig(2).links
+
+        viewModel.onNavigationArgumentsChanged(
+            LoginNavArgs(
+                loginPasswordPath = LoginPasswordPath(updatedServerConfig),
+                showBackendConfigSuccess = true,
+            )
+        )
+
+        assertEquals(updatedServerConfig, viewModel.serverConfig)
+        assertEquals(NewLoginFlowState.BackendConfigSuccess, viewModel.state.flowState)
+    }
+
+    @Test
+    fun givenReusedLoginFlow_whenNavigationPrefillChanges_thenIdentifierIsUpdated() = runTest(dispatchers.main()) {
+        val (_, viewModel) = Arrangement().arrange()
+
+        viewModel.onNavigationArgumentsChanged(
+            LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(email))
+        )
+
+        assertEquals(email, viewModel.userIdentifierTextState.text.toString())
+    }
 
     @Test
     fun `given no registration path, when enterprise login, then call EmailPassword action with no creation`() =
@@ -661,49 +622,6 @@ class NewLoginViewModelTest {
         }
 
     @Test
-    fun `given multi-ingress SSO, when login callback succeeds, then establish session with selected IdP ID`() =
-        runTest(dispatchers.main()) {
-            val redirectUrl = "https://redirect.url"
-            val cookie = "cookie"
-            val serverConfigId = "server-config-id"
-            val (arrangement, viewModel) = Arrangement()
-                .withAuthenticationScopeSuccess()
-                .withGetLoginFlowForDomainReturning(
-                    EnterpriseLoginResult.Success(LoginRedirectPath.SSO(SSO_CODE_WITHOUT_PREFIX))
-                )
-                .withInitiateSSOSuccess(redirectUrl)
-                .withEstablishSSOSessionAddUserFailure(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
-                .arrange()
-
-            viewModel.actions.test {
-                viewModel.getEnterpriseLoginFlow(email)
-                advanceUntilIdle()
-                assertEquals(
-                    NewLoginAction.SSO(redirectUrl, SSOUrlConfig(viewModel.userIdentifierTextState.text.toString())),
-                    awaitItem()
-                )
-
-                viewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success(cookie, serverConfigId))
-                advanceUntilIdle()
-            }
-
-            coVerify(exactly = 1) {
-                arrangement.loginSSOViewModelExtension.establishSSOSession(
-                    eq(cookie),
-                    eq(serverConfigId),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    eq(SSO_CODE_WITHOUT_PREFIX),
-                )
-            }
-        }
-
-    @Test
     fun `given custom backend path, when enterprise login, then update custom backend state`() = runTest(dispatchers.main()) {
         val customServerConfig: ServerConfig.Links = newServerConfig(2).links
         val (arrangement, viewModel) = Arrangement()
@@ -765,6 +683,8 @@ class NewLoginViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
+        private var loginNavArgs = LoginNavArgs()
+
         @MockK
         private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
@@ -794,36 +714,23 @@ class NewLoginViewModelTest {
         @MockK
         lateinit var getServerConfigUseCase: GetServerConfigUseCase
 
-        private val savedState = mutableMapOf<String, String?>()
-
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every {
                 savedStateHandle.get<String>(any())
-            } answers {
-                savedState[firstArg()]
-            }
+            } returns null
             every {
                 savedStateHandle[any()] = any<String>()
-            } answers {
-                savedState[firstArg()] = secondArg()
-            }
+            } returns Unit
             every {
                 savedStateHandle.remove<String>(any())
-            } answers {
-                savedState.remove(firstArg())
-            }
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs()
+            } returns null
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
         }
 
         fun withNavArgsServerConfig(serverConfig: ServerConfig.Links) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(loginPasswordPath = LoginPasswordPath(serverConfig))
+            loginNavArgs = LoginNavArgs(loginPasswordPath = LoginPasswordPath(serverConfig))
         }
 
         fun withEmailOrSSOCodeValidatorReturning(result: ValidateEmailOrSSOCodeUseCase.Result = ValidEmail) = apply {
@@ -954,26 +861,8 @@ class NewLoginViewModelTest {
             }
         }
 
-        fun withEstablishSSOSessionIdentityChanged(session: StoreSessionParam) = apply {
-            coEvery {
-                loginSSOViewModelExtension.establishSSOSession(
-                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
-                )
-            } coAnswers {
-                arg<suspend (StoreSessionParam) -> Unit>(8)(session)
-            }
-        }
-
-        fun withReplaceRetainedSsoSessionReturning(result: ReplaceRetainedSsoSessionResult) = apply {
-            coEvery {
-                loginSSOViewModelExtension.replaceRetainedSsoSession(any())
-            } returns result
-        }
-
         fun withNomadAutoLogin(nomadServiceUrl: String) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(
+            loginNavArgs = LoginNavArgs(
                 ssoCodeAutoLogin = SSOCodeAutoLogin(
                     ssoCode = "wire-sso-code",
                     nomadServiceUrl = nomadServiceUrl,
@@ -986,9 +875,7 @@ class NewLoginViewModelTest {
             every {
                 savedStateHandle.get<String>(any())
             } returns null
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs()
+            loginNavArgs = LoginNavArgs()
         }
 
         fun withUserIdentifierAlreadySet(userIdentifier: String) = apply {
@@ -998,9 +885,7 @@ class NewLoginViewModelTest {
         }
 
         fun withPreFilledUserIdentifier(userIdentifier: String) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier))
+            loginNavArgs = LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier))
         }
 
         fun withFetchDefaultSSOCodeSuccessAfterDelay(defaultSSOCode: String?) = apply {
@@ -1018,9 +903,7 @@ class NewLoginViewModelTest {
         }
 
         fun withCustomServerConfigDeepLink() = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(
+            loginNavArgs = LoginNavArgs(
                 loginPasswordPath = LoginPasswordPath(
                     customServerConfig = ServerConfig.STAGING
                 )
@@ -1028,9 +911,7 @@ class NewLoginViewModelTest {
         }
 
         fun withEmptyCustomServerConfig() = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(
+            loginNavArgs = LoginNavArgs(
                 loginPasswordPath = LoginPasswordPath(
                     customServerConfig = ServerConfigProvider.EmptyServerConfig
                 )
@@ -1074,6 +955,7 @@ class NewLoginViewModelTest {
         }
 
         fun arrange() = this to NewLoginViewModel(
+            loginNavArgs,
             validateEmailOrSSOCodeUseCase,
             coreLogic,
             savedStateHandle,
@@ -1525,7 +1407,7 @@ class NewLoginViewModelTest {
                 viewModel.handleSSOResult(ssoDeepLinkResult)
                 advanceUntilIdle()
 
-                assertEquals(NewLoginAction.Success(NewLoginAction.Success.NextStep.None), expectMostRecentItem())
+                assertEquals(NewLoginAction.Success(NewLoginAction.Success.NextStep.None(userId)), expectMostRecentItem())
                 assertEquals(NewLoginFlowState.Default, viewModel.state.flowState)
             }
         }
@@ -1546,7 +1428,7 @@ class NewLoginViewModelTest {
                 viewModel.handleSSOResult(ssoDeepLinkResult)
                 advanceUntilIdle()
 
-                assertEquals(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync), expectMostRecentItem())
+                assertEquals(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync(userId)), expectMostRecentItem())
             }
         }
 

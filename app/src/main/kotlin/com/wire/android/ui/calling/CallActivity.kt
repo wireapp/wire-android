@@ -32,36 +32,46 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.appLogger
-import com.wire.android.di.metro.LocalWireViewModelScopeKey
-import com.wire.android.di.metro.AppSessionViewModelGraph
-import com.wire.android.di.metro.createSessionViewModelGraph
+import com.wire.android.di.metro.WireViewModelDiagnostics
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.model.LocalWireSessionImageLoader
+import com.wire.android.navigation.navigation3.rememberWireViewModelStoreProvider
+import com.wire.android.navigation.navigation3.rememberWireSharedViewModelStoreOwner
+import com.wire.android.navigation.navigation3.clearWireViewModelStoreOwner
+import com.wire.android.navigation.runtime.wireSessionGraphStoreViewModel
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.ProximitySensorManager
+import com.wire.android.ui.common.commonTopAppBarViewModel
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
-import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.WireTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.SwitchAccountObserver
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.navigation.WireSessionId
+import com.wire.navigation.WireViewModelOwner
+import com.wire.navigation.stableKey
 import dev.zacsweers.metro.HasMemberInjections
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.Provider
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
-import kotlinx.coroutines.launch
 
 @HasMemberInjections
 abstract class CallActivity : BaseActivity() {
@@ -75,6 +85,12 @@ abstract class CallActivity : BaseActivity() {
     @Inject
     lateinit var callActivityViewModelProvider: Provider<CallActivityViewModel>
 
+    private val callActivityViewModel: CallActivityViewModel by viewModels {
+        viewModelFactory {
+            initializer { callActivityViewModelProvider() }
+        }
+    }
+
     companion object {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
         const val EXTRA_USER_ID = "user_id"
@@ -83,94 +99,126 @@ abstract class CallActivity : BaseActivity() {
         const val TAG = "CallActivity"
     }
 
-    private val imageAssetViewModelGraph by lazy { wireApplicationGraph.imageAssetViewModelGraph }
-    private val commonTopAppBarViewModel: CommonTopAppBarViewModel by viewModels {
-        viewModelFactory {
-            initializer {
-                imageAssetViewModelGraph.commonTopAppBarViewModelFactory.create(
-                    CommonTopAppBarParams(showNoNetwork = true, showSync = false, showActiveCalls = false)
-                )
-            }
-        }
-    }
-    private val callActivityViewModel: CallActivityViewModel by viewModels {
-        viewModelFactory {
-            initializer {
-                callActivityViewModelProvider()
-            }
-        }
-    }
-    protected val qualifiedIdMapper = QualifiedIdMapper(null)
+    private var request: CallActivityRequest? by mutableStateOf(null)
+    private val qualifiedIdMapper = QualifiedIdMapper(null)
+
+    protected abstract val destination: CallActivityDestination
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handleNewIntent(intent)
-        setIntent(intent)
+        accept(intent)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
-        setupOrientationForDevice()
-        setUpScreenshotPreventionFlag()
-        setUpCallingFlags()
 
-        enableEdgeToEdge()
-
-        val sessionViewModelGraph = createCallSessionViewModelGraph(intent) ?: run {
-            appLogger.e("$TAG missing call session user id, closing call activity")
-            finish()
+        if (!accept(intent)) {
             return
         }
 
-        handleNewIntent(intent)
+        setupOrientationForDevice()
+        setUpCallingFlags()
+
+        enableEdgeToEdge()
 
         appLogger.i("$TAG Initializing proximity sensor..")
         proximitySensorManager.initialize()
 
         setContent {
-            val snackbarHostState = remember { SnackbarHostState() }
-            val rememberedSessionViewModelGraph = remember { sessionViewModelGraph }
-            CompositionLocalProvider(
-                LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelFactory provides rememberedSessionViewModelGraph.metroViewModelFactory,
-                LocalWireViewModelScopeKey provides rememberedSessionViewModelGraph.viewModelScopeKey,
-                LocalWireSessionImageLoader provides rememberedSessionViewModelGraph.wireSessionImageLoader,
-                LocalActivity provides this
-            ) {
-                WireTheme {
-                    Column(
-                        modifier = Modifier.semantics { testTagsAsResourceId = true }
-                    ) {
-                        WireTopAppBar(
-                            commonTopAppBarState = commonTopAppBarViewModel.state,
-                            animateContentSize = false, // with animations, participant videos are blinking
-                        )
-                        Box(
-                            modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)
-                        ) {
-                            Content()
-                        }
-                    }
-                }
-            }
+            request?.let { CallActivityRoot(it) }
         }
     }
 
-    protected abstract fun handleNewIntent(intent: Intent)
+    @Composable
+    protected abstract fun Content(request: CallActivityRequest)
+
+    private fun accept(intent: Intent): Boolean {
+        val parsedRequest = intent.toCallActivityRequest(destination, qualifiedIdMapper)
+        if (parsedRequest == null) {
+            appLogger.e("$TAG invalid call intent for $destination, closing call activity")
+            finish()
+            return false
+        }
+        setIntent(intent)
+        request = parsedRequest
+        return true
+    }
 
     @Composable
-    protected abstract fun Content()
+    private fun CallActivityRoot(request: CallActivityRequest) {
+        val sessionId = WireSessionId(request.userId.value, request.userId.domain)
+        val ownerIdentity = WireViewModelOwner.Session(sessionId)
+        val ownerKey = ownerIdentity.stableKey()
+        val storeProvider = rememberWireViewModelStoreProvider(this)
+        val sessionGraphStore = wireSessionGraphStoreViewModel(
+            appGraph = wireApplicationGraph,
+            owner = this,
+        )
+        key(ownerKey) {
+            val sessionGraphResult = remember(sessionId) {
+                runCatching { sessionGraphStore.graphFor(request.userId) }
+            }
+            val sessionGraph = sessionGraphResult.getOrNull()
+            if (sessionGraph == null) {
+                LaunchedEffect(sessionId) {
+                    appLogger.e(
+                        "$TAG unavailable call session, closing call activity",
+                        sessionGraphResult.exceptionOrNull(),
+                    )
+                    finish()
+                }
+            } else {
+                val sessionOwner = rememberWireSharedViewModelStoreOwner(
+                    key = ownerKey,
+                    provider = storeProvider,
+                )
+                DisposableEffect(ownerIdentity, sessionOwner) {
+                    WireViewModelDiagnostics.ownerAvailable(sessionOwner, ownerKey)
+                    onDispose {
+                        WireViewModelDiagnostics.ownerReleased(sessionOwner, ownerKey)
+                        if (!isChangingConfigurations) {
+                            clearWireViewModelStoreOwner(storeProvider, ownerKey) {
+                                WireViewModelDiagnostics.ownerCleared(ownerKey)
+                            }
+                            sessionGraphStore.release(request.userId)
+                        }
+                    }
+                }
 
-    private fun createCallSessionViewModelGraph(intent: Intent): AppSessionViewModelGraph? =
-        intent.getStringExtra(EXTRA_USER_ID)
-            ?.let(qualifiedIdMapper::fromStringToQualifiedID)
-            ?.let(wireApplicationGraph::createSessionViewModelGraph)
-
-    fun switchAccountIfNeeded(userId: String?) {
-        userId?.let {
-            qualifiedIdMapper.fromStringToQualifiedID(it).run {
-                callActivityViewModel.switchAccountIfNeeded(userId = this, actions = switchAccountObserver)
+                CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides sessionOwner,
+                    LocalMetroViewModelFactory provides sessionGraph.metroViewModelFactory,
+                    LocalWireSessionImageLoader provides sessionGraph.wireSessionImageLoader,
+                    LocalActivity provides this,
+                    LocalSnackbarHostState provides remember { SnackbarHostState() },
+                ) {
+                    LaunchedEffect(callActivityViewModel, request.userId) {
+                        setScreenshotPreventionFlag(
+                            callActivityViewModel.isScreenshotCensoringConfigEnabled(request.userId).await()
+                        )
+                        callActivityViewModel.switchAccountIfNeeded(request.userId, switchAccountObserver)
+                    }
+                    val commonTopAppBarViewModel = commonTopAppBarViewModel(
+                        params = CommonTopAppBarParams(
+                            showNoNetwork = true,
+                            showSync = false,
+                            showActiveCalls = false,
+                        ),
+                        owner = sessionOwner,
+                    )
+                    WireTheme {
+                        Column(modifier = Modifier.semantics { testTagsAsResourceId = true }) {
+                            WireTopAppBar(
+                                commonTopAppBarState = commonTopAppBarViewModel.state,
+                                animateContentSize = false,
+                            )
+                            Box(modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)) {
+                                Content(request)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -221,13 +269,11 @@ abstract class CallActivity : BaseActivity() {
         }
     }
 
-    fun setUpScreenshotPreventionFlag() {
-        lifecycleScope.launch {
-            if (callActivityViewModel.isScreenshotCensoringConfigEnabled().await()) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
+    private fun setScreenshotPreventionFlag(enabled: Boolean) {
+        if (enabled) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
     }
 }

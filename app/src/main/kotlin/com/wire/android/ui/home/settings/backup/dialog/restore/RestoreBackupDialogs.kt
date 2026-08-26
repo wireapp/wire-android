@@ -35,6 +35,7 @@ import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -124,7 +125,6 @@ fun RestoreProgressDialog(
     isRestoreCompleted: Boolean,
     restoreProgress: Float,
     onOpenConversation: () -> Unit,
-    onCancelBackupRestore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val progress by animateFloatAsState(targetValue = restoreProgress)
@@ -135,12 +135,12 @@ fun RestoreProgressDialog(
             // User is not able to dismiss the dialog
         },
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = {
-                if (isRestoreCompleted) onOpenConversation() else onCancelBackupRestore()
-            },
-            text = if (isRestoreCompleted) stringResource(R.string.label_ok) else stringResource(id = R.string.label_cancel),
+            onClick = onOpenConversation,
+            text = if (isRestoreCompleted) stringResource(R.string.label_ok) else "",
             type = WireDialogButtonType.Primary,
-            state = if (isRestoreCompleted) WireButtonState.Default else WireButtonState.Disabled
+            state = if (isRestoreCompleted) WireButtonState.Default else WireButtonState.Disabled,
+            loading = !isRestoreCompleted,
+            loadingIndicatorAlignment = IconAlignment.Center
         ),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -171,7 +171,6 @@ fun PreviewRestoreProgressDialog() = WireTheme {
     RestoreProgressDialog(
         isRestoreCompleted = false,
         restoreProgress = 0.5f,
-        onOpenConversation = {},
-        onCancelBackupRestore = {},
+        onOpenConversation = {}
     )
 }

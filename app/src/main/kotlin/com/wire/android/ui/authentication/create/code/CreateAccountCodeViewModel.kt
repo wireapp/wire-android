@@ -22,10 +22,8 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.DefaultWebSocketEnabledByDefault
@@ -56,7 +54,7 @@ import dev.zacsweers.metro.AssistedInject
 
 // TODO: Cover this viewModel  with unit test
 class CreateAccountCodeViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted val createAccountNavArgs: CreateAccountNavArgs,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
@@ -65,11 +63,8 @@ class CreateAccountCodeViewModel @AssistedInject constructor(
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): CreateAccountCodeViewModel
+        fun create(createAccountNavArgs: CreateAccountNavArgs): CreateAccountCodeViewModel
     }
-
-    val createAccountNavArgs: CreateAccountNavArgs = savedStateHandle.navArgs()
-
     val serverConfig: ServerConfig.Links = createAccountNavArgs.customServerConfig ?: defaultServerConfig
 
     val codeTextState: TextFieldState = TextFieldState()
@@ -213,12 +208,12 @@ class CreateAccountCodeViewModel @AssistedInject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        codeState = codeState.copy(result = CreateAccountCodeResult.Success)
+                        codeState = codeState.copy(result = CreateAccountCodeResult.Success(storedUserId))
                     }
 
                     is RegisterClientResult.E2EICertificateRequired -> {
                         // TODO
-                        codeState = codeState.copy(result = CreateAccountCodeResult.Success)
+                        codeState = codeState.copy(result = CreateAccountCodeResult.Success(storedUserId))
                     }
                 }
             }

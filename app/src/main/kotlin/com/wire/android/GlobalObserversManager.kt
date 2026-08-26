@@ -85,10 +85,6 @@ class GlobalObserversManager @Inject constructor(
         }
         scope.handleLogouts()
         scope.handleDeleteEphemeralMessageEndDate()
-
-        if (kaliumConfigs.pendingMessages) {
-            scope.retryPendingMessagesOnAppOpen()
-        }
     }
 
     private suspend fun setUpNotifications() {

@@ -171,7 +171,7 @@ class GlobalObserversManagerTest {
     }
 
     @Test
-    fun `given app visible and valid session, when app opens, then retry sending pending messages`() {
+    fun `given app visible and valid session, when app opens, then do not retry sending pending messages`() {
         val (arrangement, manager) = Arrangement()
             .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
             .withAppVisibleFlow(true)
@@ -179,7 +179,7 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
     }
 
     @Test
@@ -257,7 +257,7 @@ class GlobalObserversManagerTest {
     }
 
     @Test
-    fun `given valid session when app becomes visible then retry sending pending messages`() {
+    fun `given valid session when app becomes visible then do not retry sending pending messages`() {
         val appVisibleFlow = MutableStateFlow(false)
         val (arrangement, manager) = Arrangement()
             .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
@@ -269,7 +269,7 @@ class GlobalObserversManagerTest {
 
         appVisibleFlow.value = true
 
-        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
     }
 
     @Test

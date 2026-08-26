@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.devices.remove
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
@@ -37,20 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.ui.authentication.clearSessionViewModel
-import com.wire.android.ui.authentication.removeDeviceViewModel
 import com.wire.android.R
-import com.wire.android.feature.NavigationSwitchAccountActions
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.LoginTypeSelector
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.common.ClearSessionState
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
@@ -65,39 +55,20 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.ClientId
 
-@WireRootDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = SessionBackedAuthenticationNavArgs::class,
-)
 @Composable
-fun RemoveDeviceScreen(
-    navigator: Navigator,
-    loginTypeSelector: LoginTypeSelector,
-    sessionBackedAuthenticationNavArgs: SessionBackedAuthenticationNavArgs,
-    viewModel: RemoveDeviceViewModel = removeDeviceViewModel(),
-    clearSessionViewModel: ClearSessionViewModel = clearSessionViewModel(),
+internal fun RemoveDeviceRouteScreen(
+    viewModel: RemoveDeviceViewModel,
+    clearSessionViewModel: ClearSessionViewModel,
+    switchAccountActions: com.wire.android.feature.SwitchAccountActions,
+    onE2EIRequired: () -> Unit,
+    onHomeRequired: () -> Unit,
+    onInitialSyncRequired: () -> Unit,
 ) {
-    fun navigateAfterSuccess(initialSyncCompleted: Boolean, isE2EIRequired: Boolean) = navigator.navigate(
-        NavigationCommand(
-            destination = if (isE2EIRequired) {
-                E2EIEnrollmentScreenDestination(sessionBackedAuthenticationNavArgs)
-            } else if (initialSyncCompleted) {
-                HomeScreenDestination
-            } else {
-                InitialSyncScreenDestination
-            },
-            backStackMode = BackStackMode.CLEAR_WHOLE
-        )
-    )
-
     clearAutofillTree()
 
     AnimatedContent(
@@ -120,9 +91,7 @@ fun RemoveDeviceScreen(
                 onErrorDialogDismiss = viewModel::clearDeleteClientError,
                 onBackButtonClicked = clearSessionViewModel::onBackButtonClicked,
                 onCancelLoginClicked = {
-                    clearSessionViewModel.onCancelLoginClicked(
-                        NavigationSwitchAccountActions(navigator::navigate, loginTypeSelector::canUseNewLogin)
-                    )
+                    clearSessionViewModel.onCancelLoginClicked(switchAccountActions)
                 },
                 onProceedLoginClicked = clearSessionViewModel::onProceedLoginClicked
             )
@@ -150,7 +119,11 @@ fun RemoveDeviceScreen(
 
     HandleActions(viewModel.actions) { action ->
         when (action) {
-            is OnComplete -> navigateAfterSuccess(action.initialSyncCompleted, action.isE2EIRequired)
+            is OnComplete -> when {
+                action.isE2EIRequired -> onE2EIRequired()
+                action.initialSyncCompleted -> onHomeRequired()
+                else -> onInitialSyncRequired()
+            }
         }
     }
 }

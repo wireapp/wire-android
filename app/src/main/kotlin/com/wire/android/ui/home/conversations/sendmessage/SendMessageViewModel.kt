@@ -21,10 +21,8 @@ package com.wire.android.ui.home.conversations.sendmessage
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
@@ -91,10 +89,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class SendMessageViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
     private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val sendMultipartMessage: SendMultipartMessageUseCase,
@@ -119,14 +119,15 @@ class SendMessageViewModel @AssistedInject constructor(
     private val sharedState: MessageSharedState,
     private val generateLinkPreview: GenerateLinkPreviewUseCase,
     private val detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): SendMessageViewModel
+        fun create(navigationArgs: ConversationNavArgs): SendMessageViewModel
     }
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
 
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()

@@ -21,7 +21,6 @@ package com.wire.android.ui.userprofile.other
 import app.cash.turbine.test
 import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Member
@@ -50,7 +49,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class OtherUserProfileScreenViewModelTest {
 
     @Test

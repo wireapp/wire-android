@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.settings.account.email.updateEmail
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,16 +33,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.ui.home.settings.changeEmailViewModel
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -55,7 +50,6 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.forceLowercase
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.VerifyEmailScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -63,33 +57,32 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.ui.common.R as commonR
 
-@WireRootDestination(
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
-)
 @Composable
-fun ChangeEmailScreen(
-    navigator: Navigator,
-    viewModel: ChangeEmailViewModel = changeEmailViewModel()
+internal fun ChangeEmailRouteScreen(
+    viewModel: ChangeEmailViewModel,
+    onBackPressed: () -> Unit,
+    onVerifyEmail: (String) -> Unit,
 ) {
-    when (val flowState = viewModel.state.flowState) {
-        is ChangeEmailState.FlowState.NoChange,
-        is ChangeEmailState.FlowState.Error.SelfUserNotFound -> navigator.navigateBack()
+    val flowState = viewModel.state.flowState
+    LaunchedEffect(flowState) {
+        when (flowState) {
+            is ChangeEmailState.FlowState.NoChange,
+            is ChangeEmailState.FlowState.Error.SelfUserNotFound -> onBackPressed()
 
-        is ChangeEmailState.FlowState.Success ->
-            navigator.navigate(
-                NavigationCommand(
-                    VerifyEmailScreenDestination(flowState.newEmail),
-                    BackStackMode.REMOVE_CURRENT
-                )
-            )
-
-        else ->
-            ChangeEmailContent(
-                textState = viewModel.textState,
-                state = viewModel.state,
-                onBackPressed = navigator::navigateBack,
-                onSaveClicked = viewModel::onSaveClicked
-            )
+            is ChangeEmailState.FlowState.Success -> onVerifyEmail(flowState.newEmail)
+            else -> Unit
+        }
+    }
+    if (flowState !is ChangeEmailState.FlowState.NoChange &&
+        flowState !is ChangeEmailState.FlowState.Error.SelfUserNotFound &&
+        flowState !is ChangeEmailState.FlowState.Success
+    ) {
+        ChangeEmailContent(
+            textState = viewModel.textState,
+            state = viewModel.state,
+            onBackPressed = onBackPressed,
+            onSaveClicked = viewModel::onSaveClicked
+        )
     }
 }
 

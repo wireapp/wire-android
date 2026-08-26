@@ -33,7 +33,9 @@ import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -66,17 +68,30 @@ class ClearSessionViewModel @AssistedInject constructor(
     fun onCancelLoginClicked(switchAccountActions: SwitchAccountActions) {
         state = state.copy(showCancelLoginDialog = false)
         viewModelScope.launch {
-            val userId = cancelUserId ?: currentSessionUserId()
-            if (userId != null) {
-                // logout to cancel all session-related actions, remove all sensitive data and free up resources
-                logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
-                // delete the session to make it seem like the session was never logged in
-                deleteSession(userId)
-            }
-        }.invokeOnCompletion {
-            viewModelScope.launch {
-                switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
-                    .callAction(switchAccountActions)
+            cancelLogin(switchAccountActions)
+        }
+    }
+
+    internal suspend fun cancelLogin(switchAccountActions: SwitchAccountActions) {
+        val userId = cancelUserId ?: currentSessionUserId()
+        // Select the account to return to while the unfinished login is still the current
+        // session. If logout runs first, current-session observation briefly becomes empty and
+        // Navigation 3 can dispose this route before the account switch is attempted.
+        try {
+            val switchResult = switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
+            // Remove the session-backed authentication route before deleting the account that owns
+            // its Metro graph. Navigation 3 can keep an outgoing entry composed for its exit
+            // transition; deleting first would make that entry recreate a graph for a session that
+            // no longer exists.
+            switchResult.callAction(switchAccountActions)
+        } finally {
+            withContext(NonCancellable) {
+                if (userId != null) {
+                    // logout to cancel all session-related actions, remove all sensitive data and free up resources
+                    logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
+                    // delete the session to make it seem like the session was never logged in
+                    deleteSession(userId)
+                }
             }
         }
     }

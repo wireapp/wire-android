@@ -252,9 +252,10 @@ class CommonTopAppBarViewModelTest {
     }
 
     @Test
-    fun givenNoCurrentSession_whenGettingState_thenNone() = runTest {
+    fun givenGlobalCurrentSessionIsMissing_whenSessionOwnedViewModelGetsState_thenKeepsUsingInjectedAccount() = runTest {
         val (_, commonTopAppBarViewModel) = Arrangement()
             .withNotCurrentSession()
+            .withCurrentScreen(CurrentScreen.Home)
             .arrange()
 
         advanceUntilIdle()
@@ -264,7 +265,7 @@ class CommonTopAppBarViewModelTest {
     }
 
     @Test
-    fun givenFailedSync_whenCurrentSessionExpires_thenWaitingConnectionIsCleared() = runTest {
+    fun givenFailedSync_whenGlobalCurrentSessionExpires_thenInjectedAccountConnectivityIsPreserved() = runTest {
         val currentSessionFlow = MutableStateFlow<CurrentSessionResult>(
             CurrentSessionResult.Success(AccountInfo.Valid(userId))
         )
@@ -289,7 +290,7 @@ class CommonTopAppBarViewModelTest {
         currentSessionFlow.value = CurrentSessionResult.Failure.SessionNotFound
         advanceUntilIdle()
 
-        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
+        commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
     }
 
     @Test
@@ -448,6 +449,7 @@ class CommonTopAppBarViewModelTest {
             CommonTopAppBarViewModel(
                 currentScreenManager = currentScreenManager,
                 coreLogic = lazyOf(coreLogic),
+                currentAccount = userId,
                 params = params
             )
         }

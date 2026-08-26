@@ -17,9 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.promoteadmin
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.home.conversations.avatar
@@ -40,20 +38,21 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class)
 class PromoteAdminViewModel @AssistedInject constructor(
     private val promoteAdminAndLeave: PromoteAdminAndLeaveConversationUseCase,
     private val observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase,
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val dispatchers: DispatcherProvider,
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: PromoteAdminNavArgs,
 ) : ActionsViewModel<PromoteAdminAction>() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): PromoteAdminViewModel
+        fun create(navArgs: PromoteAdminNavArgs): PromoteAdminViewModel
     }
-
-    private val navArgs: PromoteAdminNavArgs = savedStateHandle.navArgs()
 
     private val clientEligibleMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())
     private val allConversationMembers = MutableStateFlow<List<PromoteAdminMemberItem>>(emptyList())

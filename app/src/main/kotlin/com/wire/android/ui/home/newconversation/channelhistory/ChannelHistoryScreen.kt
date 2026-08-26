@@ -23,15 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryCustomScreenDestination
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireNewConversationDestination
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.WirePromotionCard
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -41,38 +34,8 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
-
-@WireNewConversationDestination(
-    style = SlideNavigationAnimation::class,
-)
-@Composable
-fun ChannelHistoryScreen(
-    navigator: Navigator,
-    newConversationViewModel: NewConversationViewModel,
-    customResultRecipient: ResultRecipient<ChannelHistoryCustomScreenDestination, ChannelHistoryCustomNavBackArgs>,
-    modifier: Modifier = Modifier,
-) {
-    customResultRecipient.onNavResult { result ->
-        when (result) {
-            is NavResult.Canceled -> {}
-            is NavResult.Value -> newConversationViewModel.setChannelHistoryType(result.value.customType)
-        }
-    }
-
-    ChannelHistoryScreenContent(
-        selectedHistoryOption = newConversationViewModel.newGroupState.channelHistoryType,
-        onHistoryOptionSelected = newConversationViewModel::setChannelHistoryType,
-        onOpenCustomChooser = {
-            val navArgs = ChannelHistoryCustomArgs(newConversationViewModel.newGroupState.channelHistoryType)
-            navigator.navigate(NavigationCommand(ChannelHistoryCustomScreenDestination(navArgs)))
-        },
-        onBackPressed = navigator::navigateBack,
-        modifier = modifier,
-    )
-}
 
 @Suppress("CyclomaticComplexMethod")
 @Composable

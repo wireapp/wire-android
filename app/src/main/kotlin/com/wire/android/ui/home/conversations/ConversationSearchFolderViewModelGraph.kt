@@ -21,8 +21,9 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.runtime.Composable
 import com.wire.android.di.ViewModelScopedPreviews
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModelAs
-import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModelAs
+import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArgs
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVMImpl
@@ -31,27 +32,28 @@ import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVM
 import com.wire.android.ui.home.conversations.folder.MoveConversationToFolderVMImpl
 import com.wire.android.ui.home.conversations.folder.NewFolderViewModel
 import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminViewModel
+import com.wire.android.ui.home.conversations.promoteadmin.PromoteAdminNavArgs
+import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversations.search.adddembertoconversation.AddMembersToConversationViewModel
+import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesNavArgs
 import com.wire.android.ui.home.conversations.search.messages.SearchConversationMessagesViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface ConversationSearchFolderManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun conversationFoldersViewModel(args: ConversationFoldersStateArgs): ConversationFoldersVMImpl
-    fun moveConversationToFolderViewModel(args: MoveConversationToFolderArgs): MoveConversationToFolderVMImpl
-}
+@WireAssistedViewModelFactoryGroup
+object ConversationSearchFolderManualViewModelFactoryGroup
 
 @Composable
 fun conversationFoldersViewModel(
     args: ConversationFoldersStateArgs
 ): ConversationFoldersVM =
-    sessionKeyedAssistedMetroViewModelAs<
+    wireAssistedMetroViewModelAs<
         ConversationFoldersVMImpl,
         ConversationFoldersVM,
         ConversationSearchFolderManualViewModelFactory,
         >(
-        key = "conversation_folders_${args.selectedFolderId}",
+        instanceKey = "conversation_folders_${args.selectedFolderId}",
         previewProvider = ViewModelScopedPreviews,
-    ) {
+    ) { _ ->
         conversationFoldersViewModel(args)
     }
 
@@ -59,29 +61,38 @@ fun conversationFoldersViewModel(
 fun moveConversationToFolderViewModel(
     args: MoveConversationToFolderArgs
 ): MoveConversationToFolderVM =
-    sessionKeyedAssistedMetroViewModelAs<
+    wireAssistedMetroViewModelAs<
         MoveConversationToFolderVMImpl,
         MoveConversationToFolderVM,
         ConversationSearchFolderManualViewModelFactory,
         >(
-        key = "move_conversation_to_folder_${args.conversationId}_${args.currentFolderId}",
+        instanceKey = "move_conversation_to_folder_${args.conversationId}_${args.currentFolderId}",
         previewProvider = ViewModelScopedPreviews,
-    ) {
+    ) { _ ->
         moveConversationToFolderViewModel(args)
     }
 
 @Composable
 fun newFolderViewModel(): NewFolderViewModel =
-    sessionKeyedMetroViewModel()
+    wireMetroViewModel()
 
 @Composable
-fun addMembersToConversationViewModel(): AddMembersToConversationViewModel =
-    sessionKeyedMetroViewModel()
+fun addMembersToConversationViewModel(args: AddMembersSearchNavArgs): AddMembersToConversationViewModel =
+    conversationSearchFolderAssistedViewModel { addMembersToConversationViewModel(args) }
 
 @Composable
-fun searchConversationMessagesViewModel(): SearchConversationMessagesViewModel =
-    sessionKeyedMetroViewModel()
+fun searchConversationMessagesViewModel(args: SearchConversationMessagesNavArgs): SearchConversationMessagesViewModel =
+    conversationSearchFolderAssistedViewModel { searchConversationMessagesViewModel(args) }
 
 @Composable
-fun promoteAdminViewModel(): PromoteAdminViewModel =
-    sessionKeyedMetroViewModel()
+fun promoteAdminViewModel(args: PromoteAdminNavArgs): PromoteAdminViewModel =
+    conversationSearchFolderAssistedViewModel { promoteAdminViewModel(args) }
+
+@Composable
+private inline fun <reified VM> conversationSearchFolderAssistedViewModel(
+    crossinline create: ConversationSearchFolderManualViewModelFactory.() -> VM,
+): VM where VM : androidx.lifecycle.ViewModel =
+    wireAssistedMetroViewModel<
+        VM,
+        ConversationSearchFolderManualViewModelFactory,
+        >(create = { _ -> create() })

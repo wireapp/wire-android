@@ -21,11 +21,9 @@ package com.wire.android.ui.authentication.welcome
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
@@ -37,18 +35,15 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 
 class WelcomeViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted navArgs: WelcomeNavArgs,
     private val getSessions: GetSessionsUseCase,
     private val doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): WelcomeViewModel
+        fun create(navArgs: WelcomeNavArgs): WelcomeViewModel
     }
-
-    private val navArgs: WelcomeNavArgs = savedStateHandle.navArgs()
-
     var state by mutableStateOf(WelcomeScreenState(navArgs.customServerConfig ?: defaultServerConfig))
         private set
 

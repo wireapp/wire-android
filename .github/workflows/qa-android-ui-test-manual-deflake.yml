@@ -107,12 +107,10 @@ jobs:
           submodules: recursive
           persist-credentials: false
 
-      - name: Set up Java 21
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
         with:
-          distribution: temurin
-          java-version: "21"
-          cache: gradle
+          isolate-gradle-home: true
 
       - name: Set up Android SDK (ANDROID_HOME + adb)
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
@@ -404,3 +402,8 @@ jobs:
           ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
         run: make qa-ui-report cmd=cleanup-workspace
+
+      - name: Stop isolated Gradle daemons
+        if: always()
+        continue-on-error: true
+        run: ./gradlew --stop

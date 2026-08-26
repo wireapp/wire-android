@@ -17,11 +17,9 @@
  */
 package com.wire.android.ui.registration.selector
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Assisted
@@ -30,15 +28,13 @@ import dev.zacsweers.metro.AssistedInject
 
 class CreateAccountSelectorViewModel @AssistedInject constructor(
     private val globalDataStore: GlobalDataStore,
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted val navArgs: CreateAccountSelectorNavArgs,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): CreateAccountSelectorViewModel
+        fun create(navArgs: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
     }
-
-    val navArgs: CreateAccountSelectorNavArgs = savedStateHandle.navArgs()
     val serverConfig: ServerConfig.Links = navArgs.customServerConfig ?: defaultServerConfig
     val email: String = navArgs.email.orEmpty()
     val teamAccountCreationUrl = serverConfig.teams

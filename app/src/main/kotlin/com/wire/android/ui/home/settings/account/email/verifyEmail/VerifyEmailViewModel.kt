@@ -19,27 +19,27 @@ package com.wire.android.ui.home.settings.account.email.verifyEmail
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class VerifyEmailViewModel @AssistedInject constructor(
     private val updateEmail: UpdateEmailUseCase,
-    @Assisted savedStateHandle: SavedStateHandle
+    @Assisted navigationArgs: VerifyEmailViewModelArgs,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): VerifyEmailViewModel
+        fun create(navigationArgs: VerifyEmailViewModelArgs): VerifyEmailViewModel
     }
     var state: VerifyEmailState by mutableStateOf(VerifyEmailState())
         private set
-    private val verifyEmailNavArgs: VerifyEmailNavArgs = savedStateHandle.navArgs()
-    val newEmail: String = verifyEmailNavArgs.newEmail
+    val newEmail: String = navigationArgs.newEmail
     fun onResendVerificationEmailClicked() {
         newEmail.let {
             state = state.copy(isResendEmailEnabled = false)

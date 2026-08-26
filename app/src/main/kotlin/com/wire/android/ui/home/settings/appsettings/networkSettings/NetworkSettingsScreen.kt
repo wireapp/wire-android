@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.settings.appsettings.networkSettings
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.ui.home.settings.networkSettingsViewModel
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -38,14 +36,13 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.settings.SwitchState
 import com.wire.android.ui.theme.WireTheme
 
-@WireRootDestination
 @Composable
 fun NetworkSettingsScreen(
-    navigator: Navigator,
+    onBackPressed: () -> Unit,
     networkSettingsViewModel: NetworkSettingsViewModel = networkSettingsViewModel()
 ) {
     NetworkSettingsScreenContent(
-        onBackPressed = navigator::navigateBack,
+        onBackPressed = onBackPressed,
         isWebSocketEnabled = networkSettingsViewModel.networkSettingsState.isPersistentWebSocketConnectionEnabled,
         isEnforcedByMDM = networkSettingsViewModel.networkSettingsState.isEnforcedByMDM,
         isWebSocketEnforcedByDefault = networkSettingsViewModel.networkSettingsState.isWebSocketEnforcedByDefault,

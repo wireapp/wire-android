@@ -72,6 +72,8 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.Named
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -173,7 +175,7 @@ class LoginEmailViewModel(
                 proxyIdentifierTextState.textAsFlow(),
                 proxyPasswordTextState.textAsFlow()
             ) { _, _, _, _ -> }.collectLatest {
-                if (loginState.flowState != LoginState.Loading) {
+                if (loginState.flowState.canBeResetByCredentialChange()) {
                     updateEmailFlowState(LoginState.Default, showInvalidCredentialsError = false)
                 }
             }
@@ -250,6 +252,15 @@ class LoginEmailViewModel(
         )
     }
 
+    private fun LoginState.canBeResetByCredentialChange(): Boolean = when (this) {
+        LoginState.Loading,
+        LoginState.Canceled,
+        is LoginState.Success,
+        is LoginState.Error.TooManyDevicesError -> false
+
+        else -> true
+    }
+
     fun clearLoginErrors() {
         updateEmailFlowState(LoginState.Default)
     }
@@ -279,111 +290,131 @@ class LoginEmailViewModel(
     @Suppress("LongMethod")
     private fun startLoginJob(usernameAllowed: Boolean): Job {
         return viewModelScope.launch {
-            // if username is not allowed, we need to check if the provided user identifier is an email
-            if (!usernameAllowed && !coreLogic.getGlobalScope().validateEmailUseCase(userIdentifierTextState.text.toString())) {
-                updateEmailFlowState(LoginState.Error.TextFieldError.InvalidValue)
-                return@launch
-            }
-
-            val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
-
-            val secondFactorVerificationCode = secondFactorVerificationCodeTextState.text.toString()
-            val loginResult = withContext(dispatchers.io()) {
-                authScope.login(
-                    userIdentifier = userIdentifierTextState.text.toString(),
-                    password = passwordTextState.text.toString(),
-                    shouldPersistClient = true,
-                    secondFactorVerificationCode = secondFactorVerificationCode
-                )
-            }
-            if (loginResult !is AuthenticationResult.Success) {
-                loginResult as AuthenticationResult.Failure
-                handleAuthenticationFailure(loginResult, authScope)
-                return@launch
-            }
-            secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
-            loginJobData.update { it?.copy(newSessionUserId = loginResult.authData.userId) }
-
-            val storedUserId = withContext(dispatchers.io()) {
-                addAuthenticatedUser(
-                    StoreSessionParam(
-                        accountTokens = loginResult.authData,
-                        ssoId = loginResult.ssoID,
-                        managedBy = loginResult.managedBy,
-                        serverConfigId = loginResult.serverConfigId,
-                        proxyCredentials = loginResult.proxyCredentials,
-                        isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
-                    ),
-                    replace = false
-                )
-            }.let {
-                when (it) {
-                    is AddAuthenticatedUserUseCase.Result.Failure -> {
-                        updateEmailFlowState(it.toLoginError())
-                        return@launch
-                    }
-
-                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
-                }
-            }
-
-            withContext(dispatchers.io()) {
-                if (coreLogic.getGlobalScope().validateEmailUseCase(userIdentifierTextState.text.toString())) {
-                    coreLogic.getSessionScope(storedUserId).users.persistSelfUserEmail(userIdentifierTextState.text.toString())
-                } else {
-                    null
-                }
-            }.let {
-                if (it is PersistSelfUserEmailResult.Failure) {
-                    revertNewSession()
-                    updateEmailFlowState(LoginState.Error.DialogError.GenericError(it.coreFailure))
+            var retainAuthenticatedSession = false
+            try {
+                // if username is not allowed, we need to check if the provided user identifier is an email
+                if (!usernameAllowed && !coreLogic.getGlobalScope().validateEmailUseCase(userIdentifierTextState.text.toString())) {
+                    updateEmailFlowState(LoginState.Error.TextFieldError.InvalidValue)
                     return@launch
                 }
-            }
 
-            withContext(dispatchers.io()) {
-                registerClient(
-                    userId = storedUserId,
-                    password = passwordTextState.text.toString(),
-                )
-            }.let {
-                when (it) {
-                    is RegisterClientResult.Success -> {
-                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false, storedUserId))
+                val authScope = withContext(dispatchers.io()) { resolveCurrentAuthScope() } ?: return@launch
+
+                val secondFactorVerificationCode = secondFactorVerificationCodeTextState.text.toString()
+                val loginResult = withContext(dispatchers.io()) {
+                    authScope.login(
+                        userIdentifier = userIdentifierTextState.text.toString(),
+                        password = passwordTextState.text.toString(),
+                        shouldPersistClient = true,
+                        secondFactorVerificationCode = secondFactorVerificationCode
+                    )
+                }
+                if (loginResult !is AuthenticationResult.Success) {
+                    loginResult as AuthenticationResult.Failure
+                    handleAuthenticationFailure(loginResult, authScope)
+                    return@launch
+                }
+                secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
+
+                val storedUserId = withContext(dispatchers.io()) {
+                    addAuthenticatedUser(
+                        StoreSessionParam(
+                            accountTokens = loginResult.authData,
+                            ssoId = loginResult.ssoID,
+                            managedBy = loginResult.managedBy,
+                            serverConfigId = loginResult.serverConfigId,
+                            proxyCredentials = loginResult.proxyCredentials,
+                            isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                        ),
+                        replace = false
+                    )
+                }.let {
+                    when (it) {
+                        is AddAuthenticatedUserUseCase.Result.Failure -> {
+                            updateEmailFlowState(it.toLoginError())
+                            return@launch
+                        }
+
+                        is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                     }
+                }
+                // Only a successfully persisted session belongs to this login attempt. Marking it
+                // earlier would make cancellation cleanup delete a pre-existing account when
+                // AddAuthenticatedUser reports UserAlreadyExists.
+                loginJobData.update { it?.copy(newSessionUserId = storedUserId) }
 
-                    is RegisterClientResult.E2EICertificateRequired -> {
-                        updateEmailFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), true, storedUserId))
+                withContext(dispatchers.io()) {
+                    if (coreLogic.getGlobalScope().validateEmailUseCase(userIdentifierTextState.text.toString())) {
+                        coreLogic.getSessionScope(storedUserId).users.persistSelfUserEmail(userIdentifierTextState.text.toString())
+                    } else {
+                        null
                     }
-
-                    is RegisterClientResult.Failure.TooManyClients -> {
-                        updateEmailFlowState(LoginState.Error.TooManyDevicesError(storedUserId))
+                }.let {
+                    if (it is PersistSelfUserEmailResult.Failure) {
+                        updateEmailFlowState(LoginState.Error.DialogError.GenericError(it.coreFailure))
+                        return@launch
                     }
+                }
 
-                    is RegisterClientResult.Failure -> {
-                        revertNewSession()
-                        updateEmailFlowState(it.toLoginError())
+                withContext(dispatchers.io()) {
+                    registerClient(
+                        userId = storedUserId,
+                        password = passwordTextState.text.toString(),
+                    )
+                }.let {
+                    when (it) {
+                        is RegisterClientResult.Success -> {
+                            val initialSyncCompleted = isInitialSyncCompleted(storedUserId)
+                            retainAuthenticatedSession = true
+                            updateEmailFlowState(LoginState.Success(initialSyncCompleted, false, storedUserId))
+                        }
+
+                        is RegisterClientResult.E2EICertificateRequired -> {
+                            val initialSyncCompleted = isInitialSyncCompleted(storedUserId)
+                            retainAuthenticatedSession = true
+                            updateEmailFlowState(LoginState.Success(initialSyncCompleted, true, storedUserId))
+                        }
+
+                        is RegisterClientResult.Failure.TooManyClients -> {
+                            retainAuthenticatedSession = true
+                            updateEmailFlowState(LoginState.Error.TooManyDevicesError(storedUserId))
+                        }
+
+                        is RegisterClientResult.Failure -> {
+                            updateEmailFlowState(it.toLoginError())
+                        }
+                    }
+                }
+            } finally {
+                val data = loginJobData.value
+                if (!retainAuthenticatedSession && data?.newSessionUserId != null) {
+                    withContext(NonCancellable) {
+                        revertNewSession(data)
                     }
                 }
             }
         }
     }
 
-    private suspend fun revertNewSession() {
-        loginJobData.value?.newSessionUserId?.let { newSessionUserId ->
+    private suspend fun revertNewSession(loginData: LoginJobData? = loginJobData.value) {
+        loginData?.newSessionUserId?.let { newSessionUserId ->
             // logout to cancel all session-related actions, remove all sensitive data and free up resources
             coreLogic.getSessionScope(newSessionUserId).logout(reason = LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = true)
             // delete the session to make it seem like the session was never logged in
             coreLogic.getGlobalScope().deleteSession(newSessionUserId)
         }
         // set the previous session back
-        coreLogic.getGlobalScope().session.updateCurrentSession(loginJobData.value?.previousSessionUserId)
+        coreLogic.getGlobalScope().session.updateCurrentSession(loginData?.previousSessionUserId)
     }
 
     private suspend fun revertLogin() {
-        loginJobData.value?.let {
-            it.job.cancel()
-            revertNewSession()
+        loginJobData.value?.let { loginData ->
+            loginData.job.cancelAndJoin()
+            // Real login jobs perform rollback from their non-cancellable finally block. This
+            // fallback also covers a job that completed before it installed that cleanup.
+            if (loginJobData.value?.newSessionUserId != null) {
+                revertNewSession(loginData)
+            }
         }
     }
 

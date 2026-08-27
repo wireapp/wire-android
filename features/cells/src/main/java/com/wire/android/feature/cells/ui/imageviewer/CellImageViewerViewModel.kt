@@ -17,23 +17,19 @@
  */
 package com.wire.android.feature.cells.ui.imageviewer
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 
 class CellImageViewerViewModel @AssistedInject constructor(
-    @Assisted private val savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: CellImageViewerNavArgs,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): CellImageViewerViewModel
+        fun create(navArgs: CellImageViewerNavArgs): CellImageViewerViewModel
     }
-
-    private val navArgs: CellImageViewerNavArgs = CellImageViewerScreenDestination.argsFrom(savedStateHandle)
 
     val localPath: String? = navArgs.localPath
     val contentUrl: String? = navArgs.contentUrl

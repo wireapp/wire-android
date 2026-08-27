@@ -19,12 +19,6 @@
 package com.wire.android.ui.home
 
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RegisterDeviceScreenDestination
 import com.wire.kalium.logic.data.user.UserId
 
 data class HomeState(
@@ -37,15 +31,4 @@ sealed class HomeRequirement {
     data class RegisterDevice(val userId: UserId) : HomeRequirement()
     data object CreateAccountUsername : HomeRequirement()
     data object InitialSync : HomeRequirement()
-
-    fun navigate(navigate: (NavigationCommand) -> Unit) = when (this) {
-        is RegisterDevice -> navigate(
-            NavigationCommand(
-                RegisterDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(userId)),
-                BackStackMode.CLEAR_WHOLE,
-            )
-        )
-        is CreateAccountUsername -> navigate(NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE))
-        is InitialSync -> navigate(NavigationCommand(InitialSyncScreenDestination, BackStackMode.CLEAR_WHOLE))
-    }
 }

@@ -25,9 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -36,15 +33,12 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireRootDestination(
-    style = PopUpNavigationAnimation::class,
-)
 @Composable
-fun BrowseChannelsScreen(navigator: Navigator) {
+internal fun BrowseChannelsRouteScreen(onCloseSearchClicked: () -> Unit) {
     Content(
         searchQueryTextState = TextFieldState(),
 //        onChannelClick = { /*TODO when BE supports public search*/ },
-        onCloseSearchClicked = navigator::navigateBack
+        onCloseSearchClicked = onCloseSearchClicked,
     )
 }
 

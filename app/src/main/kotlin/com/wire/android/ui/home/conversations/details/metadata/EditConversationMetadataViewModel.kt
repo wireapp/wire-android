@@ -23,10 +23,8 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
@@ -47,20 +45,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
 class EditConversationMetadataViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
-    @Assisted val savedStateHandle: SavedStateHandle
+    @Assisted navigationArgs: EditConversationNameNavArgs,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): EditConversationMetadataViewModel
+        fun create(navigationArgs: EditConversationNameNavArgs): EditConversationMetadataViewModel
     }
 
-    private val editConversationNameNavArgs: EditConversationNameNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = editConversationNameNavArgs.conversationId
+    private val conversationId: QualifiedID = navigationArgs.conversationId
 
     val editConversationNameTextState: TextFieldState = TextFieldState()
     var editConversationState by mutableStateOf(GroupMetadataState(mode = GroupNameMode.EDITION))

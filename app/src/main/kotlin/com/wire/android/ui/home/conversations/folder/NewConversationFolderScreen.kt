@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.folder
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,10 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
@@ -53,7 +49,6 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.maxLengthWithCallback
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.conversations.newFolderViewModel
 import com.wire.android.ui.home.settings.account.displayname.ChangeDisplayNameViewModel.Companion.NAME_MAX_COUNT
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -61,19 +56,15 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 
-@WireRootDestination(
-    style = SlideNavigationAnimation::class,
-)
 @Composable
-fun NewConversationFolderScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<NewConversationFolderNavBackArgs>,
-    viewModel: NewFolderViewModel = newFolderViewModel()
+internal fun NewConversationFolderRouteScreen(
+    viewModel: NewFolderViewModel,
+    onBackPressed: () -> Unit,
+    onFolderCreated: (NewConversationFolderNavBackArgs) -> Unit,
 ) {
-
     LaunchedEffect(viewModel.folderNameState.folderId) {
         if (viewModel.folderNameState.folderId != null) {
-            resultNavigator.navigateBack(
+            onFolderCreated(
                 NewConversationFolderNavBackArgs(
                     viewModel.textState.text.toString(),
                     viewModel.folderNameState.folderId!!
@@ -88,7 +79,7 @@ fun NewConversationFolderScreen(
         onContinuePressed = {
             viewModel.createFolder(viewModel.textState.text.toString())
         },
-        onBackPressed = navigator::navigateBack
+        onBackPressed = onBackPressed,
     )
 
     SnackBarMessageHandler(viewModel.infoMessage)

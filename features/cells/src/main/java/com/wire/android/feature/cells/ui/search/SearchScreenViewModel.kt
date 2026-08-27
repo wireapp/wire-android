@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.search
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
@@ -25,7 +24,6 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -37,6 +35,7 @@ import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
+import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
@@ -74,7 +73,7 @@ private const val SEARCH_DEBOUNCE_MILLIS = 200L
 
 @Suppress("TooManyFunctions")
 class SearchScreenViewModel @AssistedInject constructor(
-    @Assisted val savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: SearchNavArgs,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
@@ -85,7 +84,7 @@ class SearchScreenViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): SearchScreenViewModel
+        fun create(navArgs: SearchNavArgs): SearchScreenViewModel
     }
 
     private data class SearchParams(
@@ -97,8 +96,6 @@ class SearchScreenViewModel @AssistedInject constructor(
         val sortingCriteria: SortingCriteria,
         val conversationId: String?,
     )
-
-    private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
 
     val screenType = navArgs.screenType
     val parentRoute = navArgs.parentRoute
@@ -113,8 +110,11 @@ class SearchScreenViewModel @AssistedInject constructor(
         SortingCriteria.FoldersFirst
     }
 
+    val inheritedSortingCriteria: SortingCriteria =
+        navArgs.initialSortingCriteria?.toSortingCriteria() ?: defaultSortingCriteria
+
     private val _uiState = MutableStateFlow(
-        SearchUiState(sortingCriteria = defaultSortingCriteria)
+        SearchUiState(sortingCriteria = inheritedSortingCriteria)
     )
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
@@ -144,7 +144,7 @@ class SearchScreenViewModel @AssistedInject constructor(
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
             searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
-                val hasFilters = params.sortingCriteria != defaultSortingCriteria ||
+                val hasFilters = params.sortingCriteria != inheritedSortingCriteria ||
                         params.query.isNotEmpty() ||
                         params.tagIds.isNotEmpty() ||
                         params.ownerIds.isNotEmpty() ||

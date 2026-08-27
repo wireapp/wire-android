@@ -585,9 +585,11 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
         learnMorePage = SupportPage.FILE_PERMISSIONS_IN_SHARED_DRIVE,
     ) {
         buildAnnotatedString {
-            append(stringResource(
-                id = R.string.label_system_message_cell_viewer_access,
-            ).toMarkdownAnnotatedString())
+            append(
+                stringResource(
+                    id = R.string.label_system_message_cell_viewer_access,
+                ).toMarkdownAnnotatedString()
+            )
             appendVerticalSpace()
         }
     }
@@ -598,9 +600,11 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
         learnMorePage = SupportPage.FILE_PERMISSIONS_IN_SHARED_DRIVE,
     ) {
         buildAnnotatedString {
-            append(stringResource(
-                id = R.string.label_system_message_cell_editor_access,
-            ).toMarkdownAnnotatedString())
+            append(
+                stringResource(
+                    id = R.string.label_system_message_cell_editor_access,
+                ).toMarkdownAnnotatedString()
+            )
             appendVerticalSpace()
         }
     }
@@ -618,6 +622,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
                     R.string.label_system_message_apps_access_enabled_by_other
                 }
             }
+
             else -> {
                 if (isAuthorSelfUser) {
                     R.string.label_system_message_apps_access_disabled_by_self

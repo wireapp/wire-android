@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.details.editguestaccess
 
 import com.wire.android.ui.home.conversations.editGuestAccessViewModel
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -40,11 +39,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.dimensions
@@ -53,8 +48,6 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.CreatePasswordProtectedGuestLinkScreenDestination
-import com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink.CreatePasswordGuestLinkNavArgs
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -62,16 +55,13 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.copyLinkToClipboard
 import com.wire.android.util.shareViaIntent
 
-@Suppress("ComplexMethod")
-@WireRootDestination(
-    navArgs = EditGuestAccessNavArgs::class,
-    style = SlideNavigationAnimation::class,
-)
 @Composable
-fun EditGuestAccessScreen(
-    navigator: Navigator,
+@Suppress("CyclomaticComplexMethod")
+internal fun EditGuestAccessRouteScreen(
+    viewModel: EditGuestAccessViewModel,
+    onNavigateBack: () -> Unit,
+    onCreatePasswordProtectedLink: () -> Unit,
     modifier: Modifier = Modifier,
-    editGuestAccessViewModel: EditGuestAccessViewModel = editGuestAccessViewModel()
 ) {
     val scrollState = rememberScrollState()
     val snackbarHostState = LocalSnackbarHostState.current
@@ -79,23 +69,15 @@ fun EditGuestAccessScreen(
     val onSheetItemClick: (Boolean) -> Unit = { isPasswordProtected ->
         sheetState.hide()
         if (isPasswordProtected) {
-            navigator.navigate(
-                NavigationCommand(
-                    CreatePasswordProtectedGuestLinkScreenDestination(
-                        CreatePasswordGuestLinkNavArgs(
-                            conversationId = editGuestAccessViewModel.conversationId
-                        )
-                    )
-                )
-            )
+            onCreatePasswordProtectedLink()
         } else {
-            editGuestAccessViewModel.onRequestGuestRoomLink()
+            viewModel.onRequestGuestRoomLink()
         }
     }
     CreateGuestLinkBottomSheet(
         sheetState = sheetState,
         onItemClick = remember { onSheetItemClick },
-        isPasswordInviteLinksAllowed = editGuestAccessViewModel.editGuestAccessState.isPasswordProtectedLinksAllowed
+        isPasswordInviteLinksAllowed = viewModel.editGuestAccessState.isPasswordProtectedLinksAllowed
     )
 
     WireScaffold(
@@ -105,7 +87,7 @@ fun EditGuestAccessScreen(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 navigationIconType = NavigationIconType.Back(R.string.content_description_edit_guests_option_back_btn),
-                onNavigationPressed = navigator::navigateBack,
+                onNavigationPressed = onNavigateBack,
                 title = title
             )
         }
@@ -119,7 +101,7 @@ fun EditGuestAccessScreen(
                     .fillMaxSize()
             ) {
                 item {
-                    with(editGuestAccessViewModel) {
+                    with(viewModel) {
                         GuestOption(
                             isSwitchEnabled = editGuestAccessState.isUpdatingGuestAccessAllowed,
                             isSwitchVisible = true,
@@ -149,7 +131,7 @@ fun EditGuestAccessScreen(
                                 top = dimensions().spacing8x,
                             )
                     ) {
-                        with(editGuestAccessViewModel) {
+                        with(viewModel) {
                             Text(
                                 text = stringResource(id = R.string.guest_link_description),
                                 style = MaterialTheme.wireTypography.body01,
@@ -175,7 +157,7 @@ fun EditGuestAccessScreen(
                     val clipboardManager = LocalClipboardManager.current
                     val context = LocalContext.current
 
-                    with(editGuestAccessViewModel) {
+                    with(viewModel) {
                         GuestLinkActionButtons(
                             shouldDisableGenerateGuestLinkButton = shouldDisableGenerateGuestLinkButton(),
                             isGeneratingLink = editGuestAccessState.isGeneratingGuestRoomLink,
@@ -201,7 +183,7 @@ fun EditGuestAccessScreen(
         }
     }
 
-    with(editGuestAccessViewModel) {
+    with(viewModel) {
         if (editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog) {
             DisableGuestConfirmationDialog(
                 onConfirm = ::onGuestDialogConfirm,
@@ -239,5 +221,9 @@ fun EditGuestAccessScreen(
 @Preview
 @Composable
 fun PreviewEditGuestAccessScreen() {
-    EditGuestAccessScreen(rememberNavigator {})
+    EditGuestAccessRouteScreen(
+        viewModel = editGuestAccessViewModel(),
+        onNavigateBack = {},
+        onCreatePasswordProtectedLink = {},
+    )
 }

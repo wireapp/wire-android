@@ -19,8 +19,6 @@
 package com.wire.android.ui.home.conversations.composer
 
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
@@ -90,7 +88,6 @@ internal class MessageComposerViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
 
         // Default empty values
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(FileSharingStatus.Value.EnabledAll, null)
@@ -107,9 +104,6 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeEstablishedCalls() } returns emptyFlow()
         coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns MarkConversationAsReadResult.Success(false)
     }
-
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     lateinit var isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
@@ -166,7 +160,7 @@ internal class MessageComposerViewModelArrangement {
 
     private val viewModel by lazy {
         MessageComposerViewModel(
-            savedStateHandle = savedStateHandle,
+            navigationArgs = ConversationNavArgs(conversationId),
             dispatchers = TestDispatcherProvider(),
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             updateConversationReadDate = updateConversationReadDateUseCase,

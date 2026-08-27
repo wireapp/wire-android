@@ -38,18 +38,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import com.ramcosta.composedestinations.generated.app.destinations.ChannelAccessOnCreateScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ChannelHistoryScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewGroupConversationSearchPeopleScreenDestination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import com.wire.android.ui.common.TextWithLinkSuffix
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -84,18 +75,22 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 
-@WireNewConversationDestination
+/**
+ * Navigation-neutral adapter for the group/channel options step.
+ */
 @Composable
-fun GroupOptionScreen(
-    navigator: Navigator,
+internal fun GroupOptionRouteScreen(
     newConversationViewModel: NewConversationViewModel,
+    onConversationCreated: (ConversationId) -> Unit,
+    onOpenAccess: () -> Unit,
+    onOpenHistory: () -> Unit,
+    onEditParticipants: () -> Unit,
+    onDiscard: () -> Unit,
+    onNavigateBack: () -> Unit,
 ) {
-    fun navigateToGroup(conversationId: ConversationId): Unit =
-        navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
-
     LaunchedEffect(newConversationViewModel.createGroupState) {
         (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
-            navigateToGroup(it.conversationId)
+            onConversationCreated(it.conversationId)
         }
     }
 
@@ -103,12 +98,8 @@ fun GroupOptionScreen(
         groupOptionState = newConversationViewModel.groupOptionsState,
         createGroupState = newConversationViewModel.createGroupState,
         groupMetadataState = newConversationViewModel.newGroupState,
-        onAccessClicked = {
-            navigator.navigate(NavigationCommand(ChannelAccessOnCreateScreenDestination))
-        },
-        onHistoryClicked = {
-            navigator.navigate(NavigationCommand(ChannelHistoryScreenDestination))
-        },
+        onAccessClicked = onOpenAccess,
+        onHistoryClicked = onOpenHistory,
         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
@@ -118,18 +109,19 @@ fun GroupOptionScreen(
             } else {
                 newConversationViewModel::createGroup
             },
-        onBackPressed = navigator::navigateBack,
+        onBackPressed = onNavigateBack,
         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
         onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked,
         onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
         onEditParticipantsClick = {
             newConversationViewModel.onCreateGroupErrorDismiss()
-            navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
+            onEditParticipants()
         },
         onDiscardGroupCreationClick = {
             newConversationViewModel.onCreateGroupErrorDismiss()
-            navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+            onDiscard()
         },
+        onRetryPendingCreation = newConversationViewModel::retryPendingMLSGroupCreation,
         onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss,
         onEnableWireCellChanged = newConversationViewModel::onEnableWireCellChanged
     )
@@ -153,6 +145,7 @@ private fun GroupOptionScreenContent(
     onErrorDismissed: () -> Unit,
     onEditParticipantsClick: () -> Unit,
     onDiscardGroupCreationClick: () -> Unit,
+    onRetryPendingCreation: () -> Unit,
     onBackPressed: () -> Unit,
     channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
     mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
@@ -196,7 +189,14 @@ private fun GroupOptionScreenContent(
         }
 
         (createGroupState as? CreateGroupState.Error)?.let {
-            CreateGroupErrorDialog(it, onErrorDismissed, onEditParticipantsClick, onDiscardGroupCreationClick)
+            CreateGroupErrorDialog(
+                error = it,
+                onDismiss = onErrorDismissed,
+                onRetryPendingCreation = onRetryPendingCreation,
+                onPendingCreationAcknowledged = onDiscardGroupCreationClick,
+                onEditParticipantsList = onEditParticipantsClick,
+                onCancel = onDiscardGroupCreationClick,
+            )
         }
         if (showAllowGuestsDialog) {
             AllowGuestsDialog(onAllowGuestsDialogDismissed, onNotAllowGuestsClicked, onAllowGuestsClicked)
@@ -415,7 +415,6 @@ private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -
             style = typography().body01,
         )
     }
-
 }
 
 @Composable
@@ -492,6 +491,7 @@ private fun PreviewGroupOptionScreen(
         onErrorDismissed = {},
         onEditParticipantsClick = {},
         onDiscardGroupCreationClick = {},
+        onRetryPendingCreation = {},
         onBackPressed = {},
         channelsHistoryOptionsEnabled = channelsHistoryOptionsEnabled,
         mlsReadReceiptsEnabled = mlsReadReceiptsEnabled,

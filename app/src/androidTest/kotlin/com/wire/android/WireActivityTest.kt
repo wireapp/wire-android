@@ -25,11 +25,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.work.testing.WorkManagerTestInitHelper
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.extensions.performClickWithNodeWithText
 import com.wire.android.extensions.waitUntilExists
@@ -98,7 +97,7 @@ class WireActivityTest {
         } returns SwitchAccountResult.NoOtherAccountToSwitch
 
         composeTestRule.runOnIdle {
-            val viewModel = ViewModelProvider(composeTestRule.activity)[WireActivityViewModel::class.java]
+            val viewModel = composeTestRule.activity.viewModelForTest()
             viewModel.setAccountSwitchForTest(accountSwitch)
             viewModel.setGlobalAppStateForTest(
                 viewModel.globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)

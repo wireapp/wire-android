@@ -42,19 +42,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.feature.cells.ui.moveToFolderViewModel
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.common.LoadingScreen
-import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
 import com.wire.android.model.ClickBlockParams
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.PreviewNavigator
-import com.wire.android.navigation.PreviewResultRecipient
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -70,16 +61,15 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@Suppress("CyclomaticComplexMethod")
-@WireCellsDestination(
-    navArgs = MoveToFolderNavArgs::class,
-)
 @Composable
-fun MoveToFolderScreen(
-    navigator: WireNavigator,
-    createFolderResultRecipient: ResultRecipient<CreateFolderScreenDestination, Boolean>,
+internal fun MoveToFolderRouteScreen(
+    onNavigateBack: () -> Unit,
+    onCloseFlow: () -> Unit,
+    onNavigateBackSteps: (Int) -> Unit,
+    onOpenCreateFolder: (String) -> Unit,
+    onOpenFolder: (String, String, String, List<String>) -> Unit,
+    moveToFolderViewModel: MoveToFolderViewModel,
     modifier: Modifier = Modifier,
-    moveToFolderViewModel: MoveToFolderViewModel = moveToFolderViewModel(),
 ) {
     val context = LocalContext.current
     val viewState by moveToFolderViewModel.state.collectAsState()
@@ -91,7 +81,7 @@ fun MoveToFolderScreen(
                 TopScreenBar(
                     breadcrumbs = viewState.breadcrumbs.toTypedArray(),
                     onBreadcrumbClick = moveToFolderViewModel::onBreadcrumbClick,
-                    onNavigateBack = { navigator.navigateBack() }
+                    onNavigateBack = onNavigateBack,
                 )
             },
             bottomBar = {
@@ -137,52 +127,24 @@ fun MoveToFolderScreen(
         when (action) {
             is MoveToFolderViewAction.Success -> {
                 Toast.makeText(context, context.resources.getString(R.string.item_move_success), Toast.LENGTH_SHORT).show()
-                navigator.navigateBackAndRemoveAllConsecutive(MoveToFolderScreenDestination.route)
+                onCloseFlow()
             }
 
             is MoveToFolderViewAction.Failure -> {
                 Toast.makeText(context, context.resources.getString(R.string.item_move_failure), Toast.LENGTH_SHORT).show()
-                navigator.navigateBackAndRemoveAllConsecutive(MoveToFolderScreenDestination.route)
+                onCloseFlow()
             }
 
             is MoveToFolderViewAction.NavigateToBreadcrumb -> {
-                navigator.navigateBackAndRemoveAllConsecutiveXTimes(
-                    currentRoute = MoveToFolderScreenDestination.route,
-                    stepsBack = action.steps
-                )
+                onNavigateBackSteps(action.steps)
             }
 
             is MoveToFolderViewAction.OpenCreateFolderScreen -> {
-                navigator.navigate(
-                    NavigationCommand(
-                        CreateFolderScreenDestination(action.currentPath)
-                    )
-                )
+                onOpenCreateFolder(action.currentPath)
             }
 
             is MoveToFolderViewAction.OpenFolder -> {
-                navigator.navigate(
-                    NavigationCommand(
-                        MoveToFolderScreenDestination(
-                            currentPath = action.path,
-                            nodeToMovePath = action.nodePath,
-                            uuid = action.nodeUuid,
-                            breadcrumbs = action.breadcrumbs.toTypedArray()
-                        ),
-                        launchSingleTop = false
-                    )
-                )
-            }
-        }
-    }
-
-    createFolderResultRecipient.onNavResult { result ->
-        when (result) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                if (result.value) {
-                    moveToFolderViewModel.loadFolders()
-                }
+                onOpenFolder(action.path, action.nodePath, action.nodeUuid, action.breadcrumbs)
             }
         }
     }
@@ -290,9 +252,13 @@ private fun EmptyScreen(isRootFolder: Boolean) {
 @Composable
 fun PreviewMoveToFolderScreen() {
     WireTheme {
-        MoveToFolderScreen(
-            navigator = PreviewNavigator,
-            createFolderResultRecipient = PreviewResultRecipient as ResultRecipient<CreateFolderScreenDestination, Boolean>
+        MoveToFolderRouteScreen(
+            onNavigateBack = {},
+            onCloseFlow = {},
+            onNavigateBackSteps = {},
+            onOpenCreateFolder = {},
+            onOpenFolder = { _, _, _, _ -> },
+            moveToFolderViewModel = moveToFolderViewModel(MoveToFolderNavArgs("", "", "")),
         )
     }
 }

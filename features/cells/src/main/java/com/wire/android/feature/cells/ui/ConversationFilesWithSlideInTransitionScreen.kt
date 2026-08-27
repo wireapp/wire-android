@@ -23,42 +23,30 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
 import com.wire.android.feature.cells.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.SlideNavigationAnimation
 
-@WireCellsDestination(
-    style = SlideNavigationAnimation::class,
-    navArgs = CellFilesNavArgs::class,
-)
 @Composable
-fun ConversationFilesWithSlideInTransitionScreen(
-    navigator: WireNavigator,
+internal fun ConversationFilesSlideRouteScreen(
+    navigation: CellsFilesNavigation,
     cellFilesNavArgs: CellFilesNavArgs,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    viewModel: CellViewModel = cellViewModel(),
+    viewModel: CellViewModel,
 ) {
     LaunchedEffect(viewModel.navigateToRecycleBinRoot.collectAsState().value) {
         if (viewModel.navigateToRecycleBinRoot.value) {
-            navigator.navigate(
-                NavigationCommand(
-                    RecycleBinScreenDestination(
-                        conversationId = viewModel.currentNodeUuid()?.substringBefore("/"),
-                        isRecycleBin = true
-                    ),
-                    BackStackMode.POP_CONSECUTIVE_SAME_SCREENS
-                )
+            navigation.recycleBin(
+                CellFilesNavArgs(
+                    conversationId = viewModel.currentNodeUuid()?.substringBefore("/"),
+                    isRecycleBin = true,
+                ),
+                popConsecutive = true,
             )
         }
     }
 
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
-        navigator = navigator,
+        navigation = navigation,
         currentNodeUuid = viewModel.currentNodeUuid(),
         isSearchResult = false,
         screenTitle = stringResource(R.string.conversation_files_title),

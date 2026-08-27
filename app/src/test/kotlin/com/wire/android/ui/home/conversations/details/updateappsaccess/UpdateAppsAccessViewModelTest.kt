@@ -17,16 +17,13 @@
  */
 package com.wire.android.ui.home.conversations.details.updateappsaccess
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -45,7 +42,6 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -59,7 +55,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class UpdateAppsAccessViewModelTest {
 
     @Test
@@ -395,9 +391,6 @@ class UpdateAppsAccessViewModelTest {
 internal class UpdateAppsAccessViewModelArrangement {
 
     @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -417,6 +410,15 @@ internal class UpdateAppsAccessViewModelArrangement {
     private val observeParticipantsForConversationFlow =
         MutableSharedFlow<ConversationParticipantsData>(replay = Int.MAX_VALUE)
 
+    private var navigationArgs = UpdateAppsAccessNavArgs(
+        conversationId = ConversationId("some-dummy-value", "dummyDomain"),
+        updateAppsAccessParams = UpdateAppsAccessParams(
+            isGuestAllowed = true,
+            isAppsAllowed = true,
+            shouldUseNewAppsUi = true,
+        ),
+    )
+
     private val viewModel by lazy {
         UpdateAppsAccessViewModel(
             dispatcher = TestDispatcherProvider(),
@@ -425,7 +427,7 @@ internal class UpdateAppsAccessViewModelArrangement {
             changeAccessForAppsInConversation = changeAccessForAppsInConversationUseCase,
             observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
             selfUser = observeSelfUser,
-            savedStateHandle = savedStateHandle
+            navigationArgs = navigationArgs,
         )
     }
 
@@ -435,15 +437,6 @@ internal class UpdateAppsAccessViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
 
-        every { savedStateHandle.navArgs<UpdateAppsAccessNavArgs>() } returns UpdateAppsAccessNavArgs(
-            conversationId = conversationId,
-            updateAppsAccessParams = UpdateAppsAccessParams(
-                isGuestAllowed = true,
-                isAppsAllowed = true,
-                shouldUseNewAppsUi = true
-            )
-        )
-
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observeParticipantsForConversationUseCase(any()) } returns flowOf()
@@ -452,13 +445,13 @@ internal class UpdateAppsAccessViewModelArrangement {
     }
 
     fun withGuestDisabledNavArgs() = apply {
-        every { savedStateHandle.navArgs<UpdateAppsAccessNavArgs>() } returns UpdateAppsAccessNavArgs(
+        navigationArgs = UpdateAppsAccessNavArgs(
             conversationId = conversationId,
             updateAppsAccessParams = UpdateAppsAccessParams(
                 isGuestAllowed = false,
                 isAppsAllowed = true,
-                shouldUseNewAppsUi = true
-            )
+                shouldUseNewAppsUi = true,
+            ),
         )
     }
 

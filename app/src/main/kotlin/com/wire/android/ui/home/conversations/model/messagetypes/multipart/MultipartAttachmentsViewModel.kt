@@ -53,6 +53,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -132,6 +134,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
 }
 
 @Suppress("LongParameterList")
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     @Assisted private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,

@@ -52,6 +52,7 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.FILE_PROVIDER_SHARED_FILES_ROOT
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getProviderAuthority
+import com.wire.android.util.supportsTrustedWireShareCaller
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -304,7 +305,7 @@ internal fun AppCompatActivity.hasTrustedWireShareCaller(
     providerAuthority: String,
     uris: List<Uri>
 ): Boolean =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+    supportsTrustedWireShareCaller() &&
         uris.areWireFileProviderUrisReadableBy(providerAuthority) { uri ->
             canCallerReadSharedUri(uri)
         }

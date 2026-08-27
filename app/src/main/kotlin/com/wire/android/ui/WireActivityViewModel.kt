@@ -179,14 +179,6 @@ class WireActivityViewModel @Inject constructor(
         .flowOn(dispatchers.io())
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
-    private val observeCurrentUserId: SharedFlow<UserId?> = observeCurrentAccountInfo
-        .map {
-            if (it?.isValid() == true) it.userId else null
-        }
-        .distinctUntilChanged()
-        .flowOn(dispatchers.io())
-        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
-
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
 
     init {
@@ -273,20 +265,8 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeCurrentUserState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentUserId.collectLatest {
-                globalAppState = globalAppState.copy(
-                    currentUserId = it,
-                    isSessionTransitionInProgress = if (it != null) {
-                        false
-                    } else {
-                        globalAppState.isSessionTransitionInProgress
-                    },
-                    sessionTransitionReason = if (it != null) {
-                        null
-                    } else {
-                        globalAppState.sessionTransitionReason
-                    },
-                )
+            observeCurrentAccountInfo.collectLatest { accountInfo ->
+                globalAppState = globalAppState.withObservedCurrentAccount(accountInfo)
             }
         }
     }
@@ -296,9 +276,12 @@ class WireActivityViewModel @Inject constructor(
             observeCurrentAccountInfo
                 .collect {
                     when (it) {
-                        is AccountInfo.Invalid -> handleInvalidSession(it.logoutReason)
+                        is AccountInfo.Invalid -> handleInvalidSession(it.userId, it.logoutReason)
                         is AccountInfo.Valid -> withContext(dispatchers.main()) {
-                            globalAppState = globalAppState.copy(blockUserUI = null)
+                            globalAppState = globalAppState.copy(
+                                blockUserUI = null,
+                                pendingRemovedClientRecovery = null,
+                            )
                         }
 
                         null -> {}
@@ -380,13 +363,13 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleInvalidSession(logoutReason: LogoutReason) {
+    private suspend fun handleInvalidSession(userId: UserId, logoutReason: LogoutReason) {
         when (logoutReason) {
             LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                 // Self logout is handled from the Self user profile screen directly.
             }
 
-            LogoutReason.REMOVED_CLIENT -> recoverFromRemovedClient()
+            LogoutReason.REMOVED_CLIENT -> recoverFromRemovedClient(userId)
 
             LogoutReason.MIGRATION_TO_CC_FAILED ->
                 setCurrentSessionError(CurrentSessionErrorState.RemovedClient)
@@ -399,16 +382,30 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun recoverFromRemovedClient() {
+    private suspend fun recoverFromRemovedClient(userId: UserId) {
+        val serverLinks = runCatching {
+            when (val result = coreLogic.value.getSessionScope(userId).users.serverLinks()) {
+                is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
+                is SelfServerConfigUseCase.Result.Failure -> null
+            }
+        }.getOrNull()
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
                 currentUserId = null,
                 blockUserUI = CurrentSessionErrorState.RemovedClient,
                 isSessionTransitionInProgress = false,
                 sessionTransitionReason = SessionTransitionReason.REMOVED_CLIENT,
+                pendingRemovedClientRecovery = serverLinks?.let {
+                    PendingRemovedClientRecovery(userId, it)
+                },
             )
         }
     }
+
+    fun consumeSessionRecoveryServerLinks(): ServerConfig.Links? =
+        globalAppState.pendingRemovedClientRecovery?.serverLinks.also {
+            globalAppState = globalAppState.copy(pendingRemovedClientRecovery = null)
+        }
 
     private suspend fun setCurrentSessionError(errorState: CurrentSessionErrorState) {
         withContext(dispatchers.main()) {
@@ -471,7 +468,15 @@ class WireActivityViewModel @Inject constructor(
                     result.key,
                     result.domain
                 ) { conversationId ->
-                    sendAction(OpenConversation(DeepLinkResult.OpenConversation(conversationId, result.switchedAccount)))
+                    sendAction(
+                        OpenConversation(
+                            DeepLinkResult.OpenConversation(
+                                conversationId = conversationId,
+                                switchedAccount = result.switchedAccount,
+                                targetSessionId = result.targetSessionId,
+                            )
+                        )
+                    )
                 }
 
                 is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
@@ -684,13 +689,13 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun tryToSwitchAccount() {
+    fun tryToSwitchAccount(actions: SwitchAccountActions) {
         viewModelScope.launch {
-            accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
+            globalAppState = globalAppState.copy(isSessionTransitionInProgress = true)
+            val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
             syncCurrentUserIdFromSession()
-            // Clearing the dialog recreates the NavHost from the synchronized session state.
-            // WireActivity then performs any required navigation after the graph is installed.
             globalAppState = globalAppState.copy(blockUserUI = null)
+            result.callAction(actions)
         }
     }
 
@@ -910,12 +915,11 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun onOpenUserProfileDeepLink(result: DeepLinkResult.OpenOtherUserProfile) = viewModelScope.launch {
-        observeCurrentValidUserId.first()?.let { userId ->
-            if (isProfileQRCodeEnabledFactory.create(userId).isProfileQRCodeEnabled()) {
-                sendAction(OnOpenUserProfile(result))
-            } else {
-                sendAction(ShowToast(R.string.profile_deeplink_feature_unavailable_title_alert))
-            }
+        val userId = result.targetSessionId ?: observeCurrentValidUserId.first() ?: return@launch
+        if (isProfileQRCodeEnabledFactory.create(userId).isProfileQRCodeEnabled()) {
+            sendAction(OnOpenUserProfile(result))
+        } else {
+            sendAction(ShowToast(R.string.profile_deeplink_feature_unavailable_title_alert))
         }
     }
 
@@ -993,6 +997,7 @@ data class NewClientInfo(val date: Instant?, val deviceInfo: UIText) {
 
 data class GlobalAppState(
     val currentUserId: UserId? = null,
+    val confirmedSessionGeneration: Long = 0,
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
     val crossBackendLoginBlockedDialog: Boolean = false,
@@ -1005,7 +1010,39 @@ data class GlobalAppState(
     val userAccent: Accent = Accent.Unknown,
     val isSessionTransitionInProgress: Boolean = false,
     val sessionTransitionReason: SessionTransitionReason? = null,
+    val pendingRemovedClientRecovery: PendingRemovedClientRecovery? = null,
 )
+
+data class PendingRemovedClientRecovery(
+    val userId: UserId,
+    val serverLinks: ServerConfig.Links,
+)
+
+/**
+ * Invalid accounts are deliberately ignored here. [handleInvalidSession] publishes the missing
+ * session and its blocking dialog in one state update, preventing session navigation from seeing
+ * a transient logged-out state and racing the dialog to the login route.
+ */
+internal fun GlobalAppState.withObservedCurrentAccount(accountInfo: AccountInfo?): GlobalAppState =
+    when (accountInfo) {
+        is AccountInfo.Valid -> copy(
+            currentUserId = accountInfo.userId,
+            confirmedSessionGeneration = if (
+                currentUserId != accountInfo.userId ||
+                sessionTransitionReason != null ||
+                blockUserUI != null
+            ) {
+                confirmedSessionGeneration + 1
+            } else {
+                confirmedSessionGeneration
+            },
+            isSessionTransitionInProgress = false,
+            sessionTransitionReason = null,
+        )
+
+        is AccountInfo.Invalid -> this
+        null -> copy(currentUserId = null)
+    }
 
 enum class SessionTransitionReason {
     SELF_LOGOUT,

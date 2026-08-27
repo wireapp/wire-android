@@ -41,8 +41,11 @@ class KaliumConfigsModule {
                 }
             },
             forceConstantBitrateCalls = BuildConfig.FORCE_CONSTANT_BITRATE_CALLS,
-            // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
-            shouldEncryptData = { !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R },
+            // We use UPSERT, available from SQLite 3.24 and Android API 30; older APIs require SQLCipher.
+            // Custom builds can also force SQLCipher on newer debug builds.
+            shouldEncryptData = {
+                BuildConfig.SHOULD_FORCE_ENCRYPT_DB || !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+            },
             lowerKeyPackageLimits = BuildConfig.LOWER_KEYPACKAGE_LIMIT,
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
             ignoreSSLCertificatesForUnboundCalls = BuildConfig.IGNORE_SSL_CERTIFICATES,

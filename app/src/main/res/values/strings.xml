@@ -87,6 +87,8 @@
     <string name="folder_label_messaging">Messaging</string>
     <string name="label_and">and</string>
     <string name="label_retry">Retry</string>
+    <string name="conversation_creation_pending_title">Conversation isn’t ready yet</string>
+    <string name="conversation_creation_pending_message">We couldn’t finish setting up the conversation. You can try again now, or we’ll keep trying in the background.</string>
     <string name="label_draft">*Draft*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">Show password</string>
@@ -880,6 +882,8 @@
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
     <string name="label_system_message_cell_enabled_for_conversation">Shared Drive is **on**</string>
     <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are **off**</string>
+    <string name="label_system_message_cell_viewer_access">Shared Drive is on. You can view, but you can’t upload, edit, or manage files.</string>
+    <string name="label_system_message_cell_editor_access">Shared Drive is on. You have editor access. People outside your team only have viewer access.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -1063,6 +1067,7 @@
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
     <string name="label_type_a_message">Type a message</string>
+    <string name="content_description_conversation_message_list">Conversation messages. Press Enter to navigate messages.</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
     <string name="notification_incoming_call_content">Calling…</string>
@@ -1785,6 +1790,38 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_force_repair_faulty_keys" translatable="false">Reset</string>
     <string name="debug_settings_feature_flags" translatable="false">Feature Flags</string>
     <string name="debug_settings_conversation_crypto_stats" translatable="false">Conversation Crypto Stats</string>
+    <string name="debug_settings_security_diagnostics" translatable="false">Security Diagnostics</string>
+    <string name="debug_settings_app_paths" translatable="false">App Paths</string>
+    <string name="debug_settings_app_path_assets" translatable="false">Assets path</string>
+    <string name="debug_settings_app_path_cache" translatable="false">Cache path</string>
+    <string name="debug_settings_app_path_files_dir" translatable="false">Files dir</string>
+    <string name="debug_settings_app_path_cache_dir" translatable="false">Cache dir</string>
+    <string name="debug_settings_app_path_databases_dir" translatable="false">Databases dir</string>
+    <string name="debug_settings_app_path_no_backup_dir" translatable="false">No backup dir</string>
+    <string name="debug_settings_app_path_external_files_dir" translatable="false">External files dir</string>
+    <string name="debug_settings_security_providers_entry_count" translatable="false">%1$d entries</string>
+    <string name="debug_settings_network" translatable="false">Network</string>
+    <string name="debug_settings_network_vpn" translatable="false">VPN</string>
+    <string name="debug_settings_network_vpn_active" translatable="false">Active</string>
+    <string name="debug_settings_network_vpn_inactive" translatable="false">Not active</string>
+    <string name="debug_settings_network_type" translatable="false">Network type</string>
+    <string name="debug_settings_network_backend_host" translatable="false">Backend host</string>
+    <string name="debug_settings_network_resolved_addresses" translatable="false">Resolved addresses</string>
+    <string name="debug_settings_network_resolved_address" translatable="false">Resolved address (%1$s)</string>
+    <string name="debug_settings_network_ip_v4" translatable="false">IPv4</string>
+    <string name="debug_settings_network_ip_v6" translatable="false">IPv6</string>
+    <string name="debug_settings_network_no_active_network" translatable="false">No active network</string>
+    <string name="debug_settings_network_resolution_failed" translatable="false">Could not be resolved</string>
+    <string name="debug_settings_network_unknown" translatable="false">Unknown</string>
+    <string name="debug_settings_sqlcipher" translatable="false">SQLCipher Database</string>
+    <string name="debug_settings_sqlcipher_version" translatable="false">SQLCipher version</string>
+    <string name="debug_settings_sqlcipher_database_path" translatable="false">User database path</string>
+    <string name="debug_settings_sqlcipher_header_value" translatable="false">Database header (first 16 bytes)</string>
+    <string name="debug_settings_sqlcipher_header_interpretation" translatable="false">Header interpretation</string>
+    <string name="debug_settings_sqlcipher_header_plain" translatable="false">Plain SQLite</string>
+    <string name="debug_settings_sqlcipher_header_not_plain" translatable="false">Not a plain SQLite header</string>
+    <string name="debug_settings_sqlcipher_header_not_created" translatable="false">Database not created</string>
+    <string name="debug_settings_sqlcipher_internal_storage" translatable="false">In app internal data directory</string>
 
     <!--    Personal to team migration screen-->
     <string name="personal_to_team_migration_step_label">Step %1$d of 4</string>
@@ -1887,6 +1924,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="drive_screen_title" translatable="false">Drive</string>
     <string name="enable_wire_cell">Shared Drive</string>
     <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files in a Shared Drive. This can’t be undone.</string>
+    <string name="enable_wire_cell_guest_access_description">People outside your team can view files, not upload or edit.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
 

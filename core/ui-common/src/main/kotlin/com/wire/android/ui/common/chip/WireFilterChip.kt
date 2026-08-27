@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.button.wireChipColors
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -58,7 +59,7 @@ fun WireFilterChip(
         label = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
+                horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)
             ) {
                 Text(
                     text = label,
@@ -75,12 +76,22 @@ fun WireFilterChip(
         selected = isSelected,
         colors = wireChipColors(),
         trailingIcon = {
-            trailingIconResource ?.let {
-                Icon(
-                    modifier = Modifier.width(dimensions().spacing14x),
-                    painter = painterResource(id = it),
-                    contentDescription = null,
-                )
+            Row {
+                trailingIconResource?.let {
+                    Icon(
+                        modifier = Modifier.width(dimensions().spacing14x),
+                        painter = painterResource(id = it),
+                        contentDescription = null,
+                    )
+                }
+                if (count == null && isSelected) {
+                    Icon(
+                        modifier = Modifier
+                            .width(dimensions().spacing12x),
+                        painter = painterResource(R.drawable.ic_close),
+                        contentDescription = null
+                    )
+                }
             }
         },
         border = FilterChipDefaults.filterChipBorder(
@@ -127,6 +138,14 @@ fun PreviewFilterChip() {
 fun PreviewSelectedFilterChip() {
     WireTheme {
         WireFilterChip(label = "Selected", count = 4, isSelected = true)
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+fun PreviewSelectedFilterChipWithoutCount() {
+    WireTheme {
+        WireFilterChip(label = "Selected", isSelected = true)
     }
 }
 

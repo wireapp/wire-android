@@ -29,39 +29,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.common.OfflineBanner
-import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
-import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.WireNavigator
+import com.wire.android.feature.cells.ui.search.sort.toNavArg
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 
-/**
- * Show files in all conversations with a search bar.
- */
 @Suppress("CyclomaticComplexMethod")
 @Composable
 fun AllFilesScreen(
-    navigator: WireNavigator,
+    navigationActions: AllFilesNavigationActions,
     modifier: Modifier = Modifier,
-    viewModel: CellViewModel = cellViewModel(),
+    viewModel: CellViewModel = cellViewModel(CellFilesNavArgs()),
 ) {
-
     val pagingListItems = viewModel.nodesFlow.collectAsLazyPagingItems()
     val isOnlineState by viewModel.isOnline.collectAsState()
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
     val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
+
     val sortingCriteria by viewModel.sortingCriteria.collectAsState()
 
     val lazyListState = rememberLazyListState()
@@ -81,16 +68,8 @@ fun AllFilesScreen(
                                 isSearchActive = false,
                                 searchBarHint = stringResource(R.string.search_label),
                                 searchQueryTextState = rememberTextFieldState(),
-                                onTap = {
-                                    navigator.navigate(
-                                        NavigationCommand(
-                                            SearchScreenDestination(
-                                                screenType = DriveSearchScreenType.DRIVE,
-                                            )
-                                        )
-                                    )
-                                },
-                            )
+                                onTap = { navigationActions.openSearch(sortingCriteria.toNavArg()) },
+                                )
                             SortRowWithMenu(
                                 sortingCriteria = sortingCriteria,
                                 screenType = DriveSearchScreenType.DRIVE,
@@ -107,7 +86,6 @@ fun AllFilesScreen(
     ) { innerPadding ->
         CellScreenContent(
             modifier = Modifier.padding(innerPadding),
-            lazyListState = lazyListState,
             actionsFlow = viewModel.actions,
             pagingListItems = pagingListItems,
             sendIntent = { viewModel.sendIntent(it) },
@@ -119,70 +97,15 @@ fun AllFilesScreen(
             isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
             isRecycleBin = viewModel.isRecycleBin(),
             isSearchResult = false,
-            showPublicLinkScreen = { publicLinkScreenData ->
-                navigator.navigate(
-                    NavigationCommand(
-                        PublicLinkScreenDestination(
-                            assetId = publicLinkScreenData.assetId,
-                            fileName = publicLinkScreenData.fileName,
-                            publicLinkId = publicLinkScreenData.linkId,
-                            isFolder = publicLinkScreenData.isFolder
-                        )
-                    )
-                )
-            },
+            showPublicLinkScreen = navigationActions.showPublicLink,
             showMoveToFolderScreen = { _, _, _ -> },
             showRenameScreen = {},
-            showAddRemoveTagsScreen = { node ->
-                navigator.navigate(
-                    NavigationCommand(
-                        AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
-                    )
-                )
-            },
+            showAddRemoveTagsScreen = navigationActions.showAddRemoveTags,
             isRefreshing = viewModel.isPullToRefresh.collectAsState(),
             onRefresh = { viewModel.onPullToRefresh() },
-            showImageViewer = { file ->
-                navigator.navigate(
-                    NavigationCommand(
-                        CellImageViewerScreenDestination(
-                            CellImageViewerNavArgs(
-                                localPath = file.localPath,
-                                contentUrl = file.contentUrl,
-                                previewUrl = file.previewUrl,
-                                contentHash = file.contentHash,
-                                fileName = file.name,
-                            )
-                        )
-                    )
-                )
-            },
-            showVideoViewer = { file ->
-                navigator.navigate(
-                    NavigationCommand(
-                        VideoPlayerScreenDestination(
-                            VideoViewerNavArgs(
-                                localPath = file.localPath,
-                                contentUrl = file.contentUrl,
-                                fileName = file.name,
-                            )
-                        )
-                    )
-                )
-            },
-            showAudioPlayer = { file ->
-                navigator.navigate(
-                    NavigationCommand(
-                        CellAudioPlayerScreenDestination(
-                            AudioPlayerNavArgs(
-                                localPath = file.localPath,
-                                contentUrl = file.contentUrl,
-                                fileName = file.name,
-                            )
-                        )
-                    )
-                )
-            },
+            showImageViewer = navigationActions.showImageViewer,
+            showVideoViewer = navigationActions.showVideoPlayer,
+            showAudioPlayer = navigationActions.showAudioPlayer,
             fileReadyFlow = viewModel.fileReadyFlow,
         )
     }

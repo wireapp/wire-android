@@ -1,4 +1,11 @@
-@file:Suppress("TooManyFunctions", "TooGenericExceptionCaught", "TooGenericExceptionThrown", "ReturnCount", "MagicNumber")
+@file:Suppress(
+    "TooManyFunctions",
+    "TooGenericExceptionCaught",
+    "TooGenericExceptionThrown",
+    "ReturnCount",
+    "MagicNumber",
+    "LargeClass"
+)
 /*
  * Wire
  * Copyright (C) 2025 Wire Swiss GmbH
@@ -536,6 +543,99 @@ class TestServiceHelper(
         }
     }
 
+    fun userXSeesNoMessageInPersonalMlsConversation(
+        receiverAlias: String,
+        deviceName: String,
+        conversationWithAlias: String,
+        message: String,
+    ) {
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObjPersonal(receiver, conversationWithAlias)
+        val removed = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = 1.seconds
+        ) {
+            runCatching {
+                testServiceClient.getMessageIdByText(
+                    owner = receiver,
+                    deviceName = deviceName,
+                    convoId = conversation.qualifiedID.id,
+                    convoDomain = conversation.qualifiedID.domain,
+                    text = message,
+                )
+            }.exceptionOrNull()?.message?.startsWith("Could not find message") == true
+        }
+
+        if (!removed) {
+            throw AssertionError(
+                "Test-service device '$deviceName' for '$receiverAlias' still sees '$message' " +
+                    "in its MLS conversation with '$conversationWithAlias'."
+            )
+        }
+    }
+
+    fun assertMessageReceivedInGroupConversation(
+        receiverAlias: String,
+        deviceName: String,
+        conversationName: String,
+        message: String,
+    ) {
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObj(receiver, conversationName)
+        val received = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = 1.seconds
+        ) {
+            runCatching {
+                testServiceClient.getMessageIdByText(
+                    owner = receiver,
+                    deviceName = deviceName,
+                    convoId = conversation.qualifiedID.id,
+                    convoDomain = conversation.qualifiedID.domain,
+                    text = message,
+                )
+            }.isSuccess
+        }
+
+        if (!received) {
+            throw AssertionError(
+                "Test-service device '$deviceName' for '$receiverAlias' did not receive '$message' " +
+                    "in group conversation '$conversationName'."
+            )
+        }
+    }
+
+    fun userXSeesNoMessageInGroupConversation(
+        receiverAlias: String,
+        deviceName: String,
+        conversationName: String,
+        message: String,
+    ) {
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObj(receiver, conversationName)
+        val removed = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            pollingInterval = 1.seconds
+        ) {
+            runCatching {
+                testServiceClient.getMessageIdByText(
+                    owner = receiver,
+                    deviceName = deviceName,
+                    convoId = conversation.qualifiedID.id,
+                    convoDomain = conversation.qualifiedID.domain,
+                    text = message,
+                )
+            }.exceptionOrNull()?.message?.startsWith("Could not find message") == true
+        }
+
+        if (!removed) {
+            throw AssertionError(
+                "Test-service device '$deviceName' for '$receiverAlias' still sees '$message' " +
+                    "in group conversation '$conversationName'."
+            )
+        }
+    }
+
     fun userSendEphemeralMessageToConversation(
         senderAlias: String,
         msg: String,
@@ -632,6 +732,26 @@ class TestServiceHelper(
         val pattern = Regex("""([a-z]+://)?[a-z0-9\-]+\.[a-z]+[^\s\n]*""", RegexOption.IGNORE_CASE)
         val matcher = pattern.toPattern().matcher(message)
         return if (matcher.find()) matcher else null
+    }
+
+    fun userReadsRecentMessageFromGroupConversation(
+        userAlias: String,
+        conversationName: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendEphemeralConfirmationDelivered(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
     }
 
     fun userTogglesReactionOnLatestMessage(

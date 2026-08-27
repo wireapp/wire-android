@@ -20,15 +20,16 @@ package com.wire.android.feature.cells.ui.tags
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -36,14 +37,18 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AddRemoveTagsViewModel(
-    val savedStateHandle: SavedStateHandle,
+class AddRemoveTagsViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: AddRemoveTagsNavArgs,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val updateNodeTagsUseCase: UpdateNodeTagsUseCase,
     private val removeNodeTagsUseCase: RemoveNodeTagsUseCase,
 ) : ActionsViewModel<AddRemoveTagsViewModelAction>() {
 
-    private val navArgs: AddRemoveTagsNavArgs = AddRemoveTagsScreenDestination.argsFrom(savedStateHandle)
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: AddRemoveTagsNavArgs): AddRemoveTagsViewModel
+    }
+
     private val initialTags: Set<String> = navArgs.tags.toSet()
     private val disallowedChars = setOf(",", ";", "/", "\\", "\"", "\'", "<", ">")
 

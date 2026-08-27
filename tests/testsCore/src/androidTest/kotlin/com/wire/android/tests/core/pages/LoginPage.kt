@@ -48,6 +48,7 @@ data class LoginPage(private val device: UiDevice) {
     private val ssoLoginTabSelector = UiSelectorParams(text = "SSO LOGIN")
     private val oldLoginSsoCodeLabelSelector = UiSelectorParams(textContains = "SSO CODE")
     private val oldLoginSsoButtonSelector = UiSelectorParams(text = "Login")
+    private val oldLoginCreatePersonalAccountLinkSelector = UiSelectorParams(text = "Create a Personal Account")
     private val invalidInformationAlertSelector = UiSelectorParams(text = "Invalid information")
     private val incorrectCredentialsAlertOkButtonSelector = UiSelectorParams(text = "OK")
     private val proceedButtonSelector = UiSelectorParams(text = "Proceed")
@@ -213,6 +214,11 @@ data class LoginPage(private val device: UiDevice) {
             timeout = UiWaitUtils.SHORT_WAIT
         )
         assertTrue("Old login Welcome Page is not visible", !loginButton.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickCreatePersonalAccountLinkOnOldWelcomePage(): LoginPage {
+        UiWaitUtils.waitElement(oldLoginCreatePersonalAccountLinkSelector).click()
         return this
     }
 

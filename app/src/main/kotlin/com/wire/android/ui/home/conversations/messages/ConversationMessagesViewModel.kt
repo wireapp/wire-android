@@ -22,11 +22,9 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -73,6 +71,9 @@ import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,10 +93,13 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationMessagesViewModel(
-    val savedStateHandle: SavedStateHandle,
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+class ConversationMessagesViewModel @AssistedInject constructor(
+    @Assisted navigationArgs: ConversationNavArgs,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
@@ -116,7 +120,12 @@ class ConversationMessagesViewModel(
     private val networkStateObserver: NetworkStateObserver,
 ) : ViewModel() {
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: ConversationNavArgs): ConversationMessagesViewModel
+    }
+
+    private val conversationNavArgs: ConversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     private val searchedMessageIdNavArgs: String? = conversationNavArgs.searchedMessageId
 

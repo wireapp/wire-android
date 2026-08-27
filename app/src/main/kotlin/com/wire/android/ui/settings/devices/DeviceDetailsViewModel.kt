@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -30,7 +29,6 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialogState
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceError
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeleteClientParam
@@ -55,10 +53,15 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 @Suppress("TooManyFunctions", "LongParameterList")
-class DeviceDetailsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
+class DeviceDetailsViewModel @AssistedInject constructor(
+    @Assisted navigationArgs: DeviceDetailsViewModelArgs,
     @CurrentAccount
     private val currentUserId: UserId,
     private val deleteClient: DeleteClientUseCase,
@@ -71,9 +74,12 @@ class DeviceDetailsViewModel @Inject constructor(
     private val breakSession: BreakSessionUseCase,
     private val isE2EIEnabledUseCase: IsE2EIEnabledUseCase
 ) : ViewModel() {
-    private val deviceDetailsNavArgs: DeviceDetailsNavArgs = savedStateHandle.navArgs()
-    private val deviceId: ClientId = deviceDetailsNavArgs.clientId
-    private val userId: UserId = deviceDetailsNavArgs.userId
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: DeviceDetailsViewModelArgs): DeviceDetailsViewModel
+    }
+    private val deviceId: ClientId = navigationArgs.clientId
+    private val userId: UserId = navigationArgs.userId
     val passwordTextState: TextFieldState = TextFieldState()
     var state: DeviceDetailsState by mutableStateOf(
         DeviceDetailsState(

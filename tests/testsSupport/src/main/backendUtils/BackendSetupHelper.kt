@@ -25,10 +25,12 @@ import backendUtils.connection.sendConnectionRequest
 import backendUtils.conversation.addUsersToGroupConversation
 import backendUtils.conversation.createChannelTeamConversation
 import backendUtils.conversation.createTeamConversation
+import backendUtils.conversation.deleteTeamConversation
 import backendUtils.conversation.getConversationByName
 import backendUtils.conversation.removeUserFromGroupConversation
 import backendUtils.conversation.setArchivedStateForConversation
 import backendUtils.team.addServiceToConversation
+import backendUtils.team.disableFileSharingFeature
 import backendUtils.team.enableChannelFeatureViaBackdoorTeam
 import backendUtils.team.enableForceAppLockFeature
 import backendUtils.team.enableMLSFeatureTeam
@@ -36,6 +38,7 @@ import backendUtils.team.getTeamByName
 import backendUtils.team.switchServiceForTeam
 import backendUtils.team.TeamRoles
 import backendUtils.team.unlockChannelFeature
+import backendUtils.team.unlockFileSharingFeature
 import backendUtils.team.updateUniqueUsername
 import backendUtils.user.createPersonalUserViaBackend
 import kotlinx.coroutines.runBlocking
@@ -179,6 +182,19 @@ class BackendSetupHelper(
             val team = backendClient.getTeamByName(owner, teamName)
             backendClient.unlockChannelFeature(team)
             backendClient.enableChannelFeatureViaBackdoorTeam(team)
+        }
+    }
+
+    fun userDisablesFileSharingForTeam(
+        ownerUserAlias: String,
+        teamName: String,
+        backendClient: BackendClient
+    ) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.unlockFileSharingFeature(team)
+            backendClient.disableFileSharingFeature(team)
         }
     }
 
@@ -347,6 +363,12 @@ class BackendSetupHelper(
             userToRemove,
             toConvoObj(userWhoRemoves, chatName)
         )
+    }
+
+    fun userDeletesGroupConversation(userAlias: String, chatName: String) {
+        val user = toClientUser(userAlias)
+        val backend = backendFor(user)
+        backend.deleteTeamConversation(user, toConvoObj(user, chatName))
     }
 
     private fun toClientUser(nameAlias: String): ClientUser {

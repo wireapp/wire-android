@@ -19,7 +19,7 @@ libsodiumBindings = "0.9.5"
 detekt = "1.23.8"
 google-gms = "4.4.4"
 gms-location = "21.3.0"
-android-gradlePlugin = "9.0.1"
+android-gradlePlugin = "9.2.0"
 desugaring = "2.1.5"
 firebaseBOM = "34.13.0"
 fragment = "1.5.6"
@@ -37,7 +37,7 @@ androidx-dataStore = "1.1.7"
 androidx-exif = "1.4.2"
 androidx-emoji = "1.6.0"
 androidx-jetpack = "1.1.0"
-androidx-lifecycle = "2.10.0"
+androidx-lifecycle = "2.11.0"
 androidx-paging3 = "3.3.6"
 androidx-paging3Compose = "3.3.4"
 androidx-splashscreen = "1.2.0"
@@ -50,11 +50,10 @@ compose-qr = "1.0.1"
 enterprise-feedback = "1.1.0"
 
 # Compose
-composeBom = "2026.06.00"
+composeBom = "2026.06.01"
 compose-activity = "1.13.0"
-compose-constraint = "1.1.1"
-compose-navigation = "2.9.5" # aligned with compose-destinations 2.3.0
-compose-destinations = "2.3.0"
+compose-constraint = "1.1.2"
+compose-multiplatform-navigation3 = "1.1.1"
 compose-stability-analyzer = "0.8.0"
 screenshot = "0.0.1-alpha14"
 jetbrains-compose = "1.10.3"
@@ -95,7 +94,7 @@ ksp = "2.3.7"
 
 # Benchmark
 benchmark-macro-junit4 = "1.4.1"
-benchmark-baselineprofile-plugin = "1.5.0-alpha05"
+benchmark-baselineprofile-plugin = "1.5.0-beta01"
 profileinstaller = "1.4.1"
 
 # Testing
@@ -142,7 +141,6 @@ androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "ben
 wire-android-application = { id = "com.wire.android.application" }
 wire-android-library = { id = "com.wire.android.library" }
 wire-android-test-library = { id = "com.wire.android.test.library" }
-wire-android-navigation = { id = "com.wire.android.navigation" }
 wire-compose-compiler = { id = "com.wire.android.compose.compiler" }
 wire-kmp-library = { id = "com.wire.android.kmp.library" }
 wire-kover = { id = "com.wire.android.kover" }
@@ -202,6 +200,7 @@ androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-kt
 androidx-lifecycle-viewModel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModelSavedState = { module = "androidx.lifecycle:lifecycle-viewmodel-savedstate", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-viewModelNavigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-lifecycle" }
 
 # AndroidX - Other
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
@@ -242,9 +241,8 @@ jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "
 # Compose other
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }
 compose-constraintLayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraint" }
-compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
-compose-destinations-core = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "compose-destinations" }
-compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
+compose-multiplatform-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "compose-multiplatform-navigation3" }
+compose-multiplatform-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "compose-multiplatform-navigation3" }
 
 # Compose Preview
 compose-edgetoedge-preview = { module = "de.drick.compose:edge-to-edge-preview", version.ref = "compose-edgetoedge-preview" }

@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.logging.LogFileWriter
+import dev.zacsweers.metro.Inject
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import kotlinx.coroutines.Deferred
@@ -35,7 +36,7 @@ data class LogManagementState(
     val logPath: String
 )
 
-class LogManagementViewModel(
+class LogManagementViewModel @Inject constructor(
     private val logFileWriter: LogFileWriter,
     private val globalDataStore: GlobalDataStore
 ) : ViewModel() {

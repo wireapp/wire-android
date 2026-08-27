@@ -34,6 +34,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -43,13 +44,13 @@ import org.junit.jupiter.api.Test
 class CallActivityViewModelTest {
 
     @Test
-    fun `given no current, when checking screenshot censoring config, then return false`() =
+    fun givenRequestedUser_whenScreenshotCensoringIsDisabled_thenReturnFalse() =
         runTest {
             val (_, viewModel) = Arrangement()
-                .withCurrentSessionReturning(CurrentSessionResult.Failure.SessionNotFound)
+                .withScreenshotCensoringConfigReturning(ObserveScreenshotCensoringConfigResult.Disabled)
                 .arrange()
 
-            val result = viewModel.isScreenshotCensoringConfigEnabled()
+            val result = viewModel.isScreenshotCensoringConfigEnabled(userId)
 
             assertEquals(false, result.await())
         }
@@ -62,7 +63,7 @@ class CallActivityViewModelTest {
                 .withScreenshotCensoringConfigReturning(ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser)
                 .arrange()
 
-            val result = viewModel.isScreenshotCensoringConfigEnabled()
+            val result = viewModel.isScreenshotCensoringConfigEnabled(userId)
 
             assertEquals(true, result.await())
         }
@@ -75,9 +76,26 @@ class CallActivityViewModelTest {
                 .withScreenshotCensoringConfigReturning(ObserveScreenshotCensoringConfigResult.Disabled)
                 .arrange()
 
-            val result = viewModel.isScreenshotCensoringConfigEnabled()
+            val result = viewModel.isScreenshotCensoringConfigEnabled(userId)
 
             assertEquals(false, result.await())
+        }
+
+    @Test
+    fun givenRequestedAccountDiffersFromCurrent_whenCheckingScreenshotPolicy_thenRequestedAccountIsUsed() =
+        runTest {
+            val otherUser = UserId("other", "domain")
+            val (arrangement, viewModel) = Arrangement()
+                .withCurrentSessionReturning(CurrentSessionResult.Success(AccountInfo.Valid(otherUser)))
+                .withScreenshotCensoringConfigReturning(ObserveScreenshotCensoringConfigResult.Disabled)
+                .arrange()
+
+            viewModel.isScreenshotCensoringConfigEnabled(userId).await()
+
+            coVerify(exactly = 0) { arrangement.currentSession() }
+            verify(exactly = 1) {
+                arrangement.observeScreenshotCensoringConfigUseCaseProviderFactory.create(userId)
+            }
         }
 
     @Test
@@ -174,11 +192,11 @@ class CallActivityViewModelTest {
     private class Arrangement {
 
         @MockK
-        private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory:
+        lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory:
                 ObserveScreenshotCensoringConfigUseCaseProvider.Factory
 
         @MockK
-        private lateinit var currentSession: CurrentSessionUseCase
+        lateinit var currentSession: CurrentSessionUseCase
 
         @MockK
         lateinit var accountSwitch: AccountSwitchUseCase

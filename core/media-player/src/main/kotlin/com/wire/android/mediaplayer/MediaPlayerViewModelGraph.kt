@@ -20,16 +20,11 @@
 package com.wire.android.mediaplayer
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface MediaPlayerManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun videoPlayerViewModel(
-        localPath: String?,
-        contentUrl: String?,
-        fileName: String?,
-    ): VideoPlayerViewModel
-}
+@WireAssistedViewModelFactoryGroup
+object MediaPlayerManualViewModelFactoryGroup
 
 @Composable
 fun videoPlayerViewModel(
@@ -37,8 +32,8 @@ fun videoPlayerViewModel(
     contentUrl: String?,
     fileName: String?,
 ): VideoPlayerViewModel =
-    sessionKeyedAssistedMetroViewModel<VideoPlayerViewModel, MediaPlayerManualViewModelFactory>(
-        key = "video_player_${localPath ?: contentUrl}"
+    wireAssistedMetroViewModel<VideoPlayerViewModel, MediaPlayerManualViewModelFactory>(
+        instanceKey = "video_player_${localPath ?: contentUrl}"
     ) {
         videoPlayerViewModel(localPath, contentUrl, fileName)
     }

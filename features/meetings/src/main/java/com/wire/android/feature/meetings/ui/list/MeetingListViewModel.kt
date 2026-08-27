@@ -25,17 +25,22 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.mapper.toMeetingItem
 import com.wire.android.feature.meetings.mapper.toOngoingCallStatus
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
+import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUseCase
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -66,13 +71,20 @@ class MeetingListViewModelPreview(type: MeetingsTabItem) : MeetingListViewModel 
     )
 }
 
-class MeetingListViewModelImpl(
-    val type: MeetingsTabItem,
+@WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)
+class MeetingListViewModelImpl @AssistedInject constructor(
+    @Assisted val type: MeetingsTabItem,
     override val currentTimeProvider: CurrentTimeProvider,
     getMeetingsPaginated: GetPaginatedFlowOfMeetingsUseCase,
     observeActiveCalls: ObserveActiveCallsUseCase,
     dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(type: MeetingsTabItem): MeetingListViewModelImpl
+    }
+
     private val alignedTickerFlow = flow {
         while (currentCoroutineContext().isActive) {
             val currentTime = currentTimeProvider()

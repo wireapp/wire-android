@@ -31,11 +31,13 @@ import uiautomatorutils.UiWaitUtils.toBySelector
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.time.Duration
 
+@Suppress("LargeClass")
 data class ConversationListPage(private val device: UiDevice) {
 
     private val searchField = UiSelectorParams(description = "Search conversations")
-    private val userProfileButtonNoPhoto = UiSelectorParams(description = "Your profile")
-    private val userProfileButton = UiSelectorParams(resourceId = "User avatar")
+    private val userProfileButton = UiSelectorParams(description = "Your profile")
+    private val userProfileButtonWithNotification =
+        UiSelectorParams(description = "Your profile, one unread hint.")
     private val conversationListHeading = UiSelectorParams(
         textContains = "Conversations"
     )
@@ -72,6 +74,24 @@ data class ConversationListPage(private val device: UiDevice) {
     private val unblockButtonAlert = UiSelectorParams(text = "Unblock")
     private val clearContentButton = UiSelectorParams(textContains = "Clear Content")
     private val clearContentConfirmButton = UiSelectorParams(text = "Clear content")
+    private val filterConversationButton = UiSelectorParams(description = "Filter Conversations")
+    private val filterConversationsHeading = UiSelectorParams(text = "Filter Conversations")
+    private val favoritesButton = UiSelectorParams(text = "Favorites")
+    private val favoritesPageHeading = UiSelectorParams(text = "Favorites")
+    private val addToFavoritesButton = UiSelectorParams(text = "Add to Favorites")
+    private val removeFromFavoritesButton = UiSelectorParams(text = "Remove from Favorites")
+    private val moveToFolderButton = UiSelectorParams(text = "Move to Folder...")
+    private val moveToFolderPageHeading = UiSelectorParams(text = "Move to Folder...")
+    private val newFolderButton = UiSelectorParams(text = "New Folder")
+    private val doneButton = UiSelectorParams(text = "Done")
+    private val folderNameInputField = UiSelectorParams(className = "android.widget.EditText")
+    private val createFolderButton = UiSelectorParams(text = "Create Folder")
+    private val foldersButton = UiSelectorParams(text = "Folders")
+    private val groupsButton = UiSelectorParams(text = "Groups")
+    private val oneToOneConversationsButton = UiSelectorParams(text = "1:1 Conversations")
+
+    private fun folderSelector(folderName: String) = UiSelectorParams(text = folderName)
+    private fun removeFromFolderButton(folderName: String) = UiSelectorParams(text = "Remove from Folder “$folderName”")
 
     private val userConversationNamePendingLabelSelector =
         UiSelector().description("pending approval of connection request")
@@ -235,6 +255,30 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertMembershipIdentifierVisible(
+        conversationName: String,
+        expectedIdentifier: String,
+        timeout: Duration = UiWaitUtils.SHORT_TIMEOUT
+    ): ConversationListPage {
+        val identifierSelector = UiSelectorParams(text = expectedIdentifier).toBySelector()
+        val identifierIsVisible = UiWaitUtils.retryUntilTimeout(
+            timeout = timeout,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            findElementOrNull(conversationNameSelector(conversationName))
+                ?.parent
+                ?.findObject(identifierSelector)
+                ?.visibleBounds
+                ?.isEmpty == false
+        }
+
+        assertTrue(
+            "Identifier '$expectedIdentifier' is not visible next to conversation '$conversationName'",
+            identifierIsVisible
+        )
+        return this
+    }
+
     fun assertGroupConversationVisible(conversationName: String): ConversationListPage {
         return assertConversationVisible(conversationName)
     }
@@ -255,6 +299,12 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationSubtitleVisible(expectedSubtitle: String): ConversationListPage {
+        val subtitle = UiWaitUtils.waitElement(UiSelectorParams(text = expectedSubtitle))
+        assertTrue("Conversation subtitle '$expectedSubtitle' is not visible", !subtitle.visibleBounds.isEmpty)
+        return this
+    }
+
     fun tapSearchConversationField(): ConversationListPage {
         val element = UiWaitUtils.waitElement(searchField)
         element.click()
@@ -271,6 +321,10 @@ data class ConversationListPage(private val device: UiDevice) {
             .executeShellCommand("input text $encodedText") // removed single quotes
 
         return this
+    }
+
+    fun typeConversationNameInSearchField(conversationName: String): ConversationListPage {
+        return typeFirstNCharsInSearchField(conversationName, conversationName.length)
     }
 
     fun clickGroupConversation(
@@ -300,6 +354,174 @@ data class ConversationListPage(private val device: UiDevice) {
         val center = conversation.visibleCenter
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .swipe(center.x, center.y, center.x, center.y, 120)
+        return this
+    }
+
+    fun assertAddToFavoritesButtonVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(addToFavoritesButton)
+        return this
+    }
+
+    fun tapAddToFavoritesButton(): ConversationListPage {
+        UiWaitUtils.waitElement(addToFavoritesButton).click()
+        return this
+    }
+
+    fun tapFilterConversationButton(): ConversationListPage {
+        UiWaitUtils.waitElement(filterConversationButton).click()
+        return this
+    }
+
+    fun assertFilterConversationsBottomSheetVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(filterConversationsHeading)
+        return this
+    }
+
+    fun assertFavoritesButtonVisibleOnFilterBottomSheet(): ConversationListPage {
+        UiWaitUtils.waitElement(favoritesButton)
+        return this
+    }
+
+    fun tapFavoritesButtonOnFilterBottomSheet(): ConversationListPage {
+        UiWaitUtils.waitElement(favoritesButton).click()
+        return this
+    }
+
+    fun assertFavoritesPageVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(favoritesPageHeading)
+        return this
+    }
+
+    fun assertRemoveFromFavoritesButtonVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(removeFromFavoritesButton)
+        return this
+    }
+
+    fun tapRemoveFromFavoritesButton(): ConversationListPage {
+        UiWaitUtils.waitElement(removeFromFavoritesButton).click()
+        return this
+    }
+
+    fun assertMoveToFolderButtonVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(moveToFolderButton)
+        return this
+    }
+
+    fun tapMoveToFolderButton(): ConversationListPage {
+        UiWaitUtils.waitElement(moveToFolderButton).click()
+        return this
+    }
+
+    fun assertMoveToFolderPageVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(moveToFolderPageHeading)
+        return this
+    }
+
+    fun assertNewFolderButtonVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(newFolderButton)
+        return this
+    }
+
+    fun assertDoneButtonVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(doneButton)
+        return this
+    }
+
+    fun tapNewFolderButton(): ConversationListPage {
+        UiWaitUtils.waitElement(newFolderButton).click()
+        return this
+    }
+
+    fun assertNewFolderPageVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(newFolderButton)
+        return this
+    }
+
+    fun enterFolderName(folderName: String): ConversationListPage {
+        UiWaitUtils.waitElement(folderNameInputField).apply {
+            click()
+            text = folderName
+        }
+        return this
+    }
+
+    fun tapCreateFolderButton(): ConversationListPage {
+        UiWaitUtils.waitElement(createFolderButton).click()
+        return this
+    }
+
+    fun assertFoldersButtonVisibleOnFilterBottomSheet(): ConversationListPage {
+        UiWaitUtils.waitElement(foldersButton)
+        return this
+    }
+
+    fun tapFoldersButtonOnFilterBottomSheet(): ConversationListPage {
+        UiWaitUtils.waitElement(foldersButton).click()
+        return this
+    }
+
+    fun assertGroupsButtonVisibleOnFilterBottomSheet(): ConversationListPage {
+        UiWaitUtils.waitElement(groupsButton)
+        return this
+    }
+
+    fun tapGroupsButtonOnFilterBottomSheet(): ConversationListPage {
+        UiWaitUtils.waitElement(groupsButton).click()
+        return this
+    }
+
+    fun assertGroupsPageVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(groupsButton)
+        return this
+    }
+
+    fun assertOneToOneConversationsButtonVisibleOnFilterBottomSheet(): ConversationListPage {
+        UiWaitUtils.waitElement(oneToOneConversationsButton)
+        return this
+    }
+
+    fun tapOneToOneConversationsButtonOnFilterBottomSheet(): ConversationListPage {
+        UiWaitUtils.waitElement(oneToOneConversationsButton).click()
+        return this
+    }
+
+    fun assertOneToOneConversationsPageVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(oneToOneConversationsButton)
+        return this
+    }
+
+    fun assertFoldersBottomSheetVisible(): ConversationListPage {
+        UiWaitUtils.waitElement(foldersButton)
+        return this
+    }
+
+    fun assertFolderVisible(folderName: String): ConversationListPage {
+        UiWaitUtils.waitElement(folderSelector(folderName))
+        return this
+    }
+
+    fun tapFolder(folderName: String): ConversationListPage {
+        UiWaitUtils.waitElement(folderSelector(folderName)).click()
+        return this
+    }
+
+    fun tapDoneButtonOnMoveToFolderPage(): ConversationListPage {
+        UiWaitUtils.waitElement(doneButton).click()
+        return this
+    }
+
+    fun assertFolderPageVisible(folderName: String): ConversationListPage {
+        UiWaitUtils.waitElement(folderSelector(folderName))
+        return this
+    }
+
+    fun assertRemoveFromFolderButtonVisible(folderName: String): ConversationListPage {
+        UiWaitUtils.waitElement(removeFromFolderButton(folderName))
+        return this
+    }
+
+    fun tapRemoveFromFolderButton(folderName: String): ConversationListPage {
+        UiWaitUtils.waitElement(removeFromFolderButton(folderName)).click()
         return this
     }
 
@@ -353,6 +575,11 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun tapMoveToArchiveButtonInConversationActions(): ConversationListPage {
         UiWaitUtils.waitElement(moveToArchiveButton).click()
+        return this
+    }
+
+    fun assertMoveToArchiveButtonVisibleInConversationActions(): ConversationListPage {
+        UiWaitUtils.waitElement(moveToArchiveButton)
         return this
     }
 
@@ -509,7 +736,6 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun clickCloseButtonOnNewConversationScreen(timeout: Duration = UiWaitUtils.SHORT_TIMEOUT): ConversationListPage {
         val closeButton = UiSelectorParams(
-            className = "android.view.View",
             description = "Close new conversation view"
         )
 
@@ -579,22 +805,18 @@ data class ConversationListPage(private val device: UiDevice) {
         return this
     }
 
-  fun clickUserProfileButton(): ConversationListPage {
-    val buttonWithPhoto = UiWaitUtils.findElementOrNull(userProfileButton)
-    if (buttonWithPhoto != null && !buttonWithPhoto.visibleBounds.isEmpty) {
-        buttonWithPhoto.click()
-    } else {
-        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
-        buttonNoPhoto.click()
+    fun clickUserProfileButton(): ConversationListPage {
+        val button = UiWaitUtils.waitAnyVisible(
+            listOf(userProfileButton, userProfileButtonWithNotification)
+        ) ?: throw AssertionError("Self user profile button is not displayed")
+        button.click()
+        return this
     }
-    return this
-}
 
     fun clickUserProfileButtonNoPhoto(): ConversationListPage {
-        val buttonNoPhoto = UiWaitUtils.waitElement(userProfileButtonNoPhoto)
-        buttonNoPhoto.click()
-    return this
-}
+        UiWaitUtils.waitElement(userProfileButton).click()
+        return this
+    }
 
     fun assertConversationIsVisibleWithTeamOwner(userName: String): ConversationListPage {
         try {

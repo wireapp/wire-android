@@ -635,6 +635,40 @@ suspend fun BackendClient.unlockChannelFeature(team: Team) {
     )
 }
 
+suspend fun BackendClient.unlockFileSharingFeature(team: Team) {
+    val teamId = Uri.encode(team.id)
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("i/teams/$teamId/features/fileSharing/unlocked".composeCompleteUrl()).toURL(),
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
+suspend fun BackendClient.disableFileSharingFeature(team: Team) {
+    val teamId = Uri.encode(team.id)
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("i/teams/$teamId/features/fileSharing".composeCompleteUrl()).toURL(),
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().put("status", "disabled").toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
 suspend fun BackendClient.enableForceAppLockFeature(team: Team, seconds: Int) {
     val teamId = Uri.encode(team.id)
     val url = URI("i/teams/$teamId/features/appLock".composeCompleteUrl()).toURL()

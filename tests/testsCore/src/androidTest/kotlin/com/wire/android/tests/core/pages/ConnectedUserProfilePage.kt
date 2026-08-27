@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.toBySelector
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.time.Duration
 
@@ -38,15 +39,20 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val blockButtonAlert = UiSelectorParams(text = "Block")
     private val participantRemoveFromConversationButton = UiSelectorParams(textContains = "Remove from conversation")
     private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
+    private val moveToFolderButton = UiSelectorParams(text = "Move to Folder...")
     private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
     private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
+    private val notificationsButton = UiSelectorParams(text = "Notifications")
 
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
 
+    private fun notificationStatusSelector(status: String) = UiSelectorParams(text = status)
+
     private val closeButton = UiSelectorParams(
-        className = "android.view.View",
         description = "Close"
     )
+
+    private fun profileNameSelector(userName: String) = UiSelectorParams(description = "Profile name, $userName")
 
     fun clickStartConversationButton(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(startConversationButton).click()
@@ -59,6 +65,11 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
             "Start Conversation button is not visible",
             !button.visibleBounds.isEmpty
         )
+        return this
+    }
+
+    fun assertConnectedUserProfileVisible(userName: String): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(profileNameSelector(userName))
         return this
     }
 
@@ -82,6 +93,21 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun clickShowMoreOptions(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(showMoreOptions).click()
+        return this
+    }
+
+    fun tapNotificationsButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationsButton).click()
+        return this
+    }
+
+    fun tapNotificationStatus(status: String): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationStatusSelector(status)).click()
+        return this
+    }
+
+    fun assertNotificationStatusVisible(status: String): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationStatusSelector(status))
         return this
     }
 
@@ -170,6 +196,15 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertMoveToFolderButtonNotVisible(): ConnectedUserProfilePage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = moveToFolderButton.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Move to Folder... button is visible in archived conversation options."
+        )
+        return this
+    }
+
     fun tapRemoveFromConversationButtonForParticipant(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(participantRemoveFromConversationButton).click()
         return this
@@ -177,6 +212,15 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun assertRemoveFromConversationButtonForParticipant(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(participantRemoveFromConversationButton)
+        return this
+    }
+
+    fun assertRemoveFromConversationButtonForParticipantNotVisible(): ConnectedUserProfilePage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = participantRemoveFromConversationButton.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Remove from conversation button is still visible."
+        )
         return this
     }
 

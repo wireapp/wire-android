@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.analytics.RegistrationAnalyticsManagerUseCase
@@ -30,7 +29,6 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.model.AnalyticsEvent.RegistrationPersonalAccount
 import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -40,11 +38,13 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlin.time.Duration.Companion.seconds
 
-class CreateAccountDataDetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+class CreateAccountDataDetailViewModel @AssistedInject constructor(
+    @Assisted val createAccountNavArgs: CreateAccountDataNavArgs,
     private val validatePassword: ValidatePasswordUseCase,
     private val validateEmail: ValidateEmailUseCase,
     private val globalDataStore: GlobalDataStore,
@@ -52,9 +52,10 @@ class CreateAccountDataDetailViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
-
-    val createAccountNavArgs: CreateAccountDataNavArgs = savedStateHandle.navArgs()
-
+    @AssistedFactory
+    interface Factory {
+        fun create(createAccountNavArgs: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel
+    }
     private var withPasswordTries = false
     val emailTextState: TextFieldState = TextFieldState(createAccountNavArgs.userRegistrationInfo.email)
     val nameTextState: TextFieldState = TextFieldState()

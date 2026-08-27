@@ -43,22 +43,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.rememberBackUpAndRestoreStateHolder
-import com.wire.android.ui.sharing.ImportMediaNavArgs
-import com.wire.android.ui.sharing.ImportSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.logging.LogShareLauncher
@@ -66,49 +58,38 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import java.io.File
 
-@WireRootDestination
 @Composable
-fun DebugScreen(
-    navigator: Navigator,
+internal fun DebugRouteScreen(
+    onBack: () -> Unit,
+    onShowFeatureFlags: () -> Unit,
+    onShowCryptoStats: () -> Unit,
+    onShowSecurityProviders: () -> Unit,
+    onShareLogsViaWire: (Uri) -> Unit,
     userDebugViewModel: UserDebugViewModel = userDebugViewModel(),
     debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
     exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
 ) {
     UserDebugContent(
-        onNavigationPressed = navigator::navigateBack,
+        onNavigationPressed = onBack,
         state = userDebugViewModel.state,
         onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
         onDeleteLogs = userDebugViewModel::deleteLogs,
         onFlushLogs = userDebugViewModel::flushLogs,
+        onShareLogsViaWire = onShareLogsViaWire,
         onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
         debugDataOptionsContent = { debugContentState ->
             DebugDataOptions(
                 appVersion = AppNameUtil.createAppName(),
                 buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
                 onCopyText = debugContentState::copyToClipboard,
-                onShowFeatureFlags = {
-                    navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
-                },
-                onShowCryptoStats = {
-                    navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
-                },
+                onShowFeatureFlags = onShowFeatureFlags,
+                onShowCryptoStats = onShowCryptoStats,
+                onShowSecurityProviders = onShowSecurityProviders,
                 viewModel = debugDataOptionsViewModel,
             )
         },
         dangerOptionsContent = {
             DangerOptions(exportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel)
-        },
-        onShareLogsViaWire = { uri ->
-            navigator.navigate(
-                NavigationCommand(
-                    ImportMediaScreenDestination(
-                        ImportMediaNavArgs(
-                            source = ImportSource.INTERNAL_SHARE,
-                            internalAssetUriList = arrayListOf(uri)
-                        )
-                    )
-                )
-            )
         },
     )
 }
@@ -261,11 +242,7 @@ data class DebugContentState(
     fun shareLogsViaWire(onFlushLogs: () -> Deferred<Unit>, onShareUri: (Uri) -> Unit) {
         val dir = File(logPath).parentFile
         if (dir != null && dir.exists()) {
-            logShareLauncher.shareLogsViaWire(
-                logsDirectory = dir,
-                onShareUri = onShareUri
-            ) {
-                // Flush any buffered logs before sharing to ensure completeness.
+            logShareLauncher.shareLogsViaWire(dir, onShareUri) {
                 onFlushLogs().await()
             }
         }
@@ -293,6 +270,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
                 onCopyText = it::copyToClipboard,
                 onShowFeatureFlags = {},
                 onShowCryptoStats = {},
+                onShowSecurityProviders = {},
                 viewModel = object : DebugDataOptionsViewModel {},
             )
         },

@@ -59,6 +59,7 @@
     <string name="url_legal_hold_learn_more" translatable="false">https://support.wire.com/hc/articles/360002018278</string>
     <string name="empty_screen_learn_more_link_conversation" translatable="false">https://support.wire.com/hc/articles/32207745256221</string>
     <string name="empty_screen_learn_more_link_all_files_screen" translatable="false">https://support.wire.com/hc/articles/32207800433309</string>
+    <string name="file_permissions_in_shared_drive" translatable="false">https://support.wire.com/hc/articles/36679600377373</string>
     <string name="legal_hold_learn_more_button">Learn more about legal hold</string>
     <string name="legal_hold_connection_failed_dialog_title">Connecting not possible</string>
     <string name="legal_hold_connection_failed_dialog_description">You can not connect to this user due to legal hold.</string>
@@ -72,6 +73,7 @@
     <string name="connection_request_accepted">Connection request accepted</string>
     <string name="connection_request_ignore_error">Connection request could not be ignored</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
+    <string name="conversation_viewer_access_banner">Viewer access: you can’t upload or edit files.</string>
     <string name="content_description_close_button">Close</string>
     <string name="content_description_close">Close</string>
     <string name="content_description_menu_button">Main navigation</string>
@@ -79,12 +81,13 @@
     <string name="content_description_pending_connection_badge">pending approval of connection request</string>
     <string name="content_description_alert">Alert</string>
     <string name="content_description_show_more_options">Show more options</string>
+    <string name="content_description_close_access_info">Close access info</string>
 
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">App</string>
     <string name="label_federated_membership">Federated</string>
-	<string name="user_profile_status_available">Available</string>
+    <string name="user_profile_status_available">Available</string>
     <string name="user_profile_status_busy">Busy</string>
     <string name="user_profile_status_away">Away</string>
     <string name="user_profile_status_none">None</string>

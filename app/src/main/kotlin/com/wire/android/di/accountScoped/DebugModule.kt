@@ -30,6 +30,7 @@ import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
 import com.wire.kalium.logic.feature.debug.GetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
+import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDatabaseLoggerStateUseCase
 import com.wire.kalium.logic.feature.debug.ObserveDebugCRLExpirationAfterOneMinuteUseCase
 import com.wire.kalium.logic.feature.debug.RepairFaultyRemovalKeysUseCase
@@ -71,6 +72,9 @@ class DebugModule {
 
     @Provides
     fun provideFeatureConfigUseCase(debugScope: DebugScope): GetFeatureConfigUseCase = debugScope.getFeatureConfig
+
+    @Provides
+    fun provideGetSqlCipherVersionUseCase(debugScope: DebugScope): GetSqlCipherVersionUseCase = debugScope.getSqlCipherVersion
 
     @Provides
     fun provideGetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): GetDebugE2EICertificateExpirationUseCase =

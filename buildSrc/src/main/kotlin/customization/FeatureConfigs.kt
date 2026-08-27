@@ -61,6 +61,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
      */
     LOWER_KEYPACKAGE_LIMIT("lower_keypackage_limit", ConfigType.BOOLEAN),
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
+    SHOULD_FORCE_ENCRYPT_DB("should_force_encrypt_db", ConfigType.BOOLEAN),
     WIPE_ON_COOKIE_INVALID("wipe_on_cookie_invalid", ConfigType.BOOLEAN),
     WIPE_ON_ROOTED_DEVICE("wipe_on_rooted_device", ConfigType.BOOLEAN),
     WIPE_ON_DEVICE_REMOVAL("wipe_on_device_removal", ConfigType.BOOLEAN),
@@ -127,7 +128,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ANALYTICS_SERVER_URL("analytics_server_url", ConfigType.STRING),
     IS_MLS_RESET_ENABLED("is_mls_reset_enabled", ConfigType.BOOLEAN),
     USE_STRICT_MLS_FILTER("use_strict_mls_filter", ConfigType.BOOLEAN),
-    MEETINGS_ENABLED("meetings_enabled", ConfigType.BOOLEAN),
 
     /**
      * Background notification retry logic

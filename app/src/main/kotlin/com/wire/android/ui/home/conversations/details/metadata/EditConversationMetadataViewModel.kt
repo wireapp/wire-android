@@ -23,10 +23,8 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
@@ -37,6 +35,9 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.filterIsInstance
@@ -44,16 +45,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
 
-class EditConversationMetadataViewModel(
+@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+class EditConversationMetadataViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
-    val savedStateHandle: SavedStateHandle
+    @Assisted navigationArgs: EditConversationNameNavArgs,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: EditConversationNameNavArgs): EditConversationMetadataViewModel
+    }
 
-    private val editConversationNameNavArgs: EditConversationNameNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = editConversationNameNavArgs.conversationId
+    private val conversationId: QualifiedID = navigationArgs.conversationId
 
     val editConversationNameTextState: TextFieldState = TextFieldState()
     var editConversationState by mutableStateOf(GroupMetadataState(mode = GroupNameMode.EDITION))

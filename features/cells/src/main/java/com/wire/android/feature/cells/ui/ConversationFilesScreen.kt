@@ -45,44 +45,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.cells.destinations.AddRemoveTagsScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellAudioPlayerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CellImageViewerScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesWithSlideInTransitionScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CreateFileScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.CreateFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.MoveToFolderScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.RecycleBinScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.RenameNodeScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.VideoPlayerScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
-import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
-import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
-import com.wire.android.feature.cells.ui.videoplayer.VideoViewerNavArgs
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.PreviewNavigator
-import com.wire.android.navigation.WireNavigator
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
+import com.wire.android.feature.cells.ui.search.sort.toNavArg
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.navigation.transition.SHARED_ELEMENT_TOP_APP_BAR_KEY
 import com.wire.android.ui.common.MoreOptionIcon
+import com.wire.android.ui.common.banner.ViewerAccessBanner
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -100,20 +79,11 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
-/**
- * Show files in one conversation.
- * Conversation id is passed to view model via navigation parameters [CellFilesNavArgs].
- */
-@WireCellsDestination(
-    start = true,
-    style = PopUpNavigationAnimation::class,
-    navArgs = CellFilesNavArgs::class,
-)
 @Composable
-fun ConversationFilesScreen(
-    navigator: WireNavigator,
+internal fun ConversationFilesRouteScreen(
+    navigation: CellsFilesNavigation,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    viewModel: CellViewModel = cellViewModel(),
+    viewModel: CellViewModel,
 ) {
     val isOnlineState by viewModel.isOnline.collectAsState()
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
@@ -121,7 +91,7 @@ fun ConversationFilesScreen(
 
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
-        navigator = navigator,
+        navigation = navigation,
         currentNodeUuid = viewModel.currentNodeUuid(),
         isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
@@ -140,6 +110,8 @@ fun ConversationFilesScreen(
         sortingCriteria = viewModel.sortingCriteria.collectAsState().value,
         onSortByClicked = viewModel::setSortBy,
         onSortOrderClicked = viewModel::setSorting,
+        showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
+        onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
 
     LaunchedEffect(Unit) {
@@ -152,7 +124,7 @@ fun ConversationFilesScreen(
 @Composable
 internal fun ConversationFilesScreenContent(
     animatedVisibilityScope: AnimatedVisibilityScope,
-    navigator: WireNavigator,
+    navigation: CellsFilesNavigation,
     currentNodeUuid: String?,
     isSearchResult: Boolean,
     actions: Flow<CellViewAction>,
@@ -173,6 +145,8 @@ internal fun ConversationFilesScreenContent(
     sortingCriteria: SortingCriteria = SortingCriteria.FoldersFirst,
     onSortByClicked: (SortBy) -> Unit = {},
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
+    showViewerAccessBanner: Boolean = false,
+    onViewerAccessBannerCloseClick: () -> Unit = {},
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
@@ -199,7 +173,7 @@ internal fun ConversationFilesScreenContent(
         },
         onCreateFolder = {
             newActionBottomSheetState.hide()
-            navigator.navigate(NavigationCommand(CreateFolderScreenDestination(currentNodeUuid)))
+            navigation.createFolder(currentNodeUuid)
         },
         onCreateFile = {
             newActionBottomSheetState.hide()
@@ -213,13 +187,11 @@ internal fun ConversationFilesScreenContent(
             optionsBottomSheetState.hide()
         },
         showRecycleBin = {
-            navigator.navigate(
-                NavigationCommand(
-                    RecycleBinScreenDestination(
-                        conversationId = currentNodeUuid?.substringBefore("/"),
-                        isRecycleBin = true,
-                        breadcrumbs = arrayOf(breadcrumbs?.first() ?: ""),
-                    )
+            navigation.recycleBin(
+                CellFilesNavArgs(
+                    conversationId = currentNodeUuid?.substringBefore("/"),
+                    isRecycleBin = true,
+                    breadcrumbs = arrayOf(breadcrumbs?.first() ?: ""),
                 )
             )
             optionsBottomSheetState.hide()
@@ -233,7 +205,7 @@ internal fun ConversationFilesScreenContent(
         },
         onItemSelected = {
             currentNodeUuid?.let { uuid ->
-                navigator.navigate(NavigationCommand(CreateFileScreenDestination(CreateFileScreenNavArgs(uuid, it))))
+                navigation.createFile(uuid, it)
             }
             fileTypeBottomSheetState.hide()
         },
@@ -248,7 +220,7 @@ internal fun ConversationFilesScreenContent(
                             sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_TOP_APP_BAR_KEY),
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
-                        onNavigationPressed = { navigator.navigateBack() },
+                        onNavigationPressed = navigation::back,
                         title = screenTitle ?: stringResource(R.string.conversation_files_title),
                         navigationIconType = NavigationIconType.Back(),
                         elevation = dimensions().spacing0x,
@@ -274,12 +246,15 @@ internal fun ConversationFilesScreenContent(
                             searchQueryTextState = TextFieldState(),
                             onTap = {
                                 currentNodeUuid?.let {
-                                    navigator.navigate(
-                                        NavigationCommand(SearchScreenDestination(conversationId = it))
-                                    )
+                                    navigation.search(it, sortingCriteria.toNavArg())
                                 }
                             },
                         )
+
+                        if (showViewerAccessBanner) {
+                            ViewerAccessBanner(onCloseClick = onViewerAccessBannerCloseClick)
+                        }
+
                         if (!isRecycleBin) {
                             SortRowWithMenu(
                                 sortingCriteria = sortingCriteria,
@@ -335,106 +310,24 @@ internal fun ConversationFilesScreenContent(
                 isRecycleBin = isRecycleBin,
                 isOffline = !isOnline,
                 openFolder = { path, title, parentFolderUuid ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            ConversationFilesWithSlideInTransitionScreenDestination(
-                                conversationId = path,
-                                screenTitle = title,
-                                isRecycleBin = isRecycleBin,
-                                parentFolderUuid = parentFolderUuid,
-                                breadcrumbs = (breadcrumbs ?: emptyArray()) + title
-                            ),
-                            BackStackMode.NONE,
-                            launchSingleTop = false
+                    navigation.folder(
+                        CellFilesNavArgs(
+                            conversationId = path,
+                            screenTitle = title,
+                            isRecycleBin = isRecycleBin,
+                            parentFolderUuid = parentFolderUuid,
+                            breadcrumbs = (breadcrumbs ?: emptyArray()) + title,
                         )
                     )
                 },
-                showPublicLinkScreen = { publicLinkScreenData ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            PublicLinkScreenDestination(
-                                assetId = publicLinkScreenData.assetId,
-                                fileName = publicLinkScreenData.fileName,
-                                publicLinkId = publicLinkScreenData.linkId,
-                                isFolder = publicLinkScreenData.isFolder
-                            )
-                        )
-                    )
-                },
-                showMoveToFolderScreen = { currentPath, nodePath, uuid ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            MoveToFolderScreenDestination(
-                                currentPath = currentPath,
-                                nodeToMovePath = nodePath,
-                                uuid = uuid
-                            )
-                        )
-                    )
-                },
-                showRenameScreen = { cellNodeUi ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            RenameNodeScreenDestination(
-                                uuid = cellNodeUi.uuid,
-                                currentPath = cellNodeUi.remotePath,
-                                isFolder = cellNodeUi is CellNodeUi.Folder,
-                                nodeName = cellNodeUi.name,
-                            )
-                        )
-                    )
-                },
-                showAddRemoveTagsScreen = { node ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            AddRemoveTagsScreenDestination(node.uuid, node.tags.toCollection(ArrayList()))
-                        )
-                    )
-                },
-                showVersionHistoryScreen = { uuid, fileName ->
-                    navigator.navigate(NavigationCommand(VersionHistoryScreenDestination(uuid, fileName)))
-                },
-                showImageViewer = { file ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            CellImageViewerScreenDestination(
-                                CellImageViewerNavArgs(
-                                    localPath = file.localPath,
-                                    contentUrl = file.contentUrl,
-                                    previewUrl = file.previewUrl,
-                                    contentHash = file.contentHash,
-                                    fileName = file.name,
-                                )
-                            )
-                        )
-                    )
-                },
-                showVideoViewer = { file ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            VideoPlayerScreenDestination(
-                                VideoViewerNavArgs(
-                                    localPath = file.localPath,
-                                    contentUrl = file.contentUrl,
-                                    fileName = file.name,
-                                )
-                            )
-                        )
-                    )
-                },
-                showAudioPlayer = { file ->
-                    navigator.navigate(
-                        NavigationCommand(
-                            CellAudioPlayerScreenDestination(
-                                AudioPlayerNavArgs(
-                                    localPath = file.localPath,
-                                    contentUrl = file.contentUrl,
-                                    fileName = file.name,
-                                )
-                            )
-                        )
-                    )
-                },
+                showPublicLinkScreen = navigation::publicLink,
+                showMoveToFolderScreen = navigation::move,
+                showRenameScreen = navigation::rename,
+                showAddRemoveTagsScreen = navigation::tags,
+                showVersionHistoryScreen = navigation::versionHistory,
+                showImageViewer = navigation::image,
+                showVideoViewer = navigation::video,
+                showAudioPlayer = navigation::audio,
                 retryEditNodeError = { retryEditNodeError(it) },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
@@ -453,7 +346,7 @@ fun PreviewConversationFilesScreen() {
             AnimatedVisibility(visible = true) {
                 ConversationFilesScreenContent(
                     animatedVisibilityScope = this,
-                    navigator = PreviewNavigator,
+                    navigation = NoOpCellsFilesNavigation,
                     currentNodeUuid = "conversationId",
                     isSearchResult = false,
                     actions = flowOf(),

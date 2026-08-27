@@ -43,7 +43,9 @@ import com.wire.android.ui.home.conversations.recordAudioViewModel
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.extension.openAppInfoScreen
+import com.wire.android.util.pathToUri
 import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
+import com.wire.media.recording.RecordingAction
 
 @Composable
 fun RecordAudioComponent(
@@ -91,10 +93,17 @@ fun RecordAudioComponent(
 
     HandleActions(viewModel.actions) { action ->
         when (action) {
-            RecordAudioViewActions.Discarded -> onCloseRecordAudio()
+            RecordingAction.Discarded -> onCloseRecordAudio()
 
-            is RecordAudioViewActions.Recorded -> {
-                onAudioRecorded(action.uriAsset)
+            is RecordingAction.Recorded -> {
+                onAudioRecorded(
+                    UriAsset(
+                        uri = context.pathToUri(action.recording.path, null),
+                        mimeType = action.recording.mimeType,
+                        saveToDeviceIfInvalid = false,
+                        audioWavesMask = action.recording.audioWavesMask,
+                    )
+                )
                 onCloseRecordAudio()
             }
         }

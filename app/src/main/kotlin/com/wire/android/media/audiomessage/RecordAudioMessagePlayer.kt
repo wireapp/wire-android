@@ -6,231 +6,149 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
 package com.wire.android.media.audiomessage
 
-import android.content.Context
-import android.media.MediaPlayer
-import androidx.core.net.toUri
 import com.wire.android.di.ApplicationScope
+import com.wire.android.mediaplayer.AndroidMediaPlayerPlaybackEngineFactory
 import com.wire.media.player.AudioMediaPlayingState
 import com.wire.media.player.AudioState
+import com.wire.media.player.MediaPlaybackCoordinator
+import com.wire.media.player.PlaybackCommandResult
+import com.wire.media.player.PlaybackEvent
+import com.wire.media.player.PlaybackSource
+import com.wire.media.recording.RecordingCapabilityResult
+import com.wire.media.recording.RecordingPreview
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okio.Path
-import dev.zacsweers.metro.Inject
-class RecordAudioMessagePlayer @Inject constructor(
-    private val context: Context,
-    private val audioMediaPlayer: MediaPlayer,
+
+@Inject
+@ContributesBinding(AppScope::class, binding = binding<RecordingPreview>())
+class RecordAudioMessagePlayer(
+    engineFactory: AndroidMediaPlayerPlaybackEngineFactory,
     private val audioFocusHelper: AudioFocusHelper,
-    @ApplicationScope private val scope: CoroutineScope
-) {
+    @ApplicationScope private val scope: CoroutineScope,
+) : RecordingPreview {
+    private val coordinator = MediaPlaybackCoordinator(
+        engine = engineFactory.create(),
+        scope = scope,
+        positionPollIntervalMs = UPDATE_POSITION_INTERVAL_IN_MS,
+    )
+    private val mutableState = MutableStateFlow(AudioState.DEFAULT)
+    override val state: StateFlow<AudioState> = mutableState.asStateFlow()
     private var currentAudioFile: Path? = null
-    private var audioState: AudioState = AudioState.DEFAULT
+    private val playbackEventsJob: Job
 
     init {
-        audioMediaPlayer.setOnCompletionListener {
-            if (currentAudioFile != null) {
-                audioMessageStateUpdate.tryEmit(
-                    RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
-                        AudioMediaPlayingState.Completed
-                    )
-                )
-                seekToAudioPosition.tryEmit(0)
-            }
+        playbackEventsJob = scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            coordinator.events.collect(::handlePlaybackEvent)
         }
-
         audioFocusHelper.setListener(
-            onPauseCurrentAudio = { scope.launch { pause() } },
-            onResumeCurrentAudio = { scope.launch { resumeAudio() } }
+            onPauseCurrentAudio = { pause() },
+            onResumeCurrentAudio = { resume() },
         )
     }
 
-    private val audioMessageStateUpdate =
-        MutableSharedFlow<RecordAudioMediaPlayerStateUpdate>(
-            extraBufferCapacity = 1
-        )
-
-    // MediaPlayer API does not have any mechanism that would inform us about the currentPosition,
-    // in a callback manner, therefore we need to create a timer manually that ticks every 1 second
-    // and emits the current position
-    private val mediaPlayerPosition = flow {
-        while (true) {
-            delay(UPDATE_POSITION_INTERVAL_IN_MS)
-            if (currentAudioFile != null && audioMediaPlayer.isPlaying) {
-                emit(audioMediaPlayer.currentPosition)
+    override fun toggle(path: Path): RecordingCapabilityResult<Unit> {
+        val result = if (currentAudioFile == path) {
+            if (coordinator.state.value.isPlaying) {
+                audioFocusHelper.abandon()
+                coordinator.pause()
+            } else if (audioFocusHelper.request()) {
+                coordinator.play()
+            } else {
+                PlaybackCommandResult.Failure("audio_focus_denied")
             }
-        }
-    }.distinctUntilChanged()
-
-    private val seekToAudioPosition =
-        MutableSharedFlow<Int>(
-            onBufferOverflow = BufferOverflow.DROP_OLDEST,
-            extraBufferCapacity = 1
-        )
-
-    private val positionChangedUpdate = merge(mediaPlayerPosition, seekToAudioPosition)
-        .map { position ->
-            currentAudioFile?.let {
-                RecordAudioMediaPlayerStateUpdate.PositionChangeUpdate(position)
-            }
-        }.filterNotNull()
-
-    // Flow collecting the audio message state updates as well as the audio position updates.
-    // The collected value is updated for our single recorded audio.
-    // The audio position can be either updated manually by the user or from the Slider component or
-    // from the player itself.
-    val audioMessageStateFlow: Flow<AudioState> =
-        merge(positionChangedUpdate, audioMessageStateUpdate).map { audioStateUpdate ->
-            when (audioStateUpdate) {
-                is RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate -> {
-                    audioState = audioState.copy(
-                        audioMediaPlayingState = audioStateUpdate.audioMediaPlayingState
-                    )
-                }
-
-                is RecordAudioMediaPlayerStateUpdate.PositionChangeUpdate -> {
-                    audioState = audioState.copy(
-                        currentPositionInMs = audioStateUpdate.position
-                    )
-                }
-
-                is RecordAudioMediaPlayerStateUpdate.TotalTimeUpdate -> {
-                    audioState = audioState.copy(
-                        totalTimeInMs = AudioState.TotalTimeInMs.Known(
-                            value = audioStateUpdate.totalTimeInMs
-                        )
-                    )
-                }
-            }
-
-            audioState
-        }
-
-    suspend fun playAudio(
-        audioFile: Path
-    ) {
-        if (currentAudioFile != null && audioFile.name == currentAudioFile?.name) {
-            resumeOrPauseAudio()
         } else {
-            stopCurrentlyPlayingAudioMessage()
-            playAudioMessage(
-                audioFile = audioFile,
-                position = previouslyResumedPosition()
+            coordinator.stop()
+            currentAudioFile = path
+            if (audioFocusHelper.request()) {
+                coordinator.prepare(PlaybackSource.Local(path), playWhenReady = true)
+            } else {
+                currentAudioFile = null
+                PlaybackCommandResult.Failure("audio_focus_denied")
+            }
+        }
+        return result.asRecordingResult()
+    }
+
+    override fun seekTo(positionMs: Int): RecordingCapabilityResult<Unit> =
+        if (currentAudioFile == null) {
+            RecordingCapabilityResult.Failure("preview_unavailable")
+        } else {
+            coordinator.seekTo(positionMs).asRecordingResult()
+        }
+
+    override fun stop(): RecordingCapabilityResult<Unit> {
+        currentAudioFile = null
+        audioFocusHelper.abandon()
+        val result = coordinator.stop()
+        mutableState.value = AudioState.DEFAULT
+        return result.asRecordingResult()
+    }
+
+    override fun release() {
+        currentAudioFile = null
+        audioFocusHelper.abandon()
+        coordinator.release()
+        playbackEventsJob.cancel()
+        mutableState.value = AudioState.DEFAULT
+    }
+
+    private fun pause() {
+        if (currentAudioFile != null) coordinator.pause()
+    }
+
+    private fun resume() {
+        if (currentAudioFile != null) coordinator.play()
+    }
+
+    private fun handlePlaybackEvent(event: PlaybackEvent) {
+        mutableState.value = when (event) {
+            is PlaybackEvent.Ready -> mutableState.value.copy(
+                totalTimeInMs = AudioState.TotalTimeInMs.Known(event.durationMs)
             )
-        }
-    }
-
-    private fun previouslyResumedPosition(): Int =
-        if (audioState.audioMediaPlayingState == AudioMediaPlayingState.Completed) {
-            0
-        } else {
-            audioState.currentPositionInMs
-        }
-
-    private suspend fun stopCurrentlyPlayingAudioMessage() {
-        if (currentAudioFile != null) {
-            stop()
-        }
-    }
-
-    private suspend fun resumeOrPauseAudio() {
-        if (audioMediaPlayer.isPlaying) {
-            pause()
-            audioFocusHelper.abandon()
-        } else {
-            audioFocusHelper.request()
-            resumeAudio()
-        }
-    }
-
-    private suspend fun playAudioMessage(
-        audioFile: Path,
-        position: Int
-    ) {
-        currentAudioFile = audioFile
-
-        audioMediaPlayer.setDataSource(
-            context,
-            audioFile.toFile().toUri()
-        )
-        audioFocusHelper.request()
-        audioMediaPlayer.prepare()
-        audioMediaPlayer.seekTo(position)
-        audioMediaPlayer.start()
-
-        audioMessageStateUpdate.emit(
-            RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
+            PlaybackEvent.Playing -> mutableState.value.copy(
                 audioMediaPlayingState = AudioMediaPlayingState.Playing
             )
-        )
-
-        audioMessageStateUpdate.emit(
-            RecordAudioMediaPlayerStateUpdate.TotalTimeUpdate(
-                totalTimeInMs = audioMediaPlayer.duration
+            PlaybackEvent.Paused -> mutableState.value.copy(
+                audioMediaPlayingState = AudioMediaPlayingState.Paused
             )
-        )
-    }
-
-    suspend fun setPosition(position: Int) {
-        if (currentAudioFile != null) {
-            audioMediaPlayer.seekTo(position)
-            seekToAudioPosition.emit(position)
-        }
-    }
-
-    private suspend fun resumeAudio() {
-        if (currentAudioFile != null) {
-            audioMediaPlayer.start()
-            audioMessageStateUpdate.emit(
-                RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
-                    audioMediaPlayingState = AudioMediaPlayingState.Playing
+            is PlaybackEvent.PositionChanged -> mutableState.value.copy(
+                currentPositionInMs = event.positionMs,
+                totalTimeInMs = AudioState.TotalTimeInMs.Known(event.durationMs),
+            )
+            PlaybackEvent.Completed -> {
+                audioFocusHelper.abandon()
+                mutableState.value.copy(
+                    audioMediaPlayingState = AudioMediaPlayingState.Completed,
+                    currentPositionInMs = 0,
                 )
-            )
+            }
+            PlaybackEvent.Stopped -> AudioState.DEFAULT
+            is PlaybackEvent.Failed -> {
+                audioFocusHelper.abandon()
+                mutableState.value.copy(audioMediaPlayingState = AudioMediaPlayingState.Failed)
+            }
+            else -> mutableState.value
         }
     }
 
-    private suspend fun pause() {
-        if (currentAudioFile != null) {
-            audioMediaPlayer.pause()
-            audioMessageStateUpdate.emit(
-                RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
-                    AudioMediaPlayingState.Paused
-                )
-            )
-        }
-    }
-
-    suspend fun stop() {
-        currentAudioFile = null
-        audioMediaPlayer.reset()
-        audioMessageStateUpdate.emit(
-            RecordAudioMediaPlayerStateUpdate.RecordAudioMediaPlayingStateUpdate(
-                audioMediaPlayingState = AudioMediaPlayingState.Stopped
-            )
-        )
-    }
-
-    fun close() {
-        audioFocusHelper.abandon()
-        audioMediaPlayer.release()
+    private fun PlaybackCommandResult.asRecordingResult(): RecordingCapabilityResult<Unit> = when (this) {
+        PlaybackCommandResult.Executed -> RecordingCapabilityResult.Success(Unit)
+        PlaybackCommandResult.Unsupported -> RecordingCapabilityResult.Unsupported
+        is PlaybackCommandResult.Failure -> RecordingCapabilityResult.Failure(reason)
     }
 
     private companion object {

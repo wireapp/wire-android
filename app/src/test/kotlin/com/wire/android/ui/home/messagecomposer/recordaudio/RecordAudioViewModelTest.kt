@@ -6,467 +6,315 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import android.content.Context
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.media.audiomessage.AudioFocusHelper
-import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
-import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModelTest.Arrangement.Companion.ASSET_SIZE_LIMIT
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.MediaMetadataReader
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
-import com.wire.media.player.AudioState
-import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.media.player.AudioState
+import com.wire.media.recording.AudioEffectsProcessor
+import com.wire.media.recording.AudioRecorder
+import com.wire.media.recording.AudioRecorderEvent
+import com.wire.media.recording.AudioRecordingFiles
+import com.wire.media.recording.M4A_AUDIO_MIME_TYPE
+import com.wire.media.recording.RecordingAction
+import com.wire.media.recording.RecordingAvailability
+import com.wire.media.recording.RecordingButtonState
+import com.wire.media.recording.RecordingCapability
+import com.wire.media.recording.RecordingCapabilityResult
+import com.wire.media.recording.RecordingDialogState
+import com.wire.media.recording.RecordingPreview
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class RecordAudioViewModelTest {
-
     @Test
-    fun `given user is in a call, when start recording audio, then a info message will be shown`() =
-        runTest {
-            // given
-            val (_, viewModel) = Arrangement()
-                .withEstablishedCall()
-                .withFilterEnabled(false)
-                .arrange()
+    fun `ongoing call prevents recording and shows call message`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withEstablishedCall().arrange()
 
-            viewModel.getInfoMessage().test {
-                // when
-                viewModel.startRecording()
-
-                // then
-                val result = awaitItem()
-                assertEquals(
-                    RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText,
-                    result
-                )
-            }
-        }
-
-    @Test
-    fun `given user is not in a call, when start recording audio, then recording screen is shown`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
-
-            // when
+        viewModel.getInfoMessage().test {
             viewModel.startRecording()
+            runCurrent()
 
-            // then
+            assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText, awaitItem())
+            coVerify(exactly = 0) { arrangement.audioRecorder.start(any()) }
+        }
+    }
+
+    @Test
+    fun `successful start exposes common recording state`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+
+        viewModel.startRecording()
+        runCurrent()
+
+        assertEquals(RecordingButtonState.RECORDING, viewModel.state.buttonState)
+        assertEquals(arrangement.originalPath, viewModel.state.originalOutputFile)
+        coVerify(exactly = 1) { arrangement.getAssetSizeLimit(false) }
+        coVerify(exactly = 1) { arrangement.audioRecorder.start(ASSET_SIZE_LIMIT) }
+    }
+
+    @Test
+    fun `unsupported recorder remains explicit and reports an error`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withStartResult(RecordingCapabilityResult.Unsupported)
+            .arrange()
+
+        viewModel.getInfoMessage().test {
+            viewModel.startRecording()
+            runCurrent()
+
             assertEquals(
-                RecordAudioButtonState.RECORDING,
-                viewModel.state.buttonState
+                RecordingAvailability.Unsupported(RecordingCapability.RECORDING),
+                viewModel.state.availability,
             )
-            coVerify(exactly = 1) { arrangement.getAssetSizeLimit(false) }
-            verify(exactly = 1) { arrangement.audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) }
-            verify(exactly = 1) { arrangement.audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) }
-            verify(exactly = 1) { arrangement.audioMediaRecorder.startRecording() }
+            assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText, awaitItem())
         }
+    }
 
     @Test
-    fun `given user is recording audio without filter, when stopping the recording, then send audio button is shown`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
+    fun `stopping filtered recording delegates effects and exposes ready state`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withEffectsEnabled(true).arrange()
+        runCurrent()
+        viewModel.startRecording()
+        runCurrent()
 
-            viewModel.startRecording()
+        viewModel.stopRecording()
+        runCurrent()
 
-            // when
-            viewModel.stopRecording()
-
-            // then
-            coVerify(exactly = 0) {
-                arrangement.generateAudioFileWithEffects(
-                    context = any(),
-                    originalFilePath = any(),
-                    effectsFilePath = any()
-                )
-            }
-            assertEquals(
-                RecordAudioButtonState.READY_TO_SEND,
-                viewModel.state.buttonState
-            )
-        }
+        assertEquals(RecordingButtonState.READY_TO_SEND, viewModel.state.buttonState)
+        assertEquals(arrangement.effectsPath, viewModel.getPlayableAudioFile())
+        coVerify(exactly = 1) { arrangement.effectsProcessor.process(any()) }
+        assertEquals(AudioState.TotalTimeInMs.Known(DURATION_MS), viewModel.state.audioState.totalTimeInMs)
+    }
 
     @Test
-    fun `given user is recording audio with filter, when stopping the recording, then send audio button is shown`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = Arrangement()
-                .withFilterEnabled(true)
-                .arrange()
+    fun `background transition stops active recording`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        viewModel.startRecording()
+        runCurrent()
 
-            viewModel.startRecording()
+        arrangement.currentScreen.value = CurrentScreen.InBackground
+        runCurrent()
 
-            // when
-            viewModel.stopRecording()
+        coVerify(exactly = 1) { arrangement.audioRecorder.stop() }
+        assertEquals(RecordingButtonState.READY_TO_SEND, viewModel.state.buttonState)
+    }
 
-            // then
+    @Test
+    fun `call starting while recording stops it`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        viewModel.startRecording()
+        runCurrent()
+
+        arrangement.calls.value = listOf(DUMMY_CALL.copy(status = CallStatus.ESTABLISHED))
+        runCurrent()
+
+        coVerify(exactly = 1) { arrangement.audioRecorder.stop() }
+        assertEquals(RecordingButtonState.READY_TO_SEND, viewModel.state.buttonState)
+    }
+
+    @Test
+    fun `maximum size event stops and shows size dialog`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        viewModel.startRecording()
+        runCurrent()
+
+        arrangement.recorderEvents.emit(AudioRecorderEvent.MaxFileSizeReached(ASSET_SIZE_LIMIT))
+        runCurrent()
+
+        assertEquals(RecordingDialogState.MaxFileSizeReached(5), viewModel.state.maxFileSizeReachedDialogState)
+        coVerify(exactly = 1) { arrangement.audioRecorder.stop() }
+    }
+
+    @Test
+    fun `discard returns common action`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+        viewModel.startRecording()
+        runCurrent()
+
+        viewModel.actions.test {
+            viewModel.discardRecording()
+            runCurrent()
+
+            assertEquals(RecordingAction.Discarded, awaitItem())
+            assertEquals(RecordingButtonState.ENABLED, viewModel.state.buttonState)
+        }
+    }
+
+    @Test
+    fun `send returns common path result without Android uri`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        viewModel.startRecording()
+        runCurrent()
+        viewModel.stopRecording()
+        runCurrent()
+
+        viewModel.actions.test {
+            viewModel.sendRecording()
+            runCurrent()
+
+            val action = awaitItem() as RecordingAction.Recorded
+            assertEquals(arrangement.encodedPath, action.recording.path)
+            assertEquals(M4A_AUDIO_MIME_TYPE, action.recording.mimeType)
             coVerify(exactly = 1) {
-                arrangement.generateAudioFileWithEffects(
-                    context = any(),
-                    originalFilePath = any(),
-                    effectsFilePath = any(),
-                )
-            }
-            assertEquals(
-                RecordAudioButtonState.READY_TO_SEND,
-                viewModel.state.buttonState
-            )
-        }
-
-    @Test
-    fun `given user is recording audio without filter, when applying filter after recording, then effects file is generated`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
-
-            viewModel.startRecording()
-            viewModel.stopRecording()
-            assertEquals(null, viewModel.state.effectsOutputFile)
-            coVerify(exactly = 0) {
-                arrangement.generateAudioFileWithEffects(
-                    context = any(),
-                    originalFilePath = any(),
-                    effectsFilePath = any()
-                )
-            }
-
-            // when
-            viewModel.setShouldApplyEffects(true)
-
-            // then
-            coVerify(exactly = 1) {
-                arrangement.generateAudioFileWithEffects(
-                    context = any(),
-                    originalFilePath = any(),
-                    effectsFilePath = any()
-                )
-            }
-            assert(viewModel.state.effectsOutputFile != null)
-            assertEquals(
-                RecordAudioButtonState.READY_TO_SEND,
-                viewModel.state.buttonState
-            )
-        }
-
-    @Test
-    fun `given user is not recording, when closing audio recording view, then verify that close recording view is called`() =
-        runTest {
-            // given
-            val (_, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
-
-            viewModel.actions.test {
-                // when
-                viewModel.showDiscardRecordingDialog()
-                // then
-                assertEquals(
-                    RecordAudioDialogState.Hidden,
-                    viewModel.state.discardDialogState
-                )
-                assertEquals(
-                    RecordAudioViewActions.Discarded,
-                    awaitItem()
-                )
+                arrangement.audioRecorder.encode(arrangement.originalPath, arrangement.encodedPath)
             }
         }
+    }
 
     @Test
-    fun `given user is recording, when closing audio recording view, then discard audio recording dialog is shown`() =
-        runTest {
-            // given
-            val (_, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
+    fun `preview actions use narrow preview capability`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        viewModel.startRecording()
+        runCurrent()
+        viewModel.stopRecording()
+        runCurrent()
 
-            viewModel.startRecording()
+        viewModel.onPlayAudio()
+        viewModel.onSliderPositionChange(123)
 
-            viewModel.actions.test {
-                // when
-                viewModel.showDiscardRecordingDialog()
-                // then
-                assertEquals(
-                    RecordAudioDialogState.Shown,
-                    viewModel.state.discardDialogState
-                )
-                expectNoEvents()
-            }
-        }
+        verify(exactly = 1) { arrangement.recordingPreview.toggle(arrangement.originalPath) }
+        verify(exactly = 1) { arrangement.recordingPreview.seekTo(123) }
+    }
 
     @Test
-    fun `given discard audio dialog is shown, when dismissing the dialog, then audio recording dialog is hidden`() =
-        runTest {
-            // given
-            val (_, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
+    fun `effects preference is persisted through semantic coordinator action`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
 
-            // when
-            viewModel.onDismissDiscardDialog()
+        viewModel.setShouldApplyEffects(true)
+        runCurrent()
 
-            // then
-            assertEquals(
-                RecordAudioDialogState.Hidden,
-                viewModel.state.discardDialogState
-            )
-        }
-
-    @Test
-    fun `given user doesn't have audio permissions, when starting to record audio, then permissions dialog is shown`() =
-        runTest {
-            // given
-            val (_, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
-
-            // when
-            viewModel.showPermissionsDeniedDialog()
-
-            // then
-            assertEquals(
-                RecordAudioDialogState.Shown,
-                viewModel.state.permissionsDeniedDialogState
-            )
-        }
-
-    @Test
-    fun `given permissions dialog is shown, when user dismiss the dialog, then permissions dialog is hidden`() =
-        runTest {
-            // given
-            val (_, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
-
-            // when
-            viewModel.onDismissPermissionsDeniedDialog()
-
-            // then
-            assertEquals(
-                RecordAudioDialogState.Hidden,
-                viewModel.state.permissionsDeniedDialogState
-            )
-        }
-
-    @Test
-    fun `given user recorded an audio, when discarding the audio, then file is deleted`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = Arrangement()
-                .withFilterEnabled(false)
-                .arrange()
-
-            viewModel.startRecording()
-            viewModel.stopRecording()
-
-            viewModel.actions.test {
-                // when
-                viewModel.discardRecording()
-                // then
-                assertEquals(
-                    RecordAudioButtonState.ENABLED,
-                    viewModel.state.buttonState
-                )
-                assertEquals(
-                    RecordAudioDialogState.Hidden,
-                    viewModel.state.discardDialogState
-                )
-                assertEquals(
-                    null,
-                    viewModel.state.originalOutputFile
-                )
-                assertEquals(
-                    RecordAudioViewActions.Discarded,
-                    awaitItem()
-                )
-
-                verify(exactly = 1) { arrangement.audioFocusHelper.requestExclusive() }
-                verify(exactly = 2) { arrangement.audioFocusHelper.abandonExclusive() } // 1 before start recording, 1 after
-            }
-        }
-
-    @Test
-    fun `given start recording succeeded, when recording audio, then recording screen is shown`() =
-        runTest {
-            // given
-            val (_, viewModel) = Arrangement()
-                .withStartRecordingSuccessful()
-                .withFilterEnabled(false)
-                .arrange()
-
-            viewModel.getInfoMessage().test {
-                // when
-                viewModel.startRecording()
-                // then
-                assertEquals(RecordAudioButtonState.RECORDING, viewModel.state.buttonState)
-                expectNoEvents()
-            }
-        }
-
-    @Test
-    fun `given start recording failed, when recording audio, then info message is shown`() =
-        runTest {
-            // given
-            val (arrangement, viewModel) = Arrangement()
-                .withStartRecordingFailed()
-                .withFilterEnabled(false)
-                .arrange()
-
-            viewModel.getInfoMessage().test {
-                // when
-                viewModel.startRecording()
-                // then
-                assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
-                assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText, awaitItem())
-
-                verify(exactly = 1) { arrangement.audioFocusHelper.requestExclusive() }
-            }
-        }
+        coVerify(exactly = 1) { arrangement.globalDataStore.setRecordAudioEffectsCheckboxEnabled(true) }
+        assertTrue(viewModel.state.shouldApplyEffects)
+    }
 
     private class Arrangement {
-
-        val recordAudioMessagePlayer = mockk<RecordAudioMessagePlayer>()
-        val audioMediaRecorder = mockk<AudioMediaRecorder>()
+        val audioRecorder = mockk<AudioRecorder>()
+        val recordingPreview = mockk<RecordingPreview>()
+        val effectsProcessor = mockk<AudioEffectsProcessor>()
+        val mediaMetadataReader = mockk<MediaMetadataReader>()
         val observeEstablishedCalls = mockk<ObserveEstablishedCallsUseCase>()
         val currentScreenManager = mockk<CurrentScreenManager>()
         val getAssetSizeLimit = mockk<GetAssetSizeLimitUseCase>()
         val globalDataStore = mockk<GlobalDataStore>()
-        val generateAudioFileWithEffects = mockk<GenerateAudioFileWithEffectsUseCase>()
-        val context = mockk<Context>()
-        val dispatchers = TestDispatcherProvider()
-        val fakeKaliumFileSystem = FakeKaliumFileSystem()
         val audioNormalizedLoudnessBuilder = mockk<AudioNormalizedLoudnessBuilder>()
-        val audioFocusHelper = mockk<AudioFocusHelper>()
+        val fileSystem = FakeKaliumFileSystem()
+        val recorderEvents = MutableSharedFlow<AudioRecorderEvent>(extraBufferCapacity = 1)
+        val previewState = MutableStateFlow(AudioState.DEFAULT)
+        val currentScreen = MutableStateFlow<CurrentScreen>(CurrentScreen.Conversation(DUMMY_CALL.conversationId))
+        val calls = MutableStateFlow<List<Call>>(emptyList())
+        val effectsEnabled = MutableStateFlow(false)
+        val originalPath = "/tmp/recording.wav".toPath()
+        val encodedPath = "/tmp/recording.m4a".toPath()
+        val effectsPath = "/tmp/recording-filter.wav".toPath()
+        private var startResult: RecordingCapabilityResult<AudioRecordingFiles> =
+            RecordingCapabilityResult.Success(AudioRecordingFiles(originalPath, encodedPath))
 
-        val viewModel by lazy {
+        private val viewModel by lazy {
             RecordAudioViewModel(
-                context = context,
-                recordAudioMessagePlayer = recordAudioMessagePlayer,
                 observeEstablishedCalls = observeEstablishedCalls,
-                currentScreenManager = currentScreenManager,
-                audioMediaRecorder = audioMediaRecorder,
                 getAssetSizeLimit = getAssetSizeLimit,
-                generateAudioFileWithEffects = generateAudioFileWithEffects,
+                currentScreenManager = currentScreenManager,
+                audioRecorder = audioRecorder,
+                recordingPreview = recordingPreview,
+                effectsProcessor = effectsProcessor,
+                mediaMetadataReader = mediaMetadataReader,
                 globalDataStore = globalDataStore,
-                dispatchers = dispatchers,
                 audioNormalizedLoudnessBuilder = audioNormalizedLoudnessBuilder,
-                kaliumFileSystem = fakeKaliumFileSystem,
-                audioFocusHelper = audioFocusHelper
+                kaliumFileSystem = fileSystem,
             )
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            coEvery { getAssetSizeLimit.invoke(false) } returns ASSET_SIZE_LIMIT
-            every { audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) } returns Unit
-            every { audioMediaRecorder.startRecording() } returns true
-            coEvery { audioMediaRecorder.stop() } returns Unit
-            every { audioMediaRecorder.release() } returns Unit
+            coEvery { getAssetSizeLimit(false) } returns ASSET_SIZE_LIMIT
+            every { audioRecorder.events } returns recorderEvents
+            coEvery { audioRecorder.start(any()) } answers { startResult }
+            coEvery { audioRecorder.stop() } returns RecordingCapabilityResult.Success(Unit)
+            coEvery { audioRecorder.encode(any(), any()) } returns RecordingCapabilityResult.Success(encodedPath)
+            every { audioRecorder.release() } returns Unit
+            every { recordingPreview.state } returns previewState
+            every { recordingPreview.toggle(any()) } returns RecordingCapabilityResult.Success(Unit)
+            every { recordingPreview.seekTo(any()) } returns RecordingCapabilityResult.Success(Unit)
+            every { recordingPreview.stop() } returns RecordingCapabilityResult.Success(Unit)
+            every { recordingPreview.release() } returns Unit
+            coEvery { effectsProcessor.process(any()) } answers {
+                RecordingCapabilityResult.Success(firstArg<com.wire.media.recording.AudioEffectsRequest>().destination)
+            }
+            coEvery { mediaMetadataReader.read(any(), any()) } returns PlatformResult.Success(
+                AssetContent.AssetMetadata.Audio(DURATION_MS.toLong(), null)
+            )
+            coEvery { audioNormalizedLoudnessBuilder(any()) } returns byteArrayOf(1, 2)
+            coEvery { observeEstablishedCalls() } returns calls
+            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns currentScreen
+            every { globalDataStore.isRecordAudioEffectsCheckboxEnabled() } returns effectsEnabled
             coEvery { globalDataStore.setRecordAudioEffectsCheckboxEnabled(any()) } returns Unit
-            every { audioMediaRecorder.originalOutputPath } returns fakeKaliumFileSystem
-                .tempFilePath("temp_recording.wav")
-            coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(
-                RecordAudioDialogState.MaxFileSizeReached(
-                    maxSize = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-                )
-            )
-            coEvery { generateAudioFileWithEffects(any(), any(), any()) } returns Unit
-
-            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(
-                CurrentScreen.Conversation(id = DUMMY_CALL.conversationId)
-            )
-
-            coEvery { recordAudioMessagePlayer.audioMessageStateFlow } returns flowOf(
-                AudioState.DEFAULT
-            )
-            coEvery { recordAudioMessagePlayer.stop() } returns Unit
-            coEvery { recordAudioMessagePlayer.close() } returns Unit
-
-            coEvery { observeEstablishedCalls() } returns flowOf(listOf())
-
-            coEvery { audioNormalizedLoudnessBuilder(any<String>()) } returns byteArrayOf()
-
-            every { audioFocusHelper.requestExclusive() } returns true
-            every { audioFocusHelper.abandonExclusive() } returns Unit
         }
 
         fun withEstablishedCall() = apply {
-            coEvery { observeEstablishedCalls() } returns flowOf(
-                listOf(
-                    DUMMY_CALL.copy(status = CallStatus.ESTABLISHED)
-                )
-            )
+            calls.value = listOf(DUMMY_CALL.copy(status = CallStatus.ESTABLISHED))
         }
 
-        fun withStartRecordingSuccessful() = apply { every { audioMediaRecorder.startRecording() } returns true }
-        fun withStartRecordingFailed() = apply { every { audioMediaRecorder.startRecording() } returns false }
+        fun withEffectsEnabled(enabled: Boolean) = apply {
+            effectsEnabled.value = enabled
+        }
 
-        fun withFilterEnabled(isEnabled: Boolean) = apply {
-            every { globalDataStore.isRecordAudioEffectsCheckboxEnabled() } returns flowOf(isEnabled)
+        fun withStartResult(result: RecordingCapabilityResult<AudioRecordingFiles>) = apply {
+            startResult = result
         }
 
         fun arrange() = this to viewModel
+    }
 
-        companion object {
-            const val ASSET_SIZE_LIMIT = 5L
-            val DUMMY_CALL = Call(
-                conversationId = ConversationId(
-                    value = "conversationId",
-                    domain = "conversationDomain"
-                ),
-                status = CallStatus.CLOSED,
-                callerId = UserId("caller", "domain"),
-                participants = listOf(),
-                isMuted = true,
-                isCameraOn = false,
-                isCbrEnabled = false,
-                maxParticipants = 0,
-                conversationName = "ONE_ON_ONE Name",
-                conversationType = Conversation.Type.OneOnOne,
-                callerName = "otherUsername",
-                callerTeamName = "team_1"
-            )
-        }
+    private companion object {
+        const val ASSET_SIZE_LIMIT = 5L * 1_024L * 1_024L
+        const val DURATION_MS = 1_234
+        val DUMMY_CALL = Call(
+            conversationId = ConversationId("conversationId", "conversationDomain"),
+            status = CallStatus.CLOSED,
+            callerId = UserId("caller", "domain"),
+            participants = emptyList(),
+            isMuted = true,
+            isCameraOn = false,
+            isCbrEnabled = false,
+            maxParticipants = 0,
+            conversationName = "ONE_ON_ONE Name",
+            conversationType = Conversation.Type.OneOnOne,
+            callerName = "otherUsername",
+            callerTeamName = "team_1",
+        )
     }
 }

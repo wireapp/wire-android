@@ -17,59 +17,6 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import com.wire.media.player.AudioState
-import okio.Path
-
-data class RecordAudioState(
-    val buttonState: RecordAudioButtonState = RecordAudioButtonState.ENABLED,
-    val discardDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
-    val permissionsDeniedDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
-    val maxFileSizeReachedDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
-    val originalOutputFile: Path? = null,
-    val effectsOutputFile: Path? = null,
-    val shouldApplyEffects: Boolean = false,
-    val audioState: AudioState = AudioState.DEFAULT,
-    val wavesMask: List<Int>? = null
-)
-
-enum class RecordAudioButtonState {
-    /**
-     * ENABLED: Button for starting an audio message will be shown.
-     * Start Recording or Ask permissions
-     */
-    ENABLED,
-
-    /**
-     * RECORDING: Is shown when a recording is in place.
-     */
-    RECORDING,
-
-    /**
-     * READY_TO_SEND: When User finished recording its audio message.
-     */
-    READY_TO_SEND,
-
-    /**
-     * ENCODING: When recorded audio is encoding
-     */
-    ENCODING
-}
-
-sealed class RecordAudioDialogState {
-    /**
-     * Dialog is shown to user
-     */
-    object Shown : RecordAudioDialogState()
-
-    /**
-     * Dialog is hidden from user
-     */
-    object Hidden : RecordAudioDialogState()
-
-    /**
-     * Max File Size dialog is shown with dynamic max file size
-     */
-    data class MaxFileSizeReached(
-        val maxSize: Long
-    ) : RecordAudioDialogState()
-}
+typealias RecordAudioState = com.wire.media.recording.AudioRecordingState
+typealias RecordAudioButtonState = com.wire.media.recording.RecordingButtonState
+typealias RecordAudioDialogState = com.wire.media.recording.RecordingDialogState

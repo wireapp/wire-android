@@ -23,11 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.media.PingRinger
 import com.wire.android.media.audiomessage.toNormalizedLoudness
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.home.conversations.AssetTooLargeDialogState
@@ -77,6 +75,8 @@ import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.DetectLinkPreviewTargetUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
+import com.wire.media.player.PlatformFeedback
+import com.wire.media.player.PlatformFeedbackType
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import dev.zacsweers.metro.Assisted
@@ -107,7 +107,7 @@ class SendMessageViewModel @AssistedInject constructor(
     private val assetImporter: AssetImporter,
     private val sendKnock: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
-    private val pingRinger: PingRinger,
+    private val platformFeedback: PlatformFeedback,
     private val mediaMetadataReader: MediaMetadataReader,
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
@@ -331,7 +331,7 @@ class SendMessageViewModel @AssistedInject constructor(
             }
 
             is Ping -> {
-                pingRinger.ping(R.raw.ping_from_me, isReceivingPing = false)
+                platformFeedback.perform(PlatformFeedbackType.OUTGOING_PING)
                 sendKnock(conversationId = messageBundle.conversationId, hotKnock = false)
                     .toEither()
                     .handleLegalHoldFailureAfterSendingMessage(messageBundle.conversationId)

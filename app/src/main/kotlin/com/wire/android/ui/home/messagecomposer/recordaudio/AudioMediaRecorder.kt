@@ -22,19 +22,29 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
-import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.media.MediaRecorder
 import android.os.ParcelFileDescriptor
 import com.wire.android.appLogger
+import com.wire.android.di.metro.MetroSessionScope
+import com.wire.android.media.audiomessage.AudioFocusHelper
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.util.DateTimeUtil
+import com.wire.media.recording.AudioRecorder
+import com.wire.media.recording.AudioRecorderEvent
+import com.wire.media.recording.AudioRecordingFiles
+import com.wire.media.recording.RecordingCapabilityResult
+import com.wire.media.recording.RecordingInterruption
+import com.wire.media.recording.RecordingSizePolicy
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.binding
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
@@ -47,17 +57,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.buffer
-import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import dev.zacsweers.metro.Inject
-class AudioMediaRecorder @Inject constructor(
+
+@Inject
+@ContributesBinding(MetroSessionScope::class, binding = binding<AudioRecorder>())
+@Suppress("TooManyFunctions") // Native recording and codec lifecycle stay together at the Android boundary.
+class AudioMediaRecorder(
     private val kaliumFileSystem: KaliumFileSystem,
-    private val dispatcherProvider: DispatcherProvider
-) {
+    private val dispatcherProvider: DispatcherProvider,
+    private val audioFocusHelper: AudioFocusHelper,
+) : AudioRecorder {
 
     private val scope by lazy {
         CoroutineScope(SupervisorJob() + dispatcherProvider.io())
@@ -66,18 +79,91 @@ class AudioMediaRecorder @Inject constructor(
     private var audioRecorder: AudioRecord? = null
     private var recordingJob: Job? = null
     private var isRecording = false
-    private var assetLimitInMB: Long = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+    private var assetLimitInBytes: Long = ASSET_SIZE_DEFAULT_LIMIT_BYTES
 
-    var originalOutputPath: Path? = null
-    var m4aOutputPath: Path? = null
+    private var originalOutputPath: Path? = null
+    private var m4aOutputPath: Path? = null
 
-    private val _maxFileSizeReached = MutableSharedFlow<RecordAudioDialogState>()
-    fun getMaxFileSizeReached(): Flow<RecordAudioDialogState> =
-        _maxFileSizeReached.asSharedFlow()
+    private val mutableEvents = MutableSharedFlow<AudioRecorderEvent>(extraBufferCapacity = 1)
+    override val events: Flow<AudioRecorderEvent> = mutableEvents.asSharedFlow()
+
+    init {
+        audioFocusHelper.setListener(
+            onPauseCurrentAudio = {
+                mutableEvents.tryEmit(AudioRecorderEvent.Interrupted(RecordingInterruption.AUDIO_FOCUS))
+            },
+            onResumeCurrentAudio = {},
+        )
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    override suspend fun start(maximumSizeBytes: Long): RecordingCapabilityResult<AudioRecordingFiles> =
+        withContext(dispatcherProvider.default()) {
+            if (!audioFocusHelper.requestExclusive()) {
+                return@withContext RecordingCapabilityResult.Failure("audio_focus_denied")
+            }
+
+            try {
+                setUp(maximumSizeBytes)
+                if (startRecording()) {
+                    val original = originalOutputPath
+                    val encoded = m4aOutputPath
+                    if (original != null && encoded != null) {
+                        RecordingCapabilityResult.Success(AudioRecordingFiles(original, encoded))
+                    } else {
+                        cleanupFailedStart()
+                        RecordingCapabilityResult.Failure("recording_paths_unavailable")
+                    }
+                } else {
+                    cleanupFailedStart()
+                    RecordingCapabilityResult.Failure("recording_start_failed")
+                }
+            } catch (cancelled: CancellationException) {
+                cleanupFailedStart()
+                throw cancelled
+            } catch (error: Exception) {
+                appLogger.e("[RecordAudio] start failed", error)
+                cleanupFailedStart()
+                RecordingCapabilityResult.Failure(error.message ?: "recording_start_failed")
+            }
+        }
+
+    override suspend fun stop(): RecordingCapabilityResult<Unit> = withContext(dispatcherProvider.default()) {
+        try {
+            stopNativeRecording()
+            RecordingCapabilityResult.Success(Unit)
+        } catch (error: IllegalStateException) {
+            appLogger.e("[RecordAudio] stop: ${error.message}", error)
+            RecordingCapabilityResult.Failure(error.message)
+        } finally {
+            releaseNativeRecorder()
+            audioFocusHelper.abandonExclusive()
+        }
+    }
+
+    override suspend fun encode(source: Path, destination: Path): RecordingCapabilityResult<Path> = try {
+        if (convertWavToM4a(source, destination)) {
+            RecordingCapabilityResult.Success(destination)
+        } else {
+            deleteIfExists(destination)
+            RecordingCapabilityResult.Failure("audio_encoding_failed")
+        }
+    } catch (cancelled: CancellationException) {
+        deleteIfExists(destination)
+        throw cancelled
+    }
+
+    override fun release() {
+        isRecording = false
+        recordingJob?.cancel()
+        recordingJob = null
+        releaseNativeRecorder()
+        audioFocusHelper.abandonExclusive()
+    }
 
     @SuppressLint("MissingPermission")
-    fun setUp(assetLimitInMegabyte: Long) {
-        assetLimitInMB = assetLimitInMegabyte
+    private fun setUp(maximumSizeBytes: Long) {
+        assetLimitInBytes = maximumSizeBytes
         if (audioRecorder == null) {
             val bufferSize = AudioRecord.getMinBufferSize(
                 SAMPLING_RATE,
@@ -101,18 +187,16 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
-    fun startRecording(): Boolean = try {
+    private fun startRecording(): Boolean = try {
         audioRecorder?.startRecording()
         isRecording = true
         recordingJob = scope.launch { writeAudioDataToFile() }
         true
-    } catch (e: IllegalStateException) {
-        e.printStackTrace()
-        appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${e.message}")
+    } catch (error: IllegalStateException) {
+        appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${error.message}", error)
         false
-    } catch (e: IOException) {
-        e.printStackTrace()
-        appLogger.e("[RecordAudio] startRecording: IOException - ${e.message}")
+    } catch (error: IOException) {
+        appLogger.e("[RecordAudio] startRecording: IOException - ${error.message}", error)
         false
     }
 
@@ -163,14 +247,19 @@ class AudioMediaRecorder @Inject constructor(
         appLogger.i("Updated WAV Header: Chunk Size = ${fileSize - CHUNK_ID_SIZE}, Data Size = $dataSize")
     }
 
-    suspend fun stop() {
+    private suspend fun stopNativeRecording() {
         isRecording = false
-        audioRecorder?.stop()
-        recordingJob?.cancelAndJoin()
-        recordingJob = null
+        try {
+            if (audioRecorder != null) {
+                audioRecorder?.stop()
+            }
+        } finally {
+            recordingJob?.cancelAndJoin()
+            recordingJob = null
+        }
     }
 
-    fun release() {
+    private fun releaseNativeRecorder() {
         audioRecorder?.release()
         audioRecorder = null
     }
@@ -192,43 +281,40 @@ class AudioMediaRecorder @Inject constructor(
                                 }
 
                                 // Check if the file size exceeds the limit
-                                val currentSize = originalOutputPath!!.toFile().length()
-                                if (currentSize > (assetLimitInMB * SIZE_OF_1MB)) {
+                                val currentSize = kaliumFileSystem.size(originalOutputPath!!) ?: 0L
+                                if (RecordingSizePolicy.hasReachedLimit(currentSize, assetLimitInBytes)) {
                                     isRecording = false
-                                    _maxFileSizeReached.emit(
-                                        RecordAudioDialogState.MaxFileSizeReached(
-                                            maxSize = assetLimitInMB / SIZE_OF_1MB
-                                        )
+                                    mutableEvents.emit(
+                                        AudioRecorderEvent.MaxFileSizeReached(assetLimitInBytes)
                                     )
                                     break
                                 }
                             }
+                            it.flush()
                             updateWavHeader(originalOutputPath!!)
                         }
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")
+            } catch (error: IOException) {
+                appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${error.message}", error)
             }
         }
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod", "TooGenericExceptionCaught")
-    suspend fun convertWavToM4a(inputFilePath: String): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun convertWavToM4a(inputFilePath: Path, outputFilePath: Path): Boolean = withContext(dispatcherProvider.io()) {
         var codec: MediaCodec? = null
         var muxer: MediaMuxer? = null
+        var codecStarted = false
+        var muxerStarted = false
         var success = true
 
         try {
-            FileInputStream(File(inputFilePath)).use { fileInputStream ->
-                m4aOutputPath?.toFile()?.let { outputFile ->
+            FileInputStream(inputFilePath.toFile()).use { fileInputStream ->
+                outputFilePath.toFile().let { outputFile ->
                     ParcelFileDescriptor.open(
                         outputFile,
                         ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
                     ).use { parcelFileDescriptor ->
-
-                        val mediaExtractor = MediaExtractor()
-                        mediaExtractor.setDataSource(inputFilePath)
 
                         val format = MediaFormat.createAudioFormat(
                             MediaFormat.MIMETYPE_AUDIO_AAC,
@@ -242,6 +328,7 @@ class AudioMediaRecorder @Inject constructor(
                         val mediaCodec = codec!!
                         mediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
                         mediaCodec.start()
+                        codecStarted = true
 
                         val bufferInfo = MediaCodec.BufferInfo()
                         muxer = MediaMuxer(parcelFileDescriptor.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
@@ -283,6 +370,7 @@ class AudioMediaRecorder @Inject constructor(
                                     val newFormat = mediaCodec.outputFormat
                                     trackIndex = mediaMuxer.addTrack(newFormat)
                                     mediaMuxer.start()
+                                    muxerStarted = true
                                     retryCount = 0
                                 }
 
@@ -323,42 +411,71 @@ class AudioMediaRecorder @Inject constructor(
                             success = false
                         }
                     }
-                } ?: run {
-                    appLogger.e("[RecordAudio] convertWavToM4a: m4aOutputPath is null")
+                }
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (e: Exception) {
+            appLogger.e("Could not convert wav to m4a: ${e.message}", throwable = e)
+            success = false
+        } finally {
+            muxer?.let { safeMuxer ->
+                if (muxerStarted) {
+                    try {
+                        safeMuxer.stop()
+                    } catch (error: Exception) {
+                        appLogger.e("Could not stop MediaMuxer: ${error.message}", throwable = error)
+                        success = false
+                    }
+                }
+                try {
+                    safeMuxer.release()
+                } catch (error: Exception) {
+                    appLogger.e("Could not release MediaMuxer: ${error.message}", throwable = error)
                     success = false
                 }
             }
-        } catch (e: Exception) {
-            appLogger.e("Could not convert wav to m4a: ${e.message}", throwable = e)
-        } finally {
-            try {
-                muxer?.let { safeMuxer ->
-                    safeMuxer.stop()
-                    safeMuxer.release()
-                }
-            } catch (e: Exception) {
-                appLogger.e("Could not stop or release MediaMuxer: ${e.message}", throwable = e)
-                success = false
-            }
 
-            try {
-                codec?.let { safeCodec ->
-                    safeCodec.stop()
-                    safeCodec.release()
+            codec?.let { safeCodec ->
+                if (codecStarted) {
+                    try {
+                        safeCodec.stop()
+                    } catch (error: Exception) {
+                        appLogger.e("Could not stop MediaCodec: ${error.message}", throwable = error)
+                        success = false
+                    }
                 }
-            } catch (e: Exception) {
-                appLogger.e("Could not stop or release MediaCodec: ${e.message}", throwable = e)
-                success = false
+                try {
+                    safeCodec.release()
+                } catch (error: Exception) {
+                    appLogger.e("Could not release MediaCodec: ${error.message}", throwable = error)
+                    success = false
+                }
             }
         }
         success
+    }
+
+    private fun cleanupFailedStart() {
+        isRecording = false
+        recordingJob?.cancel()
+        recordingJob = null
+        releaseNativeRecorder()
+        audioFocusHelper.abandonExclusive()
+        originalOutputPath?.let(::deleteIfExists)
+        m4aOutputPath?.let(::deleteIfExists)
+        originalOutputPath = null
+        m4aOutputPath = null
+    }
+
+    private fun deleteIfExists(path: Path) {
+        if (kaliumFileSystem.exists(path)) kaliumFileSystem.delete(path)
     }
 
     companion object {
         fun getRecordingAudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.wav"
         fun getRecordingM4aAudioFileName(): String = "wire-audio-${DateTimeUtil.currentInstant().fileDateTime()}.m4a"
 
-        const val SIZE_OF_1MB = 1024 * 1024
         const val AUDIO_CHANNELS = 1 // Mono
         const val SAMPLING_RATE = 16000
         const val BUFFER_SIZE = 1024

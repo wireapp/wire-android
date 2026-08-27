@@ -39,6 +39,7 @@ import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
+import com.wire.media.player.PlatformFeedbackType
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -487,7 +488,7 @@ class SendMessageViewModelTest {
         }
 
     @Test
-    fun `given that a user sends an ping message, when invoked, then sendKnockUseCase and pingRinger are called`() =
+    fun `given that a user sends a ping message, when invoked, then send and platform feedback are called`() =
         runTest {
             // Given
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
@@ -502,7 +503,7 @@ class SendMessageViewModelTest {
             advanceUntilIdle()
             // Then
             coVerify(exactly = 1) { arrangement.sendKnockUseCase.invoke(any(), any()) }
-            verify(exactly = 1) { arrangement.pingRinger.ping(any(), isReceivingPing = false) }
+            verify(exactly = 1) { arrangement.platformFeedback.perform(PlatformFeedbackType.OUTGOING_PING) }
             verify(exactly = 1) {
                 arrangement.analyticsManager.sendEvent(
                     match {

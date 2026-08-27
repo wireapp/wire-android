@@ -214,6 +214,7 @@ dependencies {
     implementationWithCoverage(projects.core.media)
     implementationWithCoverage(projects.core.mediaPlayer)
     implementation(projects.core.mediaPlayerKmp)
+    implementation(projects.core.audioRecordingKmp)
     implementation(projects.core.contentKmp)
     implementationWithCoverage(projects.core.notification)
     implementationWithCoverage(projects.core.navigation)

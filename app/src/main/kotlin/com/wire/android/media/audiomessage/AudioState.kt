@@ -21,7 +21,6 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.media.player.AudioMediaPlayingState
 import com.wire.media.player.AudioState
 
 typealias AudioSpeed = com.wire.media.player.PlaybackSpeed
@@ -54,40 +53,3 @@ val AudioSpeed.titleRes: Int
         AudioSpeed.FAST -> R.string.audio_speed_1_5
         AudioSpeed.MAX -> R.string.audio_speed_2
     }
-
-sealed class AudioMediaPlayerStateUpdate(
-    open val conversationId: ConversationId,
-    open val messageId: String
-) {
-    data class AudioMediaPlayingStateUpdate(
-        override val conversationId: ConversationId,
-        override val messageId: String,
-        val audioMediaPlayingState: AudioMediaPlayingState
-    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
-
-    data class PositionChangeUpdate(
-        override val conversationId: ConversationId,
-        override val messageId: String,
-        val position: Int
-    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
-
-    data class TotalTimeUpdate(
-        override val conversationId: ConversationId,
-        override val messageId: String,
-        val totalTimeInMs: Int
-    ) : AudioMediaPlayerStateUpdate(conversationId, messageId)
-}
-
-sealed class RecordAudioMediaPlayerStateUpdate {
-    data class RecordAudioMediaPlayingStateUpdate(
-        val audioMediaPlayingState: AudioMediaPlayingState
-    ) : RecordAudioMediaPlayerStateUpdate()
-
-    data class PositionChangeUpdate(
-        val position: Int
-    ) : RecordAudioMediaPlayerStateUpdate()
-
-    data class TotalTimeUpdate(
-        val totalTimeInMs: Int
-    ) : RecordAudioMediaPlayerStateUpdate()
-}

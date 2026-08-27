@@ -22,7 +22,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
@@ -58,6 +57,8 @@ import com.wire.kalium.logic.feature.message.linkpreview.DetectLinkPreviewTarget
 import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import com.wire.media.player.PlatformFeedback
+import com.wire.media.player.PlatformFeedbackResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -80,7 +81,7 @@ internal class SendMessageViewModelArrangement {
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
-        every { pingRinger.ping(any(), any()) } returns Unit
+        every { platformFeedback.perform(any()) } returns PlatformFeedbackResult.Performed
         coEvery { sendKnockUseCase(any(), any()) } returns MessageOperationResult.Success
         coEvery { setUserInformedAboutVerificationUseCase(any()) } returns Unit
         coEvery { observeDegradedConversationNotifiedUseCase(any()) } returns flowOf(true)
@@ -129,7 +130,7 @@ internal class SendMessageViewModelArrangement {
     private lateinit var observeSyncState: ObserveSyncStateUseCase
 
     @MockK
-    lateinit var pingRinger: PingRinger
+    lateinit var platformFeedback: PlatformFeedback
 
     @MockK
     lateinit var mediaMetadataReader: MediaMetadataReader
@@ -188,7 +189,7 @@ internal class SendMessageViewModelArrangement {
             kaliumFileSystem = fakeKaliumFileSystem,
             assetImporter = assetImporter,
             mediaMetadataReader = mediaMetadataReader,
-            pingRinger = pingRinger,
+            platformFeedback = platformFeedback,
             sendKnock = sendKnockUseCase,
             retryFailedMessage = retryFailedMessageUseCase,
             sendTypingEvent = sendTypingEvent,

@@ -24,6 +24,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.media.recording.RecordingDialogState
 
 @Composable
 fun DiscardRecordedAudioDialog(
@@ -31,7 +32,7 @@ fun DiscardRecordedAudioDialog(
     onDiscard: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (dialogState is RecordAudioDialogState.Shown) {
+    if (dialogState is RecordingDialogState.Shown) {
         WireDialog(
             title = stringResource(id = R.string.record_audio_discard_dialog_title),
             text = stringResource(id = R.string.record_audio_discard_dialog_text),
@@ -57,7 +58,7 @@ fun MicrophonePermissionsDeniedDialog(
     onDismiss: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
-    if (dialogState is RecordAudioDialogState.Shown) {
+    if (dialogState is RecordingDialogState.Shown) {
         WireDialog(
             title = stringResource(id = R.string.record_audio_permission_denied_dialog_title),
             text = stringResource(id = R.string.record_audio_permission_denied_dialog_text),
@@ -82,7 +83,7 @@ fun RecordedAudioMaxFileSizeReachedDialog(
     dialogState: RecordAudioDialogState,
     onDismiss: () -> Unit
 ) {
-    if (dialogState is RecordAudioDialogState.MaxFileSizeReached) {
+    if (dialogState is RecordingDialogState.MaxFileSizeReached) {
         WireDialog(
             title = stringResource(id = R.string.record_audio_max_file_size_reached_title),
             text = stringResource(

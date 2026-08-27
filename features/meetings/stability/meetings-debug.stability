@@ -28,7 +28,7 @@ public fun com.wire.android.feature.meetings.ui.NewMeetingBottomSheet(sheetState
     - onScheduleClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError(navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError(navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -61,12 +61,15 @@ private fun com.wire.android.feature.meetings.ui.create.NewMeetingDetailsNavigat
     - actions: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.create.NewMeetingErrorDialog(type: com.wire.android.feature.meetings.ui.create.NewMeetingType, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.create.NewMeetingErrorDialog(error: com.wire.android.feature.meetings.ui.create.NewMeetingState.SubmitError, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, isSubmitting: kotlin.Boolean, onDismiss: kotlin.Function0<kotlin.Unit>, onRetryUpdateConversationName: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - error: STABLE (class with no mutable properties)
     - type: STABLE (class with no mutable properties)
+    - isSubmitting: STABLE (primitive type)
     - onDismiss: STABLE (function type)
+    - onRetryUpdateConversationName: STABLE (function type)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsNavigation3Entry(route: com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsRoute, runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, actions: com.wire.android.feature.meetings.ui.create.MeetingsNavigation3Actions): kotlin.Unit
@@ -114,7 +117,7 @@ private fun com.wire.android.feature.meetings.ui.create.SelectButton(onClick: ko
     - elevation: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlinx.datetime.Instant, timeError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TimeError?, onTimeChanged: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, label: kotlin.String, datePlaceholder: kotlin.String, timePlaceholder: kotlin.String): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlinx.datetime.Instant, timeError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TimeError?, onTimeChanged: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, label: kotlin.String, datePlaceholder: kotlin.String, timePlaceholder: kotlin.String, dateInputDisabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -124,14 +127,16 @@ private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlinx.
     - label: STABLE (String is immutable)
     - datePlaceholder: STABLE (String is immutable)
     - timePlaceholder: STABLE (String is immutable)
+    - dateInputDisabled: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.create.TitleInput(titleState: androidx.compose.foundation.text.input.TextFieldState, titleError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TitleError?): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.TitleInput(titleState: androidx.compose.foundation.text.input.TextFieldState, titleError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TitleError?, readOnly: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - titleState: STABLE (marked @Stable or @Immutable)
     - titleError: STABLE (marked @Stable or @Immutable)
+    - readOnly: STABLE (primitive type)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.create.newMeetingFlowViewModel(type: com.wire.android.feature.meetings.ui.create.NewMeetingRouteType, meetingId: com.wire.kalium.logic.data.id.QualifiedID?, flowId: kotlin.String): com.wire.android.feature.meetings.ui.create.NewMeetingViewModel

@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import com.wire.android.model.Contact
 import com.wire.android.model.ItemActionType
+import com.wire.android.search.apps.EmptySearchDisabledByConversationContent
 import com.wire.android.search.apps.SearchAppsScreen
 import com.wire.android.search.users.SearchAllPeopleScreen
 import com.wire.android.search.users.SearchUserViewModel
@@ -229,13 +230,16 @@ fun SearchUsersAndAppsScreen(
                         }
 
                         SearchPeopleTabItem.SERVICES -> {
-                            SearchAppsScreen(
-                                protocolInfo = conversationProtocol,
-                                searchQuery = searchBarState.searchQueryTextState.text.toString(),
-                                onServiceClicked = onAppClicked,
-                                lazyListState = lazyListStates[pageIndex],
-                                isConversationAppsEnabled = isConversationAppsEnabled,
-                            )
+                            if (isConversationAppsEnabled) {
+                                SearchAppsScreen(
+                                    protocolInfo = conversationProtocol,
+                                    searchQuery = searchBarState.searchQueryTextState.text.toString(),
+                                    onServiceClicked = onAppClicked,
+                                    lazyListState = lazyListStates[pageIndex],
+                                )
+                            } else {
+                                EmptySearchDisabledByConversationContent()
+                            }
                         }
                     }
                 }

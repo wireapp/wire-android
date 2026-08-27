@@ -22,6 +22,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import junit.framework.TestCase.assertFalse
@@ -70,6 +71,21 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
     private val anyTextMessage = UiSelectorParams(className = "android.widget.TextView")
+
+    private fun userInMentionList(userName: String): UiObject2 {
+        var user: UiObject2? = null
+        val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            user = device.findObjects(By.res("User avatar"))
+                .firstNotNullOfOrNull { avatar ->
+                    avatar.parent?.parent?.findObject(By.textContains(userName))
+                }
+            user != null
+        }
+        if (!visible) {
+            throw AssertionError("User '$userName' is not visible in the mention list.")
+        }
+        return requireNotNull(user)
+    }
 
     private fun conversationDetails1On1(userName: String) = UiSelectorParams(
         className = "android.widget.TextView",
@@ -576,6 +592,16 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun clickSendButton(): ConversationViewPage {
         UiWaitUtils.waitElement(sendButton).click()
+        return this
+    }
+
+    fun assertUserVisibleInMentionList(userName: String): ConversationViewPage {
+        userInMentionList(userName)
+        return this
+    }
+
+    fun tapUserInMentionList(userName: String): ConversationViewPage {
+        userInMentionList(userName).click()
         return this
     }
 

@@ -4,11 +4,12 @@
  */
 package com.wire.android.navigation.routes.media
 
-import android.net.Uri
 import com.wire.android.ui.home.conversations.media.ConversationMediaNavArgs
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavArgs
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.content.external.ExternalContentImportRequest
+import com.wire.content.external.ExternalContentReference
 import com.wire.android.ui.home.gallery.MediaGalleryNavArgs
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -21,7 +22,7 @@ internal fun ConversationMediaRoute.toViewModelArgs() = ConversationMediaNavArgs
 internal fun ImagesPreviewRoute.toViewModelArgs() = ImagesPreviewNavArgs(
     conversationId.toQualifiedId(),
     conversationName,
-    ArrayList(assetUris.map(Uri::parse)),
+    ArrayList(assetUris.map { ExternalContentImportRequest(ExternalContentReference(it)) }),
 )
 internal fun MediaGalleryRoute.toViewModelArgs() = MediaGalleryNavArgs(
     conversationId.toQualifiedId(),

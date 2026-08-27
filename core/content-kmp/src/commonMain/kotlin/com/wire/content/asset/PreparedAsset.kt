@@ -39,14 +39,14 @@ data class PreparedAsset(
     val extensionWithSize: String
         get() {
             val assetExtension = fileName.substringAfterLast('.')
-            val oneMegabyte = BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE
             return when {
                 dataSize < BYTES_PER_KILOBYTE -> "${assetExtension.uppercase()} ($dataSize B)"
-                dataSize in BYTES_PER_KILOBYTE..oneMegabyte ->
+                dataSize in BYTES_PER_KILOBYTE..BYTES_PER_MEGABYTE ->
                     "${assetExtension.uppercase()} (${dataSize / BYTES_PER_KILOBYTE} KB)"
-                else ->
-                    "${assetExtension.uppercase()} " +
-                        "(${((dataSize / oneMegabyte) * SIZE_DECIMAL_SCALE).roundToInt() / SIZE_DECIMAL_SCALE} MB)"
+                else -> {
+                    val megabytes = ((dataSize / BYTES_PER_MEGABYTE) * DECIMAL_FACTOR).roundToInt() / DECIMAL_FACTOR
+                    "${assetExtension.uppercase()} ($megabytes MB)"
+                }
             }
         }
 
@@ -55,6 +55,7 @@ data class PreparedAsset(
 
     private companion object {
         const val BYTES_PER_KILOBYTE = 1024L
-        const val SIZE_DECIMAL_SCALE = 100.0
+        const val BYTES_PER_MEGABYTE = BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE
+        const val DECIMAL_FACTOR = 100.0
     }
 }

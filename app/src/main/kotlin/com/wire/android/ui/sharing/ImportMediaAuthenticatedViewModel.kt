@@ -44,7 +44,7 @@ import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
@@ -52,6 +52,8 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.FILE_PROVIDER_SHARED_FILES_ROOT
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getProviderAuthority
+import com.wire.content.external.AssetImporter
+import com.wire.content.external.ExternalContentImportResult
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
@@ -78,7 +80,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val getSelf: ObserveSelfUserUseCase,
     private val getConversationsPaginated: GetConversationsFromSearchUseCase,
-    private val handleUriAsset: HandleUriAssetUseCase,
+    private val assetImporter: AssetImporter,
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     val dispatchers: DispatcherProvider,
@@ -235,18 +237,20 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? =
         withContext(dispatchers.io()) {
-            when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
-                is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
+            when (val result = assetImporter(UriAsset(uri))) {
+                is ExternalContentImportResult.TooLarge -> {
                     appLogger.w("$TAG: Failed to import asset message: Asset too large")
-                    ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
+                    ImportedMediaAsset(result.asset, (result.maximumSizeBytes / BYTES_PER_MEGABYTE).toInt())
                 }
 
-                HandleUriAssetUseCase.Result.Failure.Unknown -> {
+                ExternalContentImportResult.Cancelled,
+                ExternalContentImportResult.Failure,
+                ExternalContentImportResult.Unsupported -> {
                     appLogger.e("$TAG: Failed to import asset message: Unknown error")
                     null
                 }
 
-                is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
+                is ExternalContentImportResult.Success -> ImportedMediaAsset(result.asset, null)
             }
         }
 
@@ -256,6 +260,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "[ImportMediaAuthenticatedViewModel]"
+        private const val BYTES_PER_MEGABYTE = 1024 * 1024
     }
 }
 

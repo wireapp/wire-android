@@ -27,7 +27,6 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
-import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
@@ -51,6 +50,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
+import com.wire.content.external.FileExporter
+import com.wire.content.external.LocalContent
+import com.wire.content.external.PlatformResult
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
@@ -61,7 +63,7 @@ class MediaGalleryViewModel @AssistedInject constructor(
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
-    private val fileManager: FileManager,
+    private val fileExporter: FileExporter,
     private val deleteMessage: DeleteMessageUseCase,
     private val getAttachment: GetMessageAttachmentUseCase,
     private val getCellNode: GetCellFileUseCase,
@@ -199,12 +201,17 @@ class MediaGalleryViewModel @AssistedInject constructor(
             withContext(dispatchers.io()) {
                 val imageData = getImageData(conversationId, messageId).await()
                 if (imageData is Success) {
-                    fileManager.saveToExternalStorage(
-                        imageData.assetName,
-                        imageData.decodedAssetPath,
-                        imageData.assetSize
+                    when (
+                        val result = fileExporter.exportToDownloads(
+                            LocalContent(
+                                path = imageData.decodedAssetPath,
+                                displayName = imageData.assetName,
+                                size = imageData.assetSize,
+                            )
+                        )
                     ) {
-                        onImageSavedToExternalStorage(it)
+                        is PlatformResult.Success -> onImageSavedToExternalStorage(result.value)
+                        else -> onSaveError()
                     }
                 } else {
                     onSaveError()

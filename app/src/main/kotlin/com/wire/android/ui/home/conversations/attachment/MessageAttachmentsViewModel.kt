@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.attachment
 
-import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -32,12 +31,15 @@ import com.wire.android.ui.common.attachmentdraft.model.toUiModel
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.sharing.ImportedMediaAsset
-import com.wire.android.util.FileManager
+import com.wire.android.ui.sharing.toImportedMediaAssetOrNull
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.content.asset.AssetFileNamePolicy
+import com.wire.content.external.AssetImporter
+import com.wire.content.external.ExternalContentImportRequest
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.LocalContent
 import com.wire.kalium.cells.domain.CellUploadEvent
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.model.AttachmentDraft
@@ -69,13 +71,13 @@ import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFac
 @Suppress("TooManyFunctions", "LongParameterList")
 @WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class MessageAttachmentsViewModel @AssistedInject constructor(
-    private val handleUriAsset: HandleUriAssetUseCase,
+    private val assetImporter: AssetImporter,
     private val observeAttachments: ObserveAttachmentDraftsUseCase,
     private val addAttachment: AddAttachmentDraftUseCase,
     private val removeAttachment: RemoveAttachmentDraftUseCase,
     private val retryUpload: RetryAttachmentUploadUseCase,
     private val uploadManager: CellUploadManager,
-    private val fileManager: FileManager,
+    private val externalFileLauncher: ExternalFileLauncher,
     private val sharedState: MessageSharedState,
     private val getMediaMetadata: GetMediaMetadataUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
@@ -121,8 +123,8 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
         }
     }
 
-    fun onAudioRecorded(uri: Uri, wavesMask: List<Int>?) = viewModelScope.launch {
-        handleImportedAsset(uri)?.assetBundle?.let { bundle ->
+    fun onAudioRecorded(request: ExternalContentImportRequest, wavesMask: List<Int>?) = viewModelScope.launch {
+        handleImportedAsset(request.copy(audioWavesMask = wavesMask))?.assetBundle?.let { bundle ->
             addAttachment(
                 conversationId = conversationId,
                 fileName = bundle.fileName,
@@ -139,9 +141,9 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
         }
     }
 
-    fun onFilesSelected(uriList: List<Uri>) = viewModelScope.launch {
-        uriList.forEach { uri ->
-            handleImportedAsset(uri)?.let { asset ->
+    fun onFilesSelected(requests: List<ExternalContentImportRequest>) = viewModelScope.launch {
+        requests.forEach { request ->
+            handleImportedAsset(request)?.let { asset ->
                 enqueueOrAddAttachment(asset.assetBundle)
             }
         }
@@ -186,12 +188,8 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
         showNextIncompatibleDialog()
     }
 
-    private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? =
-        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
-            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
-            is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
-            is HandleUriAssetUseCase.Result.Failure.Unknown -> null
-        }
+    private suspend fun handleImportedAsset(request: ExternalContentImportRequest): ImportedMediaAsset? =
+        assetImporter(request).toImportedMediaAssetOrNull()
 
     private fun addAttachment(bundle: AssetBundle) = viewModelScope.launch {
         addAttachment(
@@ -281,7 +279,10 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
 
     private fun showAttachment(attachment: AttachmentDraftUi) {
         val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(attachment.fileName.fileExtension() ?: "")
-        fileManager.openWithExternalApp(attachment.localFilePath.toPath(), attachment.fileName, mimeType) {
+        val result = externalFileLauncher.open(
+            LocalContent(attachment.localFilePath.toPath(), attachment.fileName, mimeType)
+        )
+        if (result is com.wire.content.external.PlatformResult.Failure) {
             appLogger.e("Failed to open: ${attachment.localFilePath}", tag = "MessageAttachmentsViewModel")
         }
     }

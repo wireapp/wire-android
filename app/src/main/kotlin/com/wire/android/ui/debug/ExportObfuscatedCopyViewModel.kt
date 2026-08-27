@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.debug
 
-import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
@@ -32,13 +31,16 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
 import com.wire.android.ui.home.settings.backup.BackupCreationProgress
-import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import dev.zacsweers.metro.Inject
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.util.DelicateKaliumApi
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.FileExporter
+import com.wire.content.external.LocalContent
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 @ViewModelScopedPreview
@@ -51,14 +53,15 @@ interface ExportObfuscatedCopyViewModel {
 
     fun createObfuscatedCopy() {}
     fun shareCopy() {}
-    fun saveCopy(uri: Uri) {}
+    fun saveCopy(destination: ExternalContentReference) {}
     fun cancelBackupCreation() {}
 }
 
 class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject constructor(
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
-    private val fileManager: FileManager,
+    private val fileExporter: FileExporter,
+    private val externalFileLauncher: ExternalFileLauncher,
 ) : ViewModel(), ExportObfuscatedCopyViewModel {
 
     override var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
@@ -95,7 +98,7 @@ class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject
         viewModelScope.launch {
             latestCreatedBackup?.let { backupData ->
                 withContext(dispatcher.io()) {
-                    fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
+                    externalFileLauncher.share(LocalContent(backupData.path, backupData.assetName))
                 }
             }
             state = state.copy(
@@ -104,10 +107,10 @@ class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject
         }
     }
 
-    override fun saveCopy(uri: Uri) {
+    override fun saveCopy(destination: ExternalContentReference) {
         viewModelScope.launch {
             latestCreatedBackup?.let { backupData ->
-                fileManager.copyToUri(backupData.path, uri, dispatcher)
+                fileExporter.write(LocalContent(backupData.path, backupData.assetName), destination)
             }
             state = state.copy(
                 backupCreationProgress = BackupCreationProgress.InProgress(),

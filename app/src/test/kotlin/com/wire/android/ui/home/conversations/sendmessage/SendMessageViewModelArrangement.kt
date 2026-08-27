@@ -26,8 +26,9 @@ import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.util.ImageUtil
+import com.wire.content.external.AssetImporter
+import com.wire.content.external.ExternalContentImportResult
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
@@ -132,7 +133,7 @@ internal class SendMessageViewModelArrangement {
     private lateinit var imageUtil: ImageUtil
 
     @MockK
-    private lateinit var handleUriAssetUseCase: HandleUriAssetUseCase
+    private lateinit var assetImporter: AssetImporter
 
     @MockK
     lateinit var retryFailedMessageUseCase: RetryFailedMessageUseCase
@@ -183,7 +184,7 @@ internal class SendMessageViewModelArrangement {
             sendAssetMessage = sendAssetMessage,
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
-            handleUriAsset = handleUriAssetUseCase,
+            assetImporter = assetImporter,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
             sendKnock = sendKnockUseCase,
@@ -281,8 +282,8 @@ internal class SendMessageViewModelArrangement {
         } returns MessageOperationResult.Success
     }
 
-    fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
-        coEvery { handleUriAssetUseCase.invoke(any(), any(), any(), any()) } returns result
+    fun withHandleUriAsset(result: ExternalContentImportResult) = apply {
+        coEvery { assetImporter.invoke(any()) } returns result
     }
 
     fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {

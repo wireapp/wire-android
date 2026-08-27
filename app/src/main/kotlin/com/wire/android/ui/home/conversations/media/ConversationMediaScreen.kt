@@ -108,7 +108,7 @@ internal fun ConversationMediaRouteScreen(
             conversationMessagesViewModel.deleteMessageDialogState
                 .show(DeleteMessageDialogState(deleteForEveryone, messageId, conversationMessagesViewModel.conversationId))
         },
-        shareAssetExternally = remember { { conversationMessagesViewModel.shareAsset(context, it) } },
+        shareAssetExternally = remember { conversationMessagesViewModel::shareAsset },
         shareAssetViaWire = { messageId ->
             conversationMessagesViewModel.prepareAssetForWireShare(messageId) { path, assetName ->
                 onShareAssetViaWire(context.fileShareUri(path, assetName))

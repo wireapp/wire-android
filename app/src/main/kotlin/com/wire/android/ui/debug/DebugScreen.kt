@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.platform.content.asExternalContentReference
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -166,7 +167,7 @@ fun DangerOptions(
                     backUpAndRestoreState = exportObfuscatedCopyViewModel.state,
                     backupPasswordTextState = exportObfuscatedCopyViewModel.createBackupPasswordState,
                     onCreateBackup = exportObfuscatedCopyViewModel::createObfuscatedCopy,
-                    onSaveBackup = exportObfuscatedCopyViewModel::saveCopy,
+                    onSaveBackup = { exportObfuscatedCopyViewModel.saveCopy(it.asExternalContentReference()) },
                     onShareBackup = exportObfuscatedCopyViewModel::shareCopy,
                     onCancelCreateBackup = {
                         backupAndRestoreStateHolder.dismissDialog()

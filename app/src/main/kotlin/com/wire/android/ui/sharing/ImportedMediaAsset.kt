@@ -18,8 +18,22 @@
 package com.wire.android.ui.sharing
 
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.content.external.ExternalContentImportResult
 
 data class ImportedMediaAsset(
      val assetBundle: AssetBundle,
      val assetSizeExceeded: Int?
 )
+
+fun ExternalContentImportResult.toImportedMediaAssetOrNull(): ImportedMediaAsset? = when (this) {
+    is ExternalContentImportResult.Success -> ImportedMediaAsset(asset, null)
+    is ExternalContentImportResult.TooLarge -> ImportedMediaAsset(
+        asset,
+        (maximumSizeBytes / BYTES_PER_MEGABYTE).toInt(),
+    )
+    ExternalContentImportResult.Cancelled,
+    ExternalContentImportResult.Failure,
+    ExternalContentImportResult.Unsupported -> null
+}
+
+private const val BYTES_PER_MEGABYTE = 1024 * 1024

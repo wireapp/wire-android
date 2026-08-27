@@ -28,7 +28,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.content.external.ExternalContentImportResult
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.kalium.logic.data.asset.AttachmentType
@@ -291,7 +291,7 @@ class SendMessageViewModelTest {
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
+                .withHandleUriAsset(ExternalContentImportResult.Success(mockedAttachment))
                 .arrange()
 
             // When
@@ -332,7 +332,7 @@ class SendMessageViewModelTest {
                 .withSuccessfulViewModelInit()
                 .withStoredAsset(assetPath, assetContent)
                 .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
+                .withHandleUriAsset(ExternalContentImportResult.Success(mockedAttachment))
                 .arrange()
 
             // When
@@ -392,7 +392,9 @@ class SendMessageViewModelTest {
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, 25))
+                .withHandleUriAsset(
+                    ExternalContentImportResult.TooLarge(mockedAttachment, 25L * 1024 * 1024)
+                )
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
                 conversationId = conversationId,
@@ -429,7 +431,9 @@ class SendMessageViewModelTest {
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, limit))
+                .withHandleUriAsset(
+                    ExternalContentImportResult.TooLarge(mockedAttachment, limit.toLong() * 1024 * 1024)
+                )
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
                 conversationId = conversationId,
@@ -457,7 +461,7 @@ class SendMessageViewModelTest {
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.Unknown)
+                .withHandleUriAsset(ExternalContentImportResult.Failure)
                 .arrange()
             val mockedMessageBundle = ComposableMessageBundle.UriPickedBundle(
                 conversationId = conversationId,
@@ -526,7 +530,7 @@ class SendMessageViewModelTest {
                 .withSuccessfulViewModelInit()
                 .withStoredAsset(assetPath, assetContent)
                 .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
+                .withHandleUriAsset(ExternalContentImportResult.Success(mockedAttachment))
                 .arrange()
 
             // When
@@ -891,7 +895,7 @@ class SendMessageViewModelTest {
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Failure.DisabledByTeam)
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.Unknown)
+                .withHandleUriAsset(ExternalContentImportResult.Failure)
                 .arrange()
 
             val mockedAttachment = AssetBundle(
@@ -938,7 +942,7 @@ class SendMessageViewModelTest {
             val (arrangement, viewModel) = SendMessageViewModelArrangement()
                 .withSuccessfulViewModelInit()
                 .withStoredAsset(assetPath, assetContent)
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
+                .withHandleUriAsset(ExternalContentImportResult.Success(mockedAttachment))
                 .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Failure.RestrictedFileType)
                 .arrange()
 

@@ -26,6 +26,12 @@ import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.UserAgentProvider
 import com.wire.android.util.isWebsocketEnabledByDefault
+import com.wire.content.external.AssetImportCoordinator
+import com.wire.content.external.AssetImporter
+import com.wire.content.external.AssetSizeLimitProvider
+import com.wire.content.external.ContentKeyGenerator
+import com.wire.content.external.ExternalContentReader
+import com.wire.content.external.FileExporter
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
@@ -35,6 +41,7 @@ import com.wire.kalium.logic.feature.analytics.GetCurrentAnalyticsTrackingIdenti
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.applock.MarkTeamAppLockStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
+import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -299,6 +306,21 @@ class UseCaseModule {
     @Provides
     fun fileSystemProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): KaliumFileSystem =
         coreLogic.getSessionScope(currentAccount).kaliumFileSystem
+
+    @Provides
+    fun provideAssetImporter(
+        reader: ExternalContentReader,
+        exporter: FileExporter,
+        fileSystem: KaliumFileSystem,
+        getAssetSizeLimit: GetAssetSizeLimitUseCase,
+        keyGenerator: ContentKeyGenerator,
+    ): AssetImporter = AssetImportCoordinator(
+        reader = reader,
+        exporter = exporter,
+        fileSystem = fileSystem,
+        sizeLimitProvider = AssetSizeLimitProvider(getAssetSizeLimit::invoke),
+        keyGenerator = keyGenerator,
+    )
 
     @Provides
     fun provideFederatedIdMapper(

@@ -181,6 +181,7 @@ allure-kotlin-android = { module = "io.qameta.allure:allure-kotlin-android", ver
 
 # KotlinX
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 # Android Core / Architecture

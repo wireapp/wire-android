@@ -26,12 +26,12 @@ import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
-import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.addBeforeExtension
 import com.wire.android.util.cellFileTime
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.content.external.FileExporter
+import com.wire.content.external.PlatformResult
 import com.wire.kalium.cells.domain.model.NodeVersion
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellVersionUseCase
@@ -44,10 +44,8 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
-import okio.sink
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -58,10 +56,9 @@ class VersionHistoryViewModel @AssistedInject constructor(
     private val fileSizeFormatter: FileSizeFormatter,
     private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
     private val downloadCellVersionUseCase: DownloadCellVersionUseCase,
-    private val fileHelper: FileHelper,
+    private val fileExporter: FileExporter,
     private val onlineEditor: OnlineEditor,
     private val getEditorUrl: GetEditorUrlUseCase,
-    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -213,8 +210,9 @@ class VersionHistoryViewModel @AssistedInject constructor(
 
             val newFileName = fileName.addBeforeExtension("${versionDate}_${cellVersion.modifiedAt}")
 
-            val outputStream = withContext(dispatchers.io()) {
-                fileHelper.createDownloadFileStream(newFileName)
+            val sink = when (val result = fileExporter.openDownloadSink(newFileName)) {
+                is PlatformResult.Success -> result.value
+                else -> null
             } ?: run {
                 downloadState.value = DownloadState.Failed
                 return@launch
@@ -223,9 +221,9 @@ class VersionHistoryViewModel @AssistedInject constructor(
             val presignedUrl = cellVersion.presignedUrl
                 ?: return@launch run { downloadState.value = DownloadState.Failed }
 
-            outputStream.sink().use { sink ->
+            sink.use {
                 downloadCellVersionUseCase(
-                    bufferedSink = sink,
+                    bufferedSink = it,
                     preSignedUrl = presignedUrl,
                     onProgressUpdate = { progress, total ->
                         downloadState.value = DownloadState.Downloading(progress.toInt(), total)

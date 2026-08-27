@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.util
+
+package com.wire.android.platform.content
 
 import android.app.Application
-import androidx.core.net.toUri
-import androidx.test.core.app.ApplicationProvider
+import android.net.Uri
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,17 +28,16 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class)
-class FileManagerTest {
-
-    private val fileManager = FileManager(ApplicationProvider.getApplicationContext())
+class AndroidContentCapabilitiesTest {
 
     @Test
-    fun givenContentUri_whenCheckingScheme_thenItIsAccepted() {
-        fileManager.checkValidSchema("content://example.provider/assets/1".toUri())
+    fun givenContentUri_whenValidatingExternalContent_thenItIsAccepted() {
+        Uri.parse("content://example.provider/assets/1").requireExternalContentUri()
+        Uri.parse("CONTENT://example.provider/assets/1").requireExternalContentUri()
     }
 
     @Test
-    fun givenUnsupportedUriScheme_whenCheckingScheme_thenItIsRejected() {
+    fun givenUnsupportedUriScheme_whenValidatingExternalContent_thenItIsRejected() {
         val unsupportedUris = listOf(
             "file:///data/asset.txt",
             "https://example.com/asset.txt",
@@ -48,9 +47,9 @@ class FileManagerTest {
             "asset-without-scheme.txt",
         )
 
-        unsupportedUris.forEach { uri ->
-            assertThrows("Expected $uri to be rejected", IllegalArgumentException::class.java) {
-                fileManager.checkValidSchema(uri.toUri())
+        unsupportedUris.forEach { value ->
+            assertThrows("Expected $value to be rejected", IllegalArgumentException::class.java) {
+                Uri.parse(value).requireExternalContentUri()
             }
         }
     }

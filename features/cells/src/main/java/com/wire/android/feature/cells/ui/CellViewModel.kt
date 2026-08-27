@@ -42,7 +42,6 @@ import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
-import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
@@ -93,6 +92,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.LocalContent
+import com.wire.content.external.PlatformResult
+import com.wire.content.external.RemoteContent
 import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -103,7 +106,7 @@ class CellViewModel @AssistedInject constructor(
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
-    private val fileHelper: FileHelper,
+    private val externalFileLauncher: ExternalFileLauncher,
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
@@ -452,13 +455,9 @@ class CellViewModel @AssistedInject constructor(
             else -> Unit
         }
         file.contentUrl?.let { url ->
-            fileHelper.openAssetUrlWithExternalApp(
-                url = url,
-                mimeType = file.mimeType,
-                onError = {
-                    sendAction(ShowError(CellError.NO_APP_FOUND))
-                }
-            )
+            if (externalFileLauncher.openRemote(RemoteContent(url, file.mimeType)) is PlatformResult.Failure) {
+                sendAction(ShowError(CellError.NO_APP_FOUND))
+            }
         }
     }
 
@@ -482,14 +481,13 @@ class CellViewModel @AssistedInject constructor(
             else -> Unit
         }
         file.localPath?.let { path ->
-            fileHelper.openAssetFileWithExternalApp(
-                localPath = path.toPath(),
-                assetName = file.name,
-                mimeType = file.mimeType,
-                onError = {
-                    sendAction(ShowError(CellError.NO_APP_FOUND))
-                }
-            )
+            if (
+                externalFileLauncher.open(
+                    LocalContent(path.toPath(), file.name ?: path.toPath().name, file.mimeType)
+                ) is PlatformResult.Failure
+            ) {
+                sendAction(ShowError(CellError.NO_APP_FOUND))
+            }
         }
     }
 
@@ -578,12 +576,13 @@ class CellViewModel @AssistedInject constructor(
 
     private fun shareFile(cell: CellNodeUi.File) {
         cell.localPath?.let { localPath ->
-            fileHelper.shareFileChooser(
-                assetDataPath = localPath.toPath(),
-                assetName = cell.name,
-                mimeType = cell.mimeType,
-                onError = { sendAction(ShowError(CellError.OTHER_ERROR)) }
-            )
+            if (
+                externalFileLauncher.share(
+                    LocalContent(localPath.toPath(), cell.name ?: localPath.toPath().name, cell.mimeType)
+                ) is PlatformResult.Failure
+            ) {
+                sendAction(ShowError(CellError.OTHER_ERROR))
+            }
         } ?: run {
             sendAction(ShowError(CellError.OTHER_ERROR))
         }

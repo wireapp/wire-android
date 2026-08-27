@@ -23,7 +23,8 @@ import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.util.FileManager
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.PlatformResult
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
@@ -246,7 +247,7 @@ class MultipartAttachmentsViewModelTest {
             openInVideoPlayer = { }
         )
 
-        coVerify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
+        io.mockk.verify(exactly = 1) { arrangement.externalFileLauncher.open(any()) }
     }
 
     @Test
@@ -265,7 +266,7 @@ class MultipartAttachmentsViewModelTest {
             openInVideoPlayer = { }
         )
 
-        coVerify(exactly = 1) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
+        io.mockk.verify(exactly = 1) { arrangement.externalFileLauncher.openRemote(any()) }
     }
 
     // TODO: Refresh asset tests (part of refresh update PR)
@@ -289,7 +290,7 @@ class MultipartAttachmentsViewModelTest {
         lateinit var onlineEditor: OnlineEditor
 
         @MockK
-        lateinit var fileManager: FileManager
+        lateinit var externalFileLauncher: ExternalFileLauncher
 
         @MockK
         lateinit var kaliumConfigs: KaliumConfigs
@@ -320,8 +321,8 @@ class MultipartAttachmentsViewModelTest {
         fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
 
             coEvery { refreshHelper.refresh(any()) } returns Unit
-            coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
-            coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
+            every { externalFileLauncher.open(any()) } returns PlatformResult.Success(Unit)
+            every { externalFileLauncher.openRemote(any()) } returns PlatformResult.Success(Unit)
             coEvery { download(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
             coEvery { getWireCellsConfig() } returns null
             every { observeOfflineFilesByConversation(testConversationId) } returns flowOf(offlineFiles)
@@ -333,7 +334,7 @@ class MultipartAttachmentsViewModelTest {
                 conversationId = testConversationId,
                 refreshHelper = refreshHelper,
                 download = download,
-                fileManager = fileManager,
+                externalFileLauncher = externalFileLauncher,
                 getEditorUrl = getEditorUrl,
                 onlineEditor = onlineEditor,
                 kaliumFileSystem = kaliumFileSystem,

@@ -37,8 +37,6 @@ import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.SureAboutMessagingDialogState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UriAsset
-import com.wire.android.ui.home.conversations.model.uri
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
@@ -47,6 +45,8 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.getVideoMetaData
+import com.wire.content.external.AssetImporter
+import com.wire.content.external.ExternalContentImportResult
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onFailure
@@ -104,7 +104,7 @@ class SendMessageViewModel @AssistedInject constructor(
     private val retryFailedMessage: RetryFailedMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val handleUriAsset: HandleUriAssetUseCase,
+    private val assetImporter: AssetImporter,
     private val sendKnock: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
@@ -345,27 +345,24 @@ class SendMessageViewModel @AssistedInject constructor(
         attachmentUri: UriAsset
     ) {
         when (
-            val result = handleUriAsset.invoke(
-                uri = attachmentUri.uri,
-                saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-                specifiedMimeType = attachmentUri.mimeType,
-                audioWavesMask = attachmentUri.audioWavesMask,
-            )
+            val result = assetImporter(attachmentUri)
         ) {
-            is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
+            is ExternalContentImportResult.TooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
-                    assetType = result.assetBundle.assetType,
-                    maxLimitInMB = result.maxLimitInMB,
+                    assetType = result.asset.assetType,
+                    maxLimitInMB = (result.maximumSizeBytes / BYTES_PER_MEGABYTE).toInt(),
                     savedToDevice = attachmentUri.saveToDeviceIfInvalid
                 )
             }
 
-            HandleUriAssetUseCase.Result.Failure.Unknown -> {
+            ExternalContentImportResult.Cancelled,
+            ExternalContentImportResult.Failure,
+            ExternalContentImportResult.Unsupported -> {
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorPickingAttachment)
             }
 
-            is HandleUriAssetUseCase.Result.Success -> {
-                sendAttachment(result.assetBundle, conversationId)
+            is ExternalContentImportResult.Success -> {
+                sendAttachment(result.asset, conversationId)
             }
         }
     }
@@ -646,5 +643,6 @@ class SendMessageViewModel @AssistedInject constructor(
 
     private companion object {
         const val MAX_LIMIT_MESSAGE_SEND = 20
+        const val BYTES_PER_MEGABYTE = 1024 * 1024
     }
 }

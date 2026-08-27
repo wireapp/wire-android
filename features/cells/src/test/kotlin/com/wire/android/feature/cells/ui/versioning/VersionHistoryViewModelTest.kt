@@ -17,13 +17,13 @@
  */
 package com.wire.android.feature.cells.ui.versioning
 
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.versioning.download.DownloadState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreDialogState
 import com.wire.android.feature.cells.ui.versioning.restore.RestoreVersionState
-import com.wire.android.feature.cells.util.FileHelper
+import com.wire.content.external.FileExporter
+import com.wire.content.external.PlatformResult
 import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.resolveForTest
@@ -39,7 +39,6 @@ import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.right
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -57,7 +56,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.io.OutputStream
+import okio.Sink
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -337,7 +336,7 @@ class VersionHistoryViewModelTest {
 
         // THEN the state remains Idle
         assertEquals(DownloadState.Failed, viewModel.downloadState.value)
-        coVerify(exactly = 0) { arrangement.fileHelper.createDownloadFileStream(any()) }
+        coVerify(exactly = 0) { arrangement.fileExporter.openDownloadSink(any()) }
         coVerify(exactly = 0) { arrangement.downloadCellVersionUseCase.invoke(any(), any(), any()) }
     }
 
@@ -384,10 +383,9 @@ class VersionHistoryViewModelTest {
         val fileSizeFormatter: FileSizeFormatter = mockk()
         val restoreNodeVersionUseCase: RestoreNodeVersionUseCase = mockk()
         val downloadCellVersionUseCase: DownloadCellVersionUseCase = mockk()
-        val fileHelper: FileHelper = mockk()
+        val fileExporter: FileExporter = mockk()
         val onlineEditor: OnlineEditor = mockk()
         val getEditorUrlUseCase: GetEditorUrlUseCase = mockk()
-        private val testDispatcherProvider = TestDispatcherProvider(dispatcher)
 
         private val testNodeUuid = "test-node-uuid"
 
@@ -423,12 +421,12 @@ class VersionHistoryViewModelTest {
         }
 
         fun withSuccessfulFileCreation() = apply {
-            val mockOutputStream: OutputStream = mockk(relaxed = true)
-            coEvery { fileHelper.createDownloadFileStream(any()) } returns mockOutputStream
+            val sink: Sink = mockk(relaxed = true)
+            coEvery { fileExporter.openDownloadSink(any()) } returns PlatformResult.Success(sink)
         }
 
         fun withFileCreationFailure() = apply {
-            every { fileHelper.createDownloadFileStream(any()) } returns null
+            coEvery { fileExporter.openDownloadSink(any()) } returns PlatformResult.Failure()
         }
 
         fun withFileSizeFormatter() = apply {
@@ -450,10 +448,9 @@ class VersionHistoryViewModelTest {
                 fileSizeFormatter = fileSizeFormatter,
                 restoreNodeVersionUseCase = restoreNodeVersionUseCase,
                 downloadCellVersionUseCase = downloadCellVersionUseCase,
-                fileHelper = fileHelper,
+                fileExporter = fileExporter,
                 onlineEditor = onlineEditor,
                 getEditorUrl = getEditorUrlUseCase,
-                dispatchers = testDispatcherProvider,
             )
             return this to viewModel
         }

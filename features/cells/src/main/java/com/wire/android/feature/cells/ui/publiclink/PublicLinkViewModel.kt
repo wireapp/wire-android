@@ -20,7 +20,8 @@ package com.wire.android.feature.cells.ui.publiclink
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
-import com.wire.android.feature.cells.util.FileHelper
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.PlatformResult
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
@@ -41,7 +42,7 @@ class PublicLinkViewModel @AssistedInject constructor(
     private val createPublicLink: CreatePublicLinkUseCase,
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
-    private val fileHelper: FileHelper,
+    private val externalFileLauncher: ExternalFileLauncher,
 ) : ActionsViewModel<PublicLinkViewAction>() {
 
     @AssistedFactory
@@ -183,12 +184,9 @@ class PublicLinkViewModel @AssistedInject constructor(
 
     fun shareLink() {
         publicLink?.url?.let { url ->
-            fileHelper.shareUrlChooser(
-                url = url,
-                onError = {
-                    sendAction(ShowError(R.string.error_share_link))
-                }
-            )
+            if (externalFileLauncher.shareText(url) is PlatformResult.Failure) {
+                sendAction(ShowError(R.string.error_share_link))
+            }
         }
     }
 

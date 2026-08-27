@@ -21,9 +21,10 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
-import com.wire.android.util.FileManager
 import com.wire.android.util.GetMediaMetadataUseCase
+import com.wire.content.external.AssetImporter
+import com.wire.content.external.ExternalContentImportResult
+import com.wire.content.external.ExternalFileLauncher
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
@@ -330,7 +331,7 @@ class MessageAttachmentsViewModelTest {
         )
 
         @MockK
-        lateinit var handleUriAsset: HandleUriAssetUseCase
+        lateinit var assetImporter: AssetImporter
 
         @MockK
         lateinit var observeAttachments: ObserveAttachmentDraftsUseCase
@@ -348,7 +349,7 @@ class MessageAttachmentsViewModelTest {
         lateinit var uploadManager: CellUploadManager
 
         @MockK
-        lateinit var fileManager: FileManager
+        lateinit var externalFileLauncher: ExternalFileLauncher
 
         @MockK
         lateinit var getMediaMetadata: GetMediaMetadataUseCase
@@ -375,10 +376,10 @@ class MessageAttachmentsViewModelTest {
         fun withHandleUriAssetSuccess(vararg fileNames: String) = apply {
             initializeMocks()
             uriAssetQueue.addAll(fileNames)
-            coEvery { handleUriAsset.invoke(any(), any()) } answers {
+            coEvery { assetImporter.invoke(any()) } answers {
                 val name = uriAssetQueue.removeFirstOrNull() ?: "file.txt"
-                HandleUriAssetUseCase.Result.Success(
-                    assetBundle = AssetBundle(
+                ExternalContentImportResult.Success(
+                    asset = AssetBundle(
                         key = "key",
                         mimeType = "text/plain",
                         dataPath = "/tmp/$name".toPath(),
@@ -399,13 +400,13 @@ class MessageAttachmentsViewModelTest {
             initializeMocks()
             val viewModel = MessageAttachmentsViewModel(
                 navigationArgs = navigationArgs,
-                handleUriAsset = handleUriAsset,
+                assetImporter = assetImporter,
                 observeAttachments = observeAttachments,
                 addAttachment = addAttachment,
                 removeAttachment = removeAttachment,
                 retryUpload = retryUpload,
                 uploadManager = uploadManager,
-                fileManager = fileManager,
+                externalFileLauncher = externalFileLauncher,
                 sharedState = sharedState,
                 getMediaMetadata = getMediaMetadata,
                 kaliumFileSystem = kaliumFileSystem,

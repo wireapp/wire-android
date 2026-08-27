@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.composer
 
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,7 +31,6 @@ import com.wire.android.ui.home.conversations.MessageComposerViewState
 import com.wire.android.ui.home.conversations.VisitLinkDialogState
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.util.EMPTY
-import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -54,6 +52,10 @@ import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletion
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.content.external.CaptureKind
+import com.wire.content.external.CaptureTargetProvider
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.PlatformResult
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -83,7 +85,7 @@ class MessageComposerViewModel @AssistedInject constructor(
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
-    private val fileManager: FileManager,
+    private val captureTargetProvider: CaptureTargetProvider,
     private val kaliumFileSystem: KaliumFileSystem,
     private val currentSessionFlowUseCase: CurrentSessionFlowUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
@@ -100,10 +102,10 @@ class MessageComposerViewModel @AssistedInject constructor(
     var messageComposerViewState = mutableStateOf(MessageComposerViewState())
         private set
 
-    var tempWritableVideoUri: Uri? = null
+    var tempWritableVideoReference: ExternalContentReference? = null
         private set
 
-    var tempWritableImageUri: Uri? = null
+    var tempWritableImageReference: ExternalContentReference? = null
         private set
 
     private val conversationNavArgs = navigationArgs
@@ -139,15 +141,21 @@ class MessageComposerViewModel @AssistedInject constructor(
 
     private fun initTempWritableVideoUri() {
         viewModelScope.launch {
-            tempWritableVideoUri =
-                fileManager.getTempWritableVideoUri(kaliumFileSystem.rootCachePath)
+            tempWritableVideoReference =
+                (
+                    captureTargetProvider.createTarget(CaptureKind.VIDEO, kaliumFileSystem.rootCachePath)
+                        as? PlatformResult.Success<ExternalContentReference>
+                    )?.value
         }
     }
 
     private fun initTempWritableImageUri() {
         viewModelScope.launch {
-            tempWritableImageUri =
-                fileManager.getTempWritableImageUri(kaliumFileSystem.rootCachePath)
+            tempWritableImageReference =
+                (
+                    captureTargetProvider.createTarget(CaptureKind.IMAGE, kaliumFileSystem.rootCachePath)
+                        as? PlatformResult.Success<ExternalContentReference>
+                    )?.value
         }
     }
 

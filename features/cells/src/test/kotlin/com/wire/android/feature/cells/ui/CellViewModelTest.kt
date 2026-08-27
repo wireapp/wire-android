@@ -32,6 +32,8 @@ import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.PlatformResult
 import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
@@ -58,6 +60,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -236,7 +239,7 @@ class CellViewModelTest {
 
             expectNoEvents()
         }
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.externalFileLauncher.open(any()) }
     }
 
     @Test
@@ -252,7 +255,7 @@ class CellViewModelTest {
             val action = awaitItem()
             assert(action is OpenImageViewer)
         }
-        coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+        verify(exactly = 0) { arrangement.externalFileLauncher.open(any()) }
     }
 
     @Test
@@ -265,7 +268,7 @@ class CellViewModelTest {
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(nonImageFile))
 
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.externalFileLauncher.open(any()) }
     }
 
     @Test
@@ -284,7 +287,7 @@ class CellViewModelTest {
 
             expectNoEvents()
         }
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+        verify(exactly = 1) { arrangement.externalFileLauncher.openRemote(any()) }
     }
 
     @Test
@@ -306,7 +309,7 @@ class CellViewModelTest {
                 val action = awaitItem()
                 assert(action is OpenImageViewer)
             }
-            coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+            verify(exactly = 0) { arrangement.externalFileLauncher.openRemote(any()) }
         }
 
     @Test
@@ -323,7 +326,7 @@ class CellViewModelTest {
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+        verify(exactly = 1) { arrangement.externalFileLauncher.openRemote(any()) }
     }
 
     @Test
@@ -362,7 +365,7 @@ class CellViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.externalFileLauncher.open(any()) }
     }
 
     @Test
@@ -458,6 +461,9 @@ class CellViewModelTest {
 
         @MockK
         lateinit var fileHelper: FileHelper
+
+        @MockK
+        lateinit var externalFileLauncher: ExternalFileLauncher
 
         @MockK
         lateinit var fileNameResolver: FileNameResolver
@@ -587,6 +593,9 @@ class CellViewModelTest {
 
             every { fileHelper.getExternalFilesDir() } returns File("")
             every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
+            every { externalFileLauncher.open(any()) } returns PlatformResult.Success(Unit)
+            every { externalFileLauncher.openRemote(any()) } returns PlatformResult.Success(Unit)
+            every { externalFileLauncher.share(any()) } returns PlatformResult.Success(Unit)
 
             coEvery { getWireCellsConfig() } returns null
 
@@ -612,7 +621,7 @@ class CellViewModelTest {
                 deleteCellAsset = deleteCellAssetUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 isCellAvailable = isCellAvailableUseCase,
-                fileHelper = fileHelper,
+                externalFileLauncher = externalFileLauncher,
                 onlineEditor = onlineEditor,
                 getEditorUrl = getEditorUrlUseCase,
                 cellFileActionsMenu = cellFileActionsMenu,

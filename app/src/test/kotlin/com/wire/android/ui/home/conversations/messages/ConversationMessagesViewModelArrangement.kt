@@ -30,7 +30,9 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.wire.android.util.FileManager
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.FileExporter
+import com.wire.content.external.PlatformResult
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -93,7 +95,10 @@ class ConversationMessagesViewModelArrangement {
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
-    lateinit var fileManager: FileManager
+    lateinit var externalFileLauncher: ExternalFileLauncher
+
+    @MockK
+    lateinit var fileExporter: FileExporter
 
     @MockK
     lateinit var getMessageAsset: GetMessageAssetUseCase
@@ -133,25 +138,26 @@ class ConversationMessagesViewModelArrangement {
 
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
-            ConversationNavArgs(conversationId = conversationId),
-            observeConversationDetails,
-            getMessageAsset,
-            getMessageById,
-            updateAssetMessageDownloadStatus,
-            observeAssetStatuses,
-            fileManager,
-            TestDispatcherProvider(),
-            getMessagesForConversationUseCase,
-            fetchOlderNomadMessagesByConversationUseCase,
-            toggleReaction,
-            resetSession,
-            conversationAudioMessagePlayer,
-            getConversationUnreadEventsCount,
-            clearUsersTypingEvents,
-            getSearchedConversationMessagePosition,
-            deleteMessage,
-            isWireCellFeatureEnabled,
-            networkStateObserver,
+            navigationArgs = ConversationNavArgs(conversationId = conversationId),
+            observeConversationDetails = observeConversationDetails,
+            getMessageAsset = getMessageAsset,
+            getMessageByIdUseCase = getMessageById,
+            updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
+            observeAssetStatusesUseCase = observeAssetStatuses,
+            externalFileLauncher = externalFileLauncher,
+            fileExporter = fileExporter,
+            dispatchers = TestDispatcherProvider(),
+            getMessageForConversation = getMessagesForConversationUseCase,
+            fetchOlderNomadMessages = fetchOlderNomadMessagesByConversationUseCase,
+            toggleReaction = toggleReaction,
+            resetSession = resetSession,
+            audioMessagePlayer = conversationAudioMessagePlayer,
+            getConversationUnreadEventsCount = getConversationUnreadEventsCount,
+            clearUsersTypingEvents = clearUsersTypingEvents,
+            getSearchedConversationMessagePosition = getSearchedConversationMessagePosition,
+            deleteMessage = deleteMessage,
+            isWireCellFeatureEnabled = isWireCellFeatureEnabled,
+            networkStateObserver = networkStateObserver,
         )
     }
 
@@ -159,6 +165,9 @@ class ConversationMessagesViewModelArrangement {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
+        every { externalFileLauncher.open(any()) } returns PlatformResult.Success(Unit)
+        every { externalFileLauncher.share(any()) } returns PlatformResult.Success(Unit)
+        coEvery { fileExporter.exportToDownloads(any()) } returns PlatformResult.Success("saved")
         coEvery { toggleReaction(any(), any(), any()) } returns ToggleReactionResult.Success
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesFlow
@@ -192,8 +201,9 @@ class ConversationMessagesViewModelArrangement {
         val assetBundle =
             AssetBundle("key", assetMimeType, assetDataPath, assetSize, assetName, AttachmentType.fromMimeTypeString(assetMimeType))
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
-        every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
+        every { externalFileLauncher.open(any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
+            PlatformResult.Success(Unit)
         }
     }
 
@@ -260,8 +270,9 @@ class ConversationMessagesViewModelArrangement {
             AttachmentType.fromMimeTypeString(assetMimeType)
         )
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
-        coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
+        coEvery { fileExporter.exportToDownloads(any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
+            PlatformResult.Success("saved")
         }
     }
 

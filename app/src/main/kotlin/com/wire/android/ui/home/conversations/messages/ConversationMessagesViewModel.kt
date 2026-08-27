@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.messages
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,9 +40,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
-import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
@@ -91,6 +88,10 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.FileExporter
+import com.wire.content.external.LocalContent
+import com.wire.content.external.PlatformResult
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 import com.wire.android.di.metro.WireAssistedViewModelBinding
@@ -105,7 +106,8 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private val getMessageByIdUseCase: GetMessageByIdUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageTransferStatusUseCase,
     private val observeAssetStatusesUseCase: ObserveAssetStatusesUseCase,
-    private val fileManager: FileManager,
+    private val externalFileLauncher: ExternalFileLauncher,
+    private val fileExporter: FileExporter,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val fetchOlderNomadMessages: FetchOlderNomadMessagesByConversationUseCase,
@@ -380,7 +382,13 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private fun onOpenFileWithExternalApp(assetDataPath: Path, assetName: String?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.openWithExternalApp(assetDataPath, assetName) { onOpenFileError() }
+                if (
+                    externalFileLauncher.open(
+                        LocalContent(assetDataPath, assetName ?: assetDataPath.name)
+                    ) is PlatformResult.Failure
+                ) {
+                    onOpenFileError()
+                }
                 hideOnAssetDownloadedDialog()
             }
         }
@@ -389,10 +397,20 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
-                    updateAssetMessageDownloadStatus(AssetTransferStatus.SAVED_EXTERNALLY, conversationId, messageId)
-                    onFileSavedToExternalStorage(savedFileName)
-                    hideOnAssetDownloadedDialog()
+                when (
+                    val result = fileExporter.exportToDownloads(
+                        LocalContent(assetDataPath, assetName, size = assetSize)
+                    )
+                ) {
+                    is PlatformResult.Success -> {
+                        updateAssetMessageDownloadStatus(AssetTransferStatus.SAVED_EXTERNALLY, conversationId, messageId)
+                        onFileSavedToExternalStorage(result.value)
+                        hideOnAssetDownloadedDialog()
+                    }
+                    else -> {
+                        onFileSavedToExternalStorage(null)
+                        hideOnAssetDownloadedDialog()
+                    }
                 }
             }
         }
@@ -434,10 +452,10 @@ class ConversationMessagesViewModel @AssistedInject constructor(
         }
     }
 
-    fun shareAsset(context: Context, messageId: String) {
+    fun shareAsset(messageId: String) {
         viewModelScope.launch {
             assetDataPath(conversationId, messageId)?.run {
-                context.startFileShareIntent(first, second)
+                externalFileLauncher.share(LocalContent(first, second))
             }
         }
     }

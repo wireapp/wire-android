@@ -18,7 +18,8 @@
 package com.wire.android.feature.cells.ui.publiclink
 
 import app.cash.turbine.test
-import com.wire.android.feature.cells.util.FileHelper
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.PlatformResult
 import com.wire.kalium.cells.domain.model.PublicLink
 import com.wire.kalium.cells.domain.usecase.publiclink.CreatePublicLinkUseCase
 import com.wire.kalium.cells.domain.usecase.publiclink.DeletePublicLinkUseCase
@@ -28,7 +29,8 @@ import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.verify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -192,7 +194,7 @@ class PublicLinkViewModelTest {
 
         viewModel.shareLink()
 
-        coVerify(exactly = 1) { arrangement.fileHelper.shareUrlChooser(any(), any()) }
+        verify(exactly = 1) { arrangement.externalFileLauncher.shareText(any()) }
     }
 
     private class Arrangement {
@@ -207,12 +209,13 @@ class PublicLinkViewModelTest {
         lateinit var deletePublicLinkUseCase: DeletePublicLinkUseCase
 
         @MockK
-        lateinit var fileHelper: FileHelper
+        lateinit var externalFileLauncher: ExternalFileLauncher
 
         private var publicLinkId: String? = "publicLinkId"
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            every { externalFileLauncher.shareText(any()) } returns PlatformResult.Success(Unit)
         }
 
         fun withPublicLink() = apply {
@@ -253,7 +256,7 @@ class PublicLinkViewModelTest {
                 createPublicLink = createPublicLinkUseCase,
                 getPublicLinkUseCase = getPublicLinkUseCase,
                 deletePublicLinkUseCase = deletePublicLinkUseCase,
-                fileHelper = fileHelper,
+                externalFileLauncher = externalFileLauncher,
             )
         }
     }

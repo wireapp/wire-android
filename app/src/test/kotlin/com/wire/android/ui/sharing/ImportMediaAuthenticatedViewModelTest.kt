@@ -30,7 +30,8 @@ import com.wire.android.framework.TestConversationItem
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
-import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.content.external.AssetImporter
+import com.wire.content.external.ExternalContentImportResult
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
@@ -217,7 +218,7 @@ class ImportMediaAuthenticatedViewModelTest {
             val wireUri = testUri(authority = "com.wire.android.provider")
             val externalUri = testUri(authority = "com.android.providers.media.documents")
             val (arrangement, viewModel) = Arrangement()
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle("external-file.zip")))
+                .withHandleUriAsset(ExternalContentImportResult.Success(assetBundle("external-file.zip")))
                 .arrange()
 
             viewModel.handleReceivedUrisFromSharingIntent(
@@ -228,7 +229,7 @@ class ImportMediaAuthenticatedViewModelTest {
 
             assertTrue(viewModel.importMediaState.importedAssets.isEmpty())
             coVerify(exactly = 0) {
-                arrangement.handleUriAssetUseCase.invoke(any(), any())
+                arrangement.assetImporter.invoke(any())
             }
         }
 
@@ -238,7 +239,7 @@ class ImportMediaAuthenticatedViewModelTest {
             val wireUri = testUri(authority = "10@com.wire.android.provider")
             val assetBundle = assetBundle("wire-file.zip")
             val (arrangement, viewModel) = Arrangement()
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle))
+                .withHandleUriAsset(ExternalContentImportResult.Success(assetBundle))
                 .arrange()
 
             viewModel.handleReceivedUrisFromSharingIntent(
@@ -248,9 +249,7 @@ class ImportMediaAuthenticatedViewModelTest {
             )
 
             assertEquals(assetBundle, viewModel.importMediaState.importedAssets.single().assetBundle)
-            coVerify(exactly = 1) {
-                arrangement.handleUriAssetUseCase.invoke(wireUri, saveToDeviceIfInvalid = false)
-            }
+            arrangement.verifyImported(wireUri)
         }
 
     @Test
@@ -261,8 +260,8 @@ class ImportMediaAuthenticatedViewModelTest {
             val wireAssetBundle = assetBundle("wire-file.zip")
             val externalAssetBundle = assetBundle("external-file.zip")
             val (arrangement, viewModel) = Arrangement()
-                .withHandleUriAsset(wireUri, HandleUriAssetUseCase.Result.Success(wireAssetBundle))
-                .withHandleUriAsset(externalUri, HandleUriAssetUseCase.Result.Success(externalAssetBundle))
+                .withHandleUriAsset(wireUri, ExternalContentImportResult.Success(wireAssetBundle))
+                .withHandleUriAsset(externalUri, ExternalContentImportResult.Success(externalAssetBundle))
                 .arrange()
 
             viewModel.handleReceivedUrisFromSharingIntent(
@@ -275,12 +274,8 @@ class ImportMediaAuthenticatedViewModelTest {
                 listOf(wireAssetBundle, externalAssetBundle),
                 viewModel.importMediaState.importedAssets.map { it.assetBundle }
             )
-            coVerify(exactly = 1) {
-                arrangement.handleUriAssetUseCase.invoke(wireUri, saveToDeviceIfInvalid = false)
-            }
-            coVerify(exactly = 1) {
-                arrangement.handleUriAssetUseCase.invoke(externalUri, saveToDeviceIfInvalid = false)
-            }
+            arrangement.verifyImported(wireUri)
+            arrangement.verifyImported(externalUri)
         }
 
     @Test
@@ -291,8 +286,8 @@ class ImportMediaAuthenticatedViewModelTest {
             val firstAssetBundle = assetBundle("first-external-file.zip")
             val secondAssetBundle = assetBundle("second-external-file.zip")
             val (arrangement, viewModel) = Arrangement()
-                .withHandleUriAsset(firstExternalUri, HandleUriAssetUseCase.Result.Success(firstAssetBundle))
-                .withHandleUriAsset(secondExternalUri, HandleUriAssetUseCase.Result.Success(secondAssetBundle))
+                .withHandleUriAsset(firstExternalUri, ExternalContentImportResult.Success(firstAssetBundle))
+                .withHandleUriAsset(secondExternalUri, ExternalContentImportResult.Success(secondAssetBundle))
                 .arrange()
 
             viewModel.handleReceivedUrisFromSharingIntent(
@@ -305,12 +300,8 @@ class ImportMediaAuthenticatedViewModelTest {
                 listOf(firstAssetBundle, secondAssetBundle),
                 viewModel.importMediaState.importedAssets.map { it.assetBundle }
             )
-            coVerify(exactly = 1) {
-                arrangement.handleUriAssetUseCase.invoke(firstExternalUri, saveToDeviceIfInvalid = false)
-            }
-            coVerify(exactly = 1) {
-                arrangement.handleUriAssetUseCase.invoke(secondExternalUri, saveToDeviceIfInvalid = false)
-            }
+            arrangement.verifyImported(firstExternalUri)
+            arrangement.verifyImported(secondExternalUri)
         }
 
     @Test
@@ -380,15 +371,13 @@ class ImportMediaAuthenticatedViewModelTest {
             assetType = AttachmentType.GENERIC_FILE
         )
         val (arrangement, viewModel) = Arrangement()
-            .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle))
+            .withHandleUriAsset(ExternalContentImportResult.Success(assetBundle))
             .arrange()
 
         viewModel.handleReceivedDataFromInternalShare(listOf(uri))
 
         assertEquals(assetBundle, viewModel.importMediaState.importedAssets.single().assetBundle)
-        coVerify(exactly = 1) {
-            arrangement.handleUriAssetUseCase.invoke(uri, saveToDeviceIfInvalid = false)
-        }
+        arrangement.verifyImported(uri)
     }
 
     @Test
@@ -402,21 +391,15 @@ class ImportMediaAuthenticatedViewModelTest {
             )
             val assetBundle = assetBundle(fileName = "wire-logs.zip")
             val (arrangement, viewModel) = Arrangement()
-                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(assetBundle))
+                .withHandleUriAsset(ExternalContentImportResult.Success(assetBundle))
                 .arrange()
 
             viewModel.handleReceivedDataFromInternalShare(listOf(validUri, wrongRootUri, wrongProviderUri))
 
             assertEquals(listOf(assetBundle), viewModel.importMediaState.importedAssets.map { it.assetBundle })
-            coVerify(exactly = 1) {
-                arrangement.handleUriAssetUseCase.invoke(validUri, saveToDeviceIfInvalid = false)
-            }
-            coVerify(exactly = 0) {
-                arrangement.handleUriAssetUseCase.invoke(wrongRootUri, any())
-            }
-            coVerify(exactly = 0) {
-                arrangement.handleUriAssetUseCase.invoke(wrongProviderUri, any())
-            }
+            arrangement.verifyImported(validUri)
+            arrangement.verifyImported(wrongRootUri, exactly = 0)
+            arrangement.verifyImported(wrongProviderUri, exactly = 0)
         }
 
     @Test
@@ -429,7 +412,7 @@ class ImportMediaAuthenticatedViewModelTest {
 
             assertTrue(viewModel.importMediaState.importedAssets.isEmpty())
             coVerify(exactly = 0) {
-                arrangement.handleUriAssetUseCase.invoke(any(), any())
+                arrangement.assetImporter.invoke(any())
             }
         }
 
@@ -446,7 +429,7 @@ class ImportMediaAuthenticatedViewModelTest {
 
             assertTrue(viewModel.importMediaState.importedAssets.isEmpty())
             coVerify(exactly = 0) {
-                arrangement.handleUriAssetUseCase.invoke(any(), any())
+                arrangement.assetImporter.invoke(any())
             }
         }
 
@@ -458,6 +441,7 @@ class ImportMediaAuthenticatedViewModelTest {
         every { this@mockk.scheme } returns scheme
         every { this@mockk.authority } returns authority
         every { this@mockk.pathSegments } returns pathSegments
+        every { this@mockk.toString() } returns "$scheme://$authority/${pathSegments.joinToString("/")}"
     }
 
     private fun assetBundle(fileName: String) = AssetBundle(
@@ -481,7 +465,7 @@ class ImportMediaAuthenticatedViewModelTest {
         lateinit var getConversationsPaginated: GetConversationsFromSearchUseCase
 
         @MockK
-        lateinit var handleUriAssetUseCase: HandleUriAssetUseCase
+        lateinit var assetImporter: AssetImporter
 
         @MockK
         lateinit var persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase
@@ -502,19 +486,29 @@ class ImportMediaAuthenticatedViewModelTest {
             mockUri()
         }
 
-        fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
-            coEvery { handleUriAssetUseCase.invoke(any(), any()) } returns result
+        fun withHandleUriAsset(result: ExternalContentImportResult) = apply {
+            coEvery { assetImporter.invoke(any()) } returns result
         }
 
-        fun withHandleUriAsset(uri: Uri, result: HandleUriAssetUseCase.Result) = apply {
-            coEvery { handleUriAssetUseCase.invoke(uri, any()) } returns result
+        fun withHandleUriAsset(uri: Uri, result: ExternalContentImportResult) = apply {
+            val token = uri.toString()
+            coEvery {
+                assetImporter.invoke(match { it.reference.token == token })
+            } returns result
+        }
+
+        fun verifyImported(uri: Uri, exactly: Int = 1) {
+            val token = uri.toString()
+            coVerify(exactly = exactly) {
+                assetImporter.invoke(match { it.reference.token == token })
+            }
         }
 
         fun arrange() = this to ImportMediaAuthenticatedViewModel(
             context = context,
             getSelf = getSelfUser,
             getConversationsPaginated = getConversationsPaginated,
-            handleUriAsset = handleUriAssetUseCase,
+            assetImporter = assetImporter,
             persistNewSelfDeletionTimerUseCase = persistNewSelfDeletionTimerUseCase,
             observeSelfDeletionSettingsForConversation = observeSelfDeletionSettingsForConversation,
             dispatchers = dispatcherProvider,

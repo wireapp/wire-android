@@ -28,7 +28,6 @@ import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
-import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
@@ -53,6 +52,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.LocalContent
+import com.wire.content.external.PlatformResult
+import com.wire.content.external.RemoteContent
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
@@ -141,7 +144,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     private val download: DownloadCellFileUseCase,
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
-    private val fileManager: FileManager,
+    private val externalFileLauncher: ExternalFileLauncher,
     private val kaliumFileSystem: KaliumFileSystem,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
@@ -196,19 +199,27 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     }
 
     private fun openLocalFile(attachment: MultipartAttachmentUi) {
-        fileManager.openWithExternalApp(
-            assetDataPath = attachment.localPath?.toPath() ?: error("No local path"),
-            assetName = attachment.fileName ?: "",
-            mimeType = attachment.mimeType
+        if (
+            externalFileLauncher.open(
+                LocalContent(
+                    path = attachment.localPath?.toPath() ?: error("No local path"),
+                    displayName = attachment.fileName ?: "",
+                    mimeType = attachment.mimeType,
+                )
+            ) is PlatformResult.Failure
         ) {
             appLogger.e("Failed to open: ${attachment.localPath}", tag = "MultipartAttachmentsViewModel")
         }
     }
 
     private fun openUrl(attachment: MultipartAttachmentUi) {
-        fileManager.openUrlWithExternalApp(
-            url = attachment.contentUrl ?: error("No preview URL"),
-            mimeType = attachment.mimeType
+        if (
+            externalFileLauncher.openRemote(
+                RemoteContent(
+                    location = attachment.contentUrl ?: error("No preview URL"),
+                    mimeType = attachment.mimeType,
+                )
+            ) is PlatformResult.Failure
         ) {
             appLogger.e("Failed to open: ${attachment.previewUrl}", tag = "MultipartAttachmentsViewModel")
         }

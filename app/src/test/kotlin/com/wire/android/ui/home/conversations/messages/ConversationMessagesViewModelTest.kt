@@ -147,8 +147,28 @@ class ConversationMessagesViewModelTest {
         viewModel.downloadAndOpenAsset(messageId)
 
         // Then
-        verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
+        verify(exactly = 1) { arrangement.externalFileLauncher.open(any()) }
         assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
+    }
+
+    @Test
+    fun `given an asset message, when sharing it externally, then the platform launcher gets invoked`() = runTest {
+        val messageId = "mocked-msg-id"
+        val assetName = "mocked-asset-name.zip"
+        val assetDataPath = "asset-data-path".toPath()
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGetMessageAssetUseCaseReturning(assetDataPath, 42L, assetName)
+            .arrange()
+
+        viewModel.shareAsset(messageId)
+        advanceUntilIdle()
+
+        verify(exactly = 1) {
+            arrangement.externalFileLauncher.share(
+                match { it.path == assetDataPath && it.displayName == assetName }
+            )
+        }
     }
 
     @Test
@@ -176,7 +196,7 @@ class ConversationMessagesViewModelTest {
             viewModel.downloadAssetExternally(messageId)
 
             // Then
-            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.fileExporter.exportToDownloads(any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
 

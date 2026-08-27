@@ -16,7 +16,6 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.home.settings.backup
-import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
@@ -31,8 +30,13 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.ui.common.textfield.textAsFlow
-import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.content.external.ExternalContentReader
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.FileExporter
+import com.wire.content.external.LocalContent
+import com.wire.content.external.PlatformResult
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
@@ -68,7 +72,9 @@ class BackupAndRestoreViewModel @Inject constructor(
     private val verifyBackup: VerifyBackupUseCase,
     private val validatePassword: ValidatePasswordUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val fileManager: FileManager,
+    private val externalContentReader: ExternalContentReader,
+    private val fileExporter: FileExporter,
+    private val externalFileLauncher: ExternalFileLauncher,
     userDataStoreProvider: UserDataStoreProvider,
     @CurrentAccount selfUserId: UserId,
     private val dispatcher: DispatcherProvider,
@@ -144,7 +150,7 @@ class BackupAndRestoreViewModel @Inject constructor(
         updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
             withContext(dispatcher.io()) {
-                fileManager.shareWithExternalApp(backupData.path, backupData.assetName) {}
+                externalFileLauncher.share(LocalContent(backupData.path, backupData.assetName))
             }
         }
         state = state.copy(
@@ -155,10 +161,10 @@ class BackupAndRestoreViewModel @Inject constructor(
             passwordValidation = ValidatePasswordResult.Valid,
         )
     }
-    fun saveBackup(uri: Uri) = viewModelScope.launch {
+    fun saveBackup(destination: ExternalContentReference) = viewModelScope.launch {
         updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
-            fileManager.copyToUri(backupData.path, uri, dispatcher)
+            fileExporter.write(LocalContent(backupData.path, backupData.assetName), destination)
         }
         state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
@@ -168,10 +174,12 @@ class BackupAndRestoreViewModel @Inject constructor(
             passwordValidation = ValidatePasswordResult.Valid,
         )
     }
-    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
+    fun chooseBackupFileToRestore(source: ExternalContentReference) = viewModelScope.launch {
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-        fileManager.copyToPath(uri, latestImportedBackupTempPath)
-        verifyBackupFile(latestImportedBackupTempPath)
+        when (externalContentReader.copyToPrivateStorage(source, latestImportedBackupTempPath)) {
+            is PlatformResult.Success -> verifyBackupFile(latestImportedBackupTempPath)
+            else -> state = state.copy(restoreFileValidation = RestoreFileValidation.WrongBackup)
+        }
     }
     private fun showPasswordDialog() {
         state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)

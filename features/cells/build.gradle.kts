@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":core:navigation"))
     implementation(project(":core:ui-common"))
     implementation(project(":core:media-player"))
+    implementation(project(":core:content-kmp"))
     implementation(libs.compose.activity)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)

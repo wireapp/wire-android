@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.composer
 
-import android.net.Uri
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
@@ -36,7 +35,10 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.util.FileManager
+import com.wire.content.external.CaptureKind
+import com.wire.content.external.CaptureTargetProvider
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.PlatformResult
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -94,8 +96,10 @@ internal class MessageComposerViewModelArrangement {
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
-        coEvery { fileManager.getTempWritableVideoUri(any(), any()) } returns Uri.parse("video.mp4")
-        coEvery { fileManager.getTempWritableImageUri(any(), any()) } returns Uri.parse("image.jpg")
+        coEvery { captureTargetProvider.createTarget(CaptureKind.VIDEO, any()) } returns
+            PlatformResult.Success(ExternalContentReference("video.mp4"))
+        coEvery { captureTargetProvider.createTarget(CaptureKind.IMAGE, any()) } returns
+            PlatformResult.Success(ExternalContentReference("image.jpg"))
         coEvery {
             currentSessionFlowUseCase()
         } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
@@ -145,7 +149,7 @@ internal class MessageComposerViewModelArrangement {
     lateinit var sendTypingEvent: SendTypingEventUseCase
 
     @MockK
-    lateinit var fileManager: FileManager
+    lateinit var captureTargetProvider: CaptureTargetProvider
 
     @MockK
     lateinit var currentSessionFlowUseCase: CurrentSessionFlowUseCase
@@ -172,7 +176,7 @@ internal class MessageComposerViewModelArrangement {
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
             kaliumFileSystem = fakeKaliumFileSystem,
-            fileManager = fileManager,
+            captureTargetProvider = captureTargetProvider,
             currentSessionFlowUseCase = currentSessionFlowUseCase,
             observeEstablishedCalls = observeEstablishedCalls,
             globalDataStore = globalDataStore,

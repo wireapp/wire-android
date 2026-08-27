@@ -25,7 +25,8 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
-import com.wire.android.util.FileManager
+import com.wire.content.external.FileExporter
+import com.wire.content.external.PlatformResult
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -106,7 +107,9 @@ class MediaGalleryViewModelTest {
         // Then
         coVerify(exactly = 1) {
             arrangement.getImageData.invoke(mockedConversation.conversation.id, dummyMessageId)
-            arrangement.fileManager.saveToExternalStorage(any(), dummyDataPath, mockedImage.size.toLong(), any(), any())
+            arrangement.fileExporter.exportToDownloads(
+                match { it.path == dummyDataPath && it.size == mockedImage.size.toLong() }
+            )
         }
     }
 
@@ -420,7 +423,7 @@ class MediaGalleryViewModelTest {
         lateinit var getImageData: GetMessageAssetUseCase
 
         @MockK
-        lateinit var fileManager: FileManager
+        lateinit var fileExporter: FileExporter
 
         @MockK
         lateinit var deleteMessage: DeleteMessageUseCase
@@ -448,6 +451,7 @@ class MediaGalleryViewModelTest {
 
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
             coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Success
+            coEvery { fileExporter.exportToDownloads(any()) } returns PlatformResult.Success("saved")
         }
 
         fun withNavArgs(messageOptionsEnabled: Boolean = true, isEphemeral: Boolean = false, cellAssetId: String? = null) = apply {
@@ -515,7 +519,7 @@ class MediaGalleryViewModelTest {
             getConversationDetails,
             TestDispatcherProvider(),
             getImageData,
-            fileManager,
+            fileExporter,
             deleteMessage,
             getAttachment,
             getCellFile,

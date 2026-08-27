@@ -415,7 +415,6 @@ private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -
             style = typography().body01,
         )
     }
-
 }
 
 @Composable

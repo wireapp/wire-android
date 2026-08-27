@@ -29,6 +29,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.network.NetworkState
@@ -66,6 +67,7 @@ class GlobalObserversManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val sendPendingMessagesAfterForegroundSync: SendPendingMessagesAfterForegroundSyncUseCase,
     private val networkStateObserver: NetworkStateObserver,
+    private val kaliumConfigs: KaliumConfigs,
 ) {
     // TODO(tests): refactor so scope/dispatcher can be injected and properly stopped
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
@@ -83,7 +85,10 @@ class GlobalObserversManager @Inject constructor(
         }
         scope.handleLogouts()
         scope.handleDeleteEphemeralMessageEndDate()
-        scope.retryPendingMessagesOnAppOpen()
+
+        if (kaliumConfigs.pendingMessages) {
+            scope.retryPendingMessagesOnAppOpen()
+        }
     }
 
     private suspend fun setUpNotifications() {

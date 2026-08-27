@@ -66,7 +66,6 @@ fun SearchAppsScreen(
     protocolInfo: Conversation.ProtocolInfo?,
     searchQuery: String,
     onServiceClicked: (Contact) -> Unit,
-    isConversationAppsEnabled: Boolean,
     searchAppsViewModel: SearchAppsViewModel = searchAppsViewModel(protocolInfo),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -83,7 +82,6 @@ fun SearchAppsScreen(
             appsAllowedResult = state.isTeamAllowedToUseApps,
             isSelfATeamAdmin = state.isSelfATeamAdmin,
             lazyListState = lazyListState,
-            isConversationAppsEnabled = isConversationAppsEnabled
         )
     }
 }
@@ -96,11 +94,9 @@ private fun SearchAllAppsContent(
     onServiceClicked: (Contact) -> Unit,
     appsAllowedResult: AppsAllowedResult,
     isSelfATeamAdmin: Boolean,
-    isConversationAppsEnabled: Boolean,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     val appsContentState by rememberAppsContentState(
-        isConversationAppsEnabled = isConversationAppsEnabled,
         isLoading = isLoading,
         appsAllowedResult = appsAllowedResult,
         searchQuery = searchQuery,
@@ -123,10 +119,6 @@ private fun SearchAllAppsContent(
             when (state) {
                 AppsContentState.LOADING -> {
                     CenteredCircularProgressBarIndicator()
-                }
-
-                AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION -> {
-                    EmptySearchDisabledByConversationContent()
                 }
 
                 AppsContentState.TEAM_NOT_ALLOWED -> {
@@ -156,16 +148,14 @@ private fun SearchAllAppsContent(
 
 @Composable
 private fun rememberAppsContentState(
-    isConversationAppsEnabled: Boolean,
     isLoading: Boolean,
     appsAllowedResult: AppsAllowedResult,
     searchQuery: String,
     result: ImmutableList<Contact>
-): State<AppsContentState> = remember(isConversationAppsEnabled, isLoading, appsAllowedResult, searchQuery, result) {
+): State<AppsContentState> = remember(isLoading, appsAllowedResult, searchQuery, result) {
     derivedStateOf {
         if (isLoading) return@derivedStateOf AppsContentState.LOADING
         if (appsAllowedResult is AppsAllowedResult.Disabled) return@derivedStateOf AppsContentState.TEAM_NOT_ALLOWED
-        if (!isConversationAppsEnabled) return@derivedStateOf AppsContentState.APPS_NOT_ENABLED_FOR_CONVERSATION
 
         when {
             searchQuery.isBlank() && result.isEmpty() -> AppsContentState.EMPTY_SEARCH
@@ -239,7 +229,6 @@ fun PreviewSearchAllServicesScreen_TeamNotEnabledForApps() = WireTheme {
         onServiceClicked = {},
         appsAllowedResult = AppsAllowedResult.Disabled,
         isSelfATeamAdmin = true,
-        isConversationAppsEnabled = true
     )
 }
 
@@ -253,7 +242,6 @@ fun PreviewSearchAllServicesScreen_InitialResults() = WireTheme {
         onServiceClicked = {},
         appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
-        isConversationAppsEnabled = true
     )
 }
 
@@ -267,7 +255,6 @@ fun PreviewSearchAllServicesScreen_EmptyInitialResults_TeamAdmin() = WireTheme {
         onServiceClicked = {},
         appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
-        isConversationAppsEnabled = true
     )
 }
 
@@ -281,7 +268,6 @@ fun PreviewSearchAllServicesScreen_EmptyInitialResults_NonTeamAdmin() = WireThem
         onServiceClicked = {},
         appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = false,
-        isConversationAppsEnabled = true
     )
 }
 
@@ -295,7 +281,6 @@ fun PreviewSearchAllServicesScreen_SearchResults() = WireTheme {
         onServiceClicked = {},
         appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
-        isConversationAppsEnabled = true
     )
 }
 
@@ -309,7 +294,6 @@ fun PreviewSearchAllServicesScreen_EmptySearchResults() = WireTheme {
         onServiceClicked = {},
         appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
-        isConversationAppsEnabled = true
     )
 }
 
@@ -323,7 +307,6 @@ fun PreviewSearchAllServicesScreen_EmptySearchResultsDisabledInConversation() = 
         onServiceClicked = {},
         appsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
         isSelfATeamAdmin = true,
-        isConversationAppsEnabled = false
     )
 }
 

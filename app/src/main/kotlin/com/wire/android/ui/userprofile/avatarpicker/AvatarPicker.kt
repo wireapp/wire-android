@@ -18,6 +18,7 @@
 
 package com.wire.android.ui.userprofile.avatarpicker
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -60,6 +61,11 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.Pictur
 import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
 import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
 import com.wire.android.util.ui.PreviewMultipleThemesForSquare
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.PlatformResult
+import com.wire.content.external.asAndroidUri
+import com.wire.content.external.asExternalContentReference
+import com.wire.content.media.ContentImageSource
 
 @Composable
 internal fun AvatarPickerScreen(
@@ -71,14 +77,24 @@ internal fun AvatarPickerScreen(
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
     val targetAvatarPath = viewModel.defaultAvatarPath
-    val targetAvatarUri = viewModel.temporaryAvatarUri
+    val targetAvatarReference =
+        (viewModel.temporaryAvatarTarget as? PlatformResult.Success<ExternalContentReference>)?.value
+    val targetAvatarUri = targetAvatarReference?.asAndroidUri()
 
     val state = rememberAvatarPickerState(
         onImageSelected = { originalUri ->
-            viewModel.updatePickedAvatarUri(originalUri, targetAvatarPath.toFile().toUri())
+            viewModel.updatePickedAvatar(
+                originalReference = originalUri.asExternalContentReference(),
+                updatedSource = ContentImageSource.Local(targetAvatarPath),
+            )
         },
         onPictureTaken = {
-            viewModel.updatePickedAvatarUri(targetAvatarUri, targetAvatarPath.toFile().toUri())
+            targetAvatarReference?.let {
+                viewModel.updatePickedAvatar(
+                    originalReference = it,
+                    updatedSource = ContentImageSource.Local(targetAvatarPath),
+                )
+            }
         },
         targetPictureFileUri = targetAvatarUri,
         onGalleryPermissionPermanentlyDenied = {
@@ -163,8 +179,8 @@ private fun AvatarPickerContent(
         sheetContent = {
             WireMenuModalSheetContent(
                 header = MenuModalSheetHeader.Visible(title = stringResource(R.string.profile_image_modal_sheet_header_title)),
-                menuItems = listOf(
-                    {
+                menuItems = buildList {
+                    add {
                         MenuBottomSheetItem(
                             title = stringResource(R.string.profile_image_choose_from_gallery_menu_item),
                             leading = {
@@ -176,21 +192,23 @@ private fun AvatarPickerContent(
                             trailing = { ArrowRightIcon() },
                             onItemClick = state::openGallery
                         )
-                    },
-                    {
-                        MenuBottomSheetItem(
-                            title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                            leading = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_camera,
-                                    contentDescription = stringResource(R.string.content_description_take_a_picture)
-                                )
-                            },
-                            trailing = { ArrowRightIcon() },
-                            onItemClick = state::openCamera
-                        )
                     }
-                )
+                    if (state.isCameraAvailable) {
+                        add {
+                            MenuBottomSheetItem(
+                                title = stringResource(R.string.profile_image_take_a_picture_menu_item),
+                                leading = {
+                                    MenuItemIcon(
+                                        id = R.drawable.ic_camera,
+                                        contentDescription = stringResource(R.string.content_description_take_a_picture)
+                                    )
+                                },
+                                trailing = { ArrowRightIcon() },
+                                onItemClick = state::openCamera
+                            )
+                        }
+                    }
+                }
             )
         }
     )
@@ -198,8 +216,13 @@ private fun AvatarPickerContent(
 
 @Composable
 fun AvatarPreview(pictureState: PictureState) {
+    val imageUri = when (val source = pictureState.imageSource) {
+        is ContentImageSource.External -> source.reference.asAndroidUri()
+        is ContentImageSource.Local -> source.path.toFile().toUri()
+        null -> Uri.EMPTY
+    }
     BulletHoleImagePreview(
-        imageUri = pictureState.avatarUri,
+        imageUri = imageUri,
         contentDescription = stringResource(R.string.content_description_avatar_preview)
     )
 }
@@ -265,7 +288,9 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
 @Composable
 fun AvatarPickerPreview() = WireTheme {
     AvatarPickerContent(
-        pictureState = PictureState.Picked("https://example.com/avatar.jpg".toUri()),
+        pictureState = PictureState.Picked(
+            ContentImageSource.External(ExternalContentReference("https://example.com/avatar.jpg"))
+        ),
         state = rememberAvatarPickerState(
             onImageSelected = {},
             onCameraPermissionPermanentlyDenied = {},

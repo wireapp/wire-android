@@ -74,7 +74,10 @@ class SketchNavigation3Test {
         val viewModelSource = sourceFile("DrawingCanvasViewModel.kt").readText()
 
         assertTrue("@ViewModelKey(DrawingCanvasViewModel::class)" in bindingSource)
-        assertTrue("fun drawingCanvasViewModel(): ViewModel" in bindingSource)
+        assertTrue("internal fun drawingCanvasViewModel(" in bindingSource)
+        assertTrue("imageRenderer: AndroidSketchImageRenderer" in bindingSource)
+        assertTrue("imageExporter: EncodedImageExporter" in bindingSource)
+        assertTrue("kaliumFileSystem: KaliumFileSystem" in bindingSource)
         listOf(
             "SavedStateHandle",
             "DrawingCanvasScreenDestination",

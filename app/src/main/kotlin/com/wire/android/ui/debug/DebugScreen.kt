@@ -43,7 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.platform.content.asExternalContentReference
+import com.wire.content.external.asExternalContentReference
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType

@@ -16,30 +16,24 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.userprofile.qr
-import android.content.Context
-import android.graphics.Bitmap
-import android.net.Uri
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
-import com.wire.android.di.ApplicationContext
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getTempWritableAttachmentUri
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.EncodedImage
+import com.wire.content.media.EncodedImageExportRequest
+import com.wire.content.media.EncodedImageExporter
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okio.Path
-import okio.Path.Companion.toPath
-import java.io.FileOutputStream
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -48,11 +42,10 @@ import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 @WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class SelfQRCodeViewModel @AssistedInject constructor(
     @Assisted private val navigationArgs: SelfQrCodeViewModelArgs,
-    @ApplicationContext private val context: Context,
     @CurrentAccount private val selfUserId: UserId,
     private val selfServerLinks: SelfServerConfigUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val dispatchers: DispatcherProvider,
+    private val encodedImageExporter: EncodedImageExporter,
     private val analyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
     @AssistedFactory
@@ -67,37 +60,21 @@ class SelfQRCodeViewModel @AssistedInject constructor(
         )
     )
         private set
-    private val cachePath: Path
-        get() = kaliumFileSystem.rootCachePath
     init {
         viewModelScope.launch {
             getServerLinks()
         }
     }
-    suspend fun shareQRAsset(bitmap: Bitmap): Uri {
-        val job = viewModelScope.async {
-            val qrImageFile = getTempWritableQRUri(cachePath)
-            withContext(dispatchers.io()) {
-                context.contentResolver.openFileDescriptor(qrImageFile, "rwt")?.use { fileDescriptor ->
-                    FileOutputStream(fileDescriptor.fileDescriptor)
-                        .use { fileOutputStream ->
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, QR_QUALITY_COMPRESSION, fileOutputStream)
-                            fileOutputStream.flush()
-                        }.also {
-                            appLogger.withTextTag("SelfQRCodeViewModel").d("Image written to: $qrImageFile")
-                        }
-                }
-            }
-            qrImageFile
-        }
-        return job.await()
-    }
+    suspend fun shareQRAsset(image: EncodedImage): PlatformResult<ExternalContentReference> =
+        encodedImageExporter.export(
+            EncodedImageExportRequest(
+                image = image,
+                displayName = TEMP_SELF_QR_FILENAME,
+                fallbackPath = kaliumFileSystem.rootCachePath / TEMP_SELF_QR_FILENAME,
+            )
+        )
     fun trackAnalyticsEvent(event: AnalyticsEvent.QrCode.Modal) {
         analyticsManager.sendEvent(event)
-    }
-    private suspend fun getTempWritableQRUri(tempCachePath: Path): Uri = withContext(dispatchers.io()) {
-        val tempImagePath = "$tempCachePath/$TEMP_SELF_QR_FILENAME".toPath()
-        return@withContext getTempWritableAttachmentUri(context, tempImagePath)
     }
     private suspend fun getServerLinks() {
         selfQRCodeState =

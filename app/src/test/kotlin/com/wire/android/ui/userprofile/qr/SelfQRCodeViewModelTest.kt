@@ -1,18 +1,20 @@
 package com.wire.android.ui.userprofile.qr
 
-import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.EncodedImage
+import com.wire.content.media.EncodedImageExporter
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -39,6 +41,26 @@ class SelfQRCodeViewModelTest {
         )
     }
 
+    @Test
+    fun `given an encoded qr image, when sharing, then it is exported through the platform boundary`() = runTest {
+        val reference = ExternalContentReference("content://qr")
+        val (arrangement, viewModel) = Arrangement().apply {
+            coEvery { encodedImageExporter.export(any()) } returns PlatformResult.Success(reference)
+        }.arrange()
+
+        val result = viewModel.shareQRAsset(EncodedImage(byteArrayOf(1, 2, 3), "image/jpeg"))
+
+        assertEquals(PlatformResult.Success(reference), result)
+        coVerify(exactly = 1) {
+            arrangement.encodedImageExporter.export(
+                match {
+                    it.displayName == SelfQRCodeViewModel.TEMP_SELF_QR_FILENAME &&
+                        it.image.bytes.contentEquals(byteArrayOf(1, 2, 3))
+                }
+            )
+        }
+    }
+
     private class Arrangement {
         @MockK
         lateinit var selfServerConfig: SelfServerConfigUseCase
@@ -46,7 +68,8 @@ class SelfQRCodeViewModelTest {
         @MockK
         lateinit var analyticsManager: AnonymousAnalyticsManager
 
-        val context = mockk<Context>()
+        @MockK
+        lateinit var encodedImageExporter: EncodedImageExporter
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -57,11 +80,10 @@ class SelfQRCodeViewModelTest {
 
         fun arrange() = this to SelfQRCodeViewModel(
             navigationArgs = SelfQrCodeViewModelArgs("handle", false),
-            context = context,
             selfUserId = TestUser.SELF_USER.id,
             selfServerLinks = selfServerConfig,
             kaliumFileSystem = fakeKaliumFileSystem,
-            dispatchers = TestDispatcherProvider(),
+            encodedImageExporter = encodedImageExporter,
             analyticsManager = analyticsManager
         )
 

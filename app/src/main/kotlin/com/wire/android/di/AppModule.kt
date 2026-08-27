@@ -34,8 +34,6 @@ import com.wire.android.ui.debug.securityproviders.AppPathsProvider
 import com.wire.android.ui.debug.securityproviders.NetworkDiagnosticsProvider
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.CurrentTimeProvider
-import com.wire.android.util.GetMediaMetadataUseCase
-import com.wire.android.util.GetMediaMetadataUseCaseImpl
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.AndroidUiTextResolver
@@ -128,9 +126,6 @@ object AppModule {
     @Provides
     @Named("inAppImageViewerEnabled")
     fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
-
-    @Provides
-    fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()
 
     @Provides
     fun provideAppPathsProvider(@ApplicationContext context: Context, @CurrentAccount currentAccount: UserId): AppPathsProvider =

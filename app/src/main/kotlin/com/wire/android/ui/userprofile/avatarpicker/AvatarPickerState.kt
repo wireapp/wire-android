@@ -40,7 +40,7 @@ fun rememberAvatarPickerState(
     onCameraPermissionPermanentlyDenied: () -> Unit,
     onGalleryPermissionPermanentlyDenied: () -> Unit,
     onPictureTaken: () -> Unit,
-    targetPictureFileUri: Uri,
+    targetPictureFileUri: Uri?,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     modalBottomSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState()
 ): AvatarPickerState {
@@ -73,6 +73,8 @@ class AvatarPickerState(
     val modalBottomSheetState: WireModalSheetState<Unit>,
     private val avatarPickerFlow: AvatarPickerFlow,
 ) {
+    val isCameraAvailable: Boolean
+        get() = avatarPickerFlow.isCameraAvailable
 
     fun showModalBottomSheet() {
         modalBottomSheetState.show(Unit)

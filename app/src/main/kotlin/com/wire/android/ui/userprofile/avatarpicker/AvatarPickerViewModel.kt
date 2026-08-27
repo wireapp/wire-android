@@ -16,13 +16,11 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 package com.wire.android.ui.userprofile.avatarpicker
-import android.content.Context
-import android.net.Uri
+
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
@@ -30,12 +28,14 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.ImageUtil
-import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.resampleImageAndCopyToTempPath
-import com.wire.android.util.toByteArray
 import com.wire.android.util.ui.UIText
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.ContentImageSource
+import com.wire.content.media.ImageProcessingRequest
+import com.wire.content.media.ImageProcessor
+import com.wire.content.media.ImageResizeProfile
+import com.wire.content.media.ImageTargetProvider
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -44,13 +44,11 @@ import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okio.Path
-import java.io.FileNotFoundException
 import dev.zacsweers.metro.Inject
 @Suppress("LongParameterList")
 class AvatarPickerViewModel @Inject constructor(
@@ -58,11 +56,10 @@ class AvatarPickerViewModel @Inject constructor(
     @CurrentAccount selfUserId: UserId,
     private val getAvatarAsset: GetAvatarAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
-    private val avatarImageManager: AvatarImageManager,
-    private val dispatchers: DispatcherProvider,
+    private val imageProcessor: ImageProcessor,
+    private val imageTargetProvider: ImageTargetProvider,
     private val kaliumFileSystem: KaliumFileSystem,
     private val qualifiedIdMapper: QualifiedIdMapper,
-    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
     private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
 
@@ -73,7 +70,7 @@ class AvatarPickerViewModel @Inject constructor(
     val infoMessage = _infoMessage.asSharedFlow()
     val defaultAvatarPath: Path
         get() = kaliumFileSystem.selfUserAvatarPath()
-    val temporaryAvatarUri: Uri = avatarImageManager.createCameraOutputAvatarUri(defaultAvatarPath)
+    val temporaryAvatarTarget: PlatformResult<ExternalContentReference> = imageTargetProvider.createTarget(defaultAvatarPath)
 
     init {
         loadInitialAvatarState()
@@ -87,9 +84,9 @@ class AvatarPickerViewModel @Inject constructor(
                 dataStore.avatarAssetId.first()?.apply {
                     val qualifiedAsset = qualifiedIdMapper.fromStringToQualifiedID(this)
                     val avatarRawPath = (getAvatarAsset(assetKey = qualifiedAsset) as PublicAssetResult.Success).assetPath
-                    val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
-                    initialPictureLoadingState = InitialPictureLoadingState.Loaded(currentAvatarUri)
-                    pictureState = PictureState.Initial(currentAvatarUri)
+                    val currentAvatarSource = ContentImageSource.Local(avatarRawPath)
+                    initialPictureLoadingState = InitialPictureLoadingState.Loaded(currentAvatarSource)
+                    pictureState = PictureState.Initial(currentAvatarSource)
                 } ?: run {
                     initialPictureLoadingState = InitialPictureLoadingState.None
                     pictureState = PictureState.Empty
@@ -100,54 +97,61 @@ class AvatarPickerViewModel @Inject constructor(
             }
         }
     }
-    fun updatePickedAvatarUri(originalUri: Uri, updatedUri: Uri) = viewModelScope.launch {
-        sanitizeAvatarImage(originalUri, defaultAvatarPath)
-        pictureState = PictureState.Picked(updatedUri)
+    fun updatePickedAvatar(
+        originalReference: ExternalContentReference,
+        updatedSource: ContentImageSource,
+    ) = viewModelScope.launch {
+        when (sanitizeAvatarImage(originalReference, defaultAvatarPath)) {
+            is PlatformResult.Success -> pictureState = PictureState.Picked(updatedSource)
+            else -> showInfoMessage(InfoMessageType.ImageProcessError)
+        }
     }
 
     /**
      * Resamples the image and removes unnecessary metadata before uploading it.
      * This to avoid uploading unnecessarily large images for profile pictures and sensitive metadata.
      */
-    private suspend fun sanitizeAvatarImage(originalAvatarUri: Uri, avatarPath: Path) {
-        originalAvatarUri.resampleImageAndCopyToTempPath(
-            context = appContext,
-            tempCachePath = avatarPath,
-            sizeClass = ImageUtil.ImageSizeClass.Small,
-            shouldRemoveMetadata = true
+    private suspend fun sanitizeAvatarImage(originalReference: ExternalContentReference, avatarPath: Path) =
+        imageProcessor.process(
+            ImageProcessingRequest(
+                source = originalReference,
+                destination = avatarPath,
+                resizeProfile = ImageResizeProfile.AVATAR,
+                removeMetadata = true,
+            )
         )
-    }
+
     fun uploadNewPickedAvatar() {
-        val imgUri = pictureState.avatarUri
+        val imageSource = pictureState.imageSource ?: return
         viewModelScope.launch {
-            pictureState = PictureState.Uploading(imgUri)
+            pictureState = PictureState.Uploading(imageSource)
             val avatarPath = defaultAvatarPath
-            try {
-                val imageDataSize = imgUri.toByteArray(appContext, dispatchers).size.toLong()
-                when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
-                    is UploadAvatarResult.Success -> {
-                        dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                        pictureState = PictureState.Completed(imgUri, dataStore.avatarAssetId.first())
+            val imageDataSize = kaliumFileSystem.size(avatarPath)
+            if (imageDataSize == null) {
+                showInfoMessage(InfoMessageType.ImageProcessError)
+                return@launch
+            }
+            when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
+                is UploadAvatarResult.Success -> {
+                    dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
+                    pictureState = PictureState.Completed(imageSource, dataStore.avatarAssetId.first())
+                }
+                is UploadAvatarResult.Failure -> {
+                    when (result.coreFailure) {
+                        is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
+                        else -> showInfoMessage(InfoMessageType.UploadAvatarError)
                     }
-                    is UploadAvatarResult.Failure -> {
-                        when (result.coreFailure) {
-                            is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
-                            else -> showInfoMessage(InfoMessageType.UploadAvatarError)
-                        }
-                        with(initialPictureLoadingState) {
-                            pictureState = when (this) {
-                                is InitialPictureLoadingState.Loaded -> PictureState.Initial(avatarUri)
-                                else -> PictureState.Empty
-                            }
+                    with(initialPictureLoadingState) {
+                        pictureState = when (this) {
+                            is InitialPictureLoadingState.Loaded -> PictureState.Initial(this.imageSource)
+                            else -> PictureState.Empty
                         }
                     }
                 }
-            } catch (e: FileNotFoundException) {
-                appLogger.e("[AvatarPickerViewModel] Could not find a file", e)
-                showInfoMessage(InfoMessageType.ImageProcessError)
             }
         }
     }
+
     private suspend fun showInfoMessage(type: SnackBarMessage) {
         _infoMessage.emit(type.uiText)
     }
@@ -156,16 +160,16 @@ class AvatarPickerViewModel @Inject constructor(
     private sealed class InitialPictureLoadingState {
         data object None : InitialPictureLoadingState()
         data object Loading : InitialPictureLoadingState()
-        data class Loaded(val avatarUri: Uri) : InitialPictureLoadingState()
+        data class Loaded(val imageSource: ContentImageSource) : InitialPictureLoadingState()
     }
 
     @Stable
-    sealed class PictureState(open val avatarUri: Uri) {
-        data class Uploading(override val avatarUri: Uri) : PictureState(avatarUri)
-        data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)
-        data class Picked(override val avatarUri: Uri) : PictureState(avatarUri)
-        data class Completed(override val avatarUri: Uri, val assetId: String?) : PictureState(avatarUri)
-        data object Empty : PictureState("".toUri())
+    sealed class PictureState(open val imageSource: ContentImageSource?) {
+        data class Uploading(override val imageSource: ContentImageSource) : PictureState(imageSource)
+        data class Initial(override val imageSource: ContentImageSource) : PictureState(imageSource)
+        data class Picked(override val imageSource: ContentImageSource) : PictureState(imageSource)
+        data class Completed(override val imageSource: ContentImageSource, val assetId: String?) : PictureState(imageSource)
+        data object Empty : PictureState(null)
     }
     sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
         data object UploadAvatarError : InfoMessageType(UIText.StringResource(R.string.error_uploading_user_avatar))

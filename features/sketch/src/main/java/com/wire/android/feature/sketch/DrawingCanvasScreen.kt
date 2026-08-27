@@ -42,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.wire.android.feature.sketch.model.DrawingState
 import com.wire.android.feature.sketch.util.PreviewMultipleThemes
@@ -62,6 +61,9 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.content.external.PlatformResult
+import com.wire.content.external.asAndroidUri
+import com.wire.content.external.asExternalContentReference
 import kotlinx.coroutines.launch
 
 @Composable
@@ -72,7 +74,6 @@ internal fun DrawingCanvasRouteScreen(
     onSketchSaved: (Uri) -> Unit,
     viewModel: DrawingCanvasViewModel,
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val discardDrawing: () -> Unit = {
         viewModel.initializeCanvas()
@@ -100,7 +101,10 @@ internal fun DrawingCanvasRouteScreen(
         onUndoStroke = viewModel::onUndoLastStroke,
         onSendSketch = {
             scope.launch {
-                onSketchSaved(viewModel.saveImage(context, tempWritableUri))
+                when (val result = viewModel.saveImage(tempWritableUri?.asExternalContentReference())) {
+                    is PlatformResult.Success -> onSketchSaved(result.value.asAndroidUri())
+                    else -> Unit
+                }
             }
         },
     )

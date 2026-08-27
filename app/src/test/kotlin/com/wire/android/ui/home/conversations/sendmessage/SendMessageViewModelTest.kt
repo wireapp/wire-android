@@ -302,7 +302,6 @@ class SendMessageViewModelTest {
             coVerify(exactly = 1) {
                 arrangement.sendAssetMessage.invoke(any())
             }
-
             verify(exactly = 1) {
                 arrangement.analyticsManager.sendEvent(
                     match {
@@ -342,6 +341,9 @@ class SendMessageViewModelTest {
             // Then
             coVerify(exactly = 1) {
                 arrangement.sendAssetMessage.invoke(any())
+            }
+            coVerify(exactly = 1) {
+                arrangement.mediaMetadataReader.read(assetPath, "image/jpeg")
             }
 
             verify(exactly = 1) {

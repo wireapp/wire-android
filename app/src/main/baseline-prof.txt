@@ -27091,10 +27091,6 @@ Lcom/wire/android/di/AppModule$ProvideGeocoderMetroFactory$Companion;
 SPLcom/wire/android/di/AppModule$ProvideGeocoderMetroFactory$Companion;-><init>()V
 SPLcom/wire/android/di/AppModule$ProvideGeocoderMetroFactory$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 SPLcom/wire/android/di/AppModule$ProvideGeocoderMetroFactory$Companion;->create(Ldev/zacsweers/metro/Provider;)Lcom/wire/android/di/AppModule$ProvideGeocoderMetroFactory;
-Lcom/wire/android/di/AppModule$ProvideGetMediaMetadataUseCaseMetroFactory;
-SPLcom/wire/android/di/AppModule$ProvideGetMediaMetadataUseCaseMetroFactory;-><clinit>()V
-SPLcom/wire/android/di/AppModule$ProvideGetMediaMetadataUseCaseMetroFactory;-><init>()V
-SPLcom/wire/android/di/AppModule$ProvideGetMediaMetadataUseCaseMetroFactory;->create()Lcom/wire/android/di/AppModule$ProvideGetMediaMetadataUseCaseMetroFactory;
 Lcom/wire/android/di/AppModule$ProvideInAppImageViewerEnabledMetroFactory;
 SPLcom/wire/android/di/AppModule$ProvideInAppImageViewerEnabledMetroFactory;-><clinit>()V
 SPLcom/wire/android/di/AppModule$ProvideInAppImageViewerEnabledMetroFactory;-><init>()V
@@ -36850,14 +36846,6 @@ Lcom/wire/android/util/AppNameUtil;
 SPLcom/wire/android/util/AppNameUtil;-><clinit>()V
 SPLcom/wire/android/util/AppNameUtil;-><init>()V
 SPLcom/wire/android/util/AppNameUtil;->createAppName()Ljava/lang/String;
-Lcom/wire/android/util/AvatarImageManager$MetroFactory;
-SPLcom/wire/android/util/AvatarImageManager$MetroFactory;-><clinit>()V
-SPLcom/wire/android/util/AvatarImageManager$MetroFactory;-><init>(Ldev/zacsweers/metro/Provider;)V
-SPLcom/wire/android/util/AvatarImageManager$MetroFactory;-><init>(Ldev/zacsweers/metro/Provider;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-Lcom/wire/android/util/AvatarImageManager$MetroFactory$Companion;
-SPLcom/wire/android/util/AvatarImageManager$MetroFactory$Companion;-><init>()V
-SPLcom/wire/android/util/AvatarImageManager$MetroFactory$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-SPLcom/wire/android/util/AvatarImageManager$MetroFactory$Companion;->create(Ldev/zacsweers/metro/Provider;)Lcom/wire/android/util/AvatarImageManager$MetroFactory;
 Lcom/wire/android/util/BackendSupportConfig;
 SPLcom/wire/android/util/BackendSupportConfig;-><clinit>()V
 SPLcom/wire/android/util/BackendSupportConfig;-><init>()V

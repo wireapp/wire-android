@@ -26,11 +26,13 @@ import com.wire.android.media.PingRinger
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.util.ImageUtil
 import com.wire.content.external.AssetImporter
 import com.wire.content.external.ExternalContentImportResult
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.MediaMetadataReader
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
@@ -130,7 +132,7 @@ internal class SendMessageViewModelArrangement {
     lateinit var pingRinger: PingRinger
 
     @MockK
-    private lateinit var imageUtil: ImageUtil
+    lateinit var mediaMetadataReader: MediaMetadataReader
 
     @MockK
     private lateinit var assetImporter: AssetImporter
@@ -185,7 +187,7 @@ internal class SendMessageViewModelArrangement {
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
             assetImporter = assetImporter,
-            imageUtil = imageUtil,
+            mediaMetadataReader = mediaMetadataReader,
             pingRinger = pingRinger,
             sendKnock = sendKnockUseCase,
             retryFailedMessage = retryFailedMessageUseCase,
@@ -209,7 +211,9 @@ internal class SendMessageViewModelArrangement {
     fun withSuccessfulViewModelInit() = apply {
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
-        coEvery { imageUtil.extractImageWidthAndHeight(any(), any()) } returns (1 to 1)
+        coEvery { mediaMetadataReader.read(any(), any()) } returns PlatformResult.Success(
+            AssetContent.AssetMetadata.Image(width = 1, height = 1)
+        )
     }
 
     fun withStoredAsset(dataPath: Path, dataContent: ByteArray) = apply {

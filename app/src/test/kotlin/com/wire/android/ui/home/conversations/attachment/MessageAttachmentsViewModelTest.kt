@@ -21,10 +21,11 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
-import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.content.external.AssetImporter
 import com.wire.content.external.ExternalContentImportResult
 import com.wire.content.external.ExternalFileLauncher
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.MediaMetadataReader
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
@@ -352,7 +353,7 @@ class MessageAttachmentsViewModelTest {
         lateinit var externalFileLauncher: ExternalFileLauncher
 
         @MockK
-        lateinit var getMediaMetadata: GetMediaMetadataUseCase
+        lateinit var mediaMetadataReader: MediaMetadataReader
 
         @MockK
         lateinit var kaliumFileSystem: KaliumFileSystem
@@ -368,7 +369,7 @@ class MessageAttachmentsViewModelTest {
                 MockKAnnotations.init(this, relaxUnitFun = true)
                 coEvery { observeAttachments(any()) } returns MutableSharedFlow()
                 coEvery { uploadManager.getUploadInfo(any()) } returns null
-                coEvery { getMediaMetadata(any(), any()) } returns null
+                coEvery { mediaMetadataReader.read(any(), any()) } returns PlatformResult.Success(null)
                 isInitialized = true
             }
         }
@@ -408,7 +409,7 @@ class MessageAttachmentsViewModelTest {
                 uploadManager = uploadManager,
                 externalFileLauncher = externalFileLauncher,
                 sharedState = sharedState,
-                getMediaMetadata = getMediaMetadata,
+                mediaMetadataReader = mediaMetadataReader,
                 kaliumFileSystem = kaliumFileSystem,
             )
             return this to viewModel

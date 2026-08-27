@@ -33,13 +33,13 @@ import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.ui.sharing.toImportedMediaAssetOrNull
-import com.wire.android.util.GetMediaMetadataUseCase
-import com.wire.android.util.getAudioLengthInMs
 import com.wire.content.asset.AssetFileNamePolicy
 import com.wire.content.external.AssetImporter
 import com.wire.content.external.ExternalContentImportRequest
 import com.wire.content.external.ExternalFileLauncher
 import com.wire.content.external.LocalContent
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.MediaMetadataReader
 import com.wire.kalium.cells.domain.CellUploadEvent
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.model.AttachmentDraft
@@ -79,7 +79,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
     private val uploadManager: CellUploadManager,
     private val externalFileLauncher: ExternalFileLauncher,
     private val sharedState: MessageSharedState,
-    private val getMediaMetadata: GetMediaMetadataUseCase,
+    private val mediaMetadataReader: MediaMetadataReader,
     private val kaliumFileSystem: KaliumFileSystem,
     @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
@@ -125,6 +125,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
 
     fun onAudioRecorded(request: ExternalContentImportRequest, wavesMask: List<Int>?) = viewModelScope.launch {
         handleImportedAsset(request.copy(audioWavesMask = wavesMask))?.assetBundle?.let { bundle ->
+            val metadata = readMediaMetadata(bundle) as? AssetContent.AssetMetadata.Audio
             addAttachment(
                 conversationId = conversationId,
                 fileName = bundle.fileName,
@@ -132,7 +133,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
                 assetSize = bundle.dataSize,
                 mimeType = bundle.mimeType,
                 assetMetadata = AssetContent.AssetMetadata.Audio(
-                    durationMs = getAudioLengthInMs(bundle.dataPath, bundle.mimeType),
+                    durationMs = metadata?.durationMs ?: 0L,
                     normalizedLoudness = wavesMask?.toNormalizedLoudness()
                 )
             ).onFailure {
@@ -198,12 +199,18 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
             assetPath = bundle.dataPath,
             assetSize = bundle.dataSize,
             mimeType = bundle.mimeType,
-            assetMetadata = getMediaMetadata(bundle.dataPath, bundle.mimeType),
+            assetMetadata = readMediaMetadata(bundle),
         )
             .onFailure {
                 appLogger.e("Failed to add attachment: $it", tag = "MessageAttachmentsViewModel")
             }
     }
+
+    private suspend fun readMediaMetadata(bundle: AssetBundle): AssetContent.AssetMetadata? =
+        when (val result = mediaMetadataReader.read(bundle.dataPath, bundle.mimeType)) {
+            is PlatformResult.Success -> result.value
+            else -> null
+        }
 
     fun onAttachmentMenuClicked(attachment: AttachmentDraftUi) {
         if (attachment.uploadError) {

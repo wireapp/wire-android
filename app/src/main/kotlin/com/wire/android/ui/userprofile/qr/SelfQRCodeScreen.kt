@@ -18,8 +18,6 @@
 package com.wire.android.ui.userprofile.qr
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,11 +53,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
 import com.wire.android.R
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.platform.content.encodeJpeg
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -70,6 +68,10 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ifNotEmpty
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.PlatformResult
+import com.wire.content.external.asAndroidUri
+import com.wire.content.media.EncodedImage
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
@@ -92,7 +94,7 @@ internal fun SelfQRCodeScreen(
 @Composable
 private fun SelfQRCodeContent(
     state: SelfQRCodeState,
-    shareQRAssetClick: suspend (Bitmap) -> Uri,
+    shareQRAssetClick: suspend (EncodedImage) -> PlatformResult<ExternalContentReference>,
     trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit,
     onBackClick: () -> Unit = {}
 ) {
@@ -214,8 +216,11 @@ private fun SelfQRCodeContent(
                 )
                 coroutineScope.launch {
                     val bitmap = graphicsLayer.toImageBitmap()
-                    val qrUri = shareQRAssetClick(bitmap.asAndroidBitmap())
-                    context.shareQRToProfile(qrUri)
+                    val image = bitmap.asAndroidBitmap().encodeJpeg(SelfQRCodeViewModel.QR_QUALITY_COMPRESSION)
+                    when (val result = shareQRAssetClick(image)) {
+                        is PlatformResult.Success -> context.shareQRToProfile(result.value.asAndroidUri())
+                        else -> Unit
+                    }
                 }
             }
         }
@@ -276,7 +281,7 @@ fun PreviewSelfQRCodeContent() {
                 userProfileLink = "wire://user/wire.com/aaaaaaa-222-3333-4444-55555555",
                 userAccountProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555@wire.com"
             ),
-            { "".toUri() },
+            { PlatformResult.Unsupported },
             { }
         )
     }

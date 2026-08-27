@@ -29,7 +29,6 @@ import com.wire.android.util.getTempWritableAttachmentUri
 import com.wire.android.util.openAssetFileWithExternalApp
 import com.wire.android.util.openAssetUrlWithExternalApp
 import com.wire.android.util.orDefault
-import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.android.util.saveFileDataToMediaFolder
 import com.wire.android.util.saveFileToDownloadsFolder
 import com.wire.android.util.shareAssetFileWithExternalApp
@@ -47,6 +46,11 @@ import com.wire.content.external.FileExporter
 import com.wire.content.external.LocalContent
 import com.wire.content.external.PlatformResult
 import com.wire.content.external.RemoteContent
+import com.wire.content.external.asAndroidUri
+import com.wire.content.external.asExternalContentReference
+import com.wire.content.media.ImageProcessingRequest
+import com.wire.content.media.ImageProcessor
+import com.wire.content.media.ImageResizeProfile
 import com.wire.kalium.logic.data.asset.AttachmentType
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
@@ -69,6 +73,7 @@ import java.util.UUID
 class AndroidExternalContentReader(
     @ApplicationContext private val context: Context,
     private val dispatchers: DispatcherProvider,
+    private val imageProcessor: ImageProcessor,
 ) : ExternalContentReader {
     override suspend fun prepare(
         request: ExternalContentImportRequest,
@@ -81,7 +86,21 @@ class AndroidExternalContentReader(
             val mimeType = request.mimeType ?: uri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
             val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
             val size = if (attachmentType == AttachmentType.IMAGE) {
-                uri.resampleImageAndCopyToTempPath(context, destination)
+                when (
+                    val result = imageProcessor.process(
+                        ImageProcessingRequest(
+                            source = request.reference,
+                            destination = destination,
+                            resizeProfile = ImageResizeProfile.ATTACHMENT,
+                            removeMetadata = false,
+                        )
+                    )
+                ) {
+                    is PlatformResult.Success -> result.value.sizeBytes
+                    PlatformResult.Cancelled -> return@withContext PlatformResult.Cancelled
+                    PlatformResult.Unsupported -> return@withContext PlatformResult.Unsupported
+                    is PlatformResult.Failure -> return@withContext result
+                }
             } else {
                 copy(uri, destination)
             }
@@ -276,7 +295,7 @@ class AndroidCaptureTargetProvider(
                 CaptureKind.VIDEO -> "video_attachment.mp4"
             }
             PlatformResult.Success(
-                ExternalContentReference(getTempWritableAttachmentUri(context, cacheRoot / name).toString())
+                getTempWritableAttachmentUri(context, cacheRoot / name).asExternalContentReference()
             )
         } catch (cancelled: CancellationException) {
             throw cancelled
@@ -293,10 +312,6 @@ class AndroidCaptureTargetProvider(
 class UuidContentKeyGenerator : ContentKeyGenerator {
     override fun nextKey(): String = UUID.randomUUID().toString()
 }
-
-fun ExternalContentReference.asAndroidUri(): Uri = Uri.parse(token)
-
-fun Uri.asExternalContentReference(): ExternalContentReference = ExternalContentReference(toString())
 
 internal fun Uri.requireExternalContentUri() {
     require(ContentResolver.SCHEME_CONTENT.equals(scheme, ignoreCase = true)) {

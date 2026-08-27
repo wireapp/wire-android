@@ -3,7 +3,15 @@ package com.wire.android.feature.sketch
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.EncodedImageExporter
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -161,6 +169,17 @@ class DrawingCanvasViewModelTest {
         }
     }
 
+    @Test
+    fun givenAnEmptySketch_WhenSaving_ThenNoFileIsExported() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+
+        val result = viewModel.saveImage(destination = null)
+
+        assertEquals(PlatformResult.Cancelled, result)
+        verify(exactly = 1) { arrangement.imageRenderer.render(any()) }
+        coVerify(exactly = 0) { arrangement.imageExporter.export(any()) }
+    }
+
     private fun stopDrawing(viewModel: DrawingCanvasViewModel, movedOffset: Offset = MOVED_OFFSET) = with(viewModel) {
         draw(viewModel, movedOffset)
         onStopDrawing()
@@ -181,9 +200,21 @@ class DrawingCanvasViewModelTest {
     }
 
     private class Arrangement {
+        val imageRenderer = mockk<SketchImageRenderer>()
+        val imageExporter = mockk<EncodedImageExporter>()
+        val kaliumFileSystem = mockk<KaliumFileSystem>()
+
+        init {
+            every { imageRenderer.render(any()) } returns null
+            every { kaliumFileSystem.rootCachePath } returns "/cache".toPath()
+        }
 
         private val viewModel by lazy {
-            DrawingCanvasViewModel()
+            DrawingCanvasViewModel(
+                imageRenderer = imageRenderer,
+                imageExporter = imageExporter,
+                kaliumFileSystem = kaliumFileSystem,
+            )
         }
 
         fun arrange() = this to viewModel

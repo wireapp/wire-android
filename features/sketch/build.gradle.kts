@@ -9,6 +9,7 @@ plugins {
 }
 
 dependencies {
+    implementation(projects.core.contentKmp)
     implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
     implementation(projects.core.navigation)

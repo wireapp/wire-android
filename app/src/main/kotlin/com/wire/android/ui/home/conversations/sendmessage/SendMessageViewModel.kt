@@ -41,12 +41,11 @@ import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
-import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.getAudioLengthInMs
-import com.wire.android.util.getVideoMetaData
 import com.wire.content.external.AssetImporter
 import com.wire.content.external.ExternalContentImportResult
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.MediaMetadataReader
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onFailure
@@ -56,6 +55,7 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
@@ -108,7 +108,7 @@ class SendMessageViewModel @AssistedInject constructor(
     private val sendKnock: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
-    private val imageUtil: ImageUtil,
+    private val mediaMetadataReader: MediaMetadataReader,
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val setNotifiedAboutConversationUnderLegalHold: SetNotifiedAboutConversationUnderLegalHoldUseCase,
@@ -375,11 +375,13 @@ class SendMessageViewModel @AssistedInject constructor(
             when (assetType) {
                 AttachmentType.IMAGE -> {
                     if (kaliumFileSystem.exists(attachmentBundle.dataPath)) {
-                        val (imgWidth, imgHeight) = imageUtil.extractImageWidthAndHeight(
-                            kaliumFileSystem,
-                            attachmentBundle.dataPath
+                        val metadata = attachmentBundle.readMediaMetadata() as? AssetContent.AssetMetadata.Image
+                        sendAssetMessage(
+                            attachmentBundle.uploadParams(
+                                assetHeight = metadata?.height,
+                                assetWidth = metadata?.width,
+                            )
                         )
-                        sendAssetMessage(attachmentBundle.uploadParams(imgHeight, imgWidth))
                             .handleLegalHoldFailureAfterSendingMessage(conversationId)
                             .handleAssetContributionEvent(assetType)
                     } else {
@@ -403,19 +405,19 @@ class SendMessageViewModel @AssistedInject constructor(
         }
     }
 
-    private fun AssetBundle.assetUploadParams(): AssetUploadParams =
+    private suspend fun AssetBundle.assetUploadParams(): AssetUploadParams =
         when (assetType) {
-            AttachmentType.GENERIC_FILE,
-            AttachmentType.AUDIO ->
+            AttachmentType.GENERIC_FILE -> uploadParams()
+
+            AttachmentType.AUDIO -> {
+                val metadata = readMediaMetadata() as? AssetContent.AssetMetadata.Audio
                 uploadParams(
-                    audioLengthInMs = getAudioLengthInMs(
-                        dataPath = dataPath,
-                        mimeType = mimeType
-                    )
+                    audioLengthInMs = metadata?.durationMs ?: 0L,
                 )
+            }
 
             AttachmentType.VIDEO -> {
-                getVideoMetaData(dataPath.toString())?.let { metadata ->
+                (readMediaMetadata() as? AssetContent.AssetMetadata.Video)?.let { metadata ->
                     uploadParams(
                         assetWidth = metadata.width,
                         assetHeight = metadata.height,
@@ -425,6 +427,12 @@ class SendMessageViewModel @AssistedInject constructor(
             }
 
             else -> uploadParams()
+        }
+
+    private suspend fun AssetBundle.readMediaMetadata(): AssetContent.AssetMetadata? =
+        when (val result = mediaMetadataReader.read(dataPath, mimeType)) {
+            is PlatformResult.Success -> result.value
+            else -> null
         }
 
     private fun Either<CoreFailure?, Unit>.handleAssetContributionEvent(

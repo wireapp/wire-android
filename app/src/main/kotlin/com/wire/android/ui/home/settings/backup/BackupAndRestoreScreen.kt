@@ -57,7 +57,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.time.convertTimestampToDateTime
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.android.platform.content.asExternalContentReference
+import com.wire.content.external.asExternalContentReference
 
 @Composable
 fun BackupAndRestoreScreen(

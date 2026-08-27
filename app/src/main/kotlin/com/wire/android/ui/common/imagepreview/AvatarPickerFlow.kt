@@ -28,12 +28,15 @@ import com.wire.android.util.permission.rememberChooseSingleFileFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 
 class AvatarPickerFlow(
-    private val takePictureFlow: RequestLauncher,
+    private val takePictureFlow: RequestLauncher?,
     private val openGalleryFlow: RequestLauncher,
 ) {
+    val isCameraAvailable: Boolean
+        get() = takePictureFlow != null
+
     fun launch(imageSource: ImageSource) {
         when (imageSource) {
-            ImageSource.Camera -> takePictureFlow.launch()
+            ImageSource.Camera -> takePictureFlow?.launch()
             ImageSource.Gallery -> openGalleryFlow.launch()
         }
     }
@@ -43,17 +46,19 @@ class AvatarPickerFlow(
 fun rememberPickPictureState(
     onImageSelected: (Uri) -> Unit,
     onPictureTaken: () -> Unit,
-    targetPictureFileUri: Uri,
+    targetPictureFileUri: Uri?,
     onCameraPermissionPermanentlyDenied: () -> Unit,
     onGalleryPermissionPermanentlyDenied: () -> Unit,
 ): AvatarPickerFlow {
 
-    val takePictureFLow = rememberTakePictureFlow(
-        onPictureTaken = { wasSaved -> if (wasSaved) onPictureTaken() },
-        onPermissionDenied = { /* Nothing to do */ },
-        onPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
-        targetPictureFileUri = targetPictureFileUri,
-    )
+    val takePictureFlow = targetPictureFileUri?.let {
+        rememberTakePictureFlow(
+            onPictureTaken = { wasSaved -> if (wasSaved) onPictureTaken() },
+            onPermissionDenied = { /* Nothing to do */ },
+            onPermissionPermanentlyDenied = onCameraPermissionPermanentlyDenied,
+            targetPictureFileUri = it,
+        )
+    }
 
     val openGalleryFlow = rememberChooseSingleFileFlow(
         fileType = FileType.Image,
@@ -62,7 +67,7 @@ fun rememberPickPictureState(
         onPermissionPermanentlyDenied = onGalleryPermissionPermanentlyDenied,
     )
 
-    return remember {
-        AvatarPickerFlow(takePictureFLow, openGalleryFlow)
+    return remember(takePictureFlow, openGalleryFlow) {
+        AvatarPickerFlow(takePictureFlow, openGalleryFlow)
     }
 }

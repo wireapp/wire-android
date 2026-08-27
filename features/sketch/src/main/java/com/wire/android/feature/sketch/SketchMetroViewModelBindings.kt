@@ -11,6 +11,8 @@
 package com.wire.android.feature.sketch
 
 import androidx.lifecycle.ViewModel
+import com.wire.content.media.EncodedImageExporter
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
@@ -22,5 +24,9 @@ object SketchMetroViewModelBindings {
     @Provides
     @IntoMap
     @ViewModelKey(DrawingCanvasViewModel::class)
-    fun drawingCanvasViewModel(): ViewModel = DrawingCanvasViewModel()
+    internal fun drawingCanvasViewModel(
+        imageRenderer: AndroidSketchImageRenderer,
+        imageExporter: EncodedImageExporter,
+        kaliumFileSystem: KaliumFileSystem,
+    ): ViewModel = DrawingCanvasViewModel(imageRenderer, imageExporter, kaliumFileSystem)
 }

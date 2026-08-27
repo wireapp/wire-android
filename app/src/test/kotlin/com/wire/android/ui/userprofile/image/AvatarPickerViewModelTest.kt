@@ -18,20 +18,20 @@
 
 package com.wire.android.ui.userprofile.image
 
-import android.content.Context
-import android.net.Uri
 import app.cash.turbine.test
 import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.framework.TestUser
-import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.resampleImageAndCopyToTempPath
-import com.wire.android.util.toByteArray
+import com.wire.content.external.ExternalContentReference
+import com.wire.content.external.PlatformResult
+import com.wire.content.media.ContentImageSource
+import com.wire.content.media.ImageProcessor
+import com.wire.content.media.ImageTargetProvider
+import com.wire.content.media.ProcessedImage
 import com.wire.kalium.common.error.CoreFailure.Unknown
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -47,7 +47,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -106,9 +105,6 @@ class AvatarPickerViewModelTest {
                 coVerify {
                     uploadUserAvatarUseCase(any(), any())
                 }
-                coVerify(exactly = 1) {
-                    avatarImageManager.getWritableAvatarUri(any())
-                }
                 assertIs<AvatarPickerViewModel.PictureState.Initial>(avatarPickerViewModel.pictureState) // not PictureState.Completed
             }
 
@@ -148,7 +144,7 @@ class AvatarPickerViewModelTest {
             .withSuccessfulInitialAvatarLoad()
             .arrange()
 
-        avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockOriginalUri, arrangement.mockTargetUri)
+        avatarPickerViewModel.updatePickedAvatar(arrangement.originalReference, arrangement.targetSource)
         assertInstanceOf(AvatarPickerViewModel.PictureState.Picked::class.java, avatarPickerViewModel.pictureState)
         avatarPickerViewModel.loadInitialAvatarState()
         assertInstanceOf(AvatarPickerViewModel.PictureState.Initial::class.java, avatarPickerViewModel.pictureState)
@@ -160,10 +156,25 @@ class AvatarPickerViewModelTest {
             .withNoInitialAvatar()
             .arrange()
 
-        avatarPickerViewModel.updatePickedAvatarUri(arrangement.mockOriginalUri, arrangement.mockTargetUri)
+        avatarPickerViewModel.updatePickedAvatar(arrangement.originalReference, arrangement.targetSource)
         assertInstanceOf(AvatarPickerViewModel.PictureState.Picked::class.java, avatarPickerViewModel.pictureState)
         avatarPickerViewModel.loadInitialAvatarState()
         assertInstanceOf(AvatarPickerViewModel.PictureState.Empty::class.java, avatarPickerViewModel.pictureState)
+    }
+
+    @Test
+    fun `given image processing fails, when a new avatar is picked, then keep the current state and emit an error`() = runTest {
+        val (arrangement, avatarPickerViewModel) = Arrangement()
+            .withNoInitialAvatar()
+            .withImageProcessingFailure()
+            .arrange()
+
+        avatarPickerViewModel.infoMessage.test {
+            avatarPickerViewModel.updatePickedAvatar(arrangement.originalReference, arrangement.targetSource)
+
+            assertInstanceOf(AvatarPickerViewModel.PictureState.Empty::class.java, avatarPickerViewModel.pictureState)
+            assertEquals(AvatarPickerViewModel.InfoMessageType.ImageProcessError.uiText, awaitItem())
+        }
     }
 
     private class Arrangement {
@@ -176,14 +187,12 @@ class AvatarPickerViewModelTest {
 
         val uploadUserAvatarUseCase = mockk<UploadUserAvatarUseCase>()
 
-        val avatarImageManager = mockk<AvatarImageManager>()
+        val imageProcessor = mockk<ImageProcessor>()
 
-        val context = mockk<Context>()
+        val imageTargetProvider = mockk<ImageTargetProvider>()
 
         @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-        val dispatcherProvider = TestDispatcherProvider()
 
         val viewModel by lazy {
             AvatarPickerViewModel(
@@ -191,38 +200,33 @@ class AvatarPickerViewModelTest {
                 TestUser.SELF_USER.id,
                 getAvatarAsset,
                 uploadUserAvatarUseCase,
-                avatarImageManager,
-                dispatcherProvider,
+                imageProcessor,
+                imageTargetProvider,
                 fakeKaliumFileSystem,
                 qualifiedIdMapper,
-                context,
             )
         }
 
-        val mockTargetUri = mockk<Uri>()
-        val mockOriginalUri = mockk<Uri>()
+        val originalReference = ExternalContentReference("content://original")
+        val targetReference = ExternalContentReference("content://target")
+        val targetSource = ContentImageSource.Local(fakeKaliumFileSystem.selfUserAvatarPath())
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { userDataStoreProvider.getOrCreate(TestUser.SELF_USER.id) } returns userDataStore
+            every { imageTargetProvider.createTarget(any()) } returns PlatformResult.Success(targetReference)
+            coEvery { imageProcessor.process(any()) } returns
+                PlatformResult.Success(ProcessedImage(fakeKaliumFileSystem.selfUserAvatarPath(), 5L))
         }
 
         fun withSuccessfulInitialAvatarLoad(): Arrangement {
             val avatarAssetId = "avatar-value@avatar-domain"
-            mockkStatic(Uri::class)
-            mockkStatic(Uri::resampleImageAndCopyToTempPath)
-            mockkStatic(Uri::toByteArray)
-            every { Uri.parse(any()) } returns mockTargetUri
             val fakeAvatarData = "some-dummy-avatar".toByteArray()
             val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
             fakeKaliumFileSystem.sink(avatarPath).buffer().use {
                 it.write(fakeAvatarData)
             }
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
-            coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockTargetUri
-            coEvery { avatarImageManager.createCameraOutputAvatarUri(any()) } returns mockTargetUri
-            coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), eq(true), any()) } returns 1L
-            coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 
@@ -232,7 +236,6 @@ class AvatarPickerViewModelTest {
         fun withFailedInitialAvatarLoad(): Arrangement {
             val avatarAssetId = "avatar-value@avatar-domain"
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Failure(Unknown(RuntimeException("some error")), false)
-            coEvery { avatarImageManager.createCameraOutputAvatarUri(any()) } returns mockTargetUri
             every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 
@@ -240,8 +243,13 @@ class AvatarPickerViewModelTest {
         }
 
         fun withNoInitialAvatar(): Arrangement {
-            coEvery { avatarImageManager.createCameraOutputAvatarUri(any()) } returns mockTargetUri
             every { userDataStore.avatarAssetId } returns flow { emit(null) }
+
+            return this
+        }
+
+        fun withImageProcessingFailure(): Arrangement {
+            coEvery { imageProcessor.process(any()) } returns PlatformResult.Failure("processing_failed")
 
             return this
         }

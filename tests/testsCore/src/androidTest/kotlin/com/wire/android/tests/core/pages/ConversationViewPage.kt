@@ -69,6 +69,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
+    private val anyTextMessage = UiSelectorParams(className = "android.widget.TextView")
 
     private fun conversationDetails1On1(userName: String) = UiSelectorParams(
         className = "android.widget.TextView",
@@ -85,6 +86,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val deleteMessageOption = UiSelectorParams(description = "Delete the message")
     private val deleteForMeButton = UiSelectorParams(text = "Delete for Me")
     private val deleteForEveryoneButton = UiSelectorParams(text = "Delete for Everyone")
+    private val retryButton = UiSelectorParams(text = "Retry")
     private val deleteForMeConfirmationText = UiSelectorParams(text = "Delete this Message for yourself?")
     private val deletedMessageLabel = UiSelectorParams(text = "Deleted message")
     private val imageContextMenuButton = UiSelectorParams(description = "More options")
@@ -577,6 +579,26 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertRetryButtonVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(retryButton)
+        return this
+    }
+
+    fun tapRetryButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(retryButton).click()
+        return this
+    }
+
+    fun assertCancelButtonVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(cancelButton)
+        return this
+    }
+
+    fun tapCancelButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(cancelButton).click()
+        return this
+    }
+
     fun assertSentMessageIsVisibleInCurrentConversation(message: String): ConversationViewPage {
         val messageSelector = UiSelectorParams(text = message)
         val messageElement = UiWaitUtils.waitElement(messageSelector)
@@ -585,6 +607,13 @@ data class ConversationViewPage(private val device: UiDevice) {
             "Message '$message' is not visible in the conversation",
             !messageElement.visibleBounds.isEmpty
         )
+        return this
+    }
+
+    fun assertMessageIsDisplayedInConversationView(): ConversationViewPage {
+        val message = UiWaitUtils.waitElement(anyTextMessage).text.orEmpty()
+        Assert.assertTrue("Sent message is not displayed in the conversation view.", message.isNotEmpty())
+        Assert.assertFalse("No message is displayed in the conversation view.", message.contains("Type a message"))
         return this
     }
 
@@ -601,6 +630,14 @@ data class ConversationViewPage(private val device: UiDevice) {
                 AssertionError("Message '$text' is still present in the conversation.")
             )
         }
+    }
+
+    fun assertTextMessageNotVisibleInCurrentConversation(message: String): ConversationViewPage {
+        assertElementNotVisible(
+            UiSelectorParams(text = message, className = "android.widget.TextView"),
+            "text message in current conversation"
+        )
+        return this
     }
 
     fun tapBackButtonToCloseConversationViewPage(timeout: Duration = UiWaitUtils.SHORT_TIMEOUT): ConversationViewPage {

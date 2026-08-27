@@ -17,7 +17,7 @@
  */
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
-import com.wire.android.media.audiomessage.AudioState
+import com.wire.media.player.AudioState
 import okio.Path
 
 data class RecordAudioState(

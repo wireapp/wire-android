@@ -21,41 +21,10 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.media.player.AudioMediaPlayingState
+import com.wire.media.player.AudioState
 
-data class AudioState(
-    val audioMediaPlayingState: AudioMediaPlayingState,
-    val currentPositionInMs: Int,
-    val totalTimeInMs: TotalTimeInMs,
-) {
-    companion object {
-        val DEFAULT = AudioState(AudioMediaPlayingState.Stopped, 0, TotalTimeInMs.NotKnown)
-    }
-
-    // if the back-end returned the total time, we use that, in case it didn't we use what we get from
-    // the [ConversationAudioMessagePlayer.kt] which will emit the time once the users play the audio.
-    fun sanitizeTotalTime(otherClientTotalTime: Int): TotalTimeInMs {
-        if (otherClientTotalTime != 0) {
-            return TotalTimeInMs.Known(otherClientTotalTime)
-        }
-
-        return totalTimeInMs
-    }
-
-    fun isPlaying() = audioMediaPlayingState is AudioMediaPlayingState.Playing
-    fun isPlayingOrPaused() = audioMediaPlayingState is AudioMediaPlayingState.Playing
-            || audioMediaPlayingState is AudioMediaPlayingState.Paused
-
-    fun isPlayingOrPausedOrFetching() = audioMediaPlayingState is AudioMediaPlayingState.Playing
-            || audioMediaPlayingState is AudioMediaPlayingState.Paused
-            || audioMediaPlayingState is AudioMediaPlayingState.Fetching
-            || audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching
-
-    sealed class TotalTimeInMs {
-        object NotKnown : TotalTimeInMs()
-
-        data class Known(val value: Int) : TotalTimeInMs()
-    }
-}
+typealias AudioSpeed = com.wire.media.player.PlaybackSpeed
 
 sealed class PlayingAudioMessage {
     data object None : PlayingAudioMessage()
@@ -78,41 +47,13 @@ sealed class PlayingAudioMessage {
     }
 }
 
-@Suppress("MagicNumber")
-enum class AudioSpeed(val value: Float, @StringRes val titleRes: Int) {
-    NORMAL(1f, R.string.audio_speed_1),
-    FAST(1.5f, R.string.audio_speed_1_5),
-    MAX(2f, R.string.audio_speed_2);
-
-    fun toggle(): AudioSpeed = when (this) {
-        NORMAL -> FAST
-        FAST -> MAX
-        MAX -> NORMAL
+@get:StringRes
+val AudioSpeed.titleRes: Int
+    get() = when (this) {
+        AudioSpeed.NORMAL -> R.string.audio_speed_1
+        AudioSpeed.FAST -> R.string.audio_speed_1_5
+        AudioSpeed.MAX -> R.string.audio_speed_2
     }
-
-    companion object {
-        fun fromFloat(speed: Float): AudioSpeed = when {
-            (speed < FAST.value) -> NORMAL
-            (speed < MAX.value) -> FAST
-            else -> MAX
-        }
-    }
-}
-
-sealed class AudioMediaPlayingState {
-    object Playing : AudioMediaPlayingState()
-    object Stopped : AudioMediaPlayingState()
-
-    object Completed : AudioMediaPlayingState()
-
-    object Paused : AudioMediaPlayingState()
-
-    object Fetching : AudioMediaPlayingState()
-
-    object SuccessfulFetching : AudioMediaPlayingState()
-
-    object Failed : AudioMediaPlayingState()
-}
 
 sealed class AudioMediaPlayerStateUpdate(
     open val conversationId: ConversationId,

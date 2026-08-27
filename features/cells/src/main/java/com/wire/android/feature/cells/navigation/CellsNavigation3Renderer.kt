@@ -56,7 +56,6 @@ import com.wire.android.feature.cells.ui.versioning.VersionHistoryRouteScreen
 import com.wire.android.mediaplayer.VideoPlayer
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
-import androidx.compose.ui.platform.LocalContext
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavResult
@@ -239,7 +238,6 @@ internal fun CellsNavigation3RouteScreen(
         is AudioPlayerRoute -> CellAudioPlayerRouteScreen(
             onNavigateBack = navigateBack,
             viewModel = cellAudioPlayerViewModel(
-                LocalContext.current,
                 AudioPlayerNavArgs(route.localPath, route.contentUrl, route.fileName),
             ),
         )

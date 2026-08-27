@@ -15,6 +15,7 @@ dependencies {
 
     implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
+    implementation(project(":core:media-player-kmp"))
 
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)

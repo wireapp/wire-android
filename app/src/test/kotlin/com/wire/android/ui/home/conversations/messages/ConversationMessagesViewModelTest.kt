@@ -26,8 +26,6 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.GENERIC_ASSET_CONTENT
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.model.UserAvatarData
@@ -48,6 +46,8 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.media.player.AudioMediaPlayingState
+import com.wire.media.player.AudioState
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.network.NetworkState
 import io.mockk.coVerify

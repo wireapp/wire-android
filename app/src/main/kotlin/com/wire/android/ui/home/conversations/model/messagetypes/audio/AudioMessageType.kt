@@ -65,13 +65,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModel
 import com.wire.android.media.audiomessage.AudioSpeed
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.equalizedWavesMask
 import com.wire.android.media.audiomessage.sampledWavesMask
+import com.wire.android.media.audiomessage.titleRes
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -104,6 +103,8 @@ import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.media.player.AudioMediaPlayingState
+import com.wire.media.player.AudioState
 
 @Composable
 fun AudioMessage(

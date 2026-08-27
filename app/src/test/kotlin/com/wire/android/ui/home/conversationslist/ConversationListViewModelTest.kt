@@ -30,8 +30,6 @@ import com.wire.android.framework.TestConversationDetails
 import com.wire.android.framework.TestConversationItem
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
@@ -48,6 +46,8 @@ import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMet
 import com.wire.kalium.logic.feature.legalhold.LegalHoldStateForSelfUser
 import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldStateForSelfUserUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
+import com.wire.media.player.AudioMediaPlayingState
+import com.wire.media.player.AudioState
 import com.wire.kalium.logic.feature.user.GetSelfTeamIdUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery

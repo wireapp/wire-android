@@ -21,6 +21,8 @@ import android.content.Context
 import android.media.MediaPlayer
 import androidx.core.net.toUri
 import com.wire.android.di.ApplicationScope
+import com.wire.media.player.AudioMediaPlayingState
+import com.wire.media.player.AudioState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay

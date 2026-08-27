@@ -113,9 +113,8 @@ internal fun cellImageViewerViewModel(navArgs: CellImageViewerNavArgs): CellImag
 
 @Composable
 internal fun cellAudioPlayerViewModel(
-    context: android.content.Context,
     navArgs: AudioPlayerNavArgs,
 ): AudioPlayerViewModel =
     wireAssistedMetroViewModel<AudioPlayerViewModel, CellsManualViewModelFactory> {
-        audioPlayer(context, navArgs)
+        audioPlayer(navArgs)
     }

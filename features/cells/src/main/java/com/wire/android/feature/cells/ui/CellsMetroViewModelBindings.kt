@@ -64,7 +64,7 @@ internal interface CellsManualViewModelFactory : ManualViewModelAssistedFactory 
     fun addRemoveTags(navArgs: AddRemoveTagsNavArgs): AddRemoveTagsViewModel
     fun versionHistory(navArgs: VersionHistoryNavArgs): VersionHistoryViewModel
     fun imageViewer(navArgs: CellImageViewerNavArgs): CellImageViewerViewModel
-    fun audioPlayer(context: android.content.Context, navArgs: AudioPlayerNavArgs): AudioPlayerViewModel
+    fun audioPlayer(navArgs: AudioPlayerNavArgs): AudioPlayerViewModel
 }
 
 @BindingContainer
@@ -105,7 +105,7 @@ object CellsMetroViewModelBindings {
             override fun addRemoveTags(navArgs: AddRemoveTagsNavArgs) = addRemoveTagsFactory.create(navArgs)
             override fun versionHistory(navArgs: VersionHistoryNavArgs) = versionHistoryFactory.create(navArgs)
             override fun imageViewer(navArgs: CellImageViewerNavArgs) = imageViewerFactory.create(navArgs)
-            override fun audioPlayer(context: android.content.Context, navArgs: AudioPlayerNavArgs) =
-                audioPlayerFactory.create(context, navArgs.localPath, navArgs.contentUrl, navArgs.fileName)
+            override fun audioPlayer(navArgs: AudioPlayerNavArgs) =
+                audioPlayerFactory.create(navArgs.localPath, navArgs.contentUrl, navArgs.fileName)
         }
 }

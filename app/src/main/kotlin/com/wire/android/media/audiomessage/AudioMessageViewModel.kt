@@ -33,6 +33,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
+import com.wire.media.player.AudioState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged

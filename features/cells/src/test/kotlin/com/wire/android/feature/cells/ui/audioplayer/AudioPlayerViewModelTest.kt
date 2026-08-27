@@ -6,33 +6,23 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
 package com.wire.android.feature.cells.ui.audioplayer
 
-import android.content.Context
-import android.media.MediaPlayer
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.wire.android.config.CoroutineTestExtension
-import io.mockk.Runs
+import com.wire.android.mediaplayer.AndroidMediaPlayerPlaybackEngineFactory
+import com.wire.media.player.MediaPlaybackEngine
+import com.wire.media.player.PlaybackCommand
+import com.wire.media.player.PlaybackCommandResult
+import com.wire.media.player.PlaybackEvent
+import com.wire.media.player.PlaybackSnapshot
+import com.wire.media.player.PlaybackSource
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkConstructor
-import io.mockk.mockkStatic
-import io.mockk.slot
-import io.mockk.unmockkAll
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.AfterEach
+import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -41,52 +31,37 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
 class AudioPlayerViewModelTest {
-
-    @AfterEach
-    fun tearDown() {
-        unmockkAll()
-    }
-
     @Test
-    fun givenLocalPath_whenInitialized_thenDataSourceIsSetWithFileUriAndPrepared() = runTest {
+    fun givenLocalPath_whenInitialized_thenCommonEnginePreparesLocalSource() = runTest {
         val (arrangement, _) = Arrangement()
             .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
             .arrange()
 
-        verify { Uri.fromFile(any()) }
-        verify { anyConstructed<MediaPlayer>().setDataSource(arrangement.context, arrangement.fileUri) }
-        verify { anyConstructed<MediaPlayer>().prepareAsync() }
+        assertEquals(
+            PlaybackSource.Local("/tmp/audio.mp3".toPath()),
+            (arrangement.engine.commands.single() as PlaybackCommand.Prepare).source,
+        )
     }
 
     @Test
-    fun givenContentUrl_whenInitialized_thenDataSourceIsSetWithParsedUri() = runTest {
+    fun givenContentUrl_whenInitialized_thenCommonEnginePreparesRemoteSource() = runTest {
         val (arrangement, _) = Arrangement()
             .withNavArgs(AudioPlayerNavArgs(contentUrl = "https://wire.com/audio.mp3"))
             .arrange()
 
-        verify { Uri.parse("https://wire.com/audio.mp3") }
-        verify { anyConstructed<MediaPlayer>().setDataSource(arrangement.context, arrangement.contentUri) }
-        verify { anyConstructed<MediaPlayer>().prepareAsync() }
+        assertEquals(
+            PlaybackSource.Remote("https://wire.com/audio.mp3"),
+            (arrangement.engine.commands.single() as PlaybackCommand.Prepare).source,
+        )
     }
 
     @Test
-    fun givenNoSource_whenInitialized_thenDataSourceIsNotSet() = runTest {
-        Arrangement()
+    fun givenNoSource_whenInitialized_thenEngineIsNotPrepared() = runTest {
+        val (arrangement, _) = Arrangement()
             .withNavArgs(AudioPlayerNavArgs())
             .arrange()
 
-        verify(exactly = 0) { anyConstructed<MediaPlayer>().setDataSource(any<Context>(), any<Uri>()) }
-        verify(exactly = 0) { anyConstructed<MediaPlayer>().prepareAsync() }
-    }
-
-    @Test
-    fun givenSetDataSourceThrows_whenInitialized_thenExceptionIsHandledSilently() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .withSetDataSourceThrowing()
-            .arrange()
-
-        assertFalse(viewModel.state.value.isPrepared)
+        assertTrue(arrangement.engine.commands.isEmpty())
     }
 
     @Test
@@ -107,225 +82,98 @@ class AudioPlayerViewModelTest {
     }
 
     @Test
-    fun givenPlayerPrepares_whenOnPrepared_thenStateHasDurationAndIsPrepared() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .withDuration(5000)
-            .arrange()
+    fun givenPlayerPrepares_whenReadyEventArrives_thenStateHasDurationAndIsPrepared() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
 
-        arrangement.triggerPrepared()
+        arrangement.engine.emit(PlaybackEvent.Ready(5_000))
 
-        assertEquals(5000, viewModel.state.value.durationMs)
+        assertEquals(5_000, viewModel.state.value.durationMs)
         assertTrue(viewModel.state.value.isPrepared)
     }
 
     @Test
-    fun givenNotPrepared_whenPlay_thenNothingHappens() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
+    fun givenNotPrepared_whenPlay_thenStateReportsFailureAndDoesNotPlay() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
 
         viewModel.play()
 
-        verify(exactly = 0) { anyConstructed<MediaPlayer>().start() }
         assertFalse(viewModel.state.value.isPlaying)
+        assertEquals("not_prepared", viewModel.state.value.failureReason)
     }
 
     @Test
-    fun givenPrepared_whenPlay_thenStartsAndUpdatesStateAndPollsPosition() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .withCurrentPosition(42)
-            .arrange()
-        arrangement.triggerPrepared()
+    fun givenPrepared_whenPlayAndPause_thenCommonStateAndCommandsAreUpdated() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        arrangement.engine.emit(PlaybackEvent.Ready(5_000))
 
         viewModel.play()
+        assertTrue(viewModel.state.value.isPlaying)
+        assertEquals(PlaybackCommand.Play, arrangement.engine.commands.last())
 
-        verify { anyConstructed<MediaPlayer>().start() }
+        viewModel.pause()
+        assertFalse(viewModel.state.value.isPlaying)
+        assertEquals(PlaybackCommand.Pause, arrangement.engine.commands.last())
+    }
+
+    @Test
+    fun givenCompleted_whenTogglePlayPause_thenSeeksToStartAndPlays() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        arrangement.engine.emit(PlaybackEvent.Ready(5_000))
+        arrangement.engine.emit(PlaybackEvent.Completed)
+
+        viewModel.togglePlayPause()
+
+        assertEquals(PlaybackCommand.SeekTo(0), arrangement.engine.commands.takeLast(2).first())
+        assertEquals(PlaybackCommand.Play, arrangement.engine.commands.last())
         assertTrue(viewModel.state.value.isPlaying)
         assertFalse(viewModel.state.value.isCompleted)
-        assertEquals(42, viewModel.state.value.currentPositionMs)
 
         arrangement.clear(viewModel)
     }
 
     @Test
-    fun givenNotPlaying_whenPause_thenNothingHappens() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
+    fun whenSeekTo_thenEngineSeeksAndStateIsUpdated() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        arrangement.engine.emit(PlaybackEvent.Ready(5_000))
 
-        viewModel.pause()
+        viewModel.seekTo(1_234)
 
-        verify(exactly = 0) { anyConstructed<MediaPlayer>().pause() }
-    }
-
-    @Test
-    fun givenPlaying_whenPause_thenPausesAndUpdatesState() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
-        arrangement.triggerPrepared()
-        viewModel.play()
-
-        viewModel.pause()
-
-        verify { anyConstructed<MediaPlayer>().pause() }
-        assertFalse(viewModel.state.value.isPlaying)
-    }
-
-    @Test
-    fun givenNotPlaying_whenTogglePlayPause_thenStartsPlaying() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
-        arrangement.triggerPrepared()
-
-        viewModel.togglePlayPause()
-
-        verify { anyConstructed<MediaPlayer>().start() }
-        assertTrue(viewModel.state.value.isPlaying)
-
-        arrangement.clear(viewModel) // stop the position-polling loop before runTest drains the scheduler
-    }
-
-    @Test
-    fun givenPlaying_whenTogglePlayPause_thenPauses() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
-        arrangement.triggerPrepared()
-        viewModel.play()
-
-        viewModel.togglePlayPause()
-
-        verify { anyConstructed<MediaPlayer>().pause() }
-        assertFalse(viewModel.state.value.isPlaying)
-    }
-
-    @Test
-    fun givenCompleted_whenTogglePlayPause_thenSeeksToStartAndPlays() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
-        arrangement.triggerPrepared()
-        arrangement.triggerCompletion()
-
-        viewModel.togglePlayPause()
-
-        verify { anyConstructed<MediaPlayer>().seekTo(0) }
-        verify { anyConstructed<MediaPlayer>().start() }
-        assertTrue(viewModel.state.value.isPlaying)
-        assertFalse(viewModel.state.value.isCompleted)
-
-        arrangement.clear(viewModel) // stop the position-polling loop before runTest drains the scheduler
-    }
-
-    @Test
-    fun whenSeekTo_thenMediaPlayerSeeksAndStateUpdated() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
-
-        viewModel.seekTo(1234)
-
-        verify { anyConstructed<MediaPlayer>().seekTo(1234) }
-        assertEquals(1234, viewModel.state.value.currentPositionMs)
+        assertEquals(PlaybackCommand.SeekTo(1_234), arrangement.engine.commands.last())
+        assertEquals(1_234, viewModel.state.value.currentPositionMs)
     }
 
     @Test
     fun givenPlaying_whenCompletionFires_thenStateIsCompletedAndNotPlaying() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
-        arrangement.triggerPrepared()
+        val (arrangement, viewModel) = Arrangement().arrange()
+        arrangement.engine.emit(PlaybackEvent.Ready(5_000))
         viewModel.play()
 
-        arrangement.triggerCompletion()
+        arrangement.engine.emit(PlaybackEvent.Completed)
 
         assertFalse(viewModel.state.value.isPlaying)
         assertTrue(viewModel.state.value.isCompleted)
     }
 
     @Test
-    fun whenCleared_thenPlayerIsStoppedAndReleased() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .arrange()
+    fun whenCleared_thenCommonEngineIsReleased() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
 
         arrangement.clear(viewModel)
 
-        verify { anyConstructed<MediaPlayer>().stop() }
-        verify { anyConstructed<MediaPlayer>().release() }
-    }
-
-    @Test
-    fun givenStopThrows_whenCleared_thenReleaseIsStillCalled() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNavArgs(AudioPlayerNavArgs(localPath = "/tmp/audio.mp3"))
-            .withStopThrowing()
-            .arrange()
-
-        arrangement.clear(viewModel)
-
-        verify { anyConstructed<MediaPlayer>().release() }
+        assertEquals(PlaybackCommand.Release, arrangement.engine.commands.last())
+        assertTrue(viewModel.state.value.isReleased)
     }
 
     private class Arrangement {
-
-        val context = mockk<Context>(relaxed = true)
-        val fileUri = mockk<Uri>()
-        val contentUri = mockk<Uri>()
-
-        private val preparedMp = mockk<MediaPlayer>(relaxed = true)
-        private val preparedListenerSlot = slot<MediaPlayer.OnPreparedListener>()
-        private val completionListenerSlot = slot<MediaPlayer.OnCompletionListener>()
-
+        val engine = FakePlaybackEngine()
+        private val engineFactory = mockk<AndroidMediaPlayerPlaybackEngineFactory>()
         private var navArgs = AudioPlayerNavArgs(localPath = "/tmp/audio.mp3")
 
         init {
-            mockkStatic(Uri::class)
-            every { Uri.fromFile(any()) } returns fileUri
-            every { Uri.parse(any()) } returns contentUri
-
-            mockkConstructor(MediaPlayer::class)
-            every { anyConstructed<MediaPlayer>().setOnPreparedListener(capture(preparedListenerSlot)) } just Runs
-            every { anyConstructed<MediaPlayer>().setOnCompletionListener(capture(completionListenerSlot)) } just Runs
-            every { anyConstructed<MediaPlayer>().setDataSource(any<Context>(), any<Uri>()) } just Runs
-            every { anyConstructed<MediaPlayer>().prepareAsync() } just Runs
-            every { anyConstructed<MediaPlayer>().start() } just Runs
-            every { anyConstructed<MediaPlayer>().pause() } just Runs
-            every { anyConstructed<MediaPlayer>().seekTo(any<Int>()) } just Runs
-            every { anyConstructed<MediaPlayer>().stop() } just Runs
-            every { anyConstructed<MediaPlayer>().release() } just Runs
-            every { anyConstructed<MediaPlayer>().currentPosition } returns 0
+            every { engineFactory.create() } returns engine
         }
 
         fun withNavArgs(args: AudioPlayerNavArgs) = apply { navArgs = args }
-
-        fun withDuration(durationMs: Int) = apply {
-            every { preparedMp.duration } returns durationMs
-        }
-
-        fun withCurrentPosition(positionMs: Int) = apply {
-            every { anyConstructed<MediaPlayer>().currentPosition } returns positionMs
-        }
-
-        fun withSetDataSourceThrowing() = apply {
-            every { anyConstructed<MediaPlayer>().setDataSource(any<Context>(), any<Uri>()) } throws RuntimeException("boom")
-        }
-
-        fun withStopThrowing() = apply {
-            every { anyConstructed<MediaPlayer>().stop() } throws IllegalStateException("boom")
-        }
-
-        fun triggerPrepared() {
-            preparedListenerSlot.captured.onPrepared(preparedMp)
-        }
-
-        fun triggerCompletion() {
-            completionListenerSlot.captured.onCompletion(preparedMp)
-        }
 
         fun clear(viewModel: ViewModel) {
             val method = ViewModel::class.java.getDeclaredMethod("onCleared")
@@ -333,13 +181,41 @@ class AudioPlayerViewModelTest {
             method.invoke(viewModel)
         }
 
-        fun arrange(): Pair<Arrangement, AudioPlayerViewModel> {
-            return this to AudioPlayerViewModel(
-                context = context,
-                localPath = navArgs.localPath,
-                contentUrl = navArgs.contentUrl,
-                fileName = navArgs.fileName,
-            )
+        fun arrange(): Pair<Arrangement, AudioPlayerViewModel> = this to AudioPlayerViewModel(
+            engineFactory = engineFactory,
+            localPath = navArgs.localPath,
+            contentUrl = navArgs.contentUrl,
+            fileName = navArgs.fileName,
+        )
+    }
+
+    private class FakePlaybackEngine : MediaPlaybackEngine {
+        val commands = mutableListOf<PlaybackCommand>()
+        private var listener: ((PlaybackEvent) -> Unit)? = null
+        private var prepared = false
+
+        override fun setEventListener(listener: ((PlaybackEvent) -> Unit)?) {
+            this.listener = listener
+        }
+
+        override fun execute(command: PlaybackCommand): PlaybackCommandResult {
+            commands += command
+            if (command == PlaybackCommand.Play && !prepared) return PlaybackCommandResult.Failure("not_prepared")
+            when (command) {
+                PlaybackCommand.Play -> emit(PlaybackEvent.Playing)
+                PlaybackCommand.Pause -> emit(PlaybackEvent.Paused)
+                PlaybackCommand.Stop -> emit(PlaybackEvent.Stopped)
+                PlaybackCommand.Release -> emit(PlaybackEvent.Released)
+                else -> Unit
+            }
+            return PlaybackCommandResult.Executed
+        }
+
+        override fun snapshot(): PlaybackSnapshot? = null
+
+        fun emit(event: PlaybackEvent) {
+            if (event is PlaybackEvent.Ready) prepared = true
+            listener?.invoke(event)
         }
     }
 }

@@ -83,7 +83,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -117,7 +116,7 @@ fun VideoPlayer(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     VideoPlayerContent(
-        player = viewModel.player,
+        surfaceController = viewModel.surfaceController,
         state = state,
         localPath = viewModel.localPath,
         fileName = viewModel.fileName,
@@ -132,7 +131,7 @@ fun VideoPlayer(
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 internal fun VideoPlayerContent(
-    player: ExoPlayer,
+    surfaceController: VideoPlaybackSurfaceController,
     state: VideoPlaybackState,
     localPath: String?,
     fileName: String?,
@@ -234,9 +233,9 @@ internal fun VideoPlayerContent(
         }
     }
 
-   fun stopAndNavigateBack() {
+    fun stopAndNavigateBack() {
         isExiting = true
-        player.pause()
+        if (state.isPlaying) onTogglePlayPause()
         context.findActivity()?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER
         onNavigateBack()
     }
@@ -277,13 +276,13 @@ internal fun VideoPlayerContent(
                 AndroidView(
                     factory = { ctx ->
                         PlayerView(ctx).apply {
-                            setPlayer(player)
+                            surfaceController.attach(this)
                             useController = false
                             setBackgroundColor(android.graphics.Color.BLACK)
                         }
                     },
                     modifier = Modifier.fillMaxSize(),
-                    onRelease = { it.player = null },
+                    onRelease = { surfaceController.detach(it) },
                 )
             }
 
@@ -500,11 +499,15 @@ private fun Int.toTimeString(): String {
 @MultipleThemePreviews
 @Composable
 fun PreviewCellVideoViewerScreen() {
-    val context = LocalContext.current
-    val player = remember { ExoPlayer.Builder(context).build() }
+    val surfaceController = remember {
+        object : VideoPlaybackSurfaceController {
+            override fun attach(view: PlayerView) = Unit
+            override fun detach(view: PlayerView) = Unit
+        }
+    }
     WireTheme {
         VideoPlayerContent(
-            player = player,
+            surfaceController = surfaceController,
             state = VideoPlaybackState(),
             localPath = null,
             fileName = "video.mp4",

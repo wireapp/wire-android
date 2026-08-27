@@ -46,8 +46,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
@@ -60,6 +58,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.media.player.AudioMediaPlayingState
+import com.wire.media.player.AudioState
 import kotlinx.coroutines.delay
 import okio.Path
 

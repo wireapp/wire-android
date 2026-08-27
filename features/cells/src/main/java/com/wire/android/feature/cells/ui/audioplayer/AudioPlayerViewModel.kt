@@ -17,26 +17,19 @@
  */
 package com.wire.android.feature.cells.ui.audioplayer
 
-import android.content.Context
-import android.media.MediaPlayer
-import android.net.Uri
-import java.io.File
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.mediaplayer.AndroidMediaPlayerPlaybackEngineFactory
+import com.wire.media.player.MediaPlaybackCoordinator
+import com.wire.media.player.PlaybackSource
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import okio.Path.Companion.toPath
 
 class AudioPlayerViewModel @AssistedInject constructor(
-    @Assisted context: Context,
+    engineFactory: AndroidMediaPlayerPlaybackEngineFactory,
     @Assisted val localPath: String?,
     @Assisted val contentUrl: String?,
     @Assisted val fileName: String?,
@@ -44,99 +37,40 @@ class AudioPlayerViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(context: Context, localPath: String?, contentUrl: String?, fileName: String?): AudioPlayerViewModel
+        fun create(localPath: String?, contentUrl: String?, fileName: String?): AudioPlayerViewModel
     }
 
-    private val _state = MutableStateFlow(AudioPlaybackState())
-    val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()
-
-    private var positionPollJob: Job? = null
-
-    private val mediaPlayer = MediaPlayer().apply {
-        setOnPreparedListener { mp ->
-            _state.update { it.copy(durationMs = mp.duration, isPrepared = true) }
-        }
-        setOnCompletionListener {
-            stopPositionPolling()
-            _state.update { it.copy(isPlaying = false, isCompleted = true) }
-        }
-    }
+    private val coordinator = MediaPlaybackCoordinator(engineFactory.create(), viewModelScope)
+    val state: StateFlow<AudioPlaybackState> = coordinator.state
 
     init {
-        try {
-            audioUri()?.let { uri ->
-                mediaPlayer.setDataSource(context, uri)
-                mediaPlayer.prepareAsync()
-            }
-        } catch (_: Exception) {
-            // handle silently — file may not exist yet
-        }
+        playbackSource()?.let(coordinator::prepare)
     }
 
     fun play() {
-        if (!_state.value.isPrepared) return
-        mediaPlayer.start()
-        _state.update { it.copy(isPlaying = true, isCompleted = false) }
-        startPositionPolling()
+        coordinator.play()
     }
 
     fun pause() {
-        if (!_state.value.isPlaying) return
-        mediaPlayer.pause()
-        stopPositionPolling()
-        _state.update { it.copy(isPlaying = false) }
+        coordinator.pause()
     }
 
     fun togglePlayPause() {
-        val current = _state.value
-        when {
-            current.isCompleted -> {
-                seekTo(0)
-                play()
-            }
-            current.isPlaying -> pause()
-            else -> play()
-        }
+        coordinator.togglePlayPause()
     }
 
     fun seekTo(positionMs: Int) {
-        mediaPlayer.seekTo(positionMs)
-        _state.update { it.copy(currentPositionMs = positionMs) }
+        coordinator.seekTo(positionMs)
     }
 
-    private fun startPositionPolling() {
-        if (positionPollJob?.isActive == true) return
-        positionPollJob = viewModelScope.launch {
-            while (isActive) {
-                _state.update { it.copy(currentPositionMs = mediaPlayer.currentPosition) }
-                delay(POSITION_POLL_MS)
-            }
-        }
-    }
-
-    private fun stopPositionPolling() {
-        positionPollJob?.cancel()
-        positionPollJob = null
-    }
-
-    private fun audioUri(): Uri? = when {
-        localPath != null -> Uri.fromFile(File(localPath))
-        contentUrl != null -> Uri.parse(contentUrl)
+    private fun playbackSource(): PlaybackSource? = when {
+        localPath != null -> PlaybackSource.Local(localPath.toPath())
+        contentUrl != null -> PlaybackSource.Remote(contentUrl)
         else -> null
     }
 
     override fun onCleared() {
+        coordinator.release()
         super.onCleared()
-        stopPositionPolling()
-        try {
-            mediaPlayer.stop()
-        } catch (_: Exception) {
-            // ignore — player may not be in a stoppable state
-        }
-        mediaPlayer.release()
-    }
-
-    private companion object {
-        const val POSITION_POLL_MS = 200L
     }
 }

@@ -22,7 +22,6 @@ import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.media.audiomessage.AudioSpeed
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.media.audiomessage.PlayingAudioMessage
@@ -35,6 +34,7 @@ import com.wire.content.external.FileExporter
 import com.wire.content.external.PlatformResult
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.media.player.AudioState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus

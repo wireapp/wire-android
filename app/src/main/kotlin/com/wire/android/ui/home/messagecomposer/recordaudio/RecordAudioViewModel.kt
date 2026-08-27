@@ -28,8 +28,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.media.audiomessage.AudioFocusHelper
-import com.wire.android.media.audiomessage.AudioMediaPlayingState
-import com.wire.android.media.audiomessage.AudioState
 import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.media.audiomessage.toWavesMask
 import com.wire.android.ui.common.ActionsViewModel
@@ -47,6 +45,8 @@ import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.util.DateTimeUtil
+import com.wire.media.player.AudioMediaPlayingState
+import com.wire.media.player.AudioState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

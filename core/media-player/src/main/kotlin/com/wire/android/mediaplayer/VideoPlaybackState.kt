@@ -17,12 +17,4 @@
  */
 package com.wire.android.mediaplayer
 
-data class VideoPlaybackState(
-    val isPlaying: Boolean = false,
-    val isStarted: Boolean = false,
-    val isCompleted: Boolean = false,
-    val isBuffering: Boolean = false,
-    val isMuted: Boolean = false,
-    val currentPositionMs: Int = 0,
-    val durationMs: Int = 0,
-)
+typealias VideoPlaybackState = com.wire.media.player.PlaybackState

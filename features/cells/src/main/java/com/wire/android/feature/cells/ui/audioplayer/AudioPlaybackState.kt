@@ -17,10 +17,4 @@
  */
 package com.wire.android.feature.cells.ui.audioplayer
 
-data class AudioPlaybackState(
-    val isPlaying: Boolean = false,
-    val isCompleted: Boolean = false,
-    val isPrepared: Boolean = false,
-    val currentPositionMs: Int = 0,
-    val durationMs: Int = 0,
-)
+typealias AudioPlaybackState = com.wire.media.player.PlaybackState

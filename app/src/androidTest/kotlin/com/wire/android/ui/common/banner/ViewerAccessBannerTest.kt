@@ -60,7 +60,7 @@ class ViewerAccessBannerTest {
         }
 
         composeTestRule
-            .onNodeWithContentDescription(context.getString(R.string.content_description_close))
+            .onNodeWithContentDescription(context.getString(R.string.content_description_close_access_info))
             .performClick()
 
         assertEquals(1, closeClickCount)

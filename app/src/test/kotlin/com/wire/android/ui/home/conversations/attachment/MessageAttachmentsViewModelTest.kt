@@ -31,6 +31,7 @@ import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -352,6 +353,9 @@ class MessageAttachmentsViewModelTest {
         @MockK
         lateinit var getMediaMetadata: GetMediaMetadataUseCase
 
+        @MockK
+        lateinit var kaliumFileSystem: KaliumFileSystem
+
         private val sharedState = MessageSharedState()
 
         private val uriAssetQueue = ArrayDeque<String>()
@@ -404,6 +408,7 @@ class MessageAttachmentsViewModelTest {
                 fileManager = fileManager,
                 sharedState = sharedState,
                 getMediaMetadata = getMediaMetadata,
+                kaliumFileSystem = kaliumFileSystem,
             )
             return this to viewModel
         }

@@ -39,8 +39,8 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.SUPPORTED_AUDIO_MIME_TYPE
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.fileDateTime
-import com.wire.android.util.fromNioPathToContentUri
 import com.wire.android.util.getAudioLengthInMs
+import com.wire.android.util.pathToUri
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
@@ -51,10 +51,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import okio.Path.Companion.toPath
-import java.io.File
+import okio.Path
 import java.io.IOException
-import kotlin.io.path.deleteIfExists
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class RecordAudioViewModel @Inject constructor(
@@ -90,7 +88,7 @@ class RecordAudioViewModel @Inject constructor(
         }
     }
 
-    fun getPlayableAudioFile(): File? = if (state.shouldApplyEffects) {
+    fun getPlayableAudioFile(): Path? = if (state.shouldApplyEffects) {
         state.effectsOutputFile
     } else {
         state.originalOutputFile
@@ -168,13 +166,13 @@ class RecordAudioViewModel @Inject constructor(
                 if (state.shouldApplyEffects && state.effectsOutputFile == null) {
                     state = state.copy(
                         effectsOutputFile = kaliumFileSystem
-                            .tempFilePath(getRecordingAudioEffectsFileName()).toFile()
+                            .tempFilePath(getRecordingAudioEffectsFileName())
                     )
                 }
                 audioMediaRecorder.setUp(assetSizeLimit)
                 if (audioMediaRecorder.startRecording()) {
                     state = state.copy(
-                        originalOutputFile = audioMediaRecorder.originalOutputPath!!.toFile(),
+                        originalOutputFile = audioMediaRecorder.originalOutputPath!!,
                         buttonState = RecordAudioButtonState.RECORDING
                     )
                 } else {
@@ -202,8 +200,8 @@ class RecordAudioViewModel @Inject constructor(
                 if (state.shouldApplyEffects && state.effectsOutputFile != null) {
                     generateAudioFileWithEffects(
                         context = context,
-                        originalFilePath = state.originalOutputFile!!.path,
-                        effectsFilePath = state.effectsOutputFile!!.path
+                        originalFilePath = state.originalOutputFile!!.toString(),
+                        effectsFilePath = state.effectsOutputFile!!.toString()
                     )
                 }
 
@@ -214,13 +212,13 @@ class RecordAudioViewModel @Inject constructor(
                         totalTimeInMs = AudioState.TotalTimeInMs.Known(
                             playableAudioFile?.let {
                                 getAudioLengthInMs(
-                                    dataPath = it.path.toPath(),
+                                    dataPath = it,
                                     mimeType = SUPPORTED_AUDIO_MIME_TYPE
                                 ).toInt()
                             } ?: 0
                         ),
                     ),
-                    wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
+                    wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.toString()) }?.toWavesMask() ?: listOf()
                 )
             }
         }
@@ -265,8 +263,8 @@ class RecordAudioViewModel @Inject constructor(
 
     fun discardRecording() {
         viewModelScope.launch {
-            state.originalOutputFile?.toPath()?.deleteIfExists()
-            state.effectsOutputFile?.toPath()?.deleteIfExists()
+            state.originalOutputFile?.let(::deleteIfExists)
+            state.effectsOutputFile?.let(::deleteIfExists)
             recordAudioMessagePlayer.stop()
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENABLED,
@@ -300,16 +298,16 @@ class RecordAudioViewModel @Inject constructor(
             try {
                 when {
                     didSucceed -> {
-                        outputFile?.toPath()?.deleteIfExists()
-                        effectsFile?.toPath()?.deleteIfExists()
+                        outputFile?.let(::deleteIfExists)
+                        effectsFile?.let(::deleteIfExists)
                     }
 
                     state.shouldApplyEffects -> {
-                        outputFile?.toPath()?.deleteIfExists()
+                        outputFile?.let(::deleteIfExists)
                     }
 
                     !state.shouldApplyEffects -> {
-                        effectsFile?.toPath()?.deleteIfExists()
+                        effectsFile?.let(::deleteIfExists)
                     }
                 }
             } catch (exception: IOException) {
@@ -319,12 +317,12 @@ class RecordAudioViewModel @Inject constructor(
                 RecordAudioViewActions.Recorded(
                     uriAsset = UriAsset(
                         uri = if (didSucceed) {
-                            context.fromNioPathToContentUri(nioPath = audioMediaRecorder.m4aOutputPath!!.toNioPath())
+                            context.pathToUri(audioMediaRecorder.m4aOutputPath!!, null)
                         } else {
                             if (state.shouldApplyEffects) {
-                                context.fromNioPathToContentUri(nioPath = state.effectsOutputFile!!.toPath())
+                                context.pathToUri(effectsFile!!, null)
                             } else {
-                                context.fromNioPathToContentUri(nioPath = state.originalOutputFile!!.toPath())
+                                context.pathToUri(outputFile!!, null)
                             }
                         },
                         mimeType = if (didSucceed) {
@@ -363,7 +361,7 @@ class RecordAudioViewModel @Inject constructor(
             globalDataStore.setRecordAudioEffectsCheckboxEnabled(enabled)
             if (enabled && state.effectsOutputFile == null) {
                 val effectsFile = kaliumFileSystem
-                    .tempFilePath(getRecordingAudioEffectsFileName()).toFile()
+                    .tempFilePath(getRecordingAudioEffectsFileName())
                 if (state.buttonState == RecordAudioButtonState.READY_TO_SEND) {
                     state = state.copy(
                         buttonState = RecordAudioButtonState.ENCODING,
@@ -372,8 +370,8 @@ class RecordAudioViewModel @Inject constructor(
 
                     generateAudioFileWithEffects(
                         context = context,
-                        originalFilePath = state.originalOutputFile!!.path,
-                        effectsFilePath = effectsFile.path
+                        originalFilePath = state.originalOutputFile!!.toString(),
+                        effectsFilePath = effectsFile.toString()
                     )
 
                     state = state.copy(
@@ -384,7 +382,7 @@ class RecordAudioViewModel @Inject constructor(
                             currentPositionInMs = 0,
                             AudioState.TotalTimeInMs.Known(
                                 getAudioLengthInMs(
-                                    dataPath = effectsFile.path.toPath(),
+                                    dataPath = effectsFile,
                                     mimeType = SUPPORTED_AUDIO_MIME_TYPE
                                 ).toInt()
                             ),
@@ -409,6 +407,10 @@ class RecordAudioViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
+    }
+
+    private fun deleteIfExists(path: Path) {
+        if (kaliumFileSystem.exists(path)) kaliumFileSystem.delete(path)
     }
 
     companion object {

@@ -20,8 +20,11 @@ package com.wire.android.ui.home.conversations.media.preview
 import android.net.Uri
 import android.os.Parcelable
 import com.wire.android.ui.home.conversations.model.AssetBundle
+import com.wire.android.ui.home.conversations.model.PreparedAssetParceler
+import com.wire.content.asset.PreparedAsset
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.TypeParceler
 
 data class ImagesPreviewNavArgs(
     val conversationId: ConversationId,
@@ -30,4 +33,5 @@ data class ImagesPreviewNavArgs(
 )
 
 @Parcelize
+@TypeParceler<PreparedAsset, PreparedAssetParceler>()
 data class ImagesPreviewNavBackArgs(val pendingBundles: List<AssetBundle>) : Parcelable

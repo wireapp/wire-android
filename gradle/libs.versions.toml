@@ -320,6 +320,7 @@ junit5-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", ver
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-core = { module = "io.mockk:mockk", version.ref = "mockk" }
 okio-fakeFileSystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
+okio-core = { module = "com.squareup.okio:okio", version.ref = "okio" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }

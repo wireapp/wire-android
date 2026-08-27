@@ -61,7 +61,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.delay
-import java.io.File
+import okio.Path
 
 @Composable
 fun RecordAudioButtonClose(
@@ -185,7 +185,7 @@ fun RecordAudioButtonSend(
     audioState: AudioState,
     wavesMask: List<Int>?,
     onClick: () -> Unit,
-    outputFile: File?,
+    outputFile: Path?,
     onPlayAudio: () -> Unit,
     onSliderPositionChange: (Int) -> Unit,
     modifier: Modifier = Modifier,

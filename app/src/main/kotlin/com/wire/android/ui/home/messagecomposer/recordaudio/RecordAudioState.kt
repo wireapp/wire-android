@@ -18,15 +18,15 @@
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
 import com.wire.android.media.audiomessage.AudioState
-import java.io.File
+import okio.Path
 
 data class RecordAudioState(
     val buttonState: RecordAudioButtonState = RecordAudioButtonState.ENABLED,
     val discardDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
     val permissionsDeniedDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
     val maxFileSizeReachedDialogState: RecordAudioDialogState = RecordAudioDialogState.Hidden,
-    val originalOutputFile: File? = null,
-    val effectsOutputFile: File? = null,
+    val originalOutputFile: Path? = null,
+    val effectsOutputFile: Path? = null,
     val shouldApplyEffects: Boolean = false,
     val audioState: AudioState = AudioState.DEFAULT,
     val wavesMask: List<Int>? = null

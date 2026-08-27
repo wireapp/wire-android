@@ -37,6 +37,7 @@ import com.wire.android.ui.sharing.ImportedMediaAsset
 import com.wire.android.util.FileManager
 import com.wire.android.util.GetMediaMetadataUseCase
 import com.wire.android.util.getAudioLengthInMs
+import com.wire.content.asset.AssetFileNamePolicy
 import com.wire.kalium.cells.domain.CellUploadEvent
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.model.AttachmentDraft
@@ -47,6 +48,7 @@ import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.util.fileExtension
@@ -61,7 +63,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import java.io.File
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
@@ -77,6 +78,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
     private val fileManager: FileManager,
     private val sharedState: MessageSharedState,
     private val getMediaMetadata: GetMediaMetadataUseCase,
+    private val kaliumFileSystem: KaliumFileSystem,
     @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
 
@@ -152,7 +154,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
     }
 
     private fun enqueueOrAddAttachment(bundle: AssetBundle) {
-        if (bundle.fileName.hasIncompatibleFileNameCharacters()) {
+        if (!AssetFileNamePolicy.isCompatible(bundle.fileName)) {
             pendingIncompatibleBundles.addLast(bundle)
             if (incompatibleFileNameDialogState is IncompatibleFileNameDialogState.Hidden) {
                 showNextIncompatibleDialog()
@@ -165,7 +167,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
     private fun showNextIncompatibleDialog() {
         val next = pendingIncompatibleBundles.firstOrNull() ?: return
         incompatibleFileNameDialogState = IncompatibleFileNameDialogState.Visible(
-            sanitizedFileName = next.fileName.sanitizeIncompatibleFileNameCharacters(),
+            sanitizedFileName = AssetFileNamePolicy.sanitize(next.fileName),
         )
     }
 
@@ -209,7 +211,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
         if (attachment.uploadError) {
             failedAttachmentDialogState = FailedAttachmentDialogState.Visible(
                 attachment = attachment,
-                showRetryOption = File(attachment.localFilePath).exists(),
+                showRetryOption = kaliumFileSystem.exists(attachment.localFilePath.toPath()),
             )
         } else {
             deleteAttachment(attachment)
@@ -270,7 +272,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
         if (attachment.uploadError) {
             failedAttachmentDialogState = FailedAttachmentDialogState.Visible(
                 attachment = attachment,
-                showRetryOption = File(attachment.localFilePath).exists(),
+                showRetryOption = kaliumFileSystem.exists(attachment.localFilePath.toPath()),
             )
         } else {
             showAttachment(attachment)
@@ -320,13 +322,3 @@ sealed interface IncompatibleFileNameDialogState {
     data object Hidden : IncompatibleFileNameDialogState
     data class Visible(val sanitizedFileName: String) : IncompatibleFileNameDialogState
 }
-
-private fun String.hasIncompatibleFileNameCharacters(): Boolean =
-    this == "." || startsWith(".") || contains("/") || contains("\\") || contains("\"")
-
-private fun String.sanitizeIncompatibleFileNameCharacters(): String =
-    trimStart('.')
-        .replace("/", "_")
-        .replace("\\", "_")
-        .replace("\"", "_")
-        .ifEmpty { "file" }

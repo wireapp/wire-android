@@ -629,6 +629,7 @@ class CellViewModelTest {
                 isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
                 userDataStore = userDataStore,
                 qualifiedIdMapper = qualifiedIdMapper,
+                kaliumFileSystem = mockk(relaxed = true),
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
             )

@@ -20,60 +20,54 @@ package com.wire.android.ui.home.conversations.model
 
 import android.net.Uri
 import android.os.Parcel
-import android.os.Parcelable
-import androidx.compose.runtime.Stable
+import com.wire.content.asset.PreparedAsset
+import com.wire.content.external.ExternalContentImportRequest
+import com.wire.content.external.ExternalContentReference
 import com.wire.kalium.logic.data.asset.AttachmentType
 import kotlinx.parcelize.Parceler
-import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.TypeParceler
-import okio.Path
 import okio.Path.Companion.toPath
-import kotlin.math.roundToInt
 
-/**
- * Represents a set of metadata information of an asset message
- */
-@Parcelize
-@TypeParceler<Path, PathParceler>()
-data class AssetBundle(
-    val key: String,
-    val mimeType: String,
-    val dataPath: Path,
-    val dataSize: Long,
-    val fileName: String,
-    val assetType: AttachmentType,
-    val audioWavesMask: List<Int>? = null,
-) : Parcelable {
-
-    @Stable
-    val extensionWithSize: String
-        get() {
-            val assetExtension = fileName.split(".").last()
-            val oneKB = 1024L
-            val oneMB = oneKB * oneKB
-            return when {
-                dataSize < oneKB -> "${assetExtension.uppercase()} ($dataSize B)"
-                dataSize in oneKB..oneMB -> "${assetExtension.uppercase()} (${dataSize / oneKB} KB)"
-                else -> "${assetExtension.uppercase()} (${((dataSize / oneMB) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
-            }
-        }
-
-    val assetName: String
-        get() = fileName.split(".").first()
-}
+typealias AssetBundle = PreparedAsset
+typealias UriAsset = ExternalContentImportRequest
 
 /**
  * @param uri Uri of the asset
  * @param saveToDeviceIfInvalid if true then the asset will be copied to the public "media" directory if it's invalid (e.g. too large)
  */
-data class UriAsset(
-    val uri: Uri,
-    val saveToDeviceIfInvalid: Boolean = false,
-    val mimeType: String? = null,
-    val audioWavesMask: List<Int>? = null,
+@Suppress("FunctionName")
+fun UriAsset(
+    uri: Uri,
+    saveToDeviceIfInvalid: Boolean = false,
+    mimeType: String? = null,
+    audioWavesMask: List<Int>? = null,
+): ExternalContentImportRequest = ExternalContentImportRequest(
+    reference = ExternalContentReference(uri.toString()),
+    saveToDeviceIfInvalid = saveToDeviceIfInvalid,
+    mimeType = mimeType,
+    audioWavesMask = audioWavesMask,
 )
 
-object PathParceler : Parceler<Path> {
-    override fun create(parcel: Parcel) = parcel.readString().orEmpty().toPath()
-    override fun Path.write(parcel: Parcel, flags: Int) = parcel.writeString(this.toString())
+val ExternalContentImportRequest.uri: Uri
+    get() = Uri.parse(reference.token)
+
+object PreparedAssetParceler : Parceler<PreparedAsset> {
+    override fun create(parcel: Parcel) = PreparedAsset(
+        key = parcel.readString().orEmpty(),
+        mimeType = parcel.readString().orEmpty(),
+        dataPath = parcel.readString().orEmpty().toPath(),
+        dataSize = parcel.readLong(),
+        fileName = parcel.readString().orEmpty(),
+        assetType = AttachmentType.valueOf(parcel.readString().orEmpty()),
+        audioWavesMask = parcel.createIntArray()?.toList(),
+    )
+
+    override fun PreparedAsset.write(parcel: Parcel, flags: Int) {
+        parcel.writeString(key)
+        parcel.writeString(mimeType)
+        parcel.writeString(dataPath.toString())
+        parcel.writeLong(dataSize)
+        parcel.writeString(fileName)
+        parcel.writeString(assetType.name)
+        parcel.writeIntArray(audioWavesMask?.toIntArray())
+    }
 }

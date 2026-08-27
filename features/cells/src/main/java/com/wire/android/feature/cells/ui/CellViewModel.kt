@@ -62,6 +62,7 @@ import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
@@ -92,7 +93,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
-import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -120,6 +120,7 @@ class CellViewModel @AssistedInject constructor(
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     private val userDataStore: UserDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
+    private val kaliumFileSystem: KaliumFileSystem,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
@@ -551,9 +552,9 @@ class CellViewModel @AssistedInject constructor(
         deleteOfflineFile(node.uuid)
 
         // Delete the physical file from device storage
-        localPath?.takeIf { it.isNotBlank() }?.let { path ->
+        localPath?.takeIf { it.isNotBlank() }?.toPath()?.let { path ->
             withContext(kotlinx.coroutines.Dispatchers.IO) {
-                File(path).delete()
+                if (kaliumFileSystem.exists(path)) kaliumFileSystem.delete(path)
             }
         }
 

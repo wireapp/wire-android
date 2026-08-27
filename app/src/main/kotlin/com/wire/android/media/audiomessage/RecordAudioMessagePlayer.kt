@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
-import java.io.File
+import okio.Path
 import dev.zacsweers.metro.Inject
 class RecordAudioMessagePlayer @Inject constructor(
     private val context: Context,
@@ -40,7 +40,7 @@ class RecordAudioMessagePlayer @Inject constructor(
     private val audioFocusHelper: AudioFocusHelper,
     @ApplicationScope private val scope: CoroutineScope
 ) {
-    private var currentAudioFile: File? = null
+    private var currentAudioFile: Path? = null
     private var audioState: AudioState = AudioState.DEFAULT
 
     init {
@@ -123,7 +123,7 @@ class RecordAudioMessagePlayer @Inject constructor(
         }
 
     suspend fun playAudio(
-        audioFile: File
+        audioFile: Path
     ) {
         if (currentAudioFile != null && audioFile.name == currentAudioFile?.name) {
             resumeOrPauseAudio()
@@ -160,14 +160,14 @@ class RecordAudioMessagePlayer @Inject constructor(
     }
 
     private suspend fun playAudioMessage(
-        audioFile: File,
+        audioFile: Path,
         position: Int
     ) {
         currentAudioFile = audioFile
 
         audioMediaPlayer.setDataSource(
             context,
-            audioFile.toUri()
+            audioFile.toFile().toUri()
         )
         audioFocusHelper.request()
         audioMediaPlayer.prepare()

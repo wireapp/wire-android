@@ -64,6 +64,9 @@ internal fun MeetingsScreen(
                 )
             )
         },
+        editMeeting = { meetingId ->
+            onOpenNewMeeting(NewMeetingType.Edit(meetingId))
+        }
     )
 
     viewModel.callManager.actions.HandleActions()

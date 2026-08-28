@@ -23,7 +23,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
-import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.GetPaginatedMeetingOccurrencesUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingScope
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
@@ -60,8 +60,8 @@ class MeetingModule {
         meetingScope.updateMeeting
 
     @Provides
-    fun provideGetNextMeetingOccurrenceUseCase(meetingScope: MeetingScope): GetNextMeetingOccurrenceUseCase =
-        meetingScope.getNextMeetingOccurrence
+    fun provideGetNextUnfinishedMeetingOccurrenceUseCase(meetingScope: MeetingScope): GetNextUnfinishedMeetingOccurrenceUseCase =
+        meetingScope.getNextUnfinishedMeetingOccurrence
 
     @Provides
     fun ensureMeetingIsMLSEstablishedUseCase(meetingScope: MeetingScope): EnsureMeetingIsMLSEstablishedUseCase =

@@ -65,6 +65,8 @@ data class ConversationListPage(private val device: UiDevice) {
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
     private val createNewChannelButton = UiSelectorParams(text = "New Channel")
     private val wireServiceNotification = UiSelectorParams(textContains = "Wire Alpha service is running")
+    private val decryptingMessagesBanner = UiSelectorParams(text = "DECRYPTING MESSAGES")
+    private val waitingForNetworkBanner = UiSelectorParams(text = "WAITING FOR NETWORK")
     private val blockedLabel = UiSelectorParams(text = "Blocked")
     private val blockOption = UiSelectorParams(text = "Block")
     private val unblockOption = UiSelectorParams(text = "Unblock")
@@ -137,6 +139,28 @@ data class ConversationListPage(private val device: UiDevice) {
             selector = wireServiceNotification.toBySelector(),
             timeout = timeout,
             errorMessage = "Wire service notification is still visible."
+        )
+        return this
+    }
+
+    fun waitUntilWaitingForNetworkIsInvisible(
+        timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT
+    ): ConversationListPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = waitingForNetworkBanner.toBySelector(),
+            timeout = timeout,
+            errorMessage = "Waiting for network banner is still visible."
+        )
+        return this
+    }
+
+    fun waitUntilDecryptingMessagesBannerIsInvisible(
+        timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT
+    ): ConversationListPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = decryptingMessagesBanner.toBySelector(),
+            timeout = timeout,
+            errorMessage = "Decrypting messages banner is still visible."
         )
         return this
     }

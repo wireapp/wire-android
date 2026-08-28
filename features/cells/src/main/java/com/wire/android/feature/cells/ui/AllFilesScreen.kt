@@ -107,6 +107,7 @@ fun AllFilesScreen(
             showVideoViewer = navigationActions.showVideoPlayer,
             showAudioPlayer = navigationActions.showAudioPlayer,
             fileReadyFlow = viewModel.fileReadyFlow,
+            showViewerOnlyIcon = viewModel.drivePermissionsEnabled
         )
     }
 }

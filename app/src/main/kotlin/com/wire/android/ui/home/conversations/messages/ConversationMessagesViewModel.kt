@@ -288,7 +288,9 @@ class ConversationMessagesViewModel(
                             conversationDetailsResult.conversationDetails.isWireCellEnabled()
                     val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.lastReadDate
                     conversationViewState = conversationViewState.copy(
-                        firstUnreadInstant = lastUnreadInstant
+                        firstUnreadInstant = lastUnreadInstant,
+                        adminlessGroupDeletionTimestamp =
+                            conversationDetailsResult.conversationDetails.conversation.adminlessGroupDeletionTimestamp,
                     )
                 }
             }

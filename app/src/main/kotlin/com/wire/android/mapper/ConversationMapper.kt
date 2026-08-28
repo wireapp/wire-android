@@ -17,10 +17,12 @@
  */
 package com.wire.android.mapper
 
+import com.wire.android.R
 import com.wire.android.model.BadgeEventType
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
@@ -30,6 +32,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.C
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Regular
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.PrivateConversation
 import com.wire.android.util.ui.UiTextResolver
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
@@ -59,7 +62,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
+            lastMessageContent = adminlessDeleteAwareLastMessage(uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
@@ -85,7 +88,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
+            lastMessageContent = adminlessDeleteAwareLastMessage(uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
@@ -121,7 +124,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
+            lastMessageContent = adminlessDeleteAwareLastMessage(uiTextResolver),
             badgeEventType = parsePrivateConversationEventType(
                 conversationDetails.otherUser.connectionStatus,
                 conversationDetails.otherUser.deleted,
@@ -177,6 +180,18 @@ fun ConversationDetailsWithEvents.toConversationItem(
     is Group.Meeting -> {
         throw IllegalArgumentException("Meeting conversations should not be visible to the user.")
     }
+}
+
+private fun ConversationDetailsWithEvents.adminlessDeleteAwareLastMessage(
+    uiTextResolver: UiTextResolver
+): UILastMessageContent = if (
+    !conversationDetails.conversation.archived && conversationDetails.conversation.adminlessGroupDeletionTimestamp != null
+) {
+    UILastMessageContent.TextMessage(
+        MessageBody(UIText.StringResource(R.string.last_message_adminless_delete_reminder))
+    )
+} else {
+    lastMessage.toUIPreview(unreadEventCount, uiTextResolver)
 }
 
 private fun Group.hasJoinableCall(joinableCallsByConversationId: Map<ConversationId, Call>): Boolean =

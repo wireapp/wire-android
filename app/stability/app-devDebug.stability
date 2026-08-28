@@ -169,6 +169,7 @@ public fun com.wire.android.navigation.runtime.MetroWireEntryEnvironment.Provide
   params:
     - route: RUNTIME (requires runtime check)
     - content: STABLE (composable function type)
+
 @Composable
 internal fun com.wire.android.navigation.runtime.ObserveNavigation3Routes(runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, currentScreenManager: com.wire.android.util.CurrentScreenManager, onRouteChanged: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
@@ -8043,12 +8044,12 @@ public fun com.wire.android.ui.home.homeViewModel(): com.wire.android.ui.home.Ho
   params:
 
 @Composable
-internal fun com.wire.android.ui.home.meetings.MeetingsScreen(homeShellState: com.wire.android.ui.home.HomeShellState, onOpenNewMeeting: kotlin.Function1<com.wire.android.feature.meetings.ui.create.NewMeetingType, kotlin.Unit>, viewModel: com.wire.android.ui.home.meetings.MeetingsCallViewModel): kotlin.Unit
+internal fun com.wire.android.ui.home.meetings.MeetingsScreen(homeShellState: com.wire.android.ui.home.HomeShellState, navigationActions: com.wire.android.feature.meetings.ui.MeetingsNavigationActions, viewModel: com.wire.android.ui.home.meetings.MeetingsCallViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - homeShellState: RUNTIME (requires runtime check)
-    - onOpenNewMeeting: STABLE (function type)
+    - navigationActions: STABLE (class with no mutable properties)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -8425,14 +8426,14 @@ private fun com.wire.android.ui.home.messagecomposer.KeyboardRichTextOption(inde
     - content: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.LinkPreviewCard(preview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview, isAvailable: kotlin.Boolean, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, modifier: androidx.compose.ui.Modifier, onClick: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.LinkPreviewCard(preview: com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview, modifier: androidx.compose.ui.Modifier, isAvailable: kotlin.Boolean, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, onClick: kotlin.Function0<kotlin.Unit>?): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - preview: UNSTABLE (has mutable properties or unstable members)
+    - modifier: STABLE (marked @Stable or @Immutable)
     - isAvailable: STABLE (primitive type)
     - messageStyle: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
     - onClick: STABLE (function type)
 
 @Composable

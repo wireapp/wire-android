@@ -25,7 +25,7 @@ import com.wire.android.feature.cells.ui.AllFilesNavigationActions
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.cellViewModel
-import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import com.wire.android.feature.meetings.ui.MeetingsNavigationActions
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.ui.home.archive.ArchiveScreen
@@ -54,11 +54,11 @@ internal interface HomeTopLevelNavigation3Actions {
      */
     val cells: AllFilesNavigationActions
 
+    /** Navigation actions emitted by the Meetings top-level content. */
+    val meetings: MeetingsNavigationActions
+
     /** Welcome/release-note detail contracts are migrated by the What's New detail batch. */
     fun openWhatsNew(target: WhatsNewNavigation3Target)
-
-    /** New Meeting is owned by the Meetings feature graph and is migrated with that graph. */
-    fun openNewMeeting(type: NewMeetingType)
 }
 
 /**
@@ -103,7 +103,7 @@ internal fun HomeNavigation3TopLevelContent(
 
         HomeTopLevelDestination.MEETINGS -> MeetingsScreen(
             homeShellState = shellState,
-            onOpenNewMeeting = actions::openNewMeeting,
+            navigationActions = actions.meetings,
         )
     }
 }

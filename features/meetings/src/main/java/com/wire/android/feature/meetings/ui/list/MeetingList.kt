@@ -64,7 +64,6 @@ fun MeetingList(
     AnimatedContent(targetState = showLoading to (lazyPagingItems.itemCount == 0)) { (loading, emptyList) ->
         when {
             loading -> LoadingListContent(
-                lazyListState = lazyListState,
                 modifier = modifier
             )
 

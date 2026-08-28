@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
 import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
+import com.wire.kalium.logic.feature.app.SyncAppsUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
@@ -46,6 +47,7 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,7 +68,7 @@ class SearchAppsViewModelTest {
     fun `given apps feature flag is disabled, when init view model, then loading is finished and result is empty`() =
         runTest {
             // given
-            val (_, viewModel) = Arrangement()
+            val (arrangement, viewModel) = Arrangement()
                 .arrange(protocolInfo = null)
 
             // when
@@ -76,6 +78,7 @@ class SearchAppsViewModelTest {
             // then
             assertTrue(viewModel.state.result.isEmpty())
             assertFalse(viewModel.state.isLoading)
+            coVerify(exactly = 0) { arrangement.syncApps() }
         }
 
     @Test
@@ -93,6 +96,11 @@ class SearchAppsViewModelTest {
 
             // then
             coVerify(exactly = 1) {
+                arrangement.syncApps()
+                arrangement.getAllApps()
+            }
+            coVerifyOrder {
+                arrangement.syncApps()
                 arrangement.getAllApps()
             }
             assertEquals(1, viewModel.state.result.size)
@@ -115,6 +123,7 @@ class SearchAppsViewModelTest {
             coVerify(exactly = 1) {
                 arrangement.getAllServices()
             }
+            coVerify(exactly = 0) { arrangement.syncApps() }
             assertEquals(1, viewModel.state.result.size)
         }
 
@@ -264,9 +273,24 @@ class SearchAppsViewModelTest {
             // then
             coVerify(exactly = 1) {
                 arrangement.searchAppsByName(query)
+                arrangement.syncApps()
             }
             assertEquals(1, viewModel.state.result.size)
         }
+
+    @Test
+    fun `given app refresh fails, when loading Apps, then cached Apps are still emitted`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withAppsAllowedForUsage(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
+            .withGetAllApps(listOf(SERVICE_DETAILS))
+            .withSyncAppsFailing()
+            .arrange(protocolInfo = null)
+
+        advanceUntilIdle()
+
+        assertEquals(1, viewModel.state.result.size)
+        assertFalse(viewModel.state.isLoading)
+    }
 
     @Test
     fun `given services branch is used across multiple searches, when init view model, then syncServices is called exactly once`() =
@@ -406,6 +430,9 @@ class SearchAppsViewModelTest {
         lateinit var syncServices: SyncServicesUseCase
 
         @MockK
+        lateinit var syncApps: SyncAppsUseCase
+
+        @MockK
         lateinit var getAllApps: ObserveAllAppsUseCase
 
         @MockK
@@ -428,6 +455,7 @@ class SearchAppsViewModelTest {
 
             coEvery { getAllServices() } returns flowOf(emptyList())
             coEvery { syncServices() } returns SyncServicesUseCase.Result.Success
+            coEvery { syncApps() } returns SyncAppsUseCase.Result.Success
             coEvery { getAllApps() } returns flowOf(emptyList())
             coEvery { searchServicesByName(any()) } returns flowOf(emptyList())
             coEvery { searchAppsByName(any()) } returns flowOf(emptyList())
@@ -442,6 +470,7 @@ class SearchAppsViewModelTest {
             protocolInfo = protocolInfo,
             getAllServices = getAllServices,
             syncServices = syncServices,
+            syncApps = syncApps,
             getAllApps = getAllApps,
             contactMapper = contactMapper,
             searchServicesByName = searchServicesByName,
@@ -472,6 +501,10 @@ class SearchAppsViewModelTest {
 
         fun withSyncServicesFailing() = apply {
             coEvery { syncServices() } returns SyncServicesUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(cause = null))
+        }
+
+        fun withSyncAppsFailing() = apply {
+            coEvery { syncApps() } returns SyncAppsUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(cause = null))
         }
     }
 }

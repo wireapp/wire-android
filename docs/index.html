@@ -852,6 +852,15 @@ route model.</p>
 with the feature that owns them.</li>
 <li>Features contribute typed <code>wireEntry</code> providers and expose semantic actions instead of receiving
 generated navigators or <code>NavHostController</code>.</li>
+<li>The Home shell aggregates one feature-owned semantic action contract for every interactive
+top-level child. Feature-specific actions are not flattened into the Home contract; roots sharing
+an action surface reuse its contract, and roots without navigation actions expose none.</li>
+<li>A reusable UI action contract is named after its role and omits the framework version, for example
+<code>ConversationListNavigationActions</code> or <code>MeetingsHomeNavigationActions</code>. The <code>Navigation3</code> suffix
+is reserved for contracts coupled to a Navigation 3 entry, runtime or result lifecycle, for example
+<code>ConversationEntryNavigation3Actions</code> or <code>MeetingsNavigation3Actions</code>. Starting a flow belongs to
+the framework-neutral Home-root contract; actions performed inside its entries belong to the
+<code>Navigation3</code> contract.</li>
 <li>Navigation 3 owns back-stack entries and their <code>ViewModelStoreOwner</code> lifecycle.</li>
 <li>Wire resolves the Metro graph independently from the typed route. A session route always carries
 the session identity from which its dependencies must be resolved.</li>

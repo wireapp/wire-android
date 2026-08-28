@@ -25,40 +25,34 @@ import com.wire.android.feature.cells.ui.AllFilesNavigationActions
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.cellViewModel
-import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.cell.GlobalCellsScreen
-import com.wire.android.ui.home.conversationslist.ConversationsNavigationActions
+import com.wire.android.ui.home.conversationslist.ConversationListNavigationActions
 import com.wire.android.ui.home.meetings.MeetingsScreen
 import com.wire.android.ui.home.settings.SettingsNavigation3Actions
 import com.wire.android.ui.home.settings.SettingsNavigation3Root
 import com.wire.android.ui.home.vault.VaultScreen
-import com.wire.android.ui.home.whatsnew.WhatsNewNavigation3Target
+import com.wire.android.ui.home.whatsnew.WhatsNewNavigationActions
 import com.wire.android.ui.home.whatsnew.WhatsNewScreen
 import com.wire.navigation.WireSessionId
 
 /**
- * Cross-batch actions emitted by Home top-level children.
+ * Single composition contract for navigation emitted by Home top-level children.
  *
- * Generated directions and a Nav2 controller are intentionally excluded. The production host can
- * map these actions to typed feature routes as each owning batch lands.
+ * Each interactive child exposes one feature-owned semantic contract as a property here. Do not
+ * add feature-specific flat functions to this aggregate. Children without navigation actions need
+ * no property, while roots sharing the same action surface reuse one contract (Archive reuses
+ * Conversations).
  */
 internal interface HomeTopLevelNavigation3Actions {
+    val conversationList: ConversationListNavigationActions
     val settings: SettingsNavigation3Actions
-
-    /**
-     * Temporary semantic boundary for Cells details whose typed contracts are owned by the Cells
-     * migration: Search, Public Link, Add/Remove Tags, Image Viewer and Video Player.
-     */
     val cells: AllFilesNavigationActions
-
-    /** Welcome/release-note detail contracts are migrated by the What's New detail batch. */
-    fun openWhatsNew(target: WhatsNewNavigation3Target)
-
-    /** New Meeting is owned by the Meetings feature graph and is migrated with that graph. */
-    fun openNewMeeting(type: NewMeetingType)
+    val whatsNew: WhatsNewNavigationActions
+    val meetings: MeetingsHomeNavigationActions
 }
 
 /**
@@ -74,7 +68,6 @@ internal fun HomeNavigation3TopLevelContent(
     sessionId: WireSessionId,
     runtime: WireNavigation3Runtime,
     actions: HomeTopLevelNavigation3Actions,
-    conversationsNavigationActions: ConversationsNavigationActions,
 ) {
     when (destination) {
         HomeTopLevelDestination.CONVERSATIONS ->
@@ -91,19 +84,19 @@ internal fun HomeNavigation3TopLevelContent(
 
         HomeTopLevelDestination.ARCHIVE -> ArchiveScreen(
             homeShellState = shellState,
-            navigationActions = conversationsNavigationActions,
+            navigationActions = actions.conversationList,
         )
 
         HomeTopLevelDestination.WHATS_NEW -> WhatsNewScreen(
             homeShellState = shellState,
-            onOpenTarget = actions::openWhatsNew,
+            navigationActions = actions.whatsNew,
         )
 
         HomeTopLevelDestination.CELLS -> Navigation3GlobalCells(actions.cells)
 
         HomeTopLevelDestination.MEETINGS -> MeetingsScreen(
             homeShellState = shellState,
-            onOpenNewMeeting = actions::openNewMeeting,
+            navigationActions = actions.meetings,
         )
     }
 }

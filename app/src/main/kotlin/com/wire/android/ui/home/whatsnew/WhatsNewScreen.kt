@@ -40,16 +40,21 @@ import com.wire.android.ui.home.HomeShellState
 import com.wire.android.util.ui.sectionWithElements
 import com.wire.android.util.ui.UIText
 
-internal sealed interface WhatsNewNavigation3Target {
-    data object Welcome : WhatsNewNavigation3Target
-    data object AllAndroidReleaseNotes : WhatsNewNavigation3Target
-    data class ExternalReleaseNote(val url: String) : WhatsNewNavigation3Target
+internal sealed interface WhatsNewNavigationTarget {
+    data object Welcome : WhatsNewNavigationTarget
+    data object AllAndroidReleaseNotes : WhatsNewNavigationTarget
+    data class ExternalReleaseNote(val url: String) : WhatsNewNavigationTarget
 }
 
-internal fun WhatsNewItem.toNavigation3Target(): WhatsNewNavigation3Target = when (this) {
-    WhatsNewItem.WelcomeToNewAndroidApp -> WhatsNewNavigation3Target.Welcome
-    is WhatsNewItem.AllAndroidReleaseNotes -> WhatsNewNavigation3Target.AllAndroidReleaseNotes
-    is WhatsNewItem.AndroidReleaseNotes -> WhatsNewNavigation3Target.ExternalReleaseNote(url)
+/** Semantic navigation boundary owned by the What's New Home root. */
+internal data class WhatsNewNavigationActions(
+    val openWhatsNew: (WhatsNewNavigationTarget) -> Unit,
+)
+
+internal fun WhatsNewItem.toNavigationTarget(): WhatsNewNavigationTarget = when (this) {
+    WhatsNewItem.WelcomeToNewAndroidApp -> WhatsNewNavigationTarget.Welcome
+    is WhatsNewItem.AllAndroidReleaseNotes -> WhatsNewNavigationTarget.AllAndroidReleaseNotes
+    is WhatsNewItem.AndroidReleaseNotes -> WhatsNewNavigationTarget.ExternalReleaseNote(url)
 }
 
 /**
@@ -58,13 +63,13 @@ internal fun WhatsNewItem.toNavigation3Target(): WhatsNewNavigation3Target = whe
 @Composable
 internal fun WhatsNewScreen(
     homeShellState: HomeShellState,
-    onOpenTarget: (WhatsNewNavigation3Target) -> Unit,
+    navigationActions: WhatsNewNavigationActions,
     whatsNewViewModel: WhatsNewViewModel = whatsNewViewModel(),
 ) {
     WhatsNewScreenContent(
         state = whatsNewViewModel.state,
         lazyListState = homeShellState.lazyListStateFor(HomeDestination.WhatsNew),
-        onItemClicked = { onOpenTarget(it.toNavigation3Target()) },
+        onItemClicked = { navigationActions.openWhatsNew(it.toNavigationTarget()) },
     )
 }
 

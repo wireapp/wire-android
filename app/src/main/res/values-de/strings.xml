@@ -1028,6 +1028,7 @@
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
     <string name="label_type_a_message">Eine Nachricht schreiben</string>
+    <string name="content_description_conversation_message_list">Nachrichten in der Unterhaltung. Drücken Sie die Eingabetaste, um durch die Nachrichten zu blättern.</string>
     <string name="notification_action_open_call">Anruf öffnen</string>
     <string name="notification_action_decline_call">Ablehnen</string>
     <string name="notification_incoming_call_content">Ruft an…</string>

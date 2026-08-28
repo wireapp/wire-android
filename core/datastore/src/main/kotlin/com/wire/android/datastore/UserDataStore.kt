@@ -99,6 +99,21 @@ class UserDataStore(private val context: Context, userId: UserId) {
         context.dataStore.edit { it[IS_CREATE_TEAM_NOTICE_READ] = isRead }
     }
 
+    /**
+     * Whether the viewer access banner was dismissed for the given conversation.
+     * Once dismissed, the banner is not shown again for that conversation.
+     */
+    fun isViewerAccessBannerDismissed(conversationId: String): Flow<Boolean> = context.dataStore.data.map {
+        it[viewerAccessBannerDismissedKey(conversationId)] ?: false
+    }
+
+    suspend fun setViewerAccessBannerDismissed(conversationId: String) {
+        context.dataStore.edit { it[viewerAccessBannerDismissedKey(conversationId)] = true }
+    }
+
+    private fun viewerAccessBannerDismissedKey(conversationId: String) =
+        booleanPreferencesKey("$VIEWER_ACCESS_BANNER_DISMISSED_PREFIX$conversationId")
+
     companion object {
         private const val PREFERENCES_NAME = "user_data"
 
@@ -113,5 +128,8 @@ class UserDataStore(private val context: Context, userId: UserId) {
         private val ANONYMOUS_ANALYTICS = booleanPreferencesKey("anonymous_analytics")
         private val ANALYTICS_DIALOG_SEEN = booleanPreferencesKey("analytics_dialog_seen")
         private val IS_CREATE_TEAM_NOTICE_READ = booleanPreferencesKey("is_create_team_notice_read")
+
+        // Key prefix for per-conversation entries, completed with the conversation id.
+        private const val VIEWER_ACCESS_BANNER_DISMISSED_PREFIX = "viewer_access_banner_dismissed_"
     }
 }

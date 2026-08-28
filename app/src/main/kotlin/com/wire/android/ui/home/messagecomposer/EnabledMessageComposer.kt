@@ -81,6 +81,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.allUploaded
@@ -250,7 +251,10 @@ fun EnabledMessageComposer(
                         .fillMaxWidth()
                         .background(color = colorsScheme().surfaceContainerLow)
                 ) {
-                    if (!messageComposerViewState.value.areAttachmentOptionsEnabled && !viewerAccessBannerDismissed) {
+                    val shouldShowViewerAccessBanner = !messageComposerViewState.value.areAttachmentOptionsEnabled &&
+                            !viewerAccessBannerDismissed &&
+                            BuildConfig.DRIVE_PERMISSIONS_ENABLED
+                    if (shouldShowViewerAccessBanner) {
                         ViewerAccessBanner(
                             onCloseClick = { viewerAccessBannerDismissed = true },
                             modifier = Modifier.fillMaxWidth()
@@ -449,7 +453,7 @@ fun EnabledMessageComposer(
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             onDrawingModeClicked = {
-                                if (messageComposerViewState.value.areAttachmentOptionsEnabled) {
+                                if (messageComposerViewState.value.areAttachmentOptionsEnabled && BuildConfig.DRIVE_PERMISSIONS_ENABLED) {
                                     openDrawingCanvas()
                                 }
                             },
@@ -520,7 +524,8 @@ fun EnabledMessageComposer(
                         AdditionalOptionSubMenu(
                             optionsVisible = inputStateHolder.optionsVisible,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
+                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled ||
+                                    !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = {
                                 if (!messageComposerViewState.value.isCallOngoing) {

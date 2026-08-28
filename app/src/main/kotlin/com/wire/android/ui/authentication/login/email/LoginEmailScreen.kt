@@ -75,7 +75,6 @@ import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -96,9 +95,6 @@ fun LoginEmailScreen(
     fillMaxHeight: Boolean = true,
 ) {
     val scope = rememberCoroutineScope()
-
-    clearAutofillTree()
-
     LoginEmailContent(
         scrollState = scrollState,
         loginEmailState = loginEmailViewModel.loginState,

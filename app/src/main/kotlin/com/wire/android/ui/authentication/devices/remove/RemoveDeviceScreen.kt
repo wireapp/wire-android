@@ -62,7 +62,6 @@ import com.wire.android.ui.common.dialogs.CancelLoginDialogState
 import com.wire.android.ui.common.divider.WireDivider
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
@@ -97,9 +96,6 @@ fun RemoveDeviceScreen(
             backStackMode = BackStackMode.CLEAR_WHOLE
         )
     )
-
-    clearAutofillTree()
-
     AnimatedContent(
         targetState = viewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
         transitionSpec = {

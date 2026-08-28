@@ -30,7 +30,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -105,7 +104,7 @@ fun WirePasswordTextField(
         shape = shape,
         colors = colors,
         trailingIcon = { VisibilityIconButton(passwordVisibility) { passwordVisibility = it } },
-        modifier = modifier.then(autoFillModifier(autoFillType, textState::setTextAndPlaceCursorAtEnd)),
+        modifier = modifier,
         testTag = testTag,
         onTap = onTap,
         innerBasicTextField = { decorator, textFieldModifier ->
@@ -119,7 +118,7 @@ fun WirePasswordTextField(
                 enabled = state !is WireTextFieldState.Disabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
-                modifier = textFieldModifier,
+                modifier = textFieldModifier.applyAutofill(autoFillType),
                 decorator = decorator,
             )
         }

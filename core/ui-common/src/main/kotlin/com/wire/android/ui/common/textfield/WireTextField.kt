@@ -33,7 +33,6 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -129,12 +128,7 @@ fun WireTextField(
         inputMinHeight = inputMinHeight,
         shape = shape,
         colors = colors,
-        modifier = modifier.then(
-            autoFillModifier(
-                autoFillType,
-                textState::setTextAndPlaceCursorAtEnd
-            )
-        ),
+        modifier = modifier,
         onInputSizeChanged = onInputSizeChanged,
         onTap = onTap,
         testTag = testTag,
@@ -155,7 +149,9 @@ fun WireTextField(
                 enabled = enabled,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
-                modifier = textFieldModifier.then(inputModifier),
+                modifier = textFieldModifier
+                    .then(inputModifier)
+                    .applyAutofill(autoFillType),
                 decorator = decorator,
                 onTextLayout = onTextLayout(
                     textState,

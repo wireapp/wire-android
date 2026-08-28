@@ -1,0 +1,13 @@
+New
+- Share files easily in Wire
+
+Improvements
+- Accessibility: Navigate in conversation view via an external keyboard
+- Quick navigation between the conversation list and view
+- Date handling
+
+Fixes
+- Audio playback switched to calling speaker instead of main speaker
+- Drive: Wrong state for "Shared via link" filter
+- Multiplatform backup included incorrectly self-deleting messages
+- Missing error message in MLS conversations

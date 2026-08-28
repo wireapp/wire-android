@@ -1,0 +1,13 @@
+Neu
+- Einfaches Teilen von Dateien in Wire
+
+Verbessert
+- Barrierefreiheit: Navigation in der Unterhaltung über externe Tastatur
+- Navigation zwischen der Unterhaltungsliste und der Unterhaltung
+- Umgang mit Datumsangaben
+
+Behoben
+- Audiowiedergabe wurde auf anderen Lautsprecher umgeleitet
+- Drive: Falscher Status für den Filter „Per Link teilen“
+- Plattformübergreifendes Backup enthielt selbstlöschende Nachrichten
+- Fehlende Fehlermeldung in MLS-Unterhaltungen

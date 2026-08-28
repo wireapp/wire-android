@@ -261,11 +261,28 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        val nonImageFile = testFiles[0].copy(mimeType = "application/pdf").toUiModel()
+        val nonImageFile = testFiles[0].copy(mimeType = "application/zip").toUiModel()
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(nonImageFile))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given view model when pdf file clicked and local file is present then in-app pdf viewer is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val pdfFile = testFiles[0].copy(mimeType = "application/pdf").toUiModel()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(pdfFile))
+
+            val action = awaitItem()
+            assert(action is OpenPdfViewer)
+        }
+        coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
@@ -316,7 +333,7 @@ class CellViewModelTest {
             .arrange()
 
         val testFile = testFiles[0].copy(
-            mimeType = "application/pdf",
+            mimeType = "text/plain",
             localPath = null,
             contentUrl = "https://example.com/file"
         )
@@ -324,6 +341,27 @@ class CellViewModelTest {
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `given view model when pdf file clicked and only url is available then in-app pdf viewer is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val testFile = testFiles[0].copy(
+            mimeType = "application/pdf",
+            localPath = null,
+            contentUrl = "https://example.com/file"
+        )
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+            val action = awaitItem()
+            assert(action is OpenPdfViewer)
+        }
+        coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
     }
 
     @Test

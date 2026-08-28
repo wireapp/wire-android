@@ -213,6 +213,7 @@ dependencies {
     implementationWithCoverage(projects.core.di)
     implementationWithCoverage(projects.core.media)
     implementationWithCoverage(projects.core.mediaPlayer)
+    implementationWithCoverage(projects.core.pdfViewer)
     implementationWithCoverage(projects.core.notification)
     implementationWithCoverage(projects.core.navigation)
     implementationWithCoverage(projects.core.search)

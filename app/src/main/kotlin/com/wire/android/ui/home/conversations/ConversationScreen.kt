@@ -438,6 +438,7 @@ internal fun ConversationScreenRouteContent(
             }
         },
         onVideoClick = navigation::openVideoPlayer,
+        onPdfClick = navigation::openPdfViewer,
         onStartCall = {
             conversationCallViewModel.startCallIfPossible(conversationInfoViewModel.conversationInfoViewState.conversationType)
         },
@@ -642,6 +643,7 @@ private fun ConversationScreenContent(
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onPdfClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -754,6 +756,7 @@ private fun ConversationScreenContent(
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onVideoClick = onVideoClick,
+                        onPdfClick = onPdfClick,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
@@ -896,6 +899,7 @@ fun PreviewConversationScreen() = WireTheme {
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _, _ -> },
         onVideoClick = { _, _, _ -> },
+        onPdfClick = { _, _, _ -> },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

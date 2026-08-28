@@ -54,6 +54,7 @@ import com.wire.android.feature.cells.ui.tags.AddRemoveTagsRouteScreen
 import com.wire.android.feature.cells.ui.versionHistoryViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryRouteScreen
 import com.wire.android.mediaplayer.VideoPlayer
+import com.wire.android.pdfviewer.PdfViewer
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import androidx.compose.ui.platform.LocalContext
@@ -236,6 +237,12 @@ internal fun CellsNavigation3RouteScreen(
             fileName = route.fileName,
             onNavigateBack = navigateBack,
         )
+        is PdfViewerRoute -> PdfViewer(
+            localPath = route.localPath,
+            contentUrl = route.contentUrl,
+            fileName = route.fileName,
+            onNavigateBack = navigateBack,
+        )
         is AudioPlayerRoute -> CellAudioPlayerRouteScreen(
             onNavigateBack = navigateBack,
             viewModel = cellAudioPlayerViewModel(
@@ -372,6 +379,14 @@ private class Navigation3CellsFilesNavigation(
         runtime.navigator.navigate(
             WireNavigationCommand(
                 AudioPlayerRoute(sessionId, file.localPath, file.contentUrl, file.name)
+            )
+        )
+    }
+
+    override fun pdf(file: CellNodeUi.File) {
+        runtime.navigator.navigate(
+            WireNavigationCommand(
+                PdfViewerRoute(sessionId, file.localPath, file.contentUrl, file.name)
             )
         )
     }

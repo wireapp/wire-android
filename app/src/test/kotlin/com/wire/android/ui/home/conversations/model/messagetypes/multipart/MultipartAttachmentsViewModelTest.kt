@@ -50,6 +50,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 typealias OpenImageCallback = (s: String) -> Unit
+typealias OpenAttachmentCallback = (attachment: MultipartAttachmentUi) -> Unit
 
 @ExtendWith(CoroutineTestExtension::class)
 class MultipartAttachmentsViewModelTest {
@@ -186,7 +187,7 @@ class MultipartAttachmentsViewModelTest {
 
         val callback = mockk<OpenImageCallback>(relaxed = true)
 
-        viewModel.onClick(testAttachmentUi, callback, {})
+        viewModel.onClick(testAttachmentUi, callback, {}, {})
 
         coVerify(exactly = 1) { callback.invoke(testAttachmentUi.uuid) }
     }
@@ -203,7 +204,8 @@ class MultipartAttachmentsViewModelTest {
                 transferStatus = AssetTransferStatus.NOT_FOUND,
             ),
             openInImageViewer = callback,
-            openInVideoPlayer = { }
+            openInVideoPlayer = { },
+            openInPdfViewer = { },
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
@@ -220,10 +222,12 @@ class MultipartAttachmentsViewModelTest {
         viewModel.onClick(
             attachment = testAttachmentUi.copy(
                 mimeType = "application/pdf",
+                assetType = AttachmentFileType.PDF,
                 transferStatus = AssetTransferStatus.NOT_FOUND,
             ),
             openInImageViewer = callback,
-            openInVideoPlayer = { }
+            openInVideoPlayer = { },
+            openInPdfViewer = { },
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
@@ -239,11 +243,13 @@ class MultipartAttachmentsViewModelTest {
 
         viewModel.onClick(
             attachment = testAttachmentUi.copy(
-                mimeType = "application/pdf",
+                mimeType = "application/zip",
+                assetType = AttachmentFileType.ARCHIVE,
                 localPath = "local/path",
             ),
             openInImageViewer = callback,
-            openInVideoPlayer = { }
+            openInVideoPlayer = { },
+            openInPdfViewer = { },
         )
 
         coVerify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
@@ -258,14 +264,83 @@ class MultipartAttachmentsViewModelTest {
 
         viewModel.onClick(
             attachment = testAttachmentUi.copy(
-                mimeType = "application/pdf",
+                mimeType = "application/zip",
+                assetType = AttachmentFileType.ARCHIVE,
                 contentUrl = "content/url",
             ),
             openInImageViewer = callback,
-            openInVideoPlayer = { }
+            openInVideoPlayer = { },
+            openInPdfViewer = { },
         )
 
         coVerify(exactly = 1) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `with pdf attachment with local file available when clicked then pdf opened in internal viewer`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .arrange()
+
+        val callback = mockk<OpenAttachmentCallback>(relaxed = true)
+        val attachment = testAttachmentUi.copy(
+            mimeType = "application/pdf",
+            assetType = AttachmentFileType.PDF,
+            localPath = "local/path",
+        )
+
+        viewModel.onClick(
+            attachment = attachment,
+            openInImageViewer = { },
+            openInVideoPlayer = { },
+            openInPdfViewer = callback,
+        )
+
+        coVerify(exactly = 1) { callback.invoke(attachment) }
+        coVerify(exactly = 0) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `with pdf attachment openable via url when clicked then pdf opened in internal viewer`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .arrange()
+
+        val callback = mockk<OpenAttachmentCallback>(relaxed = true)
+        val attachment = testAttachmentUi.copy(
+            mimeType = "application/pdf",
+            assetType = AttachmentFileType.PDF,
+            contentUrl = "content/url",
+        )
+
+        viewModel.onClick(
+            attachment = attachment,
+            openInImageViewer = { },
+            openInVideoPlayer = { },
+            openInPdfViewer = callback,
+        )
+
+        coVerify(exactly = 1) { callback.invoke(attachment) }
+        coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `with pdf attachment not downloaded yet when clicked then the viewer is not opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .arrange()
+
+        val callback = mockk<OpenAttachmentCallback>(relaxed = true)
+
+        viewModel.onClick(
+            attachment = testAttachmentUi.copy(
+                mimeType = "application/pdf",
+                assetType = AttachmentFileType.PDF,
+            ),
+            openInImageViewer = { },
+            openInVideoPlayer = { },
+            openInPdfViewer = callback,
+        )
+
+        coVerify(exactly = 0) { callback.invoke(any()) }
+        coVerify(exactly = 0) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
     }
 
     // TODO: Refresh asset tests (part of refresh update PR)

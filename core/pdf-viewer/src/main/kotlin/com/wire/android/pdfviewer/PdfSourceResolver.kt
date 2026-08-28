@@ -1,0 +1,106 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+package com.wire.android.pdfviewer
+
+import android.content.Context
+import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
+import java.security.MessageDigest
+
+/**
+ * Turns the arguments of the PDF screen into a readable local file.
+ *
+ * [android.graphics.pdf.PdfRenderer] needs a seekable file descriptor, so a remote document has
+ * to be fetched into the app cache first. Already downloaded files are reused, which keeps
+ * re-opening the same attachment instant.
+ */
+class PdfSourceResolver @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
+
+    suspend fun resolve(
+        localPath: String?,
+        contentUrl: String?,
+        dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    ): Result<File> = withContext(dispatcher) {
+        val localFile = localPath?.let(::File)
+        when {
+            localFile != null && localFile.isReadableFile() -> Result.success(localFile)
+            contentUrl != null -> download(contentUrl)
+            else -> Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
+        }
+    }
+
+    private fun download(contentUrl: String): Result<File> {
+        val target = cacheFileFor(contentUrl)
+        if (target.isReadableFile()) return Result.success(target)
+
+        val partial = File(target.parentFile, "${target.name}$PARTIAL_SUFFIX")
+        return runCatching {
+            val connection = (URL(contentUrl).openConnection() as HttpURLConnection).apply {
+                connectTimeout = TIMEOUT_MS
+                readTimeout = TIMEOUT_MS
+                instanceFollowRedirects = true
+            }
+            try {
+                if (connection.responseCode !in HTTP_OK_RANGE) {
+                    error("Unexpected response ${connection.responseCode} while fetching the document")
+                }
+                partial.parentFile?.mkdirs()
+                connection.inputStream.use { input ->
+                    partial.outputStream().use { output -> input.copyTo(output) }
+                }
+            } finally {
+                connection.disconnect()
+            }
+            check(partial.renameTo(target)) { "Could not move the downloaded document into place" }
+            target
+        }.recoverCatching { cause ->
+            partial.delete()
+            throw PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, cause)
+        }
+    }
+
+    private fun cacheFileFor(contentUrl: String): File {
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(contentUrl.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+        return File(File(context.cacheDir, CACHE_DIR_NAME), "$digest.pdf")
+    }
+
+    private fun File.isReadableFile(): Boolean = isFile && canRead() && length() > 0
+
+    private companion object {
+        const val CACHE_DIR_NAME = "pdf-viewer"
+        const val PARTIAL_SUFFIX = ".part"
+        const val TIMEOUT_MS = 30_000
+        val HTTP_OK_RANGE = 200..299
+    }
+}
+
+/** Carries the user-facing [error] out of [PdfSourceResolver]. */
+class PdfSourceException(
+    val error: PdfViewerError,
+    cause: Throwable? = null,
+) : Exception(cause)

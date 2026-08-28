@@ -24,6 +24,7 @@ import com.wire.android.feature.cells.navigation.CellImageViewerRoute
 import com.wire.android.feature.cells.navigation.CellsFilesArguments
 import com.wire.android.feature.cells.navigation.CellsSearchType
 import com.wire.android.feature.cells.navigation.ConversationFilesRoute
+import com.wire.android.feature.cells.navigation.PdfViewerRoute
 import com.wire.android.feature.cells.navigation.PublicLinkRoute
 import com.wire.android.feature.cells.navigation.SearchRoute
 import com.wire.android.feature.cells.navigation.VideoPlayerRoute
@@ -189,6 +190,16 @@ internal class WireNavigation3ProductionActions(
         showAudioPlayer = {
             navigate(
                 com.wire.android.feature.cells.navigation.AudioPlayerRoute(
+                    sessionId = requireSession(),
+                    localPath = it.localPath,
+                    contentUrl = it.contentUrl,
+                    fileName = it.name,
+                )
+            )
+        },
+        showPdfViewer = {
+            navigate(
+                PdfViewerRoute(
                     sessionId = requireSession(),
                     localPath = it.localPath,
                     contentUrl = it.contentUrl,

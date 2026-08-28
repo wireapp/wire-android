@@ -62,6 +62,7 @@ interface MultipartAttachmentsViewModel {
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     )
     fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
         val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
@@ -128,6 +129,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     ) {}
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
@@ -168,6 +170,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     ) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
@@ -180,6 +183,9 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
 
             attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
                 openInVideoPlayer(attachment)
+
+            attachment.isPdf() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
+                openInPdfViewer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -274,6 +280,8 @@ private fun MessageAttachment.mimeType() =
 private fun MultipartAttachmentUi.isImage() = AttachmentFileType.fromMimeType(mimeType) == IMAGE
 
 private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
+
+private fun MultipartAttachmentUi.isPdf() = assetType == PDF
 
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {

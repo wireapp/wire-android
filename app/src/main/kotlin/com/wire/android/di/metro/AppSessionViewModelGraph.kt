@@ -41,6 +41,7 @@ import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryMetroB
 import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
 import com.wire.android.feature.sketch.SketchMetroViewModelBindings
 import com.wire.android.mediaplayer.MediaPlayerManualViewModelFactoryMetroBindings
+import com.wire.android.pdfviewer.PdfViewerManualViewModelFactoryMetroBindings
 import com.wire.android.search.SearchManualViewModelFactoryMetroBindings
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import com.wire.android.ui.calling.CallingMetroViewModelBindings
@@ -111,6 +112,7 @@ annotation class MetroSessionScope
         CoreUICommonManualViewModelFactoryMetroBindings::class,
         SearchManualViewModelFactoryMetroBindings::class,
         MediaPlayerManualViewModelFactoryMetroBindings::class,
+        PdfViewerManualViewModelFactoryMetroBindings::class,
         ImageLoadingModule::class,
     ]
 )

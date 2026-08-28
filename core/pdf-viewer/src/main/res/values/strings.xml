@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pdf_viewer_title">Document</string>
+    <string name="pdf_viewer_page_indicator">Page %1$d of %2$d</string>
+    <string name="pdf_viewer_page_content_description">Page %1$d</string>
+    <string name="pdf_viewer_error_file_not_found">This document is no longer available.</string>
+    <string name="pdf_viewer_error_download_failed">This document could not be downloaded.</string>
+    <string name="pdf_viewer_error_password_protected">This document is password protected and cannot be opened here.</string>
+    <string name="pdf_viewer_error_invalid_document">This document could not be opened.</string>
+    <string name="pdf_viewer_retry">Try again</string>
+</resources>

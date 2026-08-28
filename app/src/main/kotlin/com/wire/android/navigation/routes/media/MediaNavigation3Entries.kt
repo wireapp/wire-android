@@ -12,6 +12,7 @@ import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.mediaplayer.VideoPlayer
+import com.wire.android.pdfviewer.PdfViewer
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.checkAssetRestrictionsViewModel
@@ -116,6 +117,14 @@ internal fun mediaNavigation3Entries(
     }
     wireEntry<VideoPlayerRoute>(presentation = WireEntryPresentation.PopUp) { route ->
         VideoPlayer(
+            localPath = route.localPath,
+            contentUrl = route.contentUrl,
+            fileName = route.fileName,
+            onNavigateBack = runtime.navigator::goBack,
+        )
+    }
+    wireEntry<PdfViewerRoute>(presentation = WireEntryPresentation.PopUp) { route ->
+        PdfViewer(
             localPath = route.localPath,
             contentUrl = route.contentUrl,
             fileName = route.fileName,

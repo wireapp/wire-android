@@ -29,6 +29,7 @@ import com.wire.android.navigation.routes.media.MediaGalleryNavigation3ResultTyp
 import com.wire.android.navigation.routes.media.MediaGalleryResult
 import com.wire.android.navigation.routes.media.MediaGalleryResultAction
 import com.wire.android.navigation.routes.media.MediaGalleryRoute
+import com.wire.android.navigation.routes.media.PdfViewerRoute
 import com.wire.android.navigation.routes.media.VideoPlayerRoute
 import com.wire.android.navigation.routes.media.MessageDetailsRoute
 import com.wire.android.navigation.routes.media.toLegacy
@@ -247,6 +248,14 @@ private fun ConversationNavigation3Entry(
             runtime.navigator.navigate(
                 WireNavigationCommand(
                     VideoPlayerRoute(route.sessionId, localPath, contentUrl, fileName)
+                )
+            )
+        }
+
+        override fun openPdfViewer(localPath: String?, contentUrl: String?, fileName: String?) {
+            runtime.navigator.navigate(
+                WireNavigationCommand(
+                    PdfViewerRoute(route.sessionId, localPath, contentUrl, fileName)
                 )
             )
         }

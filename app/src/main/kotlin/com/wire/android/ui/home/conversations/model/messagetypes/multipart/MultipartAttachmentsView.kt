@@ -59,6 +59,7 @@ fun MultipartAttachmentsView(
     messageStyle: MessageStyle,
     onImageAttachmentClick: (String) -> Unit,
     onVideoAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onPdfAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
@@ -67,6 +68,15 @@ fun MultipartAttachmentsView(
 ) {
     // Collect to trigger recomposition when offline availability changes.
     val offlineAttachmentIds by viewModel.offlineAttachmentIds.collectAsStateWithLifecycle()
+
+    val handleClick: (MultipartAttachmentUi) -> Unit = { clicked ->
+        viewModel.onClick(
+            attachment = clicked,
+            openInImageViewer = onImageAttachmentClick,
+            openInVideoPlayer = { att -> onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName) },
+            openInPdfViewer = { att -> onPdfAttachmentClick(att.localPath, att.contentUrl, att.fileName) },
+        )
+    }
 
     // TODO I found out that empty attachments list is not handled here and it shows empty message with no information
     if (attachments.size == 1) {
@@ -86,15 +96,7 @@ fun MultipartAttachmentsView(
                     },
                 item = it,
                 messageStyle = messageStyle,
-                onClick = {
-                    viewModel.onClick(
-                        attachment = it,
-                        openInImageViewer = onImageAttachmentClick,
-                        openInVideoPlayer = { att ->
-                            onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
-                        },
-                    )
-                },
+                onClick = { handleClick(it) },
             )
         }
     } else {
@@ -119,30 +121,14 @@ fun MultipartAttachmentsView(
                         AttachmentsGrid(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
-                            onClick = {
-                                viewModel.onClick(
-                                    attachment = it,
-                                    openInImageViewer = onImageAttachmentClick,
-                                    openInVideoPlayer = { att ->
-                                        onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
-                                    },
-                                )
-                            },
+                            onClick = handleClick,
                         )
 
                     is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files ->
                         AttachmentsList(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
-                            onClick = {
-                                viewModel.onClick(
-                                    attachment = it,
-                                    openInImageViewer = onImageAttachmentClick,
-                                    openInVideoPlayer = { att ->
-                                        onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
-                                    },
-                                )
-                            },
+                            onClick = handleClick,
                         )
                 }
             }

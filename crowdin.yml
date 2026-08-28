@@ -16,6 +16,10 @@ files: [
         "translation": "/core/media-player/src/main/res/values-%two_letters_code%/%original_file_name%"
     },
     {
+        "source": "/core/pdf-viewer/src/main/res/values/strings.xml",
+        "translation": "/core/pdf-viewer/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
         "source": "/core/search/src/main/res/values/strings.xml",
         "translation": "/core/search/src/main/res/values-%two_letters_code%/%original_file_name%"
     },

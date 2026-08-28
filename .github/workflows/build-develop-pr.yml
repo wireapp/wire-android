@@ -30,10 +30,10 @@ jobs:
       build-config: |
         [
           {
-            "flavor": "Alpha",
-            "variant": "Compat",
-            "keystore-type": "internal",
-            "build-type": "both",
+            "flavor": "Dev",
+            "variant": "Debug",
+            "keystore-type": "debug",
+            "build-type": "apk",
             "generate-version-file": false,
             "deployment-targets": [
               {

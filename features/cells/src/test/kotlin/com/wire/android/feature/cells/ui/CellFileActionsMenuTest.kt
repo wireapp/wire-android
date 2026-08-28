@@ -766,6 +766,7 @@ class CellFileActionsMenuTest {
             collaboraIntegration = withCollaboraIntegration,
         ),
         offlineFilesEnabled = offlineFilesEnabled,
+        drivePermissionsEnabled = true
     )
 
     @Suppress("LongParameterList")
@@ -809,6 +810,7 @@ class CellFileActionsMenuTest {
                 collaboraIntegration = withCollaboraIntegration,
             ),
             offlineFilesEnabled = offlineFilesEnabled,
+            drivePermissionsEnabled = true
         ).buildMenu(fileNode, isRecycleBin, isConversationFiles, isAllFiles, isSearching, isCollaboraEnabled, isOnline)
 
     private companion object {

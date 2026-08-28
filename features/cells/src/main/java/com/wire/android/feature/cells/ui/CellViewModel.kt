@@ -123,7 +123,8 @@ class CellViewModel @AssistedInject constructor(
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
-) : ActionsViewModel<CellViewAction>() {
+    @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
+    ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
     interface Factory {
@@ -195,7 +196,7 @@ class CellViewModel @AssistedInject constructor(
         isViewerOnly,
         rootConversationId?.let { userDataStore.isViewerAccessBannerDismissed(it) } ?: flowOf(true),
     ) { viewerOnly, dismissed ->
-        viewerOnly && !dismissed
+        viewerOnly && !dismissed && drivePermissionsEnabled
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,

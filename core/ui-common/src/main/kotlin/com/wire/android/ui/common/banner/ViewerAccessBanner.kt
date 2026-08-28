@@ -73,7 +73,7 @@ fun ViewerAccessBanner(
                 .padding(end = dimensions().spacing8x)
                 .weight(1f),
             text = stringResource(id = R.string.conversation_viewer_access_banner),
-            style = MaterialTheme.wireTypography.subline01
+            style = MaterialTheme.wireTypography.subline01,
         )
         Icon(
             painter = painterResource(id = R.drawable.ic_close),

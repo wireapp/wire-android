@@ -631,6 +631,7 @@ class CellViewModelTest {
                 qualifiedIdMapper = qualifiedIdMapper,
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
+                drivePermissionsEnabled = true,
             )
         }
     }

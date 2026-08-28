@@ -44,6 +44,7 @@
     <string name="connection_request_accepted">Запрос на добавление принят</string>
     <string name="connection_request_ignore_error">Запрос на добавление не может быть проигнорирован</string>
     <string name="error_unblocking_user">Пользователь не может быть разблокирован</string>
+    <string name="conversation_viewer_access_banner">Доступ для просмотра: вы не можете загружать или редактировать файлы.</string>
     <string name="content_description_close_button">Закрыть</string>
     <string name="content_description_close">Закрыть</string>
     <string name="content_description_menu_button">Основное меню</string>
@@ -51,6 +52,7 @@
     <string name="content_description_pending_connection_badge">ожидание подтверждения запроса</string>
     <string name="content_description_alert">Оповещение</string>
     <string name="content_description_show_more_options">Показать больше вариантов</string>
+    <string name="content_description_close_access_info">Закрыть информацию о доступе</string>
     <string name="label_membership_guest">Гость</string>
     <string name="label_membership_external">Внешний</string>
     <string name="label_membership_service">Приложение</string>

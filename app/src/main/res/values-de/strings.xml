@@ -849,6 +849,8 @@
     <string name="label_conversations_details_verified_mls">Überprüft (Ende-zu-Ende-Identität)</string>
     <string name="label_system_message_cell_enabled_for_conversation">Geteiltes Drive ist **an**</string>
     <string name="label_system_message_cell_self_delete_disabled_for_conversation">Selbstlöschende Nachrichten sind deaktiviert.</string>
+    <string name="label_system_message_cell_viewer_access">Geteiltes Drive ist aktiv. Sie können Dateien lesen, aber nicht hochladen, bearbeiten oder verwalten.</string>
+    <string name="label_system_message_cell_editor_access">Geteiltes Drive ist aktiv. Sie haben Bearbeitungsrechte. Personen außerhalb Ihres Teams haben nur Leserechte.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Sie haben 1 Person zur Unterhaltung hinzugefügt</item>
@@ -1797,6 +1799,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="drive_screen_search_hint">Dateien suchen</string>
     <string name="enable_wire_cell">Geteiltes Drive</string>
     <string name="enable_wire_cell_switch_description">Ermöglichen Sie den Teilnehmern, ihre Dokumente und Mediendateien in Geteiltes Drive zu verwalten. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
+    <string name="enable_wire_cell_guest_access_description">Personen außerhalb Ihres Teams können Dateien lesen, jedoch weder hochladen noch bearbeiten.</string>
     <string name="failed_attachment_retry_upload">Upload wiederholen</string>
     <string name="failed_attachment_remove">Entfernen</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Diese Funktion ist nicht verfügbar. Bitte wenden Sie sich an Ihren Admin.</string>

@@ -12,6 +12,7 @@ package com.wire.android.ui.debug
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
+import com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModel
 import com.wire.android.ui.home.settings.about.licenses.LicensesViewModel
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModel
@@ -41,6 +42,9 @@ object DebugMetroViewModelBindings {
 
     @Provides @IntoMap @ViewModelKey(DebugFeatureFlagsViewModel::class)
     fun debugFeatureFlagsViewModel(viewModel: DebugFeatureFlagsViewModel): ViewModel = viewModel
+
+    @Provides @IntoMap @ViewModelKey(SecurityProvidersViewModel::class)
+    fun securityProvidersViewModel(viewModel: SecurityProvidersViewModel): ViewModel = viewModel
 
     @Provides @IntoMap @ViewModelKey(WhatsNewViewModel::class)
     fun whatsNewViewModel(viewModel: WhatsNewViewModel): ViewModel = viewModel

@@ -30,7 +30,7 @@ import com.wire.android.ui.home.conversations.folder.ConversationFoldersStateArg
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersVM
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
-import com.wire.android.ui.home.conversationslist.ConversationsNavigationActions
+import com.wire.android.ui.home.conversationslist.ConversationListNavigationActions
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.filter.ConversationFilterSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
@@ -41,7 +41,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFilter
 @Composable
 internal fun AllConversationsContent(
     homeShellState: HomeShellState,
-    navigationActions: ConversationsNavigationActions,
+    navigationActions: ConversationListNavigationActions,
     foldersViewModel: ConversationFoldersVM =
         conversationFoldersViewModel(ConversationFoldersStateArgs(null)),
 ) {
@@ -93,7 +93,7 @@ internal fun AllConversationsContent(
 @Composable
 fun PreviewAllConversationsEmptyScreen() = WireTheme {
     ConversationsScreenContent(
-        navigationActions = previewConversationsNavigationActions(),
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent(onBrowseChannels = {}) },
@@ -105,7 +105,7 @@ fun PreviewAllConversationsEmptyScreen() = WireTheme {
 @Composable
 fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
     ConversationsScreenContent(
-        navigationActions = previewConversationsNavigationActions(),
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent(onBrowseChannels = {}) },
@@ -117,7 +117,7 @@ fun PreviewAllConversationsEmptySearchScreen() = WireTheme {
 @Composable
 fun PreviewAllConversationsSearchScreen() = WireTheme {
     ConversationsScreenContent(
-        navigationActions = previewConversationsNavigationActions(),
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.MAIN,
         emptyListContent = { ConversationsEmptyContent(onBrowseChannels = {}) },
@@ -125,7 +125,7 @@ fun PreviewAllConversationsSearchScreen() = WireTheme {
     )
 }
 
-private fun previewConversationsNavigationActions() = ConversationsNavigationActions(
+private fun previewConversationListNavigationActions() = ConversationListNavigationActions(
     openConversation = {},
     openUserProfile = {},
     startConversation = {},

@@ -20,14 +20,13 @@ package com.wire.android.ui.home.meetings
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.wire.android.feature.meetings.ui.MeetingsNavigationActions
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
-import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.navigation.HomeDestination
+import com.wire.android.ui.common.dimensions
+import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.ui.calling.meetingsCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversations.call.HandleActions
 import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
@@ -39,7 +38,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 @Composable
 internal fun MeetingsScreen(
     homeShellState: HomeShellState,
-    navigationActions: MeetingsNavigationActions,
+    onOpenNewMeeting: (NewMeetingType) -> Unit,
     viewModel: MeetingsCallViewModel = meetingsCallViewModel(),
 ) {
     val context = LocalContext.current
@@ -65,9 +64,6 @@ internal fun MeetingsScreen(
                 )
             )
         },
-        editMeeting = { meetingId ->
-            navigationActions.onOpenNewMeeting(NewMeetingType.Edit(meetingId))
-        }
     )
 
     viewModel.callManager.actions.HandleActions()
@@ -77,12 +73,12 @@ internal fun MeetingsScreen(
         sheetState = homeShellState.newMeetingBottomSheetState,
         onMeetNowClick = {
             homeShellState.newMeetingBottomSheetState.hide {
-                navigationActions.onOpenNewMeeting(NewMeetingType.MeetNow)
+                onOpenNewMeeting(NewMeetingType.MeetNow)
             }
         },
         onScheduleClick = {
             homeShellState.newMeetingBottomSheetState.hide {
-                navigationActions.onOpenNewMeeting(NewMeetingType.Schedule)
+                onOpenNewMeeting(NewMeetingType.Schedule)
             }
         }
     )

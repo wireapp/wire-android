@@ -33,7 +33,6 @@ import com.wire.android.ui.home.conversations.ConversationRoute
 import com.wire.android.ui.home.conversations.details.ConversationDetailsId
 import com.wire.android.ui.home.settings.SettingsNavigation3Destination
 import com.wire.android.ui.settings.devices.SelfDevicesRoute
-import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavigationCommand
@@ -142,18 +141,15 @@ internal class WireNavigation3ProductionActionsTest {
         val command = slot<WireNavigationCommand>()
         every { navigator.navigate(capture(command)) } returns true
 
-        val editMeetingId = MeetingId("meeting", "wire.test")
         listOf(
             NewMeetingType.MeetNow to NewMeetingRouteType.MEET_NOW,
             NewMeetingType.Schedule to NewMeetingRouteType.SCHEDULE,
-            NewMeetingType.Edit(editMeetingId) to NewMeetingRouteType.EDIT,
         ).forEach { (legacyType, expectedType) ->
-            actions.meetings.onOpenNewMeeting(legacyType)
+            actions.openNewMeeting(legacyType)
 
             val route = assertInstanceOf(NewMeetingDetailsRoute::class.java, command.captured.destination)
             assertEquals(Session, route.sessionId)
             assertEquals(expectedType, route.type)
-            assertEquals((legacyType as? NewMeetingType.Edit)?.id, route.meetingId)
             assertEquals(WireBackStackMode.NONE, command.captured.backStackMode)
         }
     }

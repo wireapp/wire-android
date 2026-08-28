@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.wire.android.feature.cells.ui.AllFilesNavigationActions
 import com.wire.android.feature.cells.navigation.AddRemoveTagsRoute
 import com.wire.android.feature.cells.navigation.CellImageViewerRoute
 import com.wire.android.feature.cells.navigation.CellsFilesArguments
@@ -26,8 +27,6 @@ import com.wire.android.feature.cells.navigation.ConversationFilesRoute
 import com.wire.android.feature.cells.navigation.PublicLinkRoute
 import com.wire.android.feature.cells.navigation.SearchRoute
 import com.wire.android.feature.cells.navigation.VideoPlayerRoute
-import com.wire.android.feature.cells.ui.AllFilesNavigationActions
-import com.wire.android.feature.meetings.ui.MeetingsNavigationActions
 import com.wire.android.feature.meetings.ui.create.MeetingParticipantId
 import com.wire.android.feature.meetings.ui.create.NewMeetingDetailsRoute
 import com.wire.android.navigation.LoginTypeSelector
@@ -81,6 +80,7 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileRoute
 import com.wire.android.ui.userprofile.service.ServiceDetailsRoute
 import com.wire.android.ui.userprofile.service.ServiceProfileTarget
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationTeamPlanRoute
+import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -196,11 +196,6 @@ internal class WireNavigation3ProductionActions(
             )
         },
     )
-    override val meetings: MeetingsNavigationActions = MeetingsNavigationActions(
-        onOpenNewMeeting = {
-            navigate(NewMeetingDetailsRoute.start(requireSession(), it))
-        },
-    )
     override val conversations: ConversationsNavigationActions = ConversationsNavigationActions(
         openConversation = { openConversation(it.toProfileId()) },
         openUserProfile = { openUserProfile(it.value, it.domain) },
@@ -250,6 +245,8 @@ internal class WireNavigation3ProductionActions(
             is WhatsNewNavigation3Target.ExternalReleaseNote ->
                 activity.openUrl(target.url)
         }
+    override fun openNewMeeting(type: NewMeetingType) =
+        navigate(NewMeetingDetailsRoute.start(requireSession(), type))
 
     override fun exitFlow() = activity.finish()
     override fun openUserProfile(userIdValue: String, userIdDomain: String) =

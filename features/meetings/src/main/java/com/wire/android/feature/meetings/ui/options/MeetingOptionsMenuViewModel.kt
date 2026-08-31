@@ -36,7 +36,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
-import com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase
+import com.wire.kalium.logic.feature.meeting.DeleteMeetingForEveryoneUseCase
+import com.wire.kalium.logic.feature.meeting.DeleteMeetingForMeUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,9 +53,10 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
 interface MeetingOptionsMenuViewModel : ActionsManager<MeetingOptionsMenuViewAction> {
-    val deleteMeetingForEveryoneDialogState: VisibilityState<DeleteMeetingDialogState> get() = VisibilityState()
+    val deleteMeetingDialogState: VisibilityState<DeleteMeetingDialogState> get() = VisibilityState()
     fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState>
-    fun deleteMeeting(meetingId: MeetingId, meetingTitle: String)
+    fun deleteMeetingForEveryone(meetingId: MeetingId, meetingTitle: String)
+    fun deleteMeetingForMe(meetingId: MeetingId, meetingTitle: String)
     fun checkCallStatusAndSendCallAction(conversationId: ConversationId)
 }
 
@@ -71,18 +73,20 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
         } ?: MeetingOptionsMenuState.NotAvailable
     )
 
-    override fun deleteMeeting(meetingId: MeetingId, meetingTitle: String) = Unit
+    override fun deleteMeetingForEveryone(meetingId: MeetingId, meetingTitle: String) = Unit
+    override fun deleteMeetingForMe(meetingId: MeetingId, meetingTitle: String) = Unit
     override fun checkCallStatusAndSendCallAction(conversationId: ConversationId) = Unit
 }
 
 class MeetingOptionsMenuViewModelImpl @Inject constructor(
     private val currentTimeProvider: CurrentTimeProvider,
     private val observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase,
-    private val deleteMeetingUseCase: DeleteMeetingUseCase,
+    private val deleteMeetingForEveryoneUseCase: DeleteMeetingForEveryoneUseCase,
+    private val deleteMeetingForMeUseCase: DeleteMeetingForMeUseCase,
     private val observeActiveCallsUseCase: ObserveActiveCallsUseCase,
 ) : MeetingOptionsMenuViewModel, ActionsViewModel<MeetingOptionsMenuViewAction>() {
     private val stateFlow: ConcurrentHashMap<String, StateFlow<MeetingOptionsMenuState>> = ConcurrentHashMap()
-    override val deleteMeetingForEveryoneDialogState: VisibilityState<DeleteMeetingDialogState> by mutableStateOf(VisibilityState())
+    override val deleteMeetingDialogState: VisibilityState<DeleteMeetingDialogState> by mutableStateOf(VisibilityState())
 
     override fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState> = stateFlow.getOrPut(occurrenceId) {
         flowOf(occurrenceId)
@@ -98,8 +102,7 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
                             editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && !hasEnded,
                             deleteOption = when (it.selfRole) {
                                 MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
-                                // for now, we don't show delete option for members as "delete for me" is not yet implemented
-                                MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.None
+                                MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.ForMe
                             },
                         )
                     } ?: MeetingOptionsMenuState.NotAvailable
@@ -113,21 +116,39 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
             )
     }
 
-    override fun deleteMeeting(meetingId: MeetingId, meetingTitle: String) {
+    override fun deleteMeetingForEveryone(meetingId: MeetingId, meetingTitle: String) {
         viewModelScope.launch {
-            deleteMeetingForEveryoneDialogState.update { it.copy(loading = true) }
-            when (deleteMeetingUseCase.invoke(meetingId = meetingId)) {
-                is DeleteMeetingUseCase.Result.Success -> {
+            deleteMeetingDialogState.update { it.copy(loading = true) }
+            when (deleteMeetingForEveryoneUseCase.invoke(meetingId = meetingId)) {
+                is DeleteMeetingForEveryoneUseCase.Result.Success -> {
                     UIText.StringResource(R.string.meeting_deleted_success, meetingTitle).asSnackBarMessage()
                 }
 
-                is DeleteMeetingUseCase.Result.Failure -> {
+                is DeleteMeetingForEveryoneUseCase.Result.Failure -> {
                     UIText.StringResource(R.string.meeting_deleted_failure, meetingTitle).asSnackBarMessage()
                 }
             }.let {
                 sendAction(MeetingOptionsMenuViewAction.Message(it))
             }
-            deleteMeetingForEveryoneDialogState.dismiss()
+            deleteMeetingDialogState.dismiss()
+        }
+    }
+
+    override fun deleteMeetingForMe(meetingId: MeetingId, meetingTitle: String) {
+        viewModelScope.launch {
+            deleteMeetingDialogState.update { it.copy(loading = true) }
+            when (deleteMeetingForMeUseCase.invoke(meetingId = meetingId)) {
+                is DeleteMeetingForMeUseCase.Result.Success -> {
+                    UIText.StringResource(R.string.meeting_deleted_success, meetingTitle).asSnackBarMessage()
+                }
+
+                is DeleteMeetingForMeUseCase.Result.Failure -> {
+                    UIText.StringResource(R.string.meeting_deleted_failure, meetingTitle).asSnackBarMessage()
+                }
+            }.let {
+                sendAction(MeetingOptionsMenuViewAction.Message(it))
+            }
+            deleteMeetingDialogState.dismiss()
         }
     }
 

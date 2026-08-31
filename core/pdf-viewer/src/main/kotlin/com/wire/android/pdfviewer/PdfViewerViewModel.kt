@@ -18,15 +18,13 @@
 package com.wire.android.pdfviewer
 
 import android.graphics.Bitmap
-import android.util.LruCache
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.util.dispatchers.DispatcherProvider
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,6 +43,7 @@ import java.io.IOException
 @WireAssistedViewModelBinding(PdfViewerManualViewModelFactoryGroup::class)
 class PdfViewerViewModel @AssistedInject constructor(
     private val sourceResolver: PdfSourceResolver,
+    private val dispatchers: DispatcherProvider,
     @Assisted val localPath: String?,
     @Assisted val contentUrl: String?,
     @Assisted val fileName: String?,
@@ -61,13 +60,8 @@ class PdfViewerViewModel @AssistedInject constructor(
     private var document: PdfDocument? = null
     private var loadJob: Job? = null
 
-    /**
-     * Keeps recently rendered pages around so scrolling back does not re-rasterise them.
-     * Sized against the heap rather than a page count because page bitmaps vary a lot in size.
-     */
-    private val pageCache = object : LruCache<String, Bitmap>(cacheSizeKb()) {
-        override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount / BYTES_IN_KB
-    }
+    /** Keeps recently rendered pages around so scrolling back does not re-rasterise them. */
+    private val pageCache = PageBitmapCache(PageBitmapCache.defaultMaxBytes())
 
     init {
         load()
@@ -88,7 +82,7 @@ class PdfViewerViewModel @AssistedInject constructor(
         val key = "$pageIndex@$widthPx"
         pageCache.get(key)?.let { return it }
 
-        val rendered = withContext(renderDispatcher) {
+        val rendered = withContext(dispatchers.io()) {
             runCatching { current.renderPage(pageIndex, widthPx) }.getOrNull()
         } ?: return null
 
@@ -101,13 +95,13 @@ class PdfViewerViewModel @AssistedInject constructor(
         closeDocument()
         _state.value = PdfViewerState.Loading
         loadJob = viewModelScope.launch {
-            val file = sourceResolver.resolve(localPath, contentUrl, renderDispatcher)
+            val file = sourceResolver.resolve(localPath, contentUrl, dispatchers.io())
                 .getOrElse { cause ->
                     _state.value = PdfViewerState.Failure(cause.toViewerError())
                     return@launch
                 }
 
-            val opened = withContext(renderDispatcher) { PdfDocument.open(file) }
+            val opened = withContext(dispatchers.io()) { PdfDocument.open(file) }
                 .getOrElse { cause ->
                     _state.value = PdfViewerState.Failure(cause.toViewerError())
                     return@launch
@@ -122,13 +116,13 @@ class PdfViewerViewModel @AssistedInject constructor(
             document = opened
             _state.value = PdfViewerState.Content(
                 pageCount = opened.pageCount,
-                firstPageAspectRatio = withContext(renderDispatcher) { opened.aspectRatio(0) },
+                firstPageAspectRatio = withContext(dispatchers.io()) { opened.aspectRatio(0) },
             )
         }
     }
 
     private fun closeDocument() {
-        pageCache.evictAll()
+        pageCache.clear()
         document?.close()
         document = null
     }
@@ -138,22 +132,11 @@ class PdfViewerViewModel @AssistedInject constructor(
         loadJob?.cancel()
         closeDocument()
     }
-
-    private companion object {
-        val renderDispatcher: CoroutineDispatcher = Dispatchers.IO
-        const val BYTES_IN_KB = 1024
-        const val CACHE_HEAP_FRACTION = 8
-
-        fun cacheSizeKb(): Int =
-            (Runtime.getRuntime().maxMemory() / BYTES_IN_KB / CACHE_HEAP_FRACTION)
-                .coerceAtLeast(1)
-                .toInt()
-    }
 }
 
-private fun Throwable.toViewerError(): PdfViewerError = when {
-    this is PdfSourceException -> error
-    this is SecurityException -> PdfViewerError.PASSWORD_PROTECTED
-    this is IOException -> PdfViewerError.INVALID_DOCUMENT
+private fun Throwable.toViewerError(): PdfViewerError = when (this) {
+    is PdfSourceException -> error
+    is SecurityException -> PdfViewerError.PASSWORD_PROTECTED
+    is IOException -> PdfViewerError.INVALID_DOCUMENT
     else -> PdfViewerError.INVALID_DOCUMENT
 }

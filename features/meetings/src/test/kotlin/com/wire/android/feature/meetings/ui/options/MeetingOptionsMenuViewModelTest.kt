@@ -143,7 +143,7 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenPastMeeting_andSelfUserIsMember_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+    fun givenPastMeeting_andSelfUserIsMember_whenObserving_thenEditIsNotAvailableAndDeleteForMeIsAvailable() = runTest(dispatcher) {
         val meeting = meeting(
             selfRole = MeetingOccurrence.SelfRole.Member,
             occurrenceStartTime = CURRENT_TIME - 2.hours,
@@ -158,7 +158,7 @@ class MeetingOptionsMenuViewModelTest {
             runCurrent()
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
-                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()

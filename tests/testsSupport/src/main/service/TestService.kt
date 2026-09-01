@@ -180,7 +180,7 @@ class TestService(private val baseUri: String, private val testName: String) {
             verificationCode?.let { put("verificationCode", it) }
             put("deviceName", deviceName)
             put("name", testName)
-            if (owner.backendName == "staging") {
+            if (owner.backendName.equals("staging", ignoreCase = true)) {
                 put("backend", "staging")
             } else {
                 val ownerBackend = BackendClient.loadBackend(owner.backendName.orEmpty())

@@ -202,7 +202,10 @@ internal class WireNavigation3ProductionActions(
                 PdfViewerRoute(
                     sessionId = requireSession(),
                     localPath = it.localPath,
-                    contentUrl = it.contentUrl,
+                    assetId = it.uuid,
+                    remotePath = it.remotePath,
+                    conversationId = it.conversationId,
+                    assetSize = it.size ?: 0L,
                     fileName = it.name,
                 )
             )

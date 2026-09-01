@@ -29,11 +29,14 @@ object PdfViewerManualViewModelFactoryGroup
 @Composable
 fun pdfViewerViewModel(
     localPath: String?,
-    contentUrl: String?,
+    assetId: String?,
+    remotePath: String?,
+    conversationId: String?,
+    assetSize: Long,
     fileName: String?,
 ): PdfViewerViewModel =
     wireAssistedMetroViewModel<PdfViewerViewModel, PdfViewerManualViewModelFactory>(
-        instanceKey = "pdf_viewer_${localPath ?: contentUrl}"
+        instanceKey = "pdf_viewer_${localPath ?: assetId}"
     ) {
-        pdfViewerViewModel(localPath, contentUrl, fileName)
+        pdfViewerViewModel(localPath, assetId, remotePath, conversationId, assetSize, fileName)
     }

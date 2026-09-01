@@ -82,8 +82,8 @@ private const val MAX_RENDER_SCALE = 3f
 private const val DOUBLE_TAP_ZOOM = 2.5f
 
 /**
- * Reusable full screen PDF viewer. Shows either a local file ([localPath]) or a remote
- * [contentUrl], which is fetched into the app cache before rendering.
+ * Reusable full screen PDF viewer. Shows either a local file ([localPath]) or a remote asset
+ * identified by [assetId] and [remotePath], which is fetched into the app cache before rendering.
  *
  * Callers own navigation via [onNavigateBack]; the ViewModel is resolved from the shared
  * pdf-viewer Metro graph so any module can host this screen.
@@ -91,11 +91,14 @@ private const val DOUBLE_TAP_ZOOM = 2.5f
 @Composable
 fun PdfViewer(
     localPath: String?,
-    contentUrl: String?,
+    assetId: String?,
+    remotePath: String?,
+    conversationId: String?,
+    assetSize: Long,
     fileName: String?,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PdfViewerViewModel = pdfViewerViewModel(localPath, contentUrl, fileName),
+    viewModel: PdfViewerViewModel = pdfViewerViewModel(localPath, assetId, remotePath, conversationId, assetSize, fileName),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     PdfViewerContent(

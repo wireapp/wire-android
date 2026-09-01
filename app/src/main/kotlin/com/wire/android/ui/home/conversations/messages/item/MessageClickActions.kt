@@ -30,7 +30,7 @@ sealed class MessageClickActions {
     open val onAssetClicked: (String) -> Unit = {}
     open val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> }
     open val onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit = { _, _, _ -> }
-    open val onPdfClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit = { _, _, _ -> }
+    open val onPdfClicked: (localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) -> Unit = { _, _, _, _, _ -> }
     open val onLinkClicked: (String) -> Unit = {}
     open val onReplyClicked: (UIMessage.Regular) -> Unit = {}
     open val onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit = { _, _ -> }
@@ -49,7 +49,7 @@ sealed class MessageClickActions {
         override val onAssetClicked: (String) -> Unit = {},
         override val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> },
         override val onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit = { _, _, _ -> },
-        override val onPdfClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit = { _, _, _ -> },
+        override val onPdfClicked: (localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) -> Unit = { _, _, _, _, _ -> },
         override val onLinkClicked: (String) -> Unit = {},
         override val onReplyClicked: (UIMessage.Regular) -> Unit = {},
         override val onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit = { _, _ -> },

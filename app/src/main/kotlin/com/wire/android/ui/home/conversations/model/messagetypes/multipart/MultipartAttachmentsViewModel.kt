@@ -184,7 +184,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
                 openInVideoPlayer(attachment)
 
-            attachment.isPdf() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
+            attachment.isPdf() && (attachment.localFileAvailable() || attachment.canDownloadRemotely()) ->
                 openInPdfViewer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
@@ -291,4 +291,5 @@ private fun MessageAttachment.isMediaAttachment() =
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO)
+private fun MultipartAttachmentUi.canDownloadRemotely() = remotePath != null && assetType == PDF

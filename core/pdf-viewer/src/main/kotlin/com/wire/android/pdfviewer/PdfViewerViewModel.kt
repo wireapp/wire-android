@@ -36,8 +36,8 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 /**
- * Opens a single PDF from either a local file ([localPath]) or a remote [contentUrl] and renders
- * its pages on demand.
+ * Opens a single PDF from either a local file ([localPath]) or a remote asset identified by
+ * [assetId] and [remotePath], and renders its pages on demand.
  *
  * Arguments are passed through the assisted [Factory] instead of a navigation destination so the
  * screen can be hosted from any module.
@@ -47,18 +47,29 @@ class PdfViewerViewModel @AssistedInject constructor(
     private val sourceResolver: PdfSourceResolver,
     private val dispatchers: DispatcherProvider,
     @Assisted val localPath: String?,
-    @Assisted val contentUrl: String?,
+    @Assisted val assetId: String?,
+    @Assisted val remotePath: String?,
+    @Assisted val conversationId: String?,
+    @Assisted val assetSize: Long,
     @Assisted val fileName: String?,
 ) : ViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(localPath: String?, contentUrl: String?, fileName: String?): PdfViewerViewModel
+        fun create(
+            localPath: String?,
+            assetId: String?,
+            remotePath: String?,
+            conversationId: String?,
+            assetSize: Long,
+            fileName: String?,
+        ): PdfViewerViewModel
     }
 
     private val _state = MutableStateFlow<PdfViewerState>(PdfViewerState.Loading)
     val state: StateFlow<PdfViewerState> = _state.asStateFlow()
 
+    // Written from the main thread by load()/onCleared(), read from IO by renderPage().
     @Volatile
     private var document: PdfDocument? = null
     private var loadJob: Job? = null
@@ -105,7 +116,7 @@ class PdfViewerViewModel @AssistedInject constructor(
         closeDocument()
         _state.value = PdfViewerState.Loading
         loadJob = viewModelScope.launch {
-            val file = sourceResolver.resolve(localPath, contentUrl, dispatchers.io())
+            val file = sourceResolver.resolve(localPath, assetId, remotePath, conversationId, assetSize, dispatchers.io())
                 .getOrElse { cause ->
                     _state.value = PdfViewerState.Failure(cause.toViewerError())
                     return@launch

@@ -24,64 +24,54 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.net.InetAddress
-import java.net.URL
-import java.security.MessageDigest
-import javax.net.ssl.HttpsURLConnection
 
 /**
  * Turns the arguments of the PDF screen into a readable local file.
  *
- * [android.graphics.pdf.PdfRenderer] needs a seekable file descriptor, so a remote document has
+ * [android.graphics.pdf.PdfRenderer] needs a seekable file descriptor, so a remote asset has
  * to be fetched into the app cache first. Already downloaded files are reused, which keeps
  * re-opening the same attachment instant.
  *
- * Remote [contentUrl] values are always pre-signed object-storage URLs whose authentication
- * credentials are embedded in the URL query parameters (see [CellNodeDTO.preSignedGET]).
- * No additional auth headers are required. [validateUrl] enforces HTTPS-only and blocks
- * requests to private/loopback/link-local addresses to prevent SSRF.
+ * Remote downloads are delegated to [PdfRemoteLoader], which is backed in production by
+ * `DownloadCellFileUseCase` — the same authenticated kalium S3 client used for offline file
+ * downloads. This ensures authentication, retry logic, and download progress tracking are
+ * handled consistently with the rest of the app.
  */
 class PdfSourceResolver @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val remoteLoader: PdfRemoteLoader,
 ) {
 
     suspend fun resolve(
         localPath: String?,
-        contentUrl: String?,
+        assetId: String?,
+        remotePath: String?,
+        conversationId: String?,
+        assetSize: Long,
         dispatcher: CoroutineDispatcher = Dispatchers.IO,
     ): Result<File> = withContext(dispatcher) {
         val localFile = localPath?.let(::File)
         when {
             localFile != null && localFile.isReadableFile() -> Result.success(localFile)
-            contentUrl != null -> download(contentUrl)
+            assetId != null && remotePath != null ->
+                download(assetId, remotePath, conversationId, assetSize)
             else -> Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
         }
     }
 
-    private fun download(contentUrl: String): Result<File> {
-        validateUrl(contentUrl).onFailure { return Result.failure(it) }
-
-        val target = cacheFileFor(contentUrl)
+    private suspend fun download(
+        assetId: String,
+        remotePath: String,
+        conversationId: String?,
+        assetSize: Long,
+    ): Result<File> {
+        val target = cacheFileFor(assetId)
         if (target.isReadableFile()) return Result.success(target)
 
         val partial = File(target.parentFile, "${target.name}$PARTIAL_SUFFIX")
         return runCatching {
-            val connection = (URL(contentUrl).openConnection() as HttpsURLConnection).apply {
-                connectTimeout = TIMEOUT_MS
-                readTimeout = TIMEOUT_MS
-                instanceFollowRedirects = false
-            }
-            try {
-                if (connection.responseCode !in HTTP_OK_RANGE) {
-                    error("Unexpected response ${connection.responseCode} while fetching the document")
-                }
-                partial.parentFile?.mkdirs()
-                connection.inputStream.use { input ->
-                    partial.outputStream().use { output -> input.copyTo(output) }
-                }
-            } finally {
-                connection.disconnect()
-            }
+            partial.parentFile?.mkdirs()
+            remoteLoader.load(assetId, remotePath, conversationId, assetSize, partial).getOrThrow()
             check(partial.renameTo(target)) { "Could not move the downloaded document into place" }
             target
         }.recoverCatching { cause ->
@@ -90,45 +80,14 @@ class PdfSourceResolver @Inject constructor(
         }
     }
 
-    /**
-     * Guards against SSRF by enforcing HTTPS and blocking requests to private/loopback/link-local
-     * addresses. The host is resolved once here; the connection later may re-resolve, but this
-     * catches the most common cases (literal IP addresses and predictable hostnames).
-     */
-    private fun validateUrl(contentUrl: String): Result<Unit> {
-        val url = runCatching { URL(contentUrl) }.getOrElse {
-            return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it))
-        }
-        if (url.protocol != "https") {
-            return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED))
-        }
-        val host = url.host?.takeIf { it.isNotEmpty() }
-            ?: return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED))
-        val address = runCatching { InetAddress.getByName(host) }.getOrElse {
-            return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it))
-        }
-        if (address.isLoopbackAddress || address.isLinkLocalAddress ||
-            address.isSiteLocalAddress || address.isAnyLocalAddress
-        ) {
-            return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED))
-        }
-        return Result.success(Unit)
-    }
-
-    private fun cacheFileFor(contentUrl: String): File {
-        val digest = MessageDigest.getInstance("SHA-256")
-            .digest(contentUrl.toByteArray())
-            .joinToString("") { "%02x".format(it) }
-        return File(File(context.cacheDir, CACHE_DIR_NAME), "$digest.pdf")
-    }
+    private fun cacheFileFor(assetId: String): File =
+        File(File(context.cacheDir, CACHE_DIR_NAME), "$assetId.pdf")
 
     private fun File.isReadableFile(): Boolean = isFile && canRead() && length() > 0
 
     private companion object {
         const val CACHE_DIR_NAME = "pdf-viewer"
         const val PARTIAL_SUFFIX = ".part"
-        const val TIMEOUT_MS = 30_000
-        val HTTP_OK_RANGE = 200..299
     }
 }
 

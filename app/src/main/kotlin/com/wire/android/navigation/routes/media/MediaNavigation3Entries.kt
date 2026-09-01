@@ -126,7 +126,10 @@ internal fun mediaNavigation3Entries(
     wireEntry<PdfViewerRoute>(presentation = WireEntryPresentation.PopUp) { route ->
         PdfViewer(
             localPath = route.localPath,
-            contentUrl = route.contentUrl,
+            assetId = route.assetId,
+            remotePath = route.remotePath,
+            conversationId = route.conversationId,
+            assetSize = route.assetSize,
             fileName = route.fileName,
             onNavigateBack = runtime.navigator::goBack,
         )

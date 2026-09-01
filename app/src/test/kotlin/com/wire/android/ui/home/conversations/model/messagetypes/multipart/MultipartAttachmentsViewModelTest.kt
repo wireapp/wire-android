@@ -300,7 +300,7 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `with pdf attachment openable via url when clicked then pdf opened in internal viewer`() = runTest {
+    fun `with pdf attachment openable via remote path when clicked then pdf opened in internal viewer`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 
@@ -308,7 +308,7 @@ class MultipartAttachmentsViewModelTest {
         val attachment = testAttachmentUi.copy(
             mimeType = "application/pdf",
             assetType = AttachmentFileType.PDF,
-            contentUrl = "content/url",
+            remotePath = "/cells/path/doc.pdf",
         )
 
         viewModel.onClick(

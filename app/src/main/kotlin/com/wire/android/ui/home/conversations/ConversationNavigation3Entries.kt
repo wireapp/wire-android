@@ -252,10 +252,17 @@ private fun ConversationNavigation3Entry(
             )
         }
 
-        override fun openPdfViewer(localPath: String?, contentUrl: String?, fileName: String?) {
+        override fun openPdfViewer(localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) {
             runtime.navigator.navigate(
                 WireNavigationCommand(
-                    PdfViewerRoute(route.sessionId, localPath, contentUrl, fileName)
+                    PdfViewerRoute(
+                        sessionId = route.sessionId,
+                        localPath = localPath,
+                        assetId = assetId,
+                        remotePath = remotePath,
+                        assetSize = assetSize,
+                        fileName = fileName,
+                    )
                 )
             )
         }

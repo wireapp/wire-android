@@ -73,7 +73,7 @@ internal class PdfViewerViewModelTest {
 
         assertEquals(PdfViewerState.Failure(PdfViewerError.DOWNLOAD_FAILED), viewModel.state.value)
         verify(exactly = 0) { PdfDocument.open(any()) }
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -199,7 +199,7 @@ internal class PdfViewerViewModelTest {
         viewModel.retry()
 
         assertEquals(PdfViewerState.Content(pageCount = 3, firstPageAspectRatio = DEFAULT_ASPECT_RATIO), viewModel.state.value)
-        coVerify(exactly = 2) { arrangement.sourceResolver.resolve(any(), any(), any()) }
+        coVerify(exactly = 2) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -211,7 +211,7 @@ internal class PdfViewerViewModelTest {
 
         assertEquals(PdfViewerState.Loading, viewModel.state.value)
         viewModel.retry()
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
 
         gate.complete(Unit)
 
@@ -219,7 +219,7 @@ internal class PdfViewerViewModelTest {
             PdfViewerState.Content(pageCount = DEFAULT_PAGE_COUNT, firstPageAspectRatio = DEFAULT_ASPECT_RATIO),
             viewModel.state.value,
         )
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
     }
 
     private class Arrangement {
@@ -240,16 +240,16 @@ internal class PdfViewerViewModelTest {
         }
 
         fun withResolveSuccess() = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any()) } returns Result.success(file)
+            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any()) } returns Result.success(file)
         }
 
         fun withResolveFailure(error: PdfViewerError) = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any()) } returns
+            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any()) } returns
                     Result.failure(PdfSourceException(error))
         }
 
         fun withResolveGatedBy(gate: CompletableDeferred<Unit>) = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any()) } coAnswers {
+            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any()) } coAnswers {
                 gate.await()
                 Result.success(file)
             }
@@ -279,7 +279,10 @@ internal class PdfViewerViewModelTest {
             sourceResolver = sourceResolver,
             dispatchers = TestDispatcherProvider(),
             localPath = "local/document.pdf",
-            contentUrl = null,
+            assetId = null,
+            remotePath = null,
+            conversationId = null,
+            assetSize = 0L,
             fileName = "document.pdf",
         )
     }

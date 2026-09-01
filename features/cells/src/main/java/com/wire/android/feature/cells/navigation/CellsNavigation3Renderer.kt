@@ -239,7 +239,10 @@ internal fun CellsNavigation3RouteScreen(
         )
         is PdfViewerRoute -> PdfViewer(
             localPath = route.localPath,
-            contentUrl = route.contentUrl,
+            assetId = route.assetId,
+            remotePath = route.remotePath,
+            conversationId = route.conversationId,
+            assetSize = route.assetSize,
             fileName = route.fileName,
             onNavigateBack = navigateBack,
         )
@@ -386,7 +389,15 @@ private class Navigation3CellsFilesNavigation(
     override fun pdf(file: CellNodeUi.File) {
         runtime.navigator.navigate(
             WireNavigationCommand(
-                PdfViewerRoute(sessionId, file.localPath, file.contentUrl, file.name)
+                PdfViewerRoute(
+                    sessionId = sessionId,
+                    localPath = file.localPath,
+                    assetId = file.uuid,
+                    remotePath = file.remotePath,
+                    conversationId = file.conversationId,
+                    assetSize = file.size ?: 0L,
+                    fileName = file.name,
+                )
             )
         )
     }

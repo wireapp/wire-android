@@ -113,7 +113,7 @@ internal class PdfViewerViewModelTest {
 
         assertSame(arrangement.bitmap, first)
         assertSame(first, second)
-        coVerify(exactly = 1) { arrangement.document.renderPage(0, 100) }
+        verify(exactly = 1) { arrangement.document.renderPage(0, 100) }
     }
 
     @Test
@@ -123,8 +123,8 @@ internal class PdfViewerViewModelTest {
         viewModel.renderPage(pageIndex = 0, widthPx = 100)
         viewModel.renderPage(pageIndex = 0, widthPx = 200)
 
-        coVerify(exactly = 1) { arrangement.document.renderPage(0, 100) }
-        coVerify(exactly = 1) { arrangement.document.renderPage(0, 200) }
+        verify(exactly = 1) { arrangement.document.renderPage(0, 100) }
+        verify(exactly = 1) { arrangement.document.renderPage(0, 200) }
     }
 
     @Test
@@ -134,7 +134,7 @@ internal class PdfViewerViewModelTest {
         assertNull(viewModel.renderPage(pageIndex = 0, widthPx = 0))
         assertNull(viewModel.renderPage(pageIndex = 0, widthPx = -10))
 
-        coVerify(exactly = 0) { arrangement.document.renderPage(any(), any()) }
+        verify(exactly = 0) { arrangement.document.renderPage(any(), any()) }
     }
 
     @Test
@@ -155,7 +155,7 @@ internal class PdfViewerViewModelTest {
         assertNull(viewModel.renderPage(pageIndex = 0, widthPx = 100))
         assertNull(viewModel.renderPage(pageIndex = 0, widthPx = 100))
 
-        coVerify(exactly = 2) { arrangement.document.renderPage(0, 100) }
+        verify(exactly = 2) { arrangement.document.renderPage(0, 100) }
     }
 
     @Test
@@ -165,6 +165,28 @@ internal class PdfViewerViewModelTest {
             .arrange()
 
         assertNull(viewModel.renderPage(pageIndex = 0, widthPx = 100))
+    }
+
+    @Test
+    fun `given a loaded document, when reloading, then the previous one is closed and a new one is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+
+        viewModel.retry()
+
+        verify(exactly = 1) { arrangement.document.close() }
+        verify(exactly = 2) { PdfDocument.open(any()) }
+    }
+
+    @Test
+    fun `given the document was closed by a reload that then failed, when rendering, then nothing is returned`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+
+        arrangement.withOpenFailure(IOException("gone"))
+        viewModel.retry()
+
+        // The old document is detached before it is closed, so no render can reach a closed renderer.
+        assertNull(viewModel.renderPage(pageIndex = 0, widthPx = 100))
+        verify(exactly = 0) { arrangement.document.renderPage(any(), any()) }
     }
 
     @Test
@@ -212,8 +234,8 @@ internal class PdfViewerViewModelTest {
             mockkObject(PdfDocument.Companion)
             every { PdfDocument.open(any()) } returns Result.success(document)
             every { document.pageCount } returns DEFAULT_PAGE_COUNT
-            coEvery { document.aspectRatio(any()) } returns DEFAULT_ASPECT_RATIO
-            coEvery { document.renderPage(any(), any()) } returns bitmap
+            every { document.aspectRatio(any()) } returns DEFAULT_ASPECT_RATIO
+            every { document.renderPage(any(), any()) } returns bitmap
             withResolveSuccess()
         }
 
@@ -242,15 +264,15 @@ internal class PdfViewerViewModelTest {
         }
 
         fun withFirstPageAspectRatio(ratio: Float) = apply {
-            coEvery { document.aspectRatio(0) } returns ratio
+            every { document.aspectRatio(0) } returns ratio
         }
 
         fun withRenderedPage(bitmap: Bitmap?) = apply {
-            coEvery { document.renderPage(any(), any()) } returns bitmap
+            every { document.renderPage(any(), any()) } returns bitmap
         }
 
         fun withRenderFailure(cause: Throwable) = apply {
-            coEvery { document.renderPage(any(), any()) } throws cause
+            every { document.renderPage(any(), any()) } throws cause
         }
 
         fun arrange(): Pair<Arrangement, PdfViewerViewModel> = this to PdfViewerViewModel(

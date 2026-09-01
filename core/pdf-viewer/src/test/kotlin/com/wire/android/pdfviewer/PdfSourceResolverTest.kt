@@ -72,6 +72,43 @@ internal class PdfSourceResolverTest {
     }
 
     @Test
+    fun givenAnHttpUrl_whenResolving_thenItFailsAsDownloadFailed() = runTest {
+        val resolver = resolver()
+
+        val result = resolver.resolve(localPath = null, contentUrl = "http://example.com/doc.pdf", dispatcher = Dispatchers.Default)
+
+        assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
+    }
+
+    @Test
+    fun givenALoopbackUrl_whenResolving_thenItFailsAsDownloadFailed() = runTest {
+        val resolver = resolver()
+
+        val result = resolver.resolve(localPath = null, contentUrl = "https://127.0.0.1/doc.pdf", dispatcher = Dispatchers.Default)
+
+        assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
+    }
+
+    @Test
+    fun givenAPrivateNetworkUrl_whenResolving_thenItFailsAsDownloadFailed() = runTest {
+        val resolver = resolver()
+
+        val result = resolver.resolve(localPath = null, contentUrl = "https://192.168.1.1/doc.pdf", dispatcher = Dispatchers.Default)
+
+        assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
+    }
+
+    @Test
+    fun givenALinkLocalUrl_whenResolving_thenItFailsAsDownloadFailed() = runTest {
+        val resolver = resolver()
+
+        // AWS/GCP metadata endpoint commonly used in SSRF attacks
+        val result = resolver.resolve(localPath = null, contentUrl = "https://169.254.169.254/latest/meta-data/", dispatcher = Dispatchers.Default)
+
+        assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
+    }
+
+    @Test
     fun givenAMissingLocalPathAndAUrl_whenResolving_thenTheDownloadPathIsUsed() = runTest {
         val resolver = resolver()
 

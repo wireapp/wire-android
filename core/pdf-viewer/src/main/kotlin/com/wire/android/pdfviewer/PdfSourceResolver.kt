@@ -24,9 +24,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.net.HttpURLConnection
+import java.net.InetAddress
 import java.net.URL
 import java.security.MessageDigest
+import javax.net.ssl.HttpsURLConnection
 
 /**
  * Turns the arguments of the PDF screen into a readable local file.
@@ -34,6 +35,11 @@ import java.security.MessageDigest
  * [android.graphics.pdf.PdfRenderer] needs a seekable file descriptor, so a remote document has
  * to be fetched into the app cache first. Already downloaded files are reused, which keeps
  * re-opening the same attachment instant.
+ *
+ * Remote [contentUrl] values are always pre-signed object-storage URLs whose authentication
+ * credentials are embedded in the URL query parameters (see [CellNodeDTO.preSignedGET]).
+ * No additional auth headers are required. [validateUrl] enforces HTTPS-only and blocks
+ * requests to private/loopback/link-local addresses to prevent SSRF.
  */
 class PdfSourceResolver @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -53,15 +59,17 @@ class PdfSourceResolver @Inject constructor(
     }
 
     private fun download(contentUrl: String): Result<File> {
+        validateUrl(contentUrl).onFailure { return Result.failure(it) }
+
         val target = cacheFileFor(contentUrl)
         if (target.isReadableFile()) return Result.success(target)
 
         val partial = File(target.parentFile, "${target.name}$PARTIAL_SUFFIX")
         return runCatching {
-            val connection = (URL(contentUrl).openConnection() as HttpURLConnection).apply {
+            val connection = (URL(contentUrl).openConnection() as HttpsURLConnection).apply {
                 connectTimeout = TIMEOUT_MS
                 readTimeout = TIMEOUT_MS
-                instanceFollowRedirects = true
+                instanceFollowRedirects = false
             }
             try {
                 if (connection.responseCode !in HTTP_OK_RANGE) {
@@ -80,6 +88,31 @@ class PdfSourceResolver @Inject constructor(
             partial.delete()
             throw PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, cause)
         }
+    }
+
+    /**
+     * Guards against SSRF by enforcing HTTPS and blocking requests to private/loopback/link-local
+     * addresses. The host is resolved once here; the connection later may re-resolve, but this
+     * catches the most common cases (literal IP addresses and predictable hostnames).
+     */
+    private fun validateUrl(contentUrl: String): Result<Unit> {
+        val url = runCatching { URL(contentUrl) }.getOrElse {
+            return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it))
+        }
+        if (url.protocol != "https") {
+            return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED))
+        }
+        val host = url.host?.takeIf { it.isNotEmpty() }
+            ?: return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED))
+        val address = runCatching { InetAddress.getByName(host) }.getOrElse {
+            return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it))
+        }
+        if (address.isLoopbackAddress || address.isLinkLocalAddress ||
+            address.isSiteLocalAddress || address.isAnyLocalAddress
+        ) {
+            return Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED))
+        }
+        return Result.success(Unit)
     }
 
     private fun cacheFileFor(contentUrl: String): File {

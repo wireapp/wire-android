@@ -25,7 +25,9 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -57,8 +59,16 @@ class PdfViewerViewModel @AssistedInject constructor(
     private val _state = MutableStateFlow<PdfViewerState>(PdfViewerState.Loading)
     val state: StateFlow<PdfViewerState> = _state.asStateFlow()
 
+    @Volatile
     private var document: PdfDocument? = null
     private var loadJob: Job? = null
+
+    /**
+     * Releasing the document has to outlive [viewModelScope]: [PdfDocument.close] waits for an
+     * in-flight render before it frees the native handle, and that wait must neither block the
+     * main thread nor be cancelled halfway through.
+     */
+    private val releaseScope = CoroutineScope(SupervisorJob() + dispatchers.io())
 
     /** Keeps recently rendered pages around so scrolling back does not re-rasterise them. */
     private val pageCache = PageBitmapCache(PageBitmapCache.defaultMaxBytes())
@@ -123,8 +133,9 @@ class PdfViewerViewModel @AssistedInject constructor(
 
     private fun closeDocument() {
         pageCache.clear()
-        document?.close()
+        val open = document ?: return
         document = null
+        releaseScope.launch { open.close() }
     }
 
     override fun onCleared() {

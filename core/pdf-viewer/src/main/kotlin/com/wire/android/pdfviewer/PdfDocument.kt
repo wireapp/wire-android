@@ -21,10 +21,10 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
 import java.io.File
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * Thin coroutine-friendly wrapper around the platform [PdfRenderer].
@@ -38,13 +38,22 @@ internal class PdfDocument private constructor(
     private val renderer: PdfRenderer,
 ) : Closeable {
 
-    private val mutex = Mutex()
+    /**
+     * Guards every access to [renderer], including [close].
+     *
+     * A blocking lock rather than a coroutine `Mutex` on purpose: [close] is not a suspending
+     * function, so it could never have joined a `Mutex`, and releasing the native handle while a
+     * render is in flight crashes inside PdfRenderer — below the level any `runCatching` could
+     * recover from. Callers must therefore be off the main thread; [PdfViewerViewModel] dispatches
+     * all of them to IO.
+     */
+    private val lock = ReentrantLock()
     private var closed = false
 
     val pageCount: Int = renderer.pageCount
 
     /** Width / height of [pageIndex], used to reserve the right amount of space before rendering. */
-    suspend fun aspectRatio(pageIndex: Int): Float = mutex.withLock {
+    fun aspectRatio(pageIndex: Int): Float = lock.withLock {
         if (closed) return DEFAULT_ASPECT_RATIO
         renderer.openPage(pageIndex).use { page ->
             if (page.height == 0) DEFAULT_ASPECT_RATIO else page.width.toFloat() / page.height
@@ -56,7 +65,7 @@ internal class PdfDocument private constructor(
      *
      * Returns `null` when the document was closed while the caller was waiting for the lock.
      */
-    suspend fun renderPage(pageIndex: Int, widthPx: Int): Bitmap? = mutex.withLock {
+    fun renderPage(pageIndex: Int, widthPx: Int): Bitmap? = lock.withLock {
         if (closed) return null
         renderer.openPage(pageIndex).use { page ->
             val safeWidth = widthPx.coerceIn(MIN_RENDER_WIDTH_PX, MAX_RENDER_WIDTH_PX)
@@ -74,11 +83,17 @@ internal class PdfDocument private constructor(
         }
     }
 
+    /**
+     * Releases the renderer and the file descriptor. Blocks until any in-flight page has finished
+     * rendering, so it must not be called from the main thread.
+     */
     override fun close() {
-        if (closed) return
-        closed = true
-        runCatching { renderer.close() }
-        runCatching { descriptor.close() }
+        lock.withLock {
+            if (closed) return
+            closed = true
+            runCatching { renderer.close() }
+            runCatching { descriptor.close() }
+        }
     }
 
     companion object {

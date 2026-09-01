@@ -89,8 +89,10 @@ internal fun GroupOptionRouteScreen(
     onNavigateBack: () -> Unit,
 ) {
     LaunchedEffect(newConversationViewModel.createGroupState) {
-        (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
-            onConversationCreated(it.conversationId)
+        when (val state = newConversationViewModel.createGroupState) {
+            is CreateGroupState.Created -> onConversationCreated(state.conversationId)
+            CreateGroupState.Discarded -> onDiscard()
+            else -> Unit
         }
     }
 
@@ -118,8 +120,7 @@ internal fun GroupOptionRouteScreen(
             onEditParticipants()
         },
         onDiscardGroupCreationClick = {
-            newConversationViewModel.onCreateGroupErrorDismiss()
-            onDiscard()
+            newConversationViewModel.discardGroupCreation()
         },
         onRetryPendingCreation = newConversationViewModel::retryPendingMLSGroupCreation,
         onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss,

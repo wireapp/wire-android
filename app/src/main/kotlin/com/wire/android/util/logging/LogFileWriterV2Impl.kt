@@ -316,7 +316,7 @@ class LogFileWriterV2Impl(
         }
     }
 
-    override fun deleteAllLogFiles() {
+    override suspend fun deleteAllLogFiles() {
         clearActiveLoggingFileContent()
         logsDirectory.listFiles()?.filter {
             it.extension.lowercase(Locale.ROOT) == LOG_COMPRESSED_FILE_EXTENSION

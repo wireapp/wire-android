@@ -26,6 +26,7 @@ import android.os.StrictMode
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.analytics.ObserveCurrentSessionAnalyticsUseCase
 import com.wire.android.datastore.GlobalDataStore
@@ -303,21 +304,15 @@ class WireApplication : BaseApp() {
     private suspend fun initializeApplicationLoggingFrameworks() {
         // 1. Datadog should be initialized first
         ExternalLoggerManager.initDatadogLogger(applicationContext)
-        // 2. Initialize our internal logging framework
         val isLoggingEnabled = globalDataStore.get().isLoggingEnabled().first()
-        val config = if (isLoggingEnabled) {
-            KaliumLogger.Config(
-                KaliumLogLevel.VERBOSE,
-                listOf(DataDogLogger, platformLogWriter())
-            )
-        } else {
-            KaliumLogger.Config.DISABLED
-        }
-        // 2. Initialize our internal logging framework
+        val fileWriter = logFileWriter.get()
+        val config = fullLoggerConfig(isLoggingEnabled, fileWriter.logWriter)
+
+        // 2. Initialize the application and Kalium logging framework.
         AppLogger.init(config)
         CoreLogger.init(config)
-        // 3. Initialize our internal FILE logging framework
-        logFileWriter.get().start()
+        // 3. Initialize direct file logging after its directory exists.
+        fileWriter.start()
         // 4. Everything ready, now we can log device info
         appLogger.i("Logger enabled")
         logDeviceInformation()
@@ -416,7 +411,19 @@ class WireApplication : BaseApp() {
         }
     }
 
-    private companion object {
+    internal companion object {
+        fun fullLoggerConfig(isLoggingEnabled: Boolean, fileLogWriter: LogWriter?) = if (isLoggingEnabled) {
+            KaliumLogger.Config(
+                KaliumLogLevel.VERBOSE,
+                listOfNotNull(DataDogLogger, platformLogWriter(), fileLogWriter)
+            )
+        } else {
+            KaliumLogger.Config(
+                KaliumLogLevel.WARN,
+                listOfNotNull(platformLogWriter(), fileLogWriter)
+            )
+        }
+
         enum class MemoryLevel(val level: Int) {
             TRIM_MEMORY_BACKGROUND(ComponentCallbacks2.TRIM_MEMORY_BACKGROUND),
             TRIM_MEMORY_COMPLETE(ComponentCallbacks2.TRIM_MEMORY_COMPLETE),

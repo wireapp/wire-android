@@ -31,8 +31,10 @@ import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentRoute
 import com.wire.android.ui.home.HomeRequirement
 import com.wire.android.ui.home.conversations.ConversationRoute
 import com.wire.android.ui.home.conversations.details.ConversationDetailsId
+import com.wire.android.ui.home.newconversation.NewConversationSearchPeopleRoute
 import com.wire.android.ui.home.settings.SettingsNavigation3Destination
 import com.wire.android.ui.settings.devices.SelfDevicesRoute
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavigationCommand
@@ -136,20 +138,36 @@ internal class WireNavigation3ProductionActionsTest {
     }
 
     @Test
-    fun `given meeting type, when opening meeting flow, then typed details route is navigated directly`() {
+    fun `given conversation list start action, when invoked, then typed new-conversation route is navigated`() {
         val (actions, navigator) = productionActions()
         val command = slot<WireNavigationCommand>()
         every { navigator.navigate(capture(command)) } returns true
 
+        actions.conversationList.startConversation()
+
+        val route = assertInstanceOf(NewConversationSearchPeopleRoute::class.java, command.captured.destination)
+        assertEquals(Session, route.sessionId)
+        assertEquals(WireBackStackMode.NONE, command.captured.backStackMode)
+    }
+
+    @Test
+    fun `given meeting type, when opening meeting flow, then typed details route is navigated directly`() {
+        val (actions, navigator) = productionActions()
+        val command = slot<WireNavigationCommand>()
+        val meetingId = MeetingId("meeting", "wire.test")
+        every { navigator.navigate(capture(command)) } returns true
+
         listOf(
-            NewMeetingType.MeetNow to NewMeetingRouteType.MEET_NOW,
-            NewMeetingType.Schedule to NewMeetingRouteType.SCHEDULE,
-        ).forEach { (legacyType, expectedType) ->
-            actions.openNewMeeting(legacyType)
+            Triple(NewMeetingType.MeetNow, NewMeetingRouteType.MEET_NOW, null),
+            Triple(NewMeetingType.Schedule, NewMeetingRouteType.SCHEDULE, null),
+            Triple(NewMeetingType.Edit(meetingId), NewMeetingRouteType.EDIT, meetingId),
+        ).forEach { (legacyType, expectedType, expectedMeetingId) ->
+            actions.meetings.openNewMeeting(legacyType)
 
             val route = assertInstanceOf(NewMeetingDetailsRoute::class.java, command.captured.destination)
             assertEquals(Session, route.sessionId)
             assertEquals(expectedType, route.type)
+            assertEquals(expectedMeetingId, route.meetingId)
             assertEquals(WireBackStackMode.NONE, command.captured.backStackMode)
         }
     }

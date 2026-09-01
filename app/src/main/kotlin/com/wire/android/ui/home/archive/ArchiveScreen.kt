@@ -24,7 +24,7 @@ import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.search.rememberSearchbarState
 import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
-import com.wire.android.ui.home.conversationslist.ConversationsNavigationActions
+import com.wire.android.ui.home.conversationslist.ConversationListNavigationActions
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
@@ -34,7 +34,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 internal fun ArchiveScreen(
     homeShellState: HomeShellState,
-    navigationActions: ConversationsNavigationActions,
+    navigationActions: ConversationListNavigationActions,
 ) {
     with(homeShellState) {
         ConversationsScreenContent(
@@ -54,7 +54,7 @@ internal fun ArchiveScreen(
 @Composable
 fun PreviewArchiveEmptyScreen() = WireTheme {
     ConversationsScreenContent(
-        navigationActions = previewConversationsNavigationActions(),
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
@@ -66,7 +66,7 @@ fun PreviewArchiveEmptyScreen() = WireTheme {
 @Composable
 fun PreviewArchiveEmptySearchScreen() = WireTheme {
     ConversationsScreenContent(
-        navigationActions = previewConversationsNavigationActions(),
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
@@ -78,7 +78,7 @@ fun PreviewArchiveEmptySearchScreen() = WireTheme {
 @Composable
 fun PreviewArchiveScreen() = WireTheme {
     ConversationsScreenContent(
-        navigationActions = previewConversationsNavigationActions(),
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
@@ -86,7 +86,7 @@ fun PreviewArchiveScreen() = WireTheme {
     )
 }
 
-private fun previewConversationsNavigationActions() = ConversationsNavigationActions(
+private fun previewConversationListNavigationActions() = ConversationListNavigationActions(
     openConversation = {},
     openUserProfile = {},
     startConversation = {},

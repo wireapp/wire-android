@@ -4027,7 +4027,7 @@ private fun com.wire.android.ui.home.HomeNavigation3Entry(route: com.wire.androi
     - analyticsUsageViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-internal fun com.wire.android.ui.home.HomeNavigation3TopLevelContent(destination: com.wire.android.ui.home.HomeTopLevelDestination, shellState: com.wire.android.ui.home.HomeShellState, sessionId: com.wire.navigation.WireSessionId, runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, actions: com.wire.android.ui.home.HomeTopLevelNavigation3Actions, conversationsNavigationActions: com.wire.android.ui.home.conversationslist.ConversationsNavigationActions): kotlin.Unit
+internal fun com.wire.android.ui.home.HomeNavigation3TopLevelContent(destination: com.wire.android.ui.home.HomeTopLevelDestination, shellState: com.wire.android.ui.home.HomeShellState, sessionId: com.wire.navigation.WireSessionId, runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, actions: com.wire.android.ui.home.HomeTopLevelNavigation3Actions): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -4036,7 +4036,6 @@ internal fun com.wire.android.ui.home.HomeNavigation3TopLevelContent(destination
     - sessionId: STABLE (class with no mutable properties)
     - runtime: STABLE (marked @Stable or @Immutable)
     - actions: RUNTIME (requires runtime check)
-    - conversationsNavigationActions: STABLE (class with no mutable properties)
 
 @Composable
 internal fun com.wire.android.ui.home.HomeScaffold(homeState: com.wire.android.ui.home.HomeState, state: com.wire.android.ui.home.HomeScaffoldState, drawerState: androidx.compose.material3.DrawerState, focusRequesters: com.wire.android.ui.home.HomeScaffoldFocusRequesters, actions: com.wire.android.ui.home.HomeScaffoldActions, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
@@ -4238,7 +4237,7 @@ public fun com.wire.android.ui.home.archive.ArchiveEmptyContent(modifier: androi
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.ui.home.archive.ArchiveScreen(homeShellState: com.wire.android.ui.home.HomeShellState, navigationActions: com.wire.android.ui.home.conversationslist.ConversationsNavigationActions): kotlin.Unit
+internal fun com.wire.android.ui.home.archive.ArchiveScreen(homeShellState: com.wire.android.ui.home.HomeShellState, navigationActions: com.wire.android.ui.home.conversationslist.ConversationListNavigationActions): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -4374,7 +4373,7 @@ internal fun com.wire.android.ui.home.conversations.ConversationMessageComposer(
     - isWireCellsEnabled: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.ConversationNavigation3Entry(route: com.wire.android.ui.home.conversations.ConversationRoute, runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, actions: com.wire.android.ui.home.conversations.ConversationNavigation3Actions): kotlin.Unit
+private fun com.wire.android.ui.home.conversations.ConversationNavigation3Entry(route: com.wire.android.ui.home.conversations.ConversationRoute, runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, actions: com.wire.android.ui.home.conversations.ConversationEntryNavigation3Actions): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -7615,7 +7614,7 @@ public fun com.wire.android.ui.home.conversations.updateChannelAccessViewModel(a
     - args: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.home.conversationslist.ConversationsScreenContent(navigationActions: com.wire.android.ui.home.conversationslist.ConversationsNavigationActions, searchBarState: com.wire.android.ui.common.search.SearchBarState, modifier: androidx.compose.ui.Modifier, emptyListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, lazyListState: androidx.compose.foundation.lazy.LazyListState, loadingListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, conversationsSource: com.wire.android.ui.home.conversationslist.model.ConversationsSource, emptySearchResultFocusRequester: androidx.compose.ui.focus.FocusRequester?, firstConversationFocusRequester: androidx.compose.ui.focus.FocusRequester?, onConversationOpened: kotlin.Function0<kotlin.Unit>, conversationListCallViewModel: com.wire.android.ui.home.conversationslist.ConversationListCallViewModel, conversationListViewModel: com.wire.android.ui.home.conversationslist.ConversationListViewModel): kotlin.Unit
+public fun com.wire.android.ui.home.conversationslist.ConversationsScreenContent(navigationActions: com.wire.android.ui.home.conversationslist.ConversationListNavigationActions, searchBarState: com.wire.android.ui.common.search.SearchBarState, modifier: androidx.compose.ui.Modifier, emptyListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, lazyListState: androidx.compose.foundation.lazy.LazyListState, loadingListContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, conversationsSource: com.wire.android.ui.home.conversationslist.model.ConversationsSource, emptySearchResultFocusRequester: androidx.compose.ui.focus.FocusRequester?, firstConversationFocusRequester: androidx.compose.ui.focus.FocusRequester?, onConversationOpened: kotlin.Function0<kotlin.Unit>, conversationListCallViewModel: com.wire.android.ui.home.conversationslist.ConversationListCallViewModel, conversationListViewModel: com.wire.android.ui.home.conversationslist.ConversationListViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -7633,7 +7632,7 @@ public fun com.wire.android.ui.home.conversationslist.ConversationsScreenContent
     - conversationListViewModel: RUNTIME (requires runtime check)
 
 @Composable
-internal fun com.wire.android.ui.home.conversationslist.all.AllConversationsContent(homeShellState: com.wire.android.ui.home.HomeShellState, navigationActions: com.wire.android.ui.home.conversationslist.ConversationsNavigationActions, foldersViewModel: com.wire.android.ui.home.conversations.folder.ConversationFoldersVM): kotlin.Unit
+internal fun com.wire.android.ui.home.conversationslist.all.AllConversationsContent(homeShellState: com.wire.android.ui.home.HomeShellState, navigationActions: com.wire.android.ui.home.conversationslist.ConversationListNavigationActions, foldersViewModel: com.wire.android.ui.home.conversations.folder.ConversationFoldersVM): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -8044,12 +8043,12 @@ public fun com.wire.android.ui.home.homeViewModel(): com.wire.android.ui.home.Ho
   params:
 
 @Composable
-internal fun com.wire.android.ui.home.meetings.MeetingsScreen(homeShellState: com.wire.android.ui.home.HomeShellState, onOpenNewMeeting: kotlin.Function1<com.wire.android.feature.meetings.ui.create.NewMeetingType, kotlin.Unit>, viewModel: com.wire.android.ui.home.meetings.MeetingsCallViewModel): kotlin.Unit
+internal fun com.wire.android.ui.home.meetings.MeetingsScreen(homeShellState: com.wire.android.ui.home.HomeShellState, navigationActions: com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions, viewModel: com.wire.android.ui.home.meetings.MeetingsCallViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - homeShellState: RUNTIME (requires runtime check)
-    - onOpenNewMeeting: STABLE (function type)
+    - navigationActions: STABLE (class with no mutable properties)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
@@ -10180,12 +10179,12 @@ public fun com.wire.android.ui.home.whatsnew.WhatsNewItem(modifier: androidx.com
     - isLoading: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.ui.home.whatsnew.WhatsNewScreen(homeShellState: com.wire.android.ui.home.HomeShellState, onOpenTarget: kotlin.Function1<com.wire.android.ui.home.whatsnew.WhatsNewNavigation3Target, kotlin.Unit>, whatsNewViewModel: com.wire.android.ui.home.whatsnew.WhatsNewViewModel): kotlin.Unit
+internal fun com.wire.android.ui.home.whatsnew.WhatsNewScreen(homeShellState: com.wire.android.ui.home.HomeShellState, navigationActions: com.wire.android.ui.home.whatsnew.WhatsNewNavigationActions, whatsNewViewModel: com.wire.android.ui.home.whatsnew.WhatsNewViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - homeShellState: RUNTIME (requires runtime check)
-    - onOpenTarget: STABLE (function type)
+    - navigationActions: STABLE (class with no mutable properties)
     - whatsNewViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable

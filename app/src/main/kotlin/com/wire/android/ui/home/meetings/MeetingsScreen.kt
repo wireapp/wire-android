@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
+import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.dimensions
@@ -38,7 +39,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 @Composable
 internal fun MeetingsScreen(
     homeShellState: HomeShellState,
-    onOpenNewMeeting: (NewMeetingType) -> Unit,
+    navigationActions: MeetingsHomeNavigationActions,
     viewModel: MeetingsCallViewModel = meetingsCallViewModel(),
 ) {
     val context = LocalContext.current
@@ -64,6 +65,9 @@ internal fun MeetingsScreen(
                 )
             )
         },
+        editMeeting = { meetingId ->
+            navigationActions.openNewMeeting(NewMeetingType.Edit(meetingId))
+        },
     )
 
     viewModel.callManager.actions.HandleActions()
@@ -73,12 +77,12 @@ internal fun MeetingsScreen(
         sheetState = homeShellState.newMeetingBottomSheetState,
         onMeetNowClick = {
             homeShellState.newMeetingBottomSheetState.hide {
-                onOpenNewMeeting(NewMeetingType.MeetNow)
+                navigationActions.openNewMeeting(NewMeetingType.MeetNow)
             }
         },
         onScheduleClick = {
             homeShellState.newMeetingBottomSheetState.hide {
-                onOpenNewMeeting(NewMeetingType.Schedule)
+                navigationActions.openNewMeeting(NewMeetingType.Schedule)
             }
         }
     )

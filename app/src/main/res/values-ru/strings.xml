@@ -1881,7 +1881,7 @@
     <string name="reaction_sender_self">Вы</string>
     <string name="emoji_picker_select_reaction">Выбрать реакцию</string>
     <string name="content_description_add_this_reaction">Добавить эту реакцию</string>
-    <string name="content_description_remove_your_reaction">Удалить вашу реакцию</string>
+    <string name="content_description_remove_your_reaction">Удалить свою реакцию</string>
     <string name="label_user_database_profile">Журнал базы данных</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">“%1$s” был перемещен в “%2$s”</string>

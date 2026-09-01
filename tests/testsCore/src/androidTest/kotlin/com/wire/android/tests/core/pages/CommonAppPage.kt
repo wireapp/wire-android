@@ -82,6 +82,27 @@ data class CommonAppPage(private val device: UiDevice) {
         return this
     }
 
+    fun restartWireApp(): CommonAppPage {
+        device.executeShellCommand(
+            "am start -n ${UiAutomatorSetup.appPackage}/com.wire.android.ui.WireActivity"
+        )
+        return this
+    }
+
+    fun assertWireAppIsInForeground(): CommonAppPage {
+        val wireAppIsInForeground = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.SHORT_WAIT,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            device.currentPackageName == UiAutomatorSetup.appPackage
+        }
+        assertTrue(
+            "Wire app is not in foreground: ${device.currentPackageName}",
+            wireAppIsInForeground
+        )
+        return this
+    }
+
     fun closeWebPage(): CommonAppPage {
         UiWaitUtils.waitElement(
             closeWebPageButton,

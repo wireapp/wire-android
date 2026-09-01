@@ -73,8 +73,16 @@ import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
+/**
+ * Navigation-neutral semantic actions shared by conversation-list roots.
+ *
+ * The name intentionally omits `Navigation3`: the list UI can be hosted by any navigation
+ * implementation. Framework-specific result handling belongs to the Navigation 3 Home owner,
+ * which decorates this bundle before exposing it through
+ * [com.wire.android.ui.home.HomeTopLevelNavigation3Actions].
+ */
 @Suppress("LongParameterList")
-data class ConversationsNavigationActions(
+data class ConversationListNavigationActions(
     val openConversation: (ConversationId) -> Unit,
     val openUserProfile: (UserId) -> Unit,
     val startConversation: () -> Unit,
@@ -91,7 +99,7 @@ data class ConversationsNavigationActions(
 @Suppress("ComplexMethod", "NestedBlockDepth", "Wrapping", "SlotReused", "LongParameterList")
 @Composable
 fun ConversationsScreenContent(
-    navigationActions: ConversationsNavigationActions,
+    navigationActions: ConversationListNavigationActions,
     searchBarState: SearchBarState,
     modifier: Modifier = Modifier,
     emptyListContent: @Composable (domain: String) -> Unit = {},
@@ -304,7 +312,7 @@ private const val TAG = "BaseConversationsScreen"
 @Composable
 fun PreviewConversationsScreenContent() = WireTheme {
     ConversationsScreenContent(
-        navigationActions = ConversationsNavigationActions(
+        navigationActions = ConversationListNavigationActions(
             openConversation = {},
             openUserProfile = {},
             startConversation = {},

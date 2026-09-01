@@ -30,6 +30,15 @@ We will replace Compose Destinations with Navigation 3 and Wire-owned navigation
   with the feature that owns them.
 - Features contribute typed `wireEntry` providers and expose semantic actions instead of receiving
   generated navigators or `NavHostController`.
+- The Home shell aggregates one feature-owned semantic action contract for every interactive
+  top-level child. Feature-specific actions are not flattened into the Home contract; roots sharing
+  an action surface reuse its contract, and roots without navigation actions expose none.
+- A reusable UI action contract is named after its role and omits the framework version, for example
+  `ConversationListNavigationActions` or `MeetingsHomeNavigationActions`. The `Navigation3` suffix
+  is reserved for contracts coupled to a Navigation 3 entry, runtime or result lifecycle, for example
+  `ConversationEntryNavigation3Actions` or `MeetingsNavigation3Actions`. Starting a flow belongs to
+  the framework-neutral Home-root contract; actions performed inside its entries belong to the
+  `Navigation3` contract.
 - Navigation 3 owns back-stack entries and their `ViewModelStoreOwner` lifecycle.
 - Wire resolves the Metro graph independently from the typed route. A session route always carries
   the session identity from which its dependencies must be resolved.

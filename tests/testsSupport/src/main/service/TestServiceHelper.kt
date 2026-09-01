@@ -43,6 +43,7 @@ import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
 import service.enums.LegalHoldStatus
 import service.models.Conversation
+import service.models.Mentions
 import service.models.SendFileParams
 import service.models.SendLocationParams
 import service.models.SendTextParams
@@ -684,6 +685,41 @@ class TestServiceHelper(
 
             tempFile.deleteOnExit()
         } ?: userSendMessageToConversation(senderAlias, message, deviceName.orEmpty(), convoName)
+    }
+
+    fun userSendsMentionToConversation(
+        senderAlias: String,
+        mentionedUserAlias: String,
+        convoName: String,
+        deviceName: String? = null
+    ) {
+        val sender = toClientUser(senderAlias)
+        val mentionedUser = toClientUser(mentionedUserAlias)
+        val conversation = toConvoObj(sender, convoName)
+        val mention = "@${requireNotNull(mentionedUser.name)}"
+        val messageTimer = resolveMessageTimeout(senderAlias, convoName)
+
+        testServiceClient.sendTextWithMentions(
+            SendTextParams(
+                owner = sender,
+                deviceName = deviceName,
+                convoDomain = conversation.qualifiedID.domain,
+                convoId = conversation.qualifiedID.id,
+                timeout = messageTimer,
+                expectsReadConfirmation = false,
+                text = mention,
+                legalHoldStatus = LegalHoldStatus.DISABLED.code,
+                messageTimer = messageTimer,
+                listOfMentions = listOf(
+                    Mentions(
+                        length = mention.length,
+                        start = 0,
+                        userId = requireNotNull(mentionedUser.id),
+                        userDomain = backendFor(mentionedUser).domain
+                    )
+                )
+            )
+        )
     }
 
     @Suppress("LongParameterList")

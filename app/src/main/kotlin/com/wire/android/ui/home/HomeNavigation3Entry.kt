@@ -68,7 +68,6 @@ import com.wire.android.ui.home.conversations.ConversationRouteId
 import com.wire.android.ui.home.drawer.HomeDrawerViewModel
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversationslist.filter.toTopBarTitle
-import com.wire.android.ui.home.conversationslist.ConversationsNavigationActions
 import com.wire.android.ui.home.conversationslist.all.AllConversationsContent
 import com.wire.android.ui.analyticsUsageViewModel
 import com.wire.android.util.ui.LazyListStateProvider
@@ -146,14 +145,13 @@ internal fun HomeTopLevelDestination.backDestination(): HomeTopLevelDestination?
  * The typed boundary between the Home shell and children that are migrated independently.
  *
  * No generated direction or NavController crosses this API. A child can therefore move to a typed
- * route without changing the drawer/top-bar owner.
+ * route without changing the drawer/top-bar owner. Home-owned shell and chrome actions stay here;
+ * child-specific navigation is available only through [topLevel].
  */
 internal interface HomeNavigation3Actions {
-    val conversations: ConversationsNavigationActions
     val topLevel: HomeTopLevelNavigation3Actions
 
     fun onRequirement(requirement: HomeRequirement)
-    fun openNewConversation()
     fun openSelfProfile()
     fun openExternal(destination: HomeExternalDestination)
 }
@@ -282,8 +280,10 @@ private fun HomeNavigation3Entry(
         }
     }
 
-    val conversationsNavigationActions = remember(route.sessionId, runtime, actions.conversations) {
-        actions.conversations.copy(
+    val baseTopLevelActions = actions.topLevel
+    val baseConversationListActions = baseTopLevelActions.conversationList
+    val conversationListNavigationActions = remember(route.sessionId, runtime, baseConversationListActions) {
+        baseConversationListActions.copy(
             openConversation = { conversationId ->
                 val requestId = runtime.navigateForResult(
                     destination = ConversationRoute(
@@ -293,7 +293,7 @@ private fun HomeNavigation3Entry(
                     resultType = ConversationCompletionNavigation3ResultType,
                 )
                 if (requestId == null) {
-                    actions.conversations.openConversation(conversationId)
+                    baseConversationListActions.openConversation(conversationId)
                 } else {
                     conversationRequestIdValue = requestId.value
                 }
@@ -307,7 +307,7 @@ private fun HomeNavigation3Entry(
                     resultType = ConnectionRequestIgnoredNavigation3ResultType,
                 )
                 if (requestId == null) {
-                    actions.conversations.openUserProfile(userId)
+                    baseConversationListActions.openUserProfile(userId)
                 } else {
                     userProfileRequestIdValue = requestId.value
                 }
@@ -328,6 +328,11 @@ private fun HomeNavigation3Entry(
             },
         )
     }
+    val topLevelActions = remember(baseTopLevelActions, conversationListNavigationActions) {
+        object : HomeTopLevelNavigation3Actions by baseTopLevelActions {
+            override val conversationList = conversationListNavigationActions
+        }
+    }
 
     if (analyticsUsageViewModel.state.shouldDisplayDialog) {
         AnalyticsUsageDialog(
@@ -340,7 +345,7 @@ private fun HomeNavigation3Entry(
         homeState = homeViewModel.homeState,
         homeDrawerState = homeDrawerViewModel.drawerState,
         homeStateHolder = shellState,
-        onNewConversationClick = actions::openNewConversation,
+        onNewConversationClick = topLevelActions.conversationList.startConversation,
         onSelfUserClick = actions::openSelfProfile,
         onNavigateToHomeItem = { item ->
             when (val target = item.toNavigation3Target()) {
@@ -352,7 +357,7 @@ private fun HomeNavigation3Entry(
             when (shellState.selectedDestination) {
                 HomeTopLevelDestination.CONVERSATIONS -> AllConversationsContent(
                     homeShellState = shellState,
-                    navigationActions = conversationsNavigationActions,
+                    navigationActions = topLevelActions.conversationList,
                 )
 
                 else -> HomeNavigation3TopLevelContent(
@@ -360,8 +365,7 @@ private fun HomeNavigation3Entry(
                     shellState = shellState,
                     sessionId = route.sessionId,
                     runtime = runtime,
-                    actions = actions.topLevel,
-                    conversationsNavigationActions = conversationsNavigationActions,
+                    actions = topLevelActions,
                 )
             }
         },

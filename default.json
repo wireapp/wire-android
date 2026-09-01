@@ -41,7 +41,8 @@
             "db_invalidation_control_enabled": true,
             "enforce_configuration_signature": false,
             "pending_messages": true,
-            "link_preview_enabled": true
+            "link_preview_enabled": true,
+            "drive_permissions_enabled": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -72,7 +73,8 @@
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": false,
             "pending_messages": true,
-            "link_preview_enabled": true
+            "link_preview_enabled": true,
+            "drive_permissions_enabled": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -164,5 +166,6 @@
     "nomad_profiles_enabled": true,
     "block_cross_backend_login": false,
     "pending_messages": false,
-    "link_preview_enabled": false
+    "link_preview_enabled": false,
+    "drive_permissions_enabled": false
 }

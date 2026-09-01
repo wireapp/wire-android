@@ -45,11 +45,13 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.isActive
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -111,7 +113,7 @@ class MeetingListViewModelImpl @AssistedInject constructor(
                 item.toMeetingItem(time = currentTime, ongoingCallStatus = activeCall?.toOngoingCallStatus())
             }
             .insertHeaders(type = type)
-    }
+    }.shareIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(), replay = 1)
 }
 
 /** Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time. */

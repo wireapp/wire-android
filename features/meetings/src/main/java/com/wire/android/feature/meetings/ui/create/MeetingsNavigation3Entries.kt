@@ -21,6 +21,7 @@ import com.wire.android.ui.common.HandleActions
 import com.wire.navigation.WireNavigationCommand
 import com.wire.navigation.WireViewModelOwner
 
+/** Host actions used by entries inside the Navigation 3 meeting flow. */
 interface MeetingsNavigation3Actions {
     fun exitMeetingFlow()
     fun openUserProfile(userId: MeetingParticipantId)

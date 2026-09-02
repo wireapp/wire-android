@@ -645,6 +645,12 @@ sealed interface UIMessageContent {
         data object NewConversationWithCellSelfDeleteDisabled : SystemMessage
 
         @Serializable
+        data object CellsConversationViewerAccess : SystemMessage
+
+        @Serializable
+        data object CellsConversationEditorAccess : SystemMessage
+
+        @Serializable
         data class ConversationAppsEnabledChanged(
             val author: UIText,
             val isAuthorSelfUser: Boolean = false,

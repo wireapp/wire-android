@@ -96,13 +96,10 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
                             title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
                             editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && !hasEnded,
-                            deleteOption = when {
-                                hasEnded -> MeetingOptionsMenuState.Meeting.DeleteOption.None
-                                else -> when (it.selfRole) {
-                                    MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
-                                    // for now, we don't show delete option for members as "delete for me" is not yet implemented
-                                    MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.None
-                                }
+                            deleteOption = when (it.selfRole) {
+                                MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
+                                // for now, we don't show delete option for members as "delete for me" is not yet implemented
+                                MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.None
                             },
                         )
                     } ?: MeetingOptionsMenuState.NotAvailable

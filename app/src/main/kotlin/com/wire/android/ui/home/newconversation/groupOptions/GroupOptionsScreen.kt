@@ -22,15 +22,18 @@ package com.wire.android.ui.home.newconversation.groupOptions
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -389,6 +392,29 @@ private fun GroupOptionState.EnableWireCellOptions(onEnableWireCell: (Boolean) -
             CustomTabsHelper.launchUrl(context, cellsLearnMoreUrl)
         }
     )
+
+    Row {
+        Icon(
+            modifier = Modifier.padding(
+                top = MaterialTheme.wireDimensions.spacing4x,
+                start = MaterialTheme.wireDimensions.spacing16x,
+            ),
+            painter = painterResource(R.drawable.ic_file_view_only),
+            contentDescription = null,
+            tint = MaterialTheme.wireColorScheme.secondaryText,
+        )
+
+        Text(
+            text = stringResource(R.string.enable_wire_cell_guest_access_description),
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            modifier = Modifier.padding(
+                start = MaterialTheme.wireDimensions.spacing8x,
+                end = MaterialTheme.wireDimensions.spacing16x,
+            ),
+            textAlign = TextAlign.Left,
+            style = typography().body01,
+        )
+    }
 }
 
 @Composable

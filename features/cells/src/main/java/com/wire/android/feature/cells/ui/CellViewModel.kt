@@ -24,6 +24,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
@@ -40,6 +41,7 @@ import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
+import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
@@ -61,6 +63,8 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Assisted
@@ -113,10 +117,14 @@ class CellViewModel @AssistedInject constructor(
     private val networkStateObserver: NetworkStateObserver,
     private val getConversationName: GetConversationNameUseCase,
     private val getUserName: GetUserNameUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    private val userDataStore: UserDataStore,
+    private val qualifiedIdMapper: QualifiedIdMapper,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
-) : ActionsViewModel<CellViewAction>() {
+    @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
+    ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
     interface Factory {
@@ -159,7 +167,11 @@ class CellViewModel @AssistedInject constructor(
         SortingCriteria.FoldersFirst
     }
 
-    private val _sortingCriteria = MutableStateFlow(defaultSortingCriteria)
+    // When this instance backs the search screen, start from the sort order that was active in the
+    // parent listing so the unfiltered list shown on entry matches what the user was looking at.
+    private val _sortingCriteria = MutableStateFlow(
+        searchNavArgs?.initialSortingCriteria?.toSortingCriteria() ?: defaultSortingCriteria
+    )
     val sortingCriteria: StateFlow<SortingCriteria> = _sortingCriteria.asStateFlow()
 
     val isOnline: StateFlow<Boolean> = networkStateObserver.observeNetworkState()
@@ -172,9 +184,41 @@ class CellViewModel @AssistedInject constructor(
 
     private var isCollaboraEnabled: Boolean = false
 
+    private val rootConversationId: String? = navArgs.conversationId?.substringBefore("/")
+
+    private val isViewerOnly = MutableStateFlow(false)
+
+    /**
+     * Viewer access banner is shown while browsing files of a conversation the self user only has viewer access to,
+     * until it is dismissed. Dismissal is remembered for that conversation.
+     */
+    internal val showViewerAccessBanner: StateFlow<Boolean> = combine(
+        isViewerOnly,
+        rootConversationId?.let { userDataStore.isViewerAccessBannerDismissed(it) } ?: flowOf(true),
+    ) { viewerOnly, dismissed ->
+        viewerOnly && !dismissed && drivePermissionsEnabled
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
     init {
         loadWireCellConfig()
         checkCellAvailabilityAndRefresh()
+        checkViewerAccess()
+    }
+
+    private fun checkViewerAccess() = viewModelScope.launch {
+        val conversationId = rootConversationId?.takeIf { isConversationFiles() } ?: return@launch
+        isViewerOnly.value = !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+    }
+
+    internal fun onViewerAccessBannerDismissed() {
+        val conversationId = rootConversationId ?: return
+        viewModelScope.launch {
+            userDataStore.setViewerAccessBannerDismissed(conversationId)
+        }
     }
 
     private fun checkCellAvailabilityAndRefresh() = viewModelScope.launch {
@@ -248,7 +292,6 @@ class CellViewModel @AssistedInject constructor(
             sharedPathCache.openLoadStates,
             offlineFileDownloadController.downloadProgresses,
         ) { offlineFiles, openLoadStates, downloadProgresses ->
-            val rootConversationId = navArgs.conversationId?.substringBefore("/")
             val filtered = if (rootConversationId != null) {
                 offlineFiles.filter { it.conversationId == rootConversationId }
             } else {
@@ -275,7 +318,7 @@ class CellViewModel @AssistedInject constructor(
         cellAvailable to online
     }.flatMapLatest { (cellAvailable, online) ->
         when {
-            !cellAvailable || searchNavArgs != null -> flowOf(emptyData)
+            !cellAvailable -> flowOf(emptyData)
             offlineFilesEnabled && !online -> offlineNodesFlow
             else -> sharedNodesFlow
         }

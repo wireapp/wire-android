@@ -54,6 +54,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -80,10 +81,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.attachmentdraft.model.allUploaded
 import com.wire.android.ui.common.banner.SecurityClassificationBannerForConversation
+import com.wire.android.ui.common.banner.ViewerAccessBanner
 import com.wire.android.ui.common.bottombar.bottomNavigationBarHeight
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -136,6 +139,7 @@ fun EnabledMessageComposer(
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
     val rippleProgress = remember { Animatable(0f) }
     var hideRipple by remember { mutableStateOf(true) }
+    var viewerAccessBannerDismissed by rememberSaveable { mutableStateOf(false) }
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
@@ -247,6 +251,16 @@ fun EnabledMessageComposer(
                         .fillMaxWidth()
                         .background(color = colorsScheme().surfaceContainerLow)
                 ) {
+                    val shouldShowViewerAccessBanner = !messageComposerViewState.value.areAttachmentOptionsEnabled &&
+                            !viewerAccessBannerDismissed &&
+                            BuildConfig.DRIVE_PERMISSIONS_ENABLED
+                    if (shouldShowViewerAccessBanner) {
+                        ViewerAccessBanner(
+                            onCloseClick = { viewerAccessBannerDismissed = true },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
                     Box(Modifier.wrapContentSize()) {
                         SecurityClassificationBannerForConversation(
                             conversationId = conversationId
@@ -439,7 +453,7 @@ fun EnabledMessageComposer(
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             onDrawingModeClicked = {
-                                if (messageComposerViewState.value.areAttachmentOptionsEnabled) {
+                                if (messageComposerViewState.value.areAttachmentOptionsEnabled && BuildConfig.DRIVE_PERMISSIONS_ENABLED) {
                                     openDrawingCanvas()
                                 }
                             },
@@ -510,7 +524,8 @@ fun EnabledMessageComposer(
                         AdditionalOptionSubMenu(
                             optionsVisible = inputStateHolder.optionsVisible,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
+                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled ||
+                                    !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
                             onRecordAudioMessageClicked = {
                                 if (!messageComposerViewState.value.isCallOngoing) {

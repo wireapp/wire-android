@@ -19,8 +19,8 @@
 package com.wire.android.ui.home
 
 import com.wire.android.ui.home.whatsnew.WhatsNewItem
-import com.wire.android.ui.home.whatsnew.WhatsNewNavigation3Target
-import com.wire.android.ui.home.whatsnew.toNavigation3Target
+import com.wire.android.ui.home.whatsnew.WhatsNewNavigationTarget
+import com.wire.android.ui.home.whatsnew.toNavigationTarget
 import com.wire.android.util.ui.UIText
 import java.io.File
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -31,14 +31,14 @@ import org.junit.jupiter.api.Test
 class HomeTopLevelNavigation3Test {
 
     @Test
-    fun givenWhatsNewItems_whenMapped_thenOnlySemanticNavigation3TargetsCrossTheHomeBoundary() {
+    fun givenWhatsNewItems_whenMapped_thenOnlySemanticTargetsCrossTheHomeBoundary() {
         assertEquals(
-            WhatsNewNavigation3Target.Welcome,
-            WhatsNewItem.WelcomeToNewAndroidApp.toNavigation3Target(),
+            WhatsNewNavigationTarget.Welcome,
+            WhatsNewItem.WelcomeToNewAndroidApp.toNavigationTarget(),
         )
         assertEquals(
-            WhatsNewNavigation3Target.AllAndroidReleaseNotes,
-            WhatsNewItem.AllAndroidReleaseNotes().toNavigation3Target(),
+            WhatsNewNavigationTarget.AllAndroidReleaseNotes,
+            WhatsNewItem.AllAndroidReleaseNotes().toNavigationTarget(),
         )
 
         val releaseNote = WhatsNewItem.AndroidReleaseNotes(
@@ -47,8 +47,8 @@ class HomeTopLevelNavigation3Test {
             url = "https://wire.com/release",
         )
         assertEquals(
-            WhatsNewNavigation3Target.ExternalReleaseNote("https://wire.com/release"),
-            releaseNote.toNavigation3Target(),
+            WhatsNewNavigationTarget.ExternalReleaseNote("https://wire.com/release"),
+            releaseNote.toNavigationTarget(),
         )
     }
 
@@ -67,8 +67,57 @@ class HomeTopLevelNavigation3Test {
         }
     }
 
+    @Test
+    fun givenHomeTopLevelActions_whenDefiningChildNavigation_thenEveryChildUsesAnOwnedContract() {
+        val contract = sourceFile().readText()
+            .substringAfter("internal interface HomeTopLevelNavigation3Actions {")
+            .substringBefore("\n}")
+
+        listOf(
+            "val conversationList: ConversationListNavigationActions",
+            "val settings: SettingsNavigation3Actions",
+            "val cells: AllFilesNavigationActions",
+            "val whatsNew: WhatsNewNavigationActions",
+            "val meetings: MeetingsHomeNavigationActions",
+        ).forEach { property ->
+            assertTrue(contract.contains(property), "Missing top-level child contract: $property")
+        }
+        assertFalse(contract.contains("fun "), "Feature-specific actions must not be flattened into Home")
+    }
+
+    @Test
+    fun givenHomeShellActions_whenDefiningNavigation_thenChildNavigationIsOnlyExposedThroughTopLevel() {
+        val contract = homeEntrySourceFile().readText()
+            .substringAfter("internal interface HomeNavigation3Actions {")
+            .substringBefore("\n}")
+        val declarations = contract.lineSequence()
+            .map(String::trim)
+            .filter(String::isNotEmpty)
+            .toList()
+
+        assertEquals(
+            listOf(
+                "val topLevel: HomeTopLevelNavigation3Actions",
+                "fun onRequirement(requirement: HomeRequirement)",
+                "fun openSelfProfile()",
+                "fun openExternal(destination: HomeExternalDestination)",
+            ),
+            declarations,
+            "Home child navigation must be exposed only through the top-level aggregate",
+        )
+    }
+
     private fun sourceFile(): File {
         val relative = "src/main/kotlin/com/wire/android/ui/home/HomeNavigation3TopLevelContent.kt"
+        return sequenceOf(
+            File(relative),
+            File("app/$relative"),
+            File("../app/$relative"),
+        ).first(File::isFile)
+    }
+
+    private fun homeEntrySourceFile(): File {
+        val relative = "src/main/kotlin/com/wire/android/ui/home/HomeNavigation3Entry.kt"
         return sequenceOf(
             File(relative),
             File("app/$relative"),

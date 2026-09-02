@@ -27,6 +27,7 @@ import com.wire.android.feature.cells.navigation.ConversationFilesRoute
 import com.wire.android.feature.cells.navigation.PublicLinkRoute
 import com.wire.android.feature.cells.navigation.SearchRoute
 import com.wire.android.feature.cells.navigation.VideoPlayerRoute
+import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
 import com.wire.android.feature.meetings.ui.create.MeetingParticipantId
 import com.wire.android.feature.meetings.ui.create.NewMeetingDetailsRoute
 import com.wire.android.navigation.LoginTypeSelector
@@ -60,13 +61,14 @@ import com.wire.android.ui.home.conversations.AddMembersSearchRoute
 import com.wire.android.ui.home.conversations.toNavigation3
 import com.wire.android.ui.home.conversations.details.ConversationDetailsId
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.ui.home.conversationslist.ConversationsNavigationActions
+import com.wire.android.ui.home.conversationslist.ConversationListNavigationActions
 import com.wire.android.ui.home.newconversation.NewConversationSearchPeopleRoute
 import com.wire.android.ui.home.settings.AboutThisAppRoute
 import com.wire.android.ui.home.settings.AppSettingsRoute
 import com.wire.android.ui.home.settings.MyAccountRoute
 import com.wire.android.ui.home.settings.SettingsNavigation3Destination
-import com.wire.android.ui.home.whatsnew.WhatsNewNavigation3Target
+import com.wire.android.ui.home.whatsnew.WhatsNewNavigationActions
+import com.wire.android.ui.home.whatsnew.WhatsNewNavigationTarget
 import com.wire.android.ui.settings.devices.DeviceDetailsRoute
 import com.wire.android.ui.settings.devices.DeviceTargetUserId
 import com.wire.android.ui.settings.devices.SelfDevicesRoute
@@ -80,7 +82,6 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileRoute
 import com.wire.android.ui.userprofile.service.ServiceDetailsRoute
 import com.wire.android.ui.userprofile.service.ServiceProfileTarget
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationTeamPlanRoute
-import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -140,8 +141,14 @@ internal class WireNavigation3ProductionActions(
         private set
 
     override val cells: AllFilesNavigationActions = AllFilesNavigationActions(
-        openSearch = {
-            navigate(SearchRoute(requireSession(), screenType = CellsSearchType.DRIVE))
+        openSearch = { sortCriteria ->
+            navigate(
+                SearchRoute(
+                    sessionId = requireSession(),
+                    sortCriteria = sortCriteria,
+                    screenType = CellsSearchType.DRIVE,
+                )
+            )
         },
         showPublicLink = {
             navigate(
@@ -190,10 +197,10 @@ internal class WireNavigation3ProductionActions(
             )
         },
     )
-    override val conversations: ConversationsNavigationActions = ConversationsNavigationActions(
+    override val conversationList: ConversationListNavigationActions = ConversationListNavigationActions(
         openConversation = { openConversation(it.toProfileId()) },
         openUserProfile = { openUserProfile(it.value, it.domain) },
-        startConversation = ::openNewConversation,
+        startConversation = { navigate(NewConversationSearchPeopleRoute.start(requireSession())) },
         browseChannels = { navigate(BrowseChannelsRoute(requireSession())) },
         openConversationFolders = {},
         promoteAdmin = { args ->
@@ -207,6 +214,23 @@ internal class WireNavigation3ProductionActions(
         },
         openDebugMenu = { navigate(DebugConversationRoute(requireSession(), it.conversationId.toAuxId())) },
     )
+    override val meetings: MeetingsHomeNavigationActions = MeetingsHomeNavigationActions(
+        openNewMeeting = { type ->
+            navigate(NewMeetingDetailsRoute.start(requireSession(), type))
+        },
+    )
+    override val whatsNew: WhatsNewNavigationActions = WhatsNewNavigationActions(
+        openWhatsNew = { target ->
+            when (target) {
+                WhatsNewNavigationTarget.Welcome ->
+                    activity.openIntent(WireNavigation3ExternalIntent.WELCOME_ANDROID)
+                WhatsNewNavigationTarget.AllAndroidReleaseNotes ->
+                    activity.openIntent(WireNavigation3ExternalIntent.ANDROID_RELEASE_NOTES)
+                is WhatsNewNavigationTarget.ExternalReleaseNote ->
+                    activity.openUrl(target.url)
+            }
+        },
+    )
 
     override fun canUseNewLogin() = loginTypeSelector.canUseNewLogin()
     override fun exitAuthentication() = activity.finish()
@@ -217,9 +241,6 @@ internal class WireNavigation3ProductionActions(
     override fun onRequirement(requirement: HomeRequirement) =
         authenticationRouter.homeRequirement(requirement, currentSessionId()).let { Unit }
 
-    override fun openNewConversation() =
-        navigate(NewConversationSearchPeopleRoute.start(requireSession()))
-
     override fun openSelfProfile() = navigate(SelfUserProfileRoute(requireSession()))
 
     override fun openExternal(destination: HomeExternalDestination) =
@@ -229,18 +250,6 @@ internal class WireNavigation3ProductionActions(
                 HomeExternalDestination.TEAM_MANAGEMENT -> WireNavigation3ExternalIntent.TEAM_MANAGEMENT
             }
         )
-
-    override fun openWhatsNew(target: WhatsNewNavigation3Target) =
-        when (target) {
-            WhatsNewNavigation3Target.Welcome ->
-                activity.openIntent(WireNavigation3ExternalIntent.WELCOME_ANDROID)
-            WhatsNewNavigation3Target.AllAndroidReleaseNotes ->
-                activity.openIntent(WireNavigation3ExternalIntent.ANDROID_RELEASE_NOTES)
-            is WhatsNewNavigation3Target.ExternalReleaseNote ->
-                activity.openUrl(target.url)
-        }
-    override fun openNewMeeting(type: NewMeetingType) =
-        navigate(NewMeetingDetailsRoute.start(requireSession(), type))
 
     override fun exitFlow() = activity.finish()
     override fun openUserProfile(userIdValue: String, userIdDomain: String) =

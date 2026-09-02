@@ -24,10 +24,10 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -56,10 +56,12 @@ import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.search.sort.toNavArg
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.navigation.transition.SHARED_ELEMENT_TOP_APP_BAR_KEY
 import com.wire.android.ui.common.MoreOptionIcon
+import com.wire.android.ui.common.banner.ViewerAccessBanner
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -76,7 +78,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-
 @Composable
 internal fun ConversationFilesRouteScreen(
     navigation: CellsFilesNavigation,
@@ -108,6 +109,8 @@ internal fun ConversationFilesRouteScreen(
         sortingCriteria = viewModel.sortingCriteria.collectAsState().value,
         onSortByClicked = viewModel::setSortBy,
         onSortOrderClicked = viewModel::setSorting,
+        showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
+        onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
 
     LaunchedEffect(Unit) {
@@ -141,6 +144,8 @@ internal fun ConversationFilesScreenContent(
     sortingCriteria: SortingCriteria = SortingCriteria.FoldersFirst,
     onSortByClicked: (SortBy) -> Unit = {},
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
+    showViewerAccessBanner: Boolean = false,
+    onViewerAccessBannerCloseClick: () -> Unit = {},
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
@@ -240,10 +245,15 @@ internal fun ConversationFilesScreenContent(
                             searchQueryTextState = TextFieldState(),
                             onTap = {
                                 currentNodeUuid?.let {
-                                    navigation.search(it)
+                                    navigation.search(it, sortingCriteria.toNavArg())
                                 }
                             },
                         )
+
+                        if (showViewerAccessBanner) {
+                            ViewerAccessBanner(onCloseClick = onViewerAccessBannerCloseClick)
+                        }
+
                         if (!isRecycleBin) {
                             SortRowWithMenu(
                                 sortingCriteria = sortingCriteria,

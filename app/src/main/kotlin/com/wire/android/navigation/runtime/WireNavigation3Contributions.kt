@@ -31,7 +31,7 @@ import com.wire.android.ui.home.appLock.AppLockNavigation3Actions
 import com.wire.android.ui.home.appLock.AppLockNavigation3Contribution
 import com.wire.android.ui.home.conversations.ConversationAuxNavigation3Actions
 import com.wire.android.ui.home.conversations.ConversationAuxNavigation3Contribution
-import com.wire.android.ui.home.conversations.ConversationNavigation3Actions
+import com.wire.android.ui.home.conversations.ConversationEntryNavigation3Actions
 import com.wire.android.ui.home.conversations.ConversationNavigation3Contribution
 import com.wire.android.ui.home.conversations.details.ConversationDetailsNavigation3Actions
 import com.wire.android.ui.home.conversations.details.ConversationDetailsNavigation3Contribution
@@ -50,9 +50,9 @@ import com.wire.android.ui.userprofile.teammigration.TeamMigrationNavigation3Con
 /**
  * The one host boundary required by every currently migrated Navigation 3 contribution.
  *
- * [HomeNavigation3Actions] deliberately exposes its existing nested callback bundles for the
- * Conversations and Cells top-level content. Its top-level and settings interfaces, however, are
- * this same host contract, avoiding a second action implementation with subtly different state.
+ * [HomeNavigation3Actions] exposes one aggregate of feature-owned top-level contracts. This
+ * composite supplies entry-coupled host interfaces directly. Framework-neutral Home-root action
+ * bundles remain explicit properties implemented once by the production host.
  */
 internal interface WireNavigation3CompositeActions :
     AuthenticationNavigation3Actions,
@@ -63,7 +63,7 @@ internal interface WireNavigation3CompositeActions :
     DeviceE2EINavigation3Actions,
     UserProfileNavigation3Actions,
     TeamMigrationNavigation3Actions,
-    ConversationNavigation3Actions,
+    ConversationEntryNavigation3Actions,
     ConversationAuxNavigation3Actions,
     ConversationDetailsNavigation3Actions,
     MediaNavigation3Actions,

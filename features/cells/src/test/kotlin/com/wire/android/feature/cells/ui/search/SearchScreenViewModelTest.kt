@@ -22,6 +22,7 @@ import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
@@ -133,6 +134,23 @@ class SearchScreenViewModelTest {
     fun `given DRIVE ViewModel, then defaultSortingCriteria is ByDate NewestFirst`() = runTest {
         val viewModel = createViewModelWithScreenType(DriveSearchScreenType.DRIVE)
         assertEquals(SortingCriteria.ByDate.NewestFirst, viewModel.defaultSortingCriteria)
+    }
+
+    @Test
+    fun `given initial sorting in nav args, when ViewModel is created, then it is inherited`() = runTest {
+        val viewModel = createViewModelWithInitialSorting(SortCriteriaNavArg.NameAZ)
+        advanceUntilIdle()
+
+        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.inheritedSortingCriteria)
+        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.uiState.value.sortingCriteria)
+    }
+
+    @Test
+    fun `given no initial sorting in nav args, when ViewModel is created, then inherited sorting is the default`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        assertEquals(viewModel.defaultSortingCriteria, viewModel.inheritedSortingCriteria)
     }
 
     @Test
@@ -340,6 +358,22 @@ class SearchScreenViewModelTest {
     private fun createViewModel(): SearchScreenViewModel {
         return SearchScreenViewModel(
             navArgs = SearchNavArgs(CONVERSATION_ID, DriveSearchScreenType.SHARED_DRIVE),
+            getAllTagsUseCase = getAllTagsUseCase,
+            getCellFilesPaged = getCellFilesPaged,
+            getOwners = getOwners,
+            getPaginatedConversations = getPaginatedConversations,
+            sharedPathCache = sharedPathCache,
+            observeOfflineFiles = observeOfflineFiles,
+        )
+    }
+
+    private fun createViewModelWithInitialSorting(sortCriteria: SortCriteriaNavArg): SearchScreenViewModel {
+        return SearchScreenViewModel(
+            navArgs = SearchNavArgs(
+                conversationId = CONVERSATION_ID,
+                screenType = DriveSearchScreenType.SHARED_DRIVE,
+                initialSortingCriteria = sortCriteria,
+            ),
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,

@@ -57,6 +57,7 @@ import com.wire.android.mediaplayer.VideoPlayer
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import androidx.compose.ui.platform.LocalContext
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavResult
 import com.wire.navigation.WireNavResultRequestId
@@ -295,8 +296,8 @@ private class Navigation3CellsFilesNavigation(
         )
     }
 
-    override fun search(conversationId: String) {
-        runtime.navigator.navigate(WireNavigationCommand(SearchRoute(sessionId, conversationId)))
+    override fun search(conversationId: String, sortCriteria: SortCriteriaNavArg?) {
+        runtime.navigator.navigate(WireNavigationCommand(SearchRoute(sessionId, conversationId, sortCriteria)))
     }
 
     override fun folder(args: com.wire.android.feature.cells.ui.CellFilesNavArgs) {

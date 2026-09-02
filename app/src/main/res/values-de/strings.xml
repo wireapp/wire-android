@@ -673,6 +673,7 @@
     <string name="label_move_to_folder">In Ordner verschieben…</string>
     <string name="label_remove_from_folder">Aus dem Ordner “%1$s” entfernen</string>
     <string name="label_new_folder">Neuer Ordner</string>
+    <string name="folder_create_description">Erstellen Sie einen neuen Ordner durch Auswählen der\nSchaltfläche „Neuer Ordner“</string>
     <string name="label_move_to_archive">Ins Archiv verschieben</string>
     <string name="label_unarchive">Reaktivieren</string>
     <string name="label_clear_content">Verlauf löschen…</string>
@@ -963,7 +964,7 @@
     <string name="error_conversation_generic">Ein Fehler ist aufgetreten. Die Nachricht konnte nicht gesendet werden.</string>
     <string name="conversation_on_file_downloaded">Die Datei %s wurde im Download-Ordner gespeichert</string>
     <string name="error_blocking_user">Benutzer konnte nicht blockiert werden</string>
-    <string name="blocking_user_success">%s blockiert</string>
+    <string name="blocking_user_success">%s wurde blockiert.</string>
     <string name="unblocking_user_success">%s freigegeben</string>
     <string name="conversation_removed_success">“%s” entfernt</string>
     <string name="conversation_removed_locally_success">“%s” für mich gelöscht</string>

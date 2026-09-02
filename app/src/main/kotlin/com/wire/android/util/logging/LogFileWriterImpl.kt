@@ -21,6 +21,9 @@ import kotlinx.io.files.Path
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
+import kotlin.time.Duration.Companion.milliseconds
 
 /** Persists Wire diagnostics directly from Kermit instead of reading device logcat. */
 class LogFileWriterImpl(
@@ -30,23 +33,27 @@ class LogFileWriterImpl(
 
     override val activeLoggingFile = File(logsDirectory, "$LOG_FILE_NAME.log")
 
-    private val rollingWriter = RollingFileLogWriter(
-        RollingFileLogWriterConfig(
-            logFileName = LOG_FILE_NAME,
-            logFilePath = Path(logsDirectory.absolutePath),
-            rollOnSize = config.rollOnSizeBytes,
-            maxLogFiles = config.maxLogFiles,
-        )
-    )
-    private val gatedWriter = GatedLogWriter(rollingWriter)
+    private var rollingWriter: RollingFileLogWriter? = null
+    private val gatedWriter = GatedLogWriter { rollingWriter }
 
     override val logWriter: LogWriter = gatedWriter
 
     override suspend fun start() = withContext(Dispatchers.IO) {
         ensureLogDirectoryExists()
+        migrateLegacyLogs()
         if (!activeLoggingFile.exists()) activeLoggingFile.createNewFile()
         if (!activeLoggingFile.exists()) {
             throw IOException("Unable to create log file: ${activeLoggingFile.absolutePath}")
+        }
+        if (rollingWriter == null) {
+            rollingWriter = RollingFileLogWriter(
+                RollingFileLogWriterConfig(
+                    logFileName = LOG_FILE_NAME,
+                    logFilePath = Path(logsDirectory.absolutePath),
+                    rollOnSize = config.rollOnSizeBytes,
+                    maxLogFiles = config.maxLogFiles,
+                )
+            )
         }
         gatedWriter.enable()
     }
@@ -67,6 +74,7 @@ class LogFileWriterImpl(
             logsDirectory.listFiles()
                 ?.filter { ROLLED_LOG_FILE_REGEX.matches(it.name) }
                 ?.forEach(File::delete)
+            deleteLegacyLogFiles()
             ensureLogDirectoryExists()
             activeLoggingFile.outputStream().use { }
         }
@@ -75,8 +83,8 @@ class LogFileWriterImpl(
     }
 
     private suspend fun waitForBarrier(marker: String) = withContext(Dispatchers.IO) {
-        withTimeout(config.flushTimeoutMs) {
-            while (!containsBarrier(marker)) delay(FLUSH_POLL_INTERVAL_MS)
+        withTimeout(config.flushTimeoutMs.milliseconds) {
+            while (!containsBarrier(marker)) delay(FLUSH_POLL_INTERVAL_MS.milliseconds)
         }
     }
 
@@ -91,7 +99,66 @@ class LogFileWriterImpl(
         }
     }
 
-    private class GatedLogWriter(private val delegate: LogWriter) : LogWriter() {
+    /**
+     * Transfers the only legacy active log to a deterministic gzip snapshot. The active source
+     * remains untouched until the snapshot has been fully written, validated and renamed.
+     */
+    private fun migrateLegacyLogs() {
+        val legacyActiveFile = File(logsDirectory, LEGACY_ACTIVE_FILE_NAME)
+        val legacySnapshot = File(logsDirectory, LEGACY_SNAPSHOT_FILE_NAME)
+        val legacySnapshotTemp = File(logsDirectory, "$LEGACY_SNAPSHOT_FILE_NAME.tmp")
+
+        if (!legacyActiveFile.exists()) {
+            if (legacySnapshot.isFile && isReadableGzip(legacySnapshot)) {
+                deleteLegacyLogFiles(keepSnapshot = true)
+                return
+            }
+            legacySnapshotTemp.delete()
+            return
+        }
+
+        if (legacySnapshot.exists()) {
+            if (legacySnapshot.isFile && isReadableGzip(legacySnapshot)) {
+                deleteLegacyLogFiles(keepSnapshot = true)
+                return
+            }
+            if (!legacySnapshot.delete()) return
+        }
+
+        if (legacySnapshotTemp.exists() && !legacySnapshotTemp.delete()) return
+        if (!createLegacySnapshot(legacyActiveFile, legacySnapshotTemp, legacySnapshot)) return
+
+        deleteLegacyLogFiles(keepSnapshot = true)
+    }
+
+    private fun createLegacySnapshot(source: File, temporarySnapshot: File, finalSnapshot: File): Boolean = runCatching {
+        source.inputStream().buffered().use { input ->
+            GZIPOutputStream(temporarySnapshot.outputStream().buffered()).use { output -> input.copyTo(output) }
+        }
+        temporarySnapshot.renameTo(finalSnapshot) && isReadableGzip(finalSnapshot)
+    }.getOrDefault(false).also { created ->
+        if (!created) temporarySnapshot.delete()
+    }
+
+    private fun isReadableGzip(file: File): Boolean = runCatching {
+        GZIPInputStream(file.inputStream().buffered()).use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (input.read(buffer) != -1) Unit
+        }
+    }.isSuccess
+
+    private fun deleteLegacyLogFiles(keepSnapshot: Boolean = false) {
+        logsDirectory.listFiles()
+            ?.filter { file ->
+                file.name == LEGACY_ACTIVE_FILE_NAME ||
+                    LEGACY_ARCHIVE_FILE_REGEX.matches(file.name) ||
+                    LEGACY_TEMP_FILE_REGEX.matches(file.name) ||
+                    (!keepSnapshot && file.name == LEGACY_SNAPSHOT_FILE_NAME)
+            }
+            ?.forEach(File::delete)
+    }
+
+    private class GatedLogWriter(private val delegate: () -> LogWriter?) : LogWriter() {
         private val lock = Any()
         private var enabled = false
 
@@ -103,23 +170,27 @@ class LogFileWriterImpl(
             if (!enabled) return null
 
             val marker = "$FLUSH_MARKER_PREFIX${UUID.randomUUID()}"
-            delegate.log(Severity.Verbose, marker, LOG_TAG, null)
+            delegate()?.log(Severity.Verbose, marker, LOG_TAG, null)
             if (disableAfterWrite) enabled = false
             marker
         }
 
         override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
             synchronized(lock) {
-                if (enabled) delegate.log(severity, message, tag, throwable)
+                if (enabled) delegate()?.log(severity, message, tag, throwable)
             }
         }
     }
 
     private companion object {
         const val LOG_FILE_NAME = "wire_logs"
+        const val LEGACY_ACTIVE_FILE_NAME = "$LOG_FILE_NAME.txt"
+        const val LEGACY_SNAPSHOT_FILE_NAME = "wire_legacy_active.gz"
         const val LOG_TAG = "LogFileWriter"
         const val FLUSH_MARKER_PREFIX = "wire-log-flush:"
         const val FLUSH_POLL_INTERVAL_MS = 10L
         val ROLLED_LOG_FILE_REGEX = Regex("$LOG_FILE_NAME-[0-9]+\\.log")
+        val LEGACY_ARCHIVE_FILE_REGEX = Regex("wire_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.gz")
+        val LEGACY_TEMP_FILE_REGEX = Regex("(?:wire_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.gz|$LEGACY_SNAPSHOT_FILE_NAME)\\.tmp")
     }
 }

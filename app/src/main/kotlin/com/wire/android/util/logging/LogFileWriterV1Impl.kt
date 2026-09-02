@@ -22,6 +22,8 @@ import kotlinx.io.files.Path
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 /** Persists diagnostics directly from Kermit instead of reading device logcat. */
 class LogFileWriterV1Impl(
@@ -38,6 +40,7 @@ class LogFileWriterV1Impl(
 
     override suspend fun start() = withContext(Dispatchers.IO) {
         ensureLogDirectoryExists()
+        migrateLegacyLogs()
         if (rollingWriter == null) {
             rollingWriter = RollingFileLogWriter(
                 RollingFileLogWriterConfig(
@@ -67,6 +70,7 @@ class LogFileWriterV1Impl(
             logsDirectory.listFiles()
                 ?.filter { ROLLED_LOG_FILE_REGEX.matches(it.name) }
                 ?.forEach(File::delete)
+            deleteLegacyLogFiles()
             ensureLogDirectoryExists()
             activeLoggingFile.outputStream().use { }
         }
@@ -89,6 +93,66 @@ class LogFileWriterV1Impl(
         if (!logsDirectory.exists() && !logsDirectory.mkdirs()) {
             throw IOException("Unable to create log directory: ${logsDirectory.absolutePath}")
         }
+    }
+
+    /**
+     * Transfers the only legacy active log to a deterministic gzip snapshot. The active source
+     * remains untouched until the snapshot has been fully written, validated and renamed.
+     */
+    private fun migrateLegacyLogs() {
+        val legacyActiveFile = File(logsDirectory, LEGACY_ACTIVE_FILE_NAME)
+        val legacySnapshot = File(logsDirectory, LEGACY_SNAPSHOT_FILE_NAME)
+        val legacySnapshotTemp = File(logsDirectory, "$LEGACY_SNAPSHOT_FILE_NAME.tmp")
+
+        if (!legacyActiveFile.exists()) {
+            if (legacySnapshot.isFile && isReadableGzip(legacySnapshot)) {
+                deleteLegacyLogFiles(keepSnapshot = true)
+                return
+            }
+            legacySnapshotTemp.delete()
+            return
+        }
+
+        if (legacySnapshot.exists()) {
+            if (legacySnapshot.isFile && isReadableGzip(legacySnapshot)) {
+                deleteLegacyLogFiles(keepSnapshot = true)
+                return
+            }
+            if (!legacySnapshot.delete()) return
+        }
+
+        if (legacySnapshotTemp.exists() && !legacySnapshotTemp.delete()) return
+
+        if (!createLegacySnapshot(legacyActiveFile, legacySnapshotTemp, legacySnapshot)) return
+
+        deleteLegacyLogFiles(keepSnapshot = true)
+    }
+
+    private fun createLegacySnapshot(source: File, temporarySnapshot: File, finalSnapshot: File): Boolean = runCatching {
+        source.inputStream().buffered().use { input ->
+            GZIPOutputStream(temporarySnapshot.outputStream().buffered()).use { output -> input.copyTo(output) }
+        }
+        temporarySnapshot.renameTo(finalSnapshot) && isReadableGzip(finalSnapshot)
+    }.getOrDefault(false).also { created ->
+        if (!created) temporarySnapshot.delete()
+    }
+
+    private fun isReadableGzip(file: File): Boolean = runCatching {
+        GZIPInputStream(file.inputStream().buffered()).use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (input.read(buffer) != -1) Unit
+        }
+    }.isSuccess
+
+    private fun deleteLegacyLogFiles(keepSnapshot: Boolean = false) {
+        logsDirectory.listFiles()
+            ?.filter { file ->
+                file.name == LEGACY_ACTIVE_FILE_NAME ||
+                    LEGACY_ARCHIVE_FILE_REGEX.matches(file.name) ||
+                    LEGACY_TEMP_FILE_REGEX.matches(file.name) ||
+                    (!keepSnapshot && file.name == LEGACY_SNAPSHOT_FILE_NAME)
+            }
+            ?.forEach(File::delete)
     }
 
     private class GatedLogWriter(private val delegate: () -> LogWriter?) : LogWriter() {
@@ -117,9 +181,13 @@ class LogFileWriterV1Impl(
 
     private companion object {
         const val LOG_FILE_NAME = "wire_logs"
+        const val LEGACY_ACTIVE_FILE_NAME = "$LOG_FILE_NAME.txt"
+        const val LEGACY_SNAPSHOT_FILE_NAME = "wire_legacy_active.gz"
         const val LOG_TAG = "LogFileWriter"
         const val FLUSH_MARKER_PREFIX = "wire-log-flush:"
         const val FLUSH_POLL_INTERVAL_MS = 10L
         val ROLLED_LOG_FILE_REGEX = Regex("$LOG_FILE_NAME-[0-9]+\\.log")
+        val LEGACY_ARCHIVE_FILE_REGEX = Regex("wire_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.gz")
+        val LEGACY_TEMP_FILE_REGEX = Regex("(?:wire_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.gz|$LEGACY_SNAPSHOT_FILE_NAME)\\.tmp")
     }
 }

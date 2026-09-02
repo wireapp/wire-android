@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 class LogFileWriterV1ImplTest {
 
@@ -95,6 +97,87 @@ class LogFileWriterV1ImplTest {
         assertTrue(writer.activeLoggingFile.readText().contains("after-delete"))
     }
 
+    @Test
+    fun `given legacy log when starting then it is retained in one gzip snapshot`() = runTest {
+        val legacyActive = File(temporaryDirectory, "wire_logs.txt").apply { writeText("legacy diagnostic") }
+        File(temporaryDirectory, "wire_2026-08-27_15-09-01.gz").writeText("old archive")
+        File(temporaryDirectory, "wire_2026-08-27_15-09-01.gz.tmp").writeText("old temp")
+
+        writer().start()
+
+        val snapshot = File(temporaryDirectory, "wire_legacy_active.gz")
+        assertEquals("legacy diagnostic", snapshot.gzipText())
+        assertFalse(legacyActive.exists())
+        assertTrue(temporaryDirectory.listFiles().orEmpty().none { it.name.startsWith("wire_2026-") })
+        assertTrue(File(temporaryDirectory, "wire_logs.log").exists())
+    }
+
+    @Test
+    fun `given finalized legacy snapshot and source when starting then source is removed without a duplicate`() = runTest {
+        File(temporaryDirectory, "wire_logs.txt").writeText("legacy diagnostic")
+        File(temporaryDirectory, "wire_legacy_active.gz").writeGzip("legacy diagnostic")
+        File(temporaryDirectory, "wire_legacy_active.gz.tmp").writeText("stale temp")
+        val legacyArchive = File(temporaryDirectory, "wire_2026-08-27_15-09-01.gz").apply { writeText("old archive") }
+
+        writer().start()
+
+        assertFalse(File(temporaryDirectory, "wire_logs.txt").exists())
+        assertFalse(File(temporaryDirectory, "wire_legacy_active.gz.tmp").exists())
+        assertFalse(legacyArchive.exists())
+        assertEquals(1, temporaryDirectory.listFiles().orEmpty().count { it.name == "wire_legacy_active.gz" })
+        assertEquals("legacy diagnostic", File(temporaryDirectory, "wire_legacy_active.gz").gzipText())
+    }
+
+    @Test
+    fun `given finalized snapshot without source when starting then remaining legacy archives are cleaned`() = runTest {
+        File(temporaryDirectory, "wire_legacy_active.gz").writeGzip("legacy diagnostic")
+        val legacyArchive = File(temporaryDirectory, "wire_2026-08-27_15-09-01.gz").apply { writeText("old archive") }
+
+        writer().start()
+
+        assertFalse(legacyArchive.exists())
+        assertEquals("legacy diagnostic", File(temporaryDirectory, "wire_legacy_active.gz").gzipText())
+    }
+
+    @Test
+    fun `given snapshot failure when starting then legacy files are retained and direct logging starts`() = runTest {
+        val legacyActive = File(temporaryDirectory, "wire_logs.txt").apply { writeText("legacy diagnostic") }
+        val legacyArchive = File(temporaryDirectory, "wire_2026-08-27_15-09-01.gz").apply { writeText("old archive") }
+        File(temporaryDirectory, "wire_legacy_active.gz").apply {
+            mkdir()
+            File(this, "blocker").writeText("cannot delete")
+        }
+
+        val writer = writer()
+        writer.start()
+        writer.logWriter.log(co.touchlab.kermit.Severity.Info, "direct after failed migration", "test", null)
+        writer.forceFlush()
+
+        assertTrue(legacyActive.exists())
+        assertTrue(legacyArchive.exists())
+        assertTrue(writer.activeLoggingFile.readText().contains("direct after failed migration"))
+    }
+
+    @Test
+    fun `given legacy and direct logs when deleting then recognized logs are removed and unrelated files remain`() = runTest {
+        val writer = writer()
+        writer.start()
+        writer.logWriter.log(co.touchlab.kermit.Severity.Info, "direct", "test", null)
+        writer.forceFlush()
+        File(temporaryDirectory, "wire_logs.txt").writeText("legacy active")
+        File(temporaryDirectory, "wire_2026-08-27_15-09-01.gz").writeText("legacy archive")
+        File(temporaryDirectory, "wire_legacy_active.gz").writeGzip("legacy snapshot")
+        val unrelatedFile = File(temporaryDirectory, "unrelated.gz").apply { writeText("keep") }
+
+        writer.deleteAllLogFiles()
+
+        assertEquals("", writer.activeLoggingFile.readText())
+        assertFalse(File(temporaryDirectory, "wire_logs.txt").exists())
+        assertFalse(File(temporaryDirectory, "wire_2026-08-27_15-09-01.gz").exists())
+        assertFalse(File(temporaryDirectory, "wire_legacy_active.gz").exists())
+        assertTrue(unrelatedFile.exists())
+    }
+
     private fun writer(
         rollOnSizeBytes: Long = 25L * 1024 * 1024,
         maxLogFiles: Int = 11,
@@ -106,4 +189,10 @@ class LogFileWriterV1ImplTest {
             flushTimeoutMs = 5_000,
         ),
     )
+
+    private fun File.writeGzip(contents: String) {
+        GZIPOutputStream(outputStream()).bufferedWriter().use { it.write(contents) }
+    }
+
+    private fun File.gzipText(): String = GZIPInputStream(inputStream()).bufferedReader().use { it.readText() }
 }

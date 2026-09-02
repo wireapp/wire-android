@@ -104,28 +104,20 @@ class LogFileWriterV1Impl(
         val legacySnapshot = File(logsDirectory, LEGACY_SNAPSHOT_FILE_NAME)
         val legacySnapshotTemp = File(logsDirectory, "$LEGACY_SNAPSHOT_FILE_NAME.tmp")
 
-        if (!legacyActiveFile.exists()) {
-            if (legacySnapshot.isFile && isReadableGzip(legacySnapshot)) {
+        when {
+            !legacyActiveFile.exists() && legacySnapshot.isFile && isReadableGzip(legacySnapshot) -> {
                 deleteLegacyLogFiles(keepSnapshot = true)
-                return
             }
-            legacySnapshotTemp.delete()
-            return
-        }
-
-        if (legacySnapshot.exists()) {
-            if (legacySnapshot.isFile && isReadableGzip(legacySnapshot)) {
+            !legacyActiveFile.exists() -> legacySnapshotTemp.delete()
+            legacySnapshot.isFile && isReadableGzip(legacySnapshot) -> {
                 deleteLegacyLogFiles(keepSnapshot = true)
-                return
             }
-            if (!legacySnapshot.delete()) return
+            legacySnapshot.exists() && !legacySnapshot.delete() -> Unit
+            legacySnapshotTemp.exists() && !legacySnapshotTemp.delete() -> Unit
+            createLegacySnapshot(legacyActiveFile, legacySnapshotTemp, legacySnapshot) -> {
+                deleteLegacyLogFiles(keepSnapshot = true)
+            }
         }
-
-        if (legacySnapshotTemp.exists() && !legacySnapshotTemp.delete()) return
-
-        if (!createLegacySnapshot(legacyActiveFile, legacySnapshotTemp, legacySnapshot)) return
-
-        deleteLegacyLogFiles(keepSnapshot = true)
     }
 
     private fun createLegacySnapshot(source: File, temporarySnapshot: File, finalSnapshot: File): Boolean = runCatching {

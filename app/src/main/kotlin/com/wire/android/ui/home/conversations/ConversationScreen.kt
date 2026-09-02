@@ -438,17 +438,7 @@ internal fun ConversationScreenRouteContent(
             }
         },
         onVideoClick = navigation::openVideoPlayer,
-        onAudioClick = { localPath, contentUrl, fileName ->
-            navigator.navigate(
-                NavigationCommand(
-                    AudioPlayerScreenDestination(
-                        localPath = localPath,
-                        contentUrl = contentUrl,
-                        fileName = fileName,
-                    )
-                )
-            )
-        },
+        onAudioClick = navigation::openAudioPlayer,
         onStartCall = {
             conversationCallViewModel.startCallIfPossible(conversationInfoViewModel.conversationInfoViewState.conversationType)
         },

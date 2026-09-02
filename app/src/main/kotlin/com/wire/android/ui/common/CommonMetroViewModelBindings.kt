@@ -15,10 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.audioplayer
+package com.wire.android.ui.common
 
-data class AudioPlayerNavArgs(
-    val localPath: String? = null,
-    val contentUrl: String? = null,
-    val fileName: String? = null,
-)
+import androidx.lifecycle.ViewModel
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMenuViewModelImpl
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.IntoMap
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
+
+@BindingContainer
+object CommonMetroViewModelBindings {
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(ConversationOptionsMenuViewModelImpl::class)
+    fun conversationOptionsMenuViewModel(viewModel: ConversationOptionsMenuViewModelImpl): ViewModel = viewModel
+}

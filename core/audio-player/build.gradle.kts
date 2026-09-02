@@ -1,56 +1,41 @@
 plugins {
     id(libs.plugins.wire.android.library.get().pluginId)
     id(libs.plugins.wire.kover.get().pluginId)
-    id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+}
+
+android {
+    namespace = "com.wire.android.audioplayer"
 }
 
 dependencies {
-    implementation("com.wire.kalium:kalium-common")
-    implementation("com.wire.kalium:kalium-logic")
-    implementation("com.wire.kalium:kalium-cells")
-    implementation(project(":core:datastore"))
+
     implementation(project(":core:di"))
-    implementation(project(":core:navigation"))
     implementation(project(":core:ui-common"))
-    implementation(project(":core:video-player"))
-    implementation(project(":core:audio-player"))
-    implementation(libs.compose.activity)
+
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.dataStore)
-    implementation(libs.androidx.browser)
-    implementation(libs.ktx.immutableCollections)
-    implementation(libs.ktx.serialization)
+    implementation(libs.coroutines.android)
 
     val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.material3)
+    implementation(libs.compose.activity)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
     implementation(libs.metrox.viewModelCompose)
-
-    implementation(libs.coil.core)
-    implementation(libs.coil.gif)
-    implementation(libs.coil.compose)
-
-    implementation(libs.ktx.dateTime)
-
-    implementation(libs.androidx.paging3)
-    implementation(libs.androidx.paging3Compose)
+    debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockk.core)
     testImplementation(libs.turbine)
-    testImplementation(libs.androidx.paging.testing)
     testRuntimeOnly(libs.junit5.engine)
-    androidTestImplementation(libs.androidx.test.extJunit)
-    androidTestImplementation(libs.androidx.espresso.core)
     testImplementation(testFixtures(project(":core:ui-common")))
+    ksp(project(":ksp"))
 }

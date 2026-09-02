@@ -39,13 +39,16 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val blockButtonAlert = UiSelectorParams(text = "Block")
     private val participantRemoveFromConversationButton = UiSelectorParams(textContains = "Remove from conversation")
     private val moveToArchiveButton = UiSelectorParams(text = "Move to Archive")
+    private val moveToFolderButton = UiSelectorParams(text = "Move to Folder...")
     private val confirmArchiveConversationButton = UiSelectorParams(text = "Archive")
     private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
+    private val notificationsButton = UiSelectorParams(text = "Notifications")
 
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
 
+    private fun notificationStatusSelector(status: String) = UiSelectorParams(text = status)
+
     private val closeButton = UiSelectorParams(
-        className = "android.view.View",
         description = "Close"
     )
 
@@ -90,6 +93,21 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun clickShowMoreOptions(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(showMoreOptions).click()
+        return this
+    }
+
+    fun tapNotificationsButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationsButton).click()
+        return this
+    }
+
+    fun tapNotificationStatus(status: String): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationStatusSelector(status)).click()
+        return this
+    }
+
+    fun assertNotificationStatusVisible(status: String): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(notificationStatusSelector(status))
         return this
     }
 
@@ -175,6 +193,15 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun tapMoveOutOfArchiveButton(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(moveOutOfArchiveButton).click()
+        return this
+    }
+
+    fun assertMoveToFolderButtonNotVisible(): ConnectedUserProfilePage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = moveToFolderButton.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Move to Folder... button is visible in archived conversation options."
+        )
         return this
     }
 

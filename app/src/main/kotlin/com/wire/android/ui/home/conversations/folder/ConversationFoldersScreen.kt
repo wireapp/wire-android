@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.folder
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,15 +34,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.button.WireButton
@@ -56,61 +49,30 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.home.conversations.conversationFoldersViewModel
-import com.wire.android.ui.home.conversations.moveConversationToFolderViewModel
-import com.ramcosta.composedestinations.generated.app.destinations.NewConversationFolderScreenDestination
 import com.wire.kalium.logic.data.conversation.ConversationFolder
-import com.wire.kalium.logic.data.conversation.FolderType
 
-@WireRootDestination(
-    navArgs = ConversationFoldersNavArgs::class,
-    style = SlideNavigationAnimation::class,
-)
 @Composable
-fun ConversationFoldersScreen(
+internal fun ConversationFoldersRouteScreen(
     args: ConversationFoldersNavArgs,
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<ConversationFoldersNavBackArgs>,
-    resultRecipient: ResultRecipient<NewConversationFolderScreenDestination, NewConversationFolderNavBackArgs>,
-    foldersViewModel: ConversationFoldersVM =
-        conversationFoldersViewModel(ConversationFoldersStateArgs(args.currentFolderId)),
-    moveToFolderVM: MoveConversationToFolderVM =
-        moveConversationToFolderViewModel(
-            MoveConversationToFolderArgs(args.conversationId, args.conversationName, args.currentFolderId)
-        )
+    foldersViewModel: ConversationFoldersVM,
+    moveToFolderViewModel: MoveConversationToFolderVM,
+    onNavigateBack: () -> Unit,
+    onCompleted: (String) -> Unit,
+    onCreateFolderPressed: () -> Unit,
 ) {
     val resources = LocalContext.current.resources
-
-    LaunchedEffect(Unit) {
-        moveToFolderVM.infoMessage.collect {
-            resultNavigator.setResult(ConversationFoldersNavBackArgs(message = it.asString(resources)))
-            resultNavigator.navigateBack()
-        }
+    LaunchedEffect(moveToFolderViewModel) {
+        moveToFolderViewModel.infoMessage.collect { onCompleted(it.asString(resources)) }
     }
 
     Content(
         args = args,
         foldersState = foldersViewModel.state(),
-        onNavigationPressed = { navigator.navigateBack() },
-        moveConversationToFolder = moveToFolderVM::moveConversationToFolder,
+        onNavigationPressed = onNavigateBack,
+        moveConversationToFolder = moveToFolderViewModel::moveConversationToFolder,
         onFolderSelected = foldersViewModel::onFolderSelected,
-        onCreateFolderPressed = { navigator.navigate(NavigationCommand(NewConversationFolderScreenDestination())) }
+        onCreateFolderPressed = onCreateFolderPressed,
     )
-
-    resultRecipient.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                moveToFolderVM.moveConversationToFolder(
-                    ConversationFolder(
-                        it.value.folderId,
-                        it.value.folderName,
-                        FolderType.USER
-                    )
-                )
-            }
-        }
-    }
 }
 
 @Composable

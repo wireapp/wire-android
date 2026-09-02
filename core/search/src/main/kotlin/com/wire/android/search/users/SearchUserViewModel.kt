@@ -50,7 +50,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.search.SearchManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)
 class SearchUserViewModel @AssistedInject constructor(
     @Assisted private val conversationId: ConversationId?,
     @Assisted private val onlyConnectedContacts: Boolean,

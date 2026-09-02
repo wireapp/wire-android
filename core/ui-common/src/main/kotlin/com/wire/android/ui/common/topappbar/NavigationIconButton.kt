@@ -28,18 +28,23 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.wire.android.ui.common.R
 import com.wire.android.ui.common.dimensions
 
 @Composable
 fun NavigationIconButton(iconType: NavigationIconType, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val description = stringResource(iconType.contentDescription)
     IconButton(
         onClick = onClick,
-        modifier = modifier.size(dimensions().spacing48x)
+        modifier = modifier
+            .size(dimensions().spacing48x)
+            .semantics { contentDescription = description }
     ) {
         Icon(
             painter = painterResource(iconType.icon),
-            contentDescription = stringResource(iconType.contentDescription),
+            contentDescription = null,
         )
     }
 }

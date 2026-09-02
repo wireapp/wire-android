@@ -25,6 +25,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.wire.android.di.ApplicationContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -42,9 +43,10 @@ import kotlin.time.Duration.Companion.milliseconds
 /**
  * Plays a single video from either a local file ([localPath]) or a remote URL ([contentUrl]).
  *
- * The screen arguments are passed in through assisted injection (see [VideoPlayerViewModelFactory])
+ * The screen arguments are passed in through the per-ViewModel assisted [Factory]
  * rather than read from a navigation destination, so the player can be reused from any module.
  */
+@WireAssistedViewModelBinding(VideoPlayerManualViewModelFactoryGroup::class)
 class VideoPlayerViewModel @AssistedInject constructor(
     @ApplicationContext context: Context,
     @Assisted val localPath: String?,

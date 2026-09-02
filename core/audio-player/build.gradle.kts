@@ -4,6 +4,7 @@ plugins {
     id(BuildPlugins.junit5)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -36,4 +37,5 @@ dependencies {
     testImplementation(libs.turbine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(testFixtures(project(":core:ui-common")))
+    ksp(project(":ksp"))
 }

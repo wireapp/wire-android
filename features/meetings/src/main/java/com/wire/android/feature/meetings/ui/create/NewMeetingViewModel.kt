@@ -23,27 +23,30 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.meetings.navArgs
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.Companion.initialState
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.InitialLoadingState
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
+import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.UpsertMeeting
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RenamingResult
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
-import com.wire.kalium.logic.feature.meeting.GetNextMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
@@ -79,6 +82,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun submitCreation() {}
     fun submitUpdate() {}
     fun dismissCreationError() {}
+    fun retryUpdateConversationName(conversationId: ConversationId) {}
 
     companion object {
         const val MEETING_NAME_MAX_COUNT = 64
@@ -93,20 +97,23 @@ class NewMeetingViewModelPreview(
     override val state: NewMeetingState = initialState(currentTimeProvider)
 }
 
+@Suppress("TooManyFunctions")
+@WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)
 class NewMeetingViewModelImpl @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted val navArgs: NewMeetingNavArgs,
     override val currentTimeProvider: CurrentTimeProvider,
     private val createNewMeeting: CreateNewMeetingUseCase,
     private val updateMeeting: UpdateMeetingUseCase,
-    private val getNextMeetingOccurrence: GetNextMeetingOccurrenceUseCase,
+    private val getNextUnfinishedMeetingOccurrence: GetNextUnfinishedMeetingOccurrenceUseCase,
     private val observeConversationMembers: ObserveConversationMembersUseCase,
+    private val renameConversationUseCase: RenameConversationUseCase,
     private val contactMapper: ContactMapper,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): NewMeetingViewModelImpl
+        fun create(navArgs: NewMeetingNavArgs): NewMeetingViewModelImpl
     }
-    val navArgs: NewMeetingNavArgs = savedStateHandle.navArgs()
+
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider))
@@ -122,7 +129,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             try {
                 val meetingType = navArgs.type
                 if (meetingType is NewMeetingType.Edit) {
-                    val meetingOccurrence = getNextMeetingOccurrence(meetingType.id, currentTimeProvider())
+                    val meetingOccurrence = getNextUnfinishedMeetingOccurrence(meetingType.id, currentTimeProvider())
                     if (meetingOccurrence != null) {
                         val otherContacts = observeConversationMembers(meetingOccurrence.meeting.conversationId).firstOrNull()?.let {
                             it.map { it.user }.filterIsInstance<OtherUser>().map { contactMapper.fromOtherUser(it) }.toPersistentSet()
@@ -208,12 +215,13 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     }
 
     private fun validateStartAndEndTime(): Boolean {
+        val editing = type is NewMeetingType.Edit // for editing, we allow times in the past
         val startTimeError = when {
-            state.startTime < currentTimeProvider() -> NewMeetingState.TimeError.StartTimeInPastError
+            !editing && state.startTime < currentTimeProvider() -> NewMeetingState.TimeError.StartTimeInPastError
             else -> null
         }
         val endTimeError = when {
-            state.endTime < currentTimeProvider() -> NewMeetingState.TimeError.EndTimeInPastError
+            !editing && state.endTime < currentTimeProvider() -> NewMeetingState.TimeError.EndTimeInPastError
             state.endTime < state.startTime -> NewMeetingState.TimeError.EndTimeBeforeStartTimeError
             else -> null
         }
@@ -281,7 +289,28 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 state = state.copy(isSubmitting = false, continueButtonEnabled = true)
                 when (updateResult) {
                     is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
-                    is UpdateMeetingUseCase.Result.Failure -> state = state.copy(submitError = NewMeetingState.SubmitError.Other)
+                    is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
+                        submitError = when (updateResult) {
+                            is UpdateMeetingUseCase.Result.Failure.UpdateConversationNameFailure ->
+                                NewMeetingState.SubmitError.UpdateConversationNameFailure(updateResult.conversationId)
+
+                            else -> NewMeetingState.SubmitError.Other
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    override fun retryUpdateConversationName(conversationId: ConversationId) {
+        viewModelScope.launch {
+            state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+            renameConversationUseCase(conversationId = conversationId, conversationName = titleTextState.text.trim().toString()).let {
+                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                when (it) {
+                    is RenamingResult.Failure ->
+                        state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))
+                    RenamingResult.Success -> sendAction(NewMeetingViewActions.Success)
                 }
             }
         }
@@ -351,6 +380,7 @@ data class NewMeetingState(
     }
 
     sealed interface SubmitError {
+        data class UpdateConversationNameFailure(val conversationId: ConversationId) : SubmitError
         data object Other : SubmitError // TODO Add more specific error types in the future
     }
 

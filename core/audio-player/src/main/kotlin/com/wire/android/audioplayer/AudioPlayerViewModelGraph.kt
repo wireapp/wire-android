@@ -20,16 +20,11 @@
 package com.wire.android.audioplayer
 
 import androidx.compose.runtime.Composable
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
+import com.wire.android.di.metro.wireAssistedMetroViewModel
 
-interface AudioPlayerManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun audioPlayerViewModel(
-        localPath: String?,
-        contentUrl: String?,
-        fileName: String?,
-    ): AudioPlayerViewModel
-}
+@WireAssistedViewModelFactoryGroup
+object AudioPlayerManualViewModelFactoryGroup
 
 @Composable
 fun audioPlayerViewModel(
@@ -37,8 +32,8 @@ fun audioPlayerViewModel(
     contentUrl: String?,
     fileName: String?,
 ): AudioPlayerViewModel =
-    sessionKeyedAssistedMetroViewModel<AudioPlayerViewModel, AudioPlayerManualViewModelFactory>(
-        key = "audio_player_${localPath ?: contentUrl}"
+    wireAssistedMetroViewModel<AudioPlayerViewModel, AudioPlayerManualViewModelFactory>(
+        instanceKey = "audio_player_${localPath ?: contentUrl}"
     ) {
         audioPlayerViewModel(localPath, contentUrl, fileName)
     }

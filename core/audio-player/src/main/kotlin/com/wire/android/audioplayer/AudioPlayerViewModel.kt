@@ -22,6 +22,11 @@ import android.media.MediaPlayer
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ApplicationContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,14 +40,19 @@ import java.io.File
 /**
  * Playback ViewModel for the reusable [AudioPlayer]. Plays either a local file ([localPath]) or a
  * remote [contentUrl]. The arguments are passed in through assisted injection
- * (see [AudioPlayerViewModelFactory]) so any module can host the audio player screen.
  */
-class AudioPlayerViewModel(
-    context: Context,
-    val localPath: String?,
-    val contentUrl: String?,
-    val fileName: String?,
+@WireAssistedViewModelBinding(AudioPlayerManualViewModelFactoryGroup::class)
+class AudioPlayerViewModel @AssistedInject constructor(
+    @ApplicationContext context: Context,
+    @Assisted val localPath: String?,
+    @Assisted val contentUrl: String?,
+    @Assisted val fileName: String?,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(localPath: String?, contentUrl: String?, fileName: String?): AudioPlayerViewModel
+    }
 
     private val _state = MutableStateFlow(AudioPlaybackState())
     val state: StateFlow<AudioPlaybackState> = _state.asStateFlow()

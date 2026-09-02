@@ -11,9 +11,6 @@ include $(MAKE_DIR)/release.mk
 .PHONY: help
 help:
 	@printf "Available targets:\n"
-	@printf "  assemble/staging-debug      Assemble the staging debug APK\n"
-	@printf "  install/staging-debug       Install the staging debug APK on the connected device\n"
-	@printf "  emm/install/staging-debug   Install the staging debug APK on the managed work profile\n"
 	@printf "  lint                        Run Android lint\n"
 	@printf "  style                       Run detekt checks\n"
 	@printf "  unit-tests                  Run build logic tests and unit coverage\n"

@@ -89,6 +89,48 @@ class NewConversationViewModelTest {
     }
 
     @Test
+    fun `given MLS establish fails after creation, when retrying, then existing conversation is reused`() = runTest {
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withPendingMLSGroupCreation()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.PendingMLSCreation()
+
+        viewModel.retryPendingMLSGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Created(CONVERSATION.id)
+        coVerify(exactly = 1) { arrangement.createRegularGroup(any(), any(), any()) }
+        coVerify(exactly = 1) {
+            arrangement.createRegularGroup.retryPendingMLSGroupCreation(NewConversationViewModelArrangement.CONVERSATION_ID)
+        }
+    }
+
+    @Test
+    fun `given pending MLS creation, when retry fails, then pending creation dialog remains available`() = runTest {
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withPendingMLSGroupCreation()
+            .withPendingMLSGroupCreationRetryFailure()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+        viewModel.retryPendingMLSGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.PendingMLSCreation()
+    }
+
+    @Test
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)

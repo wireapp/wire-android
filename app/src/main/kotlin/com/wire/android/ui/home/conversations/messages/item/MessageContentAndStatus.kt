@@ -231,6 +231,11 @@ private fun MessageContent(
                         preview = preview,
                         isAvailable = !message.isPending && message.isAvailable,
                         messageStyle = messageStyle,
+                        modifier = Modifier.padding(
+                            start = dimensions().spacing10x,
+                            end = dimensions().spacing10x,
+                            top = dimensions().spacing10x
+                        ),
                         onClick = { onLinkClick(preview.url) }
                     )
                 }
@@ -275,6 +280,7 @@ private fun MessageContent(
                     }
                     if (!shouldHideMessageBody) {
                         MessageBody(
+                            conversationId = message.conversationId,
                             messageBody = messageContent.messageBody,
                             searchQuery = searchQuery,
                             isAvailable = !message.isPending && message.isAvailable,
@@ -319,6 +325,7 @@ private fun MessageContent(
                     VerticalSpace.x4()
                 }
                 MessageBody(
+                    conversationId = message.conversationId,
                     messageBody = messageContent.messageBody,
                     isAvailable = !message.isPending && message.isAvailable,
                     onOpenProfile = onOpenProfile,
@@ -441,6 +448,7 @@ private fun MessageContent(
                 }
                 if (messageContent.messageBody?.message?.asString()?.isNotEmpty() == true) {
                     MessageBody(
+                        conversationId = message.conversationId,
                         messageBody = messageContent.messageBody,
                         searchQuery = searchQuery,
                         isAvailable = !message.isPending && message.isAvailable,

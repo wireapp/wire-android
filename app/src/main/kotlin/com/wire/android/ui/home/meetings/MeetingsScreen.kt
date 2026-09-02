@@ -20,44 +20,41 @@ package com.wire.android.ui.home.meetings
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.generated.meetings.destinations.NewMeetingScreenDestination
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
+import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
-import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.annotation.app.WireHomeDestination
+import com.wire.android.ui.common.dimensions
+import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.ui.calling.meetingsCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.VisibilityState
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.visbility.VisibilityState
-import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversations.call.HandleActions
 import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
-import com.wire.android.feature.meetings.R as meetingsR
-import com.wire.android.ui.common.R as commonR
+import com.wire.kalium.logic.data.conversation.Conversation
 
-@WireHomeDestination
+/**
+ * Navigation-neutral Meetings renderer used by the Navigation 3 Home shell.
+ */
 @Composable
-fun MeetingsScreen(
-    homeStateHolder: HomeStateHolder,
-    viewModel: MeetingsCallViewModel = meetingsCallViewModel()
+internal fun MeetingsScreen(
+    homeShellState: HomeShellState,
+    navigationActions: MeetingsHomeNavigationActions,
+    viewModel: MeetingsCallViewModel = meetingsCallViewModel(),
 ) {
     val context = LocalContext.current
     AllMeetingsScreen(
-        lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Meetings),
+        lazyListState = homeShellState.lazyListStateFor(HomeDestination.Meetings),
         contentPadding = PaddingValues(bottom = dimensions().spacing80x), // to ensure last item is not obscured by FAB
         startCall = { conversationId ->
-            viewModel.startCallIfPossible(conversationId = conversationId)
+            viewModel.callManager.startCallIfPossible(
+                conversationId = conversationId,
+                conversationType = Conversation.Type.Group.Regular,
+                shouldCheckParticipantCount = false, // since this is a meeting, we don't need to check participant count
+            )
         },
         joinCall = { conversationId ->
-            viewModel.joinOngoingCall(conversationId = conversationId)
+            viewModel.callManager.joinOngoingCall(conversationId = conversationId)
         },
         returnToCall = { conversationId ->
             context.startActivity(
@@ -69,44 +66,24 @@ fun MeetingsScreen(
             )
         },
         editMeeting = { meetingId ->
-            homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.Edit(meetingId))))
+            navigationActions.openNewMeeting(NewMeetingType.Edit(meetingId))
         },
     )
 
     viewModel.callManager.actions.HandleActions()
     viewModel.callManager.HandleJoinOrStartCallScreenDialogs()
 
-    NotEstablishedDialog(dialogState = viewModel.notEstablishedDialogState)
-
     NewMeetingBottomSheet(
-        sheetState = homeStateHolder.newMeetingBottomSheetState,
+        sheetState = homeShellState.newMeetingBottomSheetState,
         onMeetNowClick = {
-            homeStateHolder.newMeetingBottomSheetState.hide {
-                homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.MeetNow)))
+            homeShellState.newMeetingBottomSheetState.hide {
+                navigationActions.openNewMeeting(NewMeetingType.MeetNow)
             }
         },
         onScheduleClick = {
-            homeStateHolder.newMeetingBottomSheetState.hide {
-                homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.Schedule)))
+            homeShellState.newMeetingBottomSheetState.hide {
+                navigationActions.openNewMeeting(NewMeetingType.Schedule)
             }
         }
     )
-}
-
-@Composable
-private fun NotEstablishedDialog(dialogState: VisibilityState<Unit>) {
-    VisibilityState(dialogState) {
-        WireDialog(
-            title = stringResource(meetingsR.string.meeting_join_failure_title),
-            text = stringResource(id = meetingsR.string.meeting_join_failure_description),
-            buttonsHorizontalAlignment = true,
-            onDismiss = dialogState::dismiss,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = dialogState::dismiss,
-                text = stringResource(id = commonR.string.label_ok),
-                type = WireDialogButtonType.Primary,
-                state = WireButtonState.Default,
-            )
-        )
-    }
 }

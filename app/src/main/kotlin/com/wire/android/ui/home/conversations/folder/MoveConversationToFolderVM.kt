@@ -25,6 +25,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.di.ViewModelScopedPreview
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationFolder
@@ -39,6 +41,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+
 @ViewModelScopedPreview
 interface MoveConversationToFolderVM {
     val infoMessage: SharedFlow<UIText>
@@ -48,6 +51,10 @@ interface MoveConversationToFolderVM {
     fun moveConversationToFolder(folder: ConversationFolder) {}
 }
 
+@WireAssistedViewModelBinding(
+    ConversationSearchFolderManualViewModelFactoryGroup::class,
+    factoryMethod = "moveConversationToFolderViewModel",
+)
 class MoveConversationToFolderVMImpl @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     @Assisted private val args: MoveConversationToFolderArgs,

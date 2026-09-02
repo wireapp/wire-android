@@ -50,7 +50,10 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.search.SearchManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)
 class SearchAppsViewModel @AssistedInject constructor(
     @Assisted private val protocolInfo: Conversation.ProtocolInfo?,
     private val getAllServices: ObserveAllServicesUseCase,

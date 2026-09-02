@@ -21,72 +21,92 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
+import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
+import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
+import com.wire.android.feature.cells.ui.create.folder.CreateFolderScreenNavArgs
+import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel
+import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderNavArgs
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkViewModel
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkNavArgs
+import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenNavArgs
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel
 import com.wire.android.feature.cells.ui.publiclink.settings.password.PublicLinkPasswordScreenViewModel
+import com.wire.android.feature.cells.ui.publiclink.settings.password.PublicLinkPasswordNavArgs
+import com.wire.android.feature.cells.ui.rename.RenameNodeNavArgs
 import com.wire.android.feature.cells.ui.rename.RenameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
+import com.wire.android.feature.cells.ui.search.SearchNavArgs
+import com.wire.android.feature.cells.ui.tags.AddRemoveTagsNavArgs
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
+import com.wire.android.feature.cells.ui.versioning.VersionHistoryNavArgs
 
 @Composable
-inline fun <reified VM> cellsViewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
-    key: String? = null,
-): VM where VM : ViewModel =
-    sessionKeyedMetroViewModel(
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = key,
-    )
+fun cellViewModel(navArgs: CellFilesNavArgs): CellViewModel =
+    wireAssistedMetroViewModel<CellViewModel, CellsManualViewModelFactory> {
+        cell(navArgs)
+    }
 
 @Composable
-fun cellViewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
-): CellViewModel = cellsViewModel(viewModelStoreOwner = viewModelStoreOwner)
+internal fun searchCellViewModel(navArgs: SearchNavArgs): CellViewModel =
+    wireAssistedMetroViewModel<CellViewModel, CellsManualViewModelFactory>(
+        instanceKey = "search-cell",
+    ) {
+        searchCell(navArgs)
+    }
 
 @Composable
-fun createFileViewModel(): CreateFileViewModel = cellsViewModel()
+internal fun createFileViewModel(navArgs: CreateFileScreenNavArgs): CreateFileViewModel =
+    wireAssistedMetroViewModel<CreateFileViewModel, CellsManualViewModelFactory> { createFile(navArgs) }
 
 @Composable
-fun createFolderViewModel(): CreateFolderViewModel = cellsViewModel()
+internal fun createFolderViewModel(navArgs: CreateFolderScreenNavArgs): CreateFolderViewModel =
+    wireAssistedMetroViewModel<CreateFolderViewModel, CellsManualViewModelFactory> { createFolder(navArgs) }
 
 @Composable
-fun moveToFolderViewModel(): MoveToFolderViewModel = cellsViewModel()
+internal fun moveToFolderViewModel(navArgs: MoveToFolderNavArgs): MoveToFolderViewModel =
+    wireAssistedMetroViewModel<MoveToFolderViewModel, CellsManualViewModelFactory> { moveToFolder(navArgs) }
 
 @Composable
-fun publicLinkViewModel(): PublicLinkViewModel = cellsViewModel()
+internal fun publicLinkViewModel(navArgs: PublicLinkNavArgs): PublicLinkViewModel =
+    wireAssistedMetroViewModel<PublicLinkViewModel, CellsManualViewModelFactory> { publicLink(navArgs) }
 
 @Composable
-internal fun publicLinkExpirationScreenViewModel(): PublicLinkExpirationScreenViewModel =
-    cellsViewModel()
+internal fun publicLinkExpirationViewModel(
+    navArgs: PublicLinkExpirationScreenNavArgs,
+): PublicLinkExpirationScreenViewModel =
+    wireAssistedMetroViewModel<PublicLinkExpirationScreenViewModel, CellsManualViewModelFactory> {
+        publicLinkExpiration(navArgs)
+    }
 
 @Composable
-internal fun publicLinkPasswordScreenViewModel(): PublicLinkPasswordScreenViewModel =
-    cellsViewModel()
+internal fun publicLinkPasswordViewModel(navArgs: PublicLinkPasswordNavArgs): PublicLinkPasswordScreenViewModel =
+    wireAssistedMetroViewModel<PublicLinkPasswordScreenViewModel, CellsManualViewModelFactory> {
+        publicLinkPassword(navArgs)
+    }
 
 @Composable
-fun renameNodeViewModel(): RenameNodeViewModel = cellsViewModel()
+internal fun renameNodeViewModel(navArgs: RenameNodeNavArgs): RenameNodeViewModel =
+    wireAssistedMetroViewModel<RenameNodeViewModel, CellsManualViewModelFactory> { renameNode(navArgs) }
 
 @Composable
-fun searchScreenViewModel(): SearchScreenViewModel = cellsViewModel()
+internal fun searchScreenViewModel(navArgs: SearchNavArgs): SearchScreenViewModel =
+    wireAssistedMetroViewModel<SearchScreenViewModel, CellsManualViewModelFactory> { search(navArgs) }
 
 @Composable
-fun addRemoveTagsViewModel(): AddRemoveTagsViewModel = cellsViewModel()
+internal fun addRemoveTagsViewModel(navArgs: AddRemoveTagsNavArgs): AddRemoveTagsViewModel =
+    wireAssistedMetroViewModel<AddRemoveTagsViewModel, CellsManualViewModelFactory> { addRemoveTags(navArgs) }
 
 @Composable
-fun versionHistoryViewModel(): VersionHistoryViewModel = cellsViewModel()
+internal fun versionHistoryViewModel(navArgs: VersionHistoryNavArgs): VersionHistoryViewModel =
+    wireAssistedMetroViewModel<VersionHistoryViewModel, CellsManualViewModelFactory> { versionHistory(navArgs) }
 
 @Composable
-fun cellImageViewerViewModel(): CellImageViewerViewModel = cellsViewModel()
+internal fun cellImageViewerViewModel(navArgs: CellImageViewerNavArgs): CellImageViewerViewModel =
+    wireAssistedMetroViewModel<CellImageViewerViewModel, CellsManualViewModelFactory> { imageViewer(navArgs) }

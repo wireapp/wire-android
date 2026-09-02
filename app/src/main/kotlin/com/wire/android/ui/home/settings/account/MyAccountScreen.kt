@@ -218,7 +218,7 @@ fun MyAccountContent(
 
                 if (!forgotPasswordUrl.isNullOrBlank()) {
                     WirePrimaryButton(
-                        text = stringResource(R.string.settings_myaccount_reset_password).toTitleCase(),
+                        text = stringResource(R.string.settings_myaccount_reset_password),
                         onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) }
                     )
                 }

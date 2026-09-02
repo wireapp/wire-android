@@ -24,11 +24,23 @@ internal class MeetingsNavigation3SourceTest {
         assertFalse(source.contains("com.ramcosta.composedestinations"))
         assertFalse(source.contains("WireNavigator"))
         assertFalse(source.contains("SavedStateHandle"))
+        assertFalse(source.contains("openNewMeeting"), "Starting a meeting belongs to the Home root, not flow entries")
         assertTrue(source.contains("wireEntry<NewMeetingDetailsRoute>"))
         assertTrue(source.contains("wireEntry<NewMeetingParticipantsRoute>"))
         assertTrue(source.contains("wireViewModelStoreOwner(WireViewModelOwner.Flow(flowId))"))
         assertTrue(source.contains("viewModelStoreOwner = flowOwner"))
         assertTrue(source.contains("newMeetingFlowViewModel(route.type, route.meetingId, route.flowId)"))
+    }
+
+    @Test
+    fun `meetings Home root owns a framework neutral action bundle`() {
+        val source = File(
+            "src/main/java/com/wire/android/feature/meetings/ui/MeetingsHomeNavigationActions.kt"
+        ).readText()
+
+        assertTrue(source.contains("data class MeetingsHomeNavigationActions"))
+        assertTrue(source.contains("val openNewMeeting: (NewMeetingType) -> Unit"))
+        assertFalse(source.contains("Navigation3"))
     }
 
     @Test

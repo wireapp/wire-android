@@ -108,8 +108,13 @@ class WireNavigation3ContributionsTest {
             assertFalse(source.contains(forbidden), "Aggregator must not reference $forbidden")
         }
         assertTrue(source.contains("interface WireNavigation3CompositeActions"))
+        assertTrue(source.contains("ConversationEntryNavigation3Actions"))
+        assertTrue(source.contains("MeetingsNavigation3Actions"))
         assertTrue(source.contains("override val topLevel: HomeTopLevelNavigation3Actions"))
         assertTrue(source.contains("override val settings: SettingsNavigation3Actions"))
+        assertFalse(source.contains("WhatsNewNavigationActions"))
+        assertFalse(source.contains("override val meetings:"))
+        assertFalse(source.contains("override val whatsNew:"))
     }
 
     private fun appSource(relativePath: String): File {
@@ -117,7 +122,7 @@ class WireNavigation3ContributionsTest {
     }
 
     private fun projectSource(relativePath: String): File {
-        val projectDir = generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+        val projectDir = generateSequence(File(checkNotNull(System.getProperty("user.dir")))) { it.parentFile }
             .first { File(it, "app/src/main/kotlin").isDirectory }
         return File(projectDir, relativePath).also {
             assertTrue(it.isFile, "Missing source file $relativePath")

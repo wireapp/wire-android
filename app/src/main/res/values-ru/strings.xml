@@ -880,6 +880,8 @@
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
     <string name="label_system_message_cell_enabled_for_conversation">Общий диск **включен**</string>
     <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения **отключены**</string>
+    <string name="label_system_message_cell_viewer_access">Общий диск включен. Вы можете просматривать файлы, но не можете загружать, редактировать или управлять ими.</string>
+    <string name="label_system_message_cell_editor_access">Общий диск включен. У вас есть права редактора. У пользователей, не входящих в вашу команду, есть только права просмотра.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -1878,8 +1880,8 @@
     <string name="personal_to_team_migration_error_message_unknown_error">Wire не удалось завершить создание вашей команды из-за неизвестной ошибки.</string>
     <string name="reaction_sender_self">Вы</string>
     <string name="emoji_picker_select_reaction">Выбрать реакцию</string>
-    <string name="content_description_add_this_reaction">Нажмите дважды, чтобы добавить эту реакцию</string>
-    <string name="content_description_remove_your_reaction">Нажмите дважды, чтобы удалить реакцию</string>
+    <string name="content_description_add_this_reaction">Добавить эту реакцию</string>
+    <string name="content_description_remove_your_reaction">Удалить свою реакцию</string>
     <string name="label_user_database_profile">Журнал базы данных</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">“%1$s” был перемещен в “%2$s”</string>
@@ -1920,6 +1922,7 @@
     <string name="drive_screen_search_hint">Поиск файлов</string>
     <string name="enable_wire_cell">Общий диск</string>
     <string name="enable_wire_cell_switch_description">Разрешить участникам управлять своими документами и медиа файлами в общем диске. Это действие не может быть отменено.</string>
+    <string name="enable_wire_cell_guest_access_description">Пользователи, не входящие в вашу команду, могут просматривать файлы, но не могут их загружать или редактировать.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>

@@ -19,10 +19,12 @@ internal class DebugMetroViewModelBindingsSourceTest {
     @Test
     fun givenDebugViewModels_whenInspectingCreation_thenFeatureOwnsNarrowContracts() {
         val graph = source("DebugInfoViewModelGraph.kt")
+        val bindings = source("DebugMetroViewModelBindings.kt")
         val assistedViewModel = source("conversation/DebugConversationViewModel.kt")
 
         assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
         assertTrue(graph.contains("debugConversationViewModel(args)"))
+        assertTrue(bindings.contains("@ViewModelKey(SecurityProvidersViewModel::class)"))
         assertTrue(
             assistedViewModel.contains(
                 "@WireAssistedViewModelBinding(DebugInfoManualViewModelFactoryGroup::class)"

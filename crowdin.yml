@@ -12,6 +12,10 @@ files: [
         "translation": "/app/src/main/res/values-%two_letters_code%/%original_file_name%"
     },
     {
+        "source": "/core/audio-player/src/main/res/values/strings.xml",
+        "translation": "/core/audio-player/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
         "source": "/core/media-player/src/main/res/values/strings.xml",
         "translation": "/core/media-player/src/main/res/values-%two_letters_code%/%original_file_name%"
     },
@@ -22,6 +26,10 @@ files: [
     {
         "source": "/core/ui-common/src/main/res/values/strings.xml",
         "translation": "/core/ui-common/src/main/res/values-%two_letters_code%/%original_file_name%"
+    },
+    {
+        "source": "/core/video-player/src/main/res/values/strings.xml",
+        "translation": "/core/video-player/src/main/res/values-%two_letters_code%/%original_file_name%"
     },
     {
         "source": "/features/cells/src/main/res/values/strings.xml",

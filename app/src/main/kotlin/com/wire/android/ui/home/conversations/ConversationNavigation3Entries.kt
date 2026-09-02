@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.wire.android.feature.cells.navigation.AudioPlayerRoute
 import com.wire.android.feature.sketch.navigation.DrawingCanvasNavigation3ResultType
 import com.wire.android.feature.sketch.navigation.DrawingCanvasRoute
 import com.wire.android.navigation.navigation3.WireEntryPresentation
@@ -58,10 +59,12 @@ internal val ConversationCompletionNavigation3ResultType = WireNavigation3Result
 )
 
 /**
- * The drawing destination is owned by a feature module that is migrated independently.
- * This explicit semantic bridge keeps its generated destination out of the Navigation 3 entry.
+ * Host actions for the Navigation 3 conversation entry and its result lifecycle.
+ *
+ * Unlike reusable screen action bundles, this contract intentionally includes `Navigation3` in
+ * its name because it completes a typed Navigation 3 result and closes the owning entry.
  */
-internal interface ConversationNavigation3Actions {
+internal interface ConversationEntryNavigation3Actions {
     fun exitConversation()
     fun completeConversation(result: ConversationCompletionResult)
 }
@@ -72,13 +75,13 @@ internal object ConversationNavigation3Contribution {
 
     fun entryProviderInstallers(
         runtime: WireNavigation3Runtime,
-        actions: ConversationNavigation3Actions,
+        actions: ConversationEntryNavigation3Actions,
     ): List<WireEntryProviderInstaller> = listOf(conversationNavigation3Entries(runtime, actions))
 }
 
 internal fun conversationNavigation3Entries(
     runtime: WireNavigation3Runtime,
-    actions: ConversationNavigation3Actions,
+    actions: ConversationEntryNavigation3Actions,
 ): WireEntryProviderInstaller = {
     // ConversationScreen had no destination override and inherited WireRoot's horizontal motion.
     wireEntry<ConversationRoute>(presentation = WireEntryPresentation.Slide) { route ->
@@ -90,7 +93,7 @@ internal fun conversationNavigation3Entries(
 private fun ConversationNavigation3Entry(
     route: ConversationRoute,
     runtime: WireNavigation3Runtime,
-    actions: ConversationNavigation3Actions,
+    actions: ConversationEntryNavigation3Actions,
 ) {
     val viewModelArgs = remember(route) { route.toViewModelArgs() }
     var groupRequestId by rememberSaveable(route.entryId.value) { mutableStateOf<String?>(null) }
@@ -245,6 +248,14 @@ private fun ConversationNavigation3Entry(
             runtime.navigator.navigate(
                 WireNavigationCommand(
                     VideoPlayerRoute(route.sessionId, localPath, contentUrl, fileName)
+                )
+            )
+        }
+
+        override fun openAudioPlayer(localPath: String?, contentUrl: String?, fileName: String?) {
+            runtime.navigator.navigate(
+                WireNavigationCommand(
+                    AudioPlayerRoute(route.sessionId, localPath, contentUrl, fileName)
                 )
             )
         }

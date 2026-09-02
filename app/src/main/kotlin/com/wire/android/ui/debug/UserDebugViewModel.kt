@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.AppLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.util.EMPTY
@@ -86,7 +87,7 @@ class UserDebugViewModel
     }
 
     fun deleteLogs() {
-        logFileWriter.deleteAllLogFiles()
+        viewModelScope.launch { logFileWriter.deleteAllLogFiles() }
     }
 
     fun flushLogs(): Deferred<Unit> {
@@ -100,9 +101,11 @@ class UserDebugViewModel
             globalDataStore.setLoggingEnabled(isEnabled)
             if (isEnabled) {
                 logFileWriter.start()
+                AppLogger.setLogLevel(level = KaliumLogLevel.VERBOSE)
                 CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
             } else {
                 logFileWriter.stop()
+                AppLogger.setLogLevel(level = KaliumLogLevel.WARN)
                 CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
             }
         }

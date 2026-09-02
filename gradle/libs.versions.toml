@@ -90,6 +90,7 @@ aboutLibraries = "14.0.0-b03"
 cyclonedx = "3.1.0"
 leakCanary = "2.14"
 ksp = "2.3.4"
+kermitIo = "2.0.5"
 
 # Benchmark
 benchmark-macro-junit4 = "1.3.3"
@@ -162,6 +163,7 @@ ktx-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections
 
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
+kermit-io = { module = "co.touchlab:kermit-io", version.ref = "kermitIo" }
 
 allure-kotlin-model   = { module = "io.qameta.allure:allure-kotlin-model",   version.ref = "allureKotlin" }
 allure-kotlin-commons = { module = "io.qameta.allure:allure-kotlin-commons", version.ref = "allureKotlin" }

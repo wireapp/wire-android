@@ -138,9 +138,16 @@ class LogFileWriterImplTest {
         createCompressedLogsArchive(logsDirectory, archive)
 
         ZipFile(archive).use { zip ->
-            assertEquals("legacy diagnostic", zip.getInputStream(zip.getEntry("wire_legacy_active.gz"))
-                .use { GZIPInputStream(it).bufferedReader().readText() })
-            assertTrue(zip.getInputStream(zip.getEntry("wire_logs.log")).bufferedReader().readText().contains("current diagnostic"))
+            val legacySnapshot = zip.getEntry("wire_legacy_active.gz")
+            val legacySnapshotText = zip.getInputStream(legacySnapshot).use { input ->
+                GZIPInputStream(input).bufferedReader().use { it.readText() }
+            }
+
+            assertEquals("legacy diagnostic", legacySnapshotText)
+            val currentLogText = zip.getInputStream(zip.getEntry("wire_logs.log"))
+                .bufferedReader()
+                .use { it.readText() }
+            assertTrue(currentLogText.contains("current diagnostic"))
             assertEquals(null, zip.getEntry("wire_logs.txt"))
             assertEquals(null, zip.getEntry("wire_2026-08-27_15-09-01.gz"))
         }

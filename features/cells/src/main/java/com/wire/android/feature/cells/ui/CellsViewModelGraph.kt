@@ -22,8 +22,6 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.runtime.Composable
 import com.wire.android.di.metro.wireAssistedMetroViewModel
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
@@ -110,12 +108,3 @@ internal fun versionHistoryViewModel(navArgs: VersionHistoryNavArgs): VersionHis
 @Composable
 internal fun cellImageViewerViewModel(navArgs: CellImageViewerNavArgs): CellImageViewerViewModel =
     wireAssistedMetroViewModel<CellImageViewerViewModel, CellsManualViewModelFactory> { imageViewer(navArgs) }
-
-@Composable
-internal fun cellAudioPlayerViewModel(
-    context: android.content.Context,
-    navArgs: AudioPlayerNavArgs,
-): AudioPlayerViewModel =
-    wireAssistedMetroViewModel<AudioPlayerViewModel, CellsManualViewModelFactory> {
-        audioPlayer(context, navArgs)
-    }

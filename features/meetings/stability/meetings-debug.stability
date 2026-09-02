@@ -317,6 +317,12 @@ private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: 
     - time: STABLE (matched by stability configuration)
 
 @Composable
+private fun com.wire.android.feature.meetings.ui.list.isLoading(): kotlin.Boolean
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 public fun com.wire.android.feature.meetings.ui.meetingListViewModel(type: com.wire.android.feature.meetings.ui.MeetingsTabItem): com.wire.android.feature.meetings.ui.list.MeetingListViewModel
   skippable: true
   restartable: true

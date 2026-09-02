@@ -15,17 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.videoplayer
 
-package com.wire.android.ui.sharing
-
-import android.net.Uri
-
-data class ImportMediaNavArgs(
-    val source: ImportSource,
-    val internalAssetUriList: ArrayList<Uri> = arrayListOf()
+data class VideoPlaybackState(
+    val isPlaying: Boolean = false,
+    val isStarted: Boolean = false,
+    val isCompleted: Boolean = false,
+    val isBuffering: Boolean = false,
+    val isMuted: Boolean = false,
+    val currentPositionMs: Int = 0,
+    val durationMs: Int = 0,
 )
-
-enum class ImportSource {
-    EXTERNAL_SHARE,
-    INTERNAL_SHARE
-}

@@ -196,6 +196,8 @@ if (!project.hasProperty("skip.aboutlibraries")) {
 }
 
 dependencies {
+    implementation(libs.kermit.io)
+
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")

@@ -773,6 +773,167 @@ class NewMeetingViewModelTest {
         assertEquals(NewMeetingState.InitialLoadingState.Error, viewModel.state.initialLoading)
     }
 
+    @Test
+    fun givenLocalTimeZone_whenSubmitCreationIsCalled_thenCurrentLocalTzidIsPassed() = runTest(dispatcher) {
+        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        val localTimeZoneID = "Europe/Berlin"
+        val createMeeting = UPSERT_MEETING.copy(
+            startTime = currentTime + 2.hours,
+            endTime = currentTime + 3.hours,
+            tzid = localTimeZoneID,
+            recurrence = null,
+            otherParticipants = emptyList()
+        )
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+                .withCurrentTimeZone(localTimeZoneID)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+        )
+        enterTitle(viewModel, createMeeting.title)
+        viewModel.updateStartTime(createMeeting.startTime)
+        viewModel.updateEndTime(createMeeting.endTime)
+
+        viewModel.actions.test {
+            viewModel.submitCreation()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
+            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenEditTypeAndMeetingInDifferentTimeZone_whenViewModelIsCreated_thenStateRetainsOriginalMeetingTzid() =
+        runTest(dispatcher) {
+            val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+            val meetingTimeZoneId = "America/New_York"
+            val localTimeZoneID = "Europe/Berlin"
+            val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
+            val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(editType)
+                    .withCurrentTimeProvider { currentTime }
+                    .withCurrentTimeZone(localTimeZoneID)
+                    .withNextUnfinishedMeetingOccurrence(nextOccurrence)
+            )
+
+            coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
+            assertEquals(meetingTimeZoneId, viewModel.state.tzid)
+            assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+        }
+
+    @Test
+    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithoutTimeChanges_thenOriginalMeetingTzidIsPassed() =
+        runTest(dispatcher) {
+            val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+            val meetingTimeZoneId = "America/New_York"
+            val localTimeZoneID = "Europe/Berlin"
+            val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
+            val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
+            val updateMeeting = UPSERT_MEETING.copy(
+                startTime = nextOccurrence.occurrenceStartTime,
+                endTime = nextOccurrence.occurrenceEndTime,
+                tzid = meetingTimeZoneId, // keep the original tzid since no time changes are made
+                otherParticipants = emptyList()
+            )
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(editType)
+                    .withCurrentTimeProvider { currentTime }
+                    .withCurrentTimeZone(localTimeZoneID)
+                    .withNextUnfinishedMeetingOccurrence(nextOccurrence)
+                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success)
+            )
+
+            // only update the title, keep the original start and end times, so no time changes are made and no tzid change is expected
+            enterTitle(viewModel, updateMeeting.title)
+
+            viewModel.actions.test {
+                viewModel.submitUpdate()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithStartTimeChanges_thenCurrentLocalTzidIsPassed() =
+        runTest(dispatcher) {
+            val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+            val meetingTimeZoneId = "America/New_York"
+            val localTimeZoneID = "Europe/Berlin"
+            val updatedStartTime = currentTime + 3.hours
+            val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
+            val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
+            val updateMeeting = UPSERT_MEETING.copy(
+                startTime = updatedStartTime,
+                endTime = updatedStartTime + 1.hours, // it's recalculated based on the original duration of the meeting
+                tzid = localTimeZoneID, // since time changes are made, the tzid should also be updated to the current local tzid
+                otherParticipants = emptyList()
+            )
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(editType)
+                    .withCurrentTimeProvider { currentTime }
+                    .withCurrentTimeZone(localTimeZoneID)
+                    .withNextUnfinishedMeetingOccurrence(nextOccurrence)
+                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success)
+            )
+
+            viewModel.updateStartTime(updatedStartTime)
+
+            viewModel.actions.test {
+                viewModel.submitUpdate()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithEndTimeChanges_thenCurrentLocalTzidIsPassed() =
+        runTest(dispatcher) {
+            val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+            val meetingTimeZoneId = "America/New_York"
+            val localTimeZoneID = "Europe/Berlin"
+            val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
+            val updatedEndTime = nextOccurrence.occurrenceStartTime + 2.hours
+            val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
+            val updateMeeting = UPSERT_MEETING.copy(
+                startTime = nextOccurrence.occurrenceStartTime,
+                endTime = updatedEndTime,
+                tzid = localTimeZoneID, // since time changes are made, the tzid should also be updated to the current local tzid
+                otherParticipants = emptyList()
+            )
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(editType)
+                    .withCurrentTimeProvider { currentTime }
+                    .withCurrentTimeZone(localTimeZoneID)
+                    .withNextUnfinishedMeetingOccurrence(nextOccurrence)
+                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success)
+            )
+
+            viewModel.updateEndTime(updatedEndTime)
+
+            viewModel.actions.test {
+                viewModel.submitUpdate()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
     private fun TestScope.arrangeViewModel(
         arrangement: Arrangement = Arrangement(dispatcher)
     ): Pair<Arrangement, NewMeetingViewModelImpl> =
@@ -835,6 +996,10 @@ class NewMeetingViewModelTest {
             currentTimeProvider = CurrentTimeProvider(currentTime)
         }
 
+        fun withCurrentTimeZone(timeZoneId: String) = apply {
+            every { currentTimeZoneProvider.invoke() } returns TimeZone.of(timeZoneId)
+        }
+
         fun withCreateMeetingResult(result: CreateNewMeetingUseCase.Result) = apply {
             coEvery { createNewMeeting(any()) } returns result
         }
@@ -884,11 +1049,15 @@ class NewMeetingViewModelTest {
             meetingId = MeetingId("meeting-id", "domain"),
             conversationId = ConversationId("conversation-id", "domain"),
             creatorId = UserId("creator-id", "domain"),
-            title = "Daily",
+            title = "Repeating meeting",
             startTime = Instant.parse("2026-01-01T09:00:00Z"),
             endTime = Instant.parse("2026-01-01T10:00:00Z"),
             tzid = MEETING_TIME_ZONE_ID,
-            recurrence = Meeting.Recurrence(frequency = Meeting.Recurrence.Frequency.DAILY, interval = 1L, until = null),
+            recurrence = Meeting.Recurrence(
+                frequency = MeetingItem.RepeatingInterval.Supported.first().frequency,
+                interval = MeetingItem.RepeatingInterval.Supported.first().interval.toLong(),
+                until = null
+            ),
         ),
         selfRole = MeetingOccurrence.SelfRole.Creator,
         conversationName = "Daily",
@@ -899,15 +1068,11 @@ class NewMeetingViewModelTest {
     )
     private val CONTACT = contact("contact-1")
     private val UPSERT_MEETING = UpsertMeeting(
-        title = "Weekly sync",
-        startTime = Instant.parse("2026-01-01T09:00:00Z"),
-        endTime = Instant.parse("2026-01-01T10:00:00Z"),
+        title = MEETING_OCCURRENCE.meeting.title,
+        startTime = MEETING_OCCURRENCE.meeting.startTime,
+        endTime = MEETING_OCCURRENCE.meeting.endTime,
         tzid = MEETING_TIME_ZONE_ID,
-        recurrence = Meeting.Recurrence(
-            frequency = MeetingItem.RepeatingInterval.Supported.first().frequency,
-            interval = MeetingItem.RepeatingInterval.Supported.first().interval.toLong(),
-            until = null
-        ),
+        recurrence = MEETING_OCCURRENCE.meeting.recurrence,
         otherParticipants = listOf(UserId(CONTACT.id, CONTACT.domain))
     )
 }

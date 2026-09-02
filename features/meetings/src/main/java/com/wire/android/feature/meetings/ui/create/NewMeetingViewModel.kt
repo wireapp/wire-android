@@ -142,9 +142,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         state = state.copy(
                             startTime = meetingOccurrence.occurrenceStartTime,
                             endTime = meetingOccurrence.occurrenceEndTime,
-                            // always use the current local tzid, not the initial meeting's tzid, as it could be created in different tzid
-                            // so when current user updates times and sets their local ones so it should also inherit their local tzid
-                            tzid = currentTimeZoneProvider().id,
+                            tzid = meetingOccurrence.meeting.tzid,
                             repeatingInterval = meetingOccurrence.meeting.recurrence?.toRepeatingInterval(),
                             selectedContacts = otherContacts,
                             confirmedContacts = otherContacts,
@@ -188,18 +186,28 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     override fun updateStartTime(startTime: Instant) {
         val currentDuration = state.endTime - state.startTime
         val latestEndTime = startTime.latestEndTimeOnSameDay(currentTimeZoneProvider())
+        val updatedEndTime = minOf(startTime.plus(currentDuration), latestEndTime)
         state = state.copy(
             startTime = startTime,
             // adjust end time based on the new start time but try to keep the same duration, unless it extends into the next day
-            endTime = minOf(startTime.plus(currentDuration), latestEndTime)
+            endTime = updatedEndTime,
+            tzid = tzidAfterTimeChange(startTime != state.startTime || updatedEndTime != state.endTime)
         )
         validateStartAndEndTime()
     }
 
     override fun updateEndTime(endTime: Instant) {
-        state = state.copy(endTime = endTime)
+        state = state.copy(
+            endTime = endTime,
+            tzid = tzidAfterTimeChange(endTime != state.endTime)
+        )
         validateStartAndEndTime()
     }
+
+    // While editing, keep the original meeting tzid unless the user changes a time value.
+    // Time picker changes are made in the user's local timezone, so edited times should carry the local tzid.
+    private fun tzidAfterTimeChange(timeChanged: Boolean): String =
+        if (type is NewMeetingType.Edit && !timeChanged) state.tzid else currentTimeZoneProvider().id
 
     override fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval?) {
         state = state.copy(repeatingInterval = interval)

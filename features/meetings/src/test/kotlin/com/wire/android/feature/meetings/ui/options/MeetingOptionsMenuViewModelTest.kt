@@ -33,7 +33,8 @@ import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
-import com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase
+import com.wire.kalium.logic.feature.meeting.DeleteMeetingForEveryoneUseCase
+import com.wire.kalium.logic.feature.meeting.DeleteMeetingForMeUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -96,7 +97,7 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+    fun givenFutureMeeting_andSelfUserIsMember_whenObserving_thenDeleteForMeIsAvailable() = runTest(dispatcher) {
         val meeting = meeting(
             selfRole = MeetingOccurrence.SelfRole.Member,
             occurrenceStartTime = CURRENT_TIME + 1.hours,
@@ -111,7 +112,7 @@ class MeetingOptionsMenuViewModelTest {
             runCurrent()
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
-                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -142,7 +143,7 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenPastMeeting_andSelfUserIsMember_whenObserving_thenEditAndDeleteIsNotAvailable() = runTest(dispatcher) {
+    fun givenPastMeeting_andSelfUserIsMember_whenObserving_thenEditIsNotAvailableAndDeleteForMeIsAvailable() = runTest(dispatcher) {
         val meeting = meeting(
             selfRole = MeetingOccurrence.SelfRole.Member,
             occurrenceStartTime = CURRENT_TIME - 2.hours,
@@ -157,7 +158,7 @@ class MeetingOptionsMenuViewModelTest {
             runCurrent()
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
-                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.None, it.deleteOption)
+                assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -165,18 +166,18 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenSuccess_whenDeletingMeeting_thenSuccessMessageIsSentAndDialogIsDismissed() = runTest(dispatcher) {
+    fun givenSuccess_whenDeletingMeetingForEveryone_thenSuccessMessageIsSentAndDialogIsDismissed() = runTest(dispatcher) {
         val (arrangement, viewModel) = Arrangement()
-            .withDeleteMeetingResult(DeleteMeetingUseCase.Result.Success)
+            .withDeleteMeetingForEveryoneResult(DeleteMeetingForEveryoneUseCase.Result.Success)
             .arrange()
-        viewModel.deleteMeetingForEveryoneDialogState.show(DeleteMeetingDialogState(true, MEETING_ID, MEETING_TITLE))
+        viewModel.deleteMeetingDialogState.show(deleteMeetingForEveryoneDialogState())
 
         viewModel.actions.test {
-            viewModel.deleteMeeting(MEETING_ID, MEETING_TITLE)
+            viewModel.deleteMeetingForEveryone(MEETING_ID, MEETING_TITLE)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.deleteMeetingUseCase.invoke(MEETING_ID) }
-            assertFalse(viewModel.deleteMeetingForEveryoneDialogState.isVisible)
+            coVerify(exactly = 1) { arrangement.deleteMeetingForEveryoneUseCase.invoke(MEETING_ID) }
+            assertFalse(viewModel.deleteMeetingDialogState.isVisible)
             assertEquals(
                 MeetingOptionsMenuViewAction.Message(
                     UIText.StringResource(R.string.meeting_deleted_success, MEETING_TITLE).asSnackBarMessage()
@@ -188,18 +189,68 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenFailure_whenDeletingMeeting_thenFailureMessageIsSentAndDialogIsDismissed() = runTest(dispatcher) {
+    fun givenFailure_whenDeletingMeetingForEveryone_thenFailureMessageIsSentAndDialogIsDismissed() = runTest(dispatcher) {
         val (arrangement, viewModel) = Arrangement()
-            .withDeleteMeetingResult(DeleteMeetingUseCase.Result.Failure(CoreFailure.Unknown(RuntimeException("delete failed"))))
+            .withDeleteMeetingForEveryoneResult(
+                DeleteMeetingForEveryoneUseCase.Result.Failure(CoreFailure.Unknown(RuntimeException("delete failed")))
+            )
             .arrange()
-        viewModel.deleteMeetingForEveryoneDialogState.show(DeleteMeetingDialogState(true, MEETING_ID, MEETING_TITLE))
+        viewModel.deleteMeetingDialogState.show(deleteMeetingForEveryoneDialogState())
 
         viewModel.actions.test {
-            viewModel.deleteMeeting(MEETING_ID, MEETING_TITLE)
+            viewModel.deleteMeetingForEveryone(MEETING_ID, MEETING_TITLE)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.deleteMeetingUseCase.invoke(MEETING_ID) }
-            assertFalse(viewModel.deleteMeetingForEveryoneDialogState.isVisible)
+            coVerify(exactly = 1) { arrangement.deleteMeetingForEveryoneUseCase.invoke(MEETING_ID) }
+            assertFalse(viewModel.deleteMeetingDialogState.isVisible)
+            assertEquals(
+                MeetingOptionsMenuViewAction.Message(
+                    UIText.StringResource(R.string.meeting_deleted_failure, MEETING_TITLE).asSnackBarMessage()
+                ),
+                awaitItem()
+            )
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenSuccess_whenDeletingMeetingForMe_thenSuccessMessageIsSentAndDialogIsDismissed() = runTest(dispatcher) {
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteMeetingForMeResult(DeleteMeetingForMeUseCase.Result.Success)
+            .arrange()
+        viewModel.deleteMeetingDialogState.show(deleteMeetingForMeDialogState())
+
+        viewModel.actions.test {
+            viewModel.deleteMeetingForMe(MEETING_ID, MEETING_TITLE)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.deleteMeetingForMeUseCase.invoke(MEETING_ID) }
+            assertFalse(viewModel.deleteMeetingDialogState.isVisible)
+            assertEquals(
+                MeetingOptionsMenuViewAction.Message(
+                    UIText.StringResource(R.string.meeting_deleted_success, MEETING_TITLE).asSnackBarMessage()
+                ),
+                awaitItem()
+            )
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenFailure_whenDeletingMeetingForMe_thenFailureMessageIsSentAndDialogIsDismissed() = runTest(dispatcher) {
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteMeetingForMeResult(
+                DeleteMeetingForMeUseCase.Result.Failure(CoreFailure.Unknown(RuntimeException("delete failed")))
+            )
+            .arrange()
+        viewModel.deleteMeetingDialogState.show(deleteMeetingForMeDialogState())
+
+        viewModel.actions.test {
+            viewModel.deleteMeetingForMe(MEETING_ID, MEETING_TITLE)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.deleteMeetingForMeUseCase.invoke(MEETING_ID) }
+            assertFalse(viewModel.deleteMeetingDialogState.isVisible)
             assertEquals(
                 MeetingOptionsMenuViewAction.Message(
                     UIText.StringResource(R.string.meeting_deleted_failure, MEETING_TITLE).asSnackBarMessage()
@@ -296,12 +347,27 @@ class MeetingOptionsMenuViewModelTest {
         callerTeamName = "some_team_name"
     )
 
+    private fun deleteMeetingForEveryoneDialogState() = DeleteMeetingDialogState(
+        deleteType = DeleteMeetingType.ForEveryone,
+        meetingId = MEETING_ID,
+        meetingTitle = MEETING_TITLE,
+    )
+
+    private fun deleteMeetingForMeDialogState() = DeleteMeetingDialogState(
+        deleteType = DeleteMeetingType.ForMe,
+        meetingId = MEETING_ID,
+        meetingTitle = MEETING_TITLE,
+    )
+
     private class Arrangement {
         @MockK
         lateinit var observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase
 
         @MockK
-        lateinit var deleteMeetingUseCase: DeleteMeetingUseCase
+        lateinit var deleteMeetingForEveryoneUseCase: DeleteMeetingForEveryoneUseCase
+
+        @MockK
+        lateinit var deleteMeetingForMeUseCase: DeleteMeetingForMeUseCase
 
         @MockK
         lateinit var observeActiveCallsUseCase: ObserveActiveCallsUseCase
@@ -311,18 +377,23 @@ class MeetingOptionsMenuViewModelTest {
         init {
             MockKAnnotations.init(this)
             coEvery { observeMeetingOccurrenceUseCase.invoke(OCCURRENCE_ID) } returns flowOf(null)
-            coEvery { deleteMeetingUseCase.invoke(MEETING_ID) } returns DeleteMeetingUseCase.Result.Success
+            coEvery { deleteMeetingForEveryoneUseCase.invoke(MEETING_ID) } returns DeleteMeetingForEveryoneUseCase.Result.Success
+            coEvery { deleteMeetingForMeUseCase.invoke(MEETING_ID) } returns DeleteMeetingForMeUseCase.Result.Success
         }
         fun withObservedMeeting(meeting: MeetingOccurrence?) = apply {
             coEvery { observeMeetingOccurrenceUseCase.invoke(OCCURRENCE_ID) } returns flowOf(meeting)
         }
-        fun withDeleteMeetingResult(result: DeleteMeetingUseCase.Result) = apply {
-            coEvery { deleteMeetingUseCase.invoke(MEETING_ID) } returns result
+        fun withDeleteMeetingForEveryoneResult(result: DeleteMeetingForEveryoneUseCase.Result) = apply {
+            coEvery { deleteMeetingForEveryoneUseCase.invoke(MEETING_ID) } returns result
+        }
+        fun withDeleteMeetingForMeResult(result: DeleteMeetingForMeUseCase.Result) = apply {
+            coEvery { deleteMeetingForMeUseCase.invoke(MEETING_ID) } returns result
         }
         fun arrange() = this to MeetingOptionsMenuViewModelImpl(
             currentTimeProvider = currentTimeProvider,
             observeMeetingOccurrenceUseCase = observeMeetingOccurrenceUseCase,
-            deleteMeetingUseCase = deleteMeetingUseCase,
+            deleteMeetingForEveryoneUseCase = deleteMeetingForEveryoneUseCase,
+            deleteMeetingForMeUseCase = deleteMeetingForMeUseCase,
             observeActiveCallsUseCase = observeActiveCallsUseCase,
         )
     }

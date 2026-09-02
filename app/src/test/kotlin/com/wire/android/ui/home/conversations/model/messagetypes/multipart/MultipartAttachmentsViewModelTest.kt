@@ -186,7 +186,7 @@ class MultipartAttachmentsViewModelTest {
 
         val callback = mockk<OpenImageCallback>(relaxed = true)
 
-        viewModel.onClick(testAttachmentUi, callback, {})
+        viewModel.onClick(testAttachmentUi, callback, {}, {})
 
         coVerify(exactly = 1) { callback.invoke(testAttachmentUi.uuid) }
     }
@@ -203,7 +203,8 @@ class MultipartAttachmentsViewModelTest {
                 transferStatus = AssetTransferStatus.NOT_FOUND,
             ),
             openInImageViewer = callback,
-            openInVideoPlayer = { }
+            openInVideoPlayer = { },
+            openInAudioPlayer = { },
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
@@ -223,7 +224,8 @@ class MultipartAttachmentsViewModelTest {
                 transferStatus = AssetTransferStatus.NOT_FOUND,
             ),
             openInImageViewer = callback,
-            openInVideoPlayer = { }
+            openInVideoPlayer = { },
+            openInAudioPlayer = { },
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
@@ -243,7 +245,8 @@ class MultipartAttachmentsViewModelTest {
                 localPath = "local/path",
             ),
             openInImageViewer = callback,
-            openInVideoPlayer = { }
+            openInVideoPlayer = { },
+            openInAudioPlayer = { },
         )
 
         coVerify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
@@ -262,7 +265,8 @@ class MultipartAttachmentsViewModelTest {
                 contentUrl = "content/url",
             ),
             openInImageViewer = callback,
-            openInVideoPlayer = { }
+            openInVideoPlayer = { },
+            openInAudioPlayer = { },
         )
 
         coVerify(exactly = 1) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }

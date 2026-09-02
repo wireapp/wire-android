@@ -93,7 +93,7 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import kotlinx.datetime.Instant
 
 @Composable
@@ -132,7 +132,7 @@ internal fun DeviceDetailsRouteScreen(
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
     passwordTextState: TextFieldState,
-    handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
+    handleE2EIEnrollmentResult: (EnrollE2EIResult) -> Unit,
     modifier: Modifier = Modifier,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},

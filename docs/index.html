@@ -770,7 +770,7 @@ feature dependencies are forbidden).</li>
 <p>Because the player is shared UI infrastructure used by multiple layers above <code>core</code>, its correct home
 is a <code>core</code> module.</p>
 <h2>Decision</h2>
-<p>Extract the video player into a new <strong><code>core:media-player</code></strong> module and consume it from both
+<p>Extract the video player into a new <strong><code>core:video-player</code></strong> module and consume it from both
 <code>features:cells</code> and <code>app</code>.</p>
 <p>A new dedicated core module is preferred over folding it into the existing <code>core:media</code> module so that
 the heavy media dependencies (<code>media3-exoplayer</code>, <code>media3-ui</code>, <code>coil3-video</code>) stay scoped to modules
@@ -782,13 +782,13 @@ viewers (image viewer, media gallery) if we choose to consolidate them.</p>
 <li><strong>Navigation:</strong> replace <code>@WireCellsDestination</code> with a single shared destination registered through
 <code>core:navigation</code>, so the player is navigable from any feature/app graph rather than only the cells
 graph.</li>
-<li><strong>Dependency injection:</strong> move the Metro wiring out of <code>CellsViewModelFactory</code> so <code>core:media-player</code>
+<li><strong>Dependency injection:</strong> move the Metro wiring out of <code>CellsViewModelFactory</code> so <code>core:video-player</code>
 provides its own <code>VideoPlayerViewModel</code>.</li>
 </ul>
 <p>The work is sequenced extract-then-reuse, so the risky refactor is validated against the existing
 caller before chat depends on it:</p>
 <ol>
-<li>Create <code>core:media-player</code> and move the player files into it, generalizing navigation and DI. No
+<li>Create <code>core:video-player</code> and move the player files into it, generalizing navigation and DI. No
 user-facing behavior change.</li>
 <li>Migrate <code>features:cells</code> to navigate to the shared destination and delete its copy of the player.
 This proves parity with the existing flow.</li>
@@ -797,11 +797,11 @@ already-resolved local path / content URL) instead of firing the external <code>
 </ol>
 <h2>Consequences</h2>
 <ul>
-<li>A new module <code>core:media-player</code> is added; it is auto-discovered by <code>settings.gradle.kts</code> and built
+<li>A new module <code>core:video-player</code> is added; it is auto-discovered by <code>settings.gradle.kts</code> and built
 with the <code>wire-android-library</code> convention plugin (copied from an existing core module, not from
 <code>features/template</code>). It may depend on <code>core:ui-common</code>, <code>core:navigation</code>, and <code>core:di</code> — all
 core → core, one-directional, no cycle.</li>
-<li><code>features:cells</code> and <code>app</code> both depend on <code>core:media-player</code>; the <code>kalium → core → features → app</code>
+<li><code>features:cells</code> and <code>app</code> both depend on <code>core:video-player</code>; the <code>kalium → core → features → app</code>
 direction is preserved and no cross-feature dependency is introduced.</li>
 <li>The video player becomes reusable from anywhere, and chat gains an in-app video experience instead
 of delegating to an external app.</li>
@@ -810,7 +810,7 @@ shared destination. Any deep links or existing navigation to the cells-scoped de
 updated as part of Phase 2.</li>
 <li>The media3/Coil-video dependencies move to (and are scoped by) the new module.</li>
 <li>Follow-up opportunity (out of scope here): the cells in-app image viewer (<code>CellImageViewerScreen</code>)
-and the app <code>MediaGalleryScreen</code> overlap; <code>core:media-player</code> is a natural future home for a unified
+and the app <code>MediaGalleryScreen</code> overlap; <code>core:video-player</code> is a natural future home for a unified
 media viewer, to be handled as a separate ADR/change.</li>
 </ul>
 </div>

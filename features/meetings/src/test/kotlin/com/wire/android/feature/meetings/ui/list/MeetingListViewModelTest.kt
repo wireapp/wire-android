@@ -194,6 +194,7 @@ class MeetingListViewModelTest {
             title = "Meeting",
             startTime = startTime,
             endTime = startTime + 30.minutes,
+            tzid = "Europe/Berlin",
             recurrence = null,
         ),
         occurrenceId = "$meetingId-occurrence",

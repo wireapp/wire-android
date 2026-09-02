@@ -37,6 +37,7 @@ import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.UpsertMeeting
@@ -69,6 +70,7 @@ import kotlin.time.Duration.Companion.hours
 
 interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     val currentTimeProvider: CurrentTimeProvider
+    val currentTimeZoneProvider: CurrentTimeZoneProvider
     val type: NewMeetingType
     val titleTextState: TextFieldState
     val state: NewMeetingState
@@ -93,8 +95,9 @@ class NewMeetingViewModelPreview(
     override val type: NewMeetingType
 ) : NewMeetingViewModel {
     override val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Preview
+    override val currentTimeZoneProvider: CurrentTimeZoneProvider = CurrentTimeZoneProvider.Preview
     override val titleTextState: TextFieldState = TextFieldState()
-    override val state: NewMeetingState = initialState(currentTimeProvider)
+    override val state: NewMeetingState = initialState(currentTimeProvider, currentTimeZoneProvider)
 }
 
 @Suppress("TooManyFunctions")
@@ -102,6 +105,7 @@ class NewMeetingViewModelPreview(
 class NewMeetingViewModelImpl @AssistedInject constructor(
     @Assisted val navArgs: NewMeetingNavArgs,
     override val currentTimeProvider: CurrentTimeProvider,
+    override val currentTimeZoneProvider: CurrentTimeZoneProvider,
     private val createNewMeeting: CreateNewMeetingUseCase,
     private val updateMeeting: UpdateMeetingUseCase,
     private val getNextUnfinishedMeetingOccurrence: GetNextUnfinishedMeetingOccurrenceUseCase,
@@ -116,7 +120,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
-    override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider))
+    override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider, currentTimeZoneProvider))
         private set
 
     init {
@@ -138,6 +142,9 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         state = state.copy(
                             startTime = meetingOccurrence.occurrenceStartTime,
                             endTime = meetingOccurrence.occurrenceEndTime,
+                            // always use the current local tzid, not the initial meeting's tzid, as it could be created in different tzid
+                            // so when current user updates times and sets their local ones so it should also inherit their local tzid
+                            tzid = currentTimeZoneProvider().id,
                             repeatingInterval = meetingOccurrence.meeting.recurrence?.toRepeatingInterval(),
                             selectedContacts = otherContacts,
                             confirmedContacts = otherContacts,
@@ -180,7 +187,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun updateStartTime(startTime: Instant) {
         val currentDuration = state.endTime - state.startTime
-        val latestEndTime = startTime.latestEndTimeOnSameDay()
+        val latestEndTime = startTime.latestEndTimeOnSameDay(currentTimeZoneProvider())
         state = state.copy(
             startTime = startTime,
             // adjust end time based on the new start time but try to keep the same duration, unless it extends into the next day
@@ -256,6 +263,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         title = titleTextState.text.trim().toString(),
                         startTime = state.startTime,
                         endTime = state.endTime,
+                        tzid = state.tzid,
                         recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
@@ -282,6 +290,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         title = titleTextState.text.trim().toString(),
                         startTime = state.startTime,
                         endTime = state.endTime,
+                        tzid = state.tzid,
                         recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
@@ -321,7 +330,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     }
 }
 
-internal fun getNextFullHour(now: Instant, timeZone: TimeZone = TimeZone.currentSystemDefault()): Instant {
+internal fun getNextFullHour(now: Instant, timeZone: TimeZone): Instant {
     val futureHour = now.plus(1, DateTimeUnit.HOUR, timeZone)
     val localFuture = futureHour.toLocalDateTime(timeZone)
     return LocalDateTime(
@@ -337,7 +346,7 @@ internal fun getNextFullHour(now: Instant, timeZone: TimeZone = TimeZone.current
 
 // Find the latest possible end time on the same day as the given Instant, in the given time zone.
 // The latest possible end time is 23:59:00 on the same day in the given time zone.
-private fun Instant.latestEndTimeOnSameDay(timeZone: TimeZone = TimeZone.currentSystemDefault()): Instant {
+private fun Instant.latestEndTimeOnSameDay(timeZone: TimeZone): Instant {
     val localStartTime = toLocalDateTime(timeZone)
     return LocalDateTime(
         year = localStartTime.year,
@@ -360,6 +369,7 @@ data class NewMeetingState(
     val startTimeError: TimeError? = null,
     val endTime: Instant,
     val endTimeError: TimeError? = null,
+    val tzid: String,
     val repeatingInterval: MeetingItem.RepeatingInterval? = null,
     val submitError: SubmitError? = null,
     val isSubmitting: Boolean = false,
@@ -385,9 +395,13 @@ data class NewMeetingState(
     }
 
     companion object {
-        fun initialState(currentTimeProvider: CurrentTimeProvider): NewMeetingState {
-            val startTime = getNextFullHour(currentTimeProvider())
-            return NewMeetingState(startTime = startTime, endTime = startTime.plus(1.hours))
+        fun initialState(currentTimeProvider: CurrentTimeProvider, currentTimeZoneProvider: CurrentTimeZoneProvider): NewMeetingState {
+            val startTime = getNextFullHour(currentTimeProvider(), currentTimeZoneProvider())
+            return NewMeetingState(
+                startTime = startTime,
+                endTime = startTime.plus(1.hours),
+                tzid = currentTimeZoneProvider().id,
+            )
         }
     }
 }

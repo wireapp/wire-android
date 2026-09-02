@@ -28,6 +28,7 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.CurrentTimeProvider
+import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MemberDetails
@@ -106,6 +107,7 @@ class NewMeetingViewModelTest {
         assertNull(viewModel.state.titleError)
         assertNull(viewModel.state.startTimeError)
         assertNull(viewModel.state.endTimeError)
+        assertEquals(MEETING_TIME_ZONE_ID, viewModel.state.tzid)
     }
 
     @Test
@@ -204,7 +206,7 @@ class NewMeetingViewModelTest {
 
     @Test
     fun givenStartTimeChanges_whenEndTimeWouldMoveToNextDay_thenEndTimeIsCappedAt2359() = runTest(dispatcher) {
-        val timeZone = TimeZone.currentSystemDefault()
+        val timeZone = TimeZone.of(MEETING_TIME_ZONE_ID)
         val currentTime = LocalDateTime(2026, 1, 1, 12, 0).toInstant(timeZone)
         val newStartTime = LocalDateTime(2026, 1, 1, 23, 30).toInstant(timeZone)
         val latestEndTime = LocalDateTime(2026, 1, 1, 23, 59).toInstant(timeZone)
@@ -309,6 +311,7 @@ class NewMeetingViewModelTest {
                         title = "Quick sync",
                         startTime = currentTime,
                         endTime = currentTime + 1.hours,
+                        tzid = MEETING_TIME_ZONE_ID,
                         recurrence = null,
                         otherParticipants = emptyList()
                     )
@@ -434,6 +437,7 @@ class NewMeetingViewModelTest {
                 title = "Retrospective sync",
                 startTime = pastStartTime,
                 endTime = pastEndTime,
+                tzid = MEETING_TIME_ZONE_ID,
                 recurrence = null,
                 otherParticipants = emptyList()
             )
@@ -788,10 +792,13 @@ class NewMeetingViewModelTest {
         connectionState = ConnectionState.ACCEPTED,
     )
 
-    private class Arrangement(private val dispatcher: TestDispatcher) {
+    private inner class Arrangement(private val dispatcher: TestDispatcher) {
         var currentTimeProvider = CurrentTimeProvider {
             Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime)
         }
+
+        @MockK
+        lateinit var currentTimeZoneProvider: CurrentTimeZoneProvider
 
         @MockK
         lateinit var createNewMeeting: CreateNewMeetingUseCase
@@ -815,6 +822,7 @@ class NewMeetingViewModelTest {
 
         init {
             MockKAnnotations.init(this)
+            every { currentTimeZoneProvider.invoke() } returns TimeZone.of(MEETING_OCCURRENCE.meeting.tzid)
             coEvery { getNextUnfinishedMeetingOccurrence(any(), any()) } returns null
             coEvery { observeConversationMembers(any()) } returns flowOf(emptyList())
         }
@@ -860,6 +868,7 @@ class NewMeetingViewModelTest {
         fun arrange() = this to NewMeetingViewModelImpl(
             navArgs = NewMeetingNavArgs(type = newMeetingType),
             currentTimeProvider = currentTimeProvider,
+            currentTimeZoneProvider = currentTimeZoneProvider,
             createNewMeeting = createNewMeeting,
             updateMeeting = updateMeeting,
             getNextUnfinishedMeetingOccurrence = getNextUnfinishedMeetingOccurrence,
@@ -869,6 +878,7 @@ class NewMeetingViewModelTest {
         )
     }
 
+    private val MEETING_TIME_ZONE_ID = "Europe/Berlin"
     private val MEETING_OCCURRENCE = MeetingOccurrence(
         meeting = Meeting(
             meetingId = MeetingId("meeting-id", "domain"),
@@ -877,6 +887,7 @@ class NewMeetingViewModelTest {
             title = "Daily",
             startTime = Instant.parse("2026-01-01T09:00:00Z"),
             endTime = Instant.parse("2026-01-01T10:00:00Z"),
+            tzid = MEETING_TIME_ZONE_ID,
             recurrence = Meeting.Recurrence(frequency = Meeting.Recurrence.Frequency.DAILY, interval = 1L, until = null),
         ),
         selfRole = MeetingOccurrence.SelfRole.Creator,
@@ -891,6 +902,7 @@ class NewMeetingViewModelTest {
         title = "Weekly sync",
         startTime = Instant.parse("2026-01-01T09:00:00Z"),
         endTime = Instant.parse("2026-01-01T10:00:00Z"),
+        tzid = MEETING_TIME_ZONE_ID,
         recurrence = Meeting.Recurrence(
             frequency = MeetingItem.RepeatingInterval.Supported.first().frequency,
             interval = MeetingItem.RepeatingInterval.Supported.first().interval.toLong(),

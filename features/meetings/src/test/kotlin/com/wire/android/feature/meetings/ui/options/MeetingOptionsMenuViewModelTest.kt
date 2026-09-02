@@ -273,6 +273,7 @@ class MeetingOptionsMenuViewModelTest {
             title = MEETING_TITLE,
             startTime = occurrenceStartTime,
             endTime = occurrenceEndTime,
+            tzid = "Europe/Berlin",
             recurrence = null,
         ),
         occurrenceId = OCCURRENCE_ID,

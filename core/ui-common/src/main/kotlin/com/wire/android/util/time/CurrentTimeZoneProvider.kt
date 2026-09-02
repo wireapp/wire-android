@@ -17,9 +17,15 @@
  */
 package com.wire.android.util.time
 
-import kotlinx.datetime.TimeZone
 import dev.zacsweers.metro.Inject
+import kotlinx.datetime.TimeZone
 
-class TimeZoneProvider @Inject constructor() {
-    fun currentSystemDefault(): TimeZone = TimeZone.currentSystemDefault()
+class CurrentTimeZoneProvider(val currentTimeZone: () -> TimeZone) {
+    @Inject constructor() : this(TimeZone::currentSystemDefault)
+
+    operator fun invoke(): TimeZone = currentTimeZone()
+
+    companion object {
+        val Preview: CurrentTimeZoneProvider = CurrentTimeZoneProvider()
+    }
 }

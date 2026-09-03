@@ -89,6 +89,7 @@ fun ConversationList(
     searchQuery: String = "",
     isSelfUserUnderLegalHold: Boolean = false,
     playingAudio: PlayingAudioInConversation? = null,
+    isConversationEnabled: (ConversationItem) -> Boolean = { true },
     onOpenConversation: (ConversationItem) -> Unit = {},
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
@@ -155,6 +156,7 @@ fun ConversationList(
                             modifier = conversationModifier,
                             isSelectableItem = isSelectableList,
                             isChecked = selectedConversations.contains(item.conversationId),
+                            isEnabled = isConversationEnabled(item),
                             searchQuery = searchQuery,
                             isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
                             playingAudio = playingAudio,
@@ -365,6 +367,11 @@ private fun fakeChannel(
     folder = null,
     isPrivate = currentIndex % 2 == 0
 )
+
+private const val VIEWER_ONLY_PREVIEW_INDEX = 999
+
+fun previewViewerOnlyConversationItem(index: Int = VIEWER_ONLY_PREVIEW_INDEX) =
+    fakeRegularGroup(index, false).copy(isSelfUserViewerOnly = true)
 
 fun previewConversationItemsFlow(
     searchQuery: String = "",

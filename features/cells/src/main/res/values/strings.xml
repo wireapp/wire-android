@@ -47,6 +47,7 @@
     <string name="share_file_via_link">Share file via link</string>
     <string name="share_folder_via_link">Share folder via link</string>
     <string name="no_app_found">No application found to open the file.</string>
+    <string name="file_not_supported">Can\'t open this file. File type isn\'t supported.</string>
     <string name="cell_files_load_failure_message">Unable to load. Please try again later.</string>
     <string name="action_failed">Action failed.</string>
     <string name="cancel">Cancel</string>

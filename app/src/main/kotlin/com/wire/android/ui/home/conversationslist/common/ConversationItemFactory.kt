@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -71,6 +72,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 
+private const val DISABLED_CONVERSATION_ITEM_ALPHA = 0.5f
+
 @Composable
 fun ConversationItemFactory(
     conversation: ConversationItem,
@@ -87,7 +90,9 @@ fun ConversationItemFactory(
     onStopCurrentAudio: () -> Unit = {},
     searchQuery: String = "",
     isSelfUserUnderLegalHold: Boolean = false,
-    playingAudio: PlayingAudioInConversation? = null
+    playingAudio: PlayingAudioInConversation? = null,
+    /** When false, the item is shown as dimmed and can neither be opened nor selected. */
+    isEnabled: Boolean = true,
 ) {
     val openConversationOptionDescription = stringResource(R.string.content_description_conversation_details_more_btn)
     val openUserProfileDescription = stringResource(commonR.string.content_description_open_user_profile_label)
@@ -96,7 +101,7 @@ fun ConversationItemFactory(
     val showLegalHoldIndicator = conversation.legalHoldStatus.showLegalHoldIndicator() && !isSelfUserUnderLegalHold
     val playingAudioInConversation = playingAudio
         ?.takeIf { it.conversationId == conversation.conversationId }
-    val onConversationItemClick = remember(conversation) {
+    val onConversationItemClick = remember(conversation, isEnabled) {
         when (val lastEvent = conversation.lastMessageContent) {
             is UILastMessageContent.Connection -> {
                 val onClickDescription = if (conversation.badgeEventType == BadgeEventType.ReceivedConnectionRequest) {
@@ -105,7 +110,7 @@ fun ConversationItemFactory(
                     openUserProfileDescription
                 }
                 Clickable(
-                    enabled = true,
+                    enabled = isEnabled,
                     onClick = { openUserProfile(lastEvent.userId) },
                     onLongClick = null,
                     onClickDescription = onClickDescription,
@@ -114,7 +119,7 @@ fun ConversationItemFactory(
             }
 
             else -> Clickable(
-                enabled = true,
+                enabled = isEnabled,
                 onClick = { openConversation(conversation) },
                 onLongClick = { openMenu(conversation) },
                 onClickDescription = openConversationDescription,
@@ -124,10 +129,13 @@ fun ConversationItemFactory(
     }
 
     GeneralConversationItem(
-        modifier = modifier.semantics(mergeDescendants = true) { },
+        modifier = modifier
+            .alpha(if (isEnabled) 1f else DISABLED_CONVERSATION_ITEM_ALPHA)
+            .semantics(mergeDescendants = true) { },
         conversation = conversation,
         isSelectable = isSelectableItem,
         isChecked = isChecked,
+        isEnabled = isEnabled,
         selectOnRadioGroup = onConversationSelectedOnRadioGroup,
         subTitle = {
             if (!isSelectableItem) {
@@ -178,6 +186,7 @@ private fun GeneralConversationItem(
     onAudioPermissionPermanentlyDenied: () -> Unit,
     showLegalHoldIndicator: Boolean,
     modifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
     selectOnRadioGroup: () -> Unit = {},
     subTitle: @Composable () -> Unit = {},
     searchQuery: String = "",
@@ -194,9 +203,11 @@ private fun GeneralConversationItem(
                     leadingIcon = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (isSelectable) {
-                                WireRadioButton(checked = isChecked, onButtonChecked = {
-                                    selectOnRadioGroup()
-                                })
+                                WireRadioButton(
+                                    checked = isChecked,
+                                    enabled = isEnabled,
+                                    onButtonChecked = { selectOnRadioGroup() }
+                                )
                             }
                             val avatar = if (conversation is ConversationItem.Group.Channel) {
                                 ConversationAvatar.Group.Channel(conversationId, conversation.isPrivate)
@@ -254,9 +265,11 @@ private fun GeneralConversationItem(
                     leadingIcon = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (isSelectable) {
-                                WireRadioButton(checked = isChecked, onButtonChecked = {
-                                    selectOnRadioGroup()
-                                })
+                                WireRadioButton(
+                                    checked = isChecked,
+                                    enabled = isEnabled,
+                                    onButtonChecked = { selectOnRadioGroup() }
+                                )
                             }
                             ConversationLeadingAvatar {
                                 ConversationUserAvatar(userAvatarData)

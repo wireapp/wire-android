@@ -32,7 +32,6 @@ import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.ui.debug.securityproviders.AppPathsProvider
 import com.wire.android.ui.debug.securityproviders.NetworkDiagnosticsProvider
-import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerParameters
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.GetMediaMetadataUseCase
@@ -127,12 +126,12 @@ object AppModule {
     fun provideOfflineFilesEnabled(): Boolean = BuildConfig.OFFLINE_FILES_ENABLED
 
     @Provides
-    @Named("inAppImageViewerEnabled")
-    fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
+    @Named("drivePermissionsEnabled")
+    fun provideDrivePermissionsEnabled(): Boolean = BuildConfig.DRIVE_PERMISSIONS_ENABLED
 
     @Provides
-    @SingleIn(AppScope::class)
-    fun provideMessageSharedState(): MessageSharedState = MessageSharedState()
+    @Named("inAppImageViewerEnabled")
+    fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
 
     @Provides
     fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()

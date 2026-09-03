@@ -30,7 +30,8 @@ import dev.zacsweers.metro.Named
 class CellFileActionsMenu @Inject constructor(
     private val featureFlags: KaliumConfigs,
     @Named("offlineFilesEnabled") private val offlineFilesEnabled: Boolean,
-) {
+    @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
+    ) {
     internal fun buildMenu(
         cellNode: CellNodeUi,
         isRecycleBin: Boolean,
@@ -142,9 +143,9 @@ class CellFileActionsMenu @Inject constructor(
         isViewerOnly: Boolean,
         isConversationFiles: Boolean,
     ) {
-        val hideAction = isConversationFiles && isViewerOnly
+        val hideAction = isConversationFiles && isViewerOnly && drivePermissionsEnabled
         if (!hideAction) {
-            add(NodeMenuItem(action, enabled = !isViewerOnly))
+            add(NodeMenuItem(action, enabled = !drivePermissionsEnabled || !isViewerOnly))
         }
     }
 
@@ -154,7 +155,7 @@ class CellFileActionsMenu @Inject constructor(
     ): List<NodeMenuItem> = buildList {
 
         // Viewer-only nodes (files and folders) are read-only: none of the conversation management actions apply.
-        if (cellNode.isViewerOnly) return@buildList
+        if (cellNode.isViewerOnly && drivePermissionsEnabled) return@buildList
 
         val canEdit = cellNode is CellNodeUi.File &&
                 isCollaboraEnabled &&

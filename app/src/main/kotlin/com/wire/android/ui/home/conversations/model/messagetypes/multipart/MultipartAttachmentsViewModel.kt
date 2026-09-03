@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.AUDIO
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
@@ -53,6 +54,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -60,6 +63,7 @@ interface MultipartAttachmentsViewModel {
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+        openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
     )
     fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
         val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
@@ -126,12 +130,14 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+        openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
     ) {}
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
 @Suppress("LongParameterList")
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
 class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     @Assisted private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,
@@ -161,10 +167,12 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         loadWireCellConfig()
     }
 
+    @Suppress("CyclomaticComplexMethod")
     override fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+        openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
     ) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
@@ -177,6 +185,9 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
 
             attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
                 openInVideoPlayer(attachment)
+
+            attachment.isAudio() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
+                openInAudioPlayer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -272,6 +283,8 @@ private fun MultipartAttachmentUi.isImage() = AttachmentFileType.fromMimeType(mi
 
 private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
 
+private fun MultipartAttachmentUi.isAudio() = assetType == AUDIO
+
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {
         IMAGE, VIDEO -> true
@@ -280,4 +293,4 @@ private fun MessageAttachment.isMediaAttachment() =
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, PDF)
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)

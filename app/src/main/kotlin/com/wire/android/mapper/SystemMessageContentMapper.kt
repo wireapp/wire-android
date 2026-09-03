@@ -76,6 +76,9 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.NewConversationWithCellSelfDeleteDisabledMessage ->
             UIMessageContent.SystemMessage.NewConversationWithCellSelfDeleteDisabled
 
+        is MessageContent.CellEditorAccessMessage -> UIMessageContent.SystemMessage.CellsConversationEditorAccess
+        is MessageContent.CellViewerAccessMessage -> UIMessageContent.SystemMessage.CellsConversationViewerAccess
+
         is MessageContent.ConversationAppsEnabledChanged -> mapConversationConversationAppsAccessChanged(
             message.senderUserId,
             content,

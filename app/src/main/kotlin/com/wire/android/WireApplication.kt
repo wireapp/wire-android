@@ -28,6 +28,7 @@ import android.util.Log
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.analytics.ObserveCurrentSessionAnalyticsUseCase
 import com.wire.android.datastore.GlobalDataStore
@@ -35,6 +36,7 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.metro.WireApplicationGraph
+import com.wire.android.di.metro.WireViewModelDiagnostics
 import com.wire.android.di.metro.createWireApplicationGraph
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -42,6 +44,7 @@ import com.wire.android.feature.analytics.AnonymousAnalyticsRecorderImpl
 import com.wire.android.feature.analytics.globalAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
+import com.wire.android.navigation.runtime.WireNavigationDiagnostics
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
@@ -128,6 +131,9 @@ class WireApplication : BaseApp() {
         appGraph.inject(this)
         super.onCreate()
         initializeMinimalLogging()
+        if (WireNavigationDiagnostics.enabled) {
+            WireViewModelDiagnostics.install(WireNavigationDiagnostics)
+        }
 
         enableStrictMode()
 
@@ -346,7 +352,7 @@ class WireApplication : BaseApp() {
         ExternalLoggerManager.initDatadogLogger(applicationContext)
 
         val isLoggingEnabled = globalDataStore.value.isLoggingEnabled().firstOrNull() == true
-        val config = fullLoggerConfig(isLoggingEnabled)
+        val config = fullLoggerConfig(isLoggingEnabled, logFileWriter.value.logWriter)
 
         AppLogger.init(config)
         CoreLogger.init(config)
@@ -462,13 +468,16 @@ class WireApplication : BaseApp() {
             listOf(platformLogWriter())
         )
 
-        fun fullLoggerConfig(isLoggingEnabled: Boolean) = if (isLoggingEnabled) {
+        fun fullLoggerConfig(isLoggingEnabled: Boolean, fileLogWriter: LogWriter? = null) = if (isLoggingEnabled) {
             KaliumLogger.Config(
                 KaliumLogLevel.VERBOSE,
-                listOf(DataDogLogger, platformLogWriter())
+                listOfNotNull(DataDogLogger, platformLogWriter(), fileLogWriter)
             )
         } else {
-            minimalLoggerConfig()
+            KaliumLogger.Config(
+                KaliumLogLevel.WARN,
+                listOfNotNull(platformLogWriter(), fileLogWriter)
+            )
         }
 
         enum class MemoryLevel(val level: Int) {

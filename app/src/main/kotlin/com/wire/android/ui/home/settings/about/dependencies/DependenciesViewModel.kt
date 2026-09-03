@@ -25,9 +25,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ApplicationContext
 import com.wire.android.util.getDependenciesVersion
+import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
 
 class DependenciesViewModel @Inject constructor(
     @ApplicationContext val context: Context

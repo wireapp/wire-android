@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.userprofile.avatarpicker
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,12 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
-import com.wire.android.ui.home.settings.avatarPickerViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -66,14 +61,11 @@ import com.wire.android.util.ui.PreviewMultipleThemesForLandscape
 import com.wire.android.util.ui.PreviewMultipleThemesForPortrait
 import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 
-@WireRootDestination(
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
-)
 @Composable
-fun AvatarPickerScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<String?>,
-    viewModel: AvatarPickerViewModel = avatarPickerViewModel()
+internal fun AvatarPickerScreen(
+    viewModel: AvatarPickerViewModel,
+    onNavigateBack: () -> Unit,
+    onAvatarSelected: (String?) -> Unit,
 ) {
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
@@ -115,15 +107,14 @@ fun AvatarPickerScreen(
 
     LaunchedEffect(viewModel.pictureState) {
         (viewModel.pictureState as? PictureState.Completed)?.let {
-            resultNavigator.setResult(it.assetId)
-            resultNavigator.navigateBack()
+            onAvatarSelected(it.assetId)
         }
     }
 
     AvatarPickerContent(
         pictureState = viewModel.pictureState,
         state = state,
-        onCloseClick = navigator::navigateBack,
+        onCloseClick = onNavigateBack,
         onCancelClick = viewModel::loadInitialAvatarState,
         onSaveClick = viewModel::uploadNewPickedAvatar
     )

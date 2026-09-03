@@ -22,6 +22,8 @@ import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 data class CommonAppPage(private val device: UiDevice) {
     private val teamSettingsChangedAlert = UiSelectorParams(textContains = "Team Settings Changed")
@@ -85,6 +87,25 @@ data class CommonAppPage(private val device: UiDevice) {
             closeWebPageButton,
             timeout = UiWaitUtils.SHORT_WAIT
         ).click()
+        return this
+    }
+
+    fun disableWifi(): CommonAppPage {
+        device.executeShellCommand("svc wifi disable")
+        return this
+    }
+
+    fun enableWifi(): CommonAppPage {
+        device.executeShellCommand("svc wifi enable")
+        return this
+    }
+
+    fun waitUntilWifiIsEnabled(timeout: Duration = 10.seconds): CommonAppPage {
+        val wifiEnabled = UiWaitUtils.retryUntilTimeout(timeout) {
+            val wifiStatus = device.executeShellCommand("cmd wifi status")
+            wifiStatus.contains("Wifi is enabled") && wifiStatus.contains("Wifi is connected")
+        }
+        assertTrue("Wi-Fi was not connected within ${timeout.inWholeSeconds} seconds", wifiEnabled)
         return this
     }
 }

@@ -17,8 +17,7 @@
  */
 package com.wire.android.ui.debug
 
-import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
-import com.wire.android.navigation.annotation.app.WireRootDestination
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -27,21 +26,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.sharing.ImportMediaNavArgs
-import com.wire.android.ui.sharing.ImportSource
 
-@WireRootDestination
 @Composable
-fun LogManagementScreen(
-    navigator: Navigator,
+internal fun LogManagementRouteScreen(
+    onBack: () -> Unit,
+    onShareLogsViaWire: (Uri) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LogManagementViewModel = logManagementViewModel()
+    viewModel: LogManagementViewModel = logManagementViewModel(),
 ) {
     val state = viewModel.state
     val contentState = rememberDebugContentState(state.logPath)
@@ -53,7 +48,7 @@ fun LogManagementScreen(
                 title = stringResource(R.string.label_logs_option_title),
                 elevation = dimensions().spacing0x,
                 navigationIconType = NavigationIconType.Close(),
-                onNavigationPressed = navigator::navigateBack
+                onNavigationPressed = onBack
             )
         }
     ) { internalPadding ->
@@ -68,20 +63,7 @@ fun LogManagementScreen(
                 onLoggingEnabledChange = viewModel::setLoggingEnabledState,
                 onDeleteLogs = viewModel::deleteLogs,
                 onShareLogsExternally = { contentState.shareLogsExternally(viewModel::flushLogs) },
-                onShareLogsViaWire = {
-                    contentState.shareLogsViaWire(viewModel::flushLogs) { uri ->
-                        navigator.navigate(
-                            NavigationCommand(
-                                ImportMediaScreenDestination(
-                                    ImportMediaNavArgs(
-                                        source = ImportSource.INTERNAL_SHARE,
-                                        internalAssetUriList = arrayListOf(uri)
-                                    )
-                                )
-                            )
-                        )
-                    }
-                },
+                onShareLogsViaWire = { contentState.shareLogsViaWire(viewModel::flushLogs, onShareLogsViaWire) },
                 isDBLoggerEnabled = false,
                 onDBLoggerEnabledChange = {},
                 isPrivateBuild = false

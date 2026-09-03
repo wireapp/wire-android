@@ -42,36 +42,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.GroupConversationDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ImagesPreviewScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MediaGalleryScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MessageDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ServiceDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.VideoPlayerScreenDestination
-import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
-import com.ramcosta.composedestinations.result.OpenResultRecipient
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
-import com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.calling.conversationCallViewModel
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -92,12 +73,10 @@ import com.wire.android.ui.home.conversations.call.HandleActions
 import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
-import com.wire.android.ui.home.conversations.details.GroupConversationDetailsNavBackArgs
 import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
-import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavBackArgs
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
@@ -108,7 +87,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionOptionsModalSheetLayout
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
-import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
+import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerComponent
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
@@ -123,21 +102,23 @@ import com.wire.android.util.normalizeLink
 import com.wire.android.util.openDownloadFolder
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import com.wire.android.ui.sharing.ImportMediaNavArgs
-import com.wire.android.ui.sharing.ImportSource
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
 
 /**
@@ -145,30 +126,22 @@ import com.wire.android.ui.common.R as commonR
  */
 private const val MAX_GROUP_SIZE_FOR_PING = 3
 
-// TODO: !! this screen definitely needs a refactor and some cleanup !!
-@Suppress("ComplexMethod")
-@WireRootDestination(
-    navArgs = ConversationNavArgs::class
-)
 @Composable
-fun ConversationScreen(
-    navigator: Navigator,
-    groupDetailsScreenResultRecipient:
-    ResultRecipient<GroupConversationDetailsScreenDestination, GroupConversationDetailsNavBackArgs>,
-    mediaGalleryScreenResultRecipient: ResultRecipient<MediaGalleryScreenDestination, MediaGalleryNavBackArgs>,
-    imagePreviewScreenResultRecipient: ResultRecipient<ImagesPreviewScreenDestination, ImagesPreviewNavBackArgs>,
-    drawingCanvasScreenResultRecipient: OpenResultRecipient<DrawingCanvasNavBackArgs>,
-    resultNavigator: ResultBackNavigator<GroupConversationDetailsNavBackArgs>,
-    conversationInfoViewModel: ConversationInfoViewModel = conversationInfoViewModel(),
-    conversationBannerViewModel: ConversationBannerViewModel = conversationBannerViewModel(),
-    conversationCallViewModel: ConversationCallViewModel = conversationCallViewModel(),
-    conversationMessagesViewModel: ConversationMessagesViewModel = conversationMessagesViewModel(),
-    messageComposerViewModel: MessageComposerViewModel = messageComposerViewModel(),
-    sendMessageViewModel: SendMessageViewModel = sendMessageViewModel(),
-    conversationMigrationViewModel: ConversationMigrationViewModel = conversationMigrationViewModel(),
-    messageDraftViewModel: MessageDraftViewModel = messageDraftViewModel(),
-    messageAttachmentsViewModel: MessageAttachmentsViewModel = messageAttachmentsViewModel(),
+@Suppress("CyclomaticComplexMethod")
+internal fun ConversationScreenRouteContent(
+    navigation: ConversationRouteScreenNavigation,
+    onShareAssetViaWire: (Uri) -> Unit,
+    conversationInfoViewModel: ConversationInfoViewModel,
+    conversationBannerViewModel: ConversationBannerViewModel,
+    conversationCallViewModel: ConversationCallViewModel,
+    conversationMessagesViewModel: ConversationMessagesViewModel,
+    messageComposerViewModel: MessageComposerViewModel,
+    sendMessageViewModel: SendMessageViewModel,
+    conversationMigrationViewModel: ConversationMigrationViewModel,
+    messageDraftViewModel: MessageDraftViewModel,
+    messageAttachmentsViewModel: MessageAttachmentsViewModel,
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val resources = context.resources
@@ -209,6 +182,63 @@ fun ConversationScreen(
     // then ViewModel also detects it's removed and calls onNotFound which can execute navigateBack again and close the app
     var alreadyDeletedByUser by rememberSaveable { mutableStateOf(false) }
 
+    navigation.onGroupDetailsResult { result ->
+        if (result == null) {
+            appLogger.i("Error with receiving navigation back args from groupDetails in ConversationScreen")
+        } else {
+            navigation.completeConversation(result)
+            alreadyDeletedByUser = true
+        }
+    }
+    navigation.onImagesPreviewResult { result ->
+        result?.let {
+            sendMessageViewModel.trySendMessages(
+                it.pendingBundles.map { assetBundle ->
+                    ComposableMessageBundle.AttachmentPickedBundle(
+                        conversationId = conversationMessagesViewModel.conversationId,
+                        assetBundle = assetBundle,
+                    )
+                }
+            )
+        }
+    }
+    navigation.onMediaGalleryResult { result ->
+        when (result?.mediaGalleryActionType) {
+            MediaGalleryActionType.REPLY ->
+                conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.messageId)?.let {
+                    coroutineScope.launch {
+                        withSmoothScreenLoad { messageComposerStateHolder.toReply(it) }
+                    }
+                }
+
+            MediaGalleryActionType.REACT ->
+                result.emoji?.let { conversationMessagesViewModel.toggleReaction(result.messageId, it) }
+
+            MediaGalleryActionType.DETAIL ->
+                conversationMessagesViewModel.getAndResetLastFullscreenMessage(result.messageId)?.let {
+                    navigation.openMessageDetails(
+                        conversationMessagesViewModel.conversationId,
+                        result.messageId,
+                        result.isSelfAsset,
+                    )
+                }
+
+            null -> appLogger.i(
+                "Error with receiving navigation back args from mediaGallery in ConversationScreen"
+            )
+        }
+    }
+    navigation.onDrawingCanvasResult { uri ->
+        uri?.let {
+            sendMessageViewModel.trySendMessage(
+                ComposableMessageBundle.UriPickedBundle(
+                    conversationId = conversationMessagesViewModel.conversationId,
+                    attachmentUri = UriAsset(it),
+                )
+            )
+        }
+    }
+
     LaunchedEffect(conversationScreenState.isAnySheetVisible) {
         with(messageComposerStateHolder) {
             if (conversationScreenState.isAnySheetVisible) {
@@ -223,7 +253,7 @@ fun ConversationScreen(
         }
     }
     LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound) {
-        if (conversationInfoViewModel.conversationInfoViewState.notFound) navigator.navigateBack()
+        if (conversationInfoViewModel.conversationInfoViewState.notFound) navigation.goBack()
     }
 
     // set message composer input to edit mode when editMessage is not null from MessageDraft
@@ -278,12 +308,7 @@ fun ConversationScreen(
     }
 
     conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
-        navigator.navigate(
-            NavigationCommand(
-                ConversationScreenDestination(migratedConversationId),
-                BackStackMode.REMOVE_CURRENT
-            )
-        )
+        navigation.replaceConversation(migratedConversationId)
     }
 
     when (showDialog.value) {
@@ -322,42 +347,35 @@ fun ConversationScreen(
         attachments = messageAttachmentsViewModel.attachments,
         onOpenProfile = { senderId: MessageSenderId ->
             with(conversationInfoViewModel) {
-                val route = when (senderId) {
-                    is MessageSenderId.Bot -> ServiceDetailsScreenDestination(
-                        null,
-                        ServiceDetailsNavArgs.Id.BotServiceId(senderId.botService)
+                when (senderId) {
+                    is MessageSenderId.Bot -> navigation.openServiceDetails(
+                        ServiceDetailsNavArgs(null, ServiceDetailsNavArgs.Id.BotServiceId(senderId.botService))
                     )
 
-                    is MessageSenderId.App -> ServiceDetailsScreenDestination(
-                        null,
-                        ServiceDetailsNavArgs.Id.AppId(senderId.appId)
+                    is MessageSenderId.App -> navigation.openServiceDetails(
+                        ServiceDetailsNavArgs(null, ServiceDetailsNavArgs.Id.AppId(senderId.appId))
                     )
 
                     is MessageSenderId.User -> {
                         val (mentionUserId: UserId, isSelfUser: Boolean) = mentionedUserData(senderId.id.toString())
                         if (isSelfUser) {
-                            SelfUserProfileScreenDestination
+                            navigation.openSelfUserProfile()
                         } else {
                             (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.Group)
                                 ?.conversationId?.let { conversationId ->
-                                    OtherUserProfileScreenDestination(
-                                        mentionUserId,
-                                        conversationId
-                                    )
-                            }
+                                    navigation.openOtherUserProfile(mentionUserId, conversationId)
+                                }
                         }
                     }
-                }
-
-                route?.let {
-                    navigator.navigate(NavigationCommand(it))
                 }
             }
         },
         onMessageDetailsClick = { messageId: String, isSelfMessage: Boolean ->
             appLogger.i("[ConversationScreen][openMessageDetails] - isSelfMessage: $isSelfMessage")
-            navigator.navigate(
-                NavigationCommand(MessageDetailsScreenDestination(conversationInfoViewModel.conversationId, messageId, isSelfMessage))
+            navigation.openMessageDetails(
+                conversationInfoViewModel.conversationId,
+                messageId,
+                isSelfMessage,
             )
         },
         onSendMessage = {
@@ -376,14 +394,10 @@ fun ConversationScreen(
                 messageAttachmentsViewModel.onFilesSelected(it)
                 messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
-                navigator.navigate(
-                    NavigationCommand(
-                        ImagesPreviewScreenDestination(
-                            conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
-                            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
-                            assetUriList = ArrayList(it)
-                        )
-                    )
+                navigation.openImagesPreview(
+                    conversationId = conversationInfoViewModel.conversationInfoViewState.conversationId,
+                    conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                    assetUris = it,
                 )
             }
         },
@@ -412,32 +426,19 @@ fun ConversationScreen(
         onAssetItemClicked = conversationMessagesViewModel::openOrFetchAsset,
         onImageFullScreenMode = { message, isSelfMessage, cellAssetId ->
             with(conversationMessagesViewModel) {
-                navigator.navigate(
-                    NavigationCommand(
-                        MediaGalleryScreenDestination(
-                            conversationId = conversationId,
-                            messageId = message.header.messageId,
-                            isSelfAsset = isSelfMessage,
-                            isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
-                            messageOptionsEnabled = true,
-                            cellAssetId = cellAssetId,
-                        )
-                    )
-                )
                 updateImageOnFullscreenMode(message)
+                navigation.openMediaGallery(
+                    conversationId = conversationId,
+                    messageId = message.header.messageId,
+                    isSelfAsset = isSelfMessage,
+                    isEphemeral = message.header.messageStatus.expirationStatus is ExpirationStatus.Expirable,
+                    messageOptionsEnabled = true,
+                    cellAssetId = cellAssetId,
+                )
             }
         },
-        onVideoClick = { localPath, contentUrl, fileName ->
-            navigator.navigate(
-                NavigationCommand(
-                    VideoPlayerScreenDestination(
-                        localPath = localPath,
-                        contentUrl = contentUrl,
-                        fileName = fileName,
-                    )
-                )
-            )
-        },
+        onVideoClick = navigation::openVideoPlayer,
+        onAudioClick = navigation::openAudioPlayer,
         onStartCall = {
             conversationCallViewModel.startCallIfPossible(conversationInfoViewModel.conversationInfoViewState.conversationType)
         },
@@ -449,59 +450,43 @@ fun ConversationScreen(
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = {
             with(conversationInfoViewModel) {
-                val route = when (val data = conversationInfoViewState.conversationDetailsData) {
+                when (val data = conversationInfoViewState.conversationDetailsData) {
                     is ConversationDetailsData.OneOne -> {
                         val botService = data.botService
                         when {
-                            botService != null ->
-                                ServiceDetailsScreenDestination(
+                            botService != null -> navigation.openServiceDetails(
+                                ServiceDetailsNavArgs(
                                     null,
-                                    ServiceDetailsNavArgs.Id.BotServiceId(botService)
+                                    ServiceDetailsNavArgs.Id.BotServiceId(botService),
                                 )
+                            )
 
-                            data.userType == UserTypeInfo.App ->
-                                ServiceDetailsScreenDestination(
+                            data.userType == UserTypeInfo.App -> navigation.openServiceDetails(
+                                ServiceDetailsNavArgs(
                                     null,
-                                    ServiceDetailsNavArgs.Id.AppId(data.otherUserId)
+                                    ServiceDetailsNavArgs.Id.AppId(data.otherUserId),
                                 )
+                            )
 
-                            else -> OtherUserProfileScreenDestination(data.otherUserId)
+                            else -> navigation.openOtherUserProfile(data.otherUserId)
                         }
                     }
 
-                    is ConversationDetailsData.Group ->
-                        GroupConversationDetailsScreenDestination(conversationId)
+                    is ConversationDetailsData.Group -> navigation.openGroupDetails(conversationId)
 
-                    is ConversationDetailsData.None -> {
-                        /* do nothing */
-                        null
-                    }
-                }
-
-                route?.let {
-                    navigator.navigate(NavigationCommand(it))
+                    is ConversationDetailsData.None -> Unit
                 }
             }
         },
         onBackButtonClick = {
-            conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator)
+            conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigation::goBack)
         },
         composerMessages = sendMessageViewModel.infoMessage,
         conversationMessages = conversationMessagesViewModel.infoMessage,
-        shareAssetExternally = conversationMessagesViewModel::shareAsset,
+        shareAsset = conversationMessagesViewModel::shareAsset,
         shareAssetViaWire = { messageId ->
             conversationMessagesViewModel.prepareAssetForWireShare(messageId) { path, assetName ->
-                navigator.navigate(
-                    NavigationCommand(
-                        ImportMediaScreenDestination(
-                            ImportMediaNavArgs(
-                                source = ImportSource.INTERNAL_SHARE,
-                                internalAssetUriList = arrayListOf(context.fileShareUri(path, assetName))
-                            )
-                        ),
-                        BackStackMode.UPDATE_EXISTED
-                    )
-                )
+                onShareAssetViaWire(context.fileShareUri(path, assetName))
             }
         },
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
@@ -545,15 +530,9 @@ fun ConversationScreen(
             }
         },
         openDrawingCanvas = {
-            navigator.navigate(
-                NavigationCommand(
-                    DrawingCanvasScreenDestination(
-                        DrawingCanvasNavArgs(
-                            conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
-                            tempWritableUri = messageComposerViewModel.tempWritableImageUri
-                        )
-                    )
-                )
+            navigation.openDrawingCanvas(
+                conversationName = conversationInfoViewModel.conversationInfoViewState.conversationName.asString(resources),
+                tempWritableUri = messageComposerViewModel.tempWritableImageUri,
             )
         },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
@@ -566,7 +545,9 @@ fun ConversationScreen(
         hasMoreRemoteMessages = conversationMessagesViewModel.conversationViewState.hasMoreRemoteMessages,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
-    BackHandler { conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigator) }
+    BackHandler {
+        conversationScreenOnBackButtonClick(messageComposerViewModel, messageComposerStateHolder, navigation::goBack)
+    }
 
     // Mark conversation as read when leaving, regardless of how the user exits
     // (back button, system gesture, navigation to another screen, etc.)
@@ -614,22 +595,12 @@ fun ConversationScreen(
             dismissIncompatibleFileName = messageAttachmentsViewModel::onDismissIncompatibleFileNameDialog,
         ),
     )
+}
 
-    ConversationNavigationResults(
-        groupDetailsScreenResultRecipient = groupDetailsScreenResultRecipient,
-        mediaGalleryScreenResultRecipient = mediaGalleryScreenResultRecipient,
-        imagePreviewScreenResultRecipient = imagePreviewScreenResultRecipient,
-        drawingCanvasScreenResultRecipient = drawingCanvasScreenResultRecipient,
-        resultNavigator = resultNavigator,
-        navigator = navigator,
-        conversationId = conversationMessagesViewModel.conversationId,
-        messageComposerStateHolder = messageComposerStateHolder,
-        getAndResetLastFullscreenMessage = conversationMessagesViewModel::getAndResetLastFullscreenMessage,
-        toggleReaction = conversationMessagesViewModel::toggleReaction,
-        trySendMessages = sendMessageViewModel::trySendMessages,
-        trySendMessage = sendMessageViewModel::trySendMessage,
-        onConversationDeleted = { alreadyDeletedByUser = true },
-    )
+private fun CoroutineScope.withSmoothScreenLoad(block: () -> Unit) = launch {
+    val smoothAnimationDuration = 200.milliseconds
+    delay(smoothAnimationDuration)
+    block()
 }
 
 private fun MessageBundle.withPrefetchedLinkPreview(
@@ -644,11 +615,11 @@ private fun MessageBundle.withPrefetchedLinkPreview(
 private fun conversationScreenOnBackButtonClick(
     messageComposerViewModel: MessageComposerViewModel,
     messageComposerStateHolder: MessageComposerStateHolder,
-    navigator: Navigator
+    navigateBack: () -> Unit,
 ) {
     messageComposerViewModel.sendTypingEvent(TypingIndicatorMode.STOPPED)
     messageComposerStateHolder.messageCompositionInputStateHolder.collapseComposer(null)
-    navigator.navigateBack()
+    navigateBack()
 }
 
 @Suppress("LongParameterList")
@@ -672,6 +643,7 @@ private fun ConversationScreenContent(
     onAssetItemClicked: (String) -> Unit,
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -681,7 +653,7 @@ private fun ConversationScreenContent(
     onBackButtonClick: () -> Unit,
     composerMessages: SharedFlow<SnackBarMessage>,
     conversationMessages: SharedFlow<SnackBarMessage>,
-    shareAssetExternally: (Context, messageId: String) -> Unit,
+    shareAsset: (Context, messageId: String) -> Unit,
     shareAssetViaWire: (messageId: String) -> Unit,
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
@@ -784,6 +756,7 @@ private fun ConversationScreenContent(
                         onAssetItemClicked = onAssetItemClicked,
                         onImageFullScreenMode = onImageFullScreenMode,
                         onVideoClick = onVideoClick,
+                        onAudioClick = onAudioClick,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
@@ -826,7 +799,7 @@ private fun ConversationScreenContent(
             onDetailsClick = onMessageDetailsClick,
             onReplyClick = messageComposerStateHolder::toReply,
             onEditClick = messageComposerStateHolder::toEdit,
-            onShareAssetExternallyClick = { shareAssetExternally(context, it) },
+            onShareAssetExternallyClick = { shareAsset(context, it) },
             onShareAssetViaWireClick = shareAssetViaWire,
             onDownloadAssetClick = onDownloadAssetClick,
             onOpenAssetClick = onOpenAssetClick,
@@ -926,6 +899,7 @@ fun PreviewConversationScreen() = WireTheme {
         onAssetItemClicked = { },
         onImageFullScreenMode = { _, _, _ -> },
         onVideoClick = { _, _, _ -> },
+        onAudioClick = { _, _, _ -> },
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },
@@ -935,7 +909,7 @@ fun PreviewConversationScreen() = WireTheme {
         onBackButtonClick = {},
         composerMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
         conversationMessages = MutableStateFlow(ConversationSnackbarMessages.ErrorDownloadingAsset),
-        shareAssetExternally = { _, _ -> },
+        shareAsset = { _, _ -> },
         shareAssetViaWire = {},
         onOpenAssetClick = {},
         onDownloadAssetClick = {},

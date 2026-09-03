@@ -47,7 +47,7 @@ import com.wire.kalium.logic.feature.debug.SetDebugCRLExpirationAfterOneMinuteUs
 import com.wire.kalium.logic.feature.debug.SetDebugE2EICertificateExpirationUseCase
 import com.wire.kalium.logic.feature.debug.TargetedRepairParam
 import com.wire.kalium.logic.feature.e2ei.CheckCrlRevocationListUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.notificationToken.SendFCMTokenError
@@ -57,6 +57,7 @@ import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.sync.periodic.UpdateApiVersionsScheduler
 import com.wire.kalium.logic.sync.slow.RestartSlowSyncProcessForRecoveryUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -66,7 +67,6 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.days
-import dev.zacsweers.metro.Inject
 
 @Suppress("TooManyFunctions")
 @ViewModelScopedPreview
@@ -81,7 +81,7 @@ interface DebugDataOptionsViewModel {
     fun enrollE2EICertificate() {}
     fun updateE2EICertificateExpiration(seconds: Long) {}
     fun updateE2EICertificateExpirationInput(minutes: String) {}
-    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {}
+    fun handleE2EIEnrollmentResult(result: EnrollE2EIResult) {}
     fun dismissCertificateDialog() {}
     fun forceUpdateApiVersions() {}
     fun disableEventProcessing(disabled: Boolean) {}
@@ -227,17 +227,9 @@ class DebugDataOptionsViewModelImpl @Inject constructor(
         }
     }
 
-    override fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+    override fun handleE2EIEnrollmentResult(result: EnrollE2EIResult) {
         state = when (result) {
-            is FinalizeEnrollmentResult.Failure.OAuthError -> {
-                state.copy(
-                    certificate = result.reason,
-                    showCertificate = true,
-                    startGettingE2EICertificate = false
-                )
-            }
-
-            is FinalizeEnrollmentResult.Failure -> {
+            is EnrollE2EIResult.Failure -> {
                 state.copy(
                     certificate = result.toString(),
                     showCertificate = true,
@@ -245,7 +237,7 @@ class DebugDataOptionsViewModelImpl @Inject constructor(
                 )
             }
 
-            is FinalizeEnrollmentResult.Success -> {
+            is EnrollE2EIResult.Success -> {
                 state.copy(
                     certificate = result.certificate,
                     showCertificate = true,

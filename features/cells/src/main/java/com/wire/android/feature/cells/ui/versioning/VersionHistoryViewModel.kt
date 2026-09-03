@@ -19,10 +19,8 @@ package com.wire.android.feature.cells.ui.versioning
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.versioning.download.DownloadState
@@ -55,7 +53,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class VersionHistoryViewModel @AssistedInject constructor(
-    @Assisted private val savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: VersionHistoryNavArgs,
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
     private val fileSizeFormatter: FileSizeFormatter,
     private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
@@ -68,10 +66,8 @@ class VersionHistoryViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): VersionHistoryViewModel
+        fun create(navArgs: VersionHistoryNavArgs): VersionHistoryViewModel
     }
-
-    private val navArgs: VersionHistoryNavArgs = VersionHistoryScreenDestination.argsFrom(savedStateHandle)
 
     val fileName = navArgs.fileName
 

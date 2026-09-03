@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.authentication.create.overview
 
-import com.wire.android.navigation.annotation.app.WireCreatePersonalAccountDestination
-import com.wire.android.navigation.annotation.app.WireCreateTeamAccountDestination
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -43,11 +41,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.ui.authentication.createAccountOverviewViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
@@ -56,49 +51,30 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountEmailScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@WireCreatePersonalAccountDestination(start = true, navArgs = CreateAccountOverviewNavArgs::class)
 @Composable
-fun CreatePersonalAccountOverviewScreen(
-    navigator: Navigator,
-    viewModel: CreateAccountOverviewViewModel = createAccountOverviewViewModel()
-) {
-    CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreatePersonalAccount, viewModel)
-}
-
-@WireCreateTeamAccountDestination(start = true, navArgs = CreateAccountOverviewNavArgs::class)
-@Composable
-fun CreateTeamAccountOverviewScreen(
-    navigator: Navigator,
-    viewModel: CreateAccountOverviewViewModel = createAccountOverviewViewModel()
-) {
-    CreateAccountOverviewScreen(navigator, CreateAccountFlowType.CreateTeam, viewModel)
-}
-
-@Composable
-fun CreateAccountOverviewScreen(
-    navigator: Navigator,
+internal fun CreateAccountOverviewRouteScreen(
     flowType: CreateAccountFlowType,
     viewModel: CreateAccountOverviewViewModel,
+    onNavigateBack: () -> Unit,
+    onContinue: (CreateAccountNavArgs) -> Unit,
 ) {
     with(flowType) {
-        fun navigateToEmailScreen() {
-            val createAccountNavArgs = CreateAccountNavArgs(
-                flowType = this,
-                customServerConfig = viewModel.navArgs.customServerConfig
-            )
-            navigator.navigate(NavigationCommand(CreateAccountEmailScreenDestination(createAccountNavArgs)))
-        }
-
         OverviewContent(
-            onBackPressed = navigator::navigateBack,
-            onContinuePressed = ::navigateToEmailScreen,
+            onBackPressed = onNavigateBack,
+            onContinuePressed = {
+                onContinue(
+                    CreateAccountNavArgs(
+                        flowType = this,
+                        customServerConfig = viewModel.navArgs.customServerConfig,
+                    )
+                )
+            },
             serverConfig = viewModel.serverConfig,
             overviewParams = CreateAccountOverviewParams(
                 title = stringResource(id = titleResId),

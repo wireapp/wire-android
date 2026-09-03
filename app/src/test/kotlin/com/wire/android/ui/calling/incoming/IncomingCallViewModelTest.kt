@@ -20,7 +20,6 @@ package com.wire.android.ui.calling.incoming
 
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
@@ -54,7 +53,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class IncomingCallViewModelTest {
 
     class Arrangement {

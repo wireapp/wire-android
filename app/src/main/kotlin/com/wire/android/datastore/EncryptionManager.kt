@@ -20,6 +20,8 @@ package com.wire.android.datastore
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import com.wire.android.util.crypto.AppCryptoServiceInfo
+import com.wire.android.util.crypto.appCryptoServiceInfo
 import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
 import java.security.InvalidKeyException
@@ -38,10 +40,32 @@ object EncryptionManager {
     private const val BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM
     private const val PADDING = KeyProperties.ENCRYPTION_PADDING_NONE
     private const val TRANSFORMATION = "$ALGORITHM/$BLOCK_MODE/$PADDING"
+    private const val ANDROID_KEY_STORE = "AndroidKeyStore"
 
-    private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+    private val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
     private val cipher = Cipher.getInstance(TRANSFORMATION)
     private val charset = Charset.defaultCharset()
+
+    /**
+     * Which providers serve DataStore crypto, for the security providers debug screen.
+     *
+     * Lives here, next to the call sites, so it shares their algorithm constants: change a constant and
+     * this follows automatically instead of quietly reporting the old one.
+     *
+     * The key generator is only resolved, never initialised with a [KeyGenParameterSpec] or asked for a
+     * key, so nothing is written to the Android keystore.
+     */
+    fun cryptoServices(): List<AppCryptoServiceInfo> = listOfNotNull(
+        appCryptoServiceInfo("DataStore keystore", "KeyStore.getInstance(\"$ANDROID_KEY_STORE\")") {
+            KeyStore.getInstance(ANDROID_KEY_STORE).run { type to provider }
+        },
+        appCryptoServiceInfo("DataStore key generation", "KeyGenerator.getInstance(\"$ALGORITHM\")") {
+            KeyGenerator.getInstance(ALGORITHM).run { algorithm to provider }
+        },
+        appCryptoServiceInfo("DataStore cipher", "Cipher.getInstance(\"$TRANSFORMATION\")") {
+            Cipher.getInstance(TRANSFORMATION).run { algorithm to provider }
+        },
+    )
 
     private fun getKey(keyAlias: String): SecretKey {
         val existingKey = keyStore.getEntry(keyAlias, null) as? KeyStore.SecretKeyEntry

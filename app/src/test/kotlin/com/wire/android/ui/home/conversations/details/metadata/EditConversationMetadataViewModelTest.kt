@@ -19,10 +19,7 @@
 package com.wire.android.ui.home.conversations.details.metadata
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.lifecycle.SavedStateHandle
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
@@ -33,7 +30,6 @@ import com.wire.kalium.logic.feature.conversation.RenamingResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -43,7 +39,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class, SnapshotExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class EditConversationMetadataViewModelTest {
 
     @Test
@@ -63,9 +59,6 @@ class EditConversationMetadataViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
         @MockK
@@ -73,9 +66,6 @@ class EditConversationMetadataViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<EditConversationNameNavArgs>() } returns EditConversationNameNavArgs(
-                conversationId = TestConversation.ID
-            )
             coEvery { observeConversationDetails(any()) } returns flowOf(
                 ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP)
             )
@@ -86,7 +76,7 @@ class EditConversationMetadataViewModelTest {
             dispatcher = TestDispatcherProvider(),
             observeConversationDetails = observeConversationDetails,
             renameConversation = renameConversation,
-            savedStateHandle = savedStateHandle
+            navigationArgs = EditConversationNameNavArgs(TestConversation.ID)
         )
     }
 }

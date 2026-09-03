@@ -19,25 +19,24 @@ package com.wire.android.ui.settings.devices.e2ei
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class E2eiCertificateDetailsViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle,
+    @Assisted private val navigationArgs: E2eiCertificateDetailsViewModelArgs,
     private val getSelfUser: GetSelfUserUseCase,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): E2eiCertificateDetailsViewModel
+        fun create(navigationArgs: E2eiCertificateDetailsViewModelArgs): E2eiCertificateDetailsViewModel
     }
-    private val navArgs: E2eiCertificateDetailsScreenNavArgs =
-        savedStateHandle.navArgs()
     private var selfUserHandle: String? = null
     init {
         getSelfUserHandle()
@@ -48,18 +47,11 @@ class E2eiCertificateDetailsViewModel @AssistedInject constructor(
         }
     }
     fun getCertificate() =
-        when (navArgs.certificateDetails) {
-            is E2EICertificateDetails.DuringLoginCertificateDetails ->
-                navArgs.certificateDetails.certificate
-            is E2EICertificateDetails.AfterLoginCertificateDetails ->
-                navArgs.certificateDetails.mlsClientIdentity.x509Identity?.certificate ?: ""
-        }
+        navigationArgs.certificate
     fun userHandle() =
-        when (navArgs.certificateDetails) {
-            is E2EICertificateDetails.DuringLoginCertificateDetails ->
-                selfUserHandle
-            is E2EICertificateDetails.AfterLoginCertificateDetails ->
-                navArgs.certificateDetails.mlsClientIdentity.x509Identity?.handle?.handle ?: ""
+        when (val args = navigationArgs) {
+            is E2eiCertificateDetailsViewModelArgs.DuringLogin -> selfUserHandle
+            is E2eiCertificateDetailsViewModelArgs.AfterLogin -> args.userHandle
         }
     fun getCertificateName(): String {
         val date = DateTimeUtil.currentInstant().fileDateTime()

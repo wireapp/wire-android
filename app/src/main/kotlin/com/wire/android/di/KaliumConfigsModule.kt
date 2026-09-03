@@ -66,6 +66,7 @@ class KaliumConfigsModule {
             isDebug = BuildConfig.DEBUG,
             blockCrossBackendLogin = BuildConfig.BLOCK_CROSS_BACKEND_LOGIN,
             linkPreviewEnabled = BuildConfig.LINK_PREVIEW_ENABLED,
+            drivePermissionsEnabled = BuildConfig.DRIVE_PERMISSIONS_ENABLED,
         )
     }
 }

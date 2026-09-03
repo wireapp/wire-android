@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.devices
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +34,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,12 +45,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.home.settings.deviceDetailsViewModel
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.authentication.devices.model.lastActiveDescription
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceDialog
@@ -71,12 +67,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
-import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EISuccessDialog
 import com.wire.android.ui.home.E2EIUpdateErrorWithDismissDialog
 import com.wire.android.ui.common.rowitem.SectionHeader
-import com.wire.android.ui.settings.devices.e2ei.E2EICertificateDetails
 import com.wire.android.ui.settings.devices.model.DeviceDetailsState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -99,41 +93,33 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientE2EIStatus
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import kotlinx.datetime.Instant
 
-@WireRootDestination(
-    navArgs = DeviceDetailsNavArgs::class,
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
-)
 @Composable
-fun DeviceDetailsScreen(
-    navigator: Navigator,
-    viewModel: DeviceDetailsViewModel = deviceDetailsViewModel()
+internal fun DeviceDetailsRouteScreen(
+    viewModel: DeviceDetailsViewModel,
+    onNavigateBack: () -> Unit,
+    onOpenCertificateDetails: (MLSClientIdentity) -> Unit,
 ) {
-    when {
-        viewModel.state.error is RemoveDeviceError.InitError -> navigator.navigateBack()
-        viewModel.state.deviceRemoved -> navigator.navigateBack()
-        else -> DeviceDetailsContent(
+    val shouldNavigateBack = viewModel.state.error is RemoveDeviceError.InitError ||
+        viewModel.state.deviceRemoved
+    LaunchedEffect(shouldNavigateBack) {
+        if (shouldNavigateBack) onNavigateBack()
+    }
+    if (!shouldNavigateBack) {
+        DeviceDetailsContent(
             state = viewModel.state,
             passwordTextState = viewModel.passwordTextState,
             onDeleteDevice = viewModel::removeDevice,
             onRemoveConfirm = viewModel::onRemoveConfirmed,
             onDialogDismiss = viewModel::onDialogDismissed,
             onErrorDialogDismiss = viewModel::clearDeleteClientError,
-            onNavigateBack = navigator::navigateBack,
+            onNavigateBack = onNavigateBack,
             onUpdateClientVerification = viewModel::onUpdateVerificationStatus,
             enrollE2eiCertificate = viewModel::enrollE2EICertificate,
             handleE2EIEnrollmentResult = viewModel::handleE2EIEnrollmentResult,
-            onNavigateToE2eiCertificateDetailsScreen = {
-                navigator.navigate(
-                    NavigationCommand(
-                        E2EiCertificateDetailsScreenDestination(
-                            E2EICertificateDetails.AfterLoginCertificateDetails(it)
-                        )
-                    )
-                )
-            },
+            onNavigateToE2eiCertificateDetailsScreen = onOpenCertificateDetails,
             onEnrollE2EIErrorDismiss = viewModel::hideEnrollE2EICertificateError,
             onEnrollE2EISuccessDismiss = viewModel::hideEnrollE2EICertificateSuccess,
             onBreakSession = viewModel::breakSession
@@ -146,7 +132,7 @@ fun DeviceDetailsScreen(
 fun DeviceDetailsContent(
     state: DeviceDetailsState,
     passwordTextState: TextFieldState,
-    handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
+    handleE2EIEnrollmentResult: (EnrollE2EIResult) -> Unit,
     modifier: Modifier = Modifier,
     onDeleteDevice: () -> Unit = {},
     onNavigateBack: () -> Unit = {},

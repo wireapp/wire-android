@@ -17,9 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.details.editguestaccess.createPasswordProtectedGuestLink
 
-import com.wire.android.ui.home.conversations.createPasswordGuestLinkViewModel
-
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -49,7 +46,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.GeneratePasswordButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -68,19 +64,16 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
-@WireRootDestination(
-    navArgs = CreatePasswordGuestLinkNavArgs::class
-)
 @Composable
-fun CreatePasswordProtectedGuestLinkScreen(
-    navigator: Navigator,
-    viewModel: CreatePasswordGuestLinkViewModel = createPasswordGuestLinkViewModel(),
+internal fun CreatePasswordProtectedGuestLinkRouteScreen(
+    viewModel: CreatePasswordGuestLinkViewModel,
+    navigateBack: () -> Unit,
 ) {
     CreatePasswordProtectedGuestLinkScreenContent(
         state = viewModel.state,
         passwordTextState = viewModel.state.passwordTextState,
         confirmPasswordTextState = viewModel.state.confirmPasswordTextState,
-        navigateBack = navigator::navigateBack,
+        navigateBack = navigateBack,
         onGenerateRandomPassword = viewModel::onGenerateRandomPassword,
         onGenerateLink = viewModel::onGenerateLink,
         onErrorDialogDismissed = viewModel::onErrorDialogDismissed,

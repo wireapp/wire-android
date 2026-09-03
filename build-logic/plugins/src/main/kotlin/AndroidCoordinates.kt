@@ -20,13 +20,13 @@ import java.io.File
 
 object AndroidSdk {
     const val min = 26
-    const val compile = 36
+    const val compile = 37
     const val target = compile
 }
 
 object AndroidApp {
     const val id = "com.wire.android"
-    const val versionName = "4.34.0"
+    const val versionName = "4.35.0"
     val versionCode by lazy {
         Versionizer(_rootDir).versionCode
     }

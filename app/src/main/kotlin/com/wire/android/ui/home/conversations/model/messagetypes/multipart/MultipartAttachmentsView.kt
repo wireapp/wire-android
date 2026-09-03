@@ -59,6 +59,7 @@ fun MultipartAttachmentsView(
     messageStyle: MessageStyle,
     onImageAttachmentClick: (String) -> Unit,
     onVideoAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onAudioAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
@@ -93,6 +94,9 @@ fun MultipartAttachmentsView(
                         openInVideoPlayer = { att ->
                             onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
                         },
+                        openInAudioPlayer = { att ->
+                            onAudioAttachmentClick(att.localPath, att.contentUrl, att.fileName)
+                        },
                     )
                 },
             )
@@ -123,8 +127,11 @@ fun MultipartAttachmentsView(
                                 viewModel.onClick(
                                     attachment = it,
                                     openInImageViewer = onImageAttachmentClick,
-                                    openInVideoPlayer = { att ->
-                                        onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
+                                    openInVideoPlayer = { attachment ->
+                                        onVideoAttachmentClick(attachment.localPath, attachment.contentUrl, attachment.fileName)
+                                    },
+                                    openInAudioPlayer = { attachment ->
+                                        onAudioAttachmentClick(attachment.localPath, attachment.contentUrl, attachment.fileName)
                                     },
                                 )
                             },
@@ -138,8 +145,11 @@ fun MultipartAttachmentsView(
                                 viewModel.onClick(
                                     attachment = it,
                                     openInImageViewer = onImageAttachmentClick,
-                                    openInVideoPlayer = { att ->
-                                        onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName)
+                                    openInVideoPlayer = { attachment ->
+                                        onVideoAttachmentClick(attachment.localPath, attachment.contentUrl, attachment.fileName)
+                                    },
+                                    openInAudioPlayer = { attachment ->
+                                        onAudioAttachmentClick(attachment.localPath, attachment.contentUrl, attachment.fileName)
                                     },
                                 )
                             },

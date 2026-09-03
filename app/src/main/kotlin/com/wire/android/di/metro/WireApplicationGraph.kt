@@ -27,45 +27,22 @@ import com.wire.android.di.CoroutinesScopesModule
 import com.wire.android.di.KaliumConfigsModule
 import com.wire.android.di.LogWriterModule
 import com.wire.android.di.ManagedConfigurationsModule
-import com.wire.android.di.SessionModule
 import com.wire.android.di.UseCaseModule
-import com.wire.android.di.accountScoped.AppsModule
-import com.wire.android.di.accountScoped.AuthenticationModule
-import com.wire.android.di.accountScoped.BackupModule
-import com.wire.android.di.accountScoped.CallsModule
-import com.wire.android.di.accountScoped.CellsModule
-import com.wire.android.di.accountScoped.ChannelsModule
-import com.wire.android.di.accountScoped.ClientModule
-import com.wire.android.di.accountScoped.ConnectionModule
-import com.wire.android.di.accountScoped.ConversationModule
-import com.wire.android.di.accountScoped.DebugModule
-import com.wire.android.di.accountScoped.MeetingModule
-import com.wire.android.di.accountScoped.MessageModule
-import com.wire.android.di.accountScoped.SearchModule
-import com.wire.android.di.accountScoped.ServicesModule
-import com.wire.android.di.accountScoped.TeamModule
-import com.wire.android.di.accountScoped.UserModule
-import com.wire.android.feature.cells.ui.CellsMetroViewModelBindings
-import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
-import com.wire.android.mediaplayer.MediaPlayerMetroViewModelBindings
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
 import com.wire.android.notification.broadcastreceivers.NomadLogoutReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.notification.broadcastreceivers.PlayPauseAudioMessageReceiver
 import com.wire.android.notification.broadcastreceivers.StopAudioMessageReceiver
-import com.wire.android.search.SearchMetroViewModelBindings
 import com.wire.android.services.CallService
 import com.wire.android.services.PendingMessagesForegroundService
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.services.PlayingAudioMessageService
 import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.WireActivity
-import com.wire.android.ui.WireActivityViewModel
 import com.wire.android.ui.debug.StartServiceReceiver
 import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.ongoing.OngoingCallActivity
-import com.wire.android.ui.common.CoreUICommonMetroViewModelBindings
 import com.wire.android.util.NetworkUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.WireWorkerFactory
@@ -81,43 +58,19 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
     bindingContainers = [
         AppModule::class,
         CoreLogicModule::class,
-        SessionModule::class,
         UseCaseModule::class,
         ManagedConfigurationsModule::class,
         KaliumConfigsModule::class,
         LogWriterModule::class,
         CoroutinesScopesModule::class,
         CoroutinesDispatchersModule::class,
-        AppsModule::class,
-        AuthenticationModule::class,
-        BackupModule::class,
-        CallsModule::class,
-        CellsModule::class,
-        ChannelsModule::class,
-        ClientModule::class,
-        ConnectionModule::class,
-        ConversationModule::class,
-        DebugModule::class,
-        MessageModule::class,
-        SearchModule::class,
-        ServicesModule::class,
-        TeamModule::class,
-        UserModule::class,
-        MeetingModule::class,
-        WireMetroViewModelBindings::class,
-        CellsMetroViewModelBindings::class,
-        MeetingsMetroViewModelBindings::class,
-        CoreUICommonMetroViewModelBindings::class,
-        SearchMetroViewModelBindings::class,
-        MediaPlayerMetroViewModelBindings::class,
+        AuthenticationMetroViewModelBindings::class,
     ]
 )
 @Suppress("TooManyFunctions")
 interface WireApplicationGraph : ViewModelGraph {
     val wireWorkerFactory: WireWorkerFactory
-    val wireActivityViewModel: WireActivityViewModel
     val authenticationViewModelGraph: AppAuthenticationViewModelGraph
-    val imageAssetViewModelGraph: AppImageAssetViewModelGraph
 
     @get:KaliumCoreLogic
     val coreLogic: CoreLogic

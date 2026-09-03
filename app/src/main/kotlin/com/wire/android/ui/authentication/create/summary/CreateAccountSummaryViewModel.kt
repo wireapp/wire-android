@@ -21,23 +21,19 @@ package com.wire.android.ui.authentication.create.summary
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
-import com.ramcosta.composedestinations.generated.app.navArgs
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 
 class CreateAccountSummaryViewModel @AssistedInject constructor(
-    @Assisted savedStateHandle: SavedStateHandle
+    @Assisted createAccountSummaryNavArgs: CreateAccountSummaryNavArgs,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(savedStateHandle: SavedStateHandle): CreateAccountSummaryViewModel
+        fun create(createAccountSummaryNavArgs: CreateAccountSummaryNavArgs): CreateAccountSummaryViewModel
     }
-
-    private val createAccountSummaryNavArgs: CreateAccountSummaryNavArgs = savedStateHandle.navArgs()
     private val type: CreateAccountFlowType = createAccountSummaryNavArgs.type
 
     var summaryState: CreateAccountSummaryViewState by mutableStateOf(CreateAccountSummaryViewState(type))

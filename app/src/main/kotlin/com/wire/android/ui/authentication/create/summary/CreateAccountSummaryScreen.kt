@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.create.summary
 
-import com.wire.android.navigation.annotation.app.WireCreateTeamAccountDestination
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,30 +34,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.ui.authentication.createAccountSummaryViewModel
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@WireCreateTeamAccountDestination(navArgs = CreateAccountSummaryNavArgs::class)
 @Composable
-fun CreateAccountSummaryScreen(
-    navigator: Navigator,
-    viewModel: CreateAccountSummaryViewModel = createAccountSummaryViewModel()
+internal fun CreateAccountSummaryRouteScreen(
+    viewModel: CreateAccountSummaryViewModel,
+    onContinue: () -> Unit,
 ) {
     SummaryContent(
         state = viewModel.summaryState,
-        onContinuePressed = {
-            navigator.navigate(NavigationCommand(CreateAccountUsernameScreenDestination, BackStackMode.CLEAR_WHOLE))
-        }
+        onContinuePressed = onContinue,
     )
 }
 

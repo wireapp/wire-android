@@ -882,6 +882,8 @@
     <string name="label_conversations_details_verified_mls">Verified (End-to-end Identity)</string>
     <string name="label_system_message_cell_enabled_for_conversation">Shared Drive is **on**</string>
     <string name="label_system_message_cell_self_delete_disabled_for_conversation">Self-deleting messages are **off**</string>
+    <string name="label_system_message_cell_viewer_access">Shared Drive is on. You can view, but you can’t upload, edit, or manage files.</string>
+    <string name="label_system_message_cell_editor_access">Shared Drive is on. You have editor access. People outside your team only have viewer access.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">You added 1 person to the conversation</item>
@@ -1797,6 +1799,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_app_path_databases_dir" translatable="false">Databases dir</string>
     <string name="debug_settings_app_path_no_backup_dir" translatable="false">No backup dir</string>
     <string name="debug_settings_app_path_external_files_dir" translatable="false">External files dir</string>
+    <string name="debug_settings_entropy_sources" translatable="false">Entropy sources</string>
+    <string name="debug_settings_crypto_service_resolved" translatable="false">%1$s \u2014 %2$s %3$s</string>
+    <string name="debug_settings_crypto_services_empty" translatable="false">No crypto service could be resolved</string>
     <string name="debug_settings_security_providers_entry_count" translatable="false">%1$d entries</string>
     <string name="debug_settings_network" translatable="false">Network</string>
     <string name="debug_settings_network_vpn" translatable="false">VPN</string>
@@ -1876,8 +1881,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire could not complete your team creation due to an unknown error.</string>
     <string name="reaction_sender_self">You</string>
     <string name="emoji_picker_select_reaction">Select Reaction</string>
-    <string name="content_description_add_this_reaction">Double tap to add this reaction</string>
-    <string name="content_description_remove_your_reaction">Double tap to remove reaction</string>
+    <string name="content_description_add_this_reaction">Add this reaction</string>
+    <string name="content_description_remove_your_reaction">Remove your reaction</string>
     <string name="label_user_database_profile">Database Logger</string>
 
     <!-- Move to Folder -->
@@ -1922,6 +1927,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="drive_screen_title" translatable="false">Drive</string>
     <string name="enable_wire_cell">Shared Drive</string>
     <string name="enable_wire_cell_switch_description">Enable participants to manage their documents and media files in a Shared Drive. This can’t be undone.</string>
+    <string name="enable_wire_cell_guest_access_description">People outside your team can view files, not upload or edit.</string>
     <string name="failed_attachment_retry_upload">Retry upload</string>
     <string name="failed_attachment_remove">Remove</string>
 

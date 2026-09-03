@@ -16,10 +16,6 @@ files: [
         "translation": "/core/audio-player/src/main/res/values-%two_letters_code%/%original_file_name%"
     },
     {
-        "source": "/core/media-player/src/main/res/values/strings.xml",
-        "translation": "/core/media-player/src/main/res/values-%two_letters_code%/%original_file_name%"
-    },
-    {
         "source": "/core/search/src/main/res/values/strings.xml",
         "translation": "/core/search/src/main/res/values-%two_letters_code%/%original_file_name%"
     },

@@ -454,7 +454,8 @@ fun EnabledMessageComposer(
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             onDrawingModeClicked = openDrawingCanvas,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled || !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
+                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled ||
+                                    !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
                             useKeyboardNavigation = isHardwareKeyboardConnected,
                         )
                     }

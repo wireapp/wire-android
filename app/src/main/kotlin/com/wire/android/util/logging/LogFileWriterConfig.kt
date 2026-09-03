@@ -19,20 +19,16 @@
 package com.wire.android.util.logging
 
 data class LogFileWriterConfig(
-    val flushIntervalMs: Long = DEFAULT_FLUSH_INTERVAL_MS,
-    val maxBufferSize: Int = DEFAULT_MAX_BUFFER_SIZE,
-    val bufferSizeBytes: Int = DEFAULT_BUFFER_SIZE_BYTES,
-    val maxFileSize: Long = DEFAULT_MAX_FILE_SIZE_BYTES,
+    val rollOnSizeBytes: Long = DEFAULT_ROLL_ON_SIZE_BYTES,
+    val maxLogFiles: Int = DEFAULT_MAX_LOG_FILES,
     val flushTimeoutMs: Long = DEFAULT_FLUSH_TIMEOUT_MS,
-    val bufferLockTimeoutMs: Long = DEFAULT_BUFFER_LOCK_TIMEOUT_MS
 ) {
     companion object {
-        private const val DEFAULT_FLUSH_INTERVAL_MS = 5000L
-        private const val DEFAULT_MAX_BUFFER_SIZE = 100
-        private const val DEFAULT_BUFFER_SIZE_BYTES = 64 * 1024
-        private const val DEFAULT_MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024L // 25MB
+        private const val DEFAULT_ROLL_ON_SIZE_BYTES = 25 * 1024 * 1024L // 25 MiB
+
+        // RollingFileLogWriter counts the active file, so this retains ten rolled files.
+        private const val DEFAULT_MAX_LOG_FILES = 11
         private const val DEFAULT_FLUSH_TIMEOUT_MS = 5000L // 5 seconds
-        private const val DEFAULT_BUFFER_LOCK_TIMEOUT_MS = 3000L // 3 seconds
 
         fun default() = LogFileWriterConfig()
     }

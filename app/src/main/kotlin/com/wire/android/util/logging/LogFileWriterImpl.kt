@@ -1,435 +1,189 @@
 /*
  * Wire
- * Copyright (C) 2025 Wire Swiss GmbH
+ * Copyright (C) 2026 Wire Swiss GmbH
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-
 package com.wire.android.util.logging
 
-import android.util.Log
-import com.wire.android.appLogger
-import kotlinx.coroutines.CoroutineScope
+import co.touchlab.kermit.LogWriter
+import co.touchlab.kermit.Severity
+import co.touchlab.kermit.io.RollingFileLogWriter
+import co.touchlab.kermit.io.RollingFileLogWriterConfig
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import java.io.BufferedWriter
+import kotlinx.io.files.Path
 import java.io.File
-import java.io.FileWriter
 import java.io.IOException
-import java.io.PrintWriter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.UUID
+import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
+import kotlin.time.Duration.Companion.milliseconds
 
-@Suppress("TooGenericExceptionCaught", "TooManyFunctions")
+/** Persists Wire diagnostics directly from Kermit instead of reading device logcat. */
 class LogFileWriterImpl(
     private val logsDirectory: File,
-    private val config: LogFileWriterConfig = LogFileWriterConfig.default()
+    private val config: LogFileWriterConfig = LogFileWriterConfig.default(),
 ) : LogFileWriter {
 
-    private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
+    override val activeLoggingFile = File(logsDirectory, "$LOG_FILE_NAME.log")
 
-    override val activeLoggingFile = File(logsDirectory, ACTIVE_LOGGING_FILE_NAME)
+    private var rollingWriter: RollingFileLogWriter? = null
+    private val gatedWriter = GatedLogWriter { rollingWriter }
 
-    private val fileWriterCoroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var writingJob: Job? = null
-    private var flushJob: Job? = null
+    override val logWriter: LogWriter = gatedWriter
 
-    // Buffering system
-    private val logBuffer = mutableListOf<String>()
-    private val bufferMutex = Mutex()
-    private var lastFlushTime = 0L
-    private var bufferedWriter: BufferedWriter? = null
-
-    // Process management
-    private var logcatProcess: Process? = null
-
-    /**
-     * Initializes logging, waiting until the logger is actually initialized before returning.
-     * ```kotlin
-     * logFileWriter.start()
-     * logger.i("something") // Is guaranteed to be recorded in the log file
-     * ```
-     */
-    override suspend fun start() {
-        appLogger.i("KaliumFileWritter.start called")
-        val isWriting = writingJob?.isActive ?: false
-        if (isWriting) {
-            appLogger.d("KaliumFileWriter.init called but job was already active. Ignoring call")
-            return
+    override suspend fun start() = withContext(Dispatchers.IO) {
+        ensureLogDirectoryExists()
+        migrateLegacyLogs()
+        if (!activeLoggingFile.exists()) activeLoggingFile.createNewFile()
+        if (!activeLoggingFile.exists()) {
+            throw IOException("Unable to create log file: ${activeLoggingFile.absolutePath}")
         }
-        ensureLogDirectoryAndFileExistence()
-        cleanupOrphanedTempFiles()
-        val waitInitializationJob = Job()
-
-        writingJob = fileWriterCoroutineScope.launch {
-            observeLogCatWritingToLoggingFile().catch {
-                appLogger.e("Write to file failed :$it", it)
-            }.onEach {
-                waitInitializationJob.complete()
-            }.filter {
-                it > config.maxFileSize
-            }.collect {
-                ensureActive()
-                // Flush buffer before compression
-                bufferMutex.withLock {
-                    flushBuffer()
-                }
-                // Copy the file to a temp location with timestamped name, then compress the copy asynchronously
-                val compressedFileName = compressedFileName()
-                val tempFile = copyActiveLogFileToTemp(compressedFileName)
-                launch {
-                    try {
-                        compressFileAsync(tempFile, compressedFileName)
-                    } finally {
-                        tempFile.delete()
-                    }
-                }
-                clearActiveLoggingFileContent()
-                deleteOldCompressedFiles()
-            }
+        if (rollingWriter == null) {
+            rollingWriter = RollingFileLogWriter(
+                RollingFileLogWriterConfig(
+                    logFileName = LOG_FILE_NAME,
+                    logFilePath = Path(logsDirectory.absolutePath),
+                    rollOnSize = config.rollOnSizeBytes,
+                    maxLogFiles = config.maxLogFiles,
+                )
+            )
         }
-
-        // Start periodic flush job
-        flushJob = fileWriterCoroutineScope.launch {
-            while (isActive) {
-                delay(config.flushIntervalMs)
-                try {
-                    withTimeout(config.bufferLockTimeoutMs) {
-                        bufferMutex.withLock {
-                            if (logBuffer.isNotEmpty()) {
-                                flushBuffer()
-                                lastFlushTime = System.currentTimeMillis()
-                            }
-                        }
-                    }
-                } catch (e: TimeoutCancellationException) {
-                    appLogger.w("Periodic flush timed out, buffer may be locked by another operation", e)
-                } catch (e: Exception) {
-                    appLogger.e("Error during periodic flush", e)
-                }
-            }
-        }
-
-        appLogger.i("KaliumFileWritter.start: Starting log collection.")
-        waitInitializationJob.join()
+        gatedWriter.enable()
     }
 
-    /**
-     * Observes logcat text, writing to the [activeLoggingFile] as it reads.
-     * @return A Flow that tells the current length, in bytes, of the log file.
-     */
-    private fun CoroutineScope.observeLogCatWritingToLoggingFile(): Flow<Long> = flow<Long> {
-        Log.i(LOG_TAG, "Starting logcat capture: clearing buffer")
-        logcatProcess = try {
-            Runtime.getRuntime().exec("logcat -c")
-            Log.i(LOG_TAG, "Starting logcat capture process")
-            Runtime.getRuntime().exec("logcat")
-        } catch (t: Throwable) {
-            Log.e(LOG_TAG, "Failed to start logcat capture", t)
-            null
-        }
-
-        val reader = logcatProcess?.inputStream?.bufferedReader()
-
-        appLogger.i("Starting to write log files, grabbing from logcat")
-        while (isActive) {
-            val text = reader?.readLine()
-            if (!text.isNullOrBlank()) {
-                val fileSize = writeLineToFile(text)
-                emit(fileSize)
-            }
-        }
-        reader?.close()
-        stopLogcatProcess()
-    }.flowOn(Dispatchers.IO)
-
-    private fun stopLogcatProcess() {
-        logcatProcess?.let { process ->
-            try {
-                process.destroy()
-                if (process.isAlive && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    process.destroyForcibly()
-                }
-            } catch (e: Exception) {
-                appLogger.e("Error stopping logcat process", e)
-            }
-        }
-        logcatProcess = null
-    }
-
-    /**
-     * Stops processing logs and writing to files
-     */
     override suspend fun stop() {
-        appLogger.i("KaliumFileWritter.stop called; Stopping log collection.")
-        try {
-            // Stop logcat process first to prevent new logs
-            stopLogcatProcess()
-            // Cancel jobs with timeout to avoid hanging
-            writingJob?.let { job ->
-                try {
-                    withTimeout(config.flushTimeoutMs) {
-                        job.cancelAndJoin()
-                    }
-                } catch (e: TimeoutCancellationException) {
-                    appLogger.w("Writing job cancellation timed out, forcing cancellation")
-                    job.cancel()
-                }
-            }
-
-            flushJob?.let { job ->
-                try {
-                    withTimeout(config.flushTimeoutMs) {
-                        job.cancelAndJoin()
-                    }
-                } catch (e: TimeoutCancellationException) {
-                    appLogger.w("Flush job cancellation timed out, forcing cancellation")
-                    job.cancel()
-                }
-            }
-
-            // Flush any remaining buffered content with timeout
-            try {
-                withTimeout(config.flushTimeoutMs) {
-                    bufferMutex.withLock {
-                        flushBuffer()
-                    }
-                }
-            } catch (e: TimeoutCancellationException) {
-                appLogger.w("Final buffer flush timed out, some logs may be lost")
-            } catch (e: Exception) {
-                appLogger.e("Error during final buffer flush", e)
-            }
-        } finally {
-            // Ensure resources are cleaned up regardless of exceptions
-            closeResources()
-            try {
-                clearActiveLoggingFileContent()
-            } catch (e: Exception) {
-                appLogger.e("Error clearing active logging file content", e)
-            }
-        }
+        gatedWriter.disable()
     }
 
-    private fun closeResources() {
-        try {
-            bufferedWriter?.close()
-        } catch (e: Exception) {
-            appLogger.e("Error closing buffered writer", e)
-        } finally {
-            bufferedWriter = null
-        }
-    }
-
-    /**
-     * Manually flushes any buffered log entries to the file.
-     * This is useful before sharing logs to ensure all recent entries are included.
-     */
     override suspend fun forceFlush() {
-        try {
-            withTimeout(config.flushTimeoutMs) {
-                bufferMutex.withLock {
-                    flushBuffer()
-                }
-            }
-        } catch (e: TimeoutCancellationException) {
-            appLogger.w("Force flush operation timed out after ${config.flushTimeoutMs}ms")
-            throw e
-        } catch (e: Exception) {
-            appLogger.e("Error during force flush", e)
-            throw e
+        gatedWriter.flushBarrier()?.let { marker -> waitForBarrier(marker) }
+    }
+
+    override suspend fun deleteAllLogFiles() {
+        val marker = gatedWriter.flushBarrier(disableAfterWrite = true)
+        marker?.let { flushMarker -> waitForBarrier(flushMarker) }
+
+        withContext(Dispatchers.IO) {
+            logsDirectory.listFiles()
+                ?.filter { ROLLED_LOG_FILE_REGEX.matches(it.name) }
+                ?.forEach(File::delete)
+            deleteLegacyLogFiles()
+            ensureLogDirectoryExists()
+            activeLoggingFile.outputStream().use { }
+        }
+
+        if (marker != null) gatedWriter.enable()
+    }
+
+    private suspend fun waitForBarrier(marker: String) = withContext(Dispatchers.IO) {
+        withTimeout(config.flushTimeoutMs.milliseconds) {
+            while (!containsBarrier(marker)) delay(FLUSH_POLL_INTERVAL_MS.milliseconds)
         }
     }
 
-    private fun clearActiveLoggingFileContent() {
-        if (activeLoggingFile.exists()) {
-            PrintWriter(activeLoggingFile).use { writer ->
-                writer.print("")
-            }
+    private fun containsBarrier(marker: String): Boolean = logsDirectory.listFiles()
+        ?.filter { it.name == activeLoggingFile.name || ROLLED_LOG_FILE_REGEX.matches(it.name) }
+        ?.any { file -> runCatching { file.useLines { lines -> lines.any { marker in it } } }.getOrDefault(false) }
+        ?: false
+
+    private fun ensureLogDirectoryExists() {
+        if (!logsDirectory.exists() && !logsDirectory.mkdirs()) {
+            throw IOException("Unable to create log directory: ${logsDirectory.absolutePath}")
         }
     }
 
     /**
-     * Writes the new [text] and other log entries in logcat to the [activeLoggingFile].
-     * @return The length, in bytes, of the log file.
+     * Transfers the only legacy active log to a deterministic gzip snapshot. The active source
+     * remains untouched until the snapshot has been fully written, validated and renamed.
      */
-    private suspend fun writeLineToFile(text: String): Long = withContext(Dispatchers.IO) {
-        try {
-            withTimeout(config.bufferLockTimeoutMs) {
-                bufferMutex.withLock {
-                    logBuffer.add(text)
+    private fun migrateLegacyLogs() {
+        val legacyActiveFile = File(logsDirectory, LEGACY_ACTIVE_FILE_NAME)
+        val legacySnapshot = File(logsDirectory, LEGACY_SNAPSHOT_FILE_NAME)
+        val legacySnapshotTemp = File(logsDirectory, "$LEGACY_SNAPSHOT_FILE_NAME.tmp")
 
-                    val currentTime = System.currentTimeMillis()
-                    val shouldFlush = logBuffer.size >= config.maxBufferSize ||
-                            ((currentTime - lastFlushTime) >= config.flushIntervalMs)
-
-                    if (shouldFlush) {
-                        flushBuffer()
-                        lastFlushTime = currentTime
-                    }
-
-                    return@withLock activeLoggingFile.length()
-                }
+        when {
+            !legacyActiveFile.exists() && legacySnapshot.isFile && isReadableGzip(legacySnapshot) -> {
+                deleteLegacyLogFiles(keepSnapshot = true)
             }
-        } catch (e: TimeoutCancellationException) {
-            appLogger.w("Buffer write operation timed out, log line may be lost: $text")
-            // Return current file length as fallback
-            return@withContext activeLoggingFile.length()
-        } catch (e: Exception) {
-            appLogger.e("Error writing to log buffer", e)
-            return@withContext activeLoggingFile.length()
-        }
-    }
-
-    private fun ensureLogDirectoryAndFileExistence() {
-        if (!logsDirectory.exists() && !logsDirectory.mkdirs()) {
-            appLogger.e("Unable to create logs directory")
-        }
-
-        if (!activeLoggingFile.exists() && !activeLoggingFile.createNewFile()) {
-            appLogger.e("KaliumFileWriter: Failure to create new file for logging", IOException("Unable to load log file"))
-        }
-        if (!activeLoggingFile.canWrite()) {
-            appLogger.e("KaliumFileWriter: Logging file is not writable", IOException("Log file not writable"))
-        }
-    }
-
-    override fun deleteAllLogFiles() {
-        clearActiveLoggingFileContent()
-        logsDirectory.listFiles()?.filter {
-            it.extension.lowercase(Locale.ROOT) == LOG_COMPRESSED_FILE_EXTENSION
-        }?.forEach { it.delete() }
-    }
-
-    private fun getCompressedFilesList() = (logsDirectory.listFiles() ?: emptyArray()).filter {
-        it != activeLoggingFile && !it.name.endsWith(".tmp")
-    }
-
-    private fun compressedFileName(): String {
-        val currentDate = logFileTimeFormat.format(Date())
-        return "${LOG_FILE_PREFIX}_$currentDate.$LOG_COMPRESSED_FILE_EXTENSION"
-    }
-
-    private fun deleteOldCompressedFiles() = getCompressedFilesList()
-        .sortedBy { it.lastModified() }
-        .dropLast(LOG_COMPRESSED_FILES_MAX_COUNT)
-        .forEach {
-            it.delete()
-        }
-
-    private fun cleanupOrphanedTempFiles() {
-        getListOfOrphanedTempFiles().forEach { tempFile ->
-            appLogger.i("Found orphaned temp file: ${tempFile.name}, attempting to compress before cleanup")
-            try {
-                // Try to salvage the data by compressing it
-                // The temp file already has the timestamped name, just remove .tmp extension
-                val compressedFileName = tempFile.name.removeSuffix(".tmp")
-                val compressedFile = File(logsDirectory, compressedFileName)
-                compressFileToGzip(tempFile, compressedFile)
-                appLogger.i("Successfully salvaged orphaned temp file: ${tempFile.name} -> ${compressedFile.name}")
-            } catch (e: Exception) {
-                appLogger.w("Failed to compress orphaned temp file: ${tempFile.name}, will delete it", e)
-            } finally {
-                // Always delete the temp file after attempting compression
-                tempFile.delete()
+            !legacyActiveFile.exists() -> legacySnapshotTemp.delete()
+            legacySnapshot.isFile && isReadableGzip(legacySnapshot) -> {
+                deleteLegacyLogFiles(keepSnapshot = true)
+            }
+            legacySnapshot.exists() && !legacySnapshot.delete() -> Unit
+            legacySnapshotTemp.exists() && !legacySnapshotTemp.delete() -> Unit
+            createLegacySnapshot(legacyActiveFile, legacySnapshotTemp, legacySnapshot) -> {
+                deleteLegacyLogFiles(keepSnapshot = true)
             }
         }
     }
 
-    private fun getListOfOrphanedTempFiles(): List<File> {
-        return try {
-            logsDirectory.listFiles()?.filter { it.name.endsWith(".tmp") } ?: emptyList()
-        } catch (e: SecurityException) {
-            appLogger.e("Error cleaning up orphaned temp files", e)
-            emptyList()
+    private fun createLegacySnapshot(source: File, temporarySnapshot: File, finalSnapshot: File): Boolean = runCatching {
+        source.inputStream().buffered().use { input ->
+            GZIPOutputStream(temporarySnapshot.outputStream().buffered()).use { output -> input.copyTo(output) }
         }
+        temporarySnapshot.renameTo(finalSnapshot) && isReadableGzip(finalSnapshot)
+    }.getOrDefault(false).also { created ->
+        if (!created) temporarySnapshot.delete()
     }
 
-    private fun copyActiveLogFileToTemp(compressedFileName: String): File {
-        // Temp file has the same name as final compressed file, but with .tmp extension
-        val tempFile = File(logsDirectory, "$compressedFileName.tmp")
-        activeLoggingFile.copyTo(tempFile, overwrite = true)
-        return tempFile
-    }
-
-    private suspend fun compressFileAsync(sourceFile: File, compressedFileName: String) = withContext(Dispatchers.IO) {
-        try {
-            // Just remove .tmp extension from temp file name to get final compressed filename
-            val compressedFile = File(logsDirectory, compressedFileName)
-            compressFileToGzip(sourceFile, compressedFile)
-
-            appLogger.i("Log file compressed: ${sourceFile.name} -> ${compressedFile.name}")
-        } catch (e: Exception) {
-            appLogger.e("Failed to compress log file: ${sourceFile.name}", e)
+    private fun isReadableGzip(file: File): Boolean = runCatching {
+        GZIPInputStream(file.inputStream().buffered()).use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (input.read(buffer) != -1) Unit
         }
+    }.isSuccess
+
+    private fun deleteLegacyLogFiles(keepSnapshot: Boolean = false) {
+        logsDirectory.listFiles()
+            ?.filter { file ->
+                file.name == LEGACY_ACTIVE_FILE_NAME ||
+                    LEGACY_ARCHIVE_FILE_REGEX.matches(file.name) ||
+                    LEGACY_TEMP_FILE_REGEX.matches(file.name) ||
+                    (!keepSnapshot && file.name == LEGACY_SNAPSHOT_FILE_NAME)
+            }
+            ?.forEach(File::delete)
     }
 
-    private fun compressFileToGzip(sourceFile: File, targetGzipFile: File) {
-        GZIPOutputStream(targetGzipFile.outputStream().buffered()).use { gzipOut ->
-            sourceFile.inputStream().buffered().use { input ->
-                input.copyTo(gzipOut, config.bufferSizeBytes)
+    private class GatedLogWriter(private val delegate: () -> LogWriter?) : LogWriter() {
+        private val lock = Any()
+        private var enabled = false
+
+        fun enable() = synchronized(lock) { enabled = true }
+
+        fun disable() = synchronized(lock) { enabled = false }
+
+        fun flushBarrier(disableAfterWrite: Boolean = false): String? = synchronized(lock) {
+            if (!enabled) return null
+
+            val marker = "$FLUSH_MARKER_PREFIX${UUID.randomUUID()}"
+            delegate()?.log(Severity.Verbose, marker, LOG_TAG, null)
+            if (disableAfterWrite) enabled = false
+            marker
+        }
+
+        override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
+            synchronized(lock) {
+                if (enabled) delegate()?.log(severity, message, tag, throwable)
             }
         }
     }
 
-    private fun flushBuffer() {
-        if (logBuffer.isEmpty()) return
-
-        try {
-            // Use BufferedWriter for efficient writing
-            val writer = bufferedWriter ?: BufferedWriter(
-                FileWriter(activeLoggingFile, true),
-                config.bufferSizeBytes
-            ).also { bufferedWriter = it }
-
-            // Like here one, Write directly from buffer without copying to the .toList()
-            logBuffer.forEach { line ->
-                writer.appendLine(line)
-            }
-            writer.flush()
-
-            // and here two, Clear only after successful write
-            logBuffer.clear()
-        } catch (e: IOException) {
-            appLogger.e("Failed to flush log buffer", e)
-        }
-    }
-
-    companion object {
-        private const val LOG_TAG = "LogFileWriter"
-        private const val LOG_FILE_PREFIX = "wire"
-        private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
-        private const val LOG_COMPRESSED_FILES_MAX_COUNT = 10
-        private const val LOG_COMPRESSED_FILE_EXTENSION = "gz"
+    private companion object {
+        const val LOG_FILE_NAME = "wire_logs"
+        const val LEGACY_ACTIVE_FILE_NAME = "$LOG_FILE_NAME.txt"
+        const val LEGACY_SNAPSHOT_FILE_NAME = "wire_legacy_active.gz"
+        const val LOG_TAG = "LogFileWriter"
+        const val FLUSH_MARKER_PREFIX = "wire-log-flush:"
+        const val FLUSH_POLL_INTERVAL_MS = 10L
+        val ROLLED_LOG_FILE_REGEX = Regex("$LOG_FILE_NAME-[0-9]+\\.log")
+        val LEGACY_ARCHIVE_FILE_REGEX = Regex("wire_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.gz")
+        val LEGACY_TEMP_FILE_REGEX = Regex("(?:wire_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.gz|$LEGACY_SNAPSHOT_FILE_NAME)\\.tmp")
     }
 }

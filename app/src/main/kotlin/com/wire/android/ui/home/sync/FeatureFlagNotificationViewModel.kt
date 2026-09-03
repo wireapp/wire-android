@@ -36,7 +36,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
@@ -286,10 +286,10 @@ class FeatureFlagNotificationViewModel @Inject constructor(
         featureFlagState = featureFlagState.copy(isE2EILoading = true, startGettingE2EICertificate = true)
     }
 
-    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+    fun handleE2EIEnrollmentResult(result: EnrollE2EIResult) {
         val e2eiRequired = featureFlagState.e2EIRequired
         featureFlagState = when (result) {
-            is FinalizeEnrollmentResult.Failure -> {
+            is EnrollE2EIResult.Failure -> {
                 featureFlagState.copy(
                     isE2EILoading = false,
                     startGettingE2EICertificate = false,
@@ -298,7 +298,7 @@ class FeatureFlagNotificationViewModel @Inject constructor(
                 )
             }
 
-            is FinalizeEnrollmentResult.Success -> {
+            is EnrollE2EIResult.Success -> {
                 featureFlagState.copy(
                     isE2EILoading = false,
                     e2EIRequired = null,

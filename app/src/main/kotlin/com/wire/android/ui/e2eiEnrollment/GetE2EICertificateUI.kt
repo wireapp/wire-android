@@ -24,13 +24,16 @@ import androidx.compose.ui.platform.LocalContext
 import com.wire.android.feature.e2ei.OAuthUseCase
 import com.wire.android.ui.getE2EICertificateViewModel
 import com.wire.android.util.extension.getActivity
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.data.e2ei.E2EIAuthenticationRequest
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 @Composable
 fun GetE2EICertificateUI(
-    enrollmentResultHandler: (FinalizeEnrollmentResult) -> Unit,
+    enrollmentResultHandler: (EnrollE2EIResult) -> Unit,
     isNewClient: Boolean,
     viewModel: GetE2EICertificateViewModel = getE2EICertificateViewModel()
 ) {
@@ -38,11 +41,15 @@ fun GetE2EICertificateUI(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.requestOAuthFlow.onEach {
-            OAuthUseCase(context, it.target, it.oAuthClaims).launch(
+        viewModel.requestOAuthFlow.onEach { request ->
+            OAuthUseCase(
+                context,
+                request.authenticationRequest.target,
+                request.authenticationRequest.toOAuthClaims(),
+            ).launch(
                 context.getActivity()!!.activityResultRegistry,
                 forceLoginFlow = true
-            ) { result -> viewModel.handleOAuthResult(result, it) }
+            ) { result -> viewModel.handleOAuthResult(request.id, result) }
         }.launchIn(coroutineScope)
     }
 
@@ -53,3 +60,27 @@ fun GetE2EICertificateUI(
         viewModel.getCertificate(isNewClient)
     }
 }
+
+internal fun E2EIAuthenticationRequest.toOAuthClaims() = JsonObject(
+    mapOf(
+        ID_TOKEN to JsonObject(
+            mapOf(
+                KEY_AUTH to requiredClaim(keyAuth),
+                ACME_AUDIENCE to requiredClaim(acmeAudience),
+            )
+        )
+    )
+)
+
+private fun requiredClaim(value: String) = JsonObject(
+    mapOf(
+        ESSENTIAL to JsonPrimitive(true),
+        VALUE to JsonPrimitive(value),
+    )
+)
+
+private const val ID_TOKEN = "id_token"
+private const val KEY_AUTH = "keyauth"
+private const val ACME_AUDIENCE = "acme_aud"
+private const val ESSENTIAL = "essential"
+private const val VALUE = "value"

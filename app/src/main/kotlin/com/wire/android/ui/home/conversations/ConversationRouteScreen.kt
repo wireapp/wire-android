@@ -51,6 +51,7 @@ internal interface ConversationRouteScreenNavigation {
     )
 
     fun openVideoPlayer(localPath: String?, contentUrl: String?, fileName: String?)
+    fun openAudioPlayer(localPath: String?, contentUrl: String?, fileName: String?)
 
     fun openPdfViewer(localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?)
 

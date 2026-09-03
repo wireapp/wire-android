@@ -20,7 +20,6 @@ package com.wire.android.feature.meetings.ui.options
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.wire.android.ui.common.R as commonR
 import com.wire.android.feature.meetings.R
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
@@ -30,6 +29,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun DeleteMeetingDialog(
@@ -37,10 +37,21 @@ internal fun DeleteMeetingDialog(
     onDelete: (DeleteMeetingDialogState) -> Unit,
 ) {
     VisibilityState(dialogState) { state ->
+        val (titleResId, textResId) = when (state.deleteType) {
+            DeleteMeetingType.ForEveryone -> Pair(
+                R.string.delete_meeting_for_everyone_title,
+                R.string.delete_meeting_for_everyone_description,
+            )
+
+            DeleteMeetingType.ForMe -> Pair(
+                R.string.delete_meeting_for_me_title,
+                R.string.delete_meeting_for_me_description,
+            )
+        }
         WireDialog(
             properties = wireDialogPropertiesBuilder(dismissOnBackPress = !state.loading, dismissOnClickOutside = !state.loading),
-            title = stringResource(id = R.string.delete_meeting_for_everyone_title, state.meetingTitle),
-            text = stringResource(id = R.string.delete_meeting_for_everyone_description),
+            title = stringResource(id = titleResId),
+            text = stringResource(id = textResId),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -61,8 +72,13 @@ internal fun DeleteMeetingDialog(
     }
 }
 
+enum class DeleteMeetingType {
+    ForMe,
+    ForEveryone,
+}
+
 data class DeleteMeetingDialogState(
-    val forEveryone: Boolean,
+    val deleteType: DeleteMeetingType,
     val meetingId: MeetingId,
     val meetingTitle: String,
     val loading: Boolean = false,

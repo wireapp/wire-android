@@ -78,6 +78,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+
 @Composable
 internal fun ConversationFilesRouteScreen(
     navigation: CellsFilesNavigation,
@@ -110,6 +111,7 @@ internal fun ConversationFilesRouteScreen(
         onSortByClicked = viewModel::setSortBy,
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
+        drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
 
@@ -145,6 +147,7 @@ internal fun ConversationFilesScreenContent(
     onSortByClicked: (SortBy) -> Unit = {},
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
     showViewerAccessBanner: Boolean = false,
+    drivePermissionsEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
 ) {
     val sharedScope = LocalSharedTransitionScope.current
@@ -154,6 +157,7 @@ internal fun ConversationFilesScreenContent(
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
     val isFabVisible = when {
+        showViewerAccessBanner && drivePermissionsEnabled -> false
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
         isRecycleBin -> false
@@ -224,7 +228,11 @@ internal fun ConversationFilesScreenContent(
                         navigationIconType = NavigationIconType.Back(),
                         elevation = dimensions().spacing0x,
                         actions = {
-                            if (!isRecycleBin && isOnline) {
+                            val shouldShowActionIcon =
+                                !isRecycleBin &&
+                                        isOnline &&
+                                        (!drivePermissionsEnabled || !showViewerAccessBanner)
+                            if (shouldShowActionIcon) {
                                 MoreOptionIcon(
                                     contentDescription = R.string.content_description_conversation_files_more_button,
                                     onButtonClicked = { optionsBottomSheetState.show() }

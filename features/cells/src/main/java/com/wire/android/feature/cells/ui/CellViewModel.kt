@@ -375,7 +375,7 @@ class CellViewModel @AssistedInject constructor(
     private fun startOpenDownload(cellNode: CellNodeUi.File) {
         openFileDownloadController.start(
             scope = viewModelScope,
-            cellNode = cellNode,
+            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: navArgs.conversationId),
             onOpenFile = ::openLocalFile,
             onError = { sendAction(ShowError(it)) },
         )

@@ -196,6 +196,8 @@ if (!project.hasProperty("skip.aboutlibraries")) {
 }
 
 dependencies {
+    implementation(libs.kermit.io)
+
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
@@ -212,7 +214,8 @@ dependencies {
     implementationWithCoverage(projects.core.datastore)
     implementationWithCoverage(projects.core.di)
     implementationWithCoverage(projects.core.media)
-    implementationWithCoverage(projects.core.mediaPlayer)
+    implementationWithCoverage(projects.core.videoPlayer)
+    implementationWithCoverage(projects.core.audioPlayer)
     implementationWithCoverage(projects.core.pdfViewer)
     implementationWithCoverage(projects.core.notification)
     implementationWithCoverage(projects.core.navigation)

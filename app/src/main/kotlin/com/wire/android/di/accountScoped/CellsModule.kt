@@ -19,7 +19,6 @@ package com.wire.android.di.accountScoped
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
 import com.wire.android.pdfviewer.PdfRemoteLoader
 import com.wire.kalium.cells.CellsScope
@@ -185,9 +184,6 @@ class CellsModule {
 
     @Provides
     fun provideGetOwnersUseCase(cellsScope: CellsScope): GetOwnersUseCase = cellsScope.getOwnersUseCase
-
-    @Provides
-    fun provideFileNameResolver(): FileNameResolver = FileNameResolver()
 
     @Provides
     fun provideGetCellNodeUseCase(cellsScope: CellsScope): GetCellFileUseCase = cellsScope.getCellFileUseCase

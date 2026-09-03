@@ -32,7 +32,6 @@ import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -497,9 +496,6 @@ class CellViewModelTest {
         @MockK
         lateinit var fileHelper: FileHelper
 
-        @MockK
-        lateinit var fileNameResolver: FileNameResolver
-
         val sharedPathCache = CellFileLocalPathCache()
 
         @MockK
@@ -624,21 +620,18 @@ class CellViewModelTest {
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
             every { fileHelper.getExternalFilesDir() } returns File("")
-            every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
 
             coEvery { getWireCellsConfig() } returns null
 
             val openFileDownloadController = OpenFileDownloadController(
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
-                fileNameResolver = fileNameResolver,
                 sharedPathCache = sharedPathCache,
             )
 
             val offlineFileDownloadController = OfflineFileDownloadController(
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
-                fileNameResolver = fileNameResolver,
                 saveOfflineFile = mockk(relaxUnitFun = true),
                 sharedPathCache = sharedPathCache,
             )

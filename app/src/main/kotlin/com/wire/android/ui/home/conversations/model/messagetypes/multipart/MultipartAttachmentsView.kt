@@ -59,6 +59,7 @@ fun MultipartAttachmentsView(
     messageStyle: MessageStyle,
     onImageAttachmentClick: (String) -> Unit,
     onVideoAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onAudioAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onPdfAttachmentClick: (localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
@@ -74,6 +75,9 @@ fun MultipartAttachmentsView(
             attachment = clicked,
             openInImageViewer = onImageAttachmentClick,
             openInVideoPlayer = { att -> onVideoAttachmentClick(att.localPath, att.contentUrl, att.fileName) },
+            openInAudioPlayer = { att ->
+                onAudioAttachmentClick(att.localPath, att.contentUrl, att.fileName)
+            },
             openInPdfViewer = { att -> onPdfAttachmentClick(att.localPath, att.uuid, att.remotePath, att.assetSize ?: 0L, att.fileName) },
         )
     }

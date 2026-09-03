@@ -73,6 +73,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onAssetClicked: (String) -> Unit,
     onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onAudioClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onPdfClicked: (localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) -> Unit,
     onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
@@ -122,6 +123,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onImageClick = onImageClickable,
                 onMultipartImageClick = onMultipartImageClickable,
                 onMultipartVideoClick = onVideoClicked,
+                onMultipartAudioClick = onAudioClicked,
                 onMultipartPdfClick = onPdfClicked,
                 onOpenProfile = onProfileClicked,
                 onLinkClick = onLinkClicked,
@@ -172,6 +174,7 @@ private fun MessageContent(
     onImageClick: Clickable,
     onMultipartImageClick: (String) -> Unit,
     onMultipartVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onMultipartAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onMultipartPdfClick: (localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -467,8 +470,9 @@ private fun MessageContent(
                     messageStyle = messageStyle,
                     onImageAttachmentClick = onMultipartImageClick,
                     onVideoAttachmentClick = onMultipartVideoClick,
+                    onAudioAttachmentClick = onMultipartAudioClick,
                     onPdfAttachmentClick = onMultipartPdfClick,
-                )
+                    )
             }
 
         UIMessageContent.Deleted -> {}

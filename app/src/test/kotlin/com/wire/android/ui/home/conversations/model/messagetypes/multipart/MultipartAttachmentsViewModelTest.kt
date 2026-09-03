@@ -205,6 +205,7 @@ class MultipartAttachmentsViewModelTest {
             ),
             openInImageViewer = callback,
             openInVideoPlayer = { },
+            openInAudioPlayer = { },
             openInPdfViewer = { },
         )
 
@@ -227,6 +228,7 @@ class MultipartAttachmentsViewModelTest {
             ),
             openInImageViewer = callback,
             openInVideoPlayer = { },
+            openInAudioPlayer = { },
             openInPdfViewer = { },
         )
 
@@ -249,6 +251,7 @@ class MultipartAttachmentsViewModelTest {
             ),
             openInImageViewer = callback,
             openInVideoPlayer = { },
+            openInAudioPlayer = { },
             openInPdfViewer = { },
         )
 
@@ -270,6 +273,7 @@ class MultipartAttachmentsViewModelTest {
             ),
             openInImageViewer = callback,
             openInVideoPlayer = { },
+            openInAudioPlayer = { },
             openInPdfViewer = { },
         )
 

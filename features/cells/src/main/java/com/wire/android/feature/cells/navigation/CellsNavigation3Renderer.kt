@@ -20,45 +20,42 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.wire.android.audioplayer.AudioPlayer
 import com.wire.android.feature.cells.ui.CellsFilesNavigation
 import com.wire.android.feature.cells.ui.ConversationFilesRouteScreen
 import com.wire.android.feature.cells.ui.ConversationFilesSlideRouteScreen
 import com.wire.android.feature.cells.ui.addRemoveTagsViewModel
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
-import com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerRouteScreen
-import com.wire.android.feature.cells.ui.cellAudioPlayerViewModel
 import com.wire.android.feature.cells.ui.cellViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileRouteScreen
 import com.wire.android.feature.cells.ui.create.file.FileType
-import com.wire.android.feature.cells.ui.createFileViewModel
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderRouteScreen
+import com.wire.android.feature.cells.ui.createFileViewModel
 import com.wire.android.feature.cells.ui.createFolderViewModel
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreenContent
-import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.moveToFolderViewModel
-import com.wire.android.feature.cells.ui.publiclink.PublicLinkRouteScreen
-import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
+import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen
 import com.wire.android.feature.cells.ui.publicLinkExpirationViewModel
 import com.wire.android.feature.cells.ui.publicLinkPasswordViewModel
 import com.wire.android.feature.cells.ui.publicLinkViewModel
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkRouteScreen
+import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationRouteScreen
 import com.wire.android.feature.cells.ui.publiclink.settings.password.PublicLinkPasswordRouteScreen
 import com.wire.android.feature.cells.ui.recyclebin.RecycleBinRouteScreen
 import com.wire.android.feature.cells.ui.rename.RenameNodeRouteScreen
 import com.wire.android.feature.cells.ui.renameNodeViewModel
 import com.wire.android.feature.cells.ui.search.SearchRouteScreen
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.android.feature.cells.ui.searchCellViewModel
 import com.wire.android.feature.cells.ui.searchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsRouteScreen
 import com.wire.android.feature.cells.ui.versionHistoryViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryRouteScreen
-import com.wire.android.mediaplayer.VideoPlayer
 import com.wire.android.pdfviewer.PdfViewer
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
-import androidx.compose.ui.platform.LocalContext
-import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
+import com.wire.android.videoplayer.VideoPlayer
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavResult
 import com.wire.navigation.WireNavResultRequestId
@@ -93,6 +90,7 @@ internal fun CellsNavigation3RouteScreen(
                 viewModel = cellViewModel(route.args.toScreenArgs()),
             )
         }
+
         is ConversationFilesSlideRoute -> AnimatedVisibility(visible = true) {
             ConversationFilesSlideRouteScreen(
                 navigation = filesNavigation,
@@ -101,10 +99,12 @@ internal fun CellsNavigation3RouteScreen(
                 viewModel = cellViewModel(route.args.toScreenArgs()),
             )
         }
+
         is RecycleBinRoute -> RecycleBinRouteScreen(
             navigation = filesNavigation,
             cellViewModel = cellViewModel(route.args.toScreenArgs()),
         )
+
         is CreateFolderRoute -> CreateFolderRouteScreen(
             onNavigateBack = navigateBack,
             onCreated = {
@@ -112,6 +112,7 @@ internal fun CellsNavigation3RouteScreen(
             },
             createFolderViewModel = createFolderViewModel(route.toScreenArgs()),
         )
+
         is CreateFileRoute -> CreateFileRouteScreen(
             onNavigateBack = navigateBack,
             onCreated = {
@@ -119,6 +120,7 @@ internal fun CellsNavigation3RouteScreen(
             },
             createFileViewModel = createFileViewModel(route.toScreenArgs()),
         )
+
         is MoveToFolderRoute -> {
             val viewModel = moveToFolderViewModel(route.toScreenArgs())
             ConsumeNavigation3Result(
@@ -162,6 +164,7 @@ internal fun CellsNavigation3RouteScreen(
                 moveToFolderViewModel = viewModel,
             )
         }
+
         is PublicLinkRoute -> {
             val viewModel = publicLinkViewModel(route.toScreenArgs())
             ConsumeNavigation3Result(
@@ -195,6 +198,7 @@ internal fun CellsNavigation3RouteScreen(
                 viewModel = viewModel,
             )
         }
+
         is PublicLinkExpirationRoute -> PublicLinkExpirationRouteScreen(
             onResult = { result ->
                 if (!runtime.completeCurrentAndPop(
@@ -207,22 +211,27 @@ internal fun CellsNavigation3RouteScreen(
             },
             viewModel = publicLinkExpirationViewModel(route.toScreenArgs()),
         )
+
         is PublicLinkPasswordRoute -> PublicLinkPasswordRouteScreen(
             onResult = { completeBooleanResult(runtime, it) },
             viewModel = publicLinkPasswordViewModel(route.toScreenArgs()),
         )
+
         is RenameNodeRoute -> RenameNodeRouteScreen(
             onNavigateBack = navigateBack,
             renameNodeViewModel = renameNodeViewModel(route.toScreenArgs()),
         )
+
         is AddRemoveTagsRoute -> AddRemoveTagsRouteScreen(
             onNavigateBack = navigateBack,
             addRemoveTagsViewModel = addRemoveTagsViewModel(route.toScreenArgs()),
         )
+
         is VersionHistoryRoute -> VersionHistoryRouteScreen(
             onNavigateBack = navigateBack,
             versionHistoryViewModel = versionHistoryViewModel(route.toScreenArgs()),
         )
+
         is CellImageViewerRoute -> CellImageViewerScreenContent(
             localPath = route.localPath,
             contentUrl = route.contentUrl,
@@ -231,7 +240,15 @@ internal fun CellsNavigation3RouteScreen(
             fileName = route.fileName,
             onNavigateBack = navigateBack,
         )
+
         is VideoPlayerRoute -> VideoPlayer(
+            localPath = route.localPath,
+            contentUrl = route.contentUrl,
+            fileName = route.fileName,
+            onNavigateBack = navigateBack,
+        )
+
+        is AudioPlayerRoute -> AudioPlayer(
             localPath = route.localPath,
             contentUrl = route.contentUrl,
             fileName = route.fileName,
@@ -245,13 +262,6 @@ internal fun CellsNavigation3RouteScreen(
             assetSize = route.assetSize,
             fileName = route.fileName,
             onNavigateBack = navigateBack,
-        )
-        is AudioPlayerRoute -> CellAudioPlayerRouteScreen(
-            onNavigateBack = navigateBack,
-            viewModel = cellAudioPlayerViewModel(
-                LocalContext.current,
-                AudioPlayerNavArgs(route.localPath, route.contentUrl, route.fileName),
-            ),
         )
         is SearchRoute -> AnimatedVisibility(visible = true) {
             SearchRouteScreen(

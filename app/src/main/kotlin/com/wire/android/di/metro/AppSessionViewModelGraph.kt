@@ -40,26 +40,27 @@ import com.wire.android.feature.cells.ui.CellsMetroViewModelBindings
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryMetroBindings
 import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
 import com.wire.android.feature.sketch.SketchMetroViewModelBindings
-import com.wire.android.mediaplayer.MediaPlayerManualViewModelFactoryMetroBindings
 import com.wire.android.pdfviewer.PdfViewerManualViewModelFactoryMetroBindings
 import com.wire.android.search.SearchManualViewModelFactoryMetroBindings
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
-import com.wire.android.ui.calling.CallingMetroViewModelBindings
 import com.wire.android.ui.calling.CallingManualViewModelFactoryMetroBindings
-import com.wire.android.ui.common.CommonMetroViewModelBindings
+import com.wire.android.ui.calling.CallingMetroViewModelBindings
 import com.wire.android.ui.common.CommonManualViewModelFactoryMetroBindings
+import com.wire.android.ui.common.CommonMetroViewModelBindings
 import com.wire.android.ui.common.CoreUICommonManualViewModelFactoryMetroBindings
-import com.wire.android.ui.debug.DebugMetroViewModelBindings
 import com.wire.android.ui.debug.DebugInfoManualViewModelFactoryMetroBindings
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
+import com.wire.android.ui.debug.DebugMetroViewModelBindings
 import com.wire.android.ui.home.HomeMetroViewModelBindings
 import com.wire.android.ui.home.HomeViewModelGraph
-import com.wire.android.ui.home.conversations.ConversationSearchFolderMetroViewModelBindings
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryMetroBindings
 import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryMetroBindings
+import com.wire.android.ui.home.conversations.ConversationSearchFolderMetroViewModelBindings
 import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryMetroBindings
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.android.videoplayer.VideoPlayerManualViewModelFactoryMetroBindings
+import com.wire.android.audioplayer.AudioPlayerManualViewModelFactoryMetroBindings
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -111,7 +112,8 @@ annotation class MetroSessionScope
         SketchMetroViewModelBindings::class,
         CoreUICommonManualViewModelFactoryMetroBindings::class,
         SearchManualViewModelFactoryMetroBindings::class,
-        MediaPlayerManualViewModelFactoryMetroBindings::class,
+        VideoPlayerManualViewModelFactoryMetroBindings::class,
+        AudioPlayerManualViewModelFactoryMetroBindings::class,
         PdfViewerManualViewModelFactoryMetroBindings::class,
         ImageLoadingModule::class,
     ]

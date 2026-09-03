@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.wire.android.feature.cells.navigation.AudioPlayerRoute
 import com.wire.android.feature.sketch.navigation.DrawingCanvasNavigation3ResultType
 import com.wire.android.feature.sketch.navigation.DrawingCanvasRoute
 import com.wire.android.navigation.navigation3.WireEntryPresentation
@@ -32,6 +33,7 @@ import com.wire.android.navigation.routes.media.MediaGalleryRoute
 import com.wire.android.navigation.routes.media.PdfViewerRoute
 import com.wire.android.navigation.routes.media.VideoPlayerRoute
 import com.wire.android.navigation.routes.media.MessageDetailsRoute
+import com.wire.android.navigation.routes.media.PdfViewerRoute
 import com.wire.android.navigation.routes.media.toLegacy
 import com.wire.android.ui.calling.conversationCallViewModel
 import com.wire.android.ui.home.conversations.details.ConversationDetailsId
@@ -248,6 +250,14 @@ private fun ConversationNavigation3Entry(
             runtime.navigator.navigate(
                 WireNavigationCommand(
                     VideoPlayerRoute(route.sessionId, localPath, contentUrl, fileName)
+                )
+            )
+        }
+
+        override fun openAudioPlayer(localPath: String?, contentUrl: String?, fileName: String?) {
+            runtime.navigator.navigate(
+                WireNavigationCommand(
+                    AudioPlayerRoute(route.sessionId, localPath, contentUrl, fileName)
                 )
             )
         }

@@ -54,6 +54,7 @@ class PdfViewerViewModel @AssistedInject constructor(
     @Assisted val fileName: String?,
 ) : ViewModel() {
 
+    @Suppress("LongParameterList")
     @AssistedFactory
     interface Factory {
         fun create(
@@ -97,6 +98,7 @@ class PdfViewerViewModel @AssistedInject constructor(
      * Renders [pageIndex] at [widthPx] and caches the result. Returns `null` when the document is
      * not open (yet) or the page could not be rendered.
      */
+    @Suppress("ReturnCount")
     suspend fun renderPage(pageIndex: Int, widthPx: Int): Bitmap? {
         if (widthPx <= 0) return null
         val current = document ?: return null

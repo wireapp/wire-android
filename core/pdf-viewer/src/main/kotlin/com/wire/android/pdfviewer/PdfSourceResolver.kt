@@ -42,6 +42,7 @@ class PdfSourceResolver @Inject constructor(
     private val remoteLoader: PdfRemoteLoader,
 ) {
 
+    @Suppress("LongParameterList")
     suspend fun resolve(
         localPath: String?,
         assetId: String?,

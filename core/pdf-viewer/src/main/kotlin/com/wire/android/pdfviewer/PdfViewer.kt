@@ -98,7 +98,14 @@ fun PdfViewer(
     fileName: String?,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PdfViewerViewModel = pdfViewerViewModel(localPath, assetId, remotePath, conversationId, assetSize, fileName),
+    viewModel: PdfViewerViewModel = pdfViewerViewModel(
+        localPath = localPath,
+        assetId = assetId,
+        remotePath = remotePath,
+        conversationId = conversationId,
+        assetSize = assetSize,
+        fileName = fileName
+    )
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     PdfViewerContent(

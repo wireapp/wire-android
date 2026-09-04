@@ -60,7 +60,13 @@ fun MultipartAttachmentsView(
     onImageAttachmentClick: (String) -> Unit,
     onVideoAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onAudioAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
-    onPdfAttachmentClick: (localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) -> Unit,
+    onPdfAttachmentClick: (
+        localPath: String?,
+        assetId: String?,
+        remotePath: String?,
+        assetSize: Long,
+        fileName: String?
+    ) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview

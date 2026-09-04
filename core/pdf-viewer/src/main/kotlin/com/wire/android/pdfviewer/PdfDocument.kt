@@ -107,6 +107,7 @@ internal class PdfDocument private constructor(
          * [PdfRenderer] throws [SecurityException] for password protected documents and
          * [java.io.IOException] for anything it cannot parse.
          */
+        @Suppress("TooGenericExceptionCaught")
         fun open(file: File): Result<PdfDocument> = runCatching {
             val descriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
             try {

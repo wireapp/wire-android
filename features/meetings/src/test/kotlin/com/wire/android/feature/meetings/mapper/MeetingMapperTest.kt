@@ -119,6 +119,7 @@ class MeetingMapperTest {
             title = TITLE,
             startTime = startTime,
             endTime = endTime,
+            tzid = "Europe/Berlin",
             recurrence = Meeting.Recurrence(frequency = Meeting.Recurrence.Frequency.DAILY, interval = 1L, until = null),
         ),
         occurrenceId = "$MEETING_ID-occurrence",

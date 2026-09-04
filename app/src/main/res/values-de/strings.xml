@@ -991,7 +991,7 @@
     <string name="error_conversation_generic">Ein Fehler ist aufgetreten. Die Nachricht konnte nicht gesendet werden.</string>
     <string name="conversation_on_file_downloaded">Die Datei %s wurde im Download-Ordner gespeichert</string>
     <string name="error_blocking_user">Benutzer konnte nicht blockiert werden</string>
-    <string name="blocking_user_success">%s wurde blockiert.</string>
+    <string name="blocking_user_success">%s blockiert</string>
     <string name="unblocking_user_success">%s freigegeben</string>
     <string name="conversation_removed_success">“%s” entfernt</string>
     <string name="conversation_removed_locally_success">“%s” für mich gelöscht</string>

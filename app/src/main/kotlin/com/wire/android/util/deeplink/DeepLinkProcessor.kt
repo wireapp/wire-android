@@ -248,7 +248,12 @@ class DeepLinkProcessor @Inject constructor(
     private fun getSSOLoginDeepLinkResult(uri: Uri): DeepLinkResult {
 
         val lastPathSegment = uri.lastPathSegment
-        val error = uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)
+        val error = if (lastPathSegment == SSO_LOGIN_FAILURE) {
+            uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)
+                ?: uri.getQueryParameter(SSO_LOGIN_LEGACY_ERROR_PARAM)
+        } else {
+            null
+        }
         val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
         val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
 
@@ -287,7 +292,8 @@ class DeepLinkProcessor @Inject constructor(
         const val SSO_LOGIN_SUCCESS = "success"
         const val SSO_LOGIN_USERID_PARAM = "userId"
         const val SSO_LOGIN_COOKIE_PARAM = "cookie"
-        const val SSO_LOGIN_ERROR_PARAM = "error"
+        const val SSO_LOGIN_ERROR_PARAM = "errorCode"
+        const val SSO_LOGIN_LEGACY_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"

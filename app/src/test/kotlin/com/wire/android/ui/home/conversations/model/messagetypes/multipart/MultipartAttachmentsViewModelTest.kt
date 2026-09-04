@@ -187,7 +187,7 @@ class MultipartAttachmentsViewModelTest {
 
         val callback = mockk<OpenImageCallback>(relaxed = true)
 
-        viewModel.onClick(testAttachmentUi, callback, {}, {})
+        viewModel.onClick(testAttachmentUi, callback, {}, {}, {})
 
         coVerify(exactly = 1) { callback.invoke(testAttachmentUi.uuid) }
     }
@@ -259,12 +259,13 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `with file attachment openable via url when clicked then file is opened via url`() = runTest {
+    fun `with file attachment that cannot be opened from its url when clicked then it is downloaded`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 
         val callback = mockk<OpenImageCallback>(relaxed = true)
 
+        // Only image, video and audio are opened straight from the content url.
         viewModel.onClick(
             attachment = testAttachmentUi.copy(
                 mimeType = "application/zip",
@@ -277,7 +278,8 @@ class MultipartAttachmentsViewModelTest {
             openInPdfViewer = { },
         )
 
-        coVerify(exactly = 1) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.download(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -296,6 +298,7 @@ class MultipartAttachmentsViewModelTest {
             attachment = attachment,
             openInImageViewer = { },
             openInVideoPlayer = { },
+            openInAudioPlayer = { },
             openInPdfViewer = callback,
         )
 
@@ -319,6 +322,7 @@ class MultipartAttachmentsViewModelTest {
             attachment = attachment,
             openInImageViewer = { },
             openInVideoPlayer = { },
+            openInAudioPlayer = { },
             openInPdfViewer = callback,
         )
 
@@ -337,9 +341,11 @@ class MultipartAttachmentsViewModelTest {
             attachment = testAttachmentUi.copy(
                 mimeType = "application/pdf",
                 assetType = AttachmentFileType.PDF,
+                remotePath = null,
             ),
             openInImageViewer = { },
             openInVideoPlayer = { },
+            openInAudioPlayer = { },
             openInPdfViewer = callback,
         )
 
@@ -440,6 +446,8 @@ class MultipartAttachmentsViewModelTest {
             source = AssetSource.CELL,
             fileName = "filename",
             localPath = null,
+            // Mirrors testAssetContent.assetPath, which toUiModel() maps onto remotePath.
+            remotePath = "/filename",
             mimeType = "image/png",
             assetType = AttachmentFileType.IMAGE,
             assetSize = 0,

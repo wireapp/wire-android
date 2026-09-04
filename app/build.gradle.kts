@@ -216,6 +216,7 @@ dependencies {
     implementationWithCoverage(projects.core.media)
     implementationWithCoverage(projects.core.videoPlayer)
     implementationWithCoverage(projects.core.audioPlayer)
+    implementationWithCoverage(projects.core.pdfViewer)
     implementationWithCoverage(projects.core.notification)
     implementationWithCoverage(projects.core.navigation)
     implementationWithCoverage(projects.core.search)

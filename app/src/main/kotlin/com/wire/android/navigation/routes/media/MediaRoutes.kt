@@ -76,6 +76,21 @@ data class VideoPlayerRoute(
 }
 
 @Serializable
+data class PdfViewerRoute(
+    override val sessionId: WireSessionId,
+    val localPath: String? = null,
+    val assetId: String? = null,
+    val remotePath: String? = null,
+    val conversationId: String? = null,
+    val assetSize: Long = 0L,
+    val fileName: String? = null,
+    override val entryId: WireNavEntryId = WireNavEntryId.random(),
+) : SessionRoute {
+    override val routeId = ROUTE_ID
+    companion object { const val ROUTE_ID = "app/pdf_viewer_screen" }
+}
+
+@Serializable
 data class MessageDetailsRoute(
     override val sessionId: WireSessionId,
     val conversationId: MediaConversationId,

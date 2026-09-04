@@ -64,7 +64,9 @@ interface MultipartAttachmentsViewModel {
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     )
+
     fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
         val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
         return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
@@ -87,6 +89,7 @@ interface MultipartAttachmentsViewModel {
                         val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
                         group.copy(attachments = group.attachments + newAttachment)
                     }
+
                     else -> {
                         result.add(group)
                         MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
@@ -99,6 +102,7 @@ interface MultipartAttachmentsViewModel {
                         val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
                         group.copy(attachments = group.attachments + newAttachment)
                     }
+
                     else -> {
                         result.add(group)
                         MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
@@ -131,7 +135,10 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-    ) {}
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
+    ) {
+    }
+
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
@@ -173,6 +180,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     ) {
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
@@ -188,6 +196,9 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
 
             attachment.isAudio() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
                 openInAudioPlayer(attachment)
+
+            attachment.isPdf() && (attachment.localFileAvailable() || attachment.canDownloadRemotely()) ->
+                openInPdfViewer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -285,6 +296,8 @@ private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
 
 private fun MultipartAttachmentUi.isAudio() = assetType == AUDIO
 
+private fun MultipartAttachmentUi.isPdf() = assetType == PDF
+
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {
         IMAGE, VIDEO -> true
@@ -293,4 +306,5 @@ private fun MessageAttachment.isMediaAttachment() =
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO)
+private fun MultipartAttachmentUi.canDownloadRemotely() = remotePath != null && assetType == PDF

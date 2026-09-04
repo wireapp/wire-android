@@ -26,6 +26,7 @@ internal interface CellsFilesNavigation {
     fun image(file: CellNodeUi.File)
     fun video(file: CellNodeUi.File)
     fun audio(file: CellNodeUi.File)
+    fun pdf(file: CellNodeUi.File)
 }
 
 @Suppress("TooManyFunctions")
@@ -44,4 +45,5 @@ internal object NoOpCellsFilesNavigation : CellsFilesNavigation {
     override fun image(file: CellNodeUi.File) = Unit
     override fun video(file: CellNodeUi.File) = Unit
     override fun audio(file: CellNodeUi.File) = Unit
+    override fun pdf(file: CellNodeUi.File) = Unit
 }

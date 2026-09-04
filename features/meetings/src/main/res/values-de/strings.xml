@@ -25,7 +25,9 @@
     <string name="meeting_repeating_monthly">Monatlich</string>
     <string name="meeting_repeating_annually">Jährlich</string>
     <string name="meeting_started_at">Begann %1$s</string>
+    <string name="content_description_more_menu_icon">Weitere Optionen öffnen</string>
     <string name="meeting_join_button">Beitreten</string>
+    <string name="meeting_attending">Anwesend</string>
     <string name="meeting_starting_in">Beginnt in %1$s</string>
     <string name="meeting_button_show_all">Alle anzeigen</string>
     <string name="meeting_date_header_today">Heute (%1$s)</string>
@@ -36,6 +38,10 @@
     <string name="meeting_options_create_conversation">Unterhaltung erstellen</string>
     <string name="meeting_options_copy_link">Link kopieren</string>
     <string name="meeting_options_edit_meeting">Meeting bearbeiten</string>
+    <string name="meeting_options_delete_meeting_for_me">Meeting für mich löschen</string>
+    <string name="meeting_options_delete_meeting_for_everyone">Meeting für alle löschen</string>
+    <string name="meetings_empty_title_next">Noch keine bevorstehenden Meetings</string>
+    <string name="meetings_empty_title_past">Noch keine vergangenen Meetings</string>
     <string name="meetings_empty_text_next">"Beginnen Sie ein Meeting mit Team-Mitgliedern, Gästen oder Externen."</string>
     <string name="meetings_empty_text_past">Vorherige Meetings werden hier aufgelistet.</string>
     <string name="new_meeting_title">Neues Meeting</string>

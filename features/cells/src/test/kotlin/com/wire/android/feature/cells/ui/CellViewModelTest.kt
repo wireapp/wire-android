@@ -326,11 +326,13 @@ class CellViewModelTest {
         }
 
     @Test
-    fun `given view model when non-image file clicked and local file is not present and url is openable then url is opened`() = runTest {
+    fun `given view model when a file type that cannot be opened by url is clicked then it is downloaded first`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
+            .withDownloadSuccess()
             .arrange()
 
+        // Only image, video, audio and pdf can be opened straight from the content url.
         val testFile = testFiles[0].copy(
             mimeType = "text/plain",
             localPath = null,
@@ -338,8 +340,10 @@ class CellViewModelTest {
         )
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+        advanceUntilIdle()
 
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -391,8 +395,8 @@ class CellViewModelTest {
             .arrange()
 
         // File has localPath from DB but also carries an error state (stale UI state)
-        // Use a non-image file so we can verify the external app opener is called
-        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null, mimeType = "application/pdf").toUiModel()
+        // Use a file type without an in-app viewer so we can verify the external app opener is called
+        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null, mimeType = "application/zip").toUiModel()
             .copy(openLoadState = OpenLoadState.Error)
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))

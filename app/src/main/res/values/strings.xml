@@ -569,6 +569,12 @@
     <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="channel_name_description">Give this channel a meaningful name.</string>
     <string name="protocol">Protocol</string>
+    <string name="mls_migration_dialog_title">Change protocol to MLS?</string>
+    <string name="mls_migration_dialog_description">The standard messaging protocol will change from Proteus to Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Change Protocol</string>
+    <string name="mls_migration_success">Conversation migrated to MLS successfully.</string>
+    <string name="mls_migration_failure">Conversation migration to MLS failed.</string>
+    <string name="mls_migration_failure_with_backend_error">Conversation migration to MLS failed (HTTP %1$d, label: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>

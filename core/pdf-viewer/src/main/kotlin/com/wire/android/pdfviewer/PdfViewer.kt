@@ -78,7 +78,7 @@ private const val MIN_ZOOM = 1f
 private const val MAX_ZOOM = 5f
 
 /** Beyond this the extra pixels are no longer visible but the bitmaps get very expensive. */
-private const val MAX_RENDER_SCALE = 3f
+private const val MAX_RENDER_SCALE = 2f
 private const val DOUBLE_TAP_ZOOM = 2.5f
 
 /**
@@ -250,10 +250,17 @@ private fun PdfPage(
     // Deliberately keyed on the page only: while a sharper bitmap is rendered after a zoom the
     // previous one stays on screen instead of flashing back to a spinner.
     var bitmap by remember(pageIndex) { mutableStateOf<Bitmap?>(null) }
+    var failed by remember(pageIndex) { mutableStateOf(false) }
 
     LaunchedEffect(pageIndex, widthPx) {
         if (widthPx > 0) {
-            renderPage(pageIndex, widthPx)?.let { bitmap = it }
+            val rendered = renderPage(pageIndex, widthPx)
+            if (rendered != null) {
+                bitmap = rendered
+                failed = false
+            } else {
+                failed = bitmap == null
+            }
         }
     }
 
@@ -279,6 +286,14 @@ private fun PdfPage(
                 ),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit,
+            )
+        } else if (failed) {
+            Text(
+                text = stringResource(R.string.pdf_viewer_error_page_not_rendered),
+                style = typography().body02,
+                color = colorsScheme().secondaryText,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(dimensions().spacing16x),
             )
         } else {
             WireCircularProgressIndicator(
@@ -322,7 +337,8 @@ private fun PdfViewerError.messageResId(): Int = when (this) {
     PdfViewerError.INVALID_DOCUMENT -> R.string.pdf_viewer_error_invalid_document
 }
 
-private fun PdfViewerError.isRetryable(): Boolean = this == PdfViewerError.DOWNLOAD_FAILED
+private fun PdfViewerError.isRetryable(): Boolean =
+    this == PdfViewerError.DOWNLOAD_FAILED || this == PdfViewerError.INVALID_DOCUMENT
 
 /**
  * Pinch to zoom plus horizontal panning, layered on top of the list's own vertical scrolling.

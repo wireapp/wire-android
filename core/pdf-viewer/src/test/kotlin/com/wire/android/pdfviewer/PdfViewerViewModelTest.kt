@@ -24,8 +24,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
@@ -43,7 +43,7 @@ internal class PdfViewerViewModelTest {
 
     @AfterEach
     fun tearDown() {
-        unmockkObject(PdfDocument.Companion)
+        unmockkStatic(PDF_DOCUMENT_FILE_FACADE)
     }
 
     @Test
@@ -72,7 +72,7 @@ internal class PdfViewerViewModelTest {
             .arrange()
 
         assertEquals(PdfViewerState.Failure(PdfViewerError.DOWNLOAD_FAILED), viewModel.state.value)
-        verify(exactly = 0) { PdfDocument.open(any()) }
+        verify(exactly = 0) { openPdfDocument(any()) }
         coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
     }
 
@@ -174,7 +174,7 @@ internal class PdfViewerViewModelTest {
         viewModel.retry()
 
         verify(exactly = 1) { arrangement.document.close() }
-        verify(exactly = 2) { PdfDocument.open(any()) }
+        verify(exactly = 2) { openPdfDocument(any()) }
     }
 
     @Test
@@ -198,7 +198,7 @@ internal class PdfViewerViewModelTest {
         arrangement.withResolveSuccess().withPageCount(3)
         viewModel.retry()
 
-        assertEquals(PdfViewerState.Content(pageCount = 3, firstPageAspectRatio = DEFAULT_ASPECT_RATIO), viewModel.state.value)
+        assertEquals(PdfViewerState.Content(pageCount = 3, firstPageAspectRatio = TEST_ASPECT_RATIO), viewModel.state.value)
         coVerify(exactly = 2) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
     }
 
@@ -216,10 +216,42 @@ internal class PdfViewerViewModelTest {
         gate.complete(Unit)
 
         assertEquals(
-            PdfViewerState.Content(pageCount = DEFAULT_PAGE_COUNT, firstPageAspectRatio = DEFAULT_ASPECT_RATIO),
+            PdfViewerState.Content(pageCount = DEFAULT_PAGE_COUNT, firstPageAspectRatio = TEST_ASPECT_RATIO),
             viewModel.state.value,
         )
         coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given the downloaded file cannot be opened, when loading, then the cached copy is evicted`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withOpenFailure(IOException("truncated"))
+            .arrange()
+
+        // Without the eviction the same unusable bytes would be re-opened on every retry.
+        assertEquals(PdfViewerState.Failure(PdfViewerError.INVALID_DOCUMENT), viewModel.state.value)
+        coVerify(exactly = 1) { arrangement.sourceResolver.invalidate(any(), any()) }
+    }
+
+    @Test
+    fun `given a document without pages, when loading, then the cached copy is evicted`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withPageCount(0)
+            .arrange()
+
+        assertEquals(PdfViewerState.Failure(PdfViewerError.INVALID_DOCUMENT), viewModel.state.value)
+        coVerify(exactly = 1) { arrangement.sourceResolver.invalidate(any(), any()) }
+    }
+
+    @Test
+    fun `given the source cannot be resolved, when loading, then no eviction is attempted`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withResolveFailure(PdfViewerError.FILE_NOT_FOUND)
+            .arrange()
+
+        // Nothing was downloaded, so there is nothing to evict.
+        assertEquals(PdfViewerState.Failure(PdfViewerError.FILE_NOT_FOUND), viewModel.state.value)
+        coVerify(exactly = 0) { arrangement.sourceResolver.invalidate(any(), any()) }
     }
 
     private class Arrangement {
@@ -231,11 +263,12 @@ internal class PdfViewerViewModelTest {
         private val file = File("document.pdf")
 
         init {
-            mockkObject(PdfDocument.Companion)
-            every { PdfDocument.open(any()) } returns Result.success(document)
+            mockkStatic(PDF_DOCUMENT_FILE_FACADE)
+            every { openPdfDocument(any()) } returns Result.success(document)
             every { document.pageCount } returns DEFAULT_PAGE_COUNT
-            every { document.aspectRatio(any()) } returns DEFAULT_ASPECT_RATIO
+            every { document.aspectRatio(any()) } returns TEST_ASPECT_RATIO
             every { document.renderPage(any(), any()) } returns bitmap
+            coEvery { sourceResolver.invalidate(any(), any()) } returns Unit
             withResolveSuccess()
         }
 
@@ -256,7 +289,7 @@ internal class PdfViewerViewModelTest {
         }
 
         fun withOpenFailure(cause: Throwable) = apply {
-            every { PdfDocument.open(any()) } returns Result.failure(cause)
+            every { openPdfDocument(any()) } returns Result.failure(cause)
         }
 
         fun withPageCount(count: Int) = apply {
@@ -288,8 +321,11 @@ internal class PdfViewerViewModelTest {
     }
 
     private companion object {
+        /** Kotlin file facade holding the top-level `openPdfDocument`. */
+        const val PDF_DOCUMENT_FILE_FACADE = "com.wire.android.pdfviewer.PdfDocumentKt"
+
         const val DEFAULT_PAGE_COUNT = 3
-        const val DEFAULT_ASPECT_RATIO = 0.7f
+        const val TEST_ASPECT_RATIO = 0.7f
         const val BITMAP_BYTES = 1024
     }
 }

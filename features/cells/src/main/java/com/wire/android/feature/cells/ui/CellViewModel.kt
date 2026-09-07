@@ -475,7 +475,8 @@ class CellViewModel @AssistedInject constructor(
         AttachmentFileType.IMAGE -> OpenImageViewer(file).takeIf { file.shouldOpenInAppImageViewer() }
         AttachmentFileType.VIDEO -> OpenVideoViewer(file)
         AttachmentFileType.AUDIO -> OpenAudioPlayer(file)
-        AttachmentFileType.PDF -> OpenPdfViewer(file)
+        AttachmentFileType.PDF ->
+            OpenPdfViewer(file).takeIf { file.localPath != null || file.remotePath != null }
         else -> null
     }
 

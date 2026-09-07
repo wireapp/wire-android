@@ -73,12 +73,26 @@ class PdfSourceResolver @Inject constructor(
         return runCatching {
             partial.parentFile?.mkdirs()
             remoteLoader.load(assetId, remotePath, conversationId, assetSize, partial).getOrThrow()
+            check(partial.length() > 0 && (assetSize <= 0 || partial.length() >= assetSize)) {
+                "Downloaded document is incomplete (${partial.length()} of $assetSize bytes)"
+            }
             check(partial.renameTo(target)) { "Could not move the downloaded document into place" }
             target
         }.recoverCatching { cause ->
             partial.delete()
             throw PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, cause)
         }
+    }
+
+    /**
+     * Drops the cached copy of [assetId] so the next [resolve] downloads it again.
+     *
+     * Only ever touches this module's cache directory — a caller-supplied `localPath` belongs to
+     * whoever downloaded it and must not be deleted here.
+     */
+    suspend fun invalidate(assetId: String?, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+        val id = assetId ?: return
+        withContext(dispatcher) { cacheFileFor(id).delete() }
     }
 
     private fun cacheFileFor(assetId: String): File =

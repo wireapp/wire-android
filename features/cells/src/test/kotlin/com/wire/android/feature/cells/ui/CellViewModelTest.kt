@@ -352,6 +352,7 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
+        // remotePath is what the in-app viewer downloads from; testFiles[0] provides one.
         val testFile = testFiles[0].copy(
             mimeType = "application/pdf",
             localPath = null,
@@ -365,6 +366,29 @@ class CellViewModelTest {
             assert(action is OpenPdfViewer)
         }
         coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `given view model when pdf file clicked with no local path and no remote path then url is opened externally`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        // Without a remote path the in-app viewer has nothing to download, so claiming the click
+        // would leave the user on an unrecoverable error screen instead of opening the file.
+        val testFile = testFiles[0].copy(
+            mimeType = "application/pdf",
+            localPath = null,
+            remotePath = null,
+            contentUrl = "https://example.com/file"
+        )
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+            expectNoEvents()
+        }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
     }
 
     @Test

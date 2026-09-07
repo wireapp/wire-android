@@ -162,6 +162,62 @@ internal class PdfSourceResolverTest {
         coVerify(exactly = 1) { loader.load(any(), any(), any(), any(), any()) }
     }
 
+    @Test
+    fun givenATruncatedDownload_whenResolving_thenItFailsAndNothingIsCached() = runTest {
+        val loader = writingLoader(bytes = 8)
+        val resolver = resolver(loader)
+
+        // Promoting a short file would poison the cache: every later open would fail.
+        val result = resolver.resolve(null, "asset-short", "/cells/path/doc.pdf", null, 4096L, Dispatchers.Default)
+
+        assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
+
+        val second = resolver.resolve(null, "asset-short", "/cells/path/doc.pdf", null, 4096L, Dispatchers.Default)
+        assertTrue(second.isFailure)
+        coVerify(exactly = 2) { loader.load(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenACompleteDownload_whenResolving_thenItSucceeds() = runTest {
+        val resolver = resolver(writingLoader(bytes = 4096))
+
+        val result = resolver.resolve(null, "asset-full", "/cells/path/doc.pdf", null, 4096L, Dispatchers.Default)
+
+        assertTrue(result.isSuccess)
+        assertEquals(4096L, result.getOrNull()?.length())
+    }
+
+    @Test
+    fun givenACachedAsset_whenInvalidated_thenTheNextResolveDownloadsAgain() = runTest {
+        val loader = writingLoader(bytes = 8)
+        val resolver = resolver(loader)
+
+        resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, Dispatchers.Default)
+        resolver.invalidate("asset-abc", Dispatchers.Default)
+        val result = resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, Dispatchers.Default)
+
+        assertTrue(result.isSuccess)
+        coVerify(exactly = 2) { loader.load(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenALocalFile_whenInvalidating_thenThatFileIsLeftAlone() = runTest {
+        val document = File(tempDir, "document.pdf").apply { writeText("%PDF-1.4") }
+        val resolver = resolver()
+
+        // invalidate() must only ever touch this module's cache, never a caller's own download.
+        resolver.invalidate("document", Dispatchers.Default)
+
+        assertTrue(document.exists())
+    }
+
+    private fun writingLoader(bytes: Int): PdfRemoteLoader = mockk {
+        coEvery { load(any(), any(), any(), any(), any()) } coAnswers {
+            arg<File>(4).writeBytes(ByteArray(bytes))
+            Result.success(Unit)
+        }
+    }
+
     private fun resolver(loader: PdfRemoteLoader = mockk(relaxed = true)): PdfSourceResolver {
         val context = mockk<Context>()
         every { context.cacheDir } returns File(tempDir, "cache")

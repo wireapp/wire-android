@@ -25,15 +25,16 @@ import java.io.Closeable
 import java.io.File
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlin.math.sqrt
 
 /**
- * Thin coroutine-friendly wrapper around the platform [PdfRenderer].
+ * Thin wrapper around the platform [PdfRenderer]. Obtain instances via [openPdfDocument].
  *
- * Everything goes through [mutex] because [PdfRenderer] only allows a single open page at a time
+ * Everything goes through [lock] because [PdfRenderer] only allows a single open page at a time
  * and is not thread safe. Rendering happens entirely in-process — no network access and no
  * third party parser — which keeps documents from ever leaving the device.
  */
-internal class PdfDocument private constructor(
+internal class PdfDocument internal constructor(
     private val descriptor: ParcelFileDescriptor,
     private val renderer: PdfRenderer,
 ) : Closeable {
@@ -52,12 +53,19 @@ internal class PdfDocument private constructor(
 
     val pageCount: Int = renderer.pageCount
 
-    /** Width / height of [pageIndex], used to reserve the right amount of space before rendering. */
+    /**
+     * Width / height of [pageIndex], used to reserve the right amount of space before rendering.
+     *
+     * Never throws: `openPage` can fail on a malformed page, and callers reserve space from
+     * non-failing contexts, so a broken page falls back to the default ratio instead.
+     */
     fun aspectRatio(pageIndex: Int): Float = lock.withLock {
         if (closed) return DEFAULT_ASPECT_RATIO
-        renderer.openPage(pageIndex).use { page ->
-            if (page.height == 0) DEFAULT_ASPECT_RATIO else page.width.toFloat() / page.height
-        }
+        runCatching {
+            renderer.openPage(pageIndex).use { page ->
+                if (page.height == 0) DEFAULT_ASPECT_RATIO else page.width.toFloat() / page.height
+            }
+        }.getOrDefault(DEFAULT_ASPECT_RATIO)
     }
 
     /**
@@ -68,14 +76,11 @@ internal class PdfDocument private constructor(
     fun renderPage(pageIndex: Int, widthPx: Int): Bitmap? = lock.withLock {
         if (closed) return null
         renderer.openPage(pageIndex).use { page ->
-            val safeWidth = widthPx.coerceIn(MIN_RENDER_WIDTH_PX, MAX_RENDER_WIDTH_PX)
-            val height = if (page.width == 0) {
-                safeWidth
-            } else {
-                (safeWidth.toLong() * page.height / page.width).toInt()
-            }.coerceIn(MIN_RENDER_WIDTH_PX, MAX_RENDER_WIDTH_PX)
+            val (width, height) = renderSize(page.width, page.height, widthPx)
 
-            Bitmap.createBitmap(safeWidth, height, Bitmap.Config.ARGB_8888).apply {
+            // Must be ARGB_8888: PdfRenderer.Page.render rejects every other config except
+            // ALPHA_8 with "Unsupported pixel format". Memory is bounded by MAX_RENDER_PIXELS.
+            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply {
                 // PdfRenderer draws only the page content, so the paper itself has to be painted.
                 eraseColor(Color.WHITE)
                 page.render(this, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
@@ -97,25 +102,58 @@ internal class PdfDocument private constructor(
     }
 
     companion object {
-        const val DEFAULT_ASPECT_RATIO = 1f / 1.414f // A4 portrait
-        private const val MIN_RENDER_WIDTH_PX = 1
-        private const val MAX_RENDER_WIDTH_PX = 4_096
+        /** A4 portrait: the shape assumed for a page that could not be measured. */
+        const val DEFAULT_ASPECT_RATIO = 1f / 1.414f
+
+        const val MIN_RENDER_PX = 1
 
         /**
-         * Opens [file] for rendering, translating the platform failures into a [PdfViewerError].
+         * Total pixel budget for one page bitmap: 16 MB at [Bitmap.Config.ARGB_8888]
          *
-         * [PdfRenderer] throws [SecurityException] for password protected documents and
-         * [java.io.IOException] for anything it cannot parse.
+         * Bounding the area rather than the width is what keeps tall pages undistorted: a width
+         * cap alone would squash an A4 page once the requested width pushed its height past the
+         * limit.
          */
-        @Suppress("TooGenericExceptionCaught")
-        fun open(file: File): Result<PdfDocument> = runCatching {
-            val descriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-            try {
-                PdfDocument(descriptor, PdfRenderer(descriptor))
-            } catch (error: Throwable) {
-                runCatching { descriptor.close() }
-                throw error
-            }
-        }
+        const val MAX_RENDER_PIXELS = 4_000_000L
     }
+}
+
+/**
+ * Opens [file] for rendering, translating the platform failures into a [PdfViewerError].
+ *
+ * [PdfRenderer] throws [SecurityException] for password protected documents and
+ * [java.io.IOException] for anything it cannot parse.
+ */
+@Suppress("TooGenericExceptionCaught")
+internal fun openPdfDocument(file: File): Result<PdfDocument> = runCatching {
+    val descriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+    try {
+        PdfDocument(descriptor, PdfRenderer(descriptor))
+    } catch (error: Throwable) {
+        runCatching { descriptor.close() }
+        throw error
+    }
+}
+
+/**
+ * Size of the bitmap for a [pageWidth] x [pageHeight] page requested at [requestedWidth],
+ * preserving the page aspect ratio and never exceeding [PdfDocument.MAX_RENDER_PIXELS].
+ */
+internal fun renderSize(pageWidth: Int, pageHeight: Int, requestedWidth: Int): Pair<Int, Int> {
+    val ratio = if (pageWidth <= 0 || pageHeight <= 0) {
+        PdfDocument.DEFAULT_ASPECT_RATIO
+    } else {
+        pageWidth.toFloat() / pageHeight
+    }
+
+    val width = requestedWidth.coerceAtLeast(PdfDocument.MIN_RENDER_PX)
+    val height = (width / ratio).toInt().coerceAtLeast(PdfDocument.MIN_RENDER_PX)
+
+    val pixels = width.toLong() * height
+    if (pixels <= PdfDocument.MAX_RENDER_PIXELS) return width to height
+
+    // Shrink both axes by the same factor so the page keeps its shape.
+    val factor = sqrt(PdfDocument.MAX_RENDER_PIXELS.toDouble() / pixels)
+    return (width * factor).toInt().coerceAtLeast(PdfDocument.MIN_RENDER_PX) to
+            (height * factor).toInt().coerceAtLeast(PdfDocument.MIN_RENDER_PX)
 }

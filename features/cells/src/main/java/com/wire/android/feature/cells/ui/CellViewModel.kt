@@ -124,7 +124,7 @@ class CellViewModel @AssistedInject constructor(
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
-    ) : ActionsViewModel<CellViewAction>() {
+) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
     interface Factory {
@@ -438,14 +438,21 @@ class CellViewModel @AssistedInject constructor(
             sendAction(it)
             return
         }
-        file.contentUrl?.let { url ->
-            fileHelper.openAssetUrlWithExternalApp(
-                url = url,
-                mimeType = file.mimeType,
-                onError = {
-                    sendAction(ShowError(CellError.NO_APP_FOUND))
-                }
-            )
+
+        val isViewerWithDrivePermissions = isViewerOnly.value && drivePermissionsEnabled
+
+        if (!isViewerWithDrivePermissions) {
+            file.contentUrl?.let { url ->
+                fileHelper.openAssetUrlWithExternalApp(
+                    url = url,
+                    mimeType = file.mimeType,
+                    onError = {
+                        sendAction(ShowError(CellError.NO_APP_FOUND))
+                    }
+                )
+            }
+        } else {
+            sendAction(ShowError(CellError.FILE_NOT_SUPPORTED))
         }
     }
 
@@ -455,15 +462,21 @@ class CellViewModel @AssistedInject constructor(
             sendAction(it)
             return
         }
-        file.localPath?.let { path ->
-            fileHelper.openAssetFileWithExternalApp(
-                localPath = path.toPath(),
-                assetName = file.name,
-                mimeType = file.mimeType,
-                onError = {
-                    sendAction(ShowError(CellError.NO_APP_FOUND))
-                }
-            )
+        val isViewerWithDrivePermissions = isViewerOnly.value && drivePermissionsEnabled
+
+        if (!isViewerWithDrivePermissions) {
+            file.localPath?.let { path ->
+                fileHelper.openAssetFileWithExternalApp(
+                    localPath = path.toPath(),
+                    assetName = file.name,
+                    mimeType = file.mimeType,
+                    onError = {
+                        sendAction(ShowError(CellError.NO_APP_FOUND))
+                    }
+                )
+            }
+        } else {
+            sendAction(ShowError(CellError.FILE_NOT_SUPPORTED))
         }
     }
 
@@ -723,6 +736,7 @@ internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenPdfViewer(val file: CellNodeUi.File) : CellViewAction
 
 internal enum class CellError(val message: Int) {
+    FILE_NOT_SUPPORTED(R.string.file_not_supported),
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed),
     DOWNLOAD_FAILED(R.string.action_failed),

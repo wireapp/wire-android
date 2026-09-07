@@ -32,7 +32,7 @@ enum class SortDirection(val isDescending: Boolean) {
     Desc(true);
 
     @Suppress("MagicNumber")
-    val rotationAngle: Float get() = if (isDescending) 0f else 180f
+    val rotationAngle: Float get() = if (isDescending) 180f else 0f
 }
 
 sealed interface SortingCriteria {
@@ -55,8 +55,8 @@ sealed interface SortingCriteria {
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Modified
 
-        data object NewestFirst : ByDate(R.string.sort_modified_newest_first, SortDirection.Desc)
-        data object OldestFirst : ByDate(R.string.sort_modified_oldest_first, SortDirection.Asc)
+        data object NewestFirst : ByDate(R.string.sort_modified_newest_first, SortDirection.Asc)
+        data object OldestFirst : ByDate(R.string.sort_modified_oldest_first, SortDirection.Desc)
     }
 
     sealed class ByName(
@@ -65,8 +65,8 @@ sealed interface SortingCriteria {
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Name
 
-        data object AtoZ : ByName(R.string.sort_name_a_to_z, SortDirection.Desc)
-        data object ZtoA : ByName(R.string.sort_name_z_to_a, SortDirection.Asc)
+        data object AtoZ : ByName(R.string.sort_name_a_to_z, SortDirection.Asc)
+        data object ZtoA : ByName(R.string.sort_name_z_to_a, SortDirection.Desc)
     }
 
     sealed class BySize(
@@ -75,7 +75,7 @@ sealed interface SortingCriteria {
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Size
 
-        data object SmallestFirst : BySize(R.string.sort_size_smallest_first, SortDirection.Desc)
-        data object LargestFirst : BySize(R.string.sort_size_largest_first, SortDirection.Asc)
+        data object SmallestFirst : BySize(R.string.sort_size_smallest_first, SortDirection.Asc)
+        data object LargestFirst : BySize(R.string.sort_size_largest_first, SortDirection.Desc)
     }
 }

@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
+import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.CorruptedOrUnreadableBackup
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.DecryptionFailure
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.IncompatibleBackup
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidPassword
@@ -262,7 +263,7 @@ class BackupAndRestoreViewModel @Inject constructor(
             restorePasswordValidation = PasswordValidation.Valid
         )
 
-        is BackupIOFailure, is DecryptionFailure -> state = state.copy(
+        CorruptedOrUnreadableBackup, is BackupIOFailure, is DecryptionFailure -> state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.Failed,
             restoreFileValidation = RestoreFileValidation.GeneralFailure,
             restorePasswordValidation = PasswordValidation.Valid

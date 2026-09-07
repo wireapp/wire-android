@@ -161,7 +161,7 @@ class CellViewModelTest {
                 any(),
                 any(),
                 any(),
-                match { it.criteria == KaliumSortingCriteria.NAME_CASE_SENSITIVE && it.descending },
+                match { it.criteria == KaliumSortingCriteria.NAME_CASE_SENSITIVE && !it.descending },
                 any()
             )
         }

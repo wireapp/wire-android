@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.layout.Box

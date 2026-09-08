@@ -1338,6 +1338,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="backup_dialog_restoring_backup_title">Backup wird wiederhergestellt...</string>
     <string name="backup_label_conversation_restored">Unterhaltungen wurden wiederhergestellt</string>
     <string name="backup_label_loading_conversations">Unterhaltungen werden geladen</string>
+    <string name="backup_label_cancelling">Abbrechen...</string>
     <string name="backup_dialog_restore_backup_title">Backup wiederherstellen </string>
     <string name="backup_dialog_restore_backup_message">Der vorhandene Gesprächsverlauf auf diesem Gerät bleibt erhalten und wird durch das neue Backup ergänzt. Sie können den Verlauf von all Ihren Geräten und verschiedenen Plattformen wiederherstellen, aber nicht von einem anderen Benutzerkonto.</string>
     <string name="backup_dialog_choose_backup_file_option">Backup-Datei auswählen</string>

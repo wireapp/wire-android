@@ -753,7 +753,7 @@ internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
 
-internal enum class CellError(val message: Int) {
+enum class CellError(val message: Int) {
     FILE_NOT_SUPPORTED(R.string.file_not_supported),
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed),

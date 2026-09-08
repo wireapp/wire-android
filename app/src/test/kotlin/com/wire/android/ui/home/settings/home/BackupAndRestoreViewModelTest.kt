@@ -42,6 +42,7 @@ import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateMPBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
+import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.CorruptedOrUnreadableBackup
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.IncompatibleBackup
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidPassword
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidUserId
@@ -494,6 +495,27 @@ class BackupAndRestoreViewModelTest {
         }
     }
 
+    @Test
+    fun givenCorruptedMultiplatformBackup_whenRestoring_thenTheGeneralErrorDialogIsShown() = runTest(dispatcher.default()) {
+        val password = "some-password"
+        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withFailedMPBackupImport(Failure(CorruptedOrUnreadableBackup))
+            .withRequestedPasswordDialog()
+            .withValidPassword()
+            .arrange()
+        backupAndRestoreViewModel.restoreBackupPasswordState.setTextAndPlaceCursorAtEnd(password)
+
+        backupAndRestoreViewModel.restorePasswordProtectedBackup()
+        advanceUntilIdle()
+
+        assertEquals(BackupRestoreProgress.Failed, backupAndRestoreViewModel.state.backupRestoreProgress)
+        assertEquals(RestoreFileValidation.GeneralFailure, backupAndRestoreViewModel.state.restoreFileValidation)
+        assertEquals(PasswordValidation.Valid, backupAndRestoreViewModel.state.restorePasswordValidation)
+        coVerify(exactly = 1) {
+            arrangement.importMpBackup(any(), password, any())
+        }
+    }
+
     private inner class Arrangement {
 
         init {
@@ -618,6 +640,13 @@ class BackupAndRestoreViewModelTest {
                 isEncrypted = false
             )
             coEvery { importBackup(any(), any()) } returns error
+        }
+
+        fun withFailedMPBackupImport(error: Failure) = apply {
+            viewModel.latestImportedBackupTempPath =
+                fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
+            viewModel.state = viewModel.state.copy(backupFileFormat = BackupFileFormat.MULTIPLATFORM)
+            coEvery { importMpBackup(any(), any(), any()) } returns error
         }
 
         fun withValidPassword() = apply {

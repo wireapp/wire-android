@@ -43,8 +43,10 @@ import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
+import io.mockk.coEvery
 import io.mockk.coVerify
 import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -59,6 +61,73 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class NewConversationViewModelTest {
+
+    @Test
+    fun `given conflict without fallback, when discarding, then closes without cleanup`() = runTest {
+        val domains = listOf("a.example", "b.example")
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withBackendConflict(domains)
+            .arrange()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.ConflictedBackends(domains)
+        viewModel.discardGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Discarded
+        coVerify(exactly = 0) { arrangement.createRegularGroup.discardPendingMLSGroupCreation(any()) }
+    }
+
+    @Test
+    fun `given cleanup fallback, when discarding, then waits for successful cleanup`() = runTest {
+        val conversationId = NewConversationViewModelArrangement.CONVERSATION_ID
+        val completion = CompletableDeferred<Boolean>()
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withBackendConflict(listOf("a.example"), conversationId)
+            .arrange()
+        coEvery { arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId) } coAnswers { completion.await() }
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        viewModel.discardGroupCreation()
+        advanceUntilIdle()
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Discarding
+        viewModel.discardGroupCreation()
+        completion.complete(true)
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Discarded
+        coVerify(exactly = 1) { arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId) }
+        viewModel.discardGroupCreation()
+        coVerify(exactly = 1) { arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId) }
+    }
+
+    @Test
+    fun `given failed discard, when tried again, then retains fallback and closes only on success`() = runTest {
+        val conversationId = NewConversationViewModelArrangement.CONVERSATION_ID
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withBackendConflict(listOf("a.example"), conversationId)
+            .arrange()
+        coEvery { arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId) } returnsMany listOf(false, true)
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        viewModel.discardGroupCreation()
+        advanceUntilIdle()
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.DiscardFailed
+        viewModel.onCreateGroupErrorDismiss()
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.DiscardFailed
+        viewModel.discardGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Discarded
+        coVerify(exactly = 2) { arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId) }
+    }
 
     @Test
     fun `given sync failure, when creating group, then should update options state with connectivity error`() = runTest {

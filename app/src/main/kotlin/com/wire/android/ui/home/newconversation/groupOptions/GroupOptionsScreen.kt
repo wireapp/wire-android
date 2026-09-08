@@ -89,8 +89,10 @@ fun GroupOptionScreen(
         navigator.navigate(NavigationCommand(ConversationScreenDestination(conversationId), BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
 
     LaunchedEffect(newConversationViewModel.createGroupState) {
-        (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
-            navigateToGroup(it.conversationId)
+        when (val state = newConversationViewModel.createGroupState) {
+            is CreateGroupState.Created -> navigateToGroup(state.conversationId)
+            CreateGroupState.Discarded -> navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+            else -> Unit
         }
     }
 
@@ -121,10 +123,7 @@ fun GroupOptionScreen(
             newConversationViewModel.onCreateGroupErrorDismiss()
             navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
         },
-        onDiscardGroupCreationClick = {
-            newConversationViewModel.onCreateGroupErrorDismiss()
-            navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-        },
+        onDiscardGroupCreationClick = newConversationViewModel::discardGroupCreation,
         onErrorDismissed = newConversationViewModel::onCreateGroupErrorDismiss,
         onEnableWireCellChanged = newConversationViewModel::onEnableWireCellChanged
     )

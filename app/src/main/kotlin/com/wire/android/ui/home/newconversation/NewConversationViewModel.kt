@@ -40,6 +40,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
@@ -69,6 +70,8 @@ class NewConversationViewModel @Inject constructor(
     private val isWireCellsFeatureEnabled: IsWireCellsEnabledUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
 ) : ViewModel() {
+
+    private var failedMLSGroupCreationId: ConversationId? = null
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(GroupMetadataState())
@@ -122,6 +125,7 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun resetState() {
+        failedMLSGroupCreationId = null
         newGroupNameTextState.clearText()
         newGroupState = GroupMetadataState()
         loadDefaultProtocol()
@@ -196,7 +200,27 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
+    fun discardGroupCreation() {
+        if (createGroupState == CreateGroupState.Discarding) return
+        val conversationId = failedMLSGroupCreationId
+        if (conversationId == null) {
+            createGroupState = CreateGroupState.Discarded
+            return
+        }
+
+        createGroupState = CreateGroupState.Discarding
+        viewModelScope.launch {
+            if (createRegularGroup.discardPendingMLSGroupCreation(conversationId)) {
+                failedMLSGroupCreationId = null
+                createGroupState = CreateGroupState.Discarded
+            } else {
+                createGroupState = CreateGroupState.Error.DiscardFailed
+            }
+        }
+    }
+
     fun onCreateGroupErrorDismiss() {
+        if (createGroupState == CreateGroupState.Error.DiscardFailed) return
         createGroupState = CreateGroupState.Default
     }
 
@@ -334,6 +358,7 @@ class NewConversationViewModel @Inject constructor(
     private fun handleNewGroupCreationResult(result: ConversationCreationResult) {
         return when (result) {
             is ConversationCreationResult.Success -> {
+                failedMLSGroupCreationId = null
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = CreateGroupState.Created(result.conversation.id)
             }
@@ -360,6 +385,7 @@ class NewConversationViewModel @Inject constructor(
             }
 
             is ConversationCreationResult.BackendConflictFailure -> {
+                failedMLSGroupCreationId = result.conversationId
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = CreateGroupState.Error.ConflictedBackends(result.domains)

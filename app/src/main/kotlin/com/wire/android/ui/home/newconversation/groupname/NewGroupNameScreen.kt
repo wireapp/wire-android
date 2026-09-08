@@ -52,8 +52,10 @@ fun NewGroupNameScreen(
         newConversationViewModel.observeGroupNameChanges()
     }
     LaunchedEffect(newConversationViewModel.createGroupState) {
-        (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
-            navigateToGroup(it.conversationId)
+        when (val state = newConversationViewModel.createGroupState) {
+            is CreateGroupState.Created -> navigateToGroup(state.conversationId)
+            CreateGroupState.Discarded -> navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+            else -> Unit
         }
     }
     GroupNameScreen(
@@ -77,10 +79,7 @@ fun NewGroupNameScreen(
                 newConversationViewModel.onCreateGroupErrorDismiss()
                 navigator.navigate(NavigationCommand(NewGroupConversationSearchPeopleScreenDestination, BackStackMode.UPDATE_EXISTED))
             },
-            onCancel = {
-                newConversationViewModel.onCreateGroupErrorDismiss()
-                navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
-            },
+            onCancel = newConversationViewModel::discardGroupCreation,
         )
     }
 }

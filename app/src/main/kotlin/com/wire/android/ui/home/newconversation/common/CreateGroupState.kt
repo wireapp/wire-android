@@ -22,9 +22,12 @@ import com.wire.kalium.logic.data.id.ConversationId
 sealed interface CreateGroupState {
 
     data object Default : CreateGroupState
+    data object Discarding : CreateGroupState
+    data object Discarded : CreateGroupState
 
     sealed interface Error : CreateGroupState {
         data object Unknown : Error
+        data object DiscardFailed : Error
         data object Forbidden : Error
         data object LackingConnection : Error
         data class ConflictedBackends(val domains: List<String>) : Error

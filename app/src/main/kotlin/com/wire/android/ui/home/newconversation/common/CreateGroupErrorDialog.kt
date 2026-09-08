@@ -47,6 +47,7 @@ fun CreateGroupErrorDialog(
             message = stringResource(R.string.error_no_network_message),
         ) to null
 
+        CreateGroupState.Error.DiscardFailed,
         is CreateGroupState.Error.Unknown -> DialogErrorStrings(
             title = stringResource(R.string.error_unknown_title),
             message = stringResource(R.string.error_unknown_message),
@@ -80,12 +81,16 @@ fun CreateGroupErrorDialog(
         onDismiss = onDismiss,
         buttonsHorizontalAlignment = false,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = if (error.isConflictedBackends) onEditParticipantsList else onDismiss,
+            onClick = when (error) {
+                is CreateGroupState.Error.ConflictedBackends -> onEditParticipantsList
+                CreateGroupState.Error.DiscardFailed -> onCancel
+                else -> onDismiss
+            },
             text = stringResource(
-                id = if (error.isConflictedBackends) {
-                    R.string.conversation_can_not_be_created_edit_participant_list
-                } else {
-                    R.string.label_ok
+                id = when (error) {
+                    is CreateGroupState.Error.ConflictedBackends -> R.string.conversation_can_not_be_created_edit_participant_list
+                    CreateGroupState.Error.DiscardFailed -> R.string.label_try_again
+                    else -> R.string.label_ok
                 }
             ),
             type = WireDialogButtonType.Primary,

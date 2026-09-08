@@ -59,6 +59,7 @@ internal class NewConversationViewModelArrangement {
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
+        coEvery { createRegularGroup.discardPendingMLSGroupCreation(any()) } returns true
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         coEvery { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
         coEvery { isWireCellsEnabled() } returns false
@@ -190,6 +191,11 @@ internal class NewConversationViewModelArrangement {
 
     fun withConflictingBackendsFailure() = apply {
         createGroupState = CreateGroupState.Error.ConflictedBackends(listOf("bella.wire.link", "foma.wire.link"))
+    }
+
+    fun withBackendConflict(domains: List<String>, conversationId: ConversationId? = null) = apply {
+        coEvery { createRegularGroup(any(), any(), any()) } returns
+            ConversationCreationResult.BackendConflictFailure(domains, conversationId)
     }
 
     fun withGetSelfUser(isTeamMember: Boolean, userType: UserType = UserType.INTERNAL) = apply {

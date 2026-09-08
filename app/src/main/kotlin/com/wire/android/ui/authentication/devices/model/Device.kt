@@ -28,13 +28,13 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.util.inWholeWeeks
-import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 data class Device(
     val name: UIText = UIText.DynamicString(""),
     val clientId: ClientId = ClientId(""),
-    val registrationTime: String? = null,
+    val registrationTime: Instant? = null,
     val lastActiveInWholeWeeks: Int? = null,
     val isValid: Boolean = true,
     val isVerifiedProteus: Boolean = false,
@@ -43,7 +43,7 @@ data class Device(
     constructor(client: Client, mlsClientIdentity: MLSClientIdentity? = null) : this(
         name = client.displayName(),
         clientId = client.id,
-        registrationTime = client.registrationTime?.toIsoDateTimeString(),
+        registrationTime = client.registrationTime,
         lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
         isValid = client.isValid,
         isVerifiedProteus = client.isVerified,
@@ -53,7 +53,7 @@ data class Device(
     fun updateFromClient(client: Client): Device = copy(
         name = client.displayName(),
         clientId = client.id,
-        registrationTime = client.registrationTime?.toIsoDateTimeString(),
+        registrationTime = client.registrationTime,
         lastActiveInWholeWeeks = client.lastActiveInWholeWeeks(),
         isValid = client.isValid,
         isVerifiedProteus = client.isVerified,

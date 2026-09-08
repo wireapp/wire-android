@@ -22,8 +22,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.AppLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.logging.LogFileWriter
+import dev.zacsweers.metro.Inject
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import kotlinx.coroutines.Deferred
@@ -35,7 +37,7 @@ data class LogManagementState(
     val logPath: String
 )
 
-class LogManagementViewModel(
+class LogManagementViewModel @Inject constructor(
     private val logFileWriter: LogFileWriter,
     private val globalDataStore: GlobalDataStore
 ) : ViewModel() {
@@ -53,16 +55,18 @@ class LogManagementViewModel(
             globalDataStore.setLoggingEnabled(isEnabled)
             if (isEnabled) {
                 logFileWriter.start()
+                AppLogger.setLogLevel(level = KaliumLogLevel.VERBOSE)
                 CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
             } else {
                 logFileWriter.stop()
+                AppLogger.setLogLevel(level = KaliumLogLevel.WARN)
                 CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
             }
         }
     }
 
     fun deleteLogs() {
-        logFileWriter.deleteAllLogFiles()
+        viewModelScope.launch { logFileWriter.deleteAllLogFiles() }
     }
 
     fun flushLogs(): Deferred<Unit> {

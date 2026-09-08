@@ -85,6 +85,7 @@ fun DomainLookupUseCase.Result.Failure.toLoginError() = LoginState.Error.DialogE
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginState.Error = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginState.Error.DialogError.UserAlreadyExists
+    AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> LoginState.Error.DialogError.UserAlreadyExists
     AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> LoginState.Error.DialogError.UserAlreadyExists
 }
 

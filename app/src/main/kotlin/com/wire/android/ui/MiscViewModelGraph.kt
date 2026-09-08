@@ -19,28 +19,26 @@ package com.wire.android.ui
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
-import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
-import com.wire.android.ui.settings.devices.e2ei.E2eiCertificateDetailsViewModel
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel
 
-interface MiscViewModelGraph : MetroViewModelGraph {
-    val miscViewModelFactory: MiscViewModelFactory
-}
-
 @Composable
-inline fun <reified VM> miscViewModel(): VM where VM : ViewModel =
-    sessionKeyedMetroViewModel()
+inline fun <reified VM> miscViewModel(
+    owner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+): VM where VM : ViewModel =
+    wireMetroViewModel(owner = owner)
 
 @Composable
 fun analyticsUsageViewModel(): AnalyticsUsageViewModel =
-    miscViewModel()
+    wireMetroViewModel()
 
 @Composable
 fun initialSyncViewModel(): InitialSyncViewModel =
@@ -51,21 +49,23 @@ fun legalHoldRequestedViewModel(): LegalHoldRequestedViewModel =
     miscViewModel()
 
 @Composable
-fun e2EIEnrollmentViewModel(): E2EIEnrollmentViewModel =
-    miscViewModel()
+fun e2EIEnrollmentViewModel(
+    owner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+): E2EIEnrollmentViewModel =
+    wireMetroViewModel(owner = owner)
 
 @Composable
-fun getE2EICertificateViewModel(): GetE2EICertificateViewModel =
-    miscViewModel()
-
-@Composable
-fun e2eiCertificateDetailsViewModel(): E2eiCertificateDetailsViewModel =
-    miscViewModel()
+fun getE2EICertificateViewModel(
+    owner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+): GetE2EICertificateViewModel =
+    miscViewModel(owner)
 
 @Composable
 fun importMediaAuthenticatedViewModel(): ImportMediaAuthenticatedViewModel =
-    miscViewModel()
+    wireMetroViewModel()
 
 @Composable
-fun joinConversationViaCodeViewModel(): JoinConversationViaCodeViewModel =
-    miscViewModel()
+fun joinConversationViaCodeViewModel(
+    owner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+): JoinConversationViaCodeViewModel =
+    miscViewModel(owner)

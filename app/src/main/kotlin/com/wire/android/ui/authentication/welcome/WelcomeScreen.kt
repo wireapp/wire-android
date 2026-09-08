@@ -16,11 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-@file:Suppress("TooManyFunctions")
+@file:Suppress("TooManyFunctions", "MatchingDeclarationName")
 
 package com.wire.android.ui.authentication.welcome
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.content.res.TypedArray
 import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
@@ -66,19 +65,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.ui.authentication.welcomeViewModel
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.config.LocalCustomUiConfigurationProvider
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.authentication.MissingBackendConfigContent
-import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.isConfigured
-import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
@@ -92,14 +85,9 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDataDetailScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateTeamAccountOverviewScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -109,22 +97,31 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
-@WireRootDestination(
-    style = PopUpNavigationAnimation::class,
-    navArgs = WelcomeNavArgs::class
-)
+internal sealed interface WelcomeScreenAction {
+    data class Login(val serverConfig: ServerConfig.Links) : WelcomeScreenAction
+    data class OpenUrl(val url: String) : WelcomeScreenAction
+    data class CreateTeam(val serverConfig: ServerConfig.Links) : WelcomeScreenAction
+    data class CreatePersonal(val serverConfig: ServerConfig.Links) : WelcomeScreenAction
+    data class CreateAccountData(val serverConfig: ServerConfig.Links) : WelcomeScreenAction
+}
+
+/**
+ * Navigation-neutral screen adapter. It keeps rendering and dialog behavior in the screen while
+ * the owning runtime translates semantic actions into concrete routes.
+ */
 @Composable
-fun WelcomeScreen(
-    navigator: Navigator,
-    viewModel: WelcomeViewModel = welcomeViewModel()
+internal fun WelcomeRouteScreen(
+    viewModel: WelcomeViewModel,
+    onNavigateBack: () -> Unit,
+    onAction: (WelcomeScreenAction) -> Unit,
 ) {
     WelcomeContent(
         viewModel.state.isThereActiveSession,
         viewModel.state.maxAccountsReached,
         viewModel.state.nomadAccountBlocksLogin,
         viewModel.state.links,
-        navigator::navigateBack,
-        navigator::navigate
+        onNavigateBack,
+        onAction,
     )
 }
 
@@ -135,7 +132,7 @@ private fun WelcomeContent(
     nomadAccountBlocksLogin: Boolean,
     state: ServerConfig.Links,
     navigateBack: () -> Unit,
-    navigate: (NavigationCommand) -> Unit
+    onAction: (WelcomeScreenAction) -> Unit,
 ) {
     WireScaffold(topBar = {
         if (isThereActiveSession) {
@@ -196,12 +193,12 @@ private fun WelcomeContent(
 
             WelcomeCarousel(modifier = Modifier.weight(1f, true))
 
-            WelcomeButtonsColumn(state = state, navigate = navigate)
+            WelcomeButtonsColumn(state = state, onAction = onAction)
 
             if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
                 WelcomeFooterSection(
                     state = state,
-                    navigate = navigate,
+                    onAction = onAction,
                     modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding)
                 )
             }
@@ -213,9 +210,8 @@ private fun WelcomeContent(
 @Composable
 private fun WelcomeButtonsColumn(
     state: ServerConfig.Links,
-    navigate: (NavigationCommand) -> Unit,
+    onAction: (WelcomeScreenAction) -> Unit,
 ) {
-    val context = LocalContext.current
     val teamCreationUrl = state.teams + stringResource(R.string.create_account_email_backlink_to_team_suffix_url)
     val enterpriseDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
     Column(
@@ -229,12 +225,12 @@ private fun WelcomeButtonsColumn(
             }
     ) {
         LoginButton(
-            onClick = { navigate(NavigationCommand(LoginScreenDestination(loginPasswordPath = LoginPasswordPath(state)))) }
+            onClick = { onAction(WelcomeScreenAction.Login(state)) }
         )
         FeatureDisabledWithProxyDialogContent(
             dialogState = enterpriseDisabledWithProxyDialogState,
             onActionButtonClicked = {
-                CustomTabsHelper.launchUrl(context, state.teams)
+                onAction(WelcomeScreenAction.OpenUrl(state.teams))
             }
         )
         if (LocalCustomUiConfigurationProvider.current.isAccountCreationAllowed) {
@@ -248,9 +244,9 @@ private fun WelcomeButtonsColumn(
                     )
                 } else {
                     if (ENABLE_NEW_REGISTRATION) {
-                        CustomTabsHelper.launchUrl(context, teamCreationUrl)
+                        onAction(WelcomeScreenAction.OpenUrl(teamCreationUrl))
                     } else {
-                        navigate(NavigationCommand(CreateTeamAccountOverviewScreenDestination(state)))
+                        onAction(WelcomeScreenAction.CreateTeam(state))
                     }
                 }
             }
@@ -261,7 +257,7 @@ private fun WelcomeButtonsColumn(
 @Composable
 private fun WelcomeFooterSection(
     state: ServerConfig.Links,
-    navigate: (NavigationCommand) -> Unit,
+    onAction: (WelcomeScreenAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val createPersonalAccountDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
@@ -277,17 +273,9 @@ private fun WelcomeFooterSection(
                 )
             } else {
                 if (ENABLE_NEW_REGISTRATION) {
-                    navigate(
-                        NavigationCommand(
-                            CreateAccountDataDetailScreenDestination(
-                                CreateAccountDataNavArgs(
-                                    customServerConfig = state
-                                )
-                            )
-                        )
-                    )
+                    onAction(WelcomeScreenAction.CreateAccountData(state))
                 } else {
-                    navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(state)))
+                    onAction(WelcomeScreenAction.CreatePersonal(state))
                 }
             }
         }
@@ -471,7 +459,7 @@ fun PreviewWelcomeScreen() {
             nomadAccountBlocksLogin = false,
             state = ServerConfig.DEFAULT,
             navigateBack = {},
-            navigate = {}
+            onAction = {}
         )
     }
 }

@@ -29,6 +29,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.home.conversations.isFileSharingEnabledViewModel
+import com.wire.android.ui.home.messagecomposer.messageComposerSecondaryButtonColors
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.delay
@@ -74,6 +75,7 @@ fun AdditionalOptionButton(
             state = if (!viewModel.isFileSharingEnabled()) {
                 WireButtonState.Disabled
             } else if (isSelected) WireButtonState.Selected else WireButtonState.Default,
+            colors = messageComposerSecondaryButtonColors(),
         )
     }
 }

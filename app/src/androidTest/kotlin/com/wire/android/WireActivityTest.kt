@@ -25,11 +25,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.work.testing.WorkManagerTestInitHelper
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.extensions.performClickWithNodeWithText
 import com.wire.android.extensions.waitUntilExists
@@ -49,24 +48,29 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExternalResource
+import org.junit.rules.RuleChain
 
 class WireActivityTest {
 
-    @get:Rule
     val composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<WireActivity>, WireActivity> =
         createAndroidComposeRule<WireActivity>()
 
-    @Before
-    fun init() {
-        val context = ApplicationProvider.getApplicationContext<Application>()
-        context.deleteDatabase("global-db") // GLOBAL_DB_NAME in FileNameUtil
-        WorkManagerTestInitHelper.initializeTestWorkManager(context)
-        initializeApplicationLoggingFrameworks()
+    private val appInitializationRule = object : ExternalResource() {
+        override fun before() {
+            val context = ApplicationProvider.getApplicationContext<Application>()
+            WorkManagerTestInitHelper.initializeTestWorkManager(context)
+            initializeApplicationLoggingFrameworks()
+        }
     }
+
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain
+        .outerRule(appInitializationRule)
+        .around(composeTestRule)
 
     @Ignore // TODO add other api mocks to not have flaky test
     @Test
@@ -93,7 +97,7 @@ class WireActivityTest {
         } returns SwitchAccountResult.NoOtherAccountToSwitch
 
         composeTestRule.runOnIdle {
-            val viewModel = ViewModelProvider(composeTestRule.activity)[WireActivityViewModel::class.java]
+            val viewModel = composeTestRule.activity.viewModelForTest()
             viewModel.setAccountSwitchForTest(accountSwitch)
             viewModel.setGlobalAppStateForTest(
                 viewModel.globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)

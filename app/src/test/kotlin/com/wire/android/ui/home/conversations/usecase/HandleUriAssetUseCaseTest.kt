@@ -30,6 +30,7 @@ import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLim
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -46,13 +47,14 @@ class HandleUriAssetUseCaseTest {
     private val dispatcher = StandardTestDispatcher()
 
     @Test
-    fun `given an invalid url schema, when invoked, then result should not succeed`() =
+    fun `given an unsupported URI scheme, when invoked, then result should not succeed`() =
         runTest(dispatcher) {
             // Given
             val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
-            val (_, useCase) = Arrangement()
+            val (arrangement, useCase) = Arrangement()
                 .withGetAssetSizeLimitUseCase(true, limit)
                 .withGetAssetBundleFromUri(null)
+                .withUnsupportedUriScheme()
                 .arrange()
 
             // When
@@ -60,6 +62,9 @@ class HandleUriAssetUseCaseTest {
 
             // Then
             assert(result is HandleUriAssetUseCase.Result.Failure.Unknown)
+            coVerify(exactly = 0) {
+                arrangement.fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any())
+            }
         }
 
     @Test
@@ -81,7 +86,7 @@ class HandleUriAssetUseCaseTest {
                 .arrange()
 
             // When
-            val result = useCase.invoke("mocked_image.jpeg".toUri(), false)
+            val result = useCase.invoke(CONTENT_URI, false)
 
             // Then
             assert(result is HandleUriAssetUseCase.Result.Success)
@@ -106,7 +111,7 @@ class HandleUriAssetUseCaseTest {
                 .arrange()
 
             // When
-            val result = useCase.invoke("mocked_image.jpeg".toUri(), false)
+            val result = useCase.invoke(CONTENT_URI, false)
 
             // Then
             assert(result is HandleUriAssetUseCase.Result.Failure.AssetTooLarge)
@@ -132,7 +137,7 @@ class HandleUriAssetUseCaseTest {
                 .arrange()
 
             // When
-            val result = useCase.invoke("mocked_image.jpeg".toUri(), true)
+            val result = useCase.invoke(CONTENT_URI, true)
 
             // Then
             coVerify {
@@ -159,7 +164,7 @@ class HandleUriAssetUseCaseTest {
                 .arrange()
 
             // When
-            val result = useCase.invoke("mocked_image.jpeg".toUri(), false)
+            val result = useCase.invoke(CONTENT_URI, false)
 
             // Then
             assert(result is HandleUriAssetUseCase.Result.Failure.Unknown)
@@ -183,6 +188,10 @@ class HandleUriAssetUseCaseTest {
             coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any()) } returns assetBundle
         }
 
+        fun withUnsupportedUriScheme() = apply {
+            every { fileManager.checkValidSchema(any()) } throws IllegalArgumentException("Unsupported URI scheme")
+        }
+
         fun withGetAssetSizeLimitUseCase(isImage: Boolean, assetSizeLimit: Long) = apply {
             coEvery { getAssetSizeLimitUseCase(eq(isImage)) } returns assetSizeLimit
             return this
@@ -198,5 +207,9 @@ class HandleUriAssetUseCaseTest {
             fakeKaliumFileSystem,
             TestDispatcherProvider(),
         )
+    }
+
+    companion object {
+        private val CONTENT_URI = "content://example.provider/mocked_image.jpeg".toUri()
     }
 }

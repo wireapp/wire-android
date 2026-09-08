@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.newconversation.channelaccess
 
-import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -29,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -40,16 +38,18 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireNewConversationDestination
+/**
+ * Navigation-neutral screen adapter shared by the legacy and Navigation 3 hosts.
+ */
 @Composable
-fun ChannelAccessOnCreateScreen(
-    navigator: Navigator,
+internal fun ChannelAccessOnCreateRouteScreen(
     newConversationViewModel: NewConversationViewModel,
+    onNavigateBack: () -> Unit,
 ) {
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = navigator::navigateBack,
+                onNavigationPressed = onNavigateBack,
                 elevation = dimensions().spacing0x,
                 title = stringResource(id = R.string.channel_access_label),
                 titleContentDescription = stringResource(id = R.string.content_description_new_conversation_options_heading),

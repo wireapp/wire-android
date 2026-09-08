@@ -48,7 +48,7 @@ class CallParticipantListTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10873", "TC-10892")
-    @Category("regression", "callParticipant", "RC", "smoke")
+    @Category("regression", "callParticipant", "RC", "smoke", "TEMP")
     @Test
     fun givenIAmInOneOnOneCall_whenIExpandParticipantSheet_thenParticipantListAndCallControlsAreVisible() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -127,7 +127,7 @@ class CallParticipantListTests : BaseCallUiTest() {
         "TC-10884",
         "TC-10887"
     )
-    @Category("regression", "callParticipant", "RC", "smoke")
+    @Category("regression", "callParticipant", "RC", "smoke", "TEMP")
     @Test
     fun givenIAmInGroupCall_whenIExpandParticipantSheet_thenParticipantCountOrderAndMediaStatesAreVisible() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()
@@ -277,7 +277,7 @@ class CallParticipantListTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10878", "TC-10888", "TC-10889")
-    @Category("regression", "callParticipant", "RC", "smoke")
+    @Category("regression", "callParticipant", "RC", "smoke", "TEMP")
     @Test
     fun givenParticipantSheetIsOpen_whenGuestIsPresentAndParticipantJoinsLeavesOrIsTapped_thenListUpdatesWithoutAction() {
         step("Given team owner is prepared via backend") {

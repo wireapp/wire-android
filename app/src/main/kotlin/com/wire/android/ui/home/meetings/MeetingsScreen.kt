@@ -20,30 +20,31 @@ package com.wire.android.ui.home.meetings
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.ramcosta.composedestinations.generated.meetings.destinations.NewMeetingScreenDestination
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
+import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.annotation.app.WireHomeDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
-import com.wire.android.navigation.NavigationCommand
 import com.wire.android.ui.calling.meetingsCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
-import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversations.call.HandleActions
 import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
 import com.wire.kalium.logic.data.conversation.Conversation
 
-@WireHomeDestination
+/**
+ * Navigation-neutral Meetings renderer used by the Navigation 3 Home shell.
+ */
 @Composable
-fun MeetingsScreen(
-    homeStateHolder: HomeStateHolder,
-    viewModel: MeetingsCallViewModel = meetingsCallViewModel()
+internal fun MeetingsScreen(
+    homeShellState: HomeShellState,
+    navigationActions: MeetingsHomeNavigationActions,
+    viewModel: MeetingsCallViewModel = meetingsCallViewModel(),
 ) {
     val context = LocalContext.current
     AllMeetingsScreen(
-        lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Meetings),
+        lazyListState = homeShellState.lazyListStateFor(HomeDestination.Meetings),
         contentPadding = PaddingValues(bottom = dimensions().spacing80x), // to ensure last item is not obscured by FAB
         startCall = { conversationId ->
             viewModel.callManager.startCallIfPossible(
@@ -64,21 +65,24 @@ fun MeetingsScreen(
                 )
             )
         },
+        editMeeting = { meetingId ->
+            navigationActions.openNewMeeting(NewMeetingType.Edit(meetingId))
+        },
     )
 
     viewModel.callManager.actions.HandleActions()
     viewModel.callManager.HandleJoinOrStartCallScreenDialogs()
 
     NewMeetingBottomSheet(
-        sheetState = homeStateHolder.newMeetingBottomSheetState,
+        sheetState = homeShellState.newMeetingBottomSheetState,
         onMeetNowClick = {
-            homeStateHolder.newMeetingBottomSheetState.hide {
-                homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.MeetNow)))
+            homeShellState.newMeetingBottomSheetState.hide {
+                navigationActions.openNewMeeting(NewMeetingType.MeetNow)
             }
         },
         onScheduleClick = {
-            homeStateHolder.newMeetingBottomSheetState.hide {
-                homeStateHolder.navigator.navigate(NavigationCommand(NewMeetingScreenDestination(NewMeetingType.Schedule)))
+            homeShellState.newMeetingBottomSheetState.hide {
+                navigationActions.openNewMeeting(NewMeetingType.Schedule)
             }
         }
     )

@@ -29,22 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.R
-import com.wire.android.feature.cells.ui.search.SearchNavArgs
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.ui.home.conversations.ConversationNavArgs
-import com.wire.android.ui.home.conversations.searchConversationMessagesViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -52,42 +42,20 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.common.R as commonR
 
-@WireRootDestination(
-    navArgs = SearchConversationMessagesNavArgs::class,
-    style = PopUpNavigationAnimation::class
-)
 @Composable
-fun SearchConversationMessagesScreen(
-    navigator: Navigator,
-    searchConversationMessagesViewModel: SearchConversationMessagesViewModel = searchConversationMessagesViewModel()
+internal fun SearchConversationMessagesRouteScreen(
+    viewModel: SearchConversationMessagesViewModel,
+    onMessageClick: (String) -> Unit,
+    onCloseSearchClicked: () -> Unit,
+    onSearchFilesButtonClick: () -> Unit,
 ) {
     SearchConversationMessagesResultContent(
-        isCellsConversation = searchConversationMessagesViewModel.isCellsConversation,
-        searchQueryTextState = searchConversationMessagesViewModel.searchQueryTextState,
-        state = searchConversationMessagesViewModel.searchConversationMessagesState,
-        onMessageClick = { messageId ->
-            navigator.navigate(
-                NavigationCommand(
-                    ConversationScreenDestination(
-                        navArgs = ConversationNavArgs(
-                            conversationId = searchConversationMessagesViewModel.searchConversationMessagesState.conversationId,
-                            searchedMessageId = messageId
-                        )
-                    ),
-                    BackStackMode.UPDATE_EXISTED
-                )
-            )
-        },
-        onCloseSearchClicked = navigator::navigateBack,
-        onSearchFilesButtonClick = {
-            navigator.navigate(
-                NavigationCommand(
-                    SearchScreenDestination(
-                        SearchNavArgs(conversationId = searchConversationMessagesViewModel.conversationId.toString())
-                    )
-                )
-            )
-        }
+        isCellsConversation = viewModel.isCellsConversation,
+        searchQueryTextState = viewModel.searchQueryTextState,
+        state = viewModel.searchConversationMessagesState,
+        onMessageClick = onMessageClick,
+        onCloseSearchClicked = onCloseSearchClicked,
+        onSearchFilesButtonClick = onSearchFilesButtonClick,
     )
 }
 

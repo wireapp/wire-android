@@ -20,43 +20,20 @@ package com.wire.android.ui.initialsync
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.lifecycleScope
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.getBaseRoute
-import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.common.SettingUpWireScreenContent
 import com.wire.android.ui.initialSyncViewModel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
-@WireRootDestination
 @Composable
-fun InitialSyncScreen(
-    navigator: Navigator,
-    viewModel: InitialSyncViewModel = initialSyncViewModel()
+internal fun InitialSyncRouteScreen(
+    viewModel: InitialSyncViewModel = initialSyncViewModel(),
+    onSyncCompleted: (shouldMoveToBackground: Boolean) -> Unit,
 ) {
-    val activity = LocalActivity.current
     val syncCompletionState = viewModel.syncCompletionState
 
     SettingUpWireScreenContent()
 
     LaunchedEffect(syncCompletionState) {
         syncCompletionState ?: return@LaunchedEffect
-
-        if (syncCompletionState.shouldMoveToBackground) {
-            activity.lifecycleScope.launch {
-                navigator.navController.currentBackStackEntryFlow
-                    .map { it.destination.route?.getBaseRoute() }
-                    .first { it == HomeScreenDestination.baseRoute }
-                activity.moveTaskToBack(false)
-            }
-        }
-
-        navigator.navigate(NavigationCommand(HomeScreenDestination, BackStackMode.CLEAR_WHOLE))
+        onSyncCompleted(syncCompletionState.shouldMoveToBackground)
     }
 }

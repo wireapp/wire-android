@@ -24,4 +24,5 @@ data class LoginSSOState(
     val loginEnabled: Boolean = false,
     val flowState: LoginState = LoginState.Default,
     val customServerDialogState: CustomServerDetailsDialogState? = null,
+    val showSsoIdentityChangedDialog: Boolean = false,
 )

@@ -57,6 +57,7 @@ fun AdditionalOptionsMenu(
     onRichOptionButtonClicked: (RichTextMarkdown) -> Unit,
     onDrawingModeClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    useKeyboardNavigation: Boolean = false,
     onOnSelfDeletingOptionClicked: ((SelfDeletionTimer) -> Unit)? = null,
     onGifOptionClicked: (() -> Unit)? = null
 ) {
@@ -86,7 +87,8 @@ fun AdditionalOptionsMenu(
                     onRichTextHeaderButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Header) },
                     onRichTextBoldButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Bold) },
                     onRichTextItalicButtonClicked = { onRichOptionButtonClicked(RichTextMarkdown.Italic) },
-                    onCloseRichTextEditingButtonClicked = onCloseRichEditingButtonClicked
+                    onCloseRichTextEditingButtonClicked = onCloseRichEditingButtonClicked,
+                    useKeyboardNavigation = useKeyboardNavigation,
                 )
             }
         }
@@ -109,6 +111,7 @@ fun AdditionalOptionSubMenu(
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     modifier: Modifier = Modifier,
+    useKeyboardNavigation: Boolean = false,
 ) {
     AttachmentOptionsComponent(
         modifier = modifier,
@@ -122,6 +125,7 @@ fun AdditionalOptionSubMenu(
         onRecordAudioMessageClicked = onRecordAudioMessageClicked,
         onLocationPickerClicked = onLocationPickerClicked,
         onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+        useKeyboardNavigation = useKeyboardNavigation,
     )
     when (additionalOptionsState) {
         AdditionalOptionSubMenuState.Default -> {}

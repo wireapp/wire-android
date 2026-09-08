@@ -30,8 +30,10 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.ClickBlockParams
+import com.wire.android.ui.common.button.WireButtonColors
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.button.wireSecondaryButtonColors
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -44,6 +46,7 @@ fun StartCallButton(
     onAudioPermissionPermanentlyDenied: () -> Unit,
     isCallingEnabled: Boolean,
     modifier: Modifier = Modifier,
+    colors: WireButtonColors = wireSecondaryButtonColors(),
 ) {
     val audioPermissionCheck = AudioPermissionCheckFlow(
         startCall = onPhoneButtonClick,
@@ -60,6 +63,7 @@ fun StartCallButton(
             )
         },
         state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
+        colors = colors,
         fillMaxWidth = false,
         minSize = dimensions().buttonSmallMinSize,
         minClickableSize = DpSize(

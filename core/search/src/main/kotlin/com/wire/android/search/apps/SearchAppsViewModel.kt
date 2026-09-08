@@ -37,6 +37,9 @@ import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
 import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -47,9 +50,12 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.search.SearchManualViewModelFactoryGroup
 
-class SearchAppsViewModel(
-    private val protocolInfo: Conversation.ProtocolInfo?,
+@WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)
+class SearchAppsViewModel @AssistedInject constructor(
+    @Assisted private val protocolInfo: Conversation.ProtocolInfo?,
     private val getAllServices: ObserveAllServicesUseCase,
     private val syncServices: SyncServicesUseCase,
     private val getAllApps: ObserveAllAppsUseCase,
@@ -59,6 +65,10 @@ class SearchAppsViewModel(
     private val isAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val observeSelfUser: ObserveSelfUserUseCase
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(protocolInfo: Conversation.ProtocolInfo?): SearchAppsViewModel
+    }
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     private var servicesSynced = false
     var state: SearchServicesState by mutableStateOf(SearchServicesState(isLoading = true))

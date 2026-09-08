@@ -73,6 +73,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onAssetClicked: (String) -> Unit,
     onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onAudioClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
@@ -121,6 +122,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onImageClick = onImageClickable,
                 onMultipartImageClick = onMultipartImageClickable,
                 onMultipartVideoClick = onVideoClicked,
+                onMultipartAudioClick = onAudioClicked,
                 onOpenProfile = onProfileClicked,
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
@@ -170,6 +172,7 @@ private fun MessageContent(
     onImageClick: Clickable,
     onMultipartImageClick: (String) -> Unit,
     onMultipartVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onMultipartAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
@@ -228,6 +231,11 @@ private fun MessageContent(
                         preview = preview,
                         isAvailable = !message.isPending && message.isAvailable,
                         messageStyle = messageStyle,
+                        modifier = Modifier.padding(
+                            start = dimensions().spacing10x,
+                            end = dimensions().spacing10x,
+                            top = dimensions().spacing10x
+                        ),
                         onClick = { onLinkClick(preview.url) }
                     )
                 }
@@ -272,6 +280,7 @@ private fun MessageContent(
                     }
                     if (!shouldHideMessageBody) {
                         MessageBody(
+                            conversationId = message.conversationId,
                             messageBody = messageContent.messageBody,
                             searchQuery = searchQuery,
                             isAvailable = !message.isPending && message.isAvailable,
@@ -316,6 +325,7 @@ private fun MessageContent(
                     VerticalSpace.x4()
                 }
                 MessageBody(
+                    conversationId = message.conversationId,
                     messageBody = messageContent.messageBody,
                     isAvailable = !message.isPending && message.isAvailable,
                     onOpenProfile = onOpenProfile,
@@ -438,6 +448,7 @@ private fun MessageContent(
                 }
                 if (messageContent.messageBody?.message?.asString()?.isNotEmpty() == true) {
                     MessageBody(
+                        conversationId = message.conversationId,
                         messageBody = messageContent.messageBody,
                         searchQuery = searchQuery,
                         isAvailable = !message.isPending && message.isAvailable,
@@ -456,6 +467,7 @@ private fun MessageContent(
                     messageStyle = messageStyle,
                     onImageAttachmentClick = onMultipartImageClick,
                     onVideoAttachmentClick = onMultipartVideoClick,
+                    onAudioAttachmentClick = onMultipartAudioClick,
                 )
             }
 

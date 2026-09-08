@@ -17,11 +17,7 @@
  */
 package com.wire.android.ui.userprofile.service
 
-import com.ramcosta.composedestinations.navargs.DestinationsNavTypeSerializer
-import com.ramcosta.composedestinations.navargs.NavTypeSerializer
-import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.VALUE_DOMAIN_SEPARATOR
 import com.wire.kalium.logic.data.service.ServiceId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.UserId
@@ -51,40 +47,5 @@ data class ServiceDetailsNavArgs(
             override val userId: UserId
                 get() = appId
         }
-    }
-}
-
-@NavTypeSerializer
-class ServiceDetailsIdNavTypeSerializer : DestinationsNavTypeSerializer<ServiceDetailsNavArgs.Id> {
-    override fun toRouteString(value: ServiceDetailsNavArgs.Id): String = when (value) {
-        is ServiceDetailsNavArgs.Id.AppId -> APP_PREFIX + value.appId.toString()
-        is ServiceDetailsNavArgs.Id.BotServiceId -> BOT_PREFIX + value.botService.toString()
-    }
-
-    override fun fromRouteString(routeStr: String): ServiceDetailsNavArgs.Id = when {
-        routeStr.startsWith(APP_PREFIX) -> {
-            routeStr.removePrefix(APP_PREFIX).split(VALUE_DOMAIN_SEPARATOR).takeIf {
-                it.size > 1
-            }?.let {
-                ServiceDetailsNavArgs.Id.AppId(UserId(it.first(), it.last()))
-            } ?: run {
-                ServiceDetailsNavArgs.Id.AppId(UserId(routeStr.removePrefix(APP_PREFIX), String.EMPTY))
-            }
-        }
-        routeStr.startsWith(BOT_PREFIX) -> {
-            routeStr.removePrefix(BOT_PREFIX).split(VALUE_DOMAIN_SEPARATOR).takeIf {
-                it.size > 1
-            }?.let {
-                ServiceDetailsNavArgs.Id.BotServiceId(BotService(it.first(), it.last()))
-            } ?: run {
-                ServiceDetailsNavArgs.Id.BotServiceId(BotService(routeStr.removePrefix(BOT_PREFIX), String.EMPTY))
-            }
-        }
-        else -> throw IllegalArgumentException("Invalid route string for ServiceDetailsNavArgs.Id: $routeStr")
-    }
-
-    private companion object {
-        const val BOT_PREFIX = "bot:"
-        const val APP_PREFIX = "app:"
     }
 }

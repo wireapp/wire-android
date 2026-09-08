@@ -18,21 +18,20 @@
 
 package com.wire.android.ui.userprofile.other
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.ui.userprofile.toUserProfileQualifiedId
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
+import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsReadyUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -51,9 +50,6 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 
 internal class OtherUserProfileViewModelArrangement {
-
-    @MockK
-    lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
     lateinit var getOneToOneConversation: GetOneToOneConversationDetailsUseCase
@@ -86,7 +82,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase
 
     @MockK
-    lateinit var isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase
+    lateinit var checkOneToOneConversationIsReady: CheckOneToOneConversationIsReadyUseCase
 
     @MockK
     lateinit var mlsClientIdentity: GetMLSClientIdentityUseCase
@@ -96,6 +92,11 @@ internal class OtherUserProfileViewModelArrangement {
 
     @MockK
     lateinit var isE2EIEnabled: IsE2EIEnabledUseCase
+
+    private var navigationArgs = OtherUserProfileViewModelArgs(
+        targetUserId = USER_ID.toUserProfileQualifiedId(),
+        groupConversationId = CONVERSATION_ID.toUserProfileQualifiedId(),
+    )
 
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
@@ -108,21 +109,16 @@ internal class OtherUserProfileViewModelArrangement {
             observeClientList,
             fetchUsersClientsFromRemote,
             getUserE2eiCertificateStatus,
-            isOneToOneConversationCreated,
+            checkOneToOneConversationIsReady,
             mlsClientIdentity,
             isE2EIEnabled,
-            savedStateHandle,
+            navigationArgs,
         )
     }
 
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-
-        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
-            groupConversationId = CONVERSATION_ID,
-            userId = USER_ID
-        )
 
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())
@@ -140,7 +136,9 @@ internal class OtherUserProfileViewModelArrangement {
         )
         coEvery { getUserE2eiCertificateStatus.invoke(any()) } returns true
         coEvery { mlsClientIdentity.invoke(any()) } returns GetMLSClientIdentityResult.Success(mlsIdentity)
-        coEvery { isOneToOneConversationCreated.invoke(any()) } returns true
+        coEvery { checkOneToOneConversationIsReady.invoke(any()) } returns CheckOneToOneConversationIsReadyUseCase.Result.Ready(
+            OtherUserProfileScreenViewModelTest.CONVERSATION
+        )
         coEvery { isE2EIEnabled.invoke() } returns true
     }
 
@@ -149,9 +147,9 @@ internal class OtherUserProfileViewModelArrangement {
     }
 
     fun withConversationIdInSavedState(conversationId: ConversationId?) = apply {
-        every { savedStateHandle.navArgs<OtherUserProfileNavArgs>() } returns OtherUserProfileNavArgs(
-            userId = USER_ID,
-            groupConversationId = conversationId
+        navigationArgs = OtherUserProfileViewModelArgs(
+            targetUserId = USER_ID.toUserProfileQualifiedId(),
+            groupConversationId = conversationId?.toUserProfileQualifiedId(),
         )
     }
 
@@ -161,6 +159,10 @@ internal class OtherUserProfileViewModelArrangement {
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {
         coEvery { observeUserInfo(any()) } returns flowOf(result)
+    }
+
+    fun withConversationReadiness(result: CheckOneToOneConversationIsReadyUseCase.Result) = apply {
+        coEvery { checkOneToOneConversationIsReady(any()) } returns result
     }
 
     fun arrange() = this to viewModel

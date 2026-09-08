@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.create.folder
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.kalium.cells.domain.usecase.create.CreateFolderUseCase
 import com.wire.kalium.common.error.CoreFailure
@@ -25,7 +24,6 @@ import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -139,21 +137,17 @@ class CreateFolderViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var createFolderUseCase: CreateFolderUseCase
 
         private val testUuid = "test-uuid"
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>("uuid") } returns testUuid
         }
 
         private val viewModel by lazy {
             CreateFolderViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = CreateFolderScreenNavArgs(testUuid),
                 createFolderUseCase = createFolderUseCase,
             )
         }

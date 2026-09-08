@@ -5,12 +5,6 @@
 //   ./gradlew :sketch:stabilityDump
 
 @Composable
-public fun com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination.Content(): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-
-@Composable
 private fun com.wire.android.feature.sketch.CanvasLayout(state: com.wire.android.feature.sketch.model.DrawingState, onStartDrawingEvent: kotlin.Function0<kotlin.Unit>, onDrawEvent: kotlin.Function0<kotlin.Unit>, onStopDrawingEvent: kotlin.Function0<kotlin.Unit>, onSizeChanged: kotlin.Function1<androidx.compose.ui.geometry.Size, kotlin.Unit>, onStartDrawing: kotlin.Function1<androidx.compose.ui.geometry.Offset, kotlin.Unit>, onDraw: kotlin.Function1<androidx.compose.ui.geometry.Offset, kotlin.Unit>, onStopDrawing: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -68,12 +62,14 @@ internal fun com.wire.android.feature.sketch.DrawingCanvasContent(state: com.wir
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.feature.sketch.DrawingCanvasScreen(drawingCanvasNavArgs: com.wire.android.feature.sketch.model.DrawingCanvasNavArgs, resultNavigator: com.ramcosta.composedestinations.result.ResultBackNavigator<com.wire.android.feature.sketch.model.DrawingCanvasNavBackArgs>, viewModel: com.wire.android.feature.sketch.DrawingCanvasViewModel): kotlin.Unit
+internal fun com.wire.android.feature.sketch.DrawingCanvasRouteScreen(conversationName: kotlin.String, tempWritableUri: android.net.Uri?, onDismiss: kotlin.Function0<kotlin.Unit>, onSketchSaved: kotlin.Function1<android.net.Uri, kotlin.Unit>, viewModel: com.wire.android.feature.sketch.DrawingCanvasViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
-    - drawingCanvasNavArgs: RUNTIME (requires runtime check)
-    - resultNavigator: STABLE (marked @Stable or @Immutable)
+    - conversationName: STABLE (String is immutable)
+    - tempWritableUri: RUNTIME (requires runtime check)
+    - onDismiss: STABLE (function type)
+    - onSketchSaved: STABLE (function type)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable

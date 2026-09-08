@@ -25,6 +25,7 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
@@ -37,9 +38,12 @@ import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.LogoutCallbackManager
 import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -167,6 +171,123 @@ class GlobalObserversManagerTest {
     }
 
     @Test
+    fun `given app visible and valid session, when app opens, then retry sending pending messages`() {
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            .withAppVisibleFlow(true)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id) }
+    }
+
+    @Test
+    fun `given app visible, valid session, and not connected, when app opens, then do not retry sending pending messages`() {
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            .withNetworkState(NetworkState.NotConnected)
+            .withAppVisibleFlow(true)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+    }
+
+    @Test
+    fun `given app visible, valid session, and connected without internet, when app opens, then do not retry sending pending messages`() {
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            .withNetworkState(NetworkState.ConnectedWithoutInternet)
+            .withAppVisibleFlow(true)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+    }
+
+    @Test
+    fun `given app not visible and valid session, when observing app open, then do not retry sending pending messages`() {
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            .withAppVisibleFlow(false)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+    }
+
+    @Test
+    fun `given app visible and invalid session, when app opens, then do not retry sending pending messages`() {
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Invalid(TestUser.SELF_USER.id, LogoutReason.DELETED_ACCOUNT)))
+            .withAppVisibleFlow(true)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+    }
+
+    @Test
+    fun `given app visible and no session, when app opens, then do not retry sending pending messages`() {
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
+            .withAppVisibleFlow(true)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+    }
+
+    @Test
+    fun `given app visible and session failure, when app opens, then do not retry sending pending messages`() {
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Failure.Generic(CoreFailure.Unknown(RuntimeException("error"))))
+            .withAppVisibleFlow(true)
+            .arrange()
+
+        manager.observe()
+
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+    }
+
+    @Test
+    fun `given valid session when app becomes visible then retry sending pending messages`() {
+        val appVisibleFlow = MutableStateFlow(false)
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            .withAppVisibleFlow(appVisibleFlow)
+            .arrange()
+
+        manager.observe()
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+
+        appVisibleFlow.value = true
+
+        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id) }
+    }
+
+    @Test
+    fun `given pending messages disabled when app becomes visible then never retry sending pending messages`() {
+        val appVisibleFlow = MutableStateFlow(false)
+        val (arrangement, manager) = Arrangement()
+            .withPendingMessagesDisabled()
+            .withCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            .withAppVisibleFlow(appVisibleFlow)
+            .arrange()
+
+        manager.observe()
+        appVisibleFlow.value = true
+
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+    }
+
+    @Test
     fun `given app visible and session failure, when handling ephemeral messages, then do not call deleteEphemeralMessageEndDate`() {
         val (arrangement, manager) = Arrangement()
             .withCurrentSessionFlow(CurrentSessionResult.Failure.Generic(CoreFailure.Unknown(RuntimeException("error"))))
@@ -253,6 +374,14 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var messageScope: MessageScope
 
+        @MockK
+        lateinit var sendPendingMessagesAfterForegroundSync: SendPendingMessagesAfterForegroundSyncUseCase
+
+        @MockK
+        lateinit var networkStateObserver: NetworkStateObserver
+
+        private var pendingMessagesEnabled = true
+
         private val manager by lazy {
             GlobalObserversManager(
                 dispatcherProvider = TestDispatcherProvider(),
@@ -261,6 +390,9 @@ class GlobalObserversManagerTest {
                 notificationManager = notificationManager,
                 userDataStoreProvider = userDataStoreProvider,
                 currentScreenManager = currentScreenManager,
+                sendPendingMessagesAfterForegroundSync = sendPendingMessagesAfterForegroundSync,
+                networkStateObserver = networkStateObserver,
+                kaliumConfigs = KaliumConfigs(pendingMessages = pendingMessagesEnabled),
             )
         }
 
@@ -278,10 +410,13 @@ class GlobalObserversManagerTest {
             every { userSessionScope.calls } returns callsScope
             every { userSessionScope.messages } returns messageScope
             coEvery { messageScope.deleteEphemeralMessageEndDate() } returns Unit
+            coEvery { sendPendingMessagesAfterForegroundSync(any()) } returns Unit
             withPersistentWebSocketConnectionStatuses(emptyList())
             withValidAccounts(emptyList())
             withCurrentSessionFlow(CurrentSessionResult.Failure.SessionNotFound)
+            withCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
             withAppVisibleFlow(true)
+            withNetworkState(NetworkState.ConnectedWithInternet)
         }
 
         fun withValidAccounts(list: List<Pair<SelfUser, Team?>>): Arrangement = apply {
@@ -301,8 +436,24 @@ class GlobalObserversManagerTest {
             coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns flowOf(result)
         }
 
+        fun withCurrentSession(result: CurrentSessionResult): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().session.currentSession() } returns result
+        }
+
+        fun withNetworkState(state: NetworkState): Arrangement = apply {
+            every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(state)
+        }
+
         fun withAppVisibleFlow(isVisible: Boolean) = apply {
-            coEvery { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(isVisible)
+            withAppVisibleFlow(MutableStateFlow(isVisible))
+        }
+
+        fun withAppVisibleFlow(flow: MutableStateFlow<Boolean>) = apply {
+            coEvery { currentScreenManager.isAppVisibleFlow() } returns flow
+        }
+
+        fun withPendingMessagesDisabled() = apply {
+            pendingMessagesEnabled = false
         }
 
         fun arrange() = this to manager

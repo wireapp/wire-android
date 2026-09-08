@@ -55,16 +55,22 @@ sealed class DeepLinkResult {
 
     data class OpenConversation(
         val conversationId: ConversationId,
-        val switchedAccount: Boolean = false
+        val switchedAccount: Boolean = false,
+        val targetSessionId: QualifiedID? = null,
     ) : DeepLinkResult()
 
-    data class OpenOtherUserProfile(val userId: QualifiedID, val switchedAccount: Boolean = false) : DeepLinkResult()
+    data class OpenOtherUserProfile(
+        val userId: QualifiedID,
+        val switchedAccount: Boolean = false,
+        val targetSessionId: QualifiedID? = null,
+    ) : DeepLinkResult()
 
     data class JoinConversation(
         val code: String,
         val key: String,
         val domain: String?,
-        val switchedAccount: Boolean = false
+        val switchedAccount: Boolean = false,
+        val targetSessionId: QualifiedID? = null,
     ) : DeepLinkResult()
 
     data class MigrationLogin(val userHandle: String) : DeepLinkResult()
@@ -109,12 +115,19 @@ class DeepLinkProcessor @Inject constructor(
                 return when (val switchStatus = switchAccountIfNeeded(uri, accountInfo)) {
                     SwitchAccountStatus.Switched,
                     SwitchAccountStatus.NoNeeded -> {
+                        val targetSessionId = if (switchStatus == SwitchAccountStatus.Switched) {
+                            uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)
+                                ?.toQualifiedID(qualifiedIdMapper)
+                        } else {
+                            null
+                        }
                         var deepLinkResult = handleNotAuthorizedDeepLinks(uri)
                         if (deepLinkResult == DeepLinkResult.AuthorizationNeeded) {
                             deepLinkResult = handleAuthorizedDeepLinks(
                                 uri = uri,
                                 accountInfo = accountInfo,
-                                switchedAccount = switchStatus == SwitchAccountStatus.Switched
+                                switchedAccount = switchStatus == SwitchAccountStatus.Switched,
+                                targetSessionId = targetSessionId,
                             )
                         }
                         deepLinkResult
@@ -136,12 +149,21 @@ class DeepLinkProcessor @Inject constructor(
         }
     }
 
-    private fun handleAuthorizedDeepLinks(uri: Uri, accountInfo: AccountInfo.Valid, switchedAccount: Boolean): DeepLinkResult {
+    private fun handleAuthorizedDeepLinks(
+        uri: Uri,
+        accountInfo: AccountInfo.Valid,
+        switchedAccount: Boolean,
+        targetSessionId: QualifiedID?,
+    ): DeepLinkResult {
         return when (uri.host) {
-            CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri, switchedAccount)
-            OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri, switchedAccount)
-            JOIN_CONVERSATION_DEEPLINK_HOST -> getJoinConversationDeepLinkResult(uri, switchedAccount)
-            OPEN_USER_PROFILE_DEEPLINK_HOST -> getConnectingUserProfile(uri, switchedAccount, accountInfo)
+            CONVERSATION_DEEPLINK_HOST ->
+                getOpenConversationDeepLinkResult(uri, switchedAccount, targetSessionId)
+            OTHER_USER_PROFILE_DEEPLINK_HOST ->
+                getOpenOtherUserProfileDeepLinkResult(uri, switchedAccount, targetSessionId)
+            JOIN_CONVERSATION_DEEPLINK_HOST ->
+                getJoinConversationDeepLinkResult(uri, switchedAccount, targetSessionId)
+            OPEN_USER_PROFILE_DEEPLINK_HOST ->
+                getConnectingUserProfile(uri, switchedAccount, targetSessionId, accountInfo)
             else -> DeepLinkResult.Unknown
         }
     }
@@ -149,10 +171,21 @@ class DeepLinkProcessor @Inject constructor(
     /**
      * Format of deeplink to parse: wire://user/domain/user-id
      */
-    private fun getConnectingUserProfile(uri: Uri, switchedAccount: Boolean, accountInfo: AccountInfo.Valid): DeepLinkResult {
-        return when (val result = UserLinkQRMapper.fromDeepLinkToQualifiedId(uri, accountInfo.userId.domain)) {
+    private fun getConnectingUserProfile(
+        uri: Uri,
+        switchedAccount: Boolean,
+        targetSessionId: QualifiedID?,
+        accountInfo: AccountInfo.Valid,
+    ): DeepLinkResult {
+        val sessionDomain = targetSessionId?.domain ?: accountInfo.userId.domain
+        return when (val result = UserLinkQRMapper.fromDeepLinkToQualifiedId(uri, sessionDomain)) {
             is UserLinkQRMapper.UserLinkQRResult.Failure -> DeepLinkResult.Unknown
-            is UserLinkQRMapper.UserLinkQRResult.Success -> DeepLinkResult.OpenOtherUserProfile(result.qualifiedUserId, switchedAccount)
+            is UserLinkQRMapper.UserLinkQRResult.Success ->
+                DeepLinkResult.OpenOtherUserProfile(
+                    result.qualifiedUserId,
+                    switchedAccount,
+                    targetSessionId,
+                )
         }
     }
 
@@ -181,18 +214,20 @@ class DeepLinkProcessor @Inject constructor(
 
     private fun getOpenConversationDeepLinkResult(
         uri: Uri,
-        switchedAccount: Boolean
+        switchedAccount: Boolean,
+        targetSessionId: QualifiedID?,
     ): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let { conversationId ->
-            DeepLinkResult.OpenConversation(conversationId, switchedAccount)
+            DeepLinkResult.OpenConversation(conversationId, switchedAccount, targetSessionId)
         } ?: DeepLinkResult.Unknown
 
     private fun getOpenOtherUserProfileDeepLinkResult(
         uri: Uri,
-        switchedAccount: Boolean
+        switchedAccount: Boolean,
+        targetSessionId: QualifiedID?,
     ): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
-            DeepLinkResult.OpenOtherUserProfile(it, switchedAccount)
+            DeepLinkResult.OpenOtherUserProfile(it, switchedAccount, targetSessionId)
         } ?: DeepLinkResult.Unknown
 
     private fun getOpenMigrationLoginDeepLinkResult(uri: Uri): DeepLinkResult =
@@ -228,12 +263,16 @@ class DeepLinkProcessor @Inject constructor(
         }
     }
 
-    private fun getJoinConversationDeepLinkResult(uri: Uri, switchedAccount: Boolean): DeepLinkResult {
+    private fun getJoinConversationDeepLinkResult(
+        uri: Uri,
+        switchedAccount: Boolean,
+        targetSessionId: QualifiedID?,
+    ): DeepLinkResult {
         val code = uri.getQueryParameter(JOIN_CONVERSATION_CODE_PARAM)
         val key = uri.getQueryParameter(JOIN_CONVERSATION_KEY_PARAM)
         val domain = uri.getQueryParameter(JOIN_CONVERSATION_DOMAIN_PARAM)
         if (code == null || key == null) return DeepLinkResult.Unknown
-        return DeepLinkResult.JoinConversation(code, key, domain, switchedAccount)
+        return DeepLinkResult.JoinConversation(code, key, domain, switchedAccount, targetSessionId)
     }
 
     companion object {

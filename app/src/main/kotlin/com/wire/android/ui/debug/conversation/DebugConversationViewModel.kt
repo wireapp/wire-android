@@ -17,11 +17,9 @@
  */
 package com.wire.android.ui.debug.conversation
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.ui.common.ActionsViewModel
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -29,6 +27,9 @@ import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import com.wire.kalium.logic.feature.debug.DebugFeedConfig
 import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
 import com.wire.kalium.logic.feature.debug.DebugFeedResult
@@ -38,18 +39,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.debug.DebugInfoManualViewModelFactoryGroup
 
-class DebugConversationViewModel(
+@WireAssistedViewModelBinding(DebugInfoManualViewModelFactoryGroup::class)
+class DebugConversationViewModel @AssistedInject constructor(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val resetMLSConversation: ResetMLSConversationUseCase,
     private val fetchConversation: FetchConversationUseCase,
     private val feedConversation: DebugFeedConversationUseCase,
     private val getConversationEpochFromCC: GetConversationEpochFromCCUseCase,
     private val migrateConversationToMLSUseCase: MigrateConversationToMLSUseCase,
-    savedStateHandle: SavedStateHandle,
+    @Assisted val args: DebugConversationScreenNavArgs,
 ) : ActionsViewModel<DebugConversationScreenAction>() {
 
-    val args: DebugConversationScreenNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(args: DebugConversationScreenNavArgs): DebugConversationViewModel
+    }
 
     val conversationId = args.conversationId
 

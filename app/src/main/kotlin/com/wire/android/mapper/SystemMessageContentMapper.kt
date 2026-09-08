@@ -23,7 +23,6 @@ import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.util.formatFullDateShortTime
-import com.wire.android.util.orDefault
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
@@ -37,7 +36,6 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.util.DateTimeUtil.toIsoDateTimeString
 import kotlinx.datetime.Instant
 import java.util.Locale
 import dev.zacsweers.metro.Inject
@@ -78,6 +76,9 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.NewConversationWithCellSelfDeleteDisabledMessage ->
             UIMessageContent.SystemMessage.NewConversationWithCellSelfDeleteDisabled
 
+        is MessageContent.CellEditorAccessMessage -> UIMessageContent.SystemMessage.CellsConversationEditorAccess
+        is MessageContent.CellViewerAccessMessage -> UIMessageContent.SystemMessage.CellsConversationViewerAccess
+
         is MessageContent.ConversationAppsEnabledChanged -> mapConversationConversationAppsAccessChanged(
             message.senderUserId,
             content,
@@ -108,11 +109,10 @@ class SystemMessageContentMapper @Inject constructor(
             user = sender,
             type = SelfNameType.ResourceTitleCase
         )
-        val dateString = date.toIsoDateTimeString()
         return UIMessageContent.SystemMessage.ConversationMessageCreated(
             author = authorName,
             isAuthorSelfUser = sender is SelfUser,
-            dateString.formatFullDateShortTime().orDefault(dateString).uppercase(Locale.getDefault())
+            date.formatFullDateShortTime().uppercase(Locale.getDefault())
         )
     }
 

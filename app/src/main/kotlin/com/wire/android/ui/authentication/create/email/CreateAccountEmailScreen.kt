@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.create.email
 
-import com.wire.android.navigation.annotation.app.WireCreateTeamAccountDestination
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -50,11 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.wire.android.ui.authentication.createAccountEmailViewModel
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -71,8 +66,6 @@ import com.wire.android.ui.common.textfield.DefaultEmailDone
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -83,31 +76,20 @@ import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@WireCreateTeamAccountDestination(navArgs = CreateAccountNavArgs::class)
 @Composable
-fun CreateAccountEmailScreen(
-    navigator: Navigator,
-    createAccountEmailViewModel: CreateAccountEmailViewModel = createAccountEmailViewModel()
+internal fun CreateAccountEmailRouteScreen(
+    viewModel: CreateAccountEmailViewModel,
+    onNavigateBack: () -> Unit,
+    onLogin: () -> Unit,
+    onDetailsRequested: (CreateAccountNavArgs) -> Unit,
 ) {
-    with(createAccountEmailViewModel) {
-        fun navigateToDetailsScreen() = navigator.navigate(
-            NavigationCommand(
-                CreateAccountDetailsScreenDestination(
-                    navArgs = createAccountNavArgs.copy(
-                        userRegistrationInfo = UserRegistrationInfo(
-                            email = emailTextState.text.trim().toString().lowercase()
-                        )
-                    )
-                )
-            )
-        )
-
+    with(viewModel) {
         EmailContent(
             state = emailState,
             emailTextState = emailTextState,
-            onBackPressed = navigator::navigateBack,
+            onBackPressed = onNavigateBack,
             onContinuePressed = ::onEmailContinue,
-            onLoginPressed = { navigator.navigate(NavigationCommand(LoginScreenDestination(), BackStackMode.CLEAR_TILL_START)) },
+            onLoginPressed = onLogin,
             onTermsDialogDismiss = ::onTermsDialogDismiss,
             onTermsAccept = ::onTermsAccept,
             onErrorDismiss = ::onEmailErrorDismiss,
@@ -116,7 +98,15 @@ fun CreateAccountEmailScreen(
         )
 
         LaunchedEffect(emailState.success) {
-            if (emailState.success) navigateToDetailsScreen()
+            if (emailState.success) {
+                onDetailsRequested(
+                    createAccountNavArgs.copy(
+                        userRegistrationInfo = UserRegistrationInfo(
+                            email = emailTextState.text.trim().toString().lowercase()
+                        )
+                    )
+                )
+            }
         }
     }
 }

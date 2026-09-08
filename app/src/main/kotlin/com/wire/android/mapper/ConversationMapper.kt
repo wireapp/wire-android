@@ -72,7 +72,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isArchived = conversationDetails.conversation.archived,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow || hasJoinableCall,
+            hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder
         )
@@ -98,7 +98,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isArchived = conversationDetails.conversation.archived,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow || hasJoinableCall,
+            hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
             isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE
@@ -106,6 +106,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
     }
 
     is OneOne -> {
+        val hasJoinableCall = joinableCallsByConversationId.containsKey(conversationDetails.conversation.id)
         PrivateConversation(
             userAvatarData = UserAvatarData(
                 asset = conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) },
@@ -137,7 +138,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isArchived = conversationDetails.conversation.archived,
             mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow,
+            hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
+            hasOnGoingCall = hasJoinableCall,
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder
         )
@@ -181,6 +183,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
 
 private fun Group.hasJoinableCall(joinableCallsByConversationId: Map<ConversationId, Call>): Boolean =
     joinableCallsByConversationId.containsKey(conversation.id) && isSelfUserMember
+
+private fun Boolean.withJoinableCall(hasJoinableCall: Boolean): Boolean = this || hasJoinableCall
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) {

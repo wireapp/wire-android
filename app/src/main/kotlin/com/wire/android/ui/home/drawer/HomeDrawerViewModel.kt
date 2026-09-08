@@ -21,17 +21,17 @@ package com.wire.android.ui.home.drawer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
+import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -39,14 +39,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
-class HomeDrawerViewModel(
-    val savedStateHandle: SavedStateHandle,
+class HomeDrawerViewModel @Inject constructor(
     private val observeArchivedUnreadConversationsCount: Lazy<ObserveArchivedUnreadConversationsCountUseCase>,
     private val observeSelfUser: ObserveSelfUserUseCase,
     private val getTeamUrl: GetTeamUrlUseCase,
-    private val isWireCellsEnabled: IsWireCellsEnabledUseCase
+    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    private val observeIsWireMeetingsEnabled: ObserveIsMeetingsEnabledUseCase,
 ) : ViewModel() {
-
     var drawerState by mutableStateOf(HomeDrawerState())
         private set
 
@@ -68,16 +67,16 @@ class HomeDrawerViewModel(
         viewModelScope.launch {
             combine(
                 flowOf(isWireCellsEnabled()),
-
+                observeIsWireMeetingsEnabled(),
                 observeArchivedUnreadConversationsCount.value.invoke(),
                 observeTeamManagementUrlForUser(),
-            ) { wireCellsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
+            ) { wireCellsEnabled, wireMeetingsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
                 buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
                     if (wireCellsEnabled) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
                     }
-                    if (BuildConfig.MEETINGS_ENABLED) {
+                    if (wireMeetingsEnabled) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Meetings))
                     }
                     add(

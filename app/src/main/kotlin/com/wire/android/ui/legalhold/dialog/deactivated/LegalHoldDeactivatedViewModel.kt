@@ -17,6 +17,9 @@
  */
 package com.wire.android.ui.legalhold.dialog.deactivated
 
+import com.wire.android.di.KaliumCoreLogic
+import dev.zacsweers.metro.Inject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -37,8 +40,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
-class LegalHoldDeactivatedViewModel(
-    private val coreLogic: Lazy<CoreLogic>
+class LegalHoldDeactivatedViewModel @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>
 ) : ViewModel() {
 
     var state: LegalHoldDeactivatedState by mutableStateOf(LegalHoldDeactivatedState.Hidden)

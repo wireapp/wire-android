@@ -22,16 +22,19 @@ package com.wire.android.ui.home.conversations
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.ViewModel
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModel
-import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.composer.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.media.ConversationAssetMessagesViewModel
+import com.wire.android.ui.home.conversations.media.ConversationMediaNavArgs
 import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewViewModel
+import com.wire.android.ui.home.conversations.media.preview.ImagesPreviewNavArgs
 import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsViewModel
+import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsNavArgs
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModel
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
@@ -43,36 +46,72 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.Multi
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.MultipartAttachmentsViewModelImpl
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryViewModel
+import com.wire.android.ui.home.gallery.MediaGalleryNavArgs
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface ConversationCoreManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModelImpl
-}
+@WireAssistedViewModelFactoryGroup
+object ConversationCoreManualViewModelFactoryGroup
 
 @Composable
 fun conversationMessagesViewModel(): ConversationMessagesViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun conversationMessagesViewModel(args: ConversationNavArgs): ConversationMessagesViewModel =
+    wireAssistedMetroViewModel<ConversationMessagesViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        conversationMessagesViewModel(args)
+    }
+
+@Composable
 fun messageComposerViewModel(): MessageComposerViewModel =
     conversationCoreViewModel()
+
+@Composable
+fun messageComposerViewModel(args: ConversationNavArgs): MessageComposerViewModel =
+    wireAssistedMetroViewModel<MessageComposerViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        messageComposerViewModel(args)
+    }
 
 @Composable
 fun sendMessageViewModel(): SendMessageViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun sendMessageViewModel(args: ConversationNavArgs): SendMessageViewModel =
+    wireAssistedMetroViewModel<SendMessageViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        sendMessageViewModel(args)
+    }
+
+@Composable
 fun messageDraftViewModel(): MessageDraftViewModel =
     conversationCoreViewModel()
+
+@Composable
+fun messageDraftViewModel(args: ConversationNavArgs): MessageDraftViewModel =
+    wireAssistedMetroViewModel<MessageDraftViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        messageDraftViewModel(args)
+    }
 
 @Composable
 fun messageAttachmentsViewModel(): MessageAttachmentsViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun messageAttachmentsViewModel(args: ConversationNavArgs): MessageAttachmentsViewModel =
+    wireAssistedMetroViewModel<MessageAttachmentsViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        messageAttachmentsViewModel(args)
+    }
+
+@Composable
 fun conversationMigrationViewModel(): ConversationMigrationViewModel =
     conversationCoreViewModel()
+
+@Composable
+fun conversationMigrationViewModel(args: ConversationNavArgs): ConversationMigrationViewModel =
+    wireAssistedMetroViewModel<ConversationMigrationViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        conversationMigrationViewModel(args)
+    }
 
 @Composable
 fun conversationAssetPathsViewModel(conversationKey: String): ConversationAssetPathsViewModel = when {
@@ -85,6 +124,12 @@ fun mediaGalleryViewModel(): MediaGalleryViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun mediaGalleryViewModel(args: MediaGalleryNavArgs): MediaGalleryViewModel =
+    wireAssistedMetroViewModel<MediaGalleryViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        mediaGalleryViewModel(args)
+    }
+
+@Composable
 fun locationPickerViewModel(): LocationPickerViewModel =
     conversationCoreViewModel()
 
@@ -93,12 +138,30 @@ fun conversationAssetMessagesViewModel(): ConversationAssetMessagesViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun conversationAssetMessagesViewModel(args: ConversationMediaNavArgs): ConversationAssetMessagesViewModel =
+    wireAssistedMetroViewModel<ConversationAssetMessagesViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        conversationAssetMessagesViewModel(args)
+    }
+
+@Composable
 fun imagesPreviewViewModel(): ImagesPreviewViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun imagesPreviewViewModel(args: ImagesPreviewNavArgs): ImagesPreviewViewModel =
+    wireAssistedMetroViewModel<ImagesPreviewViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        imagesPreviewViewModel(args)
+    }
+
+@Composable
 fun messageDetailsViewModel(): MessageDetailsViewModel =
     conversationCoreViewModel()
+
+@Composable
+fun messageDetailsViewModel(args: MessageDetailsNavArgs): MessageDetailsViewModel =
+    wireAssistedMetroViewModel<MessageDetailsViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        messageDetailsViewModel(args)
+    }
 
 @Composable
 fun quotedMultipartMessageViewModel(conversationKey: String): QuotedMultipartMessageViewModel =
@@ -109,14 +172,26 @@ fun conversationBannerViewModel(): ConversationBannerViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun conversationBannerViewModel(args: ConversationNavArgs): ConversationBannerViewModel =
+    wireAssistedMetroViewModel<ConversationBannerViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        conversationBannerViewModel(args)
+    }
+
+@Composable
 fun conversationInfoViewModel(): ConversationInfoViewModel =
     conversationCoreViewModel()
 
 @Composable
+fun conversationInfoViewModel(args: ConversationNavArgs): ConversationInfoViewModel =
+    wireAssistedMetroViewModel<ConversationInfoViewModel, ConversationCoreManualViewModelFactory> { _ ->
+        conversationInfoViewModel(args)
+    }
+
+@Composable
 fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAttachmentsViewModel =
-    sessionKeyedAssistedMetroViewModel<MultipartAttachmentsViewModelImpl, ConversationCoreManualViewModelFactory>(
-        key = conversationId.value,
-    ) {
+    wireAssistedMetroViewModel<MultipartAttachmentsViewModelImpl, ConversationCoreManualViewModelFactory>(
+        instanceKey = conversationId.value,
+    ) { _ ->
         multipartAttachmentsViewModel(conversationId)
     }
 
@@ -124,4 +199,4 @@ fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAtta
 private inline fun <reified VM> conversationCoreViewModel(
     key: String? = null,
 ): VM where VM : ViewModel =
-    sessionKeyedMetroViewModel(key)
+    wireMetroViewModel(instanceKey = key)

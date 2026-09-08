@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.whatsnew
 
-import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
@@ -30,12 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.AndroidReleaseNotesDestination
-import com.wire.android.navigation.ExternalUriDirection
-import com.wire.android.navigation.WelcomeToNewAndroidAppDestination
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.RowItemTemplate
@@ -103,7 +98,6 @@ fun WhatsNewItem(
 }
 
 sealed class WhatsNewItem(
-    val direction: Direction,
     open val id: String,
     open val title: UIText,
     open val boldTitle: Boolean = false,
@@ -112,7 +106,6 @@ sealed class WhatsNewItem(
     data object WelcomeToNewAndroidApp : WhatsNewItem(
         id = "welcome_to_new_android_app",
         title = UIText.StringResource(R.string.whats_new_welcome_to_new_android_app_label),
-        direction = WelcomeToNewAndroidAppDestination
     )
 
     data class AllAndroidReleaseNotes(
@@ -120,7 +113,6 @@ sealed class WhatsNewItem(
     ) : WhatsNewItem(
         id = id,
         title = UIText.StringResource(R.string.whats_new_android_release_notes_label),
-        direction = AndroidReleaseNotesDestination
     )
 
     data class AndroidReleaseNotes(
@@ -134,10 +126,6 @@ sealed class WhatsNewItem(
         title = title,
         boldTitle = boldTitle,
         text = text,
-        direction = object : ExternalUriDirection {
-            override val uri: Uri
-                get() = Uri.parse(url)
-        }
     )
 }
 

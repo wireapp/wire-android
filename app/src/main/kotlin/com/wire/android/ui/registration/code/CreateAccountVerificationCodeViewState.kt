@@ -35,7 +35,7 @@ data class CreateAccountVerificationCodeViewState(
 
 sealed interface CreateAccountCodeResult {
     data object None : CreateAccountCodeResult
-    data object Success : CreateAccountCodeResult
+    data class Success(val userId: UserId) : CreateAccountCodeResult
     sealed class Error : CreateAccountCodeResult {
         sealed class TextFieldError : Error() {
             data object InvalidActivationCodeError : TextFieldError()

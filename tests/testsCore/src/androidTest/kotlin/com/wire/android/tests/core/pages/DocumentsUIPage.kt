@@ -17,14 +17,20 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.StaleObjectException
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import java.util.regex.Pattern
 import kotlin.time.Duration.Companion.milliseconds
 
 data class DocumentsUIPage(private val device: UiDevice) {
     private val sendButton = UiSelectorParams(text = "Send")
+    private val addButton = UiSelectorParams(textContains = "Add")
+    private val doneButton = UiSelectorParams(textContains = "Done")
+    private val imagePreview = UiSelectorParams(className = "android.widget.ImageView")
+    private val mediaGrid = UiSelectorParams(description = "Media grid")
     private val downloadsOption = UiSelectorParams(textContains = "Download")
     private val showRootsButton = UiSelectorParams(description = "Show roots")
 
@@ -64,6 +70,40 @@ data class DocumentsUIPage(private val device: UiDevice) {
     fun iOpenDisplayedQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {
         val qrCodeImage = UiSelectorParams(text = fileName)
         UiWaitUtils.waitElement(qrCodeImage).click()
+        return this
+    }
+
+    fun selectFileInDocumentsUI(fileName: String): DocumentsUIPage {
+        iSeeQrCodeImage(fileName)
+        iOpenDisplayedQrCodeImage(fileName)
+        return this
+    }
+
+    fun selectMostRecentImageInPhotoPicker(): DocumentsUIPage {
+        val grid = UiWaitUtils.waitElement(mediaGrid)
+        val image = grid.findObject(By.desc(Pattern.compile("Photo taken on.*")))
+            ?: throw AssertionError("No image was visible in the photo picker.")
+        image.parent.click()
+        return this
+    }
+
+    fun tapAddOrDoneButtonIfVisible(): DocumentsUIPage {
+        UiWaitUtils.waitAnyVisible(
+            selectors = listOf(addButton, doneButton),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )?.click()
+        return this
+    }
+
+    fun assertImagePreviewPageVisible(): DocumentsUIPage {
+        UiWaitUtils.waitElement(imagePreview)
+        UiWaitUtils.waitElement(sendButton)
+        return this
+    }
+
+    fun assertFilePreviewPageVisible(fileName: String): DocumentsUIPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName))
+        UiWaitUtils.waitElement(sendButton)
         return this
     }
 

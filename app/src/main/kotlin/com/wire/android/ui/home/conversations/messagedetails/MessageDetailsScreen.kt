@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.messagedetails
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
@@ -45,9 +44,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.messageDetailsViewModel
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
@@ -62,14 +58,10 @@ import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.launch
 
-@WireRootDestination(
-    navArgs = MessageDetailsNavArgs::class,
-    style = PopUpNavigationAnimation::class,
-)
 @Composable
-fun MessageDetailsScreen(
-    navigator: Navigator,
-    viewModel: MessageDetailsViewModel = messageDetailsViewModel()
+internal fun MessageDetailsRouteScreen(
+    viewModel: MessageDetailsViewModel,
+    onNavigateBack: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -95,7 +87,7 @@ fun MessageDetailsScreen(
 
     MessageDetailsScreenContent(
         messageDetailsState = viewModel.messageDetailsState,
-        onBackPressed = navigator::navigateBack,
+        onBackPressed = onNavigateBack,
         onReactionsLearnMore = onReactionsLearnMore,
         onReadReceiptsLearnMore = onReadReceiptsLearnMore
     )

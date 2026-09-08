@@ -18,9 +18,11 @@
 package com.wire.android.ui.authentication.login.sso
 
 import com.wire.android.appLogger
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountTokens
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -31,6 +33,15 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase.Companion.SSO_CODE_WIRE_PREFIX
+import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import kotlinx.coroutines.CancellationException
+
+sealed interface ReplaceRetainedSsoSessionResult {
+    data class Success(val userId: UserId) : ReplaceRetainedSsoSessionResult
+    data class Failure(
+        val cause: AddAuthenticatedUserUseCase.Result.Failure
+    ) : ReplaceRetainedSsoSessionResult
+}
 
 class LoginSSOViewModelExtension(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
@@ -95,6 +106,10 @@ class LoginSSOViewModelExtension(
         onSSOLoginFailure: (SSOLoginSessionResult.Failure) -> Unit,
         onAddAuthenticatedUserFailure: (AddAuthenticatedUserUseCase.Result.Failure) -> Unit,
         onSuccess: suspend (UserId) -> Unit,
+        onSsoIdentityChanged: suspend (StoreSessionParam) -> Unit = {
+            onAddAuthenticatedUserFailure(AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged)
+        },
+        ssoIdentityProviderId: String? = null,
     ) {
         val authScope = when (val result = coreLogic.authenticationScopeForConfigId(serverConfigId)) {
             is AutoVersionAuthScopeUseCase.Result.Success -> {
@@ -116,25 +131,59 @@ class LoginSSOViewModelExtension(
             is SSOLoginSessionResult.Success -> ssoLoginResult
         }
 
+        val session = StoreSessionParam(
+            accountTokens = ssoLoginSuccess.accountTokens.withCookieLabelIfMissing(consumeCookieLabel()),
+            ssoId = ssoLoginSuccess.ssoId,
+            serverConfigId = serverConfigId,
+            proxyCredentials = ssoLoginSuccess.proxyCredentials,
+            managedBy = ssoLoginSuccess.managedBy,
+            isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+            nomadServiceUrl = consumeNomadServiceUrl(),
+            ssoIdentityProviderId = ssoIdentityProviderId,
+        )
         val authenticatedUserResult = addAuthenticatedUser(
-            StoreSessionParam(
-                accountTokens = ssoLoginSuccess.accountTokens.withCookieLabelIfMissing(consumeCookieLabel()),
-                ssoId = ssoLoginSuccess.ssoId,
-                serverConfigId = serverConfigId,
-                proxyCredentials = ssoLoginSuccess.proxyCredentials,
-                managedBy = ssoLoginSuccess.managedBy,
-                isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
-                nomadServiceUrl = consumeNomadServiceUrl(),
-            ),
+            session,
             replace = false
         )
 
         when (authenticatedUserResult) {
+            AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> onSsoIdentityChanged(session)
             is AddAuthenticatedUserUseCase.Result.Failure -> onAddAuthenticatedUserFailure(authenticatedUserResult)
             is AddAuthenticatedUserUseCase.Result.Success -> onSuccess(authenticatedUserResult.userId)
         }
     }
+
+    @Suppress("TooGenericExceptionCaught")
+    suspend fun replaceRetainedSsoSession(session: StoreSessionParam): ReplaceRetainedSsoSessionResult =
+        try {
+            val userId = session.accountTokens.userId
+            coreLogic.getSessionScope(userId).logout(
+                reason = LogoutReason.SELF_HARD_LOGOUT,
+                waitUntilCompletes = true
+            )
+
+            when (val deleteResult = coreLogic.getGlobalScope().deleteSession(userId)) {
+                is DeleteSessionUseCase.Result.Failure ->
+                    ReplaceRetainedSsoSessionResult.Failure(
+                        AddAuthenticatedUserUseCase.Result.Failure.Generic(deleteResult.cause)
+                    )
+                DeleteSessionUseCase.Result.Success ->
+                    addAuthenticatedUser(session, replace = false).toReplaceRetainedSsoSessionResult()
+            }
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            ReplaceRetainedSsoSessionResult.Failure(
+                AddAuthenticatedUserUseCase.Result.Failure.Generic(CoreFailure.Unknown(exception))
+            )
+        }
 }
+
+private fun AddAuthenticatedUserUseCase.Result.toReplaceRetainedSsoSessionResult(): ReplaceRetainedSsoSessionResult =
+    when (this) {
+        is AddAuthenticatedUserUseCase.Result.Failure -> ReplaceRetainedSsoSessionResult.Failure(this)
+        is AddAuthenticatedUserUseCase.Result.Success -> ReplaceRetainedSsoSessionResult.Success(userId)
+    }
 
 private fun AccountTokens.withCookieLabelIfMissing(cookieLabel: String?): AccountTokens =
     if (this.cookieLabel != null || cookieLabel == null) {

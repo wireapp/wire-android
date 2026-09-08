@@ -21,28 +21,34 @@ package com.wire.android.ui.home.conversations.search.adddembertoconversation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.model.Contact
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
 
-class AddMembersToConversationViewModel(
+@WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class)
+class AddMembersToConversationViewModel @AssistedInject constructor(
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle
+    @Assisted private val addMembersSearchNavArgs: AddMembersSearchNavArgs,
 ) : ViewModel() {
-
-    private val addMembersSearchNavArgs: AddMembersSearchNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(addMembersSearchNavArgs: AddMembersSearchNavArgs): AddMembersToConversationViewModel
+    }
 
     var newGroupState: AddMembersToConversationState by mutableStateOf(AddMembersToConversationState())
         private set

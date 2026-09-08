@@ -207,7 +207,7 @@ class DeepLinkProcessorTest {
         val conversationResult = deepLinkProcessor(arrangement.uri)
         assertInstanceOf(DeepLinkResult.OpenConversation::class.java, conversationResult)
         assertEquals(
-            DeepLinkResult.OpenConversation(CONVERSATION_ID, true),
+            DeepLinkResult.OpenConversation(CONVERSATION_ID, true, OTHER_USER_ID),
             conversationResult
         )
     }
@@ -236,7 +236,7 @@ class DeepLinkProcessorTest {
         val conversationResult = deepLinkProcessor(arrangement.uri)
         assertInstanceOf(DeepLinkResult.OpenOtherUserProfile::class.java, conversationResult)
         assertEquals(
-            DeepLinkResult.OpenOtherUserProfile(OTHER_USER_ID, true),
+            DeepLinkResult.OpenOtherUserProfile(OTHER_USER_ID, true, OTHER_USER_ID),
             conversationResult
         )
     }

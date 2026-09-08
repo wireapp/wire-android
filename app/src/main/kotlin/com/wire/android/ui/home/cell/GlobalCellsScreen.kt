@@ -20,22 +20,21 @@ package com.wire.android.ui.home.cell
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import com.wire.android.feature.cells.ui.AllFilesScreen
+import com.wire.android.feature.cells.ui.AllFilesNavigationActions
 import com.wire.android.feature.cells.ui.CellViewModel
-import com.wire.android.navigation.annotation.app.WireHomeDestination
-import com.wire.android.ui.home.HomeStateHolder
 
-// Forwarding is intentional: CellViewModel is scoped to HomeScreen's back stack entry
-// (via dependenciesContainerBuilder in HomeScreen) so that AllFilesScreen and SearchScreen
-// share the same ViewModel instance across navigation.
+/**
+ * Navigation-neutral Global Cells renderer. [viewModel] is owned by the Home Navigation 3 entry,
+ * preserving the existing sharing contract without looking up a Nav2 parent back-stack entry.
+ */
 @SuppressLint("ComposeViewModelForwarding")
-@WireHomeDestination
 @Composable
-fun GlobalCellsScreen(
-    homeStateHolder: HomeStateHolder,
+internal fun GlobalCellsScreen(
+    navigationActions: AllFilesNavigationActions,
     viewModel: CellViewModel,
 ) {
     AllFilesScreen(
-        navigator = homeStateHolder.navigator,
+        navigationActions = navigationActions,
         viewModel = viewModel,
     )
 }

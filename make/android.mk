@@ -1,26 +1,10 @@
-# Staging apk
-STAGING_APK_PATH = $(wildcard app/build/outputs/apk/staging/debug/com.*.apk)
-
 # Get user id for sample work profile
 WORK_PROFILE = $(shell adb shell pm list users | grep "Managed Profile")
 WORK_PROFILE_ID = $(shell echo "$(WORK_PROFILE)" | awk -F'[:{}]' '{print $$2}')
 
-.PHONY: assemble/staging-debug install/staging-debug emm/install/staging-debug
 .PHONY: lint style unit-tests unit-tests/build-logic unit-tests/source ui-tests
 .PHONY: build-dev build-prod-apk build-prod-bundle build-prod
 .PHONY: compose-stability screenshots-verify screenshots-update baseline-profile
-
-assemble/staging-debug:
-	@printf "🔧️$(PURPLE)Assembling staging debug build...$(NC)\n"
-	$(GRADLE) assembleStagingDebug
-
-install/staging-debug:
-	@printf "🚀$(PURPLE)Installing staging debug build on connected device...$(NC)\n"
-	adb install -r $(STAGING_APK_PATH)
-
-emm/install/staging-debug:
-	@printf "🚀$(PURPLE)Installing staging debug build on connected device on work-profile...$(NC)\n"
-	adb install --user $(WORK_PROFILE_ID) -r $(STAGING_APK_PATH)
 
 lint:
 	$(GRADLE) lint --no-daemon --no-configuration-cache -Pskip.aboutlibraries=true

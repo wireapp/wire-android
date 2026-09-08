@@ -24,4 +24,11 @@ plugins {
 }
 dependencies {
     implementation(libs.ksp.symbol.processing.api)
+    testImplementation(libs.junit5.core)
+    testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.0")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

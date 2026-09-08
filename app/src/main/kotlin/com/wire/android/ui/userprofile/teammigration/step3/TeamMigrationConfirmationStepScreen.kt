@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.teammigration.step3
 
-import com.wire.android.navigation.annotation.app.WirePersonalToTeamMigrationDestination
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -41,23 +40,16 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationDoneStepScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.TeamMigrationTeamPlanStepScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationState
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
-import com.wire.android.ui.userprofile.teammigration.step1.TeamMigrationTeamPlanNavArgs
 import com.wire.android.ui.userprofile.teammigration.common.BottomLineButtons
 import com.wire.android.ui.userprofile.teammigration.common.BulletList
 import com.wire.android.ui.userprofile.teammigration.common.TeamMigrationContainer
@@ -65,41 +57,31 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamFailure
 
-@WirePersonalToTeamMigrationDestination(
-    style = AuthSlideNavigationAnimation::class
-)
 @Composable
-fun TeamMigrationConfirmationStepScreen(
-    navigator: Navigator,
-    teamMigrationViewModel: TeamMigrationViewModel
+internal fun TeamMigrationConfirmationRouteScreen(
+    teamMigrationViewModel: TeamMigrationViewModel,
+    onMigrationCompleted: () -> Unit,
+    onBackButtonClicked: () -> Unit,
+    onReturnToFirstStep: (isMigrationDotActive: Boolean) -> Unit,
 ) {
     val state = teamMigrationViewModel.teamMigrationState
 
     LaunchedEffect(state.migrationCompleted) {
         if (state.migrationCompleted) {
-            navigator.navigate(NavigationCommand(TeamMigrationDoneStepScreenDestination, BackStackMode.REMOVE_CURRENT_NESTED_GRAPH))
+            onMigrationCompleted()
         }
     }
 
     TeamMigrationConfirmationStepScreenContent(
         isMigrating = state.isMigrating,
         onContinueButtonClicked = teamMigrationViewModel::migrateFromPersonalToTeamAccount,
-        onBackButtonClicked = navigator::navigateBack,
+        onBackButtonClicked = onBackButtonClicked,
     )
 
     HandleErrors(
         teamMigrationState = state,
         onFailureHandled = teamMigrationViewModel::failureHandled,
-        goBackToFirstStep = {
-            navigator.navigate(
-                NavigationCommand(
-                    TeamMigrationTeamPlanStepScreenDestination(
-                        TeamMigrationTeamPlanNavArgs(state.isMigrationDotActive)
-                    ),
-                    BackStackMode.UPDATE_EXISTED
-                )
-            )
-        }
+        goBackToFirstStep = { onReturnToFirstStep(state.isMigrationDotActive) },
     )
 
     LaunchedEffect(Unit) {

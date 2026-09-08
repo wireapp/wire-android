@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.qr
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
@@ -57,13 +56,10 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.wire.android.ui.home.settings.selfQRCodeViewModel
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
 import com.wire.android.R
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -77,23 +73,19 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
-@WireRootDestination(
-    style = SlideNavigationAnimation::class,
-    navArgs = SelfQrCodeNavArgs::class
-)
 @Composable
-fun SelfQRCodeScreen(
-    navigator: Navigator,
-    viewModel: SelfQRCodeViewModel = selfQRCodeViewModel()
+internal fun SelfQRCodeScreen(
+    viewModel: SelfQRCodeViewModel,
+    onNavigateBack: () -> Unit,
 ) {
     if (viewModel.selfQRCodeState.hasError) {
-        navigator.navigateBack()
+        onNavigateBack()
     }
     SelfQRCodeContent(
         viewModel.selfQRCodeState,
         viewModel::shareQRAsset,
         viewModel::trackAnalyticsEvent,
-        navigator::navigateBack
+        onNavigateBack
     )
 }
 

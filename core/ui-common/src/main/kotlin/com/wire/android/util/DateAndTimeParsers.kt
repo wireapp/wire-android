@@ -15,46 +15,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-@file:Suppress("TooGenericExceptionCaught")
-
 package com.wire.android.util
 
 import androidx.compose.runtime.Stable
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
-import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Date
 import java.util.Locale
 
-//region convenience ext functions, for retro compatibility, soon to be deprecated
-@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-@Stable
-fun String.serverDate(): Date? = DateAndTimeParsers.serverDate(this)
-
-@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-@Stable
-fun String.deviceDateTimeFormat(): String? = DateAndTimeParsers.deviceDateTimeFormat(this)
-
-@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-@Stable
-fun String.formatMediumDateTime(): String? = DateAndTimeParsers.formatMediumDateTime(this)
-
-@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-@Stable
-fun String.formatFullDateShortTime(): String? = DateAndTimeParsers.formatFullDateShortTime(this)
-
-@Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-@Stable
-fun String.uiMessageDateTime(): String? = DateAndTimeParsers.uiMessageDateTime(this)
-//endregion
-
 //region convenience ext functions
 @Stable
 fun Date.toMediumOnlyDateTime(): String = DateAndTimeParsers.toMediumOnlyDateTime(this)
+
+@Stable
+fun Instant.deviceDateTimeFormat(): String = DateAndTimeParsers.deviceDateTimeFormat(this)
+
+@Stable
+fun Instant.formatMediumDateTime(): String = DateAndTimeParsers.formatMediumDateTime(this)
+
+@Stable
+fun Instant.formatFullDateShortTime(): String = DateAndTimeParsers.formatFullDateShortTime(this)
+
+@Stable
+fun Instant.uiMessageDateTime(): String = DateAndTimeParsers.uiMessageDateTime(this)
 
 @Stable
 fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
@@ -82,8 +68,6 @@ class DateAndTimeParsers private constructor() {
 
     @Suppress("TooManyFunctions")
     companion object {
-        private val dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.of("UTC"))
-
         private val longDateShortTimeFormat =
             java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.LONG, java.text.DateFormat.SHORT, Locale.getDefault()).apply {
                 this.timeZone = java.util.TimeZone.getDefault()
@@ -116,37 +100,12 @@ class DateAndTimeParsers private constructor() {
         private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
 
-        @Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-        fun serverDate(stringDate: String): Date? {
-            return try {
-                Date(LocalDateTime.parse(stringDate, dateTimeFormatter).toInstant(ZoneOffset.UTC).toEpochMilli())
-            } catch (e: Exception) {
-                null
-            }
-        }
+        fun deviceDateTimeFormat(instant: Instant): String =
+            longDateShortTimeFormat.format(Date.from(instant.toJavaInstant()))
 
-        @Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-        fun deviceDateTimeFormat(stringDate: String): String? = try {
-            longDateShortTimeFormat.format(Date.from(java.time.Instant.parse(stringDate)))
-        } catch (e: Exception) {
-            null
-        }
+        fun formatMediumDateTime(instant: Instant): String = mediumDateTimeFormat.format(instant.toJavaInstant())
 
-        @Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-        fun formatMediumDateTime(stringDate: String): String? =
-            try {
-                stringDate.serverDate()?.let { mediumDateTimeFormat.format(it.toInstant()) }
-            } catch (e: Exception) {
-                null
-            }
-
-        @Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-        fun formatFullDateShortTime(stringDate: String): String? =
-            try {
-                stringDate.serverDate()?.let { fullDateShortTimeFormatter.format(it.toInstant()) }
-            } catch (e: Exception) {
-                null
-            }
+        fun formatFullDateShortTime(instant: Instant): String = fullDateShortTimeFormatter.format(instant.toJavaInstant())
 
         fun cellTimeFormat(instant: Instant): String {
             val timeFormatter = java.text.DateFormat.getTimeInstance(
@@ -182,13 +141,8 @@ class DateAndTimeParsers private constructor() {
 
         fun toMediumOnlyDateTime(date: Date): String = mediumOnlyDateTimeFormat.format(date.toInstant())
 
-        @Deprecated("Date String parsing is discouraged and will be removed soon for direct Instant/DateTime versions")
-        fun uiMessageDateTime(stringDate: String): String? =
-            try {
-                messageTimeFormatter.format(Date.from(java.time.Instant.parse(stringDate)))
-            } catch (e: Exception) {
-                null
-            }
+        fun uiMessageDateTime(instant: Instant): String =
+            messageTimeFormatter.format(Date.from(instant.toJavaInstant()))
 
         fun audioMessageTime(timeMs: Long): String = audioMessageTimeFormat.format(java.time.Instant.ofEpochMilli(timeMs))
 

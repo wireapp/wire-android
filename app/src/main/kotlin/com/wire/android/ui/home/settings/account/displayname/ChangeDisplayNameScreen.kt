@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.settings.account.displayname
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -41,12 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.ui.home.settings.changeDisplayNameViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.model.DisplayNameState
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.animation.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState.Default
@@ -67,25 +62,20 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireRootDestination(
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
-)
 @Composable
-fun ChangeDisplayNameScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: ChangeDisplayNameViewModel = changeDisplayNameViewModel()
+internal fun ChangeDisplayNameRouteScreen(
+    viewModel: ChangeDisplayNameViewModel,
+    onBackPressed: () -> Unit,
+    onCompleted: (Boolean) -> Unit,
 ) {
     with(viewModel) {
         LaunchedEffect(viewModel.displayNameState.completed) {
             when (viewModel.displayNameState.completed) {
                 DisplayNameState.Completed.Success -> {
-                    resultNavigator.setResult(true)
-                    resultNavigator.navigateBack()
+                    onCompleted(true)
                 }
                 DisplayNameState.Completed.Failure -> {
-                    resultNavigator.setResult(false)
-                    resultNavigator.navigateBack()
+                    onCompleted(false)
                 }
                 DisplayNameState.Completed.None -> Unit // No action needed
             }
@@ -94,7 +84,7 @@ fun ChangeDisplayNameScreen(
             textState = viewModel.textState,
             state = viewModel.displayNameState,
             onContinuePressed = ::saveDisplayName,
-            onBackPressed = navigator::navigateBack
+            onBackPressed = onBackPressed
         )
     }
 }

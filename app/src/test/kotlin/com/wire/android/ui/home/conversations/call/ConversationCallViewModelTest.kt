@@ -17,11 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.call
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestConversationDetails
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
@@ -60,7 +57,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class ConversationCallViewModelTest {
 
     @Test
@@ -153,9 +150,6 @@ class ConversationCallViewModelTest {
 
     private class Arrangement {
         @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         private lateinit var observeJoinableCalls: ObserveJoinableCallsUseCase
 
         @MockK
@@ -196,7 +190,6 @@ class ConversationCallViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<ConversationNavArgs>() } returns ConversationNavArgs(conversationId = conversationId)
             coEvery { observeEstablishedCalls.invoke() } returns emptyFlow()
             coEvery { observeJoinableCalls.invoke() } returns emptyFlow()
             coEvery { observeConversationDetails(any()) } returns flowOf()
@@ -228,7 +221,7 @@ class ConversationCallViewModelTest {
         }
 
         fun arrange(): Pair<Arrangement, ConversationCallViewModel> = this to ConversationCallViewModel(
-            savedStateHandle = savedStateHandle,
+            navigationArgs = ConversationNavArgs(conversationId),
             observeJoinableCalls = observeJoinableCalls,
             observeEstablishedCalls = observeEstablishedCalls,
             answerCall = joinCall,

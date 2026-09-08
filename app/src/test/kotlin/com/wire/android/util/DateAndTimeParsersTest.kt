@@ -18,94 +18,60 @@
 
 package com.wire.android.util
 
-import kotlinx.datetime.toKotlinInstant
+import kotlinx.datetime.Instant
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
 class DateAndTimeParsersTest {
 
-    @Nested
-    @DisplayName("DateAndTimeParser Should")
-    inner class DateAndTimeParsers {
-        @Test
-        fun `return null when an invalid date`() {
-            val result = "NOT_VALID".deviceDateTimeFormat()
-            assertEquals(null, result)
-        }
+    @Test
+    fun givenInstant_whenDeviceDateTimeIsFormatted_thenReturnLongDateAndShortTime() {
+        val result = TEST_INSTANT.deviceDateTimeFormat()
 
-        @Test
-        fun `return a medium format date, when a valid date`() {
-            val result = "2022-03-24T18:02:30.360Z".deviceDateTimeFormat()
-            assertEquals("March 24, 2022, 6:02 PM", result?.replace('\u202f', ' '))
-        }
-
-        @Test
-        fun `return a medium format, when formatMediumDateTime is called`() {
-            val result = "2022-03-24T18:02:30.360Z".formatMediumDateTime()
-            assertEquals("Mar 24, 2022, 6:02:30 PM", result?.replace('\u202f', ' '))
-        }
+        assertEquals("March 24, 2022, 6:02 PM", result.normalizeSpaces())
     }
 
-    @Nested
-    @DisplayName("DateAndTimeParser for retro compatibility Should")
-    inner class DateTimeFormatters {
+    @Test
+    fun givenInstant_whenMediumDateTimeIsFormatted_thenReturnMediumDateAndTime() {
+        val result = TEST_INSTANT.formatMediumDateTime()
 
-        private val baseDateString = "2020-01-20T07:00:00.000Z"
-        private val baseDate = Date(
-            Calendar.getInstance(
-                TimeZone.getTimeZone("UTC")
-            ).apply {
-                set(2020, 0, 20, 7, 0, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.timeInMillis
-        )
-        private val baseInstant = baseDate.toInstant().toKotlinInstant()
-
-        @Test
-        fun `return the same serverDate format result, when calling with new LocalDateTime format`() {
-            assertEquals(serverDateOld(baseDateString), baseDateString.serverDate())
-        }
-
-        @Test
-        fun `return the same deviceDate format result, when calling with new DateTimeFormatter format`() {
-            assertEquals(baseDateString.deviceDateTimeFormat(), baseDateString.deviceDateTimeFormatOld())
-        }
-
-        @Test
-        fun `return the same mediumDateTime format result, when calling with new DateTimeFormatter format`() {
-            assertEquals(baseDateString.formatMediumDateTime(), baseDateString.formatMediumDateTimeOld())
-        }
-
-        @Test
-        fun `return the same fullDateShortTime format result, when calling with new DateTimeFormatter format`() {
-            assertEquals(baseDateString.formatFullDateShortTime(), baseDateString.formatFullDateShortTimeOld())
-        }
-
-        @Test
-        fun `return the same fileDateTime format result, when calling with new DateTimeFormatter format`() {
-            assertEquals(baseInstant.fileDateTime(), baseInstant.fileDateTimeOld())
-        }
-
-        @Test
-        fun `return the same readReceiptDateTime format result, when calling instant with new DateTimeFormatter format`() {
-            assertEquals(baseInstant.uiReadReceiptDateTime(), baseInstant.uiReadReceiptDateTimeOld())
-        }
-
-        @Test
-        fun `return the same MessageDateTime format result, when calling date with new DateTimeFormatter format`() {
-            assertEquals(baseDateString.uiMessageDateTime(), baseDateString.uiMessageDateTimeOld())
-        }
+        assertEquals("Mar 24, 2022, 6:02:30 PM", result.normalizeSpaces())
     }
+
+    @Test
+    fun givenInstant_whenFullDateShortTimeIsFormatted_thenReturnFullDateAndShortTime() {
+        val result = TEST_INSTANT.formatFullDateShortTime()
+
+        assertEquals("Thursday, March 24, 2022, 6:02 PM", result.normalizeSpaces())
+    }
+
+    @Test
+    fun givenInstant_whenMessageTimeIsFormatted_thenReturnShortTime() {
+        val result = TEST_INSTANT.uiMessageDateTime()
+
+        assertEquals("6:02 PM", result.normalizeSpaces())
+    }
+
+    @Test
+    fun givenInstant_whenFileDateTimeIsFormatted_thenReturnFileSafeTimestamp() {
+        assertEquals("2022-03-24-06-02-30", TEST_INSTANT.fileDateTime())
+    }
+
+    @Test
+    fun givenInstant_whenReadReceiptDateTimeIsFormatted_thenReturnReadReceiptTimestamp() {
+        val result = TEST_INSTANT.uiReadReceiptDateTime()
+
+        assertEquals("Mar 24 2022,  06:02 PM", result.normalizeSpaces())
+    }
+
+    private fun String.normalizeSpaces(): String = replace('\u202f', ' ')
 
     companion object {
+        private val TEST_INSTANT = Instant.parse("2022-03-24T18:02:30.360Z")
         private var systemDefaultLocale: Locale? = null
         private var systemDefaultTimeZone: TimeZone? = null
 

@@ -21,10 +21,9 @@ package com.wire.android.ui.home.conversations.call
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
+import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -42,15 +41,20 @@ import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNot
 import com.wire.kalium.logic.feature.conversation.SetUserInformedAboutVerificationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ConversationCallViewModel(
-    val savedStateHandle: SavedStateHandle,
-    currentAccount: UserId,
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
+class ConversationCallViewModel @AssistedInject constructor(
+    @CurrentAccount currentAccount: UserId,
     private val observeJoinableCalls: ObserveJoinableCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
@@ -62,8 +66,14 @@ class ConversationCallViewModel(
     private val setUserInformedAboutVerification: SetUserInformedAboutVerificationUseCase,
     private val observeDegradedConversationNotified: ObserveDegradedConversationNotifiedUseCase,
     private val observeConferenceCallingEnabled: ObserveConferenceCallingEnabledUseCase,
-    private val observeSelf: ObserveSelfUserUseCase
+    private val observeSelf: ObserveSelfUserUseCase,
+    @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: ConversationNavArgs): ConversationCallViewModel
+    }
     val callManager = JoinOrStartCallManager(
         scope = viewModelScope,
         currentAccount = currentAccount,
@@ -78,7 +88,7 @@ class ConversationCallViewModel(
         observeSelf = observeSelf,
     )
 
-    private val conversationNavArgs: ConversationNavArgs = savedStateHandle.navArgs()
+    private val conversationNavArgs = navigationArgs
     val conversationId: QualifiedID = conversationNavArgs.conversationId
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
         private set

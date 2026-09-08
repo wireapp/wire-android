@@ -17,9 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.publiclink.settings.expiration
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkExpirationScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.datetime.TimePickerResult
@@ -29,6 +27,9 @@ import com.wire.android.util.uiLinkExpirationTime
 import com.wire.kalium.cells.domain.usecase.publiclink.SetPublicLinkExpirationUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -41,12 +42,15 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
-internal class PublicLinkExpirationScreenViewModel(
+internal class PublicLinkExpirationScreenViewModel @AssistedInject constructor(
     val setExpiration: SetPublicLinkExpirationUseCase,
-    val savedStateHandle: SavedStateHandle,
+    @Assisted private val navArgs: PublicLinkExpirationScreenNavArgs,
 ) : ActionsViewModel<PublicLinkExpirationScreenAction>() {
 
-    private val navArgs: PublicLinkExpirationScreenNavArgs = PublicLinkExpirationScreenDestination.argsFrom(savedStateHandle)
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: PublicLinkExpirationScreenNavArgs): PublicLinkExpirationScreenViewModel
+    }
 
     var isExpirationSet: Boolean = navArgs.expiresAt != null
         private set

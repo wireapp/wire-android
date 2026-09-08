@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.joinConversation
 
+import dev.zacsweers.metro.Inject
+
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
@@ -30,7 +32,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
-class JoinConversationViaCodeViewModel(
+class JoinConversationViaCodeViewModel @Inject constructor(
     private val joinViaCode: JoinConversationViaCodeUseCase
 ) : ViewModel() {
 

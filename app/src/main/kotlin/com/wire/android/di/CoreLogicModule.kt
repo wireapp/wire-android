@@ -62,7 +62,6 @@ import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
@@ -78,6 +77,7 @@ import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
+import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import com.wire.kalium.logic.feature.user.migration.MigrateFromPersonalToTeamUseCase
@@ -93,8 +93,6 @@ import com.wire.kalium.logic.util.RandomPassword
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.runBlocking
 import dev.zacsweers.metro.Qualifier
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
@@ -110,18 +108,6 @@ annotation class NoSession
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class DefaultWebSocketEnabledByDefault
-
-@SingleIn(AppScope::class)
-class LastKnownCurrentAccount @Inject constructor() {
-    @Volatile
-    private var userId: UserId? = null
-
-    fun update(userId: UserId) {
-        this.userId = userId
-    }
-
-    fun get(): UserId? = userId
-}
 
 @BindingContainer
 class CoreLogicModule {
@@ -199,26 +185,6 @@ class CoreLogicModule {
 
 @BindingContainer
 class SessionModule {
-    // TODO: remove this fallback once root/auth ViewModel graphs no longer include session ViewModel bindings.
-
-    @CurrentAccount
-    @Provides
-    fun provideCurrentSession(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        lastKnownCurrentAccount: LastKnownCurrentAccount,
-    ): UserId {
-        return runBlocking {
-            return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
-                is CurrentSessionResult.Success -> result.accountInfo.userId.also(lastKnownCurrentAccount::update)
-                else -> {
-                    // During logout, Compose may still dispose/move old session content and ask the root factory for
-                    // account-scoped dependencies after Kalium has already cleared the current session.
-                    lastKnownCurrentAccount.get() ?: throw IllegalStateException("no current session was found")
-                }
-            }
-        }
-    }
-
     @Provides
     fun provideCurrentAccountUserDataStore(
         @CurrentAccount currentAccount: UserId,
@@ -535,4 +501,10 @@ class UseCaseModule {
 
     @Provides
     fun provideGenerateRandomPasswordUseCase(): RandomPassword = RandomPassword()
+
+    @Provides
+    fun provideObserveIsMeetingsEnabledUse(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveIsMeetingsEnabledUseCase = coreLogic.getSessionScope(currentAccount).observeIsMeetingsEnabled
 }

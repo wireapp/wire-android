@@ -44,21 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.R
 import com.wire.android.ui.authentication.loginEmailViewModel
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireLoginDestination
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.authentication.BackendConfigSuccessContent
 import com.wire.android.ui.authentication.MissingBackendConfigContent
 import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.email.LoginEmailState
 import com.wire.android.ui.authentication.login.email.LoginEmailVerificationCodeScreen
@@ -83,38 +74,21 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
-@WireLoginDestination(
-    start = true,
-    navArgs = LoginNavArgs::class
-)
+/**
+ * Navigation-neutral adapter used by the Navigation 3 host.
+ */
 @Composable
-fun LoginScreen(
-    navigator: Navigator,
+internal fun LoginRouteScreen(
     loginNavArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = loginEmailViewModel(loginNavArgs)
+    loginEmailViewModel: LoginEmailViewModel,
+    onBackPressed: () -> Unit,
+    onSuccess: (initialSyncCompleted: Boolean, isE2EIRequired: Boolean, userId: UserId) -> Unit,
+    onRemoveDeviceNeeded: (UserId) -> Unit,
 ) {
-
     LoginContent(
-        onBackPressed = navigator::navigateBack,
-        onSuccess = { initialSyncCompleted, isE2EIRequired, userId ->
-            val destination = if (isE2EIRequired) {
-                E2EIEnrollmentScreenDestination(SessionBackedAuthenticationNavArgs.from(userId))
-            } else if (initialSyncCompleted) {
-                HomeScreenDestination
-            } else {
-                InitialSyncScreenDestination
-            }
-
-            navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
-        },
-        onRemoveDeviceNeeded = { userId ->
-            navigator.navigate(
-                NavigationCommand(
-                    RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(userId)),
-                    BackStackMode.CLEAR_WHOLE,
-                )
-            )
-        },
+        onBackPressed = onBackPressed,
+        onSuccess = onSuccess,
+        onRemoveDeviceNeeded = onRemoveDeviceNeeded,
         loginNavArgs = loginNavArgs,
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult,
@@ -133,11 +107,6 @@ private fun LoginContent(
     ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        /*
-         TODO: we can change it to be a nested navigation graph when Compose Destinations 2.0 is released,
-               right now it's not possible to make start destination for nested graph with mandatory arguments.
-               More on that here: https://github.com/raamcosta/compose-destinations/issues/185
-         */
         AnimatedContent(
             targetState = loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary,
             transitionSpec = {

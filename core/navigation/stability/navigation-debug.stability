@@ -5,31 +5,85 @@
 //   ./gradlew :navigation:stabilityDump
 
 @Composable
-public fun com.wire.android.navigation.PreviewResultRecipient.onNavResult(listener: @[DisallowComposableCalls] kotlin.Function1<com.ramcosta.composedestinations.result.NavResult<kotlin.String>, kotlin.Unit>): kotlin.Unit
-  skippable: true
+public fun com.wire.android.navigation.navigation3.WireEntryEnvironment.Provide(route: com.wire.navigation.WireRoute, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: false
   restartable: true
   params:
-    - listener: STABLE (function type)
+    - route: RUNTIME (requires runtime check)
+    - content: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.navigation.PreviewResultRecipient.onNavResult(deliverResultOn: com.ramcosta.composedestinations.result.OpenResultRecipient.DeliverResultOn, listener: @[DisallowComposableCalls] kotlin.Function1<com.ramcosta.composedestinations.result.NavResult<kotlin.String>, kotlin.Unit>): kotlin.Unit
-  skippable: true
+public fun com.wire.android.navigation.navigation3.WireNav3Host(runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, entryEnvironment: com.wire.android.navigation.navigation3.WireEntryEnvironment, entryProviderInstallers: kotlin.collections.List<@[ExtensionFunctionType] kotlin.Function1<androidx.navigation3.runtime.EntryProviderScope<androidx.navigation3.runtime.NavKey>, kotlin.Unit>>, modifier: androidx.compose.ui.Modifier, onBack: kotlin.Function0<kotlin.Unit>, responsivePresentationPolicy: com.wire.android.navigation.navigation3.WireResponsivePresentationPolicy, isTablet: kotlin.Boolean, parentViewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner, sharedViewModelStoreProvider: androidx.lifecycle.viewmodel.ViewModelStoreProvider, onViewModelOwnerAvailable: kotlin.Function2<com.wire.navigation.WireViewModelOwner, androidx.lifecycle.ViewModelStoreOwner, kotlin.Unit>, onViewModelOwnerReleased: kotlin.Function2<com.wire.navigation.WireViewModelOwner, androidx.lifecycle.ViewModelStoreOwner, kotlin.Unit>, onViewModelOwnerCleared: kotlin.Function1<kotlin.String, kotlin.Unit>): kotlin.Unit
+  skippable: false
   restartable: true
   params:
-    - deliverResultOn: STABLE (class with no mutable properties)
-    - listener: STABLE (function type)
+    - runtime: STABLE (marked @Stable or @Immutable)
+    - entryEnvironment: RUNTIME (requires runtime check)
+    - entryProviderInstallers: RUNTIME (requires runtime check)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - onBack: STABLE (function type)
+    - responsivePresentationPolicy: STABLE (class with no mutable properties)
+    - isTablet: STABLE (primitive type)
+    - parentViewModelStoreOwner: RUNTIME (requires runtime check)
+    - sharedViewModelStoreProvider: UNSTABLE (has mutable properties or unstable members)
+    - onViewModelOwnerAvailable: STABLE (function type)
+    - onViewModelOwnerReleased: STABLE (function type)
+    - onViewModelOwnerCleared: STABLE (function type)
 
 @Composable
-public fun com.wire.android.navigation.wrapper.TabletDialogWrapper.Wrap(screenContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.navigation.navigation3.WireTransitionInteractionGate(policy: com.wire.android.navigation.navigation3.WireTransitionInteractionPolicy, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
-    - screenContent: STABLE (composable function type)
+    - policy: STABLE (class with no mutable properties)
+    - content: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.navigation.wrapper.WaitUntilTransitionEndsWrapper.Wrap(screenContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
-  skippable: true
+public fun com.wire.android.navigation.navigation3.rememberWireNavigation3Runtime(startRoute: com.wire.navigation.WireRoute, resultTypes: kotlin.collections.List<com.wire.android.navigation.navigation3.WireNavigation3ResultType<*>>, canNavigate: kotlin.Function1<com.wire.navigation.WireNavigationCommand, kotlin.Boolean>, onNavigationChanged: kotlin.Function3<@[ParameterName(name = \): com.wire.android.navigation.navigation3.WireNavigation3Runtime
+  skippable: false
   restartable: true
   params:
-    - screenContent: STABLE (composable function type)
+    - startRoute: RUNTIME (requires runtime check)
+    - resultTypes: RUNTIME (requires runtime check)
+    - canNavigate: STABLE (function type)
+    - onNavigationChanged: STABLE (function type)
+
+@Composable
+public fun com.wire.android.navigation.navigation3.rememberWireSharedViewModelStoreOwner(key: kotlin.String, provider: androidx.lifecycle.viewmodel.ViewModelStoreProvider): androidx.lifecycle.ViewModelStoreOwner
+  skippable: false
+  restartable: true
+  params:
+    - key: STABLE (String is immutable)
+    - provider: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+public fun com.wire.android.navigation.navigation3.rememberWireViewModelStoreNavEntryDecorator(storeProvider: androidx.lifecycle.viewmodel.ViewModelStoreProvider, onOwnerAvailable: kotlin.Function2<com.wire.navigation.WireViewModelOwner, androidx.lifecycle.ViewModelStoreOwner, kotlin.Unit>, onOwnerReleased: kotlin.Function2<com.wire.navigation.WireViewModelOwner, androidx.lifecycle.ViewModelStoreOwner, kotlin.Unit>, onOwnerCleared: kotlin.Function1<kotlin.String, kotlin.Unit>): com.wire.android.navigation.navigation3.WireViewModelStoreNavEntryDecorator
+  skippable: false
+  restartable: true
+  params:
+    - storeProvider: UNSTABLE (has mutable properties or unstable members)
+    - onOwnerAvailable: STABLE (function type)
+    - onOwnerReleased: STABLE (function type)
+    - onOwnerCleared: STABLE (function type)
+
+@Composable
+public fun com.wire.android.navigation.navigation3.rememberWireViewModelStoreNavEntryDecorator(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.navigation.navigation3.WireViewModelStoreNavEntryDecorator
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.navigation.navigation3.rememberWireViewModelStoreProvider(viewModelStoreOwner: androidx.lifecycle.ViewModelStoreOwner): androidx.lifecycle.viewmodel.ViewModelStoreProvider
+  skippable: false
+  restartable: true
+  params:
+    - viewModelStoreOwner: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.navigation.navigation3.wireViewModelStoreOwner(owner: com.wire.navigation.WireViewModelOwner): androidx.lifecycle.ViewModelStoreOwner
+  skippable: false
+  restartable: true
+  params:
+    - owner: UNSTABLE (has mutable properties or unstable members)
 

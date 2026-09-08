@@ -342,6 +342,32 @@ fun BackendClient.removeUserFromGroupConversation(
     )
 }
 
+fun BackendClient.deleteTeamConversation(
+    asUser: ClientUser,
+    conversation: Conversation
+) {
+    val teamId = conversation.teamId ?: asUser.teamId
+        ?: throw IllegalStateException("Team ID is missing for conversation '${conversation.name}'.")
+    val token = runBlocking { getAuthToken(asUser) }
+    val url = "teams/$teamId/conversations/${conversation.id}".composeCompleteUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token?.type} ${token?.value}")
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI(url).toURL(),
+        method = "DELETE",
+        body = JSONObject().toString(),
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+}
+
 fun BackendClient.getPersonalConversationByName(user: ClientUser, name: String): Conversation =
     getConversations(user).firstOrNull { conv ->
         conv.protocol == "mls" &&

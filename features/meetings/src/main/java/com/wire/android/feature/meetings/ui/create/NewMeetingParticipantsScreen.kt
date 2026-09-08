@@ -30,10 +30,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.wire.android.feature.meetings.R
-import com.wire.android.feature.meetings.navigation.MeetingNavigator
 import com.wire.android.model.ItemActionType
-import com.wire.android.navigation.annotation.features.meetings.WireNewMeetingDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -44,13 +41,11 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.android.ui.common.R as commonR
 
-@WireNewMeetingDestination(
-    style = PopUpNavigationAnimation::class,
-)
 @Composable
-fun NewMeetingParticipantsScreen(
-    navigator: MeetingNavigator,
+internal fun NewMeetingParticipantsRouteContent(
     newMeetingViewModel: NewMeetingViewModel,
+    onNavigateBack: () -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
 ) {
     SearchUsersAndAppsScreen(
         onlyConnectedContacts = true,
@@ -59,19 +54,19 @@ fun NewMeetingParticipantsScreen(
         onContactChecked = newMeetingViewModel::updateSelectedContact,
         onClose = {
             newMeetingViewModel.resetSelectedContacts()
-            navigator.navigateBack()
+            onNavigateBack()
         },
         navigationIconType = NavigationIconType.Back(R.string.content_description_new_meeting_participants_back_icon),
         itemActionType = ItemActionType.CHECK,
         isAppsTabVisible = false,
         onOpenUserProfile = { contact ->
-            navigator.navigateToProfile(UserId(contact.id, contact.domain))
+            onOpenUserProfile(UserId(contact.id, contact.domain))
         },
         peopleBottomActions = { focusRequester ->
             SelectButton(
                 onClick = {
                     newMeetingViewModel.confirmSelectedContacts()
-                    navigator.navigateBack()
+                    onNavigateBack()
                 },
                 buttonModifier = Modifier.focusRequester(focusRequester),
             )

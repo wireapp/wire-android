@@ -17,12 +17,12 @@
  */
 package com.wire.android.feature.cells.ui.search
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
@@ -38,7 +38,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
@@ -83,23 +82,9 @@ class SearchScreenViewModelTest {
 
     private val sharedPathCache = CellFileLocalPathCache()
 
-    private lateinit var savedStateHandle: SavedStateHandle
-
     @BeforeEach
     fun setup() {
         Dispatchers.setMain(dispatcher)
-
-        val navArgsMap = mapOf<String, Any?>(
-            "conversationId" to CONVERSATION_ID,
-            "screenType" to DriveSearchScreenType.SHARED_DRIVE
-        )
-
-        savedStateHandle = mockk(relaxed = true)
-
-        every { savedStateHandle.get<Any?>(any()) } answers {
-            val key = firstArg<String>()
-            navArgsMap[key]
-        }
 
         MockKAnnotations.init(this)
 
@@ -152,20 +137,27 @@ class SearchScreenViewModelTest {
     }
 
     @Test
+    fun `given initial sorting in nav args, when ViewModel is created, then it is inherited`() = runTest {
+        val viewModel = createViewModelWithInitialSorting(SortCriteriaNavArg.NameAZ)
+        advanceUntilIdle()
+
+        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.inheritedSortingCriteria)
+        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.uiState.value.sortingCriteria)
+    }
+
+    @Test
+    fun `given no initial sorting in nav args, when ViewModel is created, then inherited sorting is the default`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        assertEquals(viewModel.defaultSortingCriteria, viewModel.inheritedSortingCriteria)
+    }
+
+    @Test
     fun `given parentRoute in nav args, when ViewModel is created, then parentRoute is exposed`() = runTest {
         val expectedRoute = "app/global_cells_screen"
-        val navArgsWithParentRoute = mapOf<String, Any?>(
-            "conversationId" to CONVERSATION_ID,
-            "screenType" to DriveSearchScreenType.SHARED_DRIVE,
-            "parentRoute" to expectedRoute,
-        )
-        val savedStateHandleWithParentRoute = mockk<SavedStateHandle>(relaxed = true)
-        every { savedStateHandleWithParentRoute.get<Any?>(any()) } answers {
-            navArgsWithParentRoute[firstArg<String>()]
-        }
-
         val viewModel = SearchScreenViewModel(
-            savedStateHandle = savedStateHandleWithParentRoute,
+            navArgs = SearchNavArgs(CONVERSATION_ID, DriveSearchScreenType.SHARED_DRIVE, expectedRoute),
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
@@ -365,7 +357,23 @@ class SearchScreenViewModelTest {
 
     private fun createViewModel(): SearchScreenViewModel {
         return SearchScreenViewModel(
-            savedStateHandle = savedStateHandle,
+            navArgs = SearchNavArgs(CONVERSATION_ID, DriveSearchScreenType.SHARED_DRIVE),
+            getAllTagsUseCase = getAllTagsUseCase,
+            getCellFilesPaged = getCellFilesPaged,
+            getOwners = getOwners,
+            getPaginatedConversations = getPaginatedConversations,
+            sharedPathCache = sharedPathCache,
+            observeOfflineFiles = observeOfflineFiles,
+        )
+    }
+
+    private fun createViewModelWithInitialSorting(sortCriteria: SortCriteriaNavArg): SearchScreenViewModel {
+        return SearchScreenViewModel(
+            navArgs = SearchNavArgs(
+                conversationId = CONVERSATION_ID,
+                screenType = DriveSearchScreenType.SHARED_DRIVE,
+                initialSortingCriteria = sortCriteria,
+            ),
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,
@@ -376,14 +384,8 @@ class SearchScreenViewModelTest {
     }
 
     private fun createViewModelWithScreenType(screenType: DriveSearchScreenType): SearchScreenViewModel {
-        val navArgsMap = mapOf<String, Any?>(
-            "conversationId" to CONVERSATION_ID,
-            "screenType" to screenType,
-        )
-        val handle = mockk<SavedStateHandle>(relaxed = true)
-        every { handle.get<Any?>(any()) } answers { navArgsMap[firstArg<String>()] }
         return SearchScreenViewModel(
-            savedStateHandle = handle,
+            navArgs = SearchNavArgs(CONVERSATION_ID, screenType),
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,

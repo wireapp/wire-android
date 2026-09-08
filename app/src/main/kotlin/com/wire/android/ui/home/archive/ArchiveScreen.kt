@@ -18,33 +18,34 @@
 
 package com.wire.android.ui.home.archive
 
-import com.wire.android.navigation.annotation.app.WireHomeDestination
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.search.rememberSearchbarState
-import com.wire.android.ui.home.HomeStateHolder
+import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModelPreview
+import com.wire.android.ui.home.conversationslist.ConversationListNavigationActions
 import com.wire.android.ui.home.conversationslist.ConversationsScreenContent
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireHomeDestination
 @Composable
-fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
-    with(homeStateHolder) {
+internal fun ArchiveScreen(
+    homeShellState: HomeShellState,
+    navigationActions: ConversationListNavigationActions,
+) {
+    with(homeShellState) {
         ConversationsScreenContent(
-            navigator = navigator,
+            navigationActions = navigationActions,
             searchBarState = searchBarState,
             conversationsSource = ConversationsSource.ARCHIVE,
             lazyListState = lazyListStateFor(HomeDestination.Archive),
             emptySearchResultFocusRequester = emptySearchResultFocusRequester,
             firstConversationFocusRequester = firstConversationFocusRequester,
-            onConversationOpened = homeStateHolder::requestClearSearchOnNextResume,
-            emptyListContent = { ArchiveEmptyContent() }
+            onConversationOpened = ::requestClearSearchOnNextResume,
+            emptyListContent = { ArchiveEmptyContent() },
         )
     }
 }
@@ -53,7 +54,7 @@ fun ArchiveScreen(homeStateHolder: HomeStateHolder) {
 @Composable
 fun PreviewArchiveEmptyScreen() = WireTheme {
     ConversationsScreenContent(
-        navigator = rememberNavigator {},
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
@@ -65,7 +66,7 @@ fun PreviewArchiveEmptyScreen() = WireTheme {
 @Composable
 fun PreviewArchiveEmptySearchScreen() = WireTheme {
     ConversationsScreenContent(
-        navigator = rememberNavigator {},
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
@@ -77,10 +78,20 @@ fun PreviewArchiveEmptySearchScreen() = WireTheme {
 @Composable
 fun PreviewArchiveScreen() = WireTheme {
     ConversationsScreenContent(
-        navigator = rememberNavigator {},
+        navigationActions = previewConversationListNavigationActions(),
         searchBarState = rememberSearchbarState(initialIsSearchActive = true, searchQueryTextState = TextFieldState(initialText = "er")),
         conversationsSource = ConversationsSource.ARCHIVE,
         emptyListContent = { ArchiveEmptyContent() },
         conversationListViewModel = ConversationListViewModelPreview(previewConversationItemsFlow(searchQuery = "er")),
     )
 }
+
+private fun previewConversationListNavigationActions() = ConversationListNavigationActions(
+    openConversation = {},
+    openUserProfile = {},
+    startConversation = {},
+    browseChannels = {},
+    openConversationFolders = {},
+    promoteAdmin = {},
+    openDebugMenu = {},
+)

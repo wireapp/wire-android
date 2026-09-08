@@ -17,8 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.details.updateappsaccess
 
-import com.wire.android.ui.home.conversations.updateAppsAccessViewModel
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,9 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -48,21 +43,17 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.coroutines.launch
 
-@WireRootDestination(
-    navArgs = UpdateAppsAccessNavArgs::class,
-    style = SlideNavigationAnimation::class,
-)
 @Composable
-fun UpdateAppsAccessScreen(
-    navigator: Navigator,
-    updateAppsAccessViewModel: UpdateAppsAccessViewModel = updateAppsAccessViewModel()
+internal fun UpdateAppsAccessRouteScreen(
+    viewModel: UpdateAppsAccessViewModel,
+    onNavigateBack: () -> Unit,
 ) {
     UpdateAppsAccessContent(
-        onNavigateBack = navigator::navigateBack,
-        onChangeAppAccess = updateAppsAccessViewModel::onAppsAccessUpdate,
-        onDisableAppsConfirm = updateAppsAccessViewModel::onServiceDialogConfirm,
-        onDisableAppsDismiss = updateAppsAccessViewModel::onAppsDialogDismiss,
-        state = updateAppsAccessViewModel.updateAppsAccessState,
+        onNavigateBack = onNavigateBack,
+        onChangeAppAccess = viewModel::onAppsAccessUpdate,
+        onDisableAppsConfirm = viewModel::onServiceDialogConfirm,
+        onDisableAppsDismiss = viewModel::onAppsDialogDismiss,
+        state = viewModel.updateAppsAccessState,
     )
 }
 

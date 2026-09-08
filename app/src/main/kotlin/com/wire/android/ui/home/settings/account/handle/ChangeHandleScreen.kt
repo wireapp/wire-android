@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.settings.account.handle
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,11 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.ui.home.settings.changeHandleViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.handle.UsernameTextField
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
@@ -56,25 +51,21 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.ui.common.R as commonR
 
-@WireRootDestination(
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
-)
 @Composable
-fun ChangeHandleScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: ChangeHandleViewModel = changeHandleViewModel()
+internal fun ChangeHandleRouteScreen(
+    viewModel: ChangeHandleViewModel,
+    onBackPressed: () -> Unit,
+    onCompleted: (Boolean) -> Unit,
 ) {
     LaunchedEffect(viewModel.state.isSuccess) {
         if (viewModel.state.isSuccess) {
-            resultNavigator.setResult(true)
-            resultNavigator.navigateBack()
+            onCompleted(true)
         }
     }
     ChangeHandleContent(
         textState = viewModel.textState,
         state = viewModel.state,
-        onBackPressed = navigator::navigateBack,
+        onBackPressed = onBackPressed,
         onSaveClicked = viewModel::onSaveClicked,
         onErrorDismiss = viewModel::onErrorDismiss
     )

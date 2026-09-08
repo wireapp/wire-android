@@ -32,6 +32,13 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
 
+/**
+ * Plays call signalling tones and controls vibration.
+ *
+ * Audio routing is intentionally not configured here. The AVS media manager owns the
+ * communication route while a call is active. Changing [AudioManager.mode] or the selected
+ * output from this app-scoped object would also reroute unrelated media when Wire starts.
+ */
 @SingleIn(AppScope::class)
 class CallRinger @Inject constructor(private val context: Context) {
 
@@ -39,9 +46,6 @@ class CallRinger @Inject constructor(private val context: Context) {
     private var vibrator: Vibrator? = null
 
     init {
-        val am = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
-        am?.isSpeakerphoneOn = false
-        am?.mode = AudioManager.MODE_IN_COMMUNICATION
         initVibrator()
     }
 

@@ -22,14 +22,13 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationContext
 import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getTempWritableAttachmentUri
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -41,22 +40,30 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.FileOutputStream
-import dev.zacsweers.metro.Inject
-class SelfQRCodeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val context: Context,
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
+class SelfQRCodeViewModel @AssistedInject constructor(
+    @Assisted private val navigationArgs: SelfQrCodeViewModelArgs,
+    @ApplicationContext private val context: Context,
     @CurrentAccount private val selfUserId: UserId,
     private val selfServerLinks: SelfServerConfigUseCase,
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatchers: DispatcherProvider,
     private val analyticsManager: AnonymousAnalyticsManager
 ) : ViewModel() {
-    private val selfQrCodeNavArgs: SelfQrCodeNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: SelfQrCodeViewModelArgs): SelfQRCodeViewModel
+    }
     var selfQRCodeState by mutableStateOf(
         SelfQRCodeState(
             selfUserId,
-            handle = selfQrCodeNavArgs.userHandle,
-            isTeamMember = selfQrCodeNavArgs.isTeamMember
+            handle = navigationArgs.userHandle,
+            isTeamMember = navigationArgs.isTeamMember
         )
     )
         private set

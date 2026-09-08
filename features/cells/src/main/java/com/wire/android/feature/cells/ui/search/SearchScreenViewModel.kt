@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.search
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
@@ -25,7 +24,6 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -37,6 +35,7 @@ import com.wire.android.feature.cells.ui.search.filter.data.FilterTypeUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
+import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.MIMEType
@@ -52,6 +51,9 @@ import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.UserAssetId
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,12 +67,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
 
 @Suppress("TooManyFunctions")
-class SearchScreenViewModel(
-    val savedStateHandle: SavedStateHandle,
+class SearchScreenViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: SearchNavArgs,
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val getOwners: GetOwnersUseCase,
@@ -78,6 +81,11 @@ class SearchScreenViewModel(
     private val sharedPathCache: CellFileLocalPathCache,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: SearchNavArgs): SearchScreenViewModel
+    }
 
     private data class SearchParams(
         val query: String,
@@ -88,8 +96,6 @@ class SearchScreenViewModel(
         val sortingCriteria: SortingCriteria,
         val conversationId: String?,
     )
-
-    private val navArgs: SearchNavArgs = SearchScreenDestination.argsFrom(savedStateHandle)
 
     val screenType = navArgs.screenType
     val parentRoute = navArgs.parentRoute
@@ -104,15 +110,18 @@ class SearchScreenViewModel(
         SortingCriteria.FoldersFirst
     }
 
+    val inheritedSortingCriteria: SortingCriteria =
+        navArgs.initialSortingCriteria?.toSortingCriteria() ?: defaultSortingCriteria
+
     private val _uiState = MutableStateFlow(
-        SearchUiState(sortingCriteria = defaultSortingCriteria)
+        SearchUiState(sortingCriteria = inheritedSortingCriteria)
     )
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     private val queryFlow = MutableStateFlow("")
 
     private val debouncedQueryFlow: Flow<String> = queryFlow
-        .debounce(SEARCH_DEBOUNCE_MILLIS)
+        .debounce(SEARCH_DEBOUNCE_MILLIS.milliseconds)
         .distinctUntilChanged()
 
     private val searchParamsFlow: Flow<SearchParams> =
@@ -135,7 +144,7 @@ class SearchScreenViewModel(
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
             searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
-                val hasFilters = params.sortingCriteria != defaultSortingCriteria ||
+                val hasFilters = params.sortingCriteria != inheritedSortingCriteria ||
                         params.query.isNotEmpty() ||
                         params.tagIds.isNotEmpty() ||
                         params.ownerIds.isNotEmpty() ||
@@ -166,7 +175,9 @@ class SearchScreenViewModel(
                     sortingSpec = SortingSpec(
                         criteria = params.sortingCriteria.toKaliumCriteria(),
                         descending = params.sortingCriteria.isDescending
-                    )
+                    ),
+                    // only when searching; filtering and sorting should be non-recursive
+                    isRecursive = params.query.isNotEmpty()
                 ).map { pagingData: PagingData<Node> ->
                     pagingData.map { node: Node ->
                         when (node) {

@@ -31,8 +31,8 @@ sealed interface NewLoginAction {
         sealed interface NextStep {
             data class E2EIEnrollment(val userId: UserId) : NextStep
             data class TooManyDevices(val userId: UserId) : NextStep
-            data object InitialSync : NextStep
-            data object None : NextStep
+            data class InitialSync(val userId: UserId) : NextStep
+            data class None(val userId: UserId) : NextStep
         }
     }
 }

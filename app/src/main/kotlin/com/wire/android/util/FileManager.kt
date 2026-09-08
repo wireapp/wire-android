@@ -18,6 +18,7 @@
 
 package com.wire.android.util
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import com.wire.android.appLogger
@@ -152,19 +153,19 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     }
 
     /**
-     * Validates the schema of the given Uri.
-     * We are excluding file, as we don't process file URIs.
+     * Validates that the given [Uri] uses a supported scheme for importing an asset.
      *
-     * If invalid schema is found, an [IllegalArgumentException] is thrown.
+     * If an unsupported scheme is found, an [IllegalArgumentException] is thrown.
      */
     fun checkValidSchema(uri: Uri) {
         appLogger.d("Validating Uri schema for path: ${uri.path} with scheme: ${uri.scheme}")
-        if (INVALID_SCHEMA.equals(uri.scheme, ignoreCase = true)) throw IllegalArgumentException("File URI is not supported")
+        require(ContentResolver.SCHEME_CONTENT.equals(uri.scheme, ignoreCase = true)) {
+            "Only content URIs are supported"
+        }
     }
 
     companion object {
         private const val TEMP_IMG_ATTACHMENT_FILENAME = "image_attachment.jpg"
         private const val TEMP_VIDEO_ATTACHMENT_FILENAME = "video_attachment.mp4"
-        private const val INVALID_SCHEMA = "file"
     }
 }

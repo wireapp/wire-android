@@ -78,11 +78,12 @@ class ChangeDisplayNameViewModelTest {
     }
 
     @Test
-    fun `when validating new name, and the value exceeds 64 chars, then should propagate NameExceedLimitError`() = runTest {
+    fun `when validating new name, and the value exceeds 128 chars, then should propagate NameExceedLimitError`() = runTest {
         val (_, viewModel) = Arrangement().arrange()
 
-        val over64CharString = "a9p8fIRG12wvOJ8AKH77UqwHt8lzTTOBlSdIlq1N6xxYBsEIUomLKoRY2IZ1hClOM"
-        viewModel.textState.setTextAndPlaceCursorAtEnd(over64CharString)
+        val over128CharString = "a9p8fIRG12wvOJ8AKH77UqwHt8lzTTOBlSdIlq1N6xx" +
+                "YBsEIUomLKoRY2IZ1hClOMa9p8fIRG12wvOJ8AKH77UqwHt8lzTTOBlSdIlq1N6xxYBsEIUomLKoRY2IZ1hClOMasd"
+        viewModel.textState.setTextAndPlaceCursorAtEnd(over128CharString)
 
         assertEquals(DisplayNameState.NameError.TextFieldError.NameExceedLimitError, viewModel.displayNameState.error)
         assertEquals(false, viewModel.displayNameState.saveEnabled)

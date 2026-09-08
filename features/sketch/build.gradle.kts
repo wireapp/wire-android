@@ -3,17 +3,20 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
-    alias(libs.plugins.ksp)
-    id(libs.plugins.wire.android.navigation.get().pluginId)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
+    implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
+    implementation(projects.core.navigation)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.compose.activity)
     implementation(libs.ktx.immutableCollections)
+    implementation(libs.ktx.serialization)
 
     val composeBom = enforcedPlatform(libs.compose.bom)
     implementation(composeBom)
@@ -22,6 +25,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.lifecycle.viewModelCompose)
     implementation(libs.compose.ui.preview)
+    implementation(libs.metrox.viewModelCompose)
 
     testImplementation(libs.junit5.core)
     testImplementation(libs.coroutines.test)
@@ -29,11 +33,4 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
-}
-
-android {
-    ksp {
-        arg("compose-destinations.moduleName", "sketch")
-        arg("compose-destinations.mode", "destinations")
-    }
 }

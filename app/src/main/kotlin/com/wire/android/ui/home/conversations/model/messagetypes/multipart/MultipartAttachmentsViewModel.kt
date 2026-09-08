@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.domain.model.AttachmentFileType.AUDIO
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
@@ -45,6 +46,9 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -56,6 +60,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -66,7 +72,9 @@ interface MultipartAttachmentsViewModel {
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
-    )    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
+        openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+    )
+    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
         val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
         return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
     }
@@ -132,13 +140,16 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
-    ) {}    override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
+        openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+    ) {}
+    override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
 
 @Suppress("LongParameterList")
-class MultipartAttachmentsViewModelImpl(
-    private val conversationId: ConversationId,
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
+    @Assisted private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,
     private val openFileDownloadController: OpenFileDownloadController,
     private val sharedPathCache: CellFileLocalPathCache,
@@ -149,6 +160,11 @@ class MultipartAttachmentsViewModelImpl(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): MultipartAttachmentsViewModelImpl
+    }
 
     private val _openAttachmentErrorEvent = Channel<Unit>(Channel.BUFFERED)
     override val openAttachmentErrorEvent: Flow<Unit> = _openAttachmentErrorEvent.receiveAsFlow()
@@ -170,10 +186,12 @@ class MultipartAttachmentsViewModelImpl(
         loadWireCellConfig()
     }
 
+    @Suppress("CyclomaticComplexMethod")
     override fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
+        openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
         ) {
         // Always use the authoritative shared-cache state — the `attachment` snapshot may be stale
         // if recomposition hasn't fired yet when the user taps.
@@ -199,6 +217,9 @@ class MultipartAttachmentsViewModelImpl(
 
             attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
                 openInVideoPlayer(attachment)
+
+            attachment.isAudio() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
+                openInAudioPlayer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -297,6 +318,8 @@ private fun MultipartAttachmentUi.isImage() = AttachmentFileType.fromMimeType(mi
 
 private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
 
+private fun MultipartAttachmentUi.isAudio() = assetType == AUDIO
+
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {
         IMAGE, VIDEO -> true
@@ -305,7 +328,7 @@ private fun MessageAttachment.isMediaAttachment() =
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, PDF)
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
 
 /**
  * Maps [OpenLoadState] (cells-module type) to [MultipartAttachmentOpenLoadState].

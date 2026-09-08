@@ -108,6 +108,16 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertSendAnonymousUsageDataToggleIsOff(): SettingsPage {
+        scrollTextIntoView("Send anonymous usage data")
+        val container = device.findObject(
+            UiSelector().className("android.view.View").childSelector(anonymousUsageDataText)
+        )
+        val toggle = container.getFromParent(UiSelector().text("OFF"))
+        assertTrue("'Send anonymous usage data' is not turned off", !toggle.visibleBounds.isEmpty)
+        return this
+    }
+
     fun clickBackButtonOnSettingsPage() {
         device.pressBack()
     }
@@ -117,6 +127,14 @@ data class SettingsPage(private val device: UiDevice) {
         val parent = label.parent
         val value = parent?.children?.find { it.text == "true" }
         assertTrue("'Analytics Initialized' is not set to true", value != null && value.visibleBounds.width() > 0)
+        return this
+    }
+
+    fun assertAnalyticsInitializedIsSetToFalse(): SettingsPage {
+        val label = UiWaitUtils.waitElement(analyticsInitializedLabel)
+        val parent = label.parent
+        val value = parent?.children?.find { it.text == "false" }
+        assertTrue("'Analytics Initialized' is not set to false", value != null && value.visibleBounds.width() > 0)
         return this
     }
 

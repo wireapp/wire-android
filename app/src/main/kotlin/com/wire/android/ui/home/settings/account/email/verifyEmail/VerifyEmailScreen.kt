@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.settings.account.email.verifyEmail
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,9 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.ui.home.settings.verifyEmailViewModel
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.button.WireButtonState.Default
 import com.wire.android.ui.common.button.WireButtonState.Disabled
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -51,21 +48,18 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.stringWithStyledArgs
 
-@WireRootDestination(
-    navArgs = VerifyEmailNavArgs::class
-)
 @Composable
-fun VerifyEmailScreen(
-    navigator: Navigator,
-    viewModel: VerifyEmailViewModel = verifyEmailViewModel()
+internal fun VerifyEmailRouteScreen(
+    viewModel: VerifyEmailViewModel,
+    onBackPressed: () -> Unit,
 ) {
     LaunchedEffect(viewModel.state.noChange) {
-        if (viewModel.state.noChange) navigator.navigateBack()
+        if (viewModel.state.noChange) onBackPressed()
     }
 
     VerifyEmailContent(
         state = viewModel.state,
-        onBackPressed = navigator::navigateBack,
+        onBackPressed = onBackPressed,
         onResendVerificationEmailClicked = viewModel::onResendVerificationEmailClicked,
         newEmail = viewModel.newEmail
     )

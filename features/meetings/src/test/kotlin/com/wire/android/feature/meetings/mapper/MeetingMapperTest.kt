@@ -31,7 +31,9 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -54,14 +56,6 @@ class MeetingMapperTest {
         val endTime = currentTime - 5.minutes
         val expected = meetingItem(Ongoing(startTime = startTime, scheduledEndTime = endTime, ongoingCallStatus = ongoingCall))
         val result = meeting(startTime = startTime, endTime = endTime).toMeetingItem(time = currentTime, ongoingCallStatus = ongoingCall)
-        assertEquals(expected, result)
-    }
-
-    @Test
-    fun givenMeetingHasNoEndTime_whenMappingToMeetingItem_thenStatusIsOngoing() {
-        val startTime = currentTime - 30.minutes
-        val expected = meetingItem(Ongoing(startTime = startTime, scheduledEndTime = null, ongoingCallStatus = ongoingCall))
-        val result = meeting(startTime = startTime, endTime = null).toMeetingItem(time = currentTime, ongoingCallStatus = ongoingCall)
         assertEquals(expected, result)
     }
 
@@ -117,18 +111,21 @@ class MeetingMapperTest {
         }
     }
 
-    private fun meeting(startTime: Instant, endTime: Instant?) = MeetingOccurrence(
+    private fun meeting(startTime: Instant, endTime: Instant) = MeetingOccurrence(
+        meeting = Meeting(
+            meetingId = MEETING_ID,
+            conversationId = CONVERSATION_ID,
+            creatorId = UserId("creator_id", "domain"),
+            title = TITLE,
+            startTime = startTime,
+            endTime = endTime,
+            recurrence = Meeting.Recurrence(frequency = Meeting.Recurrence.Frequency.DAILY, interval = 1L, until = null),
+        ),
         occurrenceId = "$MEETING_ID-occurrence",
-        meetingId = MEETING_ID,
-        conversationId = CONVERSATION_ID,
         conversationName = TITLE,
         conversationType = CONVERSATION_TYPE,
-        title = TITLE,
-        startTime = startTime,
-        endTime = endTime,
         occurrenceStartTime = startTime,
         occurrenceEndTime = endTime,
-        recurrence = MeetingOccurrence.Recurrence(frequency = MeetingOccurrence.Recurrence.Frequency.DAILY, interval = 1L, until = null),
         selfRole = MeetingOccurrence.SelfRole.Creator,
     )
 
@@ -145,7 +142,7 @@ class MeetingMapperTest {
 
     private fun call(
         status: CallStatus = CallStatus.ESTABLISHED,
-        establishedTime: String? = ESTABLISHED_TIME
+        establishedTime: Instant? = ESTABLISHED_TIME
     ) = Call(
         conversationId = CONVERSATION_ID,
         status = status,
@@ -163,7 +160,7 @@ class MeetingMapperTest {
     private companion object {
         val MEETING_ID = MeetingId(value = "meeting-id", domain = "wire.com")
         const val TITLE = "Engineering sync"
-        const val ESTABLISHED_TIME = "2026-01-01T11:40:00.000Z"
+        val ESTABLISHED_TIME = Instant.parse("2026-01-01T11:40:00Z")
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val CONVERSATION_ID = ConversationId(value = "conversation-id", domain = "wire.com")
         val BELONGING_TYPE = BelongingType.Group(name = TITLE)

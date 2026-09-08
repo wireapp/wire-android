@@ -176,7 +176,8 @@ private fun RichTextEditingAction(isSelected: Boolean, onButtonClicked: () -> Un
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_rich_text,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
-        contentDescription = R.string.content_description_conversation_enable_rich_text_mode
+        contentDescription = R.string.content_description_conversation_enable_rich_text_mode,
+        colors = messageComposerSecondaryButtonColors(),
     )
 }
 
@@ -187,7 +188,8 @@ private fun DrawingModeAction(onButtonClicked: () -> Unit, isEnabled: Boolean) {
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_drawing,
         state = if (isEnabled) WireButtonState.Default else WireButtonState.Disabled,
-        contentDescription = R.string.content_description_conversation_enable_drawing_mode
+        contentDescription = R.string.content_description_conversation_enable_drawing_mode,
+        colors = messageComposerSecondaryButtonColors(),
     )
 }
 
@@ -202,7 +204,8 @@ private fun AddEmojiAction(onButtonClicked: () -> Unit) {
         },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_emoticon,
-        contentDescription = R.string.content_description_conversation_send_emoticon
+        contentDescription = R.string.content_description_conversation_send_emoticon,
+        colors = messageComposerSecondaryButtonColors(),
     )
 }
 
@@ -217,7 +220,8 @@ private fun AddGifAction(onButtonClicked: () -> Unit) {
         },
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_gif,
-        contentDescription = R.string.content_description_conversation_send_gif
+        contentDescription = R.string.content_description_conversation_send_gif,
+        colors = messageComposerSecondaryButtonColors(),
     )
 }
 
@@ -230,7 +234,8 @@ private fun AddMentionAction(isActive: Boolean, onButtonClicked: () -> Unit) {
         clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
         iconResource = R.drawable.ic_mention,
         contentDescription = R.string.content_description_conversation_mention_someone,
-        state = if (isActive) WireButtonState.Selected else WireButtonState.Default
+        state = if (isActive) WireButtonState.Selected else WireButtonState.Default,
+        colors = messageComposerSecondaryButtonColors(),
     )
 }
 
@@ -241,7 +246,8 @@ private fun PingAction(onButtonClicked: () -> Unit) {
         clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone,
-        state = WireButtonState.Default
+        state = WireButtonState.Default,
+        colors = messageComposerSecondaryButtonColors(),
     )
 }
 
@@ -263,7 +269,8 @@ fun SelfDeletingMessageAction(
             clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
             iconResource = R.drawable.ic_timer,
             contentDescription = R.string.content_description_self_deleting_message_timer,
-            state = if (state.duration.isPositiveNotNull()) WireButtonState.Selected else WireButtonState.Default
+            state = if (state.duration.isPositiveNotNull()) WireButtonState.Selected else WireButtonState.Default,
+            colors = messageComposerSecondaryButtonColors(),
         )
 
         is SelfDeletionTimer.Enforced.ByGroup -> WireSecondaryIconButton(
@@ -273,7 +280,8 @@ fun SelfDeletingMessageAction(
             clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
             iconResource = R.drawable.ic_timer,
             contentDescription = R.string.content_description_self_deleting_message_timer,
-            state = WireButtonState.Disabled
+            state = WireButtonState.Disabled,
+            colors = messageComposerSecondaryButtonColors(),
         )
 
         is SelfDeletionTimer.Enforced.ByTeam -> WireSecondaryIconButton(
@@ -283,7 +291,8 @@ fun SelfDeletingMessageAction(
             clickBlockParams = ClickBlockParams(blockWhenSyncing = false, blockWhenConnecting = false),
             iconResource = R.drawable.ic_timer,
             contentDescription = R.string.content_description_self_deleting_message_timer,
-            state = WireButtonState.Disabled
+            state = WireButtonState.Disabled,
+            colors = messageComposerSecondaryButtonColors(),
         )
     }
 }

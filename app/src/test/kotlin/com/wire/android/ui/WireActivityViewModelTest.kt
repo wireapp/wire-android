@@ -21,6 +21,8 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
 import androidx.work.Operation
 import androidx.work.WorkManager
 import app.cash.turbine.test
@@ -40,6 +42,7 @@ import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
@@ -875,7 +878,63 @@ class WireActivityViewModelTest {
         }
 
     @Test
+    fun givenInvalidAccount_whenCurrentAccountObserverRuns_thenKeepSessionUntilLogoutStateIsPublished() {
+        val initialState = GlobalAppState(currentUserId = USER_ID)
+
+        val result = initialState.withObservedCurrentAccount(
+            invalidAccountInfo(LogoutReason.REMOVED_CLIENT)
+        )
+
+        result shouldBeEqualTo initialState
+    }
+
+    @Test
+    fun givenSameAlreadyValidAccount_whenObservedAgain_thenDoNotConfirmANewSessionGeneration() {
+        val initialState = GlobalAppState(
+            currentUserId = USER_ID,
+            confirmedSessionGeneration = 7,
+        )
+
+        val result = initialState.withObservedCurrentAccount(TEST_ACCOUNT_INFO)
+
+        result.confirmedSessionGeneration shouldBeEqualTo 7
+    }
+
+    @Test
+    fun givenSessionWasInvalidated_whenValidAccountIsObserved_thenConfirmANewSessionGeneration() {
+        val initialState = GlobalAppState(
+            currentUserId = null,
+            confirmedSessionGeneration = 7,
+            blockUserUI = CurrentSessionErrorState.RemovedClient,
+            sessionTransitionReason = SessionTransitionReason.REMOVED_CLIENT,
+        )
+
+        val result = initialState.withObservedCurrentAccount(TEST_ACCOUNT_INFO)
+
+        result.currentUserId shouldBeEqualTo USER_ID
+        result.confirmedSessionGeneration shouldBeEqualTo 8
+    }
+
+    @Test
+    fun givenRemovedClient_whenRecoveringLogin_thenPreserveAndConsumeItsServerConfig() = runTest {
+        val serverConfig = newServerConfig(42)
+        val (_, viewModel) = Arrangement()
+            .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
+            .withServerConfigForUser(USER_ID, serverConfig)
+            .arrange()
+
+        advanceUntilIdle()
+
+        viewModel.globalAppState.pendingRemovedClientRecovery shouldBeEqualTo
+                PendingRemovedClientRecovery(USER_ID, serverConfig.links)
+        viewModel.consumeSessionRecoveryServerLinks() shouldBeEqualTo serverConfig.links
+        viewModel.globalAppState.pendingRemovedClientRecovery shouldBeEqualTo null
+    }
+
+    @Test
     fun givenNoOtherAccount_whenTryingToSwitchFromLoggedOutDialog_thenExposeLoggedOutState() = runTest {
+        var navigatedToLogin = false
+        val actions = switchAccountActions(onNoOtherAccount = { navigatedToLogin = true })
         val (arrangement, viewModel) = Arrangement()
             .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
             .withAccountSwitchResult(SwitchAccountResult.NoOtherAccountToSwitch)
@@ -883,16 +942,20 @@ class WireActivityViewModelTest {
         advanceUntilIdle()
         viewModel.globalAppState.blockUserUI shouldBeEqualTo CurrentSessionErrorState.RemovedClient
 
-        viewModel.tryToSwitchAccount()
+        viewModel.tryToSwitchAccount(actions)
         advanceUntilIdle()
 
         arrangement.verifyTryToSwitchToNextAccount()
         viewModel.globalAppState.currentUserId shouldBeEqualTo null
         viewModel.globalAppState.blockUserUI shouldBeEqualTo null
+        viewModel.globalAppState.isSessionTransitionInProgress shouldBeEqualTo true
+        navigatedToLogin shouldBeEqualTo true
     }
 
     @Test
     fun givenAnotherAccount_whenTryingToSwitchFromLoggedOutDialog_thenExposeSwitchedAccountState() = runTest {
+        var navigatedToHome = false
+        val actions = switchAccountActions(onSwitchedAccount = { navigatedToHome = true })
         val (arrangement, viewModel) = Arrangement()
             .withInvalidCurrentSession(logoutReason = LogoutReason.REMOVED_CLIENT)
             .withCurrentSession(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
@@ -901,12 +964,23 @@ class WireActivityViewModelTest {
         advanceUntilIdle()
         viewModel.globalAppState.blockUserUI shouldBeEqualTo CurrentSessionErrorState.RemovedClient
 
-        viewModel.tryToSwitchAccount()
+        viewModel.tryToSwitchAccount(actions)
         advanceUntilIdle()
 
         arrangement.verifyTryToSwitchToNextAccount()
         viewModel.globalAppState.currentUserId shouldBeEqualTo TEST_ACCOUNT_INFO.userId
         viewModel.globalAppState.blockUserUI shouldBeEqualTo null
+        viewModel.globalAppState.isSessionTransitionInProgress shouldBeEqualTo false
+        navigatedToHome shouldBeEqualTo true
+    }
+
+    private fun switchAccountActions(
+        onSwitchedAccount: () -> Unit = {},
+        onNoOtherAccount: () -> Unit = {},
+    ): SwitchAccountActions = object : SwitchAccountActions {
+        override fun switchedToAnotherAccount() = onSwitchedAccount()
+
+        override fun noOtherAccountToSwitch() = onNoOtherAccount()
     }
 
     @Test
@@ -1061,6 +1135,91 @@ class WireActivityViewModelTest {
             assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
         }
     }
+
+    @Test
+    fun `given untrusted sharing intent with mixed Wire and external provider uris, when handling deep link, then show ignored toast`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withDeepLinkResult(DeepLinkResult.SharingIntent)
+                .arrange()
+            val intent = sharingIntent(
+                wireProviderUri(),
+                externalProviderUri("com.android.providers.media.documents")
+            )
+
+            viewModel.actions.test {
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = WIRE_PROVIDER_AUTHORITY,
+                    hasTrustedWireShareCaller = false
+                )
+                advanceUntilIdle()
+                assertEquals(ShowToast(R.string.public_share_ignored_wire_internal_files), expectMostRecentItem())
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `given untrusted sharing intent with work-profile Wire provider uri, when handling deep link, then show ignored toast`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withDeepLinkResult(DeepLinkResult.SharingIntent)
+                .arrange()
+            val intent = sharingIntent(sharingUri("10@$WIRE_PROVIDER_AUTHORITY"))
+
+            viewModel.actions.test {
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = WIRE_PROVIDER_AUTHORITY,
+                    hasTrustedWireShareCaller = false
+                )
+                advanceUntilIdle()
+                assertEquals(ShowToast(R.string.public_share_ignored_wire_internal_files), expectMostRecentItem())
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `given trusted sharing intent with mixed Wire and external provider uris, when handling deep link, then import media screen is shown`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withDeepLinkResult(DeepLinkResult.SharingIntent)
+                .arrange()
+            val intent = sharingIntent(
+                wireProviderUri(),
+                externalProviderUri("com.android.providers.media.documents")
+            )
+
+            viewModel.actions.test {
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = WIRE_PROVIDER_AUTHORITY,
+                    hasTrustedWireShareCaller = true
+                )
+                assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+            }
+        }
+
+    @Test
+    fun `given untrusted sharing intent with external provider uris, when handling deep link, then import media screen is shown`() =
+        runTest {
+            val (_, viewModel) = Arrangement()
+                .withDeepLinkResult(DeepLinkResult.SharingIntent)
+                .arrange()
+            val intent = sharingIntent(
+                externalProviderUri("com.android.providers.media.documents"),
+                externalProviderUri("com.google.android.apps.photos.contentprovider")
+            )
+
+            viewModel.actions.test {
+                viewModel.handleDeepLink(
+                    intent = intent,
+                    providerAuthority = WIRE_PROVIDER_AUTHORITY,
+                    hasTrustedWireShareCaller = false
+                )
+                assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+            }
+        }
 
     @Test
     fun `given no valid session, when checking number of sessions, then return true`() = runTest {
@@ -1503,6 +1662,7 @@ class WireActivityViewModelTest {
     companion object {
         val USER_ID = UserId("user_id", "domain.de")
         val TEST_ACCOUNT_INFO = AccountInfo.Valid(USER_ID)
+        private const val WIRE_PROVIDER_AUTHORITY = "com.wire.android.provider"
 
         private fun mockedTestAccounts(count: Int) = List(count) { i ->
             TEST_ACCOUNT_INFO.copy(userId = USER_ID.copy("user_$i"))
@@ -1515,6 +1675,29 @@ class WireActivityViewModelTest {
                 every { it.action } returns null
             }
         }
+
+        private fun sharingIntent(vararg uris: Uri): Intent {
+            val extrasBundle = mockk<Bundle> {
+                every { this@mockk.get(Intent.EXTRA_STREAM) } returns uris.toList()
+            }
+            return mockk<Intent> {
+                every { data } returns null
+                every { action } returns Intent.ACTION_SEND_MULTIPLE
+                every { extras } returns extrasBundle
+            }
+        }
+
+        private fun wireProviderUri(): Uri =
+            sharingUri(WIRE_PROVIDER_AUTHORITY)
+
+        private fun externalProviderUri(authority: String): Uri =
+            sharingUri(authority)
+
+        private fun sharingUri(authority: String): Uri =
+            mockk {
+                every { scheme } returns "content"
+                every { this@mockk.authority } returns authority
+            }
 
         val ongoingCall = Call(
             CommonTopAppBarViewModelTest.conversationId,

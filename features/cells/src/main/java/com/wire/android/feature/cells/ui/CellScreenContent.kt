@@ -93,6 +93,7 @@ internal fun CellScreenContent(
     isRestoreInProgress: Boolean,
     isDeleteInProgress: Boolean,
     modifier: Modifier = Modifier,
+    showViewerOnlyIcon: Boolean = false,
     isRecycleBin: Boolean = false,
     isAllFiles: Boolean = false,
     isSearchResult: Boolean = false,
@@ -149,13 +150,14 @@ internal fun CellScreenContent(
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
                 showConversationName = !isOffline || isAllFiles || isRecycleBin,
-                showViewerOnlyIcon = isAllFiles,
+                showViewerOnlyIcon = showViewerOnlyIcon,
             )
     }
 
     menu?.let { menuOptions ->
         NodeActionsBottomSheet(
             menuOptions = menuOptions,
+            showViewerOnlyIcon = showViewerOnlyIcon,
             onDismiss = { menu = null },
             onAction = { action ->
                 menu = null

@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.ui.calling.incoming.IncomingCallState.WaitingUnlockState
 import com.wire.android.ui.common.ActionsViewModel
@@ -34,6 +35,9 @@ import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,11 +46,14 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList")
-class IncomingCallViewModel(
-    val conversationId: ConversationId,
-    val currentAccount: UserId,
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
+class IncomingCallViewModel @AssistedInject constructor(
+    @Assisted val conversationId: ConversationId,
+    @CurrentAccount val currentAccount: UserId,
     private var callNotificationManager: CallNotificationManager,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
@@ -56,6 +63,10 @@ class IncomingCallViewModel(
     private val endCall: EndCallUseCase,
     private val lockCodeTimeManager: LockCodeTimeManager
 ) : ActionsViewModel<IncomingCallViewActions>() {
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): IncomingCallViewModel
+    }
 
     private lateinit var observeIncomingCallJob: Job
     private val observeEstablishedCallSharedFlow = MutableSharedFlow<ConversationId?>(replay = 1)

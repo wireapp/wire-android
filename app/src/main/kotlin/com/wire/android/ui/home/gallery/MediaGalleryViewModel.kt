@@ -21,14 +21,12 @@ package com.wire.android.ui.home.gallery
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
@@ -40,8 +38,12 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
@@ -49,10 +51,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class MediaGalleryViewModel(
-    savedStateHandle: SavedStateHandle,
+@WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
+class MediaGalleryViewModel @AssistedInject constructor(
+    @Assisted private val navigationArgs: MediaGalleryNavArgs,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
@@ -60,13 +65,17 @@ class MediaGalleryViewModel(
     private val deleteMessage: DeleteMessageUseCase,
     private val getAttachment: GetMessageAttachmentUseCase,
     private val getCellNode: GetCellFileUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
 ) : ActionsViewModel<MediaGalleryAction>() {
 
-    private val mediaGalleryNavArgs: MediaGalleryNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: MediaGalleryNavArgs): MediaGalleryViewModel
+    }
 
-    private val messageId = mediaGalleryNavArgs.messageId
-    private val conversationId = mediaGalleryNavArgs.conversationId
-    private val cellAssetId = mediaGalleryNavArgs.cellAssetId
+    private val messageId = navigationArgs.messageId
+    private val conversationId = navigationArgs.conversationId
+    private val cellAssetId = navigationArgs.cellAssetId
 
     var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState())
         private set
@@ -80,6 +89,13 @@ class MediaGalleryViewModel(
     init {
         getConversationTitle()
         setupImageAsset()
+        getViewerAccess()
+    }
+
+    private fun getViewerAccess() = viewModelScope.launch {
+        mediaGalleryViewState = mediaGalleryViewState.copy(
+            viewerAccess = !isSelfUserViewerOnConversation(conversationId)
+        )
     }
 
     private fun setupImageAsset() = viewModelScope.launch {
@@ -87,10 +103,10 @@ class MediaGalleryViewModel(
             mediaGalleryViewState = mediaGalleryViewState.copy(
                 imageAsset = MediaGalleryImage.PrivateAsset(
                     asset = ImageAsset.PrivateAsset(
-                        mediaGalleryNavArgs.conversationId,
-                        mediaGalleryNavArgs.messageId,
-                        mediaGalleryNavArgs.isSelfAsset,
-                        mediaGalleryNavArgs.isEphemeral
+                        navigationArgs.conversationId,
+                        navigationArgs.messageId,
+                        navigationArgs.isSelfAsset,
+                        navigationArgs.isEphemeral
                     )
                 )
             )
@@ -121,7 +137,7 @@ class MediaGalleryViewModel(
     private fun shareAsset() = viewModelScope.launch {
         if (cellAssetId == null) {
             assetDataPath(conversationId, messageId)?.run {
-                sendAction(MediaGalleryAction.Share(first, second))
+                sendAction(MediaGalleryAction.ShareExternally(first, second))
             }
         } else {
             getCellNode(cellAssetId)
@@ -137,6 +153,14 @@ class MediaGalleryViewModel(
                 .onFailure {
                     sendAction(MediaGalleryAction.ShowError)
                 }
+        }
+    }
+
+    private fun shareAssetViaWire() = viewModelScope.launch {
+        if (cellAssetId == null) {
+            assetDataPath(conversationId, messageId)?.run {
+                sendAction(MediaGalleryAction.ShareViaWire(first, second))
+            }
         }
     }
 
@@ -215,7 +239,7 @@ class MediaGalleryViewModel(
             MenuIntent.ShowDetails -> sendAction(
                 MediaGalleryAction.ShowDetails(
                     messageId = messageId,
-                    isSelfAsset = mediaGalleryNavArgs.isSelfAsset
+                    isSelfAsset = navigationArgs.isSelfAsset
                 )
             )
 
@@ -227,11 +251,13 @@ class MediaGalleryViewModel(
 
             MenuIntent.Download -> sendAction(MediaGalleryAction.Download)
 
-            MenuIntent.Share -> shareAsset()
+            MenuIntent.ShareExternally -> shareAsset()
+
+            MenuIntent.ShareViaWire -> shareAssetViaWire()
 
             MenuIntent.Delete -> {
                 deleteMessageDialogState.show(
-                    DeleteMessageDialogState(mediaGalleryNavArgs.isSelfAsset, messageId, conversationId)
+                    DeleteMessageDialogState(navigationArgs.isSelfAsset, messageId, conversationId)
                 )
             }
         }
@@ -252,16 +278,18 @@ class MediaGalleryViewModel(
     }
 
     private fun buildMenuOptions() = buildList {
-        if (mediaGalleryNavArgs.messageOptionsEnabled) {
+        if (navigationArgs.messageOptionsEnabled) {
             when {
                 cellAssetId != null -> {
                     add(MediaGalleryMenuItem.REACT)
                     add(MediaGalleryMenuItem.SHOW_DETAILS)
                     add(MediaGalleryMenuItem.REPLY)
-                    add(MediaGalleryMenuItem.SHARE_PUBLIC_LINK)
+                    if (!mediaGalleryViewState.viewerAccess) {
+                        add(MediaGalleryMenuItem.SHARE_PUBLIC_LINK)
+                    }
                 }
 
-                mediaGalleryNavArgs.isEphemeral -> {
+                navigationArgs.isEphemeral -> {
                     add(MediaGalleryMenuItem.SHOW_DETAILS)
                     add(MediaGalleryMenuItem.DOWNLOAD)
                     add(MediaGalleryMenuItem.DELETE)
@@ -272,13 +300,17 @@ class MediaGalleryViewModel(
                     add(MediaGalleryMenuItem.SHOW_DETAILS)
                     add(MediaGalleryMenuItem.REPLY)
                     add(MediaGalleryMenuItem.DOWNLOAD)
-                    add(MediaGalleryMenuItem.SHARE)
+                    add(MediaGalleryMenuItem.SHARE_VIA_WIRE)
+                    add(MediaGalleryMenuItem.SHARE_EXTERNALLY)
                     add(MediaGalleryMenuItem.DELETE)
                 }
             }
         } else if (cellAssetId == null) {
             add(MediaGalleryMenuItem.DOWNLOAD)
-            if (!mediaGalleryNavArgs.isEphemeral) add(MediaGalleryMenuItem.SHARE)
+            if (!navigationArgs.isEphemeral) {
+                add(MediaGalleryMenuItem.SHARE_VIA_WIRE)
+                add(MediaGalleryMenuItem.SHARE_EXTERNALLY)
+            }
             add(MediaGalleryMenuItem.DELETE)
         }
     }
@@ -298,7 +330,8 @@ class MediaGalleryViewModel(
 
 sealed interface MediaGalleryAction {
     data class ShowDetails(val messageId: String, val isSelfAsset: Boolean) : MediaGalleryAction
-    data class Share(val path: Path, val assetName: String) : MediaGalleryAction
+    data class ShareExternally(val path: Path, val assetName: String) : MediaGalleryAction
+    data class ShareViaWire(val path: Path, val assetName: String) : MediaGalleryAction
     data class React(val messageId: String, val emoji: String) : MediaGalleryAction
     data class Reply(val messageId: String) : MediaGalleryAction
     data object Download : MediaGalleryAction
@@ -312,7 +345,8 @@ sealed interface MenuIntent {
     data object ShowDetails : MenuIntent
     data object Reply : MenuIntent
     data object Download : MenuIntent
-    data object Share : MenuIntent
+    data object ShareExternally : MenuIntent
+    data object ShareViaWire : MenuIntent
     data object Delete : MenuIntent
 }
 
@@ -321,7 +355,8 @@ enum class MediaGalleryMenuItem {
     SHOW_DETAILS,
     REPLY,
     DOWNLOAD,
-    SHARE,
+    SHARE_EXTERNALLY,
+    SHARE_VIA_WIRE,
     SHARE_PUBLIC_LINK,
     DELETE
 }

@@ -181,7 +181,7 @@ class AccountManagement : BaseUiTest() {
 
             step("Bring Wire app back to foreground") {
                 device.executeShellCommand(
-                    "monkey -p $appPackage -c android.intent.category.LAUNCHER 1"
+                    "am start -n $appPackage/com.wire.android.ui.WireActivity"
                 )
             }
 

@@ -80,6 +80,8 @@
     <string name="folder_label_messaging">Обмен сообщениями</string>
     <string name="label_and">и</string>
     <string name="label_retry">Повторить</string>
+    <string name="conversation_creation_pending_title">Беседа еще не готова</string>
+    <string name="conversation_creation_pending_message">Нам не удалось завершить настройку беседы. Вы можете повторить попытку сейчас, либо мы продолжим попытки в фоновом режиме.</string>
     <string name="label_draft">*Черновик*</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_reveal_password">Показать пароль</string>
@@ -359,6 +361,9 @@
     <string name="login_error_user_already_logged_in_message">Вы уже авторизованы с этими учетными данными на данном устройстве.</string>
     <string name="login_sso_error_invalid_cookie_title">Неверный cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">Сессия недействительна или истекла! Пожалуйста, попробуйте авторизоваться еще раз.</string>
+    <string name="sso_identity_changed_dialog_title">Провайдер идентификации изменен</string>
+    <string name="sso_identity_changed_dialog_message">Этот аккаунт использовался с другим провайдером услуг аутентификации. Если вы продолжите, все беседы с этого устройства будут удалены.\nЧтобы сохранить свои данные, нажмите Отмена, а затем авторизуйтесь с помощью прежнего провайдера услуг аутентификации.</string>
+    <string name="sso_identity_changed_dialog_confirm">Удалить данные и продолжить</string>
     <string name="login_password_placeholder">Пароль</string>
     <string name="login_password_label">ПАРОЛЬ</string>
     <string name="login_tab_email">EMAIL</string>
@@ -607,7 +612,7 @@
     <string name="disable_guest_dialog_title">Отключить доступ гостей?</string>
     <string name="disable_guest_dialog_text">Текущие гости будут удалены из беседы. Новые гости допущены не будут.</string>
     <string name="disable_services_dialog_title">Отключить доступ приложениям?</string>
-    <string name="disable_services_dialog_text">Все приложения будут удалены из разговора. Новые приложения допущены не будут.</string>
+    <string name="disable_services_dialog_text">Все приложения будут удалены из беседы. Новые приложения допущены не будут.</string>
     <string name="leave_conversation_menu_item">Покинуть беседу…</string>
     <string name="leave_conversation_dialog_title">Покинуть “%s”?</string>
     <string name="cannot_leave_conversation_dialog_title">Невозможно покинуть \"%s\".</string>
@@ -751,6 +756,7 @@
     <string name="label_message_details">Сведения о сообщении</string>
     <string name="label_copy">Скопировать текст</string>
     <string name="label_share">Поделиться</string>
+    <string name="label_share_via_wire">Переслать</string>
     <string name="label_edit">Изменить текст</string>
     <string name="label_delete">Удалить</string>
     <string name="info_message_copied">Сообщение скопировано</string>
@@ -874,6 +880,8 @@
     <string name="label_conversations_details_verified_mls">Верифицировано (сквозная идентификация)</string>
     <string name="label_system_message_cell_enabled_for_conversation">Общий диск **включен**</string>
     <string name="label_system_message_cell_self_delete_disabled_for_conversation">Самоудаляющиеся сообщения **отключены**</string>
+    <string name="label_system_message_cell_viewer_access">Общий диск включен. Вы можете просматривать файлы, но не можете загружать, редактировать или управлять ими.</string>
+    <string name="label_system_message_cell_editor_access">Общий диск включен. У вас есть права редактора. У пользователей, не входящих в вашу команду, есть только права просмотра.</string>
     <!-- Last messages -->
     <plurals name="last_message_self_added_users">
         <item quantity="one">Вы добавили 1 пользователя в беседу</item>
@@ -1082,6 +1090,7 @@
     <string name="notification_action_reply">Ответить</string>
     <string name="notification_receiver_name">Вы</string>
     <string name="label_type_a_message">Введите сообщение</string>
+    <string name="content_description_conversation_message_list">Сообщения в беседе. Нажмите Enter для перехода между сообщениями.</string>
     <string name="notification_action_open_call">Открыть вызов</string>
     <string name="notification_action_decline_call">Отклонить</string>
     <string name="notification_incoming_call_content">Вызов…</string>
@@ -1254,7 +1263,7 @@
     <string name="settings_myaccount_display_name_title">Имя вашего профиля</string>
     <string name="settings_myaccount_display_name_description">Пользователи видят имя вашего профиля в беседах, звонках и при поиске. Оно не является уникальным в Wire.</string>
     <string name="settings_myaccount_display_name_error">Введите имя вашего профиля</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и максимум 64 символа</string>
+    <string name="settings_myaccount_display_name_exceeded_limit_error">Минимум 1 и не более 128 символов</string>
     <string name="settings_myaccount_display_name_updated">Имя вашего профиля изменено</string>
     <string name="settings_myaccount_handle_updated">Ваш псевдоним изменен</string>
     <string name="settings_myaccount_user_color_title">Пользовательский цвет</string>
@@ -1345,6 +1354,7 @@
     <string name="label_logs_option_title">Журналы</string>
     <string name="label_share_logs">Поделиться журналами</string>
     <string name="label_share_logs_failed">Не удалось подготовить логи для отправки</string>
+    <string name="label_share_logs_via_wire">Переслать</string>
     <string name="label_delete_logs">Удалить все журналы</string>
     <string name="label_restart_slowsync_for_recovery">Перезапустить медленную синхронизацию</string>
     <string name="restart_slowsync_for_recovery_button">Перезапуск</string>
@@ -1458,6 +1468,7 @@
     <string name="start_manual_migration">Начать</string>
     <string name="file_sharing_restricted_description_by_team">Вы не можете поделиться этим файлом, поскольку данная возможность отключена для данного аккаунта.</string>
     <string name="file_sharing_restricted_description_no_users">Чтобы поделиться чем-либо, необходимо авторизоваться в Wire</string>
+    <string name="public_share_ignored_wire_internal_files">Эта попытка поделиться была проигнорирована, поскольку в ней содержатся внутренние файлы Wire.</string>
     <string name="file_sharing_restricted_button_text_no_users">Открыть Wire</string>
     <!-- join conversation dialog -->
     <string name="join_conversation_dialog_title">Присоединиться к беседе?</string>
@@ -1698,7 +1709,7 @@
     <string name="end_to_end_identity_enrollment_error_dialog_text">Пожалуйста, попробуйте еще раз или свяжитесь с администратором вашей команды.</string>
     <string name="end_to_end_identity_ceritifcate">Сведения о сертификате</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_title">Сертификат сквозной идентификации отозван</string>
-    <string name="end_to_end_identity_certificate_revoked_dialog_description">Для снижения рисков безопасности следует осуществить выход. После авторизации получите новый сертификат и сбросьте пароль.\n\nЕсли вы продолжите использование этого устройства, ваши разговоры больше не будут являться верифицированными.</string>
+    <string name="end_to_end_identity_certificate_revoked_dialog_description">Для снижения рисков безопасности следует осуществить выход. После авторизации получите новый сертификат и сбросьте пароль.\n\nЕсли вы продолжите использование этого устройства, ваши беседы больше не будут являться верифицированными.</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_button_logout">Выйти</string>
     <string name="end_to_end_identity_certificate_revoked_dialog_button_continue">Продолжить использование этого устройства</string>
     <!-- Record Audio -->
@@ -1869,8 +1880,8 @@
     <string name="personal_to_team_migration_error_message_unknown_error">Wire не удалось завершить создание вашей команды из-за неизвестной ошибки.</string>
     <string name="reaction_sender_self">Вы</string>
     <string name="emoji_picker_select_reaction">Выбрать реакцию</string>
-    <string name="content_description_add_this_reaction">Нажмите дважды, чтобы добавить эту реакцию</string>
-    <string name="content_description_remove_your_reaction">Нажмите дважды, чтобы удалить реакцию</string>
+    <string name="content_description_add_this_reaction">Добавить эту реакцию</string>
+    <string name="content_description_remove_your_reaction">Удалить свою реакцию</string>
     <string name="label_user_database_profile">Журнал базы данных</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">“%1$s” был перемещен в “%2$s”</string>
@@ -1911,6 +1922,7 @@
     <string name="drive_screen_search_hint">Поиск файлов</string>
     <string name="enable_wire_cell">Общий диск</string>
     <string name="enable_wire_cell_switch_description">Разрешить участникам управлять своими документами и медиа файлами в общем диске. Это действие не может быть отменено.</string>
+    <string name="enable_wire_cell_guest_access_description">Пользователи, не входящие в вашу команду, могут просматривать файлы, но не могут их загружать или редактировать.</string>
     <string name="failed_attachment_retry_upload">Повторить загрузку</string>
     <string name="failed_attachment_remove">Удалить</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">Эта функция недоступна. Пожалуйста, свяжитесь со своим администратором.</string>
@@ -1933,4 +1945,7 @@
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
     <string name="label_system_message_admin_role_assigned">Вы были назначены администратором группы</string>
     <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
+    <!-- Pending messages service notification -->
+    <string name="pending_messages_notification_waiting">Ожидание подключения</string>
+    <string name="pending_messages_notification_sending">Отправка сообщений</string>
 </resources>

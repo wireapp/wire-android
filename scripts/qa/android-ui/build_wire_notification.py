@@ -13,6 +13,29 @@ def env(name: str) -> str:
     return os.environ.get(name, "").strip()
 
 
+def env_int(name: str) -> int | None:
+    value = env(name)
+    if not value:
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
+
+def resolve_status_icon() -> str:
+    job_status = env("JOB_STATUS")
+    if job_status == "cancelled":
+        return "⚪"
+
+    tests_failed = env_int("TESTS_FAILED")
+    tests_total = env_int("TESTS_TOTAL")
+    if tests_failed is not None and tests_total is not None and tests_total > 0:
+        return "❌" if tests_failed > 0 else "✅"
+
+    return "❌" if job_status == "failure" else "✅"
+
+
 def resolve_trigger_label(event_name: str) -> str:
     return {
         "merge_group": "merge queue",
@@ -61,8 +84,7 @@ def escape_url_for_markdown(raw_url: str) -> str:
 
 
 def build_body() -> str:
-    status = env("JOB_STATUS")
-    icon = "❌" if status == "failure" else ("⚪" if status == "cancelled" else "✅")
+    icon = resolve_status_icon()
     event_name = env("EVENT_NAME")
 
     header = f"{icon} android critical flows #{env('RUN_NUMBER')}"

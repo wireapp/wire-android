@@ -30,30 +30,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.ramcosta.composedestinations.spec.Direction
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.GiveFeedbackDestination
-import com.wire.android.navigation.PrivacyPolicyScreenDestination
-import com.wire.android.navigation.ReportMisuseScreenDestination
-import com.wire.android.navigation.SupportScreenDestination
-import com.wire.android.navigation.TermsOfUseScreenDestination
-import com.wire.android.navigation.WireWebsiteScreenDestination
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.RowItemTemplate
-import com.ramcosta.composedestinations.generated.app.destinations.AboutThisAppScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.AppSettingsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.BackupAndRestoreScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CustomizationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DebugScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DependenciesScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LicensesScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.MyAccountScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NetworkSettingsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.PrivacySettingsConfigScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -135,7 +117,6 @@ fun SettingsItem(
 sealed class SettingsItem(open val id: String, open val title: UIText) {
 
     sealed class DirectionItem(
-        val direction: Direction,
         override val id: String,
         override val title: UIText
     ) : SettingsItem(id, title)
@@ -154,97 +135,81 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
     data object AppSettings : DirectionItem(
         id = "general_app_settings",
         title = UIText.StringResource(R.string.app_settings_screen_title),
-        direction = AppSettingsScreenDestination
     )
 
     data object YourAccount : DirectionItem(
         id = "your_account_settings",
         title = UIText.StringResource(R.string.settings_your_account_label),
-        direction = MyAccountScreenDestination
     )
 
     data object Customization : DirectionItem(
         id = "customization_settings",
         title = UIText.StringResource(R.string.settings_customization_label),
-        direction = CustomizationScreenDestination
     )
 
     data object NetworkSettings : DirectionItem(
         id = "network_settings",
         title = UIText.StringResource(R.string.settings_network_settings_label),
-        direction = NetworkSettingsScreenDestination
     )
 
     data object ManageDevices : DirectionItem(
         id = "manage_devices",
         title = UIText.StringResource(R.string.settings_manage_devices_label),
-        direction = SelfDevicesScreenDestination
     )
 
     data object PrivacySettings : DirectionItem(
         id = "privacy_settings",
         title = UIText.StringResource(R.string.settings_privacy_settings_label),
-        direction = PrivacySettingsConfigScreenDestination
     )
 
     data object TermsOfUse : DirectionItem(
         id = "terms_of_use",
         title = UIText.StringResource(R.string.settings_terms_of_use_label),
-        direction = TermsOfUseScreenDestination
     )
 
     data object WireWebsite : DirectionItem(
         id = "terms_of_use",
         title = UIText.StringResource(R.string.settings_wire_website_label),
-        direction = WireWebsiteScreenDestination
     )
 
     data object PrivacyPolicy : DirectionItem(
         id = "privacy_policy",
         title = UIText.StringResource(R.string.settings_privacy_policy_label),
-        direction = PrivacyPolicyScreenDestination
     )
 
     data object Licenses : DirectionItem(
         id = "other_licenses",
         title = UIText.StringResource(R.string.settings_licenses_settings_label),
-        direction = LicensesScreenDestination
     )
 
     data object Dependencies : DirectionItem(
         id = "other_licenses",
         title = UIText.StringResource(R.string.settings_dependencies_label),
-        direction = DependenciesScreenDestination
     )
 
     data object BackupAndRestore : DirectionItem(
         id = "backups_backup_and_restore",
         title = UIText.StringResource(R.string.backup_and_restore_screen_title),
-        direction = BackupAndRestoreScreenDestination
     )
 
     data object Support : DirectionItem(
         id = "other_support",
         title = UIText.StringResource(R.string.support_screen_title),
-        direction = SupportScreenDestination
     )
 
     data object ReportMisuse : DirectionItem(
         id = "other_report_misuse",
         title = UIText.StringResource(R.string.report_misuse_screen_title),
-        direction = ReportMisuseScreenDestination
     )
 
     data object DebugSettings : DirectionItem(
         id = "other_debug_settings",
         title = UIText.StringResource(R.string.debug_settings_screen_title),
-        direction = DebugScreenDestination
     )
 
     data object GiveFeedback : DirectionItem(
         id = "give_feedback",
         title = UIText.StringResource(R.string.give_feedback_screen_title),
-        direction = GiveFeedbackDestination
     )
 
     data object ReportBug : ActionItem(
@@ -261,7 +226,6 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
     data object AboutApp : DirectionItem(
         id = "about_app",
         title = UIText.StringResource(R.string.about_app_screen_title),
-        direction = AboutThisAppScreenDestination
     )
 }
 

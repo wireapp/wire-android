@@ -23,13 +23,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.ApplicationContext
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.util.withContext
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class LicensesViewModel(
-    context: Context
+class LicensesViewModel @Inject constructor(
+    @ApplicationContext context: Context
 ) : ViewModel() {
 
     var state: LicensesState by mutableStateOf(LicensesState())

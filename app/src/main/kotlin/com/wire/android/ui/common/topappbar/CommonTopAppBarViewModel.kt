@@ -18,12 +18,17 @@
 
 package com.wire.android.ui.common.topappbar
 
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -35,7 +40,6 @@ import com.wire.kalium.logic.data.sync.SyncState.GatheringPendingEvents
 import com.wire.kalium.logic.data.sync.SyncState.SlowSync
 import com.wire.kalium.logic.data.sync.SyncState.Waiting
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.network.NetworkState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -43,16 +47,23 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
+import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.common.CommonManualViewModelFactoryGroup
 
-class CommonTopAppBarViewModel(
+@WireAssistedViewModelBinding(CommonManualViewModelFactoryGroup::class)
+class CommonTopAppBarViewModel @AssistedInject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
-    private val params: CommonTopAppBarParams,
+    @CurrentAccount private val currentAccount: UserId,
+    @Assisted private val params: CommonTopAppBarParams,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(params: CommonTopAppBarParams): CommonTopAppBarViewModel
+    }
 
     var state by mutableStateOf(CommonTopAppBarState())
         private set
@@ -122,45 +133,23 @@ class CommonTopAppBarViewModel(
 
     init {
         viewModelScope.launch {
-            coreLogic.value.globalScope {
-                session.currentSessionFlow()
-                    .flatMapLatest {
-                        when (it) {
-                            is CurrentSessionResult.Failure.Generic,
-                            is CurrentSessionResult.Failure.SessionNotFound -> flowOf(
-                                ConnectivityUIState.None
-                            )
-
-                            is CurrentSessionResult.Success -> {
-                                val userId = it.accountInfo.userId
-                                combine(
-                                    activeCallsFlow(userId),
-                                    currentScreenFlow(),
-                                    connectivityFlow(userId),
-                                ) { activeCalls, currentScreen, connectivity ->
-                                    mapToConnectivityUIState(currentScreen, connectivity, userId, activeCalls)
-                                }.debounce { state ->
-                                    // Scoped inside flatMapLatest so this debounce is canceled
-                                    // together with the inner flow on session change, preventing
-                                    // stale state from leaking into a new session.
-                                    when {
-                                        // Delay the ongoing-call bar slightly to absorb rapid
-                                        // mute/unmute state changes without flickering.
-                                        state is ConnectivityUIState.Calls && state.hasOngoingCall ->
-                                            CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL
-                                        // Everything else (connectivity banners, incoming/outgoing
-                                        // calls, None) passes through immediately. Connectivity
-                                        // states are already debounced inside connectivityFlow.
-                                        else -> 0L
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .collectLatest { connectivityUIState ->
-                        state = state.copy(connectivityState = connectivityUIState)
-                    }
+            combine(
+                activeCallsFlow(currentAccount),
+                currentScreenFlow(),
+                connectivityFlow(currentAccount),
+            ) { activeCalls, currentScreen, connectivity ->
+                mapToConnectivityUIState(currentScreen, connectivity, currentAccount, activeCalls)
+            }.debounce { state ->
+                when {
+                    state is ConnectivityUIState.Calls && state.hasOngoingCall ->
+                        CONNECTIVITY_STATE_DEBOUNCE_ONGOING_CALL
+                    else -> 0L
+                }
+            }.collectLatest { connectivityUIState ->
+                state = state.copy(connectivityState = connectivityUIState)
             }
+        }
+        viewModelScope.launch {
             coreLogic.value.networkStateObserver.observeNetworkState().collectLatest {
                 state = state.copy(networkState = it)
             }

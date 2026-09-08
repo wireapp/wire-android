@@ -41,8 +41,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.SectionHeader
@@ -61,10 +59,9 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.sectionWithElements
 
-@WireRootDestination
 @Composable
 fun CustomizationScreen(
-    navigator: Navigator,
+    onBackPressed: () -> Unit,
     viewModel: CustomizationViewModel = customizationViewModel()
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
@@ -72,7 +69,7 @@ fun CustomizationScreen(
         lazyListState = lazyListState,
         state = viewModel.state,
         onThemeOptionChanged = viewModel::selectThemeOption,
-        onBackPressed = navigator::navigateBack,
+        onBackPressed = onBackPressed,
         onEnterToSendClicked = viewModel::selectPressEnterToSendOption,
     )
 }

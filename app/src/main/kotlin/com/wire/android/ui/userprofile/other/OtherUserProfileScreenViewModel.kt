@@ -19,7 +19,6 @@ package com.wire.android.ui.userprofile.other
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
@@ -30,7 +29,6 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.mapper.UsernameMapper.fromOtherUser
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ChangeGroupRoleError
@@ -41,7 +39,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
-import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
+import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsReadyUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -60,9 +58,14 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 @Suppress("LongParameterList", "TooManyFunctions")
-class OtherUserProfileScreenViewModel @Inject constructor(
+@WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
+class OtherUserProfileScreenViewModel @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val userTypeMapper: UserTypeMapper,
@@ -72,14 +75,22 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val observeClientList: ObserveClientsByUserIdUseCase,
     private val fetchUsersClients: FetchUsersClientsFromRemoteUseCase,
     private val getUserE2eiCertificateStatus: IsOtherUserE2EIVerifiedUseCase,
-    private val isOneToOneConversationCreated: IsOneToOneConversationCreatedUseCase,
+    private val checkOneToOneConversationIsReady: CheckOneToOneConversationIsReadyUseCase,
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val isE2EIEnabled: IsE2EIEnabledUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted navigationArgs: OtherUserProfileViewModelArgs,
 ) : ActionsViewModel<OtherUserProfileViewAction>(), OtherUserProfileEventsHandler {
-    private val otherUserProfileNavArgs: OtherUserProfileNavArgs = savedStateHandle.navArgs()
-    private val userId: QualifiedID = otherUserProfileNavArgs.userId
-    private val groupConversationId: QualifiedID? = otherUserProfileNavArgs.groupConversationId
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: OtherUserProfileViewModelArgs): OtherUserProfileScreenViewModel
+    }
+    private val userId: QualifiedID = QualifiedID(
+        navigationArgs.targetUserId.value,
+        navigationArgs.targetUserId.domain,
+    )
+    private val groupConversationId: QualifiedID? = navigationArgs.groupConversationId?.let {
+        QualifiedID(it.value, it.domain)
+    }
     var state: OtherUserProfileState by mutableStateOf(
         OtherUserProfileState(
             userId = userId,
@@ -98,8 +109,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
     private fun getIfConversationExist() {
         viewModelScope.launch {
-            val isOneToOneConversationCreated = isOneToOneConversationCreated(userId)
-            state = state.copy(isConversationStarted = isOneToOneConversationCreated)
+            val readiness = checkOneToOneConversationIsReady(userId)
+            if (readiness is CheckOneToOneConversationIsReadyUseCase.Result.Failure) {
+                appLogger.w("Failed to check one-to-one conversation readiness: ${readiness.coreFailure}")
+            }
+            state = state.copy(
+                isConversationStarted = readiness is CheckOneToOneConversationIsReadyUseCase.Result.Ready
+            )
         }
     }
     private fun getMLSVerificationStatus() {

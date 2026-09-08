@@ -39,6 +39,8 @@ class AllPages(val device: UiDevice) {
 
     val groupConversationDetailsPage = GroupConversationDetailsPage(device)
 
+    val groupAccessOptionsPage = GroupAccessOptionsPage(device)
+
     val searchPage = SearchPage(device)
 
     val ssoPage = SSOPage(device)
@@ -46,6 +48,8 @@ class AllPages(val device: UiDevice) {
     val chromePage = ChromePage(device)
 
     val teamCreationPage = TeamCreationPage(device)
+
+    val createNewGroupPage = CreateNewGroupPage(device)
 
     val selfUserProfilePage = SelfUserProfilePage(device)
     val callingPage = CallingPage(device)

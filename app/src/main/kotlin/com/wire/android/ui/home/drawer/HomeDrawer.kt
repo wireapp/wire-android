@@ -53,9 +53,6 @@ import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.ExternalDirectionLess
-import com.wire.android.navigation.ExternalUriDirection
-import com.wire.android.navigation.ExternalUriStringResDirection
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.clickable
@@ -71,7 +68,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 @Composable
 fun HomeDrawer(
     homeDrawerState: HomeDrawerState,
-    currentRoute: String?,
+    currentDestination: HomeDestination,
     navigateToHomeItem: (HomeDestination) -> Unit,
     onCloseDrawer: () -> Unit,
     modifier: Modifier = Modifier,
@@ -119,7 +116,7 @@ fun HomeDrawer(
                 MapToDrawerItem(
                     navigateToHomeItem = navigateToHomeItem,
                     onCloseDrawer = onCloseDrawer,
-                    currentRoute = currentRoute,
+                    currentDestination = currentDestination,
                     drawerUiItem = item
                 )
             }
@@ -132,7 +129,7 @@ fun HomeDrawer(
                 MapToDrawerItem(
                     navigateToHomeItem = navigateToHomeItem,
                     onCloseDrawer = onCloseDrawer,
-                    currentRoute = currentRoute,
+                    currentDestination = currentDestination,
                     drawerUiItem = item
                 )
             }
@@ -144,7 +141,7 @@ fun HomeDrawer(
 fun MapToDrawerItem(
     navigateToHomeItem: (HomeDestination) -> Unit,
     onCloseDrawer: () -> Unit,
-    currentRoute: String?,
+    currentDestination: HomeDestination,
     drawerUiItem: DrawerUiItem,
 ) {
     val context = LocalContext.current
@@ -157,7 +154,7 @@ fun MapToDrawerItem(
         when (this) {
             is DrawerUiItem.DynamicExternalNavigationItem -> DrawerItem(
                 destination = destination,
-                selected = currentRoute == destination.direction.route,
+                selected = currentDestination == destination,
                 onItemClick = remember(url, onCloseDrawer) {
                     {
                         com.wire.android.util.CustomTabsHelper.launchUrl(context, url)
@@ -168,7 +165,7 @@ fun MapToDrawerItem(
 
             is DrawerUiItem.RegularItem -> DrawerItem(
                 destination = destination,
-                selected = currentRoute == destination.direction.route,
+                selected = currentDestination == destination,
                 onItemClick = remember(destination, navigateToHomeItem, onCloseDrawer) {
                     {
                         navigateAndCloseDrawer(destination)
@@ -179,7 +176,7 @@ fun MapToDrawerItem(
             is DrawerUiItem.UnreadCounterItem -> DrawerItem(
                 destination = destination,
                 unreadCount = this.unreadCount.toInt(),
-                selected = currentRoute == destination.direction.route,
+                selected = currentDestination == destination,
                 onItemClick = remember(destination, navigateToHomeItem, onCloseDrawer) {
                     {
                         navigateAndCloseDrawer(destination)
@@ -267,16 +264,14 @@ fun DrawerItem(
                 .weight(1F)
         )
         UnreadMessageEventBadge(unreadMessageCount = unreadCount)
-        with(destination) {
-            if (direction is ExternalUriDirection || direction is ExternalUriStringResDirection || direction is ExternalDirectionLess) {
-                HorizontalSpace.x8()
-                Icon(
-                    painter = painterResource(commonR.drawable.ic_open_in_new),
-                    contentDescription = null,
-                    tint = colorsScheme().secondaryText,
-                    modifier = Modifier.size(dimensions().spacing16x)
-                )
-            }
+        if (destination == HomeDestination.Support || destination == HomeDestination.TeamManagement) {
+            HorizontalSpace.x8()
+            Icon(
+                painter = painterResource(commonR.drawable.ic_open_in_new),
+                contentDescription = null,
+                tint = colorsScheme().secondaryText,
+                modifier = Modifier.size(dimensions().spacing16x)
+            )
         }
         HorizontalSpace.x12()
     }

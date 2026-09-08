@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -48,7 +49,10 @@ fun DropDownMentionsSuggestions(
     cursorCoordinateY: Float,
     membersToMention: List<Contact>,
     onMentionPicked: (Contact) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    useKeyboardNavigation: Boolean = false,
+    firstItemFocusRequester: FocusRequester = FocusRequester.Default,
+    onDismissRequest: () -> Unit = {},
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
@@ -74,29 +78,41 @@ fun DropDownMentionsSuggestions(
             .offset { IntOffset(0, coordinateY) }
     ) {
         DropdownMenu(
-            properties = PopupProperties(focusable = false),
+            properties = PopupProperties(focusable = useKeyboardNavigation),
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
                 .heightIn(max = maxHeight),
             expanded = true,
-            onDismissRequest = {}
+            onDismissRequest = onDismissRequest,
         ) {
-
-            membersToMention.forEachIndexed { index, item ->
-                MemberItemToMention(
-                    avatarData = item.avatarData,
-                    name = item.name,
-                    label = item.label,
-                    membership = item.membership,
-                    clickable = Clickable(enabled = true) {
-                        onMentionPicked(item)
-                    },
+            if (useKeyboardNavigation) {
+                KeyboardMentionList(
+                    membersToMention = membersToMention,
                     searchQuery = searchQuery,
-                    modifier = Modifier.onSizeChanged {
-                        itemHeights[index] = it.height
-                    }
+                    onMentionPicked = onMentionPicked,
+                    onDismissRequest = onDismissRequest,
+                    firstItemFocusRequester = firstItemFocusRequester,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = maxHeight),
                 )
+            } else {
+                membersToMention.forEachIndexed { index, item ->
+                    MemberItemToMention(
+                        avatarData = item.avatarData,
+                        name = item.name,
+                        label = item.label,
+                        membership = item.membership,
+                        clickable = Clickable(enabled = true) {
+                            onMentionPicked(item)
+                        },
+                        searchQuery = searchQuery,
+                        modifier = Modifier.onSizeChanged {
+                            itemHeights[index] = it.height
+                        }
+                    )
+                }
             }
         }
     }

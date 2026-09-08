@@ -17,22 +17,21 @@
  */
 package com.wire.android.feature.cells.ui
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.cells.destinations.ConversationFilesScreenDestination
-import com.ramcosta.composedestinations.generated.cells.destinations.SearchScreenDestination
-import com.wire.android.config.NavigationTestExtension
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
+import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
+import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -47,6 +46,9 @@ import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.common.functional.right
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
@@ -55,7 +57,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,10 +74,9 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
+import com.wire.kalium.cells.data.SortingCriteria as KaliumSortingCriteria
 
-@ExtendWith(NavigationTestExtension::class)
 class CellViewModelTest {
 
     private companion object {
@@ -135,6 +135,39 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given search screen args when files flow subscribed then cell files are loaded`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        val items = flowOf(pagingData).asSnapshot()
+        assertEquals(items.size, 2)
+    }
+
+    @Test
+    fun `given search screen args with initial sorting when files are loaded then inherited sorting is used`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withSearchScreenArgsOnly(initialSortingCriteria = SortCriteriaNavArg.NameAZ)
+            .arrange()
+
+        viewModel.nodesFlow.first()
+
+        assertEquals(SortingCriteria.ByName.AtoZ, viewModel.sortingCriteria.value)
+        coVerify {
+            arrangement.getCellFilesPagedUseCase(
+                any(),
+                any(),
+                any(),
+                match { it.criteria == KaliumSortingCriteria.NAME_CASE_SENSITIVE && !it.descending },
+                any()
+            )
+        }
+    }
+
+    @Test
     fun `given viewer only node when files loaded then ui model is marked viewer only`() = runTest {
         val (_, viewModel) = Arrangement()
             .withLoadedFiles(listOf(testFiles[0].copy(isViewerOnly = true)))
@@ -167,6 +200,29 @@ class CellViewModelTest {
             .arrange()
 
         assertEquals(conversationId, viewModel.currentNodeUuid())
+    }
+
+    @Test
+    fun `given conversation context when a nested folder is clicked then OpenFolder uses its full remote path`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        val nestedFolder = Node.Folder(
+            uuid = "folderUuid",
+            name = "subSubFolder",
+            remotePath = "conversationId/parent/sub/subSubFolder",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(nestedFolder))
+
+            val action = awaitItem()
+            assertTrue(action is OpenFolder)
+            assertEquals("conversationId/parent/sub/subSubFolder", (action as OpenFolder).path)
+        }
     }
 
     @Test
@@ -383,8 +439,7 @@ class CellViewModelTest {
         private var inAppImageViewerEnabled: Boolean = false,
     ) {
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+        private var searchNavArgs: SearchNavArgs? = null
 
         @MockK
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
@@ -403,9 +458,6 @@ class CellViewModelTest {
 
         @MockK
         lateinit var fileHelper: FileHelper
-
-        @MockK
-        lateinit var fileNameResolver: FileNameResolver
 
         val sharedPathCache = CellFileLocalPathCache()
 
@@ -439,19 +491,18 @@ class CellViewModelTest {
         @MockK
         lateinit var getUserNames: GetUserNameUseCase
 
+        @MockK
+        lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
+
+        @MockK
+        lateinit var userDataStore: UserDataStore
+
+        @MockK
+        lateinit var qualifiedIdMapper: QualifiedIdMapper
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
-
-            mockkObject(ConversationFilesScreenDestination)
-            mockkObject(SearchScreenDestination)
-            every { SearchScreenDestination.argsFrom(savedStateHandle) } throws RuntimeException("Not a search screen")
-            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } returns CellFilesNavArgs(
-                conversationId = conversationId
-            )
-
-            every { savedStateHandle.get<String>(any()) } returns conversationId
-            every { savedStateHandle.get<String>("conversationId") } returns conversationId
 
             coEvery { isCellAvailableUseCase.invoke() } returns true.right()
 
@@ -460,6 +511,9 @@ class CellViewModelTest {
             every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.ConnectedWithInternet)
             coEvery { getConversationNames(any()) } returns null
             coEvery { getUserNames(any()) } returns null
+            coEvery { isSelfUserViewerOnConversation(any()) } returns true
+            every { userDataStore.isViewerAccessBannerDismissed(any()) } returns flowOf(false)
+            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
@@ -515,41 +569,39 @@ class CellViewModelTest {
 
         fun withConversationId(conversationId: String) = apply {
             this.conversationId = conversationId
-            every { savedStateHandle.get<String>(any()) } returns conversationId
-            every { savedStateHandle.get<String>("conversationId") } returns conversationId
         }
 
-        fun withSearchScreenArgsOnly() = apply {
-            every { SearchScreenDestination.argsFrom(savedStateHandle) } returns SearchNavArgs(
-                conversationId = conversationId
+        fun withSearchScreenArgsOnly(initialSortingCriteria: SortCriteriaNavArg? = null) = apply {
+            searchNavArgs = SearchNavArgs(
+                conversationId = conversationId,
+                screenType = DriveSearchScreenType.SHARED_DRIVE,
+                parentRoute = null,
+                initialSortingCriteria = initialSortingCriteria,
             )
-            every { ConversationFilesScreenDestination.argsFrom(savedStateHandle) } throws RuntimeException("Not a files screen")
         }
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
             every { fileHelper.getExternalFilesDir() } returns File("")
-            every { fileNameResolver.getUniqueFile(any(), any()) } returns File("")
 
             coEvery { getWireCellsConfig() } returns null
 
             val openFileDownloadController = OpenFileDownloadController(
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
-                fileNameResolver = fileNameResolver,
                 sharedPathCache = sharedPathCache,
             )
 
             val offlineFileDownloadController = OfflineFileDownloadController(
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
-                fileNameResolver = fileNameResolver,
                 saveOfflineFile = mockk(relaxUnitFun = true),
                 sharedPathCache = sharedPathCache,
             )
 
             return this to CellViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = CellFilesNavArgs(conversationId = conversationId),
+                searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
@@ -568,8 +620,12 @@ class CellViewModelTest {
                 networkStateObserver = networkStateObserver,
                 getConversationName = getConversationNames,
                 getUserName = getUserNames,
+                isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
+                userDataStore = userDataStore,
+                qualifiedIdMapper = qualifiedIdMapper,
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
+                drivePermissionsEnabled = true,
             )
         }
     }

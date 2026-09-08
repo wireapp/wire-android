@@ -17,6 +17,9 @@
  */
 package com.wire.android.ui.legalhold.dialog.requested
 
+import com.wire.android.di.KaliumCoreLogic
+import dev.zacsweers.metro.Inject
+
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.getValue
@@ -44,9 +47,9 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class LegalHoldRequestedViewModel(
+class LegalHoldRequestedViewModel @Inject constructor(
     private val validatePassword: ValidatePasswordUseCase,
-    private val coreLogic: Lazy<CoreLogic>
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>
 ) : ViewModel() {
 
     val passwordTextState: TextFieldState = TextFieldState()

@@ -69,8 +69,8 @@ class CallingManager(private val usersManager: ClientUserManager) {
         private val TIMEOUT_PEER_CONNECTIONS = 20.seconds
         private val FLOWCHECK_POLLING = 2.seconds
 
-        private const val CHROME_SUPPORT_VERSION = "102.0.5005.115"
-        private const val CHROME_CURRENT_VERSION = "128.0.6613.137"
+        private const val CHROME_SUPPORT_VERSION = "128.0.6613.137"
+        private const val CHROME_CURRENT_VERSION = "151.0.7922.76"
     }
 
     private val client = CallingServiceClient()

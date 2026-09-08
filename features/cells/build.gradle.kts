@@ -3,8 +3,6 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
-    alias(libs.plugins.ksp)
-    id(libs.plugins.wire.android.navigation.get().pluginId)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
     alias(libs.plugins.kotlin.serialization)
@@ -14,11 +12,16 @@ dependencies {
     implementation("com.wire.kalium:kalium-common")
     implementation("com.wire.kalium:kalium-logic")
     implementation("com.wire.kalium:kalium-cells")
+    implementation(project(":core:datastore"))
     implementation(project(":core:di"))
+    implementation(project(":core:navigation"))
     implementation(project(":core:ui-common"))
-    implementation(project(":core:media-player"))
+    implementation(project(":core:video-player"))
+    implementation(project(":core:audio-player"))
+    implementation(libs.compose.activity)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.dataStore)
     implementation(libs.androidx.browser)
     implementation(libs.ktx.immutableCollections)
     implementation(libs.ktx.serialization)
@@ -50,11 +53,4 @@ dependencies {
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
     testImplementation(testFixtures(project(":core:ui-common")))
-}
-
-android {
-    ksp {
-        arg("compose-destinations.moduleName", "cells")
-        arg("compose-destinations.mode", "destinations")
-    }
 }

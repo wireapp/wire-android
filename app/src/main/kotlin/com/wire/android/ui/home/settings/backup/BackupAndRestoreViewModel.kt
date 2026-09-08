@@ -53,10 +53,12 @@ import com.wire.kalium.logic.feature.backup.VerifyBackupResult
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.util.DateTimeUtil
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.IOException
 import okio.Path
 import dev.zacsweers.metro.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -86,7 +88,8 @@ class BackupAndRestoreViewModel @Inject constructor(
     @VisibleForTesting
     internal lateinit var latestImportedBackupTempPath: Path
 
-    private var createRestoreJob: Job? = null
+    private var createBackupJob: Job? = null
+    private var restoreBackupJob: Job? = null
 
     init {
         observeLastBackupDate()
@@ -107,8 +110,8 @@ class BackupAndRestoreViewModel @Inject constructor(
         }
     }
     fun createBackup() {
-        createRestoreJob?.cancel()
-        createRestoreJob = viewModelScope.launch {
+        createBackupJob?.cancel()
+        createBackupJob = viewModelScope.launch {
             val password = createBackupPasswordState.text.toString()
             val result = if (mpBackupSettings is MPBackupSettings.Enabled) {
                 createMpBackupFile(password) { progress ->
@@ -169,6 +172,11 @@ class BackupAndRestoreViewModel @Inject constructor(
         )
     }
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
+        state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.InProgress(),
+            restoreFileValidation = RestoreFileValidation.Initial,
+            restorePasswordValidation = PasswordValidation.NotVerified,
+        )
         latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
         fileManager.copyToPath(uri, latestImportedBackupTempPath)
         verifyBackupFile(latestImportedBackupTempPath)
@@ -255,30 +263,65 @@ class BackupAndRestoreViewModel @Inject constructor(
         )
     }
     fun cancelBackupCreation() = viewModelScope.launch(dispatcher.main()) {
-        createRestoreJob?.cancel()
+        createBackupJob?.cancel()
         createBackupPasswordState.clearText()
         updateCreationProgress(0f)
     }
-    fun cancelBackupRestore() = viewModelScope.launch {
-        createRestoreJob?.cancel()
+
+    fun dismissBackupRestore() = viewModelScope.launch {
+        restoreBackupJob?.cancelAndJoin()
         restoreBackupPasswordState.clearText()
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Initial,
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
-        withContext(dispatcher.io()) {
-            if (this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized && kaliumFileSystem.exists(
-                    latestImportedBackupTempPath
-                )
-            ) {
-                kaliumFileSystem.delete(latestImportedBackupTempPath)
-            }
+        deleteImportedBackupFileSafely()
+    }
+
+    fun cancelBackupRestore() {
+        if (
+            state.backupFileFormat != BackupFileFormat.MULTIPLATFORM ||
+            state.backupRestoreProgress !is BackupRestoreProgress.InProgress
+        ) {
+            return
+        }
+
+        state = state.copy(backupRestoreProgress = BackupRestoreProgress.Cancelling)
+        val jobToCancel = restoreBackupJob
+        viewModelScope.launch {
+            jobToCancel?.cancelAndJoin()
+            deleteImportedBackupFileSafely()
+            restoreBackupPasswordState.clearText()
+            state = state.copy(
+                restoreFileValidation = RestoreFileValidation.Initial,
+                backupRestoreProgress = BackupRestoreProgress.Cancelled,
+                restorePasswordValidation = PasswordValidation.NotVerified,
+            )
         }
     }
+
+    private suspend fun deleteImportedBackupFileSafely() {
+        try {
+            deleteImportedBackupFile()
+        } catch (exception: IOException) {
+            appLogger.e("Failed to delete imported backup file", exception)
+        }
+    }
+
+    private suspend fun deleteImportedBackupFile() = withContext(dispatcher.io()) {
+        if (
+            this@BackupAndRestoreViewModel::latestImportedBackupTempPath.isInitialized &&
+            kaliumFileSystem.exists(latestImportedBackupTempPath)
+        ) {
+            kaliumFileSystem.delete(latestImportedBackupTempPath)
+        }
+    }
+
     private fun restoreBackup(backupFilePath: Path, password: String?) {
-        createRestoreJob?.cancel()
-        createRestoreJob = viewModelScope.launch {
+        restoreBackupJob?.cancel()
+        state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress())
+        restoreBackupJob = viewModelScope.launch {
             val result = when (state.backupFileFormat) {
                 BackupFileFormat.ANDROID -> importBackup(backupFilePath, password)
                 BackupFileFormat.MULTIPLATFORM -> importMpBackup(backupFilePath, password) { progress ->
@@ -304,8 +347,11 @@ class BackupAndRestoreViewModel @Inject constructor(
     private fun updateCreationProgress(progress: Float) = viewModelScope.launch {
         state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(progress))
     }
-    private fun updateRestoreProgress(progress: Float) = viewModelScope.launch {
-        state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(progress))
+
+    private fun updateRestoreProgress(progress: Float) {
+        if (state.backupRestoreProgress is BackupRestoreProgress.InProgress) {
+            state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(progress))
+        }
     }
     internal companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"

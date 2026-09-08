@@ -32,7 +32,11 @@ class AvatarImageManager @Inject constructor(val context: Context) {
         return file.toUri()
     }
 
-    fun getShareableTempAvatarUri(filePath: Path): Uri {
-        return FileProvider.getUriForFile(context, context.getProviderAuthority(), filePath.toFile())
+    /**
+     * Creates a temporary URI that the camera app writes the captured avatar into.
+     */
+    fun createCameraOutputAvatarUri(filePath: Path): Uri {
+        val cameraOutputFile = context.fileProviderSharedCacheFile(filePath.name)
+        return FileProvider.getUriForFile(context, context.getProviderAuthority(), cameraOutputFile)
     }
 }

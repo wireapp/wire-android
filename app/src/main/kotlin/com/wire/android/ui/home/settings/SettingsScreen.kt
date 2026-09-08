@@ -30,19 +30,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.HomeDestination
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.annotation.app.WireHomeDestination
-import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.logging.LogShareLauncher
@@ -50,18 +43,19 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.sectionWithElements
 
-@WireHomeDestination
 @Composable
-fun SettingsScreen(
-    homeStateHolder: HomeStateHolder,
-    viewModel: SettingsViewModel = settingsScreenViewModel()
+internal fun SettingsScreen(
+    onOpenAppLockSetup: () -> Unit,
+    onDirectionItemClicked: (SettingsItem.DirectionItem) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState(),
+    viewModel: SettingsViewModel = settingsScreenViewModel(),
 ) {
     val turnAppLockOffDialogState = rememberVisibilityState<Unit>()
-    val onAppLockSwitchClicked: (Boolean) -> Unit = remember {
+    val onAppLockSwitchClicked: (Boolean) -> Unit = remember(onOpenAppLockSetup) {
         {
             isChecked ->
             if (isChecked) {
-                homeStateHolder.navigator.navigate(NavigationCommand(SetLockCodeScreenDestination, BackStackMode.NONE))
+                onOpenAppLockSetup()
             } else {
                 turnAppLockOffDialogState.show(Unit)
             }
@@ -81,18 +75,13 @@ fun SettingsScreen(
         )
     }
     SettingsScreenContent(
-        lazyListState = homeStateHolder.lazyListStateFor(HomeDestination.Settings),
+        lazyListState = lazyListState,
         settingsState = viewModel.state,
-        onItemClicked = remember(context, homeStateHolder.navigator, logShareLauncher, viewModel) {
+        onItemClicked = remember(context, onDirectionItemClicked, logShareLauncher, viewModel) {
             {
                 item ->
                 when (item) {
-                    is SettingsItem.DirectionItem -> item.direction.handleNavigation(
-                        context = context,
-                        handleOtherDirection = { direction ->
-                            homeStateHolder.navigator.navigate(NavigationCommand(direction))
-                        }
-                    )
+                    is SettingsItem.DirectionItem -> onDirectionItemClicked(item)
 
                     is SettingsItem.ActionItem -> when (item) {
                         SettingsItem.ReportBug -> logShareLauncher.shareBugReport {

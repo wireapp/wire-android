@@ -63,6 +63,8 @@ sealed interface BackupCreationProgress {
 sealed interface BackupRestoreProgress {
     data object Finished : BackupRestoreProgress
     data class InProgress(val value: Float = 0f) : BackupRestoreProgress
+    data object Cancelling : BackupRestoreProgress
+    data object Cancelled : BackupRestoreProgress
     data object Failed : BackupRestoreProgress
 }
 

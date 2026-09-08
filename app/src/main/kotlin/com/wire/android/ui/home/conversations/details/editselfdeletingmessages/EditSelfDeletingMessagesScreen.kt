@@ -20,7 +20,6 @@ package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 
 import com.wire.android.ui.home.conversations.editSelfDeletingMessagesViewModel
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -42,10 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.button.WireButtonState
@@ -62,14 +58,10 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.sectionWithElements
 
-@WireRootDestination(
-    navArgs = EditSelfDeletingMessagesNavArgs::class,
-    style = SlideNavigationAnimation::class,
-)
 @Composable
-fun EditSelfDeletingMessagesScreen(
-    navigator: Navigator,
-    editSelfDeletingMessagesViewModel: EditSelfDeletingMessagesViewModel = editSelfDeletingMessagesViewModel(),
+internal fun EditSelfDeletingMessagesRouteScreen(
+    viewModel: EditSelfDeletingMessagesViewModel,
+    onNavigateBack: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
@@ -79,15 +71,15 @@ fun EditSelfDeletingMessagesScreen(
             val title = stringResource(id = R.string.self_deleting_messages_title)
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
-                onNavigationPressed = navigator::navigateBack,
+                onNavigationPressed = onNavigateBack,
                 title = title,
                 navigationIconType = NavigationIconType.Back(R.string.content_description_edit_self_delete_back_btn)
             )
         }
     ) { internalPadding ->
-        with(editSelfDeletingMessagesViewModel) {
+        with(viewModel) {
             LaunchedEffect(state.isCompleted) {
-                if (state.isCompleted) navigator.navigateBack()
+                if (state.isCompleted) onNavigateBack()
             }
             Column(modifier = Modifier.padding(internalPadding)) {
                 SelfDeletingMessageOption(
@@ -175,7 +167,10 @@ fun SelectableSelfDeletingItem(
 @Preview
 @Composable
 fun PreviewEditSelfDeletingMessagesScreen() {
-    EditSelfDeletingMessagesScreen(rememberNavigator {})
+    EditSelfDeletingMessagesRouteScreen(
+        viewModel = editSelfDeletingMessagesViewModel(),
+        onNavigateBack = {},
+    )
 }
 
 @Preview

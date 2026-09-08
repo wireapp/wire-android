@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.settings.about
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
@@ -36,37 +35,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.handleNavigation
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.debug.aboutThisAppViewModel
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireRootDestination
 @Composable
-fun AboutThisAppScreen(
-    navigator: Navigator,
-    viewModel: AboutThisAppViewModel = aboutThisAppViewModel()
+internal fun AboutThisAppRouteScreen(
+    viewModel: AboutThisAppViewModel,
+    onBackPressed: () -> Unit,
+    onItemClicked: (SettingsItem.DirectionItem) -> Unit,
 ) {
-    val context = LocalContext.current
     AboutThisAppContent(
         state = viewModel.state,
-        onBackPressed = navigator::navigateBack,
-        onItemClicked = remember {
-            {
-                it.direction.handleNavigation(
-                    context = context,
-                    handleOtherDirection = { navigator.navigate(NavigationCommand(it)) }
-                )
-            }
-        }
+        onBackPressed = onBackPressed,
+        onItemClicked = onItemClicked,
     )
 }
 

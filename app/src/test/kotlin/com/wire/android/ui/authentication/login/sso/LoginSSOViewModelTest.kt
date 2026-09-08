@@ -24,7 +24,6 @@ import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.assertions.shouldNotBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStoreProvider
@@ -47,6 +46,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationScope
@@ -74,6 +74,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -86,7 +87,7 @@ import android.database.sqlite.SQLiteException
 import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 @Suppress("LargeClass")
 class LoginSSOViewModelTest {
 
@@ -365,7 +366,8 @@ class LoginSSOViewModelTest {
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
                 capture(onAddAuthenticatedUserFailureSlot),
-                capture(onSuccessEstablishSSOSessionSlot)
+                capture(onSuccessEstablishSSOSessionSlot),
+                any()
             )
         }
 
@@ -399,7 +401,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
 
@@ -432,7 +435,8 @@ class LoginSSOViewModelTest {
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
                 capture(onAddAuthenticatedUserFailureSlot),
-                capture(onSuccessEstablishSSOSessionSlot)
+                capture(onSuccessEstablishSSOSessionSlot),
+                any()
             )
         }
 
@@ -483,7 +487,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -511,7 +516,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onAddAuthenticatedUserFailureSlot.captured.invoke(AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists)
@@ -519,6 +525,69 @@ class LoginSSOViewModelTest {
             coVerify(exactly = 0) { arrangement.getOrRegisterClientUseCase(any()) }
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.UserAlreadyExists>()
         }
+
+    @Test
+    fun `given retained account has different SSO identity, when session is established, then show confirmation`() = runTest {
+        val expectedCookie = "some-cookie"
+        val pendingSession = mockk<StoreSessionParam>()
+        every { pendingSession.nomadServiceUrl } returns null
+        val (_, loginViewModel) = Arrangement()
+            .withEstablishSSOSessionIdentityChanged(expectedCookie, pendingSession)
+            .arrange()
+
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        advanceUntilIdle()
+
+        loginViewModel.loginState.showSsoIdentityChangedDialog shouldBeEqualTo true
+    }
+
+    @Test
+    fun `given SSO identity change confirmation, when dismissed, then retained account is not replaced`() = runTest {
+        val expectedCookie = "some-cookie"
+        val pendingSession = mockk<StoreSessionParam>()
+        every { pendingSession.nomadServiceUrl } returns null
+        val (arrangement, loginViewModel) = Arrangement()
+            .withEstablishSSOSessionIdentityChanged(expectedCookie, pendingSession)
+            .arrange()
+
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        advanceUntilIdle()
+        loginViewModel.onSsoIdentityChangeDismissed()
+        loginViewModel.onSsoIdentityChangeConfirmed()
+        advanceUntilIdle()
+
+        loginViewModel.loginState.showSsoIdentityChangedDialog shouldBeEqualTo false
+        coVerify(exactly = 0) {
+            arrangement.ssoExtension.replaceRetainedSsoSession(any())
+        }
+    }
+
+    @Test
+    fun `given SSO identity change confirmation, when confirmed, then replace account and continue login`() = runTest {
+        val expectedCookie = "some-cookie"
+        val pendingSession = mockk<StoreSessionParam>()
+        every { pendingSession.nomadServiceUrl } returns null
+        val (arrangement, loginViewModel) = Arrangement()
+            .withEstablishSSOSessionIdentityChanged(expectedCookie, pendingSession)
+            .withReplaceRetainedSsoSessionReturning(
+                ReplaceRetainedSsoSessionResult.Success(TestUser.USER_ID)
+            )
+            .withRegisterClientReturning(RegisterClientResult.Success(TestClient.CLIENT))
+            .withIsSyncCompletedReturning(true)
+            .arrange()
+
+        loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
+        advanceUntilIdle()
+        loginViewModel.onSsoIdentityChangeConfirmed()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.ssoExtension.replaceRetainedSsoSession(pendingSession)
+        }
+        coVerify(exactly = 1) {
+            arrangement.getOrRegisterClientUseCase(any())
+        }
+    }
 
     @Test
     fun `given getOrRegister returns TooManyClients, when establishSSOSession, then TooManyClients is passed`() =
@@ -541,7 +610,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -571,7 +641,8 @@ class LoginSSOViewModelTest {
                 capture(onAuthScopeFailureSlot),
                 capture(onSSOLoginFailureSlot),
                 capture(onAddAuthenticatedUserFailureSlot),
-                capture(onSuccessEstablishSSOSessionSlot)
+                capture(onSuccessEstablishSSOSessionSlot),
+                any()
             )
         }
         onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -599,6 +670,7 @@ class LoginSSOViewModelTest {
                 eq(expectedCookie),
                 eq(SERVER_CONFIG.id),
                 capture(consumeNomadServiceUrlProviders),
+                any(),
                 any(),
                 any(),
                 any(),
@@ -823,7 +895,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -856,7 +929,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -891,7 +965,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -923,7 +998,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -955,7 +1031,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -986,7 +1063,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -1017,7 +1095,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -1049,7 +1128,8 @@ class LoginSSOViewModelTest {
                     capture(onAuthScopeFailureSlot),
                     capture(onSSOLoginFailureSlot),
                     capture(onAddAuthenticatedUserFailureSlot),
-                    capture(onSuccessEstablishSSOSessionSlot)
+                    capture(onSuccessEstablishSSOSessionSlot),
+                    any()
                 )
             }
             onSuccessEstablishSSOSessionSlot.captured.invoke(TestUser.USER_ID)
@@ -1170,9 +1250,38 @@ class LoginSSOViewModelTest {
                     any(),
                     any(),
                     any(),
+                    any(),
                     any()
                 )
             } returns Unit
+        }
+
+        fun withEstablishSSOSessionIdentityChanged(
+            cookie: String,
+            session: StoreSessionParam,
+            customConfig: ServerConfig = SERVER_CONFIG,
+        ) = apply {
+            coEvery {
+                ssoExtension.establishSSOSession(
+                    eq(cookie),
+                    eq(customConfig.id),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            } coAnswers {
+                arg<suspend (StoreSessionParam) -> Unit>(8)(session)
+            }
+        }
+
+        fun withReplaceRetainedSsoSessionReturning(result: ReplaceRetainedSsoSessionResult) = apply {
+            coEvery {
+                ssoExtension.replaceRetainedSsoSession(any())
+            } returns result
         }
 
         fun withFetchSSOSettings(customConfig: ServerConfig = SERVER_CONFIG) = apply {

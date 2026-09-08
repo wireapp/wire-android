@@ -17,8 +17,8 @@
  */
 package com.wire.android.ui.home.appLock.unlock
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.widget.Toast
+import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,61 +31,44 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.biometric.showBiometricPrompt
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCodeScreenDestination
-import com.wire.android.ui.home.settings.appUnlockWithBiometricsViewModel
 
-@WireRootDestination
 @Composable
-fun AppUnlockWithBiometricsScreen(
-    navigator: Navigator,
-    appUnlockWithBiometricsViewModel: AppUnlockWithBiometricsViewModel = appUnlockWithBiometricsViewModel()
+internal fun AppUnlockWithBiometricsRouteScreen(
+    onUnlocked: () -> Unit,
+    onCancel: () -> Unit,
+    onRequestPasscode: () -> Unit,
 ) {
     AppUnLockBackground()
 
-    val context = LocalContext.current
+    val activity = LocalActivity.current as AppCompatActivity
     val tooManyAttemptsMessage = stringResource(
         id = R.string.biometrics_app_unlock_too_many_attempts
     )
 
     LaunchedEffect(Unit) {
-        (context as AppCompatActivity).showBiometricPrompt(
+        activity.showBiometricPrompt(
             onSuccess = {
                 appLogger.i("appLock: app Unlocked with biometrics")
-                appUnlockWithBiometricsViewModel.onAppUnlocked()
-                navigator.navigateBack()
+                onUnlocked()
             },
             onCancel = {
                 appLogger.i("appLock: biometrics unlock canceled")
-                context.finishAffinity()
+                onCancel()
             },
             onTooManyFailedAttempts = {
-                Toast.makeText(context, tooManyAttemptsMessage, Toast.LENGTH_SHORT).show()
-                navigator.navigate(
-                    NavigationCommand(
-                        destination = EnterLockCodeScreenDestination,
-                        backStackMode = BackStackMode.REMOVE_CURRENT
-                    )
-                )
+                Toast.makeText(activity, tooManyAttemptsMessage, Toast.LENGTH_SHORT).show()
+                onRequestPasscode()
             },
             onRequestPasscode = {
                 appLogger.i("appLock: requesting passcode from biometrics unlock")
-                navigator.navigate(
-                    NavigationCommand(
-                        destination = EnterLockCodeScreenDestination,
-                        backStackMode = BackStackMode.REMOVE_CURRENT
-                    )
-                )
+                onRequestPasscode()
             }
         )
     }

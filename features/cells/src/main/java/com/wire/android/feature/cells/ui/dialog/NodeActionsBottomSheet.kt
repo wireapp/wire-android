@@ -60,6 +60,7 @@ internal fun NodeActionsBottomSheet(
     menuOptions: MenuOptions,
     onAction: (NodeBottomSheetAction) -> Unit,
     onDismiss: () -> Unit,
+    showViewerOnlyIcon: Boolean = false,
     sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
 ) {
 
@@ -73,6 +74,7 @@ internal fun NodeActionsBottomSheet(
     ) {
         SheetContent(
             menuOptions = menuOptions,
+            showViewerOnlyIcon = showViewerOnlyIcon,
             onAction = { action ->
                 sheetState.hide { onAction(action) }
             }
@@ -83,6 +85,7 @@ internal fun NodeActionsBottomSheet(
 @Composable
 private fun SheetContent(
     menuOptions: MenuOptions,
+    showViewerOnlyIcon: Boolean = false,
     onAction: (NodeBottomSheetAction) -> Unit
 ) {
     Column(
@@ -119,7 +122,7 @@ private fun SheetContent(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                if (menuOptions.node.isViewerOnly) {
+                if (menuOptions.node.isViewerOnly && showViewerOnlyIcon) {
                     Text(
                         text = stringResource(R.string.viewer_access_label),
                         style = typography().label04,

@@ -52,6 +52,9 @@ import com.wire.kalium.logic.feature.call.usecase.video.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformRotation
 import com.wire.kalium.logic.util.PlatformView
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -62,10 +65,13 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class SharedCallingViewModel(
-    val conversationId: ConversationId,
+@WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
+class SharedCallingViewModel @AssistedInject constructor(
+    @Assisted val conversationId: ConversationId,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeLastActiveCallWithSortedParticipants: ObserveLastActiveCallWithSortedParticipantsUseCase,
     private val hangUpCall: HangUpCallUseCase,
@@ -82,6 +88,10 @@ class SharedCallingViewModel(
     private val userTypeMapper: UserTypeMapper,
     private val dispatchers: DispatcherProvider
 ) : ActionsViewModel<SharedCallingViewActions>() {
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: ConversationId): SharedCallingViewModel
+    }
 
     var callState by mutableStateOf(CallState(conversationId))
 

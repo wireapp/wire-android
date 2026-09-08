@@ -20,45 +20,23 @@
 
 package com.wire.android.util
 
-import android.annotation.SuppressLint
-import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.wire.android.appLogger
+import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
-import com.wire.android.navigation.toDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDataDetailScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountEmailScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSelectorScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSummaryScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountVerificationCodeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreateTeamAccountOverviewScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.E2EiCertificateDetailsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.ImportMediaScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.LoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginPasswordScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewWelcomeEmptyStartScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RegisterDeviceScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SelfDevicesScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeChooserScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.WelcomeScreenDestination
+import com.wire.android.navigation.runtime.startup.HomeRoute
+import com.wire.android.navigation.routes.media.AuthenticatedImportMediaRoute
+import com.wire.android.navigation.routes.media.LoggedOutImportMediaRoute
+import com.wire.android.ui.home.conversations.ConversationRoute
+import com.wire.android.ui.settings.devices.SelfDevicesRoute
+import com.wire.android.ui.userprofile.other.OtherUserProfileRoute
+import com.wire.android.ui.userprofile.toQualifiedId
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.navigation.AuthenticationScreenRoute
+import com.wire.navigation.WireRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,8 +55,18 @@ import dev.zacsweers.metro.SingleIn
 @SingleIn(AppScope::class)
 class CurrentScreenManager @Inject constructor(
     screenStateObserver: ScreenStateObserver
-) : DefaultLifecycleObserver,
-    NavController.OnDestinationChangedListener {
+) : DefaultLifecycleObserver {
+
+    private var stopAnalyticsView: (String) -> Unit = AnonymousAnalyticsManagerImpl::stopView
+    private var recordAnalyticsView: (String) -> Unit = AnonymousAnalyticsManagerImpl::recordView
+
+    internal constructor(
+        screenStateObserver: ScreenStateObserver,
+        anonymousAnalyticsManager: AnonymousAnalyticsManager,
+    ) : this(screenStateObserver) {
+        stopAnalyticsView = anonymousAnalyticsManager::stopView
+        recordAnalyticsView = anonymousAnalyticsManager::recordView
+    }
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther())
 
@@ -135,19 +123,14 @@ class CurrentScreenManager @Inject constructor(
         }
     }
 
-    override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        val currentScreenName = currentScreenName()
-        AnonymousAnalyticsManagerImpl.stopView(currentScreenName)
+    fun onRouteChanged(route: WireRoute) {
+        changeCurrentScreen(CurrentScreen.fromRoute(route, isApplicationVisibleFlow.value))
+    }
 
-        val currentItem = destination.toDestination()
-        currentScreenState.value = CurrentScreen.fromDestination(
-            currentItem,
-            arguments,
-            isApplicationVisibleFlow.value
-        )
-
-        val newScreenName = currentScreenName()
-        AnonymousAnalyticsManagerImpl.recordView(newScreenName)
+    private fun changeCurrentScreen(newScreen: CurrentScreen) {
+        stopAnalyticsView(currentScreenName())
+        currentScreenState.value = newScreen
+        recordAnalyticsView(currentScreenName())
     }
 
     private fun currentScreenName() = currentScreenState.value.let { currentScreen ->
@@ -229,47 +212,24 @@ sealed class CurrentScreen {
     open fun toScreenName(): String = "UnknownScreen"
 
     companion object {
-        @SuppressLint("RestrictedApi")
-        @Suppress("ComplexMethod")
-        fun fromDestination(destination: DestinationSpec?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
+        fun fromRoute(route: WireRoute, isAppVisible: Boolean): CurrentScreen {
             if (!isAppVisible) {
                 return InBackground
             }
-            return when (destination) {
-                is HomeScreenDestination -> Home
-                is ConversationScreenDestination ->
-                    Conversation(destination.argsFrom(arguments).conversationId)
-
-                is OtherUserProfileScreenDestination ->
-                    OtherUserProfile(destination.argsFrom(arguments).userId, destination.argsFrom(arguments).groupConversationId)
-
-                is ImportMediaScreenDestination -> ImportMedia
-
-                is SelfDevicesScreenDestination -> DeviceManager
-
-                is WelcomeScreenDestination,
-                is NewWelcomeEmptyStartScreenDestination,
-                is WelcomeChooserScreenDestination,
-                is LoginScreenDestination,
-                is NewLoginScreenDestination,
-                is NewLoginPasswordScreenDestination,
-                is NewLoginVerificationCodeScreenDestination,
-                is CreatePersonalAccountOverviewScreenDestination,
-                is CreateTeamAccountOverviewScreenDestination,
-                is CreateAccountEmailScreenDestination,
-                is CreateAccountDetailsScreenDestination,
-                is CreateAccountSummaryScreenDestination,
-                is InitialSyncScreenDestination,
-                is E2EIEnrollmentScreenDestination,
-                is E2EiCertificateDetailsScreenDestination,
-                is RegisterDeviceScreenDestination,
-                is CreateAccountUsernameScreenDestination,
-                is CreateAccountVerificationCodeScreenDestination,
-                is CreateAccountDataDetailScreenDestination,
-                is CreateAccountSelectorScreenDestination,
-                is RemoveDeviceScreenDestination -> AuthRelated(destination.baseRoute)
-
-                else -> SomeOther(destination?.baseRoute)
+            return when (route) {
+                is HomeRoute -> Home
+                is ConversationRoute -> Conversation(
+                    ConversationId(route.conversationId.value, route.conversationId.domain)
+                )
+                is AuthenticatedImportMediaRoute,
+                is LoggedOutImportMediaRoute -> ImportMedia
+                is OtherUserProfileRoute -> OtherUserProfile(
+                    userId = route.targetUserId.toQualifiedId(),
+                    groupConversationId = route.groupConversationId?.toQualifiedId(),
+                )
+                is SelfDevicesRoute -> DeviceManager
+                is AuthenticationScreenRoute -> AuthRelated(route.routeId)
+                else -> SomeOther(route.routeId)
             }
         }
     }

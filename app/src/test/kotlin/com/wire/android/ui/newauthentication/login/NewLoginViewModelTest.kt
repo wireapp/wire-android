@@ -3,9 +3,7 @@ package com.wire.android.ui.newauthentication.login
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -72,7 +70,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class NewLoginViewModelTest {
     private val dispatchers = TestDispatcherProvider()
 
@@ -380,7 +378,7 @@ class NewLoginViewModelTest {
         testHandleSSOResultRegisterClientResults(
             result = RegisterClientResult.Success(TestClient.CLIENT),
             isInitialSyncCompleted = true,
-            expectedNextStep = NewLoginAction.Success.NextStep.None,
+            expectedNextStep = NewLoginAction.Success.NextStep.None(UserId("user-id", "domain")),
         )
 
     @Test
@@ -388,7 +386,7 @@ class NewLoginViewModelTest {
         testHandleSSOResultRegisterClientResults(
             result = RegisterClientResult.Success(TestClient.CLIENT),
             isInitialSyncCompleted = false,
-            expectedNextStep = NewLoginAction.Success.NextStep.InitialSync,
+            expectedNextStep = NewLoginAction.Success.NextStep.InitialSync(UserId("user-id", "domain")),
         )
 
     @Test
@@ -435,7 +433,9 @@ class NewLoginViewModelTest {
         advanceUntilIdle()
 
         coVerify {
-            arrangement.loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
+            arrangement.loginSSOViewModelExtension.establishSSOSession(
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+            )
         }
     }
 
@@ -461,6 +461,8 @@ class NewLoginViewModelTest {
                 eq("cookie"),
                 eq("server-config-id"),
                 capture(consumeNomadServiceUrlProviders),
+                any(),
+                any(),
                 any(),
                 any(),
                 any(),
@@ -524,6 +526,33 @@ class NewLoginViewModelTest {
                 )
             ),
         )
+
+    @Test
+    fun givenReusedLoginFlow_whenNavigationBackendChanges_thenViewModelUsesNewBackend() = runTest(dispatchers.main()) {
+        val (_, viewModel) = Arrangement().arrange()
+        val updatedServerConfig = newServerConfig(2).links
+
+        viewModel.onNavigationArgumentsChanged(
+            LoginNavArgs(
+                loginPasswordPath = LoginPasswordPath(updatedServerConfig),
+                showBackendConfigSuccess = true,
+            )
+        )
+
+        assertEquals(updatedServerConfig, viewModel.serverConfig)
+        assertEquals(NewLoginFlowState.BackendConfigSuccess, viewModel.state.flowState)
+    }
+
+    @Test
+    fun givenReusedLoginFlow_whenNavigationPrefillChanges_thenIdentifierIsUpdated() = runTest(dispatchers.main()) {
+        val (_, viewModel) = Arrangement().arrange()
+
+        viewModel.onNavigationArgumentsChanged(
+            LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(email))
+        )
+
+        assertEquals(email, viewModel.userIdentifierTextState.text.toString())
+    }
 
     @Test
     fun `given no registration path, when enterprise login, then call EmailPassword action with no creation`() =
@@ -654,6 +683,8 @@ class NewLoginViewModelTest {
         @MockK
         private lateinit var savedStateHandle: SavedStateHandle
 
+        private var loginNavArgs = LoginNavArgs()
+
         @MockK
         private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
@@ -692,16 +723,14 @@ class NewLoginViewModelTest {
                 savedStateHandle[any()] = any<String>()
             } returns Unit
             every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs()
+                savedStateHandle.remove<String>(any())
+            } returns null
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
         }
 
         fun withNavArgsServerConfig(serverConfig: ServerConfig.Links) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(loginPasswordPath = LoginPasswordPath(serverConfig))
+            loginNavArgs = LoginNavArgs(loginPasswordPath = LoginPasswordPath(serverConfig))
         }
 
         fun withEmailOrSSOCodeValidatorReturning(result: ValidateEmailOrSSOCodeUseCase.Result = ValidEmail) = apply {
@@ -794,7 +823,9 @@ class NewLoginViewModelTest {
 
         fun withEstablishSSOSessionAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                )
             } coAnswers {
                 arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(4)(failure)
             }
@@ -802,7 +833,9 @@ class NewLoginViewModelTest {
 
         fun withEstablishSSOSessionLoginFailure(failure: SSOLoginSessionResult.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                )
             } coAnswers {
                 arg<(SSOLoginSessionResult.Failure) -> Unit>(5)(failure)
             }
@@ -810,7 +843,9 @@ class NewLoginViewModelTest {
 
         fun withEstablishSSOSessionAddUserFailure(failure: AddAuthenticatedUserUseCase.Result.Failure) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                )
             } coAnswers {
                 arg<(AddAuthenticatedUserUseCase.Result.Failure) -> Unit>(6)(failure)
             }
@@ -818,16 +853,16 @@ class NewLoginViewModelTest {
 
         fun withEstablishSSOSessionSuccess(userId: UserId) = apply {
             coEvery {
-                loginSSOViewModelExtension.establishSSOSession(any(), any(), any(), any(), any(), any(), any(), any())
+                loginSSOViewModelExtension.establishSSOSession(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                )
             } coAnswers {
                 arg<suspend (UserId) -> Unit>(7)(userId)
             }
         }
 
         fun withNomadAutoLogin(nomadServiceUrl: String) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(
+            loginNavArgs = LoginNavArgs(
                 ssoCodeAutoLogin = SSOCodeAutoLogin(
                     ssoCode = "wire-sso-code",
                     nomadServiceUrl = nomadServiceUrl,
@@ -840,9 +875,7 @@ class NewLoginViewModelTest {
             every {
                 savedStateHandle.get<String>(any())
             } returns null
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs()
+            loginNavArgs = LoginNavArgs()
         }
 
         fun withUserIdentifierAlreadySet(userIdentifier: String) = apply {
@@ -852,9 +885,7 @@ class NewLoginViewModelTest {
         }
 
         fun withPreFilledUserIdentifier(userIdentifier: String) = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier))
+            loginNavArgs = LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(userIdentifier))
         }
 
         fun withFetchDefaultSSOCodeSuccessAfterDelay(defaultSSOCode: String?) = apply {
@@ -872,9 +903,7 @@ class NewLoginViewModelTest {
         }
 
         fun withCustomServerConfigDeepLink() = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(
+            loginNavArgs = LoginNavArgs(
                 loginPasswordPath = LoginPasswordPath(
                     customServerConfig = ServerConfig.STAGING
                 )
@@ -882,9 +911,7 @@ class NewLoginViewModelTest {
         }
 
         fun withEmptyCustomServerConfig() = apply {
-            every {
-                savedStateHandle.navArgs<LoginNavArgs>()
-            } returns LoginNavArgs(
+            loginNavArgs = LoginNavArgs(
                 loginPasswordPath = LoginPasswordPath(
                     customServerConfig = ServerConfigProvider.EmptyServerConfig
                 )
@@ -928,6 +955,7 @@ class NewLoginViewModelTest {
         }
 
         fun arrange() = this to NewLoginViewModel(
+            loginNavArgs,
             validateEmailOrSSOCodeUseCase,
             coreLogic,
             savedStateHandle,
@@ -1379,7 +1407,7 @@ class NewLoginViewModelTest {
                 viewModel.handleSSOResult(ssoDeepLinkResult)
                 advanceUntilIdle()
 
-                assertEquals(NewLoginAction.Success(NewLoginAction.Success.NextStep.None), expectMostRecentItem())
+                assertEquals(NewLoginAction.Success(NewLoginAction.Success.NextStep.None(userId)), expectMostRecentItem())
                 assertEquals(NewLoginFlowState.Default, viewModel.state.flowState)
             }
         }
@@ -1400,7 +1428,7 @@ class NewLoginViewModelTest {
                 viewModel.handleSSOResult(ssoDeepLinkResult)
                 advanceUntilIdle()
 
-                assertEquals(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync), expectMostRecentItem())
+                assertEquals(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync(userId)), expectMostRecentItem())
             }
         }
 

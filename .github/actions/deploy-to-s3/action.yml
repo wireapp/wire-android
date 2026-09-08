@@ -15,7 +15,7 @@ inputs:
     description: "The GITHUB_TOKEN needed for adding comments into PRs"
   build-flavour:
     required: true
-    description: "The build flavour (dev, staging, internal, beta, prod, fdroid)"
+    description: "The build flavour (dev, alpha, beta, prod, fdroid)"
   build-variant:
     required: true
     description: "The build variant (benchmark, compat, compatrelease, debug, release)"

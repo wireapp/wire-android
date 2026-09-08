@@ -89,6 +89,115 @@ class NewConversationViewModelTest {
     }
 
     @Test
+    fun `given backend conflict, when creating group, then should show conflicting backends error`() = runTest {
+        val domains = listOf("backend-a.example", "backend-b.example")
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withBackendConflictOnCreatingGroup(domains)
+            .arrange()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.ConflictedBackends(domains)
+
+        viewModel.discardGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Discarded
+        coVerify(exactly = 0) {
+            arrangement.createRegularGroup.discardPendingMLSGroupCreation(NewConversationViewModelArrangement.CONVERSATION_ID)
+        }
+    }
+
+    @Test
+    fun `given backend conflict cleanup fallback, when discarding, then should retry cleanup`() = runTest {
+        val domains = listOf("backend-a.example", "backend-b.example")
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withBackendConflictCleanupFallbackOnCreatingGroup(domains)
+            .arrange()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+        viewModel.discardGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Discarded
+        coVerify(exactly = 1) {
+            arrangement.createRegularGroup.discardPendingMLSGroupCreation(NewConversationViewModelArrangement.CONVERSATION_ID)
+        }
+    }
+
+    @Test
+    fun `given MLS establish fails after creation, when retrying, then existing conversation is reused`() = runTest {
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withPendingMLSGroupCreation()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.PendingMLSCreation()
+
+        viewModel.retryPendingMLSGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Created(CONVERSATION.id)
+        coVerify(exactly = 1) { arrangement.createRegularGroup(any(), any(), any()) }
+        coVerify(exactly = 1) {
+            arrangement.createRegularGroup.retryPendingMLSGroupCreation(NewConversationViewModelArrangement.CONVERSATION_ID)
+        }
+    }
+
+    @Test
+    fun `given pending MLS creation, when retry fails, then pending creation dialog remains available`() = runTest {
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withPendingMLSGroupCreation()
+            .withPendingMLSGroupCreationRetryFailure()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+        viewModel.retryPendingMLSGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.PendingMLSCreation()
+    }
+
+    @Test
+    fun `given pending MLS creation, when retry finds backend conflict, then should show conflicting backends error`() = runTest {
+        val domains = listOf("backend-a.example", "backend-b.example")
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = true)
+            .withDefaultProtocol(SupportedProtocol.MLS)
+            .withPendingMLSGroupCreation()
+            .withPendingMLSGroupCreationRetryBackendConflict(domains)
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+        viewModel.retryPendingMLSGroupCreation()
+        advanceUntilIdle()
+
+        viewModel.createGroupState shouldBeEqualTo CreateGroupState.Error.ConflictedBackends(domains)
+        viewModel.retryPendingMLSGroupCreation()
+        advanceUntilIdle()
+        coVerify(exactly = 1) {
+            arrangement.createRegularGroup.retryPendingMLSGroupCreation(NewConversationViewModelArrangement.CONVERSATION_ID)
+        }
+    }
+
+    @Test
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
@@ -136,6 +245,25 @@ class NewConversationViewModelTest {
                     protocol = CreateConversationParam.Protocol.PROTEUS,
                     creatorClientId = null
                 )
+            )
+        }
+    }
+
+    @Test
+    fun `given group name has leading and trailing spaces, when creating group, then create group uses trimmed name`() = runTest {
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withGetSelfUser(isTeamMember = false)
+            .arrange()
+
+        viewModel.newGroupNameTextState.setTextAndPlaceCursorAtEnd(" Group name ")
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        coVerify {
+            arrangement.createRegularGroup(
+                "Group name",
+                any(),
+                any()
             )
         }
     }

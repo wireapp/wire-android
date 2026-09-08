@@ -3,8 +3,6 @@ plugins {
     id(libs.plugins.wire.kover.get().pluginId)
     id(BuildPlugins.kotlinParcelize)
     id(BuildPlugins.junit5)
-    alias(libs.plugins.ksp)
-    id(libs.plugins.wire.android.navigation.get().pluginId)
     id(libs.plugins.wire.compose.compiler.get().pluginId)
     alias(libs.plugins.compose.stability.analyzer)
     alias(libs.plugins.kotlin.serialization)
@@ -21,8 +19,6 @@ dependencies {
 
     implementation(libs.androidx.work)
 
-    // smaller view models
-    implementation(libs.resaca.core)
     implementation(libs.bundlizer.core)
 
     val composeBom = enforcedPlatform(libs.compose.bom)
@@ -46,13 +42,4 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)
-}
-
-android {
-    ksp {
-        // TODO: MOVE TO CONVENTION PLUGIN
-        //       No reason to keep adding this manually to each module. We can use `project.name`
-        arg("compose-destinations.moduleName", "sync")
-        arg("compose-destinations.mode", "destinations")
-    }
 }

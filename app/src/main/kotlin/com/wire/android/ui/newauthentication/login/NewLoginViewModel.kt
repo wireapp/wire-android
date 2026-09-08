@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.appLogger
 import com.wire.android.config.ServerConfigProvider
 import com.wire.android.datastore.GlobalDataStore
@@ -42,6 +41,7 @@ import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
+import com.wire.android.ui.authentication.login.sso.ReplaceRetainedSsoSessionResult
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
 import com.wire.android.ui.authentication.toBackendConfigUrl
@@ -57,14 +57,16 @@ import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.EnterpriseLoginResult
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LoginRedirectPath
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.FetchSSOSettingsUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import com.wire.kalium.logic.feature.auth.sso.ValidateSSOCodeUseCase.Companion.SSO_CODE_WIRE_PREFIX
 import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
@@ -73,37 +75,39 @@ import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.io.IOException
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.Named
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class NewLoginViewModel(
+    loginNavArgs: LoginNavArgs,
     private val validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
     val coreLogic: CoreLogic,
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     val clientScopeProviderFactory: ClientScopeProvider.Factory,
     val userDataStoreProvider: UserDataStoreProvider,
     private val loginExtension: LoginViewModelExtension,
     private val ssoExtension: LoginSSOViewModelExtension,
     private val dispatchers: DispatcherProvider,
-    defaultServerConfig: ServerConfig.Links,
+    private val defaultServerConfig: ServerConfig.Links,
     defaultSSOCodeConfig: String,
     private val isDefaultBackendConfigured: Boolean,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>? = null,
     private val globalDataStore: Lazy<GlobalDataStore>? = null,
 ) : ActionsViewModel<NewLoginAction>() {
 
-    @Inject
+    @AssistedInject
     constructor(
+        @Assisted loginNavArgs: LoginNavArgs,
         validateEmailOrSSOCode: ValidateEmailOrSSOCodeUseCase,
         @KaliumCoreLogic coreLogic: CoreLogic,
-        savedStateHandle: SavedStateHandle,
+        @Assisted savedStateHandle: SavedStateHandle,
         addAuthenticatedUser: AddAuthenticatedUserUseCase,
         clientScopeProviderFactory: ClientScopeProvider.Factory,
         userDataStoreProvider: UserDataStoreProvider,
@@ -115,6 +119,7 @@ class NewLoginViewModel(
         @Named("isDefaultBackendConfigured") isDefaultBackendConfigured: Boolean,
         @DefaultWebSocketEnabledByDefault defaultWebSocketEnabledByDefault: Boolean,
     ) : this(
+        loginNavArgs,
         validateEmailOrSSOCode,
         coreLogic,
         savedStateHandle,
@@ -130,10 +135,15 @@ class NewLoginViewModel(
         globalDataStore,
     )
 
-    private val loginNavArgs: LoginNavArgs = savedStateHandle.navArgs()
-    private val preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
+    @AssistedFactory
+    interface Factory {
+        fun create(loginNavArgs: LoginNavArgs, savedStateHandle: SavedStateHandle): NewLoginViewModel
+    }
+
+    private var preFilledUserIdentifier: PreFilledUserIdentifierType = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
     private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
+    private var pendingSsoSession: StoreSessionParam? = null
     private val customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig
     private val isCustomServerConfigured = customServerConfig?.api?.isNotBlank() == true
     private val isDefaultServerConfigured = isDefaultBackendConfigured && defaultServerConfig.api.isNotBlank()
@@ -155,7 +165,7 @@ class NewLoginViewModel(
     init {
         userIdentifierTextState.setTextAndPlaceCursorAtEnd(
             if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled) {
-                preFilledUserIdentifier.userIdentifier
+                (preFilledUserIdentifier as PreFilledUserIdentifierType.PreFilled).userIdentifier
             } else if (defaultSSOCodeConfig.isNotEmpty() && customServerConfig == null) {
                 defaultSSOCodeConfig.ssoCodeWithPrefix()
             } else {
@@ -196,6 +206,38 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Default)
         if (userIdentifierTextState.text.isEmpty() && preFilledUserIdentifier is PreFilledUserIdentifierType.None) {
             fetchDefaultSSOCodeIfNeeded()
+        }
+    }
+
+    /**
+     * Reconciles arguments when Navigation 3 replaces the login root while retaining its flow
+     * owner. Assisted factory arguments are creation-time only, so a reused flow-scoped
+     * ViewModel must receive route updates explicitly instead of continuing with stale backend
+     * or automatic-login state.
+     */
+    fun onNavigationArgumentsChanged(loginNavArgs: LoginNavArgs) {
+        preFilledUserIdentifier = loginNavArgs.userHandle ?: PreFilledUserIdentifierType.None
+        pendingNomadServiceUrl = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
+        pendingCookieLabel = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
+
+        (preFilledUserIdentifier as? PreFilledUserIdentifierType.PreFilled)?.let {
+            userIdentifierTextState.setTextAndPlaceCursorAtEnd(it.userIdentifier)
+        }
+
+        val updatedCustomServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig
+        serverConfig = updatedCustomServerConfig ?: defaultServerConfig
+        canUseBackend = if (updatedCustomServerConfig != null) {
+            updatedCustomServerConfig.api.isNotBlank()
+        } else {
+            isDefaultServerConfigured
+        }
+        CustomTabsHelper.setBackendWebsiteUrl(serverConfig.website)
+        SupportUrlResolver.setBaseUrl(serverConfig.website)
+
+        when {
+            !canUseBackend -> updateLoginFlowState(NewLoginFlowState.MissingBackendConfig)
+            loginNavArgs.showBackendConfigSuccess && updatedCustomServerConfig != null ->
+                updateLoginFlowState(NewLoginFlowState.BackendConfigSuccess)
         }
     }
 
@@ -288,7 +330,11 @@ class NewLoginViewModel(
                     is EnterpriseLoginResult.Success -> {
                         when (val loginRedirectPath = loginFlowResult.loginRedirectPath) {
                             is LoginRedirectPath.SSO -> {
-                                initiateSSO(serverConfig, loginRedirectPath.ssoCode.ssoCodeWithPrefix())
+                                initiateSSO(
+                                    serverConfig = serverConfig,
+                                    ssoCode = loginRedirectPath.ssoCode.ssoCodeWithPrefix(),
+                                    ssoIdentityProviderId = loginRedirectPath.ssoCode.removePrefix(SSO_CODE_WIRE_PREFIX),
+                                )
                             }
 
                             is LoginRedirectPath.CustomBackend -> withContext(dispatchers.main()) {
@@ -335,6 +381,26 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Default)
     }
 
+    fun onSsoIdentityChangeDismissed() {
+        pendingSsoSession = null
+        updateLoginFlowState(NewLoginFlowState.Default)
+    }
+
+    fun onSsoIdentityChangeConfirmed() {
+        val session = pendingSsoSession ?: return
+        pendingSsoSession = null
+        updateLoginFlowState(NewLoginFlowState.Loading)
+
+        viewModelScope.launch(dispatchers.io()) {
+            when (val result = ssoExtension.replaceRetainedSsoSession(session)) {
+                is ReplaceRetainedSsoSessionResult.Failure ->
+                    updateLoginFlowState(result.cause.toLoginError())
+                is ReplaceRetainedSsoSessionResult.Success ->
+                    continueAfterSsoSessionStored(result.userId, session.nomadServiceUrl != null)
+            }
+        }
+    }
+
     fun onCustomServerDialogConfirm(customServerConfig: ServerConfig.Links) {
         viewModelScope.launch(dispatchers.io()) {
             ssoExtension.fetchDefaultSSOCode(
@@ -360,8 +426,13 @@ class NewLoginViewModel(
     }
 
     @VisibleForTesting
-    internal suspend fun initiateSSO(serverConfig: ServerConfig.Links, ssoCode: String) =
+    internal suspend fun initiateSSO(
+        serverConfig: ServerConfig.Links,
+        ssoCode: String,
+        ssoIdentityProviderId: String? = null,
+    ) =
         withContext(dispatchers.io()) {
+            savedStateHandle.remove<String>(PENDING_SSO_IDENTITY_PROVIDER_ID_KEY)
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoCode,
@@ -370,6 +441,7 @@ class NewLoginViewModel(
                 onSSOInitiateFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSuccess = { requestUrl ->
                     withContext(dispatchers.main()) {
+                        savedStateHandle[PENDING_SSO_IDENTITY_PROVIDER_ID_KEY] = ssoIdentityProviderId
                         updateLoginFlowState(NewLoginFlowState.Default)
                         sendAction(NewLoginAction.SSO(requestUrl, SSOUrlConfig(userIdentifierTextState.text.toString())))
                         updateLoginFlowState(NewLoginFlowState.Default)
@@ -377,18 +449,6 @@ class NewLoginViewModel(
                 }
             )
         }
-
-    fun observeSSOResult(backStackSavedState: SavedStateHandle) {
-        viewModelScope.launch {
-            backStackSavedState
-                .getStateFlow<String?>(SSO_LOGIN_RESULT_KEY, null)
-                .filterNotNull()
-                .collect { json ->
-                    handleSSOResult(Json.decodeFromString(json))
-                    backStackSavedState.remove<String>(SSO_LOGIN_RESULT_KEY)
-                }
-        }
-    }
 
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin) {
         updateLoginFlowState(NewLoginFlowState.Loading)
@@ -399,19 +459,18 @@ class NewLoginViewModel(
                     ssoExtension.establishSSOSession(
                         cookie = ssoLoginResult.cookie,
                         serverConfigId = ssoLoginResult.serverConfigId,
+                        ssoIdentityProviderId = consumePendingSsoIdentityProviderId(),
                         consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
                         consumeCookieLabel = ::consumePendingCookieLabel,
                         onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                         onSSOLoginFailure = { updateLoginFlowState(it.toLoginError()) },
                         onAddAuthenticatedUserFailure = { updateLoginFlowState(it.toLoginError()) },
+                        onSsoIdentityChanged = { session ->
+                            pendingSsoSession = session
+                            updateLoginFlowState(NewLoginFlowState.SsoIdentityChanged)
+                        },
                         onSuccess = { storedUserId ->
-                            if (!isNomadFlow) {
-                                appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
-                                registerClientAndUpdateState(storedUserId, setLastDeviceId = false)
-                            } else {
-                                appLogger.i("$TAG Nomad flow, attempting crypto state restore")
-                                restoreCryptoStateAndContinue(storedUserId)
-                            }
+                            continueAfterSsoSessionStored(storedUserId, isNomadFlow)
                         }
                     )
                 }
@@ -420,6 +479,16 @@ class NewLoginViewModel(
             is DeepLinkResult.SSOLogin.Failure -> {
                 updateLoginFlowState(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoLoginResult.ssoError))
             }
+        }
+    }
+
+    private suspend fun continueAfterSsoSessionStored(userId: UserId, isNomadFlow: Boolean) {
+        if (!isNomadFlow) {
+            appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
+            registerClientAndUpdateState(userId, setLastDeviceId = false)
+        } else {
+            appLogger.i("$TAG Nomad flow, attempting crypto state restore")
+            restoreCryptoStateAndContinue(userId)
         }
     }
 
@@ -432,8 +501,8 @@ class NewLoginViewModel(
                 when (result) {
                     is RegisterClientResult.Success -> {
                         when (loginExtension.isInitialSyncCompleted(userId)) {
-                            true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                            false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                            true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None(userId)))
+                            false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync(userId)))
                         }
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
@@ -489,8 +558,8 @@ class NewLoginViewModel(
             is RestoreCryptoStateResult.Success -> {
                 withContext(dispatchers.main()) {
                     when (loginExtension.isInitialSyncCompleted(storedUserId)) {
-                        true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None))
-                        false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync))
+                        true -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.None(storedUserId)))
+                        false -> sendAction(NewLoginAction.Success(NewLoginAction.Success.NextStep.InitialSync(storedUserId)))
                     }
                     updateLoginFlowState(NewLoginFlowState.Default)
                 }
@@ -589,8 +658,12 @@ class NewLoginViewModel(
         pendingCookieLabel = null
     }
 
+    private fun consumePendingSsoIdentityProviderId(): String? =
+        savedStateHandle.remove(PENDING_SSO_IDENTITY_PROVIDER_ID_KEY)
+
     companion object {
         private const val TAG = "[NewLoginViewModel]"
+        private const val PENDING_SSO_IDENTITY_PROVIDER_ID_KEY = "pending_sso_identity_provider_id"
         const val SSO_LOGIN_RESULT_KEY = "sso_login_result_json"
     }
 }
@@ -619,5 +692,6 @@ private fun SSOLoginSessionResult.Failure.toLoginError() = when (this) {
 private fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError() = when (this) {
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> NewLoginFlowState.Error.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> NewLoginFlowState.Error.DialogError.UserAlreadyExists
+    AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> NewLoginFlowState.SsoIdentityChanged
     AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> NewLoginFlowState.Error.DialogError.UserAlreadyExists
 }

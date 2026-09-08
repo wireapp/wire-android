@@ -31,11 +31,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.net.toUri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.sketch.destinations.DrawingCanvasScreenDestination
-import com.wire.android.feature.sketch.model.DrawingCanvasNavArgs
 import com.wire.android.feature.sketch.model.DrawingMotionEvent
 import com.wire.android.feature.sketch.model.DrawingPathProperties
 import com.wire.android.feature.sketch.model.DrawingState
@@ -48,9 +45,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 @Suppress("TooManyFunctions")
-class DrawingCanvasViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
-
-    private val drawingCanvasNavArgs: DrawingCanvasNavArgs = DrawingCanvasScreenDestination.argsFrom(savedStateHandle)
+class DrawingCanvasViewModel : ViewModel() {
 
     internal var state: DrawingState by mutableStateOf(DrawingState())
         private set
@@ -151,8 +146,8 @@ class DrawingCanvasViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
      *
      * @return The [Uri] of the saved image.
      */
-    suspend fun saveImage(context: Context): Uri {
-        val tempSketchFile = drawingCanvasNavArgs.tempWritableUri.orTempUri(context)
+    suspend fun saveImage(context: Context, tempWritableUri: Uri?): Uri {
+        val tempSketchFile = tempWritableUri.orTempUri(context)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 with(state) {

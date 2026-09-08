@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.authentication.create.details
 
-import com.wire.android.navigation.annotation.app.WireCreateTeamAccountDestination
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -44,10 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import com.wire.android.ui.authentication.createAccountDetailsViewModel
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
@@ -62,7 +58,6 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountCodeScreenDestination
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -70,30 +65,26 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
-@WireCreateTeamAccountDestination(navArgs = CreateAccountNavArgs::class)
 @Composable
-fun CreateAccountDetailsScreen(
-    navigator: Navigator,
-    createAccountDetailsViewModel: CreateAccountDetailsViewModel = createAccountDetailsViewModel()
+internal fun CreateAccountDetailsRouteScreen(
+    viewModel: CreateAccountDetailsViewModel,
+    onNavigateBack: () -> Unit,
+    onCodeRequested: (CreateAccountNavArgs) -> Unit,
 ) {
-    with(createAccountDetailsViewModel) {
-        fun navigateToCodeScreen() = navigator.navigate(
-            NavigationCommand(
-                CreateAccountCodeScreenDestination(
+    with(viewModel) {
+        LaunchedEffect(detailsState.success) {
+            if (detailsState.success) {
+                onCodeRequested(
                     createAccountNavArgs.copy(
                         userRegistrationInfo = createAccountNavArgs.userRegistrationInfo.copy(
                             firstName = firstNameTextState.text.toString().trim(),
                             lastName = lastNameTextState.text.toString().trim(),
                             password = passwordTextState.text.toString(),
-                            teamName = teamNameTextState.text.toString().trim()
+                            teamName = teamNameTextState.text.toString().trim(),
                         )
                     )
                 )
-            )
-        )
-
-        LaunchedEffect(createAccountDetailsViewModel.detailsState.success) {
-            if (createAccountDetailsViewModel.detailsState.success) navigateToCodeScreen()
+            }
         }
 
         DetailsContent(
@@ -103,7 +94,7 @@ fun CreateAccountDetailsScreen(
             passwordTextState = passwordTextState,
             confirmPasswordTextState = confirmPasswordTextState,
             teamNameTextState = teamNameTextState,
-            onBackPressed = navigator::navigateBack,
+            onBackPressed = onNavigateBack,
             onContinuePressed = ::onDetailsContinue,
             onErrorDismiss = ::onDetailsErrorDismiss,
             serverConfig = serverConfig

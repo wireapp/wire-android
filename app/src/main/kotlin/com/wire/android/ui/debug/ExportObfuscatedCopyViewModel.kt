@@ -35,6 +35,7 @@ import com.wire.android.ui.home.settings.backup.BackupCreationProgress
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
+import dev.zacsweers.metro.Inject
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.util.DelicateKaliumApi
@@ -54,7 +55,7 @@ interface ExportObfuscatedCopyViewModel {
     fun cancelBackupCreation() {}
 }
 
-class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) constructor(
+class ExportObfuscatedCopyViewModelImpl @OptIn(DelicateKaliumApi::class) @Inject constructor(
     private val createUnencryptedCopy: CreateObfuscatedCopyUseCase,
     private val dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
     private val fileManager: FileManager,

@@ -30,6 +30,8 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
 
     private val connectionRequestButton = UiSelectorParams(text = "Connect")
 
+    private val cancelConnectionRequestButton = UiSelectorParams(text = "Cancel Request")
+
     private val connectionNotificationText = UiSelectorParams(
         textContains = "This user wants to connect with you."
     )
@@ -61,6 +63,12 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConnectionRequestInformationTextIsDisplayed(expectedText: String): UnconnectedUserProfilePage {
+        val informationText = UiWaitUtils.waitElement(UiSelectorParams(text = expectedText))
+        Assert.assertTrue("'$expectedText' text is not visible.", !informationText.visibleBounds.isEmpty)
+        return this
+    }
+
     fun assertUserNameInUnconnectedUserProfilePage(userName: String): UnconnectedUserProfilePage {
         try {
             UiWaitUtils.waitElement(UiSelectorParams(text = userName))
@@ -77,6 +85,23 @@ data class UnconnectedUserProfilePage(private val device: UiDevice) {
 
     fun clickConnectionRequestButton(): UnconnectedUserProfilePage {
         UiWaitUtils.waitElement(connectionRequestButton).click()
+        return this
+    }
+
+    fun assertCancelConnectionRequestButtonVisible(): UnconnectedUserProfilePage {
+        val cancelButton = UiWaitUtils.waitElement(
+            cancelConnectionRequestButton,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        Assert.assertTrue("Cancel connection request button is not visible", !cancelButton.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun clickCancelConnectionRequestButton(): UnconnectedUserProfilePage {
+        UiWaitUtils.waitElement(
+            cancelConnectionRequestButton,
+            timeout = UiWaitUtils.SHORT_WAIT
+        ).click()
         return this
     }
 }

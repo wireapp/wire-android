@@ -19,10 +19,8 @@ package com.wire.android.feature.cells.ui.versioning
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.cells.destinations.VersionHistoryScreenDestination
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.versioning.download.DownloadState
@@ -41,17 +39,21 @@ import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import okio.sink
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class VersionHistoryViewModel(
-    private val savedStateHandle: SavedStateHandle,
+class VersionHistoryViewModel @AssistedInject constructor(
+    @Assisted private val navArgs: VersionHistoryNavArgs,
     private val getNodeVersionsUseCase: GetNodeVersionsUseCase,
     private val fileSizeFormatter: FileSizeFormatter,
     private val restoreNodeVersionUseCase: RestoreNodeVersionUseCase,
@@ -62,7 +64,10 @@ class VersionHistoryViewModel(
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
-    private val navArgs: VersionHistoryNavArgs = VersionHistoryScreenDestination.argsFrom(savedStateHandle)
+    @AssistedFactory
+    interface Factory {
+        fun create(navArgs: VersionHistoryNavArgs): VersionHistoryViewModel
+    }
 
     val fileName = navArgs.fileName
 
@@ -110,7 +115,8 @@ class VersionHistoryViewModel(
         val yesterday = today.minusDays(1)
 
         val grouped = this.groupBy { item ->
-            Instant.ofEpochSecond(item.modifiedTime?.toLong() ?: 0L)
+            (item.modifiedTime ?: Instant.fromEpochSeconds(0))
+                .toJavaInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
         }
@@ -137,9 +143,7 @@ class VersionHistoryViewModel(
 
                 val uiItems = items.mapIndexed { itemIndex, apiItem ->
 
-                    val formattedTime = apiItem.modifiedTime?.toLong()?.let {
-                        kotlinx.datetime.Instant.fromEpochSeconds(it).cellFileTime()
-                    } ?: ""
+                    val formattedTime = apiItem.modifiedTime?.cellFileTime() ?: ""
 
                     CellVersion(
                         versionId = apiItem.id,

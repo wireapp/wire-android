@@ -39,8 +39,6 @@
 #-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
 #-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
 
--keepnames class * extends com.ramcosta.composedestinations.spec.Route
-
 # For JNA
 -dontwarn java.awt.Component
 -dontwarn java.awt.GraphicsEnvironment
@@ -58,6 +56,9 @@
 -keep class com.waz.call.CaptureDevice { *; }
 -keep class com.waz.media.manager.** { *; }
 -keep class com.waz.service.call.** { *; }
+-keep class org.jni_zero.JniZero {
+    private static java.lang.Object[] init();
+}
 -keep class com.waz.soundlink.SoundLinkAPI { *; }
 -dontwarn org.webrtc.CalledByNative
 -dontwarn org.webrtc.JniCommon
@@ -71,7 +72,6 @@
 # WrapperWorkerFactory resolves inner workers by class name from input data.
 # Keep names stable so existing enqueued work remains resolvable after minification.
 # See docs/minification-workmanager-compat.md
--keepnames class com.wire.kalium.logic.sync.PendingMessagesSenderWorker
 -keepnames class com.wire.kalium.logic.sync.periodic.UserConfigSyncWorker
 -keepnames class com.wire.kalium.logic.sync.periodic.UpdateApiVersionsWorker
 -keepnames class com.wire.kalium.logic.sync.receiver.asset.AudioNormalizedLoudnessWorker

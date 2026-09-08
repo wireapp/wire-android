@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.newconversation.groupsearch
 
-import com.wire.android.navigation.annotation.app.WireNewConversationDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -25,27 +24,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.ramcosta.composedestinations.generated.app.destinations.NewGroupNameScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.OtherUserProfileScreenDestination
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.SearchUsersAndAppsScreen
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.home.newconversation.NewConversationViewModel
 import com.wire.android.ui.home.newconversation.common.ContinueButton
-import com.wire.kalium.logic.data.id.QualifiedID
 
-@WireNewConversationDestination
+/**
+ * Navigation-neutral adapter. Cross-feature targets are exposed as callbacks until their typed
+ * routes are owned by their respective migration batches.
+ */
 @Composable
-fun NewGroupConversationSearchPeopleScreen(
-    navigator: Navigator,
+internal fun NewGroupConversationSearchPeopleRouteScreen(
     newConversationViewModel: NewConversationViewModel,
+    onNavigateBack: () -> Unit,
+    onOpenUserProfile: (value: String, domain: String) -> Unit,
+    onContinue: () -> Unit,
 ) {
     val onBackClicked = remember(Unit) {
         {
             newConversationViewModel.resetState()
-            navigator.navigateBack()
+            onNavigateBack()
         }
     }
 
@@ -59,8 +58,7 @@ fun NewGroupConversationSearchPeopleScreen(
     SearchUsersAndAppsScreen(
         searchTitle = screenTitle,
         onOpenUserProfile = { contact ->
-            OtherUserProfileScreenDestination(QualifiedID(contact.id, contact.domain))
-                .let { navigator.navigate(NavigationCommand(it)) }
+            onOpenUserProfile(contact.id, contact.domain)
         },
         onContactChecked = newConversationViewModel::updateSelectedContacts,
         onClose = onBackClicked,
@@ -72,7 +70,7 @@ fun NewGroupConversationSearchPeopleScreen(
         conversationProtocol = null,
         peopleBottomActions = { focusRequester ->
             ContinueButton(
-                onContinue = { navigator.navigate(NavigationCommand(NewGroupNameScreenDestination)) },
+                onContinue = onContinue,
                 buttonModifier = Modifier.focusRequester(focusRequester),
             )
         }

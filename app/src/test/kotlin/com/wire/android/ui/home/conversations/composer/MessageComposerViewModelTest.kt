@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.conversations.composer
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -36,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 @Suppress("LargeClass")
 class MessageComposerViewModelTest {
 
@@ -125,8 +123,7 @@ class MessageComposerViewModelTest {
         val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .arrange()
-        val timestamp = "2024-01-15T10:30:00Z"
-        val expectedInstant = Instant.parse(timestamp)
+        val timestamp = Instant.parse("2024-01-15T10:30:00Z")
 
         // when
         viewModel.updateConversationReadDate(timestamp)
@@ -136,10 +133,10 @@ class MessageComposerViewModelTest {
 
         // then
         coVerify(exactly = 1) {
-            arrangement.markConversationAsReadLocallyUseCase(
-                arrangement.conversationId,
-                expectedInstant
-            )
+                arrangement.markConversationAsReadLocallyUseCase(
+                    arrangement.conversationId,
+                    timestamp
+                )
         }
     }
 
@@ -167,9 +164,8 @@ class MessageComposerViewModelTest {
         val (arrangement, viewModel) = MessageComposerViewModelArrangement()
             .withSuccessfulViewModelInit()
             .arrange()
-        val olderTimestamp = "2024-01-15T10:00:00Z"
-        val newerTimestamp = "2024-01-15T10:30:00Z"
-        val expectedInstant = Instant.parse(newerTimestamp)
+        val olderTimestamp = Instant.parse("2024-01-15T10:00:00Z")
+        val newerTimestamp = Instant.parse("2024-01-15T10:30:00Z")
 
         // when
         viewModel.updateConversationReadDate(olderTimestamp)
@@ -180,10 +176,10 @@ class MessageComposerViewModelTest {
 
         // then
         coVerify(exactly = 1) {
-            arrangement.markConversationAsReadLocallyUseCase(
-                arrangement.conversationId,
-                expectedInstant
-            )
+                arrangement.markConversationAsReadLocallyUseCase(
+                    arrangement.conversationId,
+                    newerTimestamp
+                )
         }
     }
 }

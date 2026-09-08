@@ -732,7 +732,6 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="settings_myaccount_display_name_title">Su nombre de perfil</string>
     <string name="settings_myaccount_display_name_description">Las personas ven su nombre de perfil en conversaciones, llamadas y b&#250;squedas de usuarios. No es &#250;nico en Wire.</string>
     <string name="settings_myaccount_display_name_error">Por favor, introduce tu nombre de perfil</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">M&#237;nimo de 1 y m&#225;ximo de 64 caracteres</string>
     <string name="settings_myaccount_display_name_updated">Tu nombre de perfil se ha cambiado</string>
     <!--Privacy Settings -->
     <string name="settings_send_read_receipts">Enviar recibos de lectura</string>
@@ -972,4 +971,5 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s ha habilitado las **aplicaciones** para esta conversación</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ha deshabilitado las **aplicaciones** para esta conversación</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Las aplicaciones añadidas tienen acceso al contenido de esta conversación.</string>
+    <!-- Pending messages service notification -->
 </resources>

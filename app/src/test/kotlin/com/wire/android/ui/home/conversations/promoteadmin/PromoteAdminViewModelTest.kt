@@ -17,11 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.promoteadmin
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.testOtherUser
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -33,7 +30,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConve
 import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -47,7 +43,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class, NavigationTestExtension::class)
+@ExtendWith(CoroutineTestExtension::class)
 class PromoteAdminViewModelTest {
 
     @Test
@@ -298,9 +294,6 @@ class PromoteAdminViewModelTest {
 
     private inner class Arrangement {
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var observeEligibleMembers: ObserveEligibleMembersForConversationAdminRoleUseCase
 
         @MockK
@@ -311,8 +304,6 @@ class PromoteAdminViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.navArgs<PromoteAdminNavArgs>() } returns
-                PromoteAdminNavArgs(ConversationId("conv1", "wire.com"))
             coEvery { observeEligibleMembers(any()) } returns flowOf(emptyList())
             coEvery { observeConversationMembers(any()) } returns flowOf(emptyList())
             coEvery { promoteAdminAndLeave(any(), any()) } returns PromoteAdminAndLeaveConversationUseCase.Result.Success
@@ -326,9 +317,13 @@ class PromoteAdminViewModelTest {
             coEvery { observeConversationMembers(any()) } returns flowOf(members)
         }
 
+        private var navArgs = PromoteAdminNavArgs(ConversationId("conv1", "wire.com"))
+
         fun withNavEligibleMembers(eligibleMembers: List<UserId>) = apply {
-            every { savedStateHandle.navArgs<PromoteAdminNavArgs>() } returns
-                    PromoteAdminNavArgs(ConversationId("conv1", "wire.com"), eligibleMembers.toPromoteAdminEligibleMemberArgs())
+            navArgs = PromoteAdminNavArgs(
+                ConversationId("conv1", "wire.com"),
+                eligibleMembers.toPromoteAdminEligibleMemberArgs(),
+            )
         }
 
         fun withPromoteAdminAndLeaveResult(result: PromoteAdminAndLeaveConversationUseCase.Result) = apply {
@@ -340,7 +335,7 @@ class PromoteAdminViewModelTest {
             observeConversationMembers = observeConversationMembers,
             promoteAdminAndLeave = promoteAdminAndLeave,
             dispatchers = TestDispatcherProvider(),
-            savedStateHandle = savedStateHandle,
+            navArgs = navArgs,
         )
     }
 }

@@ -18,42 +18,26 @@
 
 package com.wire.android.ui.home.conversations.details.metadata
 
-import com.wire.android.ui.home.conversations.editConversationMetadataViewModel
-
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-@WireRootDestination(
-    navArgs = EditConversationNameNavArgs::class,
-    style = SlideNavigationAnimation::class,
-)
 @Composable
-fun EditConversationNameScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: EditConversationMetadataViewModel = editConversationMetadataViewModel(),
+internal fun EditConversationNameRouteScreen(
+    viewModel: EditConversationMetadataViewModel,
+    onNavigateBack: () -> Unit,
+    onCompleted: (Boolean) -> Unit,
 ) {
     with(viewModel) {
         LaunchedEffect(editConversationState.completed) {
             when (editConversationState.completed) {
-                GroupMetadataState.Completed.Success -> {
-                    resultNavigator.setResult(true)
-                    resultNavigator.navigateBack()
-                }
-                GroupMetadataState.Completed.Failure -> {
-                    resultNavigator.setResult(false)
-                    resultNavigator.navigateBack()
-                }
+                GroupMetadataState.Completed.Success -> onCompleted(true)
+                GroupMetadataState.Completed.Failure -> onCompleted(false)
                 GroupMetadataState.Completed.None -> Unit // No action needed
             }
         }
@@ -62,7 +46,7 @@ fun EditConversationNameScreen(
             newGroupNameTextState = editConversationNameTextState,
             onGroupNameErrorAnimated = ::onGroupNameErrorAnimated,
             onContinuePressed = ::saveNewGroupName,
-            onBackPressed = navigator::navigateBack
+            onBackPressed = onNavigateBack,
         )
     }
 }

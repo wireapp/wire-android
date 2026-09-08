@@ -16,9 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.ui.newauthentication.login.password
 
-import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -50,13 +51,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import com.wire.android.BuildConfig
 import com.wire.android.BuildConfig.ENABLE_NEW_REGISTRATION
 import com.wire.android.R
-import com.wire.android.ui.authentication.loginEmailViewModel
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.AuthSlideNavigationAnimation
 import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
@@ -86,32 +81,43 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountSelectorScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.CreatePersonalAccountOverviewScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.E2EIEnrollmentScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.InitialSyncScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.NewLoginVerificationCodeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.user.UserId
 
-@WireNewLoginDestination(
-    navArgs = LoginNavArgs::class,
-    style = AuthSlideNavigationAnimation::class,
-)
+internal sealed interface NewLoginPasswordScreenAction {
+    data class Success(
+        val initialSyncCompleted: Boolean,
+        val isE2EIRequired: Boolean,
+        val userId: UserId,
+    ) : NewLoginPasswordScreenAction
+
+    data class RemoveDevice(val userId: UserId) : NewLoginPasswordScreenAction
+    data object Canceled : NewLoginPasswordScreenAction
+    data class VerificationRequired(val navArgs: LoginNavArgs) : NewLoginPasswordScreenAction
+    data class CreateAccountSelector(
+        val serverConfig: ServerConfig.Links,
+        val email: String,
+    ) : NewLoginPasswordScreenAction
+    data class CreatePersonalAccount(val serverConfig: ServerConfig.Links) : NewLoginPasswordScreenAction
+}
+
+/**
+ * Navigation-neutral adapter used by Navigation 3 and the legacy destination.
+ */
 @Composable
-fun NewLoginPasswordScreen(
-    navigator: Navigator,
+internal fun NewLoginPasswordRouteScreen(
     navArgs: LoginNavArgs,
-    loginEmailViewModel: LoginEmailViewModel = loginEmailViewModel(navArgs)
+    loginEmailViewModel: LoginEmailViewModel,
+    canNavigateBack: Boolean,
+    onAction: (NewLoginPasswordScreenAction) -> Boolean,
 ) {
     clearAutofillTree()
-    LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
+    LoginStateNavigationAndDialogs(loginEmailViewModel, onAction)
 
     LaunchedEffect(loginEmailViewModel.secondFactorVerificationCodeState) {
         if (loginEmailViewModel.secondFactorVerificationCodeState.isCodeInputNecessary) {
@@ -119,7 +125,7 @@ fun NewLoginPasswordScreen(
                 loginPasswordPath = navArgs.loginPasswordPath,
                 userHandle = PreFilledUserIdentifierType.PreFilled(loginEmailViewModel.userIdentifierTextState.text.toString())
             )
-            navigator.navigate(NavigationCommand(NewLoginVerificationCodeScreenDestination(verificationCodeNavArgs)))
+            onAction(NewLoginPasswordScreenAction.VerificationRequired(verificationCodeNavArgs))
         }
     }
 
@@ -133,19 +139,17 @@ fun NewLoginPasswordScreen(
         onLoginButtonClick = loginEmailViewModel::login,
         onCreateAccount = {
             if (ENABLE_NEW_REGISTRATION) {
-                navigator.navigate(
-                    NavigationCommand(
-                        CreateAccountSelectorScreenDestination(
-                            customServerConfig = loginEmailViewModel.serverConfig,
-                            email = loginEmailViewModel.userIdentifierTextState.text.toString()
-                        )
+                onAction(
+                    NewLoginPasswordScreenAction.CreateAccountSelector(
+                        serverConfig = loginEmailViewModel.serverConfig,
+                        email = loginEmailViewModel.userIdentifierTextState.text.toString(),
                     )
                 )
             } else {
-                navigator.navigate(NavigationCommand(CreatePersonalAccountOverviewScreenDestination(loginEmailViewModel.serverConfig)))
+                onAction(NewLoginPasswordScreenAction.CreatePersonalAccount(loginEmailViewModel.serverConfig))
             }
         },
-        canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
+        canNavigateBack = canNavigateBack,
         navigateBack = loginEmailViewModel::cancelLogin,
         isCloudAccountCreationPossible = navArgs.loginPasswordPath?.isCloudAccountCreationPossible ?: true,
     )
@@ -406,38 +410,39 @@ private fun CreateAccountContent(onCreateAccountClicked: () -> Unit, modifier: M
 }
 
 @Composable
-fun LoginStateNavigationAndDialogs(viewModel: LoginEmailViewModel, navigator: Navigator) {
+internal fun LoginStateNavigationAndDialogs(
+    viewModel: LoginEmailViewModel,
+    onAction: (NewLoginPasswordScreenAction) -> Boolean,
+) {
     val state = viewModel.loginState.flowState
     val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
-    val handleLoginStateNavigation: (LoginState) -> Unit = {
+    val handleLoginStateNavigation: (LoginState) -> Boolean = {
         when (it) {
             is LoginState.Success -> {
-                val destination = when {
-                    it.isE2EIRequired -> E2EIEnrollmentScreenDestination(
-                        SessionBackedAuthenticationNavArgs.from(it.userId)
-                    )
-                    it.initialSyncCompleted -> HomeScreenDestination
-                    else -> InitialSyncScreenDestination
-                }
-                navigator.navigate(NavigationCommand(destination, BackStackMode.CLEAR_WHOLE))
-            }
-
-            is LoginState.Error.TooManyDevicesError -> {
-                viewModel.clearLoginErrors()
-                navigator.navigate(
-                    NavigationCommand(
-                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(it.userId)),
-                        BackStackMode.CLEAR_WHOLE,
+                onAction(
+                    NewLoginPasswordScreenAction.Success(
+                        initialSyncCompleted = it.initialSyncCompleted,
+                        isE2EIRequired = it.isE2EIRequired,
+                        userId = it.userId,
                     )
                 )
             }
 
+            is LoginState.Error.TooManyDevicesError -> {
+                val accepted = onAction(NewLoginPasswordScreenAction.RemoveDevice(it.userId))
+                if (accepted) {
+                    viewModel.clearLoginErrors()
+                }
+                accepted
+            }
+
             is LoginState.Canceled -> {
-                navigator.navigateBack()
+                onAction(NewLoginPasswordScreenAction.Canceled)
             }
 
             else -> {
                 /* do nothing */
+                false
             }
         }
     }

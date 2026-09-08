@@ -60,7 +60,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 
 @Composable
 fun DebugDataOptions(
@@ -69,6 +69,7 @@ fun DebugDataOptions(
     onCopyText: (String) -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    onShowSecurityProviders: () -> Unit,
     viewModel: DebugDataOptionsViewModel,
 ) {
     LocalSnackbarHostState.current.collectAndShowSnackbar(snackbarFlow = viewModel.infoMessage)
@@ -90,6 +91,7 @@ fun DebugDataOptions(
         onResendFCMToken = viewModel::forceSendFCMToken,
         onShowFeatureFlags = onShowFeatureFlags,
         onShowCryptoStats = onShowCryptoStats,
+        onShowSecurityProviders = onShowSecurityProviders,
         onRepairFaultyRemovalKeys = viewModel::repairFaultRemovalKeys,
     )
 }
@@ -106,7 +108,7 @@ fun DebugDataOptionsContent(
     onForceUpdateApiVersions: () -> Unit,
     enrollE2EICertificate: () -> Unit,
     e2eiCertificateExpirationInputState: TextFieldState,
-    handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
+    handleE2EIEnrollmentResult: (EnrollE2EIResult) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
     forceCRLExpirationAfterOneMinute: Boolean,
@@ -114,6 +116,7 @@ fun DebugDataOptionsContent(
     onResendFCMToken: () -> Unit,
     onShowFeatureFlags: () -> Unit,
     onShowCryptoStats: () -> Unit,
+    onShowSecurityProviders: () -> Unit,
     onRepairFaultyRemovalKeys: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -206,6 +209,15 @@ fun DebugDataOptionsContent(
                 onRowPressed = Clickable(
                     enabled = true,
                     onClick = onShowCryptoStats
+                ),
+                trailingIcon = commonR.drawable.ic_arrow_right,
+            )
+
+            SettingsItem(
+                text = stringResource(R.string.debug_settings_security_diagnostics),
+                onRowPressed = Clickable(
+                    enabled = true,
+                    onClick = onShowSecurityProviders
                 ),
                 trailingIcon = commonR.drawable.ic_arrow_right,
             )
@@ -414,6 +426,7 @@ fun PreviewOtherDebugOptions() = WireTheme {
         onResendFCMToken = {},
         onShowFeatureFlags = {},
         onShowCryptoStats = {},
+        onShowSecurityProviders = {},
         onRepairFaultyRemovalKeys = {}
     )
 }

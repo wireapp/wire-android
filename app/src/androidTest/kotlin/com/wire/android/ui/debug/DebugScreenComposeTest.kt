@@ -41,6 +41,7 @@ class DebugScreenComposeTest {
                     onDeleteLogs = {},
                     onDatabaseLoggerEnabledChanged = {},
                     onFlushLogs = { CompletableDeferred(Unit) },
+                    onShareLogsViaWire = {},
                     debugDataOptionsContent = {},
                     dangerOptionsContent = {},
                 )

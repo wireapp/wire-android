@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.usecase
 
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversationDetails
@@ -36,6 +37,7 @@ import com.wire.kalium.logic.data.conversation.ConversationFilter
 import com.wire.kalium.logic.data.conversation.ConversationFolder
 import com.wire.kalium.logic.data.conversation.ConversationQueryConfig
 import com.wire.kalium.logic.data.conversation.FolderType
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.ObserveJoinableCallsUseCase
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
@@ -48,8 +50,11 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -221,6 +226,81 @@ class GetConversationsFromSearchUseCaseTest {
         }
 
     @Test
+    fun givenIncomingOneOnOneCall_whenGettingPaginatedList_thenPrivateItemHasOngoingCallMarker() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversation = ConversationDetailsWithEvents(TestConversationDetails.CONVERSATION_ONE_ONE)
+            val (arrangement, useCase) = Arrangement()
+                .withPaginatedResult(listOf(conversation))
+                .withJoinableCalls(
+                    listOf(
+                        joinableCall(
+                            conversationId = conversation.conversationDetails.conversation.id,
+                            status = CallStatus.INCOMING,
+                            conversationType = Conversation.Type.OneOnOne
+                        )
+                    )
+                )
+                .arrange()
+
+            // When
+            val result = with(arrangement.queryConfig) {
+                useCase(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    useStrictMlsFilter = true
+                ).asSnapshot()
+            }
+
+            // Then
+            val privateConversation = assertInstanceOf<ConversationItem.PrivateConversation>(result.first())
+            assertEquals(true, privateConversation.hasOnGoingCall)
+            assertEquals(true, privateConversation.hasNewActivitiesToShow)
+        }
+
+    @Test
+    fun givenIncomingOneOnOneCallInMutedConversation_whenGettingOneOnOneList_thenPrivateItemHasOngoingCallMarker() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversation = ConversationDetailsWithEvents(
+                TestConversationDetails.CONVERSATION_ONE_ONE.copy(
+                    conversation = TestConversationDetails.CONVERSATION_ONE_ONE.conversation.copy(
+                        mutedStatus = MutedConversationStatus.AllMuted
+                    )
+                )
+            )
+            val (arrangement, useCase) = Arrangement()
+                .withPaginatedResult(listOf(conversation))
+                .withJoinableCalls(
+                    listOf(
+                        joinableCall(
+                            conversationId = conversation.conversationDetails.conversation.id,
+                            status = CallStatus.INCOMING,
+                            conversationType = Conversation.Type.OneOnOne
+                        )
+                    )
+                )
+                .arrange()
+
+            // When
+            val result = useCase(
+                searchQuery = "",
+                fromArchive = false,
+                newActivitiesOnTop = true,
+                onlyInteractionEnabled = false,
+                conversationFilter = ConversationFilter.OneOnOne,
+                useStrictMlsFilter = true
+            ).asSnapshot()
+
+            // Then
+            val privateConversation = assertInstanceOf<ConversationItem.PrivateConversation>(result.first())
+            assertEquals(true, privateConversation.hasOnGoingCall)
+            assertEquals(true, privateConversation.hasNewActivitiesToShow)
+        }
+
+    @Test
     fun givenJoinableCallsChange_whenGettingPaginatedList_thenDoNotReEmitSamePagingData() =
         runTest(dispatcherProvider.main()) {
             // Given
@@ -249,6 +329,57 @@ class GetConversationsFromSearchUseCaseTest {
 
             // Then
             assertEquals(1, result.size)
+        }
+
+    @Test
+    fun givenJoinableCallsChangeAfterPagingEmission_whenItemsLoad_thenUseCallStateFromPagingEmission() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val conversation = ConversationDetailsWithEvents(TestConversationDetails.CONVERSATION_ONE_ONE)
+            val call = joinableCall(
+                conversationId = conversation.conversationDetails.conversation.id,
+                status = CallStatus.INCOMING,
+                conversationType = Conversation.Type.OneOnOne
+            )
+            val joinableCallsFlow = MutableStateFlow<Map<ConversationId, Call>>(emptyMap())
+            val pagingDataFlow = MutableSharedFlow<PagingData<ConversationDetailsWithEvents>>()
+            val (_, useCase) = Arrangement()
+                .withPaginatedResultFlow(pagingDataFlow)
+                .withJoinableCallsFlow(joinableCallsFlow)
+                .arrange()
+
+            val result = with(ConversationQueryConfig("search")) {
+                useCase(
+                    searchQuery = searchQuery,
+                    fromArchive = fromArchive,
+                    newActivitiesOnTop = newActivitiesOnTop,
+                    onlyInteractionEnabled = onlyInteractionEnabled,
+                    useStrictMlsFilter = true
+                )
+            }
+
+            result.test {
+                pagingDataFlow.emit(PagingData.from(listOf(conversation)))
+                val pagingDataBeforeCall = awaitItem()
+
+                // When the call changes after this paging generation was emitted
+                joinableCallsFlow.value = mapOf(call.conversationId to call)
+                runCurrent()
+
+                // Then items from the existing generation keep its call-state snapshot
+                val privateConversationBeforeCall = assertInstanceOf<ConversationItem.PrivateConversation>(
+                    flowOf(pagingDataBeforeCall).asSnapshot().first()
+                )
+                assertEquals(false, privateConversationBeforeCall.hasOnGoingCall)
+
+                // And the next paging generation receives the new call state
+                pagingDataFlow.emit(PagingData.from(listOf(conversation)))
+                val privateConversationWithCall = assertInstanceOf<ConversationItem.PrivateConversation>(
+                    flowOf(awaitItem()).asSnapshot().first()
+                )
+                assertEquals(true, privateConversationWithCall.hasOnGoingCall)
+                cancelAndIgnoreRemainingEvents()
+            }
         }
 
     inner class Arrangement {
@@ -304,6 +435,12 @@ class GetConversationsFromSearchUseCaseTest {
             } returns flowOf(PagingData.from(conversations))
         }
 
+        fun withPaginatedResultFlow(result: Flow<PagingData<ConversationDetailsWithEvents>>) = apply {
+            coEvery {
+                useCase.invoke(any(), any(), any(), any())
+            } returns result
+        }
+
         fun withFavoriteFolderResult(result: GetFavoriteFolderUseCase.Result) = apply {
             coEvery { getFavoriteFolderUseCase.invoke() } returns result
         }
@@ -338,15 +475,19 @@ class GetConversationsFromSearchUseCaseTest {
         )
     }
 
-    private fun joinableCall(conversationId: ConversationId) = Call(
+    private fun joinableCall(
+        conversationId: ConversationId,
+        status: CallStatus = CallStatus.STILL_ONGOING,
+        conversationType: Conversation.Type = Conversation.Type.Group.Regular
+    ) = Call(
         conversationId = conversationId,
-        status = CallStatus.STILL_ONGOING,
+        status = status,
         isMuted = false,
         isCameraOn = false,
         isCbrEnabled = false,
         callerId = TestUser.SELF_USER_ID,
         conversationName = null,
-        conversationType = Conversation.Type.Group.Regular,
+        conversationType = conversationType,
         callerName = null,
         callerTeamName = null
     )

@@ -97,6 +97,7 @@ android {
         }
         getByName(BuildTypes.RELEASE) {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
             isProfileable = true
@@ -109,6 +110,7 @@ android {
         create(BuildTypes.COMPAT) {
             initWith(getByName(BuildTypes.RELEASE))
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
             matchingFallbacks.add("release")
@@ -118,6 +120,7 @@ android {
         create(BuildTypes.COMPAT_RELEASE) {
             initWith(getByName(BuildTypes.RELEASE))
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
             isProfileable = true
@@ -128,6 +131,7 @@ android {
         create(BuildTypes.BENCHMARK) {
             initWith(getByName(BuildTypes.RELEASE))
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             isDebuggable = false
             isProfileable = true

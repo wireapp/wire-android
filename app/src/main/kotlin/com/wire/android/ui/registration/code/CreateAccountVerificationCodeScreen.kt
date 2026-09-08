@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.registration.code
 
-import com.wire.android.navigation.annotation.app.WireCreateAccountDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -43,15 +42,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.ui.authentication.createAccountVerificationCodeViewModel
 import com.wire.android.R
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.AuthPopUpNavigationAnimation
-import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
 import com.wire.android.ui.authentication.create.common.ServerTitle
-import com.wire.android.ui.authentication.devices.common.SessionBackedAuthenticationNavArgs
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.verificationcode.ResendCodeText
 import com.wire.android.ui.common.WireDialog
@@ -63,8 +55,6 @@ import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.CodeTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.ramcosta.composedestinations.generated.app.destinations.CreateAccountUsernameScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.RemoveDeviceScreenDestination
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.theme.WireTheme
@@ -76,29 +66,19 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.job
 
-@WireCreateAccountDestination(
-    navArgs = CreateAccountDataNavArgs::class,
-    style = AuthPopUpNavigationAnimation::class
-)
 @Composable
-fun CreateAccountVerificationCodeScreen(
-    navigator: Navigator,
-    createAccountCodeVerificationViewModel: CreateAccountVerificationCodeViewModel =
-        createAccountVerificationCodeViewModel()
+internal fun CreateAccountVerificationCodeRouteScreen(
+    viewModel: CreateAccountVerificationCodeViewModel,
+    onNavigateBack: () -> Unit,
+    onSuccess: (com.wire.kalium.logic.data.user.UserId) -> Unit,
+    onTooManyDevices: (com.wire.kalium.logic.data.user.UserId) -> Unit,
 ) {
-    with(createAccountCodeVerificationViewModel) {
-        fun navigateToUsernameScreen() = navigator.navigate(
-            NavigationCommand(
-                CreateAccountUsernameScreenDestination,
-                BackStackMode.CLEAR_WHOLE
-            )
-        )
-
+    with(viewModel) {
         CodeContent(
             state = codeState,
             textState = codeTextState,
             onResendCodePressed = ::resendCode,
-            onBackPressed = navigator::navigateBack,
+            onBackPressed = onNavigateBack,
             serverConfig = serverConfig
         )
 
@@ -116,24 +96,19 @@ fun CreateAccountVerificationCodeScreen(
             )
         }
         LaunchedEffect(codeState.result) {
-            if (codeState.result is CreateAccountCodeResult.Success) {
-                navigateToUsernameScreen()
+            (codeState.result as? CreateAccountCodeResult.Success)?.let {
+                onSuccess(it.userId)
             }
             val tooManyDevicesError = codeState.result as? CreateAccountCodeResult.Error.TooManyDevicesError
             if (tooManyDevicesError != null) {
                 clearCodeError()
                 clearCodeField()
-                navigator.navigate(
-                    NavigationCommand(
-                        RemoveDeviceScreenDestination(SessionBackedAuthenticationNavArgs.from(tooManyDevicesError.userId)),
-                        BackStackMode.CLEAR_WHOLE
-                    )
-                )
+                onTooManyDevices(tooManyDevicesError.userId)
             }
         }
         BackHandler {
             if (codeState.loading) return@BackHandler
-            navigator.navigateBack()
+            onNavigateBack()
         }
     }
 }

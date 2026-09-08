@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.ui.home.FeatureFlagState
@@ -35,10 +36,11 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.message.TeamSelfDeleteTimer
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -47,8 +49,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions")
-class FeatureFlagNotificationViewModel(
-    private val coreLogic: Lazy<CoreLogic>,
+class FeatureFlagNotificationViewModel @Inject constructor(
+    @KaliumCoreLogic private val coreLogic: Lazy<CoreLogic>,
     private val currentSessionFlow: Lazy<CurrentSessionFlowUseCase>,
     private val globalDataStore: Lazy<GlobalDataStore>,
     private val disableAppLockUseCase: Lazy<DisableAppLockUseCase>,
@@ -284,10 +286,10 @@ class FeatureFlagNotificationViewModel(
         featureFlagState = featureFlagState.copy(isE2EILoading = true, startGettingE2EICertificate = true)
     }
 
-    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+    fun handleE2EIEnrollmentResult(result: EnrollE2EIResult) {
         val e2eiRequired = featureFlagState.e2EIRequired
         featureFlagState = when (result) {
-            is FinalizeEnrollmentResult.Failure -> {
+            is EnrollE2EIResult.Failure -> {
                 featureFlagState.copy(
                     isE2EILoading = false,
                     startGettingE2EICertificate = false,
@@ -296,7 +298,7 @@ class FeatureFlagNotificationViewModel(
                 )
             }
 
-            is FinalizeEnrollmentResult.Success -> {
+            is EnrollE2EIResult.Success -> {
                 featureFlagState.copy(
                     isE2EILoading = false,
                     e2EIRequired = null,

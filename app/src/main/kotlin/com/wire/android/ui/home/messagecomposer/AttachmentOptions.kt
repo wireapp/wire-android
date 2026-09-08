@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -75,6 +76,7 @@ fun AttachmentOptionsComponent(
     onLocationPickerClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
     modifier: Modifier = Modifier,
+    useKeyboardNavigation: Boolean = false,
 ) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
@@ -124,50 +126,72 @@ fun AttachmentOptionsComponent(
         }
         val (columns, contentPadding) = params
         val numberOfColumns = (fullWidth / minColumnWidth).toInt()
+        val enabledAttachmentOptions = visibleAttachmentOptions.map { it.isEnabled }
+        val optionFocusRequesters = remember(visibleAttachmentOptions.size) {
+            List(visibleAttachmentOptions.size) { FocusRequester() }
+        }
 
-        LazyVerticalGrid(
-            columns = columns,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = contentPadding,
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            visibleAttachmentOptions.forEachIndexed { index, option ->
-                if (option.shouldShow) {
-                    item {
-                        val column = index % numberOfColumns
-                        val reverseIndex = visibleAttachmentOptions.size - 1 - index
+        LaunchedEffect(optionsVisible, enabledAttachmentOptions, useKeyboardNavigation) {
+            if (useKeyboardNavigation && optionsVisible) {
+                enabledAttachmentOptions.indexOfFirst { it }
+                    .takeIf { it >= 0 }
+                    ?.let { optionFocusRequesters[it].requestFocus() }
+            }
+        }
 
-                        var startAnimation by remember { mutableStateOf(false) }
+        if (useKeyboardNavigation) {
+            KeyboardAttachmentOptions(
+                options = visibleAttachmentOptions,
+                focusRequesters = optionFocusRequesters,
+                columnCount = numberOfColumns.coerceIn(1, visibleAttachmentOptions.size.coerceAtLeast(1)),
+                contentPadding = contentPadding,
+                labelStyle = labelStyle,
+            )
+        } else {
+            LazyVerticalGrid(
+                columns = columns,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = contentPadding,
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                visibleAttachmentOptions.forEachIndexed { index, option ->
+                    if (option.shouldShow) {
+                        item {
+                            val column = index % numberOfColumns
+                            val reverseIndex = visibleAttachmentOptions.size - 1 - index
 
-                        val animatedScale by animateFloatAsState(
-                            targetValue = if (startAnimation) 1.0f else 0.0f,
-                            animationSpec = keyframes {
-                                durationMillis = 150
-                                if (startAnimation) {
-                                    1.2f at 50 using FastOutSlowInEasing
-                                    1.0f at 100 using FastOutSlowInEasing
-                                } else {
-                                    1.0f at 0 using FastOutSlowInEasing
-                                    0.0f at 50 using FastOutSlowInEasing
-                                }
-                            },
-                            label = "attachmentsAnimation"
-                        )
+                            var startAnimation by remember { mutableStateOf(false) }
 
-                        LaunchedEffect(optionsVisible) {
-                            val delayMillis = if (optionsVisible) column * 50L else reverseIndex * 25L
-                            kotlinx.coroutines.delay(delayMillis)
-                            startAnimation = optionsVisible
+                            val animatedScale by animateFloatAsState(
+                                targetValue = if (startAnimation) 1.0f else 0.0f,
+                                animationSpec = keyframes {
+                                    durationMillis = 150
+                                    if (startAnimation) {
+                                        1.2f at 50 using FastOutSlowInEasing
+                                        1.0f at 100 using FastOutSlowInEasing
+                                    } else {
+                                        1.0f at 0 using FastOutSlowInEasing
+                                        0.0f at 50 using FastOutSlowInEasing
+                                    }
+                                },
+                                label = "attachmentsAnimation"
+                            )
+
+                            LaunchedEffect(optionsVisible) {
+                                val delayMillis = if (optionsVisible) column * 50L else reverseIndex * 25L
+                                kotlinx.coroutines.delay(delayMillis)
+                                startAnimation = optionsVisible
+                            }
+
+                            AttachmentButton(
+                                icon = option.icon,
+                                labelStyle = labelStyle,
+                                modifier = Modifier.scale(animatedScale),
+                                text = stringResource(option.text),
+                                enabled = option.isEnabled,
+                            ) { option.onClick() }
                         }
-
-                        AttachmentButton(
-                            icon = option.icon,
-                            labelStyle = labelStyle,
-                            modifier = Modifier.scale(animatedScale),
-                            text = stringResource(option.text),
-                            enabled = option.isEnabled,
-                        ) { option.onClick() }
                     }
                 }
             }
@@ -370,7 +394,7 @@ private fun buildAttachmentOptionItems(
     }
 }
 
-private data class AttachmentOptionItem(
+internal data class AttachmentOptionItem(
     val shouldShow: Boolean = true,
     val isEnabled: Boolean = true,
     @StringRes val text: Int,

@@ -17,14 +17,9 @@
  */
 package com.wire.android.ui.home.conversations.details.updatechannelaccess
 
-import com.wire.android.ui.home.conversations.updateChannelAccessViewModel
-
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -32,27 +27,18 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessScreenContent
 
-@WireRootDestination(
-    navArgs = UpdateChannelAccessArgs::class,
-    style = SlideNavigationAnimation::class,
-)
 @Composable
-fun ChannelAccessOnUpdateScreen(
-    resultNavigator: ResultBackNavigator<UpdateChannelAccessArgs>,
-    updateChannelAccessViewModel: UpdateChannelAccessViewModel = updateChannelAccessViewModel()
+internal fun ChannelAccessOnUpdateRouteScreen(
+    viewModel: UpdateChannelAccessViewModel,
+    onNavigateBack: (UpdateChannelAccessArgs) -> Unit,
 ) {
-
-    fun navigateBack() {
-        resultNavigator.setResult(
-            UpdateChannelAccessArgs(
-                updateChannelAccessViewModel.conversationId,
-                updateChannelAccessViewModel.accessType,
-                updateChannelAccessViewModel.permissionType,
-            )
+    fun navigateBack() = onNavigateBack(
+        UpdateChannelAccessArgs(
+            viewModel.conversationId,
+            viewModel.accessType,
+            viewModel.permissionType,
         )
-        resultNavigator.navigateBack()
-    }
-
+    )
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -64,7 +50,7 @@ fun ChannelAccessOnUpdateScreen(
             )
         }
     ) { internalPadding ->
-        with(updateChannelAccessViewModel) {
+        with(viewModel) {
             ChannelAccessScreenContent(
                 internalPadding = internalPadding,
                 accessType,

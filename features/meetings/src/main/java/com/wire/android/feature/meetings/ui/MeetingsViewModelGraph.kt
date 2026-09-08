@@ -23,9 +23,10 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.PreviewProvider
-import com.wire.android.di.metro.sessionKeyedAssistedMetroViewModelAs
-import com.wire.android.di.metro.sessionKeyedMetroViewModelAs
-import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
+import com.wire.android.di.metro.wireAssistedMetroViewModelAs
+import com.wire.android.di.metro.wireMetroViewModelAs
+import com.wire.android.feature.meetings.ui.create.NewMeetingNavArgs
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelPreview
@@ -33,33 +34,34 @@ import com.wire.android.feature.meetings.ui.list.MeetingListViewModel
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 
-interface MeetingsManualViewModelFactory : ManualViewModelAssistedFactory {
-    fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModelImpl
-}
+@WireAssistedViewModelFactoryGroup
+object MeetingsManualViewModelFactoryGroup
 
 @Composable
 fun meetingListViewModel(
     type: MeetingsTabItem,
 ): MeetingListViewModel =
-    sessionKeyedAssistedMetroViewModelAs<MeetingListViewModelImpl, MeetingListViewModel, MeetingsManualViewModelFactory>(
-        key = "meeting_list_${type.name}",
+    wireAssistedMetroViewModelAs<MeetingListViewModelImpl, MeetingListViewModel, MeetingsManualViewModelFactory>(
+        instanceKey = "meeting_list_${type.name}",
     ) {
         meetingListViewModel(type)
     }
 
 @Composable
 fun meetingOptionsMenuListViewModel(): MeetingOptionsMenuViewModel =
-    sessionKeyedMetroViewModelAs<MeetingOptionsMenuViewModelImpl, MeetingOptionsMenuViewModel>()
+    wireMetroViewModelAs<MeetingOptionsMenuViewModelImpl, MeetingOptionsMenuViewModel>()
 
 @Composable
-fun newMeetingViewModel(
+internal fun newMeetingViewModel(
+    navArgs: NewMeetingNavArgs,
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
 ): NewMeetingViewModel =
-    sessionKeyedMetroViewModelAs<NewMeetingViewModelImpl, NewMeetingViewModel>(
-        viewModelStoreOwner = viewModelStoreOwner,
-        previewProvider = PreviewProvider.of(NewMeetingViewModelPreview(NewMeetingType.Schedule)),
-    )
+    wireAssistedMetroViewModelAs<NewMeetingViewModelImpl, NewMeetingViewModel, MeetingsManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+        previewProvider = PreviewProvider.of(NewMeetingViewModelPreview(navArgs.type)),
+    ) {
+        newMeetingViewModel(navArgs)
+    }

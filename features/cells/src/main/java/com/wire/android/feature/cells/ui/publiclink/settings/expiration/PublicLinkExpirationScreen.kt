@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,12 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.wire.android.feature.cells.ui.publicLinkExpirationScreenViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
-import com.wire.android.navigation.annotation.features.cells.WireCellsDestination
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
@@ -64,17 +60,12 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
 import kotlinx.parcelize.Parcelize
 
-@OptIn(ExperimentalMaterial3Api::class)
-@WireCellsDestination(
-    navArgs = PublicLinkExpirationScreenNavArgs::class
-)
 @Composable
-internal fun PublicLinkExpirationScreen(
-    resultNavigator: ResultBackNavigator<PublicLinkExpirationResult>,
+internal fun PublicLinkExpirationRouteScreen(
+    onResult: (PublicLinkExpirationResult) -> Unit,
+    viewModel: PublicLinkExpirationScreenViewModel,
     modifier: Modifier = Modifier,
-    viewModel: PublicLinkExpirationScreenViewModel = publicLinkExpirationScreenViewModel(),
 ) {
-
     val state by viewModel.state.collectAsState()
 
     var showDatePicker by remember { mutableStateOf<SelectedDate?>(null) }
@@ -83,7 +74,7 @@ internal fun PublicLinkExpirationScreen(
 
     BackHandler {
         if (!state.showProgress) {
-            resultNavigator.navigateBack(viewModel.getResult())
+            onResult(viewModel.getResult())
         }
     }
 
@@ -93,7 +84,7 @@ internal fun PublicLinkExpirationScreen(
             WireCenterAlignedTopAppBar(
                 onNavigationPressed = {
                     if (!state.showProgress) {
-                        resultNavigator.navigateBack(viewModel.getResult())
+                        onResult(viewModel.getResult())
                     }
                 },
                 title = stringResource(R.string.public_link_setting_expiration_title),
@@ -159,7 +150,7 @@ internal fun PublicLinkExpirationScreen(
             is ShowDatePicker -> showDatePicker = SelectedDate(action.selectedDate)
             is ShowTimePicker -> showTimePicker = SelectedTime(action.selectedTime)
             is ShowError -> showError = action.error
-            is CloseScreen -> resultNavigator.navigateBack(action.result)
+            is CloseScreen -> onResult(action.result)
         }
     }
 }

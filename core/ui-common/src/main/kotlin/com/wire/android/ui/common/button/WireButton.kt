@@ -128,7 +128,7 @@ fun WireButton(
                     }
                 }
                 .semantics {
-                    onClickDescription?.let { onClick(it) { false } }
+                    onClickDescription?.let { onClick(label = it, action = null) }
                     description?.let { contentDescription = description }
                 },
             enabled = state != WireButtonState.Disabled,

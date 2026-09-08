@@ -49,7 +49,7 @@ internal fun DeleteConversationGroupDialog(
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = { onDeleteGroup(state) },
-                text = stringResource(id = R.string.label_remove),
+                text = stringResource(id = R.string.label_delete),
                 type = WireDialogButtonType.Primary,
                 state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
                 loading = state.loading

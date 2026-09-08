@@ -1,0 +1,184 @@
+name: Setup Java and Gradle
+description: Set up Java and trusted Gradle caching for CI jobs
+
+inputs:
+  enable-kvm:
+    description: Whether to enable KVM on Linux
+    required: false
+    default: "false"
+  isolate-gradle-home:
+    description: Whether to use a run-scoped Gradle user home
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK 21
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      with:
+        java-version: "21"
+        distribution: temurin
+
+    - name: Configure isolated Gradle user home
+      if: ${{ inputs.isolate-gradle-home == 'true' }}
+      shell: bash
+      run: | # zizmor: ignore[github-env] all path components are supplied by GitHub runner metadata.
+        gradle_user_home="${RUNNER_TEMP}/gradle-home-${GITHUB_RUN_ID}-${GITHUB_JOB}-${GITHUB_RUN_ATTEMPT}"
+        echo "GRADLE_USER_HOME=${gradle_user_home}" >> "$GITHUB_ENV"
+
+    - name: Resolve Gradle cache policy
+      id: cache_policy
+      shell: bash
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        REF: ${{ github.ref }}
+        REPOSITORY: ${{ github.repository }}
+        PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+        PR_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+        MERGE_GROUP_BASE_REF: ${{ github.event.merge_group.base_ref }}
+      run: |
+        enabled=false
+        read_only=false
+
+        # This event gate is defense-in-depth because this local action is loaded
+        # from the checked-out ref. Cache backends must also enforce VCS-ref scope
+        # so PR cache writes cannot be restored by develop or sibling refs.
+        # Only the trusted develop lifecycle can restore or save Gradle state.
+        if [[ "${EVENT_NAME}" == "push" && "${REF}" == "refs/heads/develop" ]]; then
+          enabled=true
+        elif [[ "${EVENT_NAME}" == "pull_request" &&
+                "${PR_BASE_REF}" == "develop" &&
+                "${PR_HEAD_REPOSITORY}" == "${REPOSITORY}" ]]; then
+          enabled=true
+        elif [[ "${EVENT_NAME}" == "merge_group" &&
+                "${MERGE_GROUP_BASE_REF}" == "refs/heads/develop" ]]; then
+          enabled=true
+          read_only=true
+        fi
+
+        echo "enabled=${enabled}" >> "$GITHUB_OUTPUT"
+        echo "read_only=${read_only}" >> "$GITHUB_OUTPUT"
+
+    - name: Detect WarpBuild runner
+      id: cache_backend
+      shell: bash
+      run: |
+        if [[ -n "${WARPBUILD_RUNNER_VERIFICATION_TOKEN-}" ]]; then
+          echo "warp=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "warp=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Summarize Gradle cache policy
+      shell: bash
+      env:
+        CACHE_ENABLED: ${{ steps.cache_policy.outputs.enabled }}
+        CACHE_READ_ONLY: ${{ steps.cache_policy.outputs.read_only }}
+        WARP_RUNNER: ${{ steps.cache_backend.outputs.warp }}
+      run: |
+        if [[ "${CACHE_ENABLED}" != "true" ]]; then
+          backend=disabled
+        elif [[ "${WARP_RUNNER}" == "true" ]]; then
+          backend=warp
+        else
+          backend=github-basic
+        fi
+
+        {
+          echo "### Gradle cache policy"
+          echo
+          echo "| Setting | Value |"
+          echo "| --- | --- |"
+          printf '| Enabled | `%s` |\n' "${CACHE_ENABLED}"
+          printf '| Read only | `%s` |\n' "${CACHE_READ_ONLY}"
+          printf '| Backend | `%s` |\n' "${backend}"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Validate Gradle cache configuration
+      if: ${{ inputs.isolate-gradle-home == 'true' && steps.cache_policy.outputs.enabled == 'true' }}
+      shell: bash
+      run: |
+        echo "::error::isolate-gradle-home cannot be combined with shared Gradle caching because their cache paths differ"
+        exit 1
+
+    # setup-gradle validates Gradle wrapper checksums by default.
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
+      with:
+        # Warp runners use WarpCache below. Trusted non-Warp jobs use GitHub's
+        # ref-scoped basic provider, which preserves their previous Gradle cache.
+        cache-provider: basic
+        cache-disabled: ${{ steps.cache_backend.outputs.warp == 'true' || steps.cache_policy.outputs.enabled != 'true' }}
+        cache-read-only: ${{ steps.cache_policy.outputs.read_only == 'true' }}
+
+    - name: Restore and save Warp Gradle state
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only != 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      with:
+        path: |
+          ~/.gradle/caches/*/generated-gradle-jars
+          ~/.gradle/caches/*/kotlin-dsl
+          ~/.gradle/caches/*/scripts
+          ~/.gradle/caches/modules-2
+          ~/.gradle/caches/*/transforms
+          ~/.gradle/caches/jars-*
+          ~/.gradle/wrapper
+        key: warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}
+        restore-keys: |
+          warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Restore read-only Warp Gradle state
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only == 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      uses: WarpBuilds/cache/restore@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      with:
+        path: |
+          ~/.gradle/caches/*/generated-gradle-jars
+          ~/.gradle/caches/*/kotlin-dsl
+          ~/.gradle/caches/*/scripts
+          ~/.gradle/caches/modules-2
+          ~/.gradle/caches/*/transforms
+          ~/.gradle/caches/jars-*
+          ~/.gradle/wrapper
+        key: warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}
+        restore-keys: |
+          warp-gradle-state-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Restore and save Warp Gradle task outputs
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only != 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      with:
+        path: ~/.gradle/caches/build-cache-*
+        key: warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-${{ github.sha }}
+        restore-keys: |
+          warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-
+          warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-
+
+    - name: Restore read-only Warp Gradle task outputs
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only == 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      uses: WarpBuilds/cache/restore@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      with:
+        path: ~/.gradle/caches/build-cache-*
+        key: warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-${{ github.sha }}
+        restore-keys: |
+          warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-
+          warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-
+
+    - name: Enable Gradle build cache
+      if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_backend.outputs.warp == 'true' }}
+      shell: bash
+      run: | # zizmor: ignore[github-env] line breaks are rejected before the trusted value is preserved.
+        if [[ "${GRADLE_OPTS-}" == *$'\n'* || "${GRADLE_OPTS-}" == *$'\r'* ]]; then
+          echo "::error::GRADLE_OPTS must not contain line breaks"
+          exit 1
+        fi
+        gradle_opts="${GRADLE_OPTS:+${GRADLE_OPTS} }-Dorg.gradle.caching=true"
+        printf 'GRADLE_OPTS=%s\n' "${gradle_opts}" >> "$GITHUB_ENV"
+
+    - name: Enable KVM
+      if: ${{ inputs.enable-kvm == 'true' && runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm

@@ -17,89 +17,130 @@
  */
 package com.wire.android.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.biometric.BiometricManager
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import com.ramcosta.composedestinations.generated.app.destinations.AppUnlockWithBiometricsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.EnterLockCodeScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.SetLockCodeScreenDestination
 import com.wire.android.appLogger
-import com.wire.android.di.metro.LocalWireViewModelScopeKey
-import com.wire.android.di.metro.createSessionViewModelGraph
+import com.wire.android.di.metro.WireApplicationGraph
 import com.wire.android.di.metro.wireApplicationGraph
-import com.wire.android.model.LocalWireSessionImageLoader
-import com.wire.android.navigation.LoginTypeSelector
-import com.wire.android.navigation.MainNavHost
-import com.wire.android.navigation.rememberNavigator
+import com.wire.android.navigation.navigation3.WireNav3Host
+import com.wire.android.navigation.navigation3.rememberWireNavigation3Runtime
+import com.wire.android.navigation.runtime.MetroWireEntryEnvironment
+import com.wire.android.navigation.runtime.SessionGraphStoreViewModel
+import com.wire.android.navigation.runtime.wireSessionGraphStoreViewModel
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
+import com.wire.android.ui.home.appLock.AppLockNavigation3Actions
+import com.wire.android.ui.home.appLock.AppLockNavigation3Contribution
+import com.wire.android.ui.home.appLock.AppUnlockWithBiometricsRoute
+import com.wire.android.ui.home.appLock.EnterLockCodeRoute
+import com.wire.android.ui.home.appLock.SetLockCodeRoute
+import com.wire.android.ui.home.appLock.resolveAppLockStartRoute
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import com.wire.navigation.SessionRoute
+import com.wire.navigation.WireSessionId
 
 class AppLockActivity : BaseActivity() {
-
-    @Inject
-    lateinit var loginTypeSelector: LoginTypeSelector
 
     private val qualifiedIdMapper = QualifiedIdMapper(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
-        val sessionViewModelGraph = intent.getStringExtra(EXTRA_USER_ID)
+        val sessionId = intent.getStringExtra(EXTRA_USER_ID)
             ?.let(qualifiedIdMapper::fromStringToQualifiedID)
-            ?.let(wireApplicationGraph::createSessionViewModelGraph)
+            ?.let { WireSessionId(it.value, it.domain) }
             ?: run {
                 appLogger.e("appLock: missing session user id, closing app lock activity")
                 finish()
                 return
             }
+        val setTeamAppLock = intent.getBooleanExtra(SET_TEAM_APP_LOCK, false)
+        val canAuthenticateWithBiometrics = BiometricManager
+            .from(this)
+            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) ==
+            BiometricManager.BIOMETRIC_SUCCESS
+        val startRoute = resolveAppLockStartRoute(
+            sessionId = sessionId,
+            setTeamAppLock = setTeamAppLock,
+            canAuthenticateWithBiometrics = canAuthenticateWithBiometrics,
+        )
+        when (startRoute) {
+            is SetLockCodeRoute -> appLogger.i("appLock: requesting set team app lock")
+            is AppUnlockWithBiometricsRoute ->
+                appLogger.i("appLock: requesting app Unlock with biometrics")
+            is EnterLockCodeRoute -> appLogger.i("appLock: requesting app Unlock with passcode")
+        }
+
         setupOrientationForDevice()
         enableEdgeToEdge()
         setContent {
-            val snackbarHostState = remember { SnackbarHostState() }
-            val rememberedSessionViewModelGraph = remember { sessionViewModelGraph }
-            CompositionLocalProvider(
-                LocalSnackbarHostState provides snackbarHostState,
-                LocalMetroViewModelFactory provides rememberedSessionViewModelGraph.metroViewModelFactory,
-                LocalWireViewModelScopeKey provides rememberedSessionViewModelGraph.viewModelScopeKey,
-                LocalWireSessionImageLoader provides rememberedSessionViewModelGraph.wireSessionImageLoader,
-                LocalActivity provides this
-            ) {
-                WireTheme {
-                    val navigator = rememberNavigator(finish = this@AppLockActivity::finish)
+            AppLockNavigation3Root(
+                appGraph = this@AppLockActivity.wireApplicationGraph,
+                startRoute = startRoute,
+            )
+        }
+    }
 
-                    val startDestination =
-                        if (intent.getBooleanExtra(SET_TEAM_APP_LOCK, false)) {
-                            appLogger.i("appLock: requesting set team app lock")
-                            SetLockCodeScreenDestination()
-                        } else {
-                            val canAuthenticateWithBiometrics = BiometricManager
-                                .from(this)
-                                .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                            if (canAuthenticateWithBiometrics == BiometricManager.BIOMETRIC_SUCCESS) {
-                                appLogger.i("appLock: requesting app Unlock with biometrics")
-                                AppUnlockWithBiometricsScreenDestination()
-                            } else {
-                                appLogger.i("appLock: requesting app Unlock with passcode")
-                                EnterLockCodeScreenDestination()
-                            }
-                        }
+    @Composable
+    private fun AppLockNavigation3Root(
+        appGraph: WireApplicationGraph,
+        startRoute: SessionRoute,
+        sessionGraphStore: SessionGraphStoreViewModel = wireSessionGraphStoreViewModel(
+            appGraph = appGraph,
+            owner = this@AppLockActivity,
+        ),
+    ) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        val runtime = rememberWireNavigation3Runtime(startRoute)
+        val actions = remember {
+            object : AppLockNavigation3Actions {
+                override fun completeUnlock() = finish()
 
-                    MainNavHost(
-                        navigator = navigator,
-                        loginTypeSelector = loginTypeSelector,
-                        startDestination = startDestination,
-                    )
-                }
+                override fun cancelUnlock() = finishAffinity()
+
+                override fun restartAfterLogout() = this@AppLockActivity.restartAfterLogout()
             }
         }
+        val entryEnvironment = remember(appGraph, sessionGraphStore) {
+            MetroWireEntryEnvironment(
+                appGraph = appGraph,
+                authenticationGraph = appGraph.authenticationViewModelGraph,
+                sessionGraphStore = sessionGraphStore,
+                logoutAction = { this@AppLockActivity.restartAfterLogout() },
+            )
+        }
+        val entryProviderInstallers = remember(runtime, actions) {
+            AppLockNavigation3Contribution.entryProviderInstallers(runtime, actions)
+        }
+
+        CompositionLocalProvider(
+            LocalSnackbarHostState provides snackbarHostState,
+            LocalActivity provides this,
+        ) {
+            WireTheme {
+                WireNav3Host(
+                    runtime = runtime,
+                    entryEnvironment = entryEnvironment,
+                    entryProviderInstallers = entryProviderInstallers,
+                )
+            }
+        }
+    }
+
+    private fun restartAfterLogout() {
+        startActivity(
+            Intent(this, WireActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        )
+        finish()
     }
 
     companion object {

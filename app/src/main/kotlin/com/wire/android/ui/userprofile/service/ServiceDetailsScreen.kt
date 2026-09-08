@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.userprofile.service
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,20 +40,14 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationScreenDestination
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
-import com.wire.android.ui.home.settings.serviceDetailsViewModel
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarType
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.button.WireButtonState
@@ -64,23 +57,19 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.service.ServiceDetails
 import kotlinx.coroutines.launch
 
-@WireRootDestination(
-    navArgs = ServiceDetailsNavArgs::class,
-    style = PopUpNavigationAnimation::class, // default should be PopUpNavigationAnimation
-)
 @Composable
-fun ServiceDetailsScreen(
-    navigator: Navigator,
-    viewModel: ServiceDetailsViewModel =
-        serviceDetailsViewModel()
+internal fun ServiceDetailsScreen(
+    viewModel: ServiceDetailsViewModel,
+    navigateBack: () -> Unit,
+    openConversation: (ConversationId) -> Unit,
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
@@ -95,21 +84,12 @@ fun ServiceDetailsScreen(
                 }
 
             is ServiceDetailsViewActions.OpenConversation ->
-                navigator.navigate(
-                    NavigationCommand(
-                        ConversationScreenDestination(
-                            navArgs = ConversationNavArgs(
-                                conversationId = action.conversationId
-                            )
-                        ),
-                        BackStackMode.UPDATE_EXISTED
-                    )
-                )
+                openConversation(action.conversationId)
         }
     }
 
     ServiceDetailsContent(
-        navigateBack = navigator::navigateBack,
+        navigateBack = navigateBack,
         onAddService = viewModel::onAddService,
         onRemoveService = viewModel::onRemoveService,
         onOpenConversation = viewModel::onOpenConversation,

@@ -22,14 +22,18 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.awaitClose
@@ -61,6 +65,9 @@ class GlobalObserversManager @Inject constructor(
     private val notificationChannelsManager: NotificationChannelsManager,
     private val userDataStoreProvider: UserDataStoreProvider,
     private val currentScreenManager: CurrentScreenManager,
+    private val sendPendingMessagesAfterForegroundSync: SendPendingMessagesAfterForegroundSyncUseCase,
+    private val networkStateObserver: NetworkStateObserver,
+    private val kaliumConfigs: KaliumConfigs,
 ) {
     // TODO(tests): refactor so scope/dispatcher can be injected and properly stopped
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
@@ -78,6 +85,10 @@ class GlobalObserversManager @Inject constructor(
         }
         scope.handleLogouts()
         scope.handleDeleteEphemeralMessageEndDate()
+
+        if (kaliumConfigs.pendingMessages) {
+            scope.retryPendingMessagesOnAppOpen()
+        }
     }
 
     private suspend fun setUpNotifications() {
@@ -161,5 +172,37 @@ class GlobalObserversManager @Inject constructor(
                 }
                 .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
         }
+    }
+
+    private fun CoroutineScope.retryPendingMessagesOnAppOpen() {
+        launch {
+            currentScreenManager.isAppVisibleFlow()
+                .filter { isAppVisible -> isAppVisible }
+                .collectLatest {
+                    val networkState = networkStateObserver.observeNetworkState().value
+                    if (networkState !is NetworkState.ConnectedWithInternet) {
+                        appLogger.i("$TAG: no internet connection, skipping pending messages retry on app open")
+                        return@collectLatest
+                    }
+
+                    when (val result = coreLogic.getGlobalScope().session.currentSession()) {
+                        is CurrentSessionResult.Success -> {
+                            val accountInfo = result.accountInfo
+                            if (accountInfo.isValid()) {
+                                sendPendingMessagesAfterForegroundSync(accountInfo.userId)
+                            } else {
+                                appLogger.w("$TAG: current session is invalid, skipping pending messages retry on app open")
+                            }
+                        }
+
+                        is CurrentSessionResult.Failure ->
+                            appLogger.w("$TAG: unable to get current valid session, skipping pending messages retry on app open: $result")
+                    }
+                }
+        }
+    }
+
+    private companion object {
+        private const val TAG = "GlobalObserversManager"
     }
 }

@@ -34,7 +34,7 @@ is a `core` module.
 
 ## Decision
 
-Extract the video player into a new **`core:media-player`** module and consume it from both
+Extract the video player into a new **`core:video-player`** module and consume it from both
 `features:cells` and `app`.
 
 A new dedicated core module is preferred over folding it into the existing `core:media` module so that
@@ -48,13 +48,13 @@ The two pieces that are currently cells-specific will be generalized during the 
 - **Navigation:** replace `@WireCellsDestination` with a single shared destination registered through
   `core:navigation`, so the player is navigable from any feature/app graph rather than only the cells
   graph.
-- **Dependency injection:** move the Metro wiring out of `CellsViewModelFactory` so `core:media-player`
+- **Dependency injection:** move the Metro wiring out of `CellsViewModelFactory` so `core:video-player`
   provides its own `VideoPlayerViewModel`.
 
 The work is sequenced extract-then-reuse, so the risky refactor is validated against the existing
 caller before chat depends on it:
 
-1. Create `core:media-player` and move the player files into it, generalizing navigation and DI. No
+1. Create `core:video-player` and move the player files into it, generalizing navigation and DI. No
    user-facing behavior change.
 2. Migrate `features:cells` to navigate to the shared destination and delete its copy of the player.
    This proves parity with the existing flow.
@@ -63,11 +63,11 @@ caller before chat depends on it:
 
 ## Consequences
 
-- A new module `core:media-player` is added; it is auto-discovered by `settings.gradle.kts` and built
+- A new module `core:video-player` is added; it is auto-discovered by `settings.gradle.kts` and built
   with the `wire-android-library` convention plugin (copied from an existing core module, not from
   `features/template`). It may depend on `core:ui-common`, `core:navigation`, and `core:di` — all
   core → core, one-directional, no cycle.
-- `features:cells` and `app` both depend on `core:media-player`; the `kalium → core → features → app`
+- `features:cells` and `app` both depend on `core:video-player`; the `kalium → core → features → app`
   direction is preserved and no cross-feature dependency is introduced.
 - The video player becomes reusable from anywhere, and chat gains an in-app video experience instead
   of delegating to an external app.
@@ -76,5 +76,5 @@ caller before chat depends on it:
   updated as part of Phase 2.
 - The media3/Coil-video dependencies move to (and are scoped by) the new module.
 - Follow-up opportunity (out of scope here): the cells in-app image viewer (`CellImageViewerScreen`)
-  and the app `MediaGalleryScreen` overlap; `core:media-player` is a natural future home for a unified
+  and the app `MediaGalleryScreen` overlap; `core:video-player` is a natural future home for a unified
   media viewer, to be handled as a separate ADR/change.

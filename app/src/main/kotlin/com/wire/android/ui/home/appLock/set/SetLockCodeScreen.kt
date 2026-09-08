@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.appLock.set
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -50,8 +49,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.rememberNavigator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
@@ -74,18 +71,17 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import androidx.compose.ui.platform.LocalLocale
 
-@WireRootDestination
 @Composable
-fun SetLockCodeScreen(
-    navigator: Navigator,
+internal fun SetLockCodeRouteScreen(
+    onBack: () -> Unit,
     viewModel: SetLockScreenViewModel = setLockScreenViewModel(),
 ) {
     SetLockCodeScreenContent(
-        navigator = navigator,
         state = viewModel.state,
         passwordTextState = viewModel.passwordTextState,
         scrollState = rememberScrollState(),
-        onBackPress = navigator::navigateBack,
+        onBackPress = onBack,
+        onDone = onBack,
         onContinue = viewModel::onContinue
     )
 }
@@ -93,17 +89,17 @@ fun SetLockCodeScreen(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SetLockCodeScreenContent(
-    navigator: Navigator,
     state: SetLockCodeViewState,
     passwordTextState: TextFieldState,
     scrollState: ScrollState,
     onBackPress: () -> Unit,
+    onDone: () -> Unit,
     onContinue: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(state.done) {
         if (state.done) {
-            navigator.navigateBack()
+            onDone()
         }
     }
 
@@ -274,11 +270,11 @@ fun PreviewPasswordVerificationGroup() {
 fun PreviewSetLockCodeScreen() {
     WireTheme {
         SetLockCodeScreenContent(
-            navigator = rememberNavigator {},
             state = SetLockCodeViewState(),
             passwordTextState = TextFieldState(),
             scrollState = rememberScrollState(),
             onBackPress = {},
+            onDone = {},
             onContinue = {}
         )
     }

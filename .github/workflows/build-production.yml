@@ -21,14 +21,19 @@ jobs:
     steps:
       - name: Get latest release tag
         id: get_latest_release
+        env:
+          REPOSITORY: ${{ github.repository }}
         run: |
-          latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
+          latest_tag=$(curl -s "https://api.github.com/repos/$REPOSITORY/releases/latest" | jq -r '.tag_name')
           echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
 
       - name: Compare versions
+        env:
+          CURRENT_TAG: ${{ github.event.release.tag_name }}
+          LATEST_TAG: ${{ steps.get_latest_release.outputs.latest_tag }}
         run: |
-          current_tag="${{ github.event.release.tag_name }}"
-          latest_tag="${{ steps.get_latest_release.outputs.latest_tag }}"
+          current_tag="$CURRENT_TAG"
+          latest_tag="$LATEST_TAG"
           cur_ver="${current_tag#v}"
           lat_ver="${latest_tag#v}"
           highest="$(printf '%s\n%s' "$cur_ver" "$lat_ver" | sort -V | tail -n1)"

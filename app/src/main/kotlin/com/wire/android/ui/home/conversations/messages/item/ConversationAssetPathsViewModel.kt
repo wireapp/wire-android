@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOADED
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,7 +48,7 @@ interface ConversationAssetPathsViewModel {
 
 object ConversationAssetPathsViewModelPreview : ConversationAssetPathsViewModel
 
-class ConversationAssetPathsViewModelImpl(
+class ConversationAssetPathsViewModelImpl @Inject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val dispatchers: DispatcherProvider,
 ) : ViewModel(), ConversationAssetPathsViewModel {

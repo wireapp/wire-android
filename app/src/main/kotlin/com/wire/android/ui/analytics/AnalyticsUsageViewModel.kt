@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.analytics
 
+import dev.zacsweers.metro.Inject
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,7 +30,7 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class AnalyticsUsageViewModel(
+class AnalyticsUsageViewModel @Inject constructor(
     private val analyticsEnabled: AnalyticsConfiguration,
     private val dataStore: Lazy<UserDataStore>,
     private val selfServerConfig: Lazy<SelfServerConfigUseCase>,

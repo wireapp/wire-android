@@ -25,14 +25,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import com.wire.android.di.metro.LocalWireViewModelScopeKey
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.sessionKeyedMetroViewModelKey
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
+import com.wire.android.ui.authentication.create.common.CreateAccountDataNavArgs
+import com.wire.android.ui.authentication.create.common.CreateAccountNavArgs
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
+import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewNavArgs
 import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryViewModel
+import com.wire.android.ui.authentication.create.summary.CreateAccountSummaryNavArgs
 import com.wire.android.ui.authentication.create.username.CreateAccountUsernameViewModel
 import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceViewModel
@@ -40,21 +44,36 @@ import com.wire.android.ui.authentication.devices.remove.RemoveDeviceViewModel
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
+import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.ui.authentication.welcome.WelcomeViewModel
 import com.wire.android.ui.newauthentication.login.NewLoginViewModel
 import com.wire.android.ui.registration.code.CreateAccountVerificationCodeViewModel
 import com.wire.android.ui.registration.details.CreateAccountDataDetailViewModel
 import com.wire.android.ui.registration.selector.CreateAccountSelectorViewModel
+import com.wire.android.ui.registration.selector.CreateAccountSelectorNavArgs
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
-import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
-import dev.zacsweers.metrox.viewmodel.metroViewModel as metroxViewModel
 
 interface AuthenticationViewModelGraph : MetroViewModelGraph
 
 interface AuthenticationManualViewModelFactory : ManualViewModelAssistedFactory {
+    fun welcomeViewModel(navArgs: WelcomeNavArgs): WelcomeViewModel
+    fun newLoginViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): NewLoginViewModel
     fun loginEmailViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginEmailViewModel
     fun loginSSOViewModel(loginNavArgs: LoginNavArgs, extras: CreationExtras): LoginSSOViewModel
+    fun createAccountOverviewViewModel(navArgs: CreateAccountOverviewNavArgs): CreateAccountOverviewViewModel
+    fun createAccountEmailViewModel(navArgs: CreateAccountNavArgs): CreateAccountEmailViewModel
+    fun createAccountDetailsViewModel(navArgs: CreateAccountNavArgs): CreateAccountDetailsViewModel
+    fun createAccountCodeViewModel(navArgs: CreateAccountNavArgs): CreateAccountCodeViewModel
+    fun createAccountSummaryViewModel(navArgs: CreateAccountSummaryNavArgs): CreateAccountSummaryViewModel
+    fun createAccountSelectorViewModel(navArgs: CreateAccountSelectorNavArgs): CreateAccountSelectorViewModel
+    fun createAccountDataDetailViewModel(navArgs: CreateAccountDataNavArgs): CreateAccountDataDetailViewModel
+    fun createAccountVerificationCodeViewModel(
+        navArgs: CreateAccountDataNavArgs,
+    ): CreateAccountVerificationCodeViewModel
+}
+
+interface SessionAuthenticationManualViewModelFactory : ManualViewModelAssistedFactory {
     fun clearSessionViewModel(cancelUserId: UserId?): ClearSessionViewModel
 }
 
@@ -67,11 +86,9 @@ inline fun <reified VM> authenticationViewModel(
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
-    key: String? = null,
 ): VM where VM : ViewModel =
-    metroxViewModel(
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = authenticationViewModelKey<VM>(viewModelStoreOwner, key),
+    wireMetroViewModel(
+        owner = viewModelStoreOwner,
     )
 
 @Composable
@@ -79,8 +96,34 @@ fun welcomeViewModel(): WelcomeViewModel =
     authenticationViewModel()
 
 @Composable
+fun welcomeViewModel(
+    navArgs: WelcomeNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+): WelcomeViewModel =
+    wireAssistedMetroViewModel<WelcomeViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        welcomeViewModel(navArgs)
+    }
+
+@Composable
 fun newLoginViewModel(): NewLoginViewModel =
     authenticationViewModel()
+
+@Composable
+fun newLoginViewModel(
+    loginNavArgs: LoginNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    },
+): NewLoginViewModel =
+    wireAssistedMetroViewModel<NewLoginViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) { extras ->
+        newLoginViewModel(loginNavArgs, extras)
+    }
 
 @Composable
 fun loginEmailViewModel(
@@ -89,9 +132,8 @@ fun loginEmailViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
 ): LoginEmailViewModel =
-    assistedMetroViewModel<LoginEmailViewModel, AuthenticationManualViewModelFactory>(
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = authenticationViewModelKey<LoginEmailViewModel>(viewModelStoreOwner, loginNavArgs.toString()),
+    wireAssistedMetroViewModel<LoginEmailViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
     ) { extras ->
         loginEmailViewModel(loginNavArgs, extras)
     }
@@ -103,30 +145,31 @@ fun loginSSOViewModel(
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
 ): LoginSSOViewModel =
-    assistedMetroViewModel<LoginSSOViewModel, AuthenticationManualViewModelFactory>(
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = authenticationViewModelKey<LoginSSOViewModel>(viewModelStoreOwner, loginNavArgs.ssoViewModelKey()),
+    wireAssistedMetroViewModel<LoginSSOViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
     ) { extras ->
         loginSSOViewModel(loginNavArgs, extras)
     }
 
 @Composable
-fun registerDeviceViewModel(): RegisterDeviceViewModel =
-    authenticationViewModel()
+fun registerDeviceViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+): RegisterDeviceViewModel =
+    authenticationViewModel(viewModelStoreOwner)
 
 @Composable
-fun removeDeviceViewModel(): RemoveDeviceViewModel =
-    authenticationViewModel()
+fun removeDeviceViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+): RemoveDeviceViewModel =
+    authenticationViewModel(viewModelStoreOwner)
 
 @Composable
-fun clearSessionViewModel(): ClearSessionViewModel {
+fun clearSessionViewModel(
+    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+): ClearSessionViewModel {
     val cancelUserId = LocalAuthenticationCancelUserId.current
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    }
-    return assistedMetroViewModel<ClearSessionViewModel, AuthenticationManualViewModelFactory>(
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = authenticationViewModelKey<ClearSessionViewModel>(viewModelStoreOwner, cancelUserId?.toString()),
+    return wireAssistedMetroViewModel<ClearSessionViewModel, SessionAuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
     ) {
         clearSessionViewModel(cancelUserId)
     }
@@ -169,14 +212,95 @@ fun createAccountVerificationCodeViewModel(): CreateAccountVerificationCodeViewM
     authenticationViewModel()
 
 @Composable
-inline fun <reified VM : ViewModel> authenticationViewModelKey(
+fun createAccountUsernameViewModel(
     viewModelStoreOwner: ViewModelStoreOwner,
-    key: String? = null,
-): String? =
-    sessionKeyedMetroViewModelKey(
-        defaultKey = VM::class.qualifiedName,
-        key = listOfNotNull(key, viewModelStoreOwner.hashCode().toString()).joinToString(":"),
-        scopeKey = LocalWireViewModelScopeKey.current,
-    )
+): CreateAccountUsernameViewModel =
+    authenticationViewModel(viewModelStoreOwner = viewModelStoreOwner)
 
-private fun LoginNavArgs.ssoViewModelKey(): String = copy(ssoLoginResult = null).toString()
+@Composable
+fun createAccountOverviewViewModel(
+    navArgs: CreateAccountOverviewNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner,
+): CreateAccountOverviewViewModel =
+    wireAssistedMetroViewModel<CreateAccountOverviewViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        createAccountOverviewViewModel(navArgs)
+    }
+
+@Composable
+fun createAccountEmailViewModel(
+    navArgs: CreateAccountNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner,
+): CreateAccountEmailViewModel =
+    wireAssistedMetroViewModel<CreateAccountEmailViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        createAccountEmailViewModel(navArgs)
+    }
+
+@Composable
+fun createAccountDetailsViewModel(
+    navArgs: CreateAccountNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner,
+): CreateAccountDetailsViewModel =
+    wireAssistedMetroViewModel<CreateAccountDetailsViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        createAccountDetailsViewModel(navArgs)
+    }
+
+@Composable
+fun createAccountCodeViewModel(
+    navArgs: CreateAccountNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner,
+): CreateAccountCodeViewModel =
+    wireAssistedMetroViewModel<CreateAccountCodeViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        createAccountCodeViewModel(navArgs)
+    }
+
+@Composable
+fun createAccountSummaryViewModel(
+    navArgs: CreateAccountSummaryNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner,
+): CreateAccountSummaryViewModel =
+    wireAssistedMetroViewModel<CreateAccountSummaryViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        createAccountSummaryViewModel(navArgs)
+    }
+
+@Composable
+fun createAccountSelectorViewModel(
+    navArgs: CreateAccountSelectorNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner,
+): CreateAccountSelectorViewModel =
+    wireAssistedMetroViewModel<CreateAccountSelectorViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        createAccountSelectorViewModel(navArgs)
+    }
+
+@Composable
+fun createAccountDataDetailViewModel(
+    navArgs: CreateAccountDataNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner,
+): CreateAccountDataDetailViewModel =
+    wireAssistedMetroViewModel<CreateAccountDataDetailViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        createAccountDataDetailViewModel(navArgs)
+    }
+
+@Composable
+fun createAccountVerificationCodeViewModel(
+    navArgs: CreateAccountDataNavArgs,
+    viewModelStoreOwner: ViewModelStoreOwner,
+): CreateAccountVerificationCodeViewModel =
+    wireAssistedMetroViewModel<CreateAccountVerificationCodeViewModel, AuthenticationManualViewModelFactory>(
+        owner = viewModelStoreOwner,
+    ) {
+        createAccountVerificationCodeViewModel(navArgs)
+    }

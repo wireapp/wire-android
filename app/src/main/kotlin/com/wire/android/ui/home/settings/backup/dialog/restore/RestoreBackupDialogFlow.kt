@@ -34,6 +34,7 @@ import com.wire.android.ui.home.settings.backup.BackupRestoreProgress
 import com.wire.android.ui.home.settings.backup.PasswordValidation
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
+import com.wire.kalium.logic.feature.backup.BackupFileFormat
 
 @Composable
 fun RestoreBackupDialogFlow(
@@ -43,6 +44,8 @@ fun RestoreBackupDialogFlow(
     onRestoreBackup: () -> Unit,
     onOpenConversations: () -> Unit,
     onCancelBackupRestore: () -> Unit,
+    onDismissBackupRestore: () -> Unit,
+    onRestoreCancellationCompleted: () -> Unit,
     onChooseFilePermissionPermanentlyDenied: () -> Unit,
 ) {
     val restoreDialogStateHolder = rememberRestoreDialogState()
@@ -54,7 +57,7 @@ fun RestoreBackupDialogFlow(
                     backUpAndRestoreState = backUpAndRestoreState,
                     restoreDialogStateHolder = restoreDialogStateHolder,
                     onChooseBackupFile = onChooseBackupFile,
-                    onCancelBackupRestore = onCancelBackupRestore,
+                    onCancelBackupRestore = onDismissBackupRestore,
                     onChooseFilePermissionPermanentlyDenied = onChooseFilePermissionPermanentlyDenied,
                 )
             }
@@ -65,7 +68,7 @@ fun RestoreBackupDialogFlow(
                     backUpAndRestoreState = backUpAndRestoreState,
                     restoreDialogStateHolder = restoreDialogStateHolder,
                     onRestoreBackup = onRestoreBackup,
-                    onCancelBackupRestore = onCancelBackupRestore
+                    onCancelBackupRestore = onDismissBackupRestore
                 )
             }
 
@@ -74,7 +77,8 @@ fun RestoreBackupDialogFlow(
                     backUpAndRestoreState = backUpAndRestoreState,
                     restoreDialogStateHolder = restoreDialogStateHolder,
                     onOpenConversations = onOpenConversations,
-                    onCancelBackupRestore = onCancelBackupRestore
+                    onCancelBackupRestore = onCancelBackupRestore,
+                    onRestoreCancellationCompleted = onRestoreCancellationCompleted,
                 )
             }
 
@@ -82,14 +86,14 @@ fun RestoreBackupDialogFlow(
                 FailureDialog(
                     title = stringResource(id = restoreDialogStep.restoreFailure.title),
                     message = stringResource(id = restoreDialogStep.restoreFailure.message),
-                    onDismiss = onCancelBackupRestore
+                    onDismiss = onDismissBackupRestore
                 )
             }
         }
     }
 
     BackHandler(restoreDialogStateHolder.currentRestoreDialogStep != RestoreDialogStep.RestoreBackup) {
-        onCancelBackupRestore()
+        onDismissBackupRestore()
     }
 }
 
@@ -169,7 +173,8 @@ fun RestoreBackupStep(
     backUpAndRestoreState: BackupAndRestoreState,
     restoreDialogStateHolder: RestoreDialogStateHolder,
     onOpenConversations: () -> Unit,
-    onCancelBackupRestore: () -> Unit
+    onCancelBackupRestore: () -> Unit,
+    onRestoreCancellationCompleted: () -> Unit,
 ) {
     with(restoreDialogStateHolder) {
         LaunchedEffect(backUpAndRestoreState.backupRestoreProgress) {
@@ -187,6 +192,8 @@ fun RestoreBackupStep(
                     }
                 }
                 BackupRestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
+                BackupRestoreProgress.Cancelling -> Unit
+                BackupRestoreProgress.Cancelled -> onRestoreCancellationCompleted()
                 is BackupRestoreProgress.InProgress -> {
                     restoreDialogStateHolder.restoreProgress = progress.value
                 }
@@ -197,7 +204,9 @@ fun RestoreBackupStep(
             isRestoreCompleted = isRestoreCompleted,
             restoreProgress = restoreProgress,
             onOpenConversation = onOpenConversations,
-            onCancelBackupRestore = onCancelBackupRestore
+            canCancel = backUpAndRestoreState.backupFileFormat == BackupFileFormat.MULTIPLATFORM,
+            isCancelling = backUpAndRestoreState.backupRestoreProgress == BackupRestoreProgress.Cancelling,
+            onCancelBackupRestore = onCancelBackupRestore,
         )
     }
 }

@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.debug.ConversationCryptoStats
 import com.wire.kalium.logic.feature.debug.DetailGroupState
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsResult
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -47,7 +48,7 @@ enum class EstablishmentFilter(val label: String) {
     NOT_APPLICABLE("N/A (Proteus)"),
 }
 
-class ConversationCryptoStatsViewModel(
+class ConversationCryptoStatsViewModel @Inject constructor(
     private val getConversationCryptoStats: GetConversationCryptoStatsUseCase,
 ) : ViewModel() {
 

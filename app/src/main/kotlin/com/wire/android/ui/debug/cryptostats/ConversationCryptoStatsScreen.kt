@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.debug.cryptostats
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -39,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.debug.conversationCryptoStatsViewModel
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.chip.WireFilterChip
@@ -53,10 +51,9 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
-@WireRootDestination
 @Composable
-fun ConversationCryptoStatsScreen(
-    navigator: Navigator,
+internal fun ConversationCryptoStatsRouteScreen(
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ConversationCryptoStatsViewModel = conversationCryptoStatsViewModel(),
 ) {
@@ -76,7 +73,7 @@ fun ConversationCryptoStatsScreen(
                     )
                 },
                 navigationIconType = NavigationIconType.Close(R.string.content_description_conversation_details_close_btn),
-                onNavigationPressed = navigator::navigateBack,
+                onNavigationPressed = onBack,
             )
         },
         content = { paddingValues ->

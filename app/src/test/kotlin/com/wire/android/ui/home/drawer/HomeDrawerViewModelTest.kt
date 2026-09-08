@@ -17,15 +17,15 @@
  */
 package com.wire.android.ui.home.drawer
 
-import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.framework.TestUser
+import com.wire.android.navigation.HomeDestination
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
+import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -43,9 +43,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(NavigationTestExtension::class)
 class HomeDrawerViewModelTest {
 
     @Test
@@ -62,10 +60,7 @@ class HomeDrawerViewModelTest {
         // Then
         assertEquals(
             unreadCount,
-            listOf(
-                viewModel.drawerState.items.first,
-                viewModel.drawerState.items.second
-            ).flatten()
+            viewModel.drawerItems()
                 .filterIsInstance<DrawerUiItem.UnreadCounterItem>()
                 .first().unreadCount
         )
@@ -85,10 +80,7 @@ class HomeDrawerViewModelTest {
         // Then
         assertEquals(
             Arrangement.TEAM_URL,
-            listOf(
-                viewModel.drawerState.items.first,
-                viewModel.drawerState.items.second
-            ).flatten()
+            viewModel.drawerItems()
                 .filterIsInstance<DrawerUiItem.DynamicExternalNavigationItem>()
                 .first().url
         )
@@ -108,12 +100,7 @@ class HomeDrawerViewModelTest {
 
             // Then
             assertFalse(
-                listOf(
-                    viewModel.drawerState.items.first,
-                    viewModel.drawerState.items.second
-                ).flatten()
-                    .filterIsInstance<DrawerUiItem.RegularItem>()
-                    .any { it.destination.toString().contains("Cells") }
+                viewModel.hasRegularItem(HomeDestination.Cells)
             )
         }
 
@@ -130,19 +117,50 @@ class HomeDrawerViewModelTest {
 
         // Then
         assertTrue(
-            listOf(
-                viewModel.drawerState.items.first,
-                viewModel.drawerState.items.second
-            ).flatten()
-                .filterIsInstance<DrawerUiItem.RegularItem>()
-                .any { it.destination.toString().contains("Cells") }
+            viewModel.hasRegularItem(HomeDestination.Cells)
         )
     }
 
-    private class Arrangement {
+    @Test
+    fun `given meetings disabled, when starts observing, then do not show Meetings drawer item`() =
+        runTest {
+            // Given
+            val (arrangement, viewModel) = Arrangement()
+                .withWireMeetingsEnabled(false)
+                .arrange()
 
-        @MockK
-        lateinit var savedStateHandle: SavedStateHandle
+            // When
+            arrangement.unreadArchivedConversationsCountChannel.send(0L)
+            advanceUntilIdle()
+
+            // Then
+            assertFalse(viewModel.hasRegularItem(HomeDestination.Meetings))
+        }
+
+    @Test
+    fun `given meetings enabled, when starts observing, then show Meetings drawer item`() = runTest {
+        // Given
+        val (arrangement, viewModel) = Arrangement()
+            .withWireMeetingsEnabled(true)
+            .arrange()
+
+        // When
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+
+        // Then
+        assertTrue(viewModel.hasRegularItem(HomeDestination.Meetings))
+    }
+
+    private fun HomeDrawerViewModel.drawerItems(): List<DrawerUiItem> =
+        listOf(drawerState.items.first, drawerState.items.second).flatten()
+
+    private fun HomeDrawerViewModel.hasRegularItem(destination: HomeDestination): Boolean =
+        drawerItems()
+            .filterIsInstance<DrawerUiItem.RegularItem>()
+            .any { it.destination == destination }
+
+    private class Arrangement {
 
         @MockK
         lateinit var observeArchivedUnreadConversationsCount: ObserveArchivedUnreadConversationsCountUseCase
@@ -154,6 +172,9 @@ class HomeDrawerViewModelTest {
         lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
 
         @MockK
+        lateinit var observeIsWireMeetingsEnabled: ObserveIsMeetingsEnabledUseCase
+
+        @MockK
         lateinit var getTeamUrlUseCase: GetTeamUrlUseCase
 
         val unreadArchivedConversationsCountChannel = Channel<Long>(capacity = Channel.UNLIMITED)
@@ -162,6 +183,7 @@ class HomeDrawerViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
             coEvery { isWireCellsEnabled() } returns false
+            coEvery { observeIsWireMeetingsEnabled() } returns flowOf(false)
             withSelfUserType()
             coEvery { getTeamUrlUseCase() } returns TEAM_URL
         }
@@ -174,12 +196,16 @@ class HomeDrawerViewModelTest {
             coEvery { isWireCellsEnabled() } returns enabled
         }
 
+        fun withWireMeetingsEnabled(enabled: Boolean) = apply {
+            coEvery { observeIsWireMeetingsEnabled() } returns flowOf(enabled)
+        }
+
         fun arrange() = this to HomeDrawerViewModel(
-            savedStateHandle = savedStateHandle,
             observeArchivedUnreadConversationsCount = lazyOf(observeArchivedUnreadConversationsCount),
             observeSelfUser = observeSelfUserUseCase,
             getTeamUrl = getTeamUrlUseCase,
-            isWireCellsEnabled = isWireCellsEnabled
+            isWireCellsEnabled = isWireCellsEnabled,
+            observeIsWireMeetingsEnabled = observeIsWireMeetingsEnabled
         )
 
         companion object {

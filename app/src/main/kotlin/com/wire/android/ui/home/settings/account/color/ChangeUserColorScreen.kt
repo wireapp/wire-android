@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.settings.account.color
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -36,12 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.ui.home.settings.changeUserColorViewModel
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.wire.android.navigation.style.SlideNavigationAnimation
 import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.WireDropDown
@@ -77,33 +72,28 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.collections.immutable.toImmutableList
 
-@WireRootDestination(
-    style = SlideNavigationAnimation::class, // default should be SlideNavigationAnimation
-)
 @Composable
-fun ChangeUserColorScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<Boolean>,
-    viewModel: ChangeUserColorViewModel = changeUserColorViewModel()
+internal fun ChangeUserColorRouteScreen(
+    viewModel: ChangeUserColorViewModel,
+    onBackPressed: () -> Unit,
+    onCompleted: (Boolean) -> Unit,
 ) {
     with(viewModel) {
         ChangeUserColorContent(
             state = viewModel.accentState,
             onSavePressed = ::saveAccentColor,
             onChangePressed = ::changeAccentColor,
-            onBackPressed = navigator::navigateBack
+            onBackPressed = onBackPressed
         )
 
         HandleActions(actions) {
             when (it) {
                 ChangeUserColorAction.Success -> {
-                    resultNavigator.setResult(true)
-                    resultNavigator.navigateBack()
+                    onCompleted(true)
                 }
 
                 ChangeUserColorAction.Failure -> {
-                    resultNavigator.setResult(false)
-                    resultNavigator.navigateBack()
+                    onCompleted(false)
                 }
             }
         }

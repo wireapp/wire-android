@@ -20,6 +20,7 @@ package com.wire.android.ui.debug
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -42,15 +43,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.ramcosta.composedestinations.generated.app.destinations.ConversationCryptoStatsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.DebugFeatureFlagsScreenDestination
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreDialog
@@ -62,32 +58,33 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import java.io.File
 
-@WireRootDestination
 @Composable
-fun DebugScreen(
-    navigator: Navigator,
+internal fun DebugRouteScreen(
+    onBack: () -> Unit,
+    onShowFeatureFlags: () -> Unit,
+    onShowCryptoStats: () -> Unit,
+    onShowSecurityProviders: () -> Unit,
+    onShareLogsViaWire: (Uri) -> Unit,
     userDebugViewModel: UserDebugViewModel = userDebugViewModel(),
     debugDataOptionsViewModel: DebugDataOptionsViewModel = debugDataOptionsViewModel(),
     exportObfuscatedCopyViewModel: ExportObfuscatedCopyViewModel = exportObfuscatedCopyViewModel(),
 ) {
     UserDebugContent(
-        onNavigationPressed = navigator::navigateBack,
+        onNavigationPressed = onBack,
         state = userDebugViewModel.state,
         onLoggingEnabledChange = userDebugViewModel::setLoggingEnabledState,
         onDeleteLogs = userDebugViewModel::deleteLogs,
         onFlushLogs = userDebugViewModel::flushLogs,
+        onShareLogsViaWire = onShareLogsViaWire,
         onDatabaseLoggerEnabledChanged = userDebugViewModel::setDatabaseLoggerEnabledState,
         debugDataOptionsContent = { debugContentState ->
             DebugDataOptions(
                 appVersion = AppNameUtil.createAppName(),
                 buildVariant = "${BuildConfig.FLAVOR}${BuildConfig.BUILD_TYPE.replaceFirstChar { it.uppercase() }}",
                 onCopyText = debugContentState::copyToClipboard,
-                onShowFeatureFlags = {
-                    navigator.navigate(NavigationCommand(DebugFeatureFlagsScreenDestination))
-                },
-                onShowCryptoStats = {
-                    navigator.navigate(NavigationCommand(ConversationCryptoStatsScreenDestination))
-                },
+                onShowFeatureFlags = onShowFeatureFlags,
+                onShowCryptoStats = onShowCryptoStats,
+                onShowSecurityProviders = onShowSecurityProviders,
                 viewModel = debugDataOptionsViewModel,
             )
         },
@@ -105,6 +102,7 @@ internal fun UserDebugContent(
     onDatabaseLoggerEnabledChanged: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
     onFlushLogs: () -> Deferred<Unit>,
+    onShareLogsViaWire: (Uri) -> Unit,
     debugDataOptionsContent: @Composable (DebugContentState) -> Unit,
     dangerOptionsContent: @Composable () -> Unit,
 ) {
@@ -131,7 +129,8 @@ internal fun UserDebugContent(
                     isLoggingEnabled = isLoggingEnabled,
                     onLoggingEnabledChange = onLoggingEnabledChange,
                     onDeleteLogs = onDeleteLogs,
-                    onShareLogs = { debugContentState.shareLogs(onFlushLogs) },
+                    onShareLogsExternally = { debugContentState.shareLogsExternally(onFlushLogs) },
+                    onShareLogsViaWire = { debugContentState.shareLogsViaWire(onFlushLogs, onShareLogsViaWire) },
                     isDBLoggerEnabled = state.isDBLoggingEnabled,
                     onDBLoggerEnabledChange = onDatabaseLoggerEnabledChanged,
                     isPrivateBuild = BuildConfig.PRIVATE_BUILD,
@@ -230,11 +229,20 @@ data class DebugContentState(
         ).show()
     }
 
-    fun shareLogs(onFlushLogs: () -> Deferred<Unit>) {
+    fun shareLogsExternally(onFlushLogs: () -> Deferred<Unit>) {
         val dir = File(logPath).parentFile
         if (dir != null && dir.exists()) {
             logShareLauncher.shareLogs(dir) {
                 // Flush any buffered logs before sharing to ensure completeness.
+                onFlushLogs().await()
+            }
+        }
+    }
+
+    fun shareLogsViaWire(onFlushLogs: () -> Deferred<Unit>, onShareUri: (Uri) -> Unit) {
+        val dir = File(logPath).parentFile
+        if (dir != null && dir.exists()) {
+            logShareLauncher.shareLogsViaWire(dir, onShareUri) {
                 onFlushLogs().await()
             }
         }
@@ -253,6 +261,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
         onLoggingEnabledChange = {},
         onDeleteLogs = {},
         onFlushLogs = { CompletableDeferred(Unit) },
+        onShareLogsViaWire = {},
         onDatabaseLoggerEnabledChanged = {},
         debugDataOptionsContent = {
             DebugDataOptions(
@@ -261,6 +270,7 @@ internal fun PreviewUserDebugContent() = WireTheme {
                 onCopyText = it::copyToClipboard,
                 onShowFeatureFlags = {},
                 onShowCryptoStats = {},
+                onShowSecurityProviders = {},
                 viewModel = object : DebugDataOptionsViewModel {},
             )
         },

@@ -21,27 +21,33 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.ui.home.conversations.usecase.GetConversationMessagesFromSearchUseCase
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
 
-class SearchConversationMessagesViewModel(
+@WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class)
+class SearchConversationMessagesViewModel @AssistedInject constructor(
     private val getSearchMessagesForConversation: GetConversationMessagesFromSearchUseCase,
     private val dispatchers: DispatcherProvider,
-    savedStateHandle: SavedStateHandle
+    @Assisted searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs,
 ) : ViewModel() {
-
-    private val searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs = savedStateHandle.navArgs()
+    @AssistedFactory
+    interface Factory {
+        fun create(searchConversationMessagesNavArgs: SearchConversationMessagesNavArgs): SearchConversationMessagesViewModel
+    }
 
     val conversationId: QualifiedID = searchConversationMessagesNavArgs.conversationId
     val groupName: String = searchConversationMessagesNavArgs.groupName

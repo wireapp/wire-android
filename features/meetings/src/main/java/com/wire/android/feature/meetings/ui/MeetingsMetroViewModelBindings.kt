@@ -18,18 +18,10 @@
 package com.wire.android.feature.meetings.ui
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.wire.android.feature.meetings.ui.create.NewMeetingViewModelImpl
-import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
-import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
-import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
-import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 
 @BindingContainer
@@ -37,25 +29,6 @@ object MeetingsMetroViewModelBindings {
 
     @Provides
     @IntoMap
-    @ManualViewModelAssistedFactoryKey(MeetingsManualViewModelFactory::class)
-    fun meetingsManualViewModelFactory(factory: MeetingsViewModelFactory): ManualViewModelAssistedFactory =
-        object : MeetingsManualViewModelFactory {
-            override fun meetingListViewModel(type: MeetingsTabItem): MeetingListViewModelImpl =
-                factory.meetingListViewModel(type)
-        }
-
-    @Provides
-    @IntoMap
     @ViewModelKey(MeetingOptionsMenuViewModelImpl::class)
-    fun meetingOptionsMenuViewModel(factory: MeetingsViewModelFactory): ViewModel =
-        factory.meetingOptionsMenuViewModel()
-
-    @Provides
-    @IntoMap
-    @ViewModelAssistedFactoryKey(NewMeetingViewModelImpl::class)
-    fun newMeetingViewModel(factory: MeetingsViewModelFactory): ViewModelAssistedFactory =
-        object : ViewModelAssistedFactory {
-            override fun create(extras: CreationExtras): ViewModel =
-                factory.newMeetingViewModel(extras.createSavedStateHandle())
-        }
+    fun meetingOptionsMenuViewModel(viewModel: MeetingOptionsMenuViewModelImpl): ViewModel = viewModel
 }

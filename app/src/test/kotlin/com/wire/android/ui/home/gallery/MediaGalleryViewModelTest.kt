@@ -18,16 +18,13 @@
 
 package com.wire.android.ui.home.gallery
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NavigationTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogType
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
@@ -48,13 +45,13 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MessageOperationResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -72,7 +69,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-@ExtendWith(NavigationTestExtension::class)
 class MediaGalleryViewModelTest {
 
     @Test
@@ -270,7 +266,8 @@ class MediaGalleryViewModelTest {
         assertEquals(
             listOf(
                 MediaGalleryMenuItem.DOWNLOAD,
-                MediaGalleryMenuItem.SHARE,
+                MediaGalleryMenuItem.SHARE_VIA_WIRE,
+                MediaGalleryMenuItem.SHARE_EXTERNALLY,
                 MediaGalleryMenuItem.DELETE,
             ),
             state.menuItems
@@ -355,6 +352,42 @@ class MediaGalleryViewModelTest {
     }
 
     @Test
+    fun givenSelfUserHasViewerAccessOnly_whenShowingCellAssetMenu_thenSharePublicLinkIsHidden() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withViewerAccessOnly()
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = null,
+                    assetPath = "asset/path",
+                    contentUrl = "content/url",
+                    previewUrl = "preview/url",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+                )
+            ).arrange()
+
+        viewModel.onOptionsClick()
+
+        val state = viewModel.mediaGalleryViewState
+
+        assertTrue(state.viewerAccess)
+        assertEquals(
+            listOf(
+                MediaGalleryMenuItem.REACT,
+                MediaGalleryMenuItem.SHOW_DETAILS,
+                MediaGalleryMenuItem.REPLY,
+            ),
+            state.menuItems
+        )
+    }
+
+    @Test
     fun givenMessageMenuOptionsEnabled_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
         val (_, viewModel) = Arrangement()
             .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = null)
@@ -371,7 +404,8 @@ class MediaGalleryViewModelTest {
                 MediaGalleryMenuItem.SHOW_DETAILS,
                 MediaGalleryMenuItem.REPLY,
                 MediaGalleryMenuItem.DOWNLOAD,
-                MediaGalleryMenuItem.SHARE,
+                MediaGalleryMenuItem.SHARE_VIA_WIRE,
+                MediaGalleryMenuItem.SHARE_EXTERNALLY,
                 MediaGalleryMenuItem.DELETE,
             ),
             state.menuItems
@@ -379,9 +413,6 @@ class MediaGalleryViewModelTest {
     }
 
     private class Arrangement {
-        @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
-
         @MockK
         lateinit var getConversationDetails: ObserveConversationDetailsUseCase
 
@@ -399,31 +430,29 @@ class MediaGalleryViewModelTest {
 
         @MockK
         lateinit var getCellFile: GetCellFileUseCase
+        private var navigationArgs = MediaGalleryNavArgs(
+            dummyConversationId,
+            dummyMessageId,
+            true,
+            false,
+            true,
+            null
+        )
+
+        @MockK
+        lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
 
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
-                conversationId = dummyConversationId,
-                messageId = dummyMessageId,
-                isSelfAsset = true,
-                isEphemeral = false,
-                messageOptionsEnabled = true,
-                cellAssetId = null,
-            )
-
+            coEvery { isSelfUserViewerOnConversation(any()) } returns true
             coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Success
         }
 
         fun withNavArgs(messageOptionsEnabled: Boolean = true, isEphemeral: Boolean = false, cellAssetId: String? = null) = apply {
-            every { savedStateHandle.navArgs<MediaGalleryNavArgs>() } returns MediaGalleryNavArgs(
-                conversationId = dummyConversationId,
-                messageId = dummyMessageId,
-                isSelfAsset = true,
-                isEphemeral = isEphemeral,
-                messageOptionsEnabled = messageOptionsEnabled,
-                cellAssetId = cellAssetId,
+            navigationArgs = MediaGalleryNavArgs(
+                dummyConversationId, dummyMessageId, true, isEphemeral, messageOptionsEnabled, cellAssetId
             )
         }
 
@@ -477,8 +506,12 @@ class MediaGalleryViewModelTest {
             return this
         }
 
+        fun withViewerAccessOnly() = apply {
+            coEvery { isSelfUserViewerOnConversation(any()) } returns false
+        }
+
         fun arrange() = this to MediaGalleryViewModel(
-            savedStateHandle,
+            navigationArgs,
             getConversationDetails,
             TestDispatcherProvider(),
             getImageData,
@@ -486,6 +519,7 @@ class MediaGalleryViewModelTest {
             deleteMessage,
             getAttachment,
             getCellFile,
+            isSelfUserViewerOnConversation,
         )
     }
 

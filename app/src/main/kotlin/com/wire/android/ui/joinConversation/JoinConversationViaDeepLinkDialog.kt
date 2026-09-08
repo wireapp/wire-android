@@ -78,9 +78,8 @@ fun JoinConversationViaDeepLinkDialog(
     requirePassword: Boolean,
     onFlowCompleted: (conversationId: ConversationId?) -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: JoinConversationViaCodeViewModel = joinConversationViaCodeViewModel(),
 ) {
-    val viewModel = joinConversationViaCodeViewModel()
-
     val isLoading: Boolean by remember {
         derivedStateOf { viewModel.state is JoinViaDeepLinkDialogState.Loading }
     }

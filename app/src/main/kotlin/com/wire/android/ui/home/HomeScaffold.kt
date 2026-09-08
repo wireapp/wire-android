@@ -42,7 +42,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,18 +68,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.ramcosta.composedestinations.DestinationsNavHost
-import com.ramcosta.composedestinations.generated.app.destinations.GlobalCellsScreenDestination
-import com.ramcosta.composedestinations.generated.app.destinations.HomeScreenDestination
-import com.ramcosta.composedestinations.generated.app.navgraphs.HomeGraph
-import com.ramcosta.composedestinations.navigation.dependency
-import com.ramcosta.composedestinations.navigation.destination
-import com.wire.android.feature.cells.ui.cellViewModel
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.HomeDestination.FabOptions
-import com.wire.android.navigation.rememberWireNavHostEngine
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.button.FloatingActionButton
 import com.wire.android.ui.common.dimensions
@@ -91,7 +80,7 @@ import com.wire.android.ui.home.drawer.HomeDrawerState
 
 @Composable
 internal fun HomeDrawerSheet(
-    currentRoute: String,
+    currentDestination: HomeDestination,
     homeDrawerState: HomeDrawerState,
     focusTrapState: HomeDrawerSheetFocusTrapState,
     focusTrapActions: HomeDrawerSheetFocusTrapActions,
@@ -114,7 +103,7 @@ internal fun HomeDrawerSheet(
                 )
         ) {
             HomeDrawer(
-                currentRoute = currentRoute,
+                currentDestination = currentDestination,
                 homeDrawerState = homeDrawerState,
                 navigateToHomeItem = onNavigateToHomeItem,
                 onCloseDrawer = onCloseDrawer,
@@ -127,7 +116,7 @@ internal fun HomeDrawerSheet(
 }
 
 @Stable
-internal class HomeScaffoldState(val holder: HomeStateHolder)
+internal class HomeScaffoldState(val holder: HomeShellState)
 
 internal data class HomeScaffoldFocusRequesters(
     val search: FocusRequester,
@@ -149,6 +138,7 @@ internal fun HomeScaffold(
     drawerState: DrawerState,
     focusRequesters: HomeScaffoldFocusRequesters,
     actions: HomeScaffoldActions,
+    content: @Composable () -> Unit,
 ) {
     with(state.holder) {
         CollapsingTopBarScaffold(
@@ -176,7 +166,7 @@ internal fun HomeScaffold(
             collapsingEnabled = !searchBarState.isSearchActive,
             contentLazyListState = lazyListStateFor(currentNavigationItem, currentConversationFilter),
             content = {
-                HomeNavHost(state = state)
+                content()
             },
             floatingActionButton = {
                 HomeScaffoldFloatingActionButton(
@@ -258,39 +248,6 @@ private fun HomeSearchTopBar(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun HomeNavHost(state: HomeScaffoldState) {
-    /**
-     * This "if" is a workaround, otherwise it can crash because of the SubcomposeLayout's nature.
-     * We need to communicate to the sub-compositions when they are to be disposed by the parent and ignore
-     * compositions in the round they are to be disposed. More here:
-     * https://github.com/google/accompanist/issues/1487
-     * https://issuetracker.google.com/issues/268422136
-     * https://issuetracker.google.com/issues/254645321
-     */
-    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
-    if (lifecycleState != Lifecycle.State.DESTROYED) {
-        val navHostEngine = rememberWireNavHostEngine()
-        DestinationsNavHost(
-            navGraph = HomeGraph,
-            start = HomeGraph.defaultStartDirection,
-            engine = navHostEngine,
-            navController = state.holder.navController,
-            dependenciesContainerBuilder = {
-                dependency(state.holder)
-
-                // Scope CellViewModel to HomeScreen so SearchScreen can reuse it via previousBackStackEntry.
-                destination(GlobalCellsScreenDestination) {
-                    val parentEntry = remember(navBackStackEntry) {
-                        state.holder.navigator.navController.getBackStackEntry(HomeScreenDestination.route)
-                    }
-                    dependency(cellViewModel(parentEntry))
-                }
-            }
-        )
     }
 }
 

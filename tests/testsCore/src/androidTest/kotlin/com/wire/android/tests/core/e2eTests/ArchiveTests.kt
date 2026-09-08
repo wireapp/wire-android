@@ -26,6 +26,8 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.SHORT_WAIT
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import user.utils.ClientUser
 import java.time.Duration
@@ -376,6 +378,7 @@ class ArchiveTests : BaseUiTest() {
 
         step("And I open group details for MyTeam") {
             pages.conversationViewPage.apply {
+                UiWaitUtils.waitFor(SHORT_WAIT)
                 clickOnGroupConversationDetails("MyTeam")
             }
         }

@@ -61,7 +61,7 @@ import com.wire.android.feature.meetings.ui.mock.ongoingAttendingOneOnOneMeeting
 import com.wire.android.feature.meetings.ui.mock.scheduledChannelMeetingStartingSoon
 import com.wire.android.feature.meetings.ui.mock.scheduledRepeatingGroupMeeting
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.ui.common.VisibilityState
+import com.wire.android.feature.meetings.ui.util.audioPermissionCheckFlow
 import com.wire.android.ui.common.avatar.UserProfileAvatar
 import com.wire.android.ui.common.avatar.UserProfileAvatarsRow
 import com.wire.android.ui.common.button.WireItemLabel
@@ -71,14 +71,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.RowItemDivider
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversationslist.common.ChannelConversationAvatar
 import com.wire.android.ui.home.conversationslist.common.RegularGroupConversationAvatar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
-import com.wire.android.util.permission.PermissionsDeniedRequestDialog
-import com.wire.android.util.permission.RequestLauncher
-import com.wire.android.util.permission.rememberRecordAudioPermissionFlow
 import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.delay
@@ -435,25 +431,6 @@ private fun PrimaryBodyText(text: String) {
         style = typography().body03,
         color = colorsScheme().primary,
         modifier = Modifier.padding(vertical = dimensions().spacing8x),
-    )
-}
-
-@Composable
-private fun audioPermissionCheckFlow(onPermissionGranted: () -> Unit): RequestLauncher {
-    val audioPermissionPermanentlyDeniedDialogState = rememberVisibilityState<Unit>()
-    VisibilityState(audioPermissionPermanentlyDeniedDialogState) {
-        PermissionsDeniedRequestDialog(
-            title = commonR.string.app_permission_dialog_title,
-            body = R.string.meeting_audio_permission_dialog_description,
-            onDismiss = audioPermissionPermanentlyDeniedDialogState::dismiss
-        )
-    }
-    return rememberRecordAudioPermissionFlow(
-        onPermissionGranted = onPermissionGranted,
-        onPermissionDenied = { },
-        onPermissionPermanentlyDenied = {
-            audioPermissionPermanentlyDeniedDialogState.show(Unit)
-        }
     )
 }
 

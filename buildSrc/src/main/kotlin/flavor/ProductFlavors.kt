@@ -31,7 +31,6 @@ sealed class ProductFlavors(
     override fun toString(): String = this.buildName
 
     object Dev : ProductFlavors("dev", "Wire Dev")
-    object Staging : ProductFlavors("staging", "Wire Staging")
 
     object Beta : ProductFlavors("beta", "Wire Beta")
     object Alpha : ProductFlavors("alpha", "Wire Alpha")
@@ -46,7 +45,6 @@ sealed class ProductFlavors(
     companion object {
         val all: Collection<ProductFlavors> = setOf(
             Dev,
-            Staging,
             Beta,
             Alpha,
             Production,

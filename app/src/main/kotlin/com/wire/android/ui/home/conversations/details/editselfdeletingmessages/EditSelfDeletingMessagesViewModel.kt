@@ -21,14 +21,12 @@ package com.wire.android.ui.home.conversations.details.editselfdeletingmessages
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
-import com.ramcosta.composedestinations.generated.app.navArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -37,25 +35,34 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.messagetimer.UpdateMessageTimerUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class EditSelfDeletingMessagesViewModel(
+@WireAssistedViewModelBinding(ConversationDetailsManualViewModelFactoryGroup::class)
+class EditSelfDeletingMessagesViewModel @AssistedInject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val observeSelfDeletionTimerSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     private val updateMessageTimer: UpdateMessageTimerUseCase,
     private val selfUser: ObserveSelfUserUseCase,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    savedStateHandle: SavedStateHandle
+    @Assisted navigationArgs: EditSelfDeletingMessagesNavArgs,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(navigationArgs: EditSelfDeletingMessagesNavArgs): EditSelfDeletingMessagesViewModel
+    }
 
-    private val editSelfDeletingMessagesNavArgs: EditSelfDeletingMessagesNavArgs = savedStateHandle.navArgs()
-    private val conversationId: QualifiedID = editSelfDeletingMessagesNavArgs.conversationId
+    private val conversationId: QualifiedID = navigationArgs.conversationId
 
     var state by mutableStateOf(
         EditSelfDeletingMessagesState()

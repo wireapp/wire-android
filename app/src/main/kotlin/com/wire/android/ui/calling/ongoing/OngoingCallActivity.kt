@@ -17,16 +17,13 @@
  */
 package com.wire.android.ui.calling.ongoing
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -36,6 +33,8 @@ import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.services.ServicesManager
 import com.wire.android.ui.calling.CallActivity
+import com.wire.android.ui.calling.CallActivityDestination
+import com.wire.android.ui.calling.CallActivityRequest
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
@@ -58,54 +57,36 @@ class OngoingCallActivity : CallActivity() {
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
 
-    var conversationId: String? by mutableStateOf(null)
-    var userId: String? by mutableStateOf(null)
-    private var shouldAnswerCall: Boolean by mutableStateOf(false)
+    override val destination: CallActivityDestination = CallActivityDestination.ONGOING
 
-    override fun handleNewIntent(intent: Intent) {
-        conversationId = intent.extras?.getString(EXTRA_CONVERSATION_ID)
-        userId = intent.extras?.getString(EXTRA_USER_ID)
-        shouldAnswerCall = intent.extras?.getBoolean(EXTRA_SHOULD_ANSWER_CALL) ?: false
-        require(conversationId != null) { "$TAG No conversation ID provided in intent extras" }
-        require(userId != null) { "$TAG No user ID provided in intent extras" }
-        switchAccountIfNeeded(userId)
-    }
-
-    @SuppressLint("UnusedContentLambdaTargetStateParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
-
-        if (shouldAnswerCall && userId != null && conversationId != null) {
-            callNotificationManager.hideIncomingCallNotification(userId!!, conversationId!!)
-            servicesManager.startCallServiceToAnswer(
-                qualifiedIdMapper.fromStringToQualifiedID(userId!!),
-                qualifiedIdMapper.fromStringToQualifiedID(conversationId!!),
-            )
-        }
     }
 
-    @SuppressLint("UnusedContentLambdaTargetStateParameter")
     @Composable
-    override fun Content() {
-        conversationId?.let { conversationId ->
-            AnimatedContent(
-                targetState = TAG,
-                transitionSpec = {
-                    TransitionAnimationType.POP_UP.enterTransition.togetherWith(
-                        TransitionAnimationType.POP_UP.exitTransition
-                    )
-                },
-                modifier = Modifier.semantics { testTagsAsResourceId = true },
-                label = TAG
-            ) { _ ->
-                OngoingCallScreen(
-                    qualifiedIdMapper.fromStringToQualifiedID(
-                        conversationId
-                    )
+    override fun Content(request: CallActivityRequest) {
+        LaunchedEffect(request) {
+            if (request.shouldAnswerCall) {
+                callNotificationManager.hideIncomingCallNotification(
+                    request.userId.toString(),
+                    request.conversationId.toString(),
                 )
+                servicesManager.startCallServiceToAnswer(request.userId, request.conversationId)
             }
-        } ?: run { finish() }
+        }
+        AnimatedContent(
+            targetState = request.conversationId,
+            transitionSpec = {
+                TransitionAnimationType.POP_UP.enterTransition.togetherWith(
+                    TransitionAnimationType.POP_UP.exitTransition
+                )
+            },
+            modifier = Modifier.semantics { testTagsAsResourceId = true },
+            label = TAG
+        ) { conversationId ->
+            OngoingCallScreen(conversationId)
+        }
     }
 
     override fun onResume() {

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.gallery
 
-import com.wire.android.navigation.annotation.app.WireRootDestination
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -33,13 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import coil3.annotation.ExperimentalCoilApi
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
-import com.ramcosta.composedestinations.generated.cells.destinations.PublicLinkScreenDestination
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -56,6 +50,8 @@ import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
 import com.wire.android.ui.edit.ShareAssetMenuOption
+import com.wire.android.ui.edit.ShareAssetExternallyMenuOption
+import com.wire.android.ui.edit.ShareAssetViaWireMenuOption
 import com.wire.android.ui.edit.SharePublicLinkMenuOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
@@ -64,23 +60,23 @@ import com.wire.android.ui.home.conversations.mediaGalleryViewModel
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
+import com.wire.android.util.fileShareUri
 import com.wire.android.util.startFileShareIntent
+import com.wire.android.util.supportsTrustedWireShareCaller
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.openDownloadFolder
 
 @OptIn(ExperimentalCoilApi::class)
-@WireRootDestination(
-    navArgs = MediaGalleryNavArgs::class,
-    style = PopUpNavigationAnimation::class,
-)
 @Composable
-fun MediaGalleryScreen(
-    navigator: Navigator,
-    resultNavigator: ResultBackNavigator<MediaGalleryNavBackArgs>,
+internal fun MediaGalleryRouteScreen(
+    mediaGalleryViewModel: MediaGalleryViewModel,
+    onNavigateBack: () -> Unit,
+    onResult: (MediaGalleryNavBackArgs) -> Unit,
+    onOpenPublicLink: (String, String, String?) -> Unit,
+    onShareAssetViaWire: (android.net.Uri) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val mediaGalleryViewModel: MediaGalleryViewModel = mediaGalleryViewModel()
     val permissionPermanentlyDeniedDialogState =
         rememberVisibilityState<PermissionPermanentlyDeniedDialogState>()
 
@@ -113,7 +109,7 @@ fun MediaGalleryScreen(
 
     MediaGalleryContent(
         state = viewModelState,
-        onCloseClick = navigator::navigateBack,
+        onCloseClick = onNavigateBack,
         onOptionsClick = mediaGalleryViewModel::onOptionsClick,
         modifier = modifier,
     )
@@ -136,56 +132,45 @@ fun MediaGalleryScreen(
 
     HandleActions(mediaGalleryViewModel.actions) { action ->
         when (action) {
-            is MediaGalleryAction.Share -> context.startFileShareIntent(action.path, action.assetName)
+            is MediaGalleryAction.ShareExternally -> context.startFileShareIntent(action.path, action.assetName)
+            is MediaGalleryAction.ShareViaWire -> onShareAssetViaWire(context.fileShareUri(action.path, action.assetName))
             is MediaGalleryAction.ShowDetails -> {
-                resultNavigator.setResult(
+                onResult(
                     MediaGalleryNavBackArgs(
                         messageId = action.messageId,
                         isSelfAsset = action.isSelfAsset,
                         mediaGalleryActionType = MediaGalleryActionType.DETAIL
                     )
                 )
-                resultNavigator.navigateBack()
             }
 
             is MediaGalleryAction.React -> {
-                resultNavigator.setResult(
+                onResult(
                     MediaGalleryNavBackArgs(
                         messageId = action.messageId,
                         emoji = action.emoji,
                         mediaGalleryActionType = MediaGalleryActionType.REACT
                     )
                 )
-                resultNavigator.navigateBack()
             }
 
             is MediaGalleryAction.Reply -> {
-                resultNavigator.setResult(
+                onResult(
                     MediaGalleryNavBackArgs(
                         messageId = action.messageId,
                         mediaGalleryActionType = MediaGalleryActionType.REPLY
                     )
                 )
-                resultNavigator.navigateBack()
             }
 
             MediaGalleryAction.Download -> { onSaveImageWriteStorageRequest.launch() }
             is MediaGalleryAction.SharePublicLink -> {
-                navigator.navigate(
-                    NavigationCommand(
-                        PublicLinkScreenDestination(
-                            assetId = action.assetId,
-                            fileName = action.assetName,
-                            publicLinkId = action.publicLinkId,
-                            isFolder = false,
-                        )
-                    )
-                )
+                onOpenPublicLink(action.assetId, action.assetName, action.publicLinkId)
                 mediaGalleryViewModel.onOptionsDismissed()
             }
 
             MediaGalleryAction.ShowError -> showErrorMessage(context)
-            MediaGalleryAction.Close -> navigator.navigateBack()
+            MediaGalleryAction.Close -> onNavigateBack()
         }
     }
 }
@@ -240,6 +225,9 @@ private fun MediaGalleryOptionsBottomSheetLayout(
 
     val sheetState: WireModalSheetState<Unit> = rememberWireModalSheetState(WireSheetValue.Expanded(Unit))
     val onOptionsClick: (MenuIntent) -> Unit = remember { { sheetState.hide { onMenuIntent(it) } } }
+    val collapseShareOptions = supportsTrustedWireShareCaller() &&
+        menuItems.contains(MediaGalleryMenuItem.SHARE_VIA_WIRE) &&
+        menuItems.contains(MediaGalleryMenuItem.SHARE_EXTERNALLY)
 
     val menuItems: List<@Composable () -> Unit> = buildList {
         menuItems.forEach { item ->
@@ -256,11 +244,18 @@ private fun MediaGalleryOptionsBottomSheetLayout(
                 MediaGalleryMenuItem.DOWNLOAD -> add {
                     DownloadAssetExternallyOption { onOptionsClick(MenuIntent.Download) }
                 }
-                MediaGalleryMenuItem.SHARE -> add {
-                    ShareAssetMenuOption { onOptionsClick(MenuIntent.Share) }
+                MediaGalleryMenuItem.SHARE_EXTERNALLY -> if (!collapseShareOptions) {
+                    add { ShareAssetExternallyMenuOption { onOptionsClick(MenuIntent.ShareExternally) } }
+                }
+                MediaGalleryMenuItem.SHARE_VIA_WIRE -> add {
+                    if (collapseShareOptions) {
+                        ShareAssetMenuOption { onOptionsClick(MenuIntent.ShareExternally) }
+                    } else {
+                        ShareAssetViaWireMenuOption { onOptionsClick(MenuIntent.ShareViaWire) }
+                    }
                 }
                 MediaGalleryMenuItem.SHARE_PUBLIC_LINK -> add {
-                    SharePublicLinkMenuOption { onOptionsClick(MenuIntent.Share) }
+                    SharePublicLinkMenuOption { onOptionsClick(MenuIntent.ShareExternally) }
                 }
                 MediaGalleryMenuItem.DELETE -> add {
                     DeleteItemMenuOption { onOptionsClick(MenuIntent.Delete) }

@@ -43,9 +43,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.annotation.app.WireRootDestination
-import com.wire.android.navigation.style.PopUpNavigationAnimation
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.button.WireButtonState
@@ -55,7 +52,6 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.conversations.promoteAdminViewModel
 import com.wire.android.ui.home.conversations.search.InternalContactSearchResultItem
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
@@ -67,14 +63,10 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 import com.wire.android.ui.common.R as commonR
 
-@WireRootDestination(
-    navArgs = PromoteAdminNavArgs::class,
-    style = PopUpNavigationAnimation::class,
-)
 @Composable
-fun PromoteAdminScreen(
-    navigator: Navigator,
-    viewModel: PromoteAdminViewModel = promoteAdminViewModel(),
+internal fun PromoteAdminRouteScreen(
+    viewModel: PromoteAdminViewModel,
+    onNavigateBack: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = LocalSnackbarHostState.current
@@ -87,12 +79,12 @@ fun PromoteAdminScreen(
         onSearchQueryChanged = viewModel::onSearchQueryChanged,
         onUserSelected = viewModel::onUserSelected,
         onPromoteAdminAndLeave = viewModel::onPromoteAdminAndLeave,
-        onClose = navigator::navigateBack,
+        onClose = onNavigateBack,
     )
 
     HandleActions(viewModel.actions) { action ->
         when (action) {
-            PromoteAdminAction.Success -> navigator.navigateBack()
+            PromoteAdminAction.Success -> onNavigateBack()
             PromoteAdminAction.FailedToPromoteUser ->
                 coroutineScope.launch { snackbarHostState.showSnackbar(failedToPromoteMessage) }
             PromoteAdminAction.FailedToLeaveConversation ->

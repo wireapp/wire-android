@@ -35,6 +35,7 @@ import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.progress.WireLinearProgressIndicator
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -124,6 +125,8 @@ fun RestoreProgressDialog(
     isRestoreCompleted: Boolean,
     restoreProgress: Float,
     onOpenConversation: () -> Unit,
+    canCancel: Boolean,
+    isCancelling: Boolean,
     onCancelBackupRestore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,12 +138,21 @@ fun RestoreProgressDialog(
             // User is not able to dismiss the dialog
         },
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = {
-                if (isRestoreCompleted) onOpenConversation() else onCancelBackupRestore()
+            onClick = if (isRestoreCompleted) onOpenConversation else onCancelBackupRestore,
+            text = when {
+                isRestoreCompleted -> stringResource(R.string.label_ok)
+                isCancelling -> stringResource(R.string.backup_label_cancelling)
+                canCancel -> stringResource(R.string.label_cancel)
+                else -> ""
             },
-            text = if (isRestoreCompleted) stringResource(R.string.label_ok) else stringResource(id = R.string.label_cancel),
-            type = WireDialogButtonType.Primary,
-            state = if (isRestoreCompleted) WireButtonState.Default else WireButtonState.Disabled
+            type = if (isRestoreCompleted) WireDialogButtonType.Primary else WireDialogButtonType.Secondary,
+            state = if (isRestoreCompleted || (canCancel && !isCancelling)) {
+                WireButtonState.Default
+            } else {
+                WireButtonState.Disabled
+            },
+            loading = !isRestoreCompleted && (!canCancel || isCancelling),
+            loadingIndicatorAlignment = IconAlignment.Center
         ),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -172,6 +184,8 @@ fun PreviewRestoreProgressDialog() = WireTheme {
         isRestoreCompleted = false,
         restoreProgress = 0.5f,
         onOpenConversation = {},
+        canCancel = true,
+        isCancelling = false,
         onCancelBackupRestore = {},
     )
 }

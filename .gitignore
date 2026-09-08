@@ -125,3 +125,5 @@ app/version.txt
 # Ignore Allure test result artifacts
 allure-results/
 allure-results.tar
+AGENTS.md
+CLAUDE.md

@@ -18,7 +18,6 @@
 package com.wire.android.feature.cells.ui.tags
 
 import androidx.compose.foundation.text.input.setTextAndSelectAll
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModelTest.Companion.UUID
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
@@ -29,7 +28,6 @@ import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -294,9 +292,6 @@ class AddRemoveTagsViewModelTest {
     private class Arrangement {
 
         @MockK
-        lateinit var savedStateHandle: SavedStateHandle
-
-        @MockK
         lateinit var getAllTagsUseCase: GetAllTagsUseCase
 
         @MockK
@@ -307,8 +302,6 @@ class AddRemoveTagsViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { savedStateHandle.get<String>("uuid") } returns UUID
-            every { savedStateHandle.get<ArrayList<String>>("tags") } returns ArrayList()
         }
 
         fun withGetAllTagsUseCaseReturning(result: Either<CoreFailure, Set<String>>) = apply {
@@ -327,7 +320,7 @@ class AddRemoveTagsViewModelTest {
             // Create a new ViewModel instance every time arrange() is called.
             // This prevents state from leaking between tests.
             val viewModel = AddRemoveTagsViewModel(
-                savedStateHandle = savedStateHandle,
+                navArgs = AddRemoveTagsNavArgs(UUID, arrayListOf()),
                 getAllTagsUseCase = getAllTagsUseCase,
                 updateNodeTagsUseCase = updateNodeTagsUseCase,
                 removeNodeTagsUseCase = removeNodeTagsUseCase,

@@ -758,7 +758,6 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="settings_myaccount_display_name_title">Il tuo Nome del Profilo</string>
     <string name="settings_myaccount_display_name_description">Il tuo nome del profilo verr&#224; visualizzato nelle conversazioni, nelle chiamate e nella ricerca utenti. Non &#232; univoco in Wire.</string>
     <string name="settings_myaccount_display_name_error">Inserisci il tuo nome del profilo</string>
-    <string name="settings_myaccount_display_name_exceeded_limit_error">Minimo 1 e massimo 64 caratteri</string>
     <string name="settings_myaccount_display_name_updated">Il tuo nome del profilo &#232; stato modificato</string>
     <string name="settings_myaccount_handle_updated">Il tuo nome utente è cambiato</string>
     <!--Privacy Settings -->
@@ -1163,4 +1162,5 @@ registrato. Sei pregato di riprovare.</string>
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <!-- Apps-->
+    <!-- Pending messages service notification -->
 </resources>

@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.newauthentication.login.code
 
-import com.wire.android.navigation.annotation.app.WireNewLoginDestination
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,9 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.navigation.Navigator
-import com.wire.android.navigation.style.AuthSlideNavigationAnimation
-import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.email.LoginButton
@@ -44,31 +40,24 @@ import com.wire.android.ui.newauthentication.login.NewAuthContainer
 import com.wire.android.ui.newauthentication.login.NewAuthHeader
 import com.wire.android.ui.newauthentication.login.NewAuthSubtitle
 import com.wire.android.ui.newauthentication.login.NewAuthTitle
-import com.wire.android.ui.newauthentication.login.password.LoginStateNavigationAndDialogs
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 
-// has to be navigated to after NewLoginPasswordScreen, otherwise there will be illegal state because it needs to reuse view model from it
-@WireNewLoginDestination(
-    navArgs = LoginNavArgs::class,
-    style = AuthSlideNavigationAnimation::class,
-)
 @Composable
-fun NewLoginVerificationCodeScreen(
-    navigator: Navigator,
-    loginEmailViewModel: LoginEmailViewModel, // provided in MainNavHost to reuse from NewLoginPasswordScreen, don't use wireViewModel()
+internal fun NewLoginVerificationCodeRouteScreen(
+    loginEmailViewModel: LoginEmailViewModel,
+    canNavigateBack: Boolean,
+    onNavigateBack: () -> Unit,
 ) {
     clearAutofillTree()
-    LoginStateNavigationAndDialogs(loginEmailViewModel, navigator)
-
     LaunchedEffect(loginEmailViewModel) {
         loginEmailViewModel.autoLoginWhenFullCodeEntered = false
     }
 
     val navigateBack = {
         loginEmailViewModel.onCodeVerificationBackPress()
-        navigator.navigateBack()
+        onNavigateBack()
     }
     BackHandler {
         navigateBack()
@@ -80,7 +69,7 @@ fun NewLoginVerificationCodeScreen(
         isLoading = loginEmailViewModel.loginState.flowState is LoginState.Loading,
         onResendCode = loginEmailViewModel::onCodeResend,
         onLoginButtonClick = loginEmailViewModel::login,
-        canNavigateBack = navigator.navController.previousBackStackEntry != null, // if there is a previous screen to navigate back to
+        canNavigateBack = canNavigateBack,
         navigateBack = navigateBack,
     )
 }

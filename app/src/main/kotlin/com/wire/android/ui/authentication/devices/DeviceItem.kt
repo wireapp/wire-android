@@ -65,6 +65,7 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import kotlinx.datetime.Instant
 
 const val DEVICE_ITEM_TEST_TAG = "device_item"
 
@@ -266,19 +267,19 @@ private fun ProteusDetails(
     device: Device,
     placeholder: Boolean
 ) {
-    val proteusDetails: String = if (!device.registrationTime.isNullOrBlank()) {
+    val proteusDetails: String = if (device.registrationTime != null) {
         if (device.lastActiveInWholeWeeks != null) {
             stringResource(
                 R.string.remove_device_id_and_time_label_active_label,
                 device.clientId.formatAsString(),
-                device.registrationTime.deviceDateTimeFormat() ?: "",
+                device.registrationTime.deviceDateTimeFormat(),
                 device.lastActiveDescription() ?: ""
             )
         } else {
             stringResource(
                 R.string.remove_device_id_and_time_label,
                 device.clientId.formatAsString(),
-                device.registrationTime.deviceDateTimeFormat() ?: ""
+                device.registrationTime.deviceDateTimeFormat()
             )
         }
     } else {
@@ -303,7 +304,11 @@ private fun ProteusDetails(
 fun PreviewDeviceItemWithActionIcon() {
     WireTheme {
         DeviceItem(
-            device = Device(name = UIText.DynamicString("Name"), isVerifiedProteus = true, registrationTime = "2024-01-01T12:00:00.000Z"),
+            device = Device(
+                name = UIText.DynamicString("Name"),
+                isVerifiedProteus = true,
+                registrationTime = Instant.parse("2024-01-01T12:00:00.000Z")
+            ),
             placeholder = false,
             shouldShowVerifyLabel = true,
             isCurrentClient = true,
@@ -318,7 +323,11 @@ fun PreviewDeviceItemWithActionIcon() {
 fun PreviewDeviceItem() {
     WireTheme {
         DeviceItem(
-            device = Device(name = UIText.DynamicString("Name"), isVerifiedProteus = true, registrationTime = "2024-01-01T12:00:00.000Z"),
+            device = Device(
+                name = UIText.DynamicString("Name"),
+                isVerifiedProteus = true,
+                registrationTime = Instant.parse("2024-01-01T12:00:00.000Z")
+            ),
             placeholder = false,
             shouldShowVerifyLabel = true,
             isWholeItemClickable = true,

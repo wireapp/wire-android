@@ -51,8 +51,16 @@ if not env_path:
     print("ERROR: GITHUB_ENV not set", file=sys.stderr)
     sys.exit(1)
 
+output_path = os.environ.get("GITHUB_OUTPUT")
+if not output_path:
+    print("ERROR: GITHUB_OUTPUT not set", file=sys.stderr)
+    sys.exit(1)
+
 with open(env_path, "a", encoding="utf-8") as handle:
-    # Export variables used by downstream setup/install workflow steps.
-    handle.write(f"S3_FOLDER={s3}\n")
+    # Only keep install-related values job-wide.
     handle.write(f"APP_ID={app}\n")
     handle.write("PACKAGES_TO_UNINSTALL=" + " ".join(pkgs) + "\n")
+
+with open(output_path, "a", encoding="utf-8") as handle:
+    # Only the download step needs the resolved S3 folder.
+    handle.write(f"s3Folder={s3}\n")

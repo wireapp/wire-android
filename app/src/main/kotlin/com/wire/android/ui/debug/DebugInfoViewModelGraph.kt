@@ -22,18 +22,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.wire.android.di.metro.MetroViewModelGraph
-import com.wire.android.di.metro.sessionKeyedMetroViewModel
+import com.wire.android.di.metro.wireAssistedMetroViewModel
+import com.wire.android.di.metro.wireMetroViewModel
+import com.wire.android.ui.debug.conversation.DebugConversationScreenNavArgs
 import com.wire.android.ui.debug.conversation.DebugConversationViewModel
 import com.wire.android.ui.debug.cryptostats.ConversationCryptoStatsViewModel
 import com.wire.android.ui.debug.featureflags.DebugFeatureFlagsViewModel
+import com.wire.android.ui.debug.securityproviders.SecurityProvidersViewModel
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesViewModel
 import com.wire.android.ui.home.settings.about.licenses.LicensesViewModel
 import com.wire.android.ui.home.whatsnew.WhatsNewViewModel
 import com.wire.android.ui.settings.about.AboutThisAppViewModel
+import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
-interface DebugInfoViewModelGraph : MetroViewModelGraph {
-    val debugInfoViewModelFactory: DebugInfoViewModelFactory
-}
+interface DebugInfoViewModelGraph : MetroViewModelGraph
+
+@WireAssistedViewModelFactoryGroup
+object DebugInfoManualViewModelFactoryGroup
 
 @Composable
 inline fun <reified VM> debugInfoViewModel(
@@ -42,9 +47,9 @@ inline fun <reified VM> debugInfoViewModel(
     },
     key: String? = null,
 ): VM where VM : ViewModel =
-    sessionKeyedMetroViewModel(
-        viewModelStoreOwner = viewModelStoreOwner,
-        key = key,
+    wireMetroViewModel(
+        owner = viewModelStoreOwner,
+        instanceKey = key,
     )
 
 @Composable
@@ -64,8 +69,10 @@ fun exportObfuscatedCopyViewModel(): ExportObfuscatedCopyViewModel =
     debugInfoViewModel<ExportObfuscatedCopyViewModelImpl>()
 
 @Composable
-fun debugConversationViewModel(): DebugConversationViewModel =
-    debugInfoViewModel()
+fun debugConversationViewModel(args: DebugConversationScreenNavArgs): DebugConversationViewModel =
+    wireAssistedMetroViewModel<DebugConversationViewModel, DebugInfoManualViewModelFactory> { _ ->
+        debugConversationViewModel(args)
+    }
 
 @Composable
 fun conversationCryptoStatsViewModel(): ConversationCryptoStatsViewModel =
@@ -73,6 +80,10 @@ fun conversationCryptoStatsViewModel(): ConversationCryptoStatsViewModel =
 
 @Composable
 fun debugFeatureFlagsViewModel(): DebugFeatureFlagsViewModel =
+    debugInfoViewModel()
+
+@Composable
+fun securityProvidersViewModel(): SecurityProvidersViewModel =
     debugInfoViewModel()
 
 @Composable

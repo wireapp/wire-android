@@ -30,6 +30,7 @@ import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
+import java.io.File
 import java.io.IOException
 import java.util.UUID
 import dev.zacsweers.metro.Inject
@@ -73,6 +74,8 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     fun shareWithExternalApp(assetDataPath: Path, assetName: String?, onError: () -> Unit) {
         shareAssetFileWithExternalApp(assetDataPath, context, assetName, onError)
     }
+
+    fun localFileExists(localPath: String): Boolean = localPath.isNotBlank() && File(localPath).exists()
 
     suspend fun copyToPath(uri: Uri, path: Path, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): Long =
         withContext(dispatcher.io()) {

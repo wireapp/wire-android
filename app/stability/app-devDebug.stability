@@ -3267,7 +3267,7 @@ public fun com.wire.android.ui.debug.DebugDataOptions(appVersion: kotlin.String,
     - viewModel: RUNTIME (requires runtime check)
 
 @Composable
-public fun com.wire.android.ui.debug.DebugDataOptionsContent(state: com.wire.android.ui.debug.DebugDataOptionsState, appVersion: kotlin.String, buildVariant: kotlin.String, onCopyText: kotlin.Function1<kotlin.String, kotlin.Unit>, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, enrollE2EICertificate: kotlin.Function0<kotlin.Unit>, e2eiCertificateExpirationInputState: androidx.compose.foundation.text.input.TextFieldState, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult, kotlin.Unit>, dismissCertificateDialog: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onResendFCMToken: kotlin.Function0<kotlin.Unit>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, onShowSecurityProviders: kotlin.Function0<kotlin.Unit>, onRepairFaultyRemovalKeys: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.debug.DebugDataOptionsContent(state: com.wire.android.ui.debug.DebugDataOptionsState, appVersion: kotlin.String, buildVariant: kotlin.String, onCopyText: kotlin.Function1<kotlin.String, kotlin.Unit>, onDisableEventProcessingChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onRestartSlowSyncForRecovery: kotlin.Function0<kotlin.Unit>, onForceUpdateApiVersions: kotlin.Function0<kotlin.Unit>, enrollE2EICertificate: kotlin.Function0<kotlin.Unit>, e2eiCertificateExpirationInputState: androidx.compose.foundation.text.input.TextFieldState, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult, kotlin.Unit>, dismissCertificateDialog: kotlin.Function0<kotlin.Unit>, checkCrlRevocationList: kotlin.Function0<kotlin.Unit>, forceCRLExpirationAfterOneMinute: kotlin.Boolean, onForceCRLExpirationAfterOneMinuteChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onResendFCMToken: kotlin.Function0<kotlin.Unit>, onShowFeatureFlags: kotlin.Function0<kotlin.Unit>, onShowCryptoStats: kotlin.Function0<kotlin.Unit>, onShowSecurityProviders: kotlin.Function0<kotlin.Unit>, onRepairFaultyRemovalKeys: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3647,6 +3647,14 @@ public fun com.wire.android.ui.debug.securityProvidersViewModel(): com.wire.andr
   params:
 
 @Composable
+public fun com.wire.android.ui.debug.securityproviders.CryptoServiceListItem(row: com.wire.android.ui.debug.securityproviders.CryptoServiceRow, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - row: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.wire.android.ui.debug.securityproviders.NetworkSection(network: com.wire.android.ui.debug.securityproviders.NetworkDiagnostics): kotlin.Unit
   skippable: false
   restartable: true
@@ -3700,7 +3708,7 @@ internal fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentRouteScreen(viewMo
     - onOpenCertificateDetails: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentScreenContent(state: com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentState, clearSessionState: com.wire.android.ui.authentication.devices.common.ClearSessionState, dismissSuccess: kotlin.Function0<kotlin.Unit>, dismissErrorDialog: kotlin.Function0<kotlin.Unit>, enrollE2EICertificate: kotlin.Function0<kotlin.Unit>, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult, kotlin.Unit>, openCertificateDetails: kotlin.Function0<kotlin.Unit>, onBackButtonClicked: kotlin.Function0<kotlin.Unit>, onCancelEnrollmentClicked: kotlin.Function0<kotlin.Unit>, onProceedEnrollmentClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentScreenContent(state: com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentState, clearSessionState: com.wire.android.ui.authentication.devices.common.ClearSessionState, dismissSuccess: kotlin.Function0<kotlin.Unit>, dismissErrorDialog: kotlin.Function0<kotlin.Unit>, enrollE2EICertificate: kotlin.Function0<kotlin.Unit>, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult, kotlin.Unit>, openCertificateDetails: kotlin.Function0<kotlin.Unit>, onBackButtonClicked: kotlin.Function0<kotlin.Unit>, onCancelEnrollmentClicked: kotlin.Function0<kotlin.Unit>, onProceedEnrollmentClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3716,7 +3724,7 @@ private fun com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentScreenContent(state
     - onProceedEnrollmentClicked: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI(enrollmentResultHandler: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult, kotlin.Unit>, isNewClient: kotlin.Boolean, viewModel: com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel): kotlin.Unit
+public fun com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI(enrollmentResultHandler: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult, kotlin.Unit>, isNewClient: kotlin.Boolean, viewModel: com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -9795,7 +9803,7 @@ public fun com.wire.android.ui.home.settings.avatarPickerViewModel(): com.wire.a
   params:
 
 @Composable
-public fun com.wire.android.ui.home.settings.backup.BackupAndRestoreContent(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, createBackupPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, restoreBackupPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, onCreateBackup: kotlin.Function0<kotlin.Unit>, onSaveBackup: kotlin.Function1<android.net.Uri, kotlin.Unit>, onShareBackup: kotlin.Function0<kotlin.Unit>, onCancelBackupCreation: kotlin.Function0<kotlin.Unit>, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>, onChooseBackupFile: kotlin.Function1<android.net.Uri, kotlin.Unit>, onRestoreBackup: kotlin.Function0<kotlin.Unit>, onOpenConversations: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.settings.backup.BackupAndRestoreContent(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, createBackupPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, restoreBackupPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, onCreateBackup: kotlin.Function0<kotlin.Unit>, onSaveBackup: kotlin.Function1<android.net.Uri, kotlin.Unit>, onShareBackup: kotlin.Function0<kotlin.Unit>, onCancelBackupCreation: kotlin.Function0<kotlin.Unit>, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>, onDismissBackupRestore: kotlin.Function0<kotlin.Unit>, onChooseBackupFile: kotlin.Function1<android.net.Uri, kotlin.Unit>, onRestoreBackup: kotlin.Function0<kotlin.Unit>, onOpenConversations: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -9807,6 +9815,7 @@ public fun com.wire.android.ui.home.settings.backup.BackupAndRestoreContent(back
     - onShareBackup: STABLE (function type)
     - onCancelBackupCreation: STABLE (function type)
     - onCancelBackupRestore: STABLE (function type)
+    - onDismissBackupRestore: STABLE (function type)
     - onChooseBackupFile: STABLE (function type)
     - onRestoreBackup: STABLE (function type)
     - onOpenConversations: STABLE (function type)
@@ -9940,7 +9949,7 @@ public fun com.wire.android.ui.home.settings.backup.dialog.restore.PickRestoreFi
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupDialogFlow(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, backupPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, onChooseBackupFile: kotlin.Function1<android.net.Uri, kotlin.Unit>, onRestoreBackup: kotlin.Function0<kotlin.Unit>, onOpenConversations: kotlin.Function0<kotlin.Unit>, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>, onChooseFilePermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupDialogFlow(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, backupPasswordTextState: androidx.compose.foundation.text.input.TextFieldState, onChooseBackupFile: kotlin.Function1<android.net.Uri, kotlin.Unit>, onRestoreBackup: kotlin.Function0<kotlin.Unit>, onOpenConversations: kotlin.Function0<kotlin.Unit>, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>, onDismissBackupRestore: kotlin.Function0<kotlin.Unit>, onRestoreCancellationCompleted: kotlin.Function0<kotlin.Unit>, onChooseFilePermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -9950,25 +9959,32 @@ public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackup
     - onRestoreBackup: STABLE (function type)
     - onOpenConversations: STABLE (function type)
     - onCancelBackupRestore: STABLE (function type)
+    - onDismissBackupRestore: STABLE (function type)
+    - onRestoreCancellationCompleted: STABLE (function type)
     - onChooseFilePermissionPermanentlyDenied: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupStep(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, restoreDialogStateHolder: com.wire.android.ui.home.settings.backup.dialog.restore.RestoreDialogStateHolder, onOpenConversations: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreBackupStep(backUpAndRestoreState: com.wire.android.ui.home.settings.backup.BackupAndRestoreState, restoreDialogStateHolder: com.wire.android.ui.home.settings.backup.dialog.restore.RestoreDialogStateHolder, onOpenConversations: kotlin.Function0<kotlin.Unit>, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>, onRestoreCancellationCompleted: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - backUpAndRestoreState: UNSTABLE (has mutable properties or unstable members)
     - restoreDialogStateHolder: STABLE (marked @Stable or @Immutable)
     - onOpenConversations: STABLE (function type)
+    - onCancelBackupRestore: STABLE (function type)
+    - onRestoreCancellationCompleted: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreProgressDialog(isRestoreCompleted: kotlin.Boolean, restoreProgress: kotlin.Float, onOpenConversation: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.settings.backup.dialog.restore.RestoreProgressDialog(isRestoreCompleted: kotlin.Boolean, restoreProgress: kotlin.Float, onOpenConversation: kotlin.Function0<kotlin.Unit>, canCancel: kotlin.Boolean, isCancelling: kotlin.Boolean, onCancelBackupRestore: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - isRestoreCompleted: STABLE (primitive type)
     - restoreProgress: STABLE (primitive type)
     - onOpenConversation: STABLE (function type)
+    - canCancel: STABLE (primitive type)
+    - isCancelling: STABLE (primitive type)
+    - onCancelBackupRestore: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -10959,7 +10975,7 @@ private fun com.wire.android.ui.settings.devices.DeviceDetailSectionContent(sect
     - titleTrailingItem: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.ui.settings.devices.DeviceDetailsContent(state: com.wire.android.ui.settings.devices.model.DeviceDetailsState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, onDeleteDevice: kotlin.Function0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onNavigateToE2eiCertificateDetailsScreen: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.MLSClientIdentity, kotlin.Unit>, onRemoveConfirm: kotlin.Function0<kotlin.Unit>, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, enrollE2eiCertificate: kotlin.Function0<kotlin.Unit>, onUpdateClientVerification: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEnrollE2EIErrorDismiss: kotlin.Function0<kotlin.Unit>, onEnrollE2EISuccessDismiss: kotlin.Function0<kotlin.Unit>, onBreakSession: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.settings.devices.DeviceDetailsContent(state: com.wire.android.ui.settings.devices.model.DeviceDetailsState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, handleE2EIEnrollmentResult: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, onDeleteDevice: kotlin.Function0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, onNavigateToE2eiCertificateDetailsScreen: kotlin.Function1<com.wire.kalium.logic.feature.e2ei.MLSClientIdentity, kotlin.Unit>, onRemoveConfirm: kotlin.Function0<kotlin.Unit>, onDialogDismiss: kotlin.Function0<kotlin.Unit>, onErrorDialogDismiss: kotlin.Function0<kotlin.Unit>, enrollE2eiCertificate: kotlin.Function0<kotlin.Unit>, onUpdateClientVerification: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEnrollE2EIErrorDismiss: kotlin.Function0<kotlin.Unit>, onEnrollE2EISuccessDismiss: kotlin.Function0<kotlin.Unit>, onBreakSession: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:

@@ -83,6 +83,7 @@ class NewConversationViewModel @Inject constructor(
     )
 
     private var pendingMLSGroupCreation: PendingMLSGroupCreation? = null
+    private var failedMLSGroupCreationId: ConversationId? = null
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(GroupMetadataState())
@@ -129,6 +130,7 @@ class NewConversationViewModel @Inject constructor(
         newGroupNameTextState.clearText()
         newGroupState = GroupMetadataState()
         pendingMLSGroupCreation = null
+        failedMLSGroupCreationId = null
         loadDefaultProtocol()
         observeAllowanceOfAppsUsageInitialState()
         createGroupState = CreateGroupState.Default
@@ -205,12 +207,32 @@ class NewConversationViewModel @Inject constructor(
         createGroupState = CreateGroupState.Default
     }
 
+    fun discardGroupCreation() {
+        val conversationId = failedMLSGroupCreationId
+        if (conversationId == null) {
+            createGroupState = CreateGroupState.Discarded
+            return
+        }
+
+        createGroupState = CreateGroupState.Discarding
+        viewModelScope.launch {
+            if (createRegularGroup.discardPendingMLSGroupCreation(conversationId)) {
+                failedMLSGroupCreationId = null
+                pendingMLSGroupCreation = null
+                createGroupState = CreateGroupState.Discarded
+            } else {
+                createGroupState = CreateGroupState.Error.Unknown
+            }
+        }
+    }
+
     fun retryPendingMLSGroupCreation() {
         val pendingCreation = pendingMLSGroupCreation ?: return
         createGroupState = CreateGroupState.Error.PendingMLSCreation(isRetrying = true)
         viewModelScope.launch {
             when (val result = createRegularGroup.retryPendingMLSGroupCreation(pendingCreation.conversationId)) {
                 is ConversationCreationResult.Success,
+                is ConversationCreationResult.BackendConflictFailure,
                 is ConversationCreationResult.PendingMLSGroupCreation ->
                     handleNewGroupCreationResult(result, pendingCreation.attempt)
 
@@ -376,6 +398,7 @@ class NewConversationViewModel @Inject constructor(
         return when (result) {
             is ConversationCreationResult.Success -> {
                 pendingMLSGroupCreation = null
+                failedMLSGroupCreationId = null
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = CreateGroupState.Created(result.conversation.id)
             }
@@ -410,6 +433,8 @@ class NewConversationViewModel @Inject constructor(
             }
 
             is ConversationCreationResult.BackendConflictFailure -> {
+                pendingMLSGroupCreation = null
+                failedMLSGroupCreationId = result.conversationId
                 groupOptionsState = groupOptionsState.copy(isLoading = false)
                 newGroupState = newGroupState.copy(isLoading = false)
                 createGroupState = CreateGroupState.Error.ConflictedBackends(result.domains)

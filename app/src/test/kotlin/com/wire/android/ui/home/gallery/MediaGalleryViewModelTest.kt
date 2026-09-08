@@ -29,6 +29,8 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.StorageFailure
+import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -50,8 +52,10 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MessageOperationResult
 import io.mockk.MockKAnnotations
+import io.mockk.coAnswers
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -199,6 +203,7 @@ class MediaGalleryViewModelTest {
         val (_, viewModel) = Arrangement()
             .withNavArgs(cellAssetId = "cell-asset-id")
             .withConversationDetails(mockedConversationDetails())
+            .withExistingLocalFile()
             .withAssetContent(
                 CellAssetContent(
                     id = "cell-asset-id",
@@ -214,11 +219,11 @@ class MediaGalleryViewModelTest {
             .arrange()
 
         // When
-        val state = viewModel.mediaGalleryViewState
+        val image = viewModel.loadedImage()
 
         // Then
-        assertTrue(state.imageAsset is MediaGalleryImage.LocalAsset)
-        assertEquals("local/path", (state.imageAsset as MediaGalleryImage.LocalAsset).path)
+        assertTrue(image is MediaGalleryImage.LocalAsset)
+        assertEquals("local/path", (image as MediaGalleryImage.LocalAsset).path)
     }
 
     @Test
@@ -244,12 +249,123 @@ class MediaGalleryViewModelTest {
             .arrange()
 
         // When
-        val state = viewModel.mediaGalleryViewState
+        val image = viewModel.loadedImage()
 
         // Then
-        assertTrue(state.imageAsset is MediaGalleryImage.UrlAsset)
-        assertEquals("content/url", (state.imageAsset as MediaGalleryImage.UrlAsset).url)
-        assertEquals("preview/url", state.imageAsset.placeholder)
+        assertTrue(image is MediaGalleryImage.UrlAsset)
+        assertEquals("content/url", (image as MediaGalleryImage.UrlAsset).url)
+        assertEquals("preview/url", image.placeholder)
+    }
+
+    @Test
+    fun givenCellAssetLocalFileNoLongerExists_whenInitialisingViewModel_thenContentUrlIsUsedInstead() = runTest {
+        // Given
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = "deleted/path",
+                    assetPath = "asset/path",
+                    contentUrl = "content/url",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+                )
+            )
+            .arrange()
+
+        // When
+        val image = viewModel.loadedImage()
+
+        // Then
+        assertTrue(image is MediaGalleryImage.UrlAsset)
+        assertEquals("content/url", (image as MediaGalleryImage.UrlAsset).url)
+    }
+
+    @Test
+    fun givenViewerAccessResolvesAfterTheAssetLoad_whenInitialisingViewModel_thenTheLoadedAssetIsKept() = runTest {
+        // Given viewer access is still pending while the asset resolves
+        val viewerAccessGate = CompletableDeferred<Unit>()
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withViewerAccessGatedOn(viewerAccessGate)
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = null,
+                    assetPath = "asset/path",
+                    contentUrl = "content/url",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.NOT_DOWNLOADED
+                )
+            )
+            .arrange()
+
+        assertTrue(viewModel.mediaGalleryViewState.assetState is MediaGalleryAssetState.Loaded)
+
+        // When the late viewer-access update lands
+        viewerAccessGate.complete(Unit)
+
+        // Then it must not revert the asset state it never knew about
+        assertEquals("content/url", (viewModel.loadedImage() as MediaGalleryImage.UrlAsset).url)
+    }
+
+    @Test
+    fun givenCellAssetCannotBeResolved_whenInitialisingViewModel_thenFailureIsShownInsteadOfBlankScreen() = runTest {
+        // Given an attachment with no local file and no URLs at all
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = null,
+                    assetPath = "asset/path",
+                    contentUrl = null,
+                    previewUrl = null,
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.NOT_DOWNLOADED
+                )
+            )
+            .arrange()
+
+        // Then
+        assertEquals(MediaGalleryAssetState.Failure, viewModel.mediaGalleryViewState.assetState)
+    }
+
+    @Test
+    fun givenTheResolvedImageCannotBeRendered_whenReported_thenFailureIsShown() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(cellAssetId = null)
+            .withConversationDetails(mockedConversationDetails())
+            .arrange()
+
+        viewModel.onAssetRenderFailed()
+
+        assertEquals(MediaGalleryAssetState.Failure, viewModel.mediaGalleryViewState.assetState)
+    }
+
+    @Test
+    fun givenNonCellAsset_whenInitialisingViewModel_thenPrivateAssetIsLoaded() = runTest {
+        // Given
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(cellAssetId = null)
+            .withConversationDetails(mockedConversationDetails())
+            .arrange()
+
+        // Then
+        assertTrue(viewModel.loadedImage() is MediaGalleryImage.PrivateAsset)
     }
 
     @Test
@@ -448,6 +564,23 @@ class MediaGalleryViewModelTest {
 
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
             coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Success
+            coEvery { getAttachment(any()) } returns StorageFailure.DataNotFound.left()
+            every { fileManager.localFileExists(any()) } returns false
+        }
+
+        /**
+         * Makes the viewer-access lookup resolve only once [gate] completes, so a test can interleave
+         * it with the asset load.
+         */
+        fun withViewerAccessGatedOn(gate: CompletableDeferred<Unit>) = apply {
+            coEvery { isSelfUserViewerOnConversation(any()) } coAnswers {
+                gate.await()
+                true
+            }
+        }
+
+        fun withExistingLocalFile() = apply {
+            every { fileManager.localFileExists(any()) } returns true
         }
 
         fun withNavArgs(messageOptionsEnabled: Boolean = true, isEphemeral: Boolean = false, cellAssetId: String? = null) = apply {
@@ -522,6 +655,9 @@ class MediaGalleryViewModelTest {
             isSelfUserViewerOnConversation,
         )
     }
+
+    private fun MediaGalleryViewModel.loadedImage(): MediaGalleryImage =
+        (mediaGalleryViewState.assetState as MediaGalleryAssetState.Loaded).image
 
     private fun mockedConversationDetails(
         mockedConversationTitle: String = "Dummy Screen Title",

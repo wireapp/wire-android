@@ -17,10 +17,10 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.AUDIO
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
@@ -31,9 +31,10 @@ import com.wire.android.feature.cells.ui.OpenFileDownloadController
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
-import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
+import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -60,8 +61,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -74,6 +73,7 @@ interface MultipartAttachmentsViewModel {
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
     )
+
     fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
         val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
         return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
@@ -96,6 +96,7 @@ interface MultipartAttachmentsViewModel {
                     is MultipartAttachmentGroup.Media -> {
                         group.copy(attachments = group.attachments + uiAttachment)
                     }
+
                     else -> {
                         result.add(group)
                         MultipartAttachmentGroup.Media(listOf(uiAttachment))
@@ -107,6 +108,7 @@ interface MultipartAttachmentsViewModel {
                     is MultipartAttachmentGroup.Files -> {
                         group.copy(attachments = group.attachments + uiAttachment)
                     }
+
                     else -> {
                         result.add(group)
                         MultipartAttachmentGroup.Files(listOf(uiAttachment))
@@ -141,7 +143,9 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-    ) {}
+    ) {
+    }
+
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
@@ -174,8 +178,6 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             .map { states -> states.mapValues { (_, state) -> state.toMultipartState() } }
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
-    private val uploadProgress = mutableStateMapOf<String, Float>()
-
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()
         .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
@@ -192,7 +194,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-        ) {
+    ) {
         // Always use the authoritative shared-cache state — the `attachment` snapshot may be stale
         // if recomposition hasn't fired yet when the user taps.
         val currentLoadState = sharedPathCache.openLoadStates.value[attachment.uuid]

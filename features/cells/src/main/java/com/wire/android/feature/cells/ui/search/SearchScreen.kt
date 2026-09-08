@@ -40,10 +40,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
+import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
-import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.FilterByTypeBottomSheet
@@ -51,7 +50,6 @@ import com.wire.android.feature.cells.ui.search.filter.bottomsheet.conversation.
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterByOwnerBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
-import com.wire.android.feature.cells.ui.searchScreenViewModel
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
@@ -60,7 +58,6 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable

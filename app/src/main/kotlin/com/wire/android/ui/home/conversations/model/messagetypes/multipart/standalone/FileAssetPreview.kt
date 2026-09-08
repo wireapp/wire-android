@@ -57,6 +57,7 @@ import com.wire.kalium.logic.util.fileExtension
 import com.wire.android.feature.cells.R as cellsR
 import com.wire.android.ui.common.R as commonR
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun BoxScope.FileAssetPreview(
     item: MultipartAttachmentUi,

@@ -72,6 +72,7 @@ import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
 import com.wire.android.feature.cells.R as cellsR
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun VideoAssetPreview(
     item: MultipartAttachmentUi,

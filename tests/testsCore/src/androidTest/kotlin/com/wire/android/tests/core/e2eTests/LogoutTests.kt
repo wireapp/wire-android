@@ -315,11 +315,7 @@ class LogoutTests : BaseUiTest() {
         }
 
         step("And User TeamOwner has 1:1 conversation with Member1 in team Logout") {
-            backendSetupHelper.userHas1on1ConversationInTeam(
-                "user1Name",
-                "user2Name",
-                "Logout"
-            )
+            backendSetupHelper.userHas1on1ConversationInTeam("user1Name", "user2Name", "Logout")
         }
 
         step("And User Member1 is me") {
@@ -358,5 +354,4 @@ class LogoutTests : BaseUiTest() {
             }
         }
     }
-
 }

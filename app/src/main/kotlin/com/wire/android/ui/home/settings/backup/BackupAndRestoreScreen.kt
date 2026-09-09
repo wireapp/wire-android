@@ -74,6 +74,7 @@ fun BackupAndRestoreScreen(
         onChooseBackupFile = viewModel::chooseBackupFileToRestore,
         onRestoreBackup = viewModel::restorePasswordProtectedBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
+        onDismissBackupRestore = viewModel::dismissBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
         onOpenConversations = onOpenConversations,
         onBackPressed = onBackPressed,
@@ -90,6 +91,7 @@ fun BackupAndRestoreContent(
     onShareBackup: () -> Unit,
     onCancelBackupCreation: () -> Unit,
     onCancelBackupRestore: () -> Unit,
+    onDismissBackupRestore: () -> Unit,
     onChooseBackupFile: (Uri) -> Unit,
     onRestoreBackup: () -> Unit,
     onOpenConversations: () -> Unit,
@@ -175,10 +177,12 @@ fun BackupAndRestoreContent(
                 backupPasswordTextState = restoreBackupPasswordTextState,
                 onChooseBackupFile = onChooseBackupFile,
                 onRestoreBackup = onRestoreBackup,
-                onCancelBackupRestore = {
+                onDismissBackupRestore = {
                     backupAndRestoreStateHolder.dismissDialog()
-                    onCancelBackupRestore()
+                    onDismissBackupRestore()
                 },
+                onCancelBackupRestore = onCancelBackupRestore,
+                onRestoreCancellationCompleted = backupAndRestoreStateHolder::dismissDialog,
                 onOpenConversations = onOpenConversations,
                 onChooseFilePermissionPermanentlyDenied = {
                     permissionPermanentlyDeniedDialogState.show(
@@ -267,6 +271,7 @@ fun PreviewBackupAndRestoreScreen() = WireTheme {
         onShareBackup = {},
         onCancelBackupCreation = {},
         onCancelBackupRestore = {},
+        onDismissBackupRestore = {},
         onChooseBackupFile = {},
         onRestoreBackup = {},
         onOpenConversations = {},

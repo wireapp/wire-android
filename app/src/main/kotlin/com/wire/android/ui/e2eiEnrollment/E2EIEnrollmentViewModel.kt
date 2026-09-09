@@ -25,7 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.kalium.logic.feature.client.FinalizeMLSClientAfterE2EIEnrollmentUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import kotlinx.coroutines.launch
 
 data class E2EIEnrollmentState(
@@ -56,16 +56,16 @@ class E2EIEnrollmentViewModel @Inject constructor(
         state = state.copy(isLoading = true, startGettingE2EICertificate = true)
     }
 
-    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+    fun handleE2EIEnrollmentResult(result: EnrollE2EIResult) {
         state = when (result) {
-            is FinalizeEnrollmentResult.Failure -> {
+            is EnrollE2EIResult.Failure -> {
                 state.copy(
                     isLoading = false,
                     isCertificateEnrollError = true,
                     startGettingE2EICertificate = false
                 )
             }
-            is FinalizeEnrollmentResult.Success -> {
+            is EnrollE2EIResult.Success -> {
                 state.copy(
                     certificate = result.certificate,
                     isCertificateEnrollSuccess = true,

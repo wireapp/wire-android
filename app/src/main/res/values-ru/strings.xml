@@ -1411,6 +1411,7 @@
     <string name="backup_dialog_restoring_backup_title">Восстановление резервной копии...</string>
     <string name="backup_label_conversation_restored">Беседы были восстановлены</string>
     <string name="backup_label_loading_conversations">Загрузка бесед</string>
+    <string name="backup_label_cancelling">Отмена...</string>
     <string name="backup_dialog_restore_backup_title">Восстановить из резервной копии </string>
     <string name="backup_dialog_restore_backup_message">Текущая история на этом устройстве сохранится и будет дополнена новой резервной копией. Вы можете восстановить историю со всех ваших устройств и разных платформ, но не из другого аккаунта.</string>
     <string name="backup_dialog_choose_backup_file_option">Выберите резервную копию</string>
@@ -1880,6 +1881,8 @@
     <string name="personal_to_team_migration_error_message_unknown_error">Wire не удалось завершить создание вашей команды из-за неизвестной ошибки.</string>
     <string name="reaction_sender_self">Вы</string>
     <string name="emoji_picker_select_reaction">Выбрать реакцию</string>
+    <string name="content_description_add_this_reaction">Добавить эту реакцию</string>
+    <string name="content_description_remove_your_reaction">Удалить свою реакцию</string>
     <string name="label_user_database_profile">Журнал базы данных</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">“%1$s” был перемещен в “%2$s”</string>

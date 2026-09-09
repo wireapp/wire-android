@@ -19,6 +19,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
@@ -55,9 +56,12 @@ import com.wire.android.navigation.runtime.startup.toWireSessionId
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
+import com.wire.android.ui.sharing.hasTrustedWireShareCaller
+import com.wire.android.ui.sharing.sharingUris
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ShakeDetector
 import com.wire.android.util.SwitchAccountObserver
+import com.wire.android.util.getProviderAuthority
 import com.wire.android.util.launchUpdateTheApp
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireBackStackMode
@@ -122,6 +126,7 @@ class WireActivity : BaseActivity() {
         WireViewModelDiagnostics.ownerAvailable(this, ACTIVITY_COORDINATOR_OWNER_KEY)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
         traceStartup("activity.onCreate.afterSuper", startupAt)
+        val initialIntentRequest = captureIntentRequest(intent, savedInstanceState)
 
         enableEdgeToEdge()
         setupOrientationForDevice()
@@ -165,7 +170,7 @@ class WireActivity : BaseActivity() {
             (application as? WireApplication)?.initializeDeferredLoggingAfterSplash()
             traceStartup("activity.deferredLogging.triggered", startupAt)
 
-            handleNewIntent(intent, savedInstanceState)
+            handleNewIntent(initialIntentRequest)
             traceStartup("activity.initialIntent.dispatched", startupAt)
         }
 
@@ -206,12 +211,12 @@ class WireActivity : BaseActivity() {
             handleSynchronizeExternalData(intent)
             return
         }
-        setIntent(intent)
-        handleNewIntent(intent)
+        setIntentPreservingCaller(intent)
+        handleNewIntent(captureIntentRequest(intent))
     }
 
-    private fun handleNewIntent(intent: Intent, savedInstanceState: Bundle? = null) {
-        intentCoordinator.enqueue(intent, savedInstanceState)
+    private fun handleNewIntent(request: WireActivityIntentRequest) {
+        intentCoordinator.enqueue(request)
     }
 
     private fun setComposableContent(startDestination: WireRoute) {
@@ -329,7 +334,13 @@ class WireActivity : BaseActivity() {
                 runtime.navigator.routes.firstOrNull() is NewWelcomeEmptyStartRoute
             },
             handleNonDeepLinkIntent = { viewModel.handleIntentsThatAreNotDeepLinks(it) },
-            handleDeepLink = { viewModel.handleDeepLink(it) },
+            handleDeepLink = {
+                viewModel.handleDeepLink(
+                    intent = it,
+                    providerAuthority = getProviderAuthority(),
+                    hasTrustedWireShareCaller = request.hasTrustedWireShareCaller,
+                )
+            },
         )
         if (effect == WireActivityIntentEffect.OPEN_LOGIN) {
             authenticationRouter.openLoginFromActivity()
@@ -359,6 +370,35 @@ class WireActivity : BaseActivity() {
         private const val ACTIVITY_COORDINATOR_OWNER_KEY = "activity:wire"
     }
 }
+
+/**
+ * Keeps the verified sender attached to a replacement intent on Android 15+.
+ * This must be called while [AppCompatActivity.onNewIntent] is executing because
+ * [AppCompatActivity.getCurrentCaller] is only available during that callback.
+ */
+internal fun AppCompatActivity.setIntentPreservingCaller(intent: Intent) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        setIntent(intent, currentCaller)
+    } else {
+        setIntent(intent)
+    }
+}
+
+/**
+ * Snapshots the share caller validation while this intent is current. The caller is Activity state
+ * and may change before the intent queue drains, so the trust result must travel with the intent.
+ */
+internal fun AppCompatActivity.captureIntentRequest(
+    intent: Intent,
+    savedInstanceState: Bundle? = null,
+): WireActivityIntentRequest = WireActivityIntentRequest(
+    intent = intent,
+    savedInstanceState = savedInstanceState,
+    hasTrustedWireShareCaller = hasTrustedWireShareCaller(
+        providerAuthority = getProviderAuthority(),
+        uris = intent.sharingUris(),
+    ),
+)
 
 internal fun observeAppLockUserId(
     isAppLocked: Flow<Boolean>,

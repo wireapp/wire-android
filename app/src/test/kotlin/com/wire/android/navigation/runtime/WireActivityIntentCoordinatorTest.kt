@@ -44,8 +44,20 @@ class WireActivityIntentCoordinatorTest {
         val initial = Intent("initial")
         val firstNew = Intent("first-new")
         val secondNew = Intent("second-new")
-        coordinator.enqueue(initial, Bundle())
-        coordinator.enqueue(firstNew)
+        coordinator.enqueue(
+            WireActivityIntentRequest(
+                intent = initial,
+                savedInstanceState = Bundle(),
+                hasTrustedWireShareCaller = false,
+            )
+        )
+        coordinator.enqueue(
+            WireActivityIntentRequest(
+                intent = firstNew,
+                savedInstanceState = null,
+                hasTrustedWireShareCaller = true,
+            )
+        )
         coordinator.enqueue(secondNew)
 
         val requests = coordinator.requests.take(3).toList()
@@ -53,6 +65,9 @@ class WireActivityIntentCoordinatorTest {
         assertSame(initial, requests[0].intent)
         assertSame(firstNew, requests[1].intent)
         assertSame(secondNew, requests[2].intent)
+        assertFalse(requests[0].hasTrustedWireShareCaller)
+        assertTrue(requests[1].hasTrustedWireShareCaller)
+        assertFalse(requests[2].hasTrustedWireShareCaller)
     }
 
     @Test

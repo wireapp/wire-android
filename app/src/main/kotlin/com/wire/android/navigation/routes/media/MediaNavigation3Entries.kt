@@ -11,7 +11,7 @@ import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
-import com.wire.android.mediaplayer.VideoPlayer
+import com.wire.android.videoplayer.VideoPlayer
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.checkAssetRestrictionsViewModel

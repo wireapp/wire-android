@@ -50,6 +50,12 @@ sealed interface ConversationItem : ConversationItemType {
     val hasNewActivitiesToShow: Boolean
     val hasOnGoingCall: Boolean get() = false
 
+    /**
+     * True when the conversation has a shared drive (Wire Cell) owned by another team,
+     * meaning the self user only has viewer (read-only) access to its files.
+     */
+    val isSelfUserViewerOnly: Boolean get() = false
+
     val isTeamConversation get() = teamId != null
 
     @Serializable
@@ -79,6 +85,7 @@ sealed interface ConversationItem : ConversationItemType {
             override val mlsVerificationStatus: Conversation.VerificationStatus,
             override val proteusVerificationStatus: Conversation.VerificationStatus,
             override val hasNewActivitiesToShow: Boolean = false,
+            override val isSelfUserViewerOnly: Boolean = false,
         ) : Group
 
         @Serializable
@@ -100,6 +107,7 @@ sealed interface ConversationItem : ConversationItemType {
             override val mlsVerificationStatus: Conversation.VerificationStatus,
             override val proteusVerificationStatus: Conversation.VerificationStatus,
             override val hasNewActivitiesToShow: Boolean = false,
+            override val isSelfUserViewerOnly: Boolean = false,
             val isPrivate: Boolean,
         ) : Group
     }

@@ -43,7 +43,7 @@ import com.wire.kalium.logic.feature.client.ObserveClientDetailsUseCase
 import com.wire.kalium.logic.feature.client.Result
 import com.wire.kalium.logic.feature.client.UpdateClientVerificationStatusUseCase
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -159,16 +159,16 @@ class DeviceDetailsViewModel @AssistedInject constructor(
     fun enrollE2EICertificate() {
         state = state.copy(isLoadingCertificate = true, startGettingE2EICertificate = true)
     }
-    fun handleE2EIEnrollmentResult(result: FinalizeEnrollmentResult) {
+    fun handleE2EIEnrollmentResult(result: EnrollE2EIResult) {
         state = when (result) {
-            is FinalizeEnrollmentResult.Failure -> {
+            is EnrollE2EIResult.Failure -> {
                 state.copy(
                     isLoadingCertificate = false,
                     startGettingE2EICertificate = false,
                     isE2EICertificateEnrollError = true,
                 )
             }
-            is FinalizeEnrollmentResult.Success -> {
+            is EnrollE2EIResult.Success -> {
                 getE2eiCertificate()
                 state.copy(
                     isE2EICertificateEnrollSuccess = true,

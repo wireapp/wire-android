@@ -1338,6 +1338,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="backup_dialog_restoring_backup_title">Backup wird wiederhergestellt...</string>
     <string name="backup_label_conversation_restored">Unterhaltungen wurden wiederhergestellt</string>
     <string name="backup_label_loading_conversations">Unterhaltungen werden geladen</string>
+    <string name="backup_label_cancelling">Abbrechen...</string>
     <string name="backup_dialog_restore_backup_title">Backup wiederherstellen </string>
     <string name="backup_dialog_restore_backup_message">Der vorhandene Gesprächsverlauf auf diesem Gerät bleibt erhalten und wird durch das neue Backup ergänzt. Sie können den Verlauf von all Ihren Geräten und verschiedenen Plattformen wiederherstellen, aber nicht von einem anderen Benutzerkonto.</string>
     <string name="backup_dialog_choose_backup_file_option">Backup-Datei auswählen</string>
@@ -1762,6 +1763,8 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="personal_to_team_migration_error_message_unknown_error">Wire konnte die Erstellung Ihres Teams aufgrund eines unbekannten Fehlers nicht abschließen.</string>
     <string name="reaction_sender_self">Sie</string>
     <string name="emoji_picker_select_reaction">Reaktion auswählen</string>
+    <string name="content_description_add_this_reaction">Reaktion hinzufügen</string>
+    <string name="content_description_remove_your_reaction">Entfernen Sie Ihre Reaktion</string>
     <!-- Move to Folder -->
     <string name="move_to_folder_success">„%1$s“ wurde nach ‚%2$s‘ verschoben</string>
     <string name="move_to_folder_failed">“%1$s” konnte nicht verschoben werden</string>

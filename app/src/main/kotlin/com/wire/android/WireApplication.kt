@@ -28,6 +28,7 @@ import android.util.Log
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.analytics.ObserveCurrentSessionAnalyticsUseCase
 import com.wire.android.datastore.GlobalDataStore
@@ -351,7 +352,7 @@ class WireApplication : BaseApp() {
         ExternalLoggerManager.initDatadogLogger(applicationContext)
 
         val isLoggingEnabled = globalDataStore.value.isLoggingEnabled().firstOrNull() == true
-        val config = fullLoggerConfig(isLoggingEnabled)
+        val config = fullLoggerConfig(isLoggingEnabled, logFileWriter.value.logWriter)
 
         AppLogger.init(config)
         CoreLogger.init(config)
@@ -467,13 +468,16 @@ class WireApplication : BaseApp() {
             listOf(platformLogWriter())
         )
 
-        fun fullLoggerConfig(isLoggingEnabled: Boolean) = if (isLoggingEnabled) {
+        fun fullLoggerConfig(isLoggingEnabled: Boolean, fileLogWriter: LogWriter? = null) = if (isLoggingEnabled) {
             KaliumLogger.Config(
                 KaliumLogLevel.VERBOSE,
-                listOf(DataDogLogger, platformLogWriter())
+                listOfNotNull(DataDogLogger, platformLogWriter(), fileLogWriter)
             )
         } else {
-            minimalLoggerConfig()
+            KaliumLogger.Config(
+                KaliumLogLevel.WARN,
+                listOfNotNull(platformLogWriter(), fileLogWriter)
+            )
         }
 
         enum class MemoryLevel(val level: Int) {

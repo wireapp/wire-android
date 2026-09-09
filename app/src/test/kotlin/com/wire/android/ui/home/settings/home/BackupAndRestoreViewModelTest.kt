@@ -59,12 +59,18 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.slot
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Instant
@@ -366,7 +372,7 @@ class BackupAndRestoreViewModelTest {
         // When
         backupAndRestoreViewModel.chooseBackupFileToRestore(backupUri)
         advanceUntilIdle()
-        backupAndRestoreViewModel.cancelBackupRestore()
+        backupAndRestoreViewModel.dismissBackupRestore()
         advanceUntilIdle()
 
         // Then
@@ -377,6 +383,51 @@ class BackupAndRestoreViewModelTest {
         coVerify(exactly = 1) {
             arrangement.fileManager.copyToPath(backupUri, backupAndRestoreViewModel.latestImportedBackupTempPath, any())
         }
+    }
+
+    @Test
+    fun givenMultiplatformRestoreInProgress_whenCancelling_thenWaitsForCurrentPageBeforeCleanup() = runTest(dispatcher.default()) {
+        val pageStarted = CompletableDeferred<Unit>()
+        val finishPage = CompletableDeferred<Unit>()
+        val progressCallback = slot<(Float) -> Unit>()
+        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withCancellableMultiplatformRestore(pageStarted, finishPage, progressCallback)
+            .arrange()
+
+        backupAndRestoreViewModel.restorePasswordProtectedBackup()
+        advanceTimeBy(BackupAndRestoreViewModel.SMALL_DELAY + 1)
+        runCurrent()
+        pageStarted.await()
+
+        backupAndRestoreViewModel.cancelBackupRestore()
+        backupAndRestoreViewModel.cancelBackupRestore()
+        runCurrent()
+
+        assertEquals(BackupRestoreProgress.Cancelling, backupAndRestoreViewModel.state.backupRestoreProgress)
+        assertTrue(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
+
+        progressCallback.captured(0.75f)
+        assertEquals(BackupRestoreProgress.Cancelling, backupAndRestoreViewModel.state.backupRestoreProgress)
+
+        finishPage.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(BackupRestoreProgress.Cancelled, backupAndRestoreViewModel.state.backupRestoreProgress)
+        assertFalse(arrangement.fakeKaliumFileSystem.exists(backupAndRestoreViewModel.latestImportedBackupTempPath))
+    }
+
+    @Test
+    fun givenLegacyRestoreInProgress_whenCancelling_thenCancellationIsIgnored() = runTest(dispatcher.default()) {
+        val (_, backupAndRestoreViewModel) = Arrangement().arrange()
+        backupAndRestoreViewModel.state = backupAndRestoreViewModel.state.copy(
+            backupFileFormat = BackupFileFormat.ANDROID,
+            backupRestoreProgress = BackupRestoreProgress.InProgress(0.5f),
+        )
+
+        backupAndRestoreViewModel.cancelBackupRestore()
+        advanceUntilIdle()
+
+        assertEquals(BackupRestoreProgress.InProgress(0.5f), backupAndRestoreViewModel.state.backupRestoreProgress)
     }
 
     @Test
@@ -576,6 +627,29 @@ class BackupAndRestoreViewModelTest {
             viewModel.latestImportedBackupTempPath =
                 fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
             coEvery { importBackup(any(), any()) } returns RestoreBackupResult.Success
+        }
+
+        fun withCancellableMultiplatformRestore(
+            pageStarted: CompletableDeferred<Unit>,
+            finishPage: CompletableDeferred<Unit>,
+            progressCallback: io.mockk.CapturingSlot<(Float) -> Unit>,
+        ) = apply {
+            viewModel.latestImportedBackupTempPath =
+                fakeKaliumFileSystem.tempFilePath(BackupAndRestoreViewModel.TEMP_IMPORTED_BACKUP_FILE_NAME)
+            fakeKaliumFileSystem.sink(viewModel.latestImportedBackupTempPath).buffer().use {
+                it.write("someBackupData".toByteArray())
+            }
+            viewModel.state = viewModel.state.copy(
+                backupFileFormat = BackupFileFormat.MULTIPLATFORM,
+                restoreFileValidation = RestoreFileValidation.PasswordRequired,
+            )
+            coEvery { importMpBackup(any(), any(), capture(progressCallback)) } coAnswers {
+                pageStarted.complete(Unit)
+                withContext(NonCancellable) {
+                    finishPage.await()
+                }
+                RestoreBackupResult.Success
+            }
         }
 
         fun withRequestedPasswordDialog() = apply {

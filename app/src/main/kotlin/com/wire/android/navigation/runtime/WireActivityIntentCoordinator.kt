@@ -39,7 +39,11 @@ internal class WireActivityIntentCoordinator {
     val requests: Flow<WireActivityIntentRequest> = pendingRequests.receiveAsFlow()
 
     fun enqueue(intent: Intent?, savedInstanceState: Bundle? = null) {
-        check(pendingRequests.trySend(WireActivityIntentRequest(intent, savedInstanceState)).isSuccess) {
+        enqueue(WireActivityIntentRequest(intent, savedInstanceState))
+    }
+
+    fun enqueue(request: WireActivityIntentRequest) {
+        check(pendingRequests.trySend(request).isSuccess) {
             "WireActivity intent queue is unexpectedly closed"
         }
     }
@@ -108,6 +112,7 @@ internal class WireActivityIntentCoordinator {
 internal data class WireActivityIntentRequest(
     val intent: Intent?,
     val savedInstanceState: Bundle?,
+    val hasTrustedWireShareCaller: Boolean = false,
 )
 
 internal enum class WireActivityIntentEffect {

@@ -89,7 +89,11 @@ class NewConversationViewModelTest {
             .withGetSelfUser(isTeamMember = true)
             .withBackendConflict(listOf("a.example"), conversationId)
             .arrange()
-        coEvery { arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId) } coAnswers { completion.await() }
+        coEvery {
+            arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId)
+        } coAnswers {
+            completion.await()
+        }
         viewModel.createGroup()
         advanceUntilIdle()
 
@@ -113,7 +117,9 @@ class NewConversationViewModelTest {
             .withGetSelfUser(isTeamMember = true)
             .withBackendConflict(listOf("a.example"), conversationId)
             .arrange()
-        coEvery { arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId) } returnsMany listOf(false, true)
+        coEvery {
+            arrangement.createRegularGroup.discardPendingMLSGroupCreation(conversationId)
+        } returnsMany listOf(false, true)
         viewModel.createGroup()
         advanceUntilIdle()
 

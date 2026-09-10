@@ -41,13 +41,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.model.ClickBlockParams
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.SectionHeader
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.selfdeletion.SelfDeletionMapper.toSelfDeletionDuration
 import com.wire.android.ui.home.newconversation.channelaccess.ChannelAccessType
@@ -85,7 +88,16 @@ fun GroupConversationOptions(
         onReadReceiptSwitchClicked = viewModel::onReadReceiptUpdate,
         lazyListState = lazyListState,
         onEditGroupName = onEditGroupName,
+        onProtocolClicked = viewModel::onProtocolTapped,
     )
+
+    if (state.shouldShowMlsMigrationDialog) {
+        MlsMigrationConfirmationDialog(
+            isLoading = state.isMigratingToMLS,
+            onConfirm = viewModel::onMlsMigrationConfirmed,
+            onDismiss = viewModel::onMlsMigrationDialogDismissed,
+        )
+    }
 }
 
 @Composable
@@ -97,6 +109,7 @@ fun GroupConversationSettings(
     onSelfDeletingClicked: () -> Unit,
     onReadReceiptSwitchClicked: (Boolean) -> Unit,
     onEditGroupName: () -> Unit,
+    onProtocolClicked: () -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
@@ -220,7 +233,10 @@ fun GroupConversationSettings(
 
         folderWithItems(
             folderTitleResId = R.string.folder_label_protocol_details,
-            items = conversationProtocolDetailsItems(protocolInfo = state.protocolInfo),
+            items = conversationProtocolDetailsItems(
+                protocolInfo = state.protocolInfo,
+                onProtocolClicked = onProtocolClicked,
+            ),
         )
     }
 }
@@ -259,11 +275,16 @@ private fun <E> MutableList<E>.addIf(condition: Boolean, element: E) {
 
 private fun conversationProtocolDetailsItems(
     protocolInfo: Conversation.ProtocolInfo,
+    onProtocolClicked: () -> Unit,
 ): List<@Composable () -> Unit> = buildList {
     add {
         ProtocolDetails(
             label = UIText.StringResource(R.string.protocol),
-            text = UIText.DynamicString(protocolInfo.name())
+            text = UIText.DynamicString(protocolInfo.name()),
+            clickable = Clickable(
+                clickBlockParams = ClickBlockParams(debounceClicks = false),
+                onClick = onProtocolClicked,
+            ),
         )
     }
 
@@ -316,13 +337,43 @@ private fun GroupNameItem(
 }
 
 @Composable
-private fun ProtocolDetails(label: UIText, text: UIText) {
+private fun ProtocolDetails(label: UIText, text: UIText, clickable: Clickable = Clickable(enabled = false)) {
     GroupConversationOptionsItem(
         label = label.asString(),
         title = text.asString(),
-        arrowType = ArrowType.NONE
+        arrowType = ArrowType.NONE,
+        clickable = clickable,
     )
     HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
+}
+
+@Composable
+private fun MlsMigrationConfirmationDialog(
+    isLoading: Boolean,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    WireDialog(
+        title = stringResource(R.string.mls_migration_dialog_title),
+        text = stringResource(R.string.mls_migration_dialog_description),
+        onDismiss = onDismiss,
+        buttonsHorizontalAlignment = false,
+        properties = wireDialogPropertiesBuilder(
+            dismissOnBackPress = !isLoading,
+            dismissOnClickOutside = false,
+        ),
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onConfirm,
+            text = stringResource(R.string.mls_migration_dialog_confirm),
+            type = WireDialogButtonType.Primary,
+            loading = isLoading,
+        ),
+        dismissButtonProperties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(R.string.label_cancel),
+            state = if (isLoading) WireButtonState.Disabled else WireButtonState.Default,
+        ),
+    )
 }
 
 @Composable
@@ -422,6 +473,7 @@ private fun PreviewGroupConversationOptions(state: GroupConversationOptionsState
         onAppsAccessItemClicked = {},
         onReadReceiptSwitchClicked = {},
         onEditGroupName = {},
+        onProtocolClicked = {},
         modifier = Modifier,
         lazyListState = rememberLazyListState(),
         mlsReadReceiptsEnabled = false

@@ -35,6 +35,8 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
 import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
 import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -57,7 +59,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
@@ -88,6 +89,13 @@ class ConversationModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ConversationScope = coreLogic.getSessionScope(currentAccount).conversations
+
+    @Provides
+    @ViewModelScoped
+    fun provideMigrateConversationToMLSUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): MigrateConversationToMLSUseCase = coreLogic.getSessionScope(currentAccount).migrateConversationToMLS
 
     @ViewModelScoped
     @Provides

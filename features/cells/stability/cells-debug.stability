@@ -134,7 +134,7 @@ internal fun com.wire.android.feature.cells.ui.ConversationFilesRouteScreen(navi
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, currentNodeUuid: kotlin.String?, isSearchResult: kotlin.Boolean, actions: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, menu: kotlinx.coroutines.flow.SharedFlow<com.wire.android.feature.cells.ui.MenuOptions>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isDeleteInProgress: kotlin.Boolean, screenTitle: kotlin.String?, isRecycleBin: kotlin.Boolean, isRestoreInProgress: kotlin.Boolean, isOnline: kotlin.Boolean, breadcrumbs: kotlin.Array<kotlin.String>?, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>, sortingCriteria: com.wire.android.feature.cells.ui.search.sort.SortingCriteria, onSortByClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortBy, kotlin.Unit>, onSortOrderClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortingCriteria, kotlin.Unit>, showViewerAccessBanner: kotlin.Boolean, onViewerAccessBannerCloseClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, currentNodeUuid: kotlin.String?, isSearchResult: kotlin.Boolean, actions: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, menu: kotlinx.coroutines.flow.SharedFlow<com.wire.android.feature.cells.ui.MenuOptions>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isDeleteInProgress: kotlin.Boolean, screenTitle: kotlin.String?, isRecycleBin: kotlin.Boolean, isRestoreInProgress: kotlin.Boolean, isOnline: kotlin.Boolean, breadcrumbs: kotlin.Array<kotlin.String>?, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>, sortingCriteria: com.wire.android.feature.cells.ui.search.sort.SortingCriteria, onSortByClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortBy, kotlin.Unit>, onSortOrderClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortingCriteria, kotlin.Unit>, showViewerAccessBanner: kotlin.Boolean, drivePermissionsEnabled: kotlin.Boolean, onViewerAccessBannerCloseClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -161,6 +161,7 @@ internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(an
     - onSortByClicked: STABLE (function type)
     - onSortOrderClicked: STABLE (function type)
     - showViewerAccessBanner: STABLE (primitive type)
+    - drivePermissionsEnabled: STABLE (primitive type)
     - onViewerAccessBannerCloseClick: STABLE (function type)
 
 @Composable
@@ -255,43 +256,6 @@ internal fun com.wire.android.feature.cells.ui.addRemoveTagsViewModel(navArgs: c
   restartable: true
   params:
     - navArgs: UNSTABLE (has mutable properties or unstable members)
-
-@Composable
-internal fun com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerContent(state: com.wire.android.feature.cells.ui.audioplayer.AudioPlaybackState, fileName: kotlin.String?, onTogglePlayPause: kotlin.Function0<kotlin.Unit>, onSeek: kotlin.Function1<kotlin.Int, kotlin.Unit>, onStop: kotlin.Function0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - state: STABLE (class with no mutable properties)
-    - fileName: STABLE (class with no mutable properties)
-    - onTogglePlayPause: STABLE (function type)
-    - onSeek: STABLE (function type)
-    - onStop: STABLE (function type)
-    - onNavigateBack: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-internal fun com.wire.android.feature.cells.ui.audioplayer.CellAudioPlayerRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, viewModel: com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - onNavigateBack: STABLE (function type)
-    - viewModel: UNSTABLE (has mutable properties or unstable members)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.wire.android.feature.cells.ui.audioplayer.EqualizerBars(isPlaying: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - isPlaying: STABLE (primitive type)
-
-@Composable
-internal fun com.wire.android.feature.cells.ui.cellAudioPlayerViewModel(context: android.content.Context, navArgs: com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs): com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
-  skippable: false
-  restartable: true
-  params:
-    - context: RUNTIME (requires runtime check)
-    - navArgs: STABLE (class with no mutable properties)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.cellImageViewerViewModel(navArgs: com.wire.android.feature.cells.ui.imageviewer.CellImageViewerNavArgs): com.wire.android.feature.cells.ui.imageviewer.CellImageViewerViewModel

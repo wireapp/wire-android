@@ -74,6 +74,8 @@
     <string name="meeting_audio_permission_dialog_description">Чтобы присоединиться к встрече, разрешите приложению Wire доступ к микрофону в настройках вашего устройства.</string>
     <string name="delete_meeting_for_everyone_title">Удалить встречу для всех</string>
     <string name="delete_meeting_for_everyone_description">Встреча будет удалена для вас и всех остальных. Все участники будут уведомлены.</string>
+    <string name="delete_meeting_for_me_title">Удалить встречу для меня</string>
+    <string name="delete_meeting_for_me_description">Встреча будет удалена из календаря. Это не повлияет на других участников.</string>
     <string name="meeting_deleted_success">“%s” удалена</string>
     <string name="meeting_deleted_failure">При удалении встречи “%s” произошла ошибка</string>
     <string name="new_meeting_now_failure_title">Не удалось начать встречу</string>

@@ -569,6 +569,12 @@
     <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="channel_name_description">Give this channel a meaningful name.</string>
     <string name="protocol">Protocol</string>
+    <string name="mls_migration_dialog_title">Change protocol to MLS?</string>
+    <string name="mls_migration_dialog_description">The standard messaging protocol will change from Proteus to Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Change Protocol</string>
+    <string name="mls_migration_success">Conversation migrated to MLS successfully.</string>
+    <string name="mls_migration_failure">Conversation migration to MLS failed.</string>
+    <string name="mls_migration_failure_with_backend_error">Conversation migration to MLS failed (HTTP %1$d, label: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
@@ -1389,6 +1395,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_dialog_restoring_backup_title">Restoring backup...</string>
     <string name="backup_label_conversation_restored">Conversations have been restored</string>
     <string name="backup_label_loading_conversations">Loading conversations</string>
+    <string name="backup_label_cancelling">Cancelling...</string>
     <string name="backup_dialog_restore_backup_title">Restore from backup </string>
     <string name="backup_dialog_restore_backup_message">The existing history on this device remains and will be completed by the new backup. You can restore history from all your devices and different platforms but not from another account.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
@@ -1799,6 +1806,9 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="debug_settings_app_path_databases_dir" translatable="false">Databases dir</string>
     <string name="debug_settings_app_path_no_backup_dir" translatable="false">No backup dir</string>
     <string name="debug_settings_app_path_external_files_dir" translatable="false">External files dir</string>
+    <string name="debug_settings_entropy_sources" translatable="false">Entropy sources</string>
+    <string name="debug_settings_crypto_service_resolved" translatable="false">%1$s \u2014 %2$s %3$s</string>
+    <string name="debug_settings_crypto_services_empty" translatable="false">No crypto service could be resolved</string>
     <string name="debug_settings_security_providers_entry_count" translatable="false">%1$d entries</string>
     <string name="debug_settings_network" translatable="false">Network</string>
     <string name="debug_settings_network_vpn" translatable="false">VPN</string>

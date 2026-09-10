@@ -20,7 +20,11 @@ package com.wire.android.ui.debug.securityproviders
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.util.crypto.AppCryptoServiceInfo
+import com.wire.android.util.crypto.appCryptoServices
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.feature.debug.CryptoServiceUsage
+import com.wire.kalium.logic.feature.debug.GetCryptoServiceReportUseCase
 import com.wire.kalium.logic.feature.debug.GetSqlCipherVersionUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.network.NetworkStateObserver
@@ -37,6 +41,7 @@ import kotlinx.coroutines.withContext
 @OptIn(DebugKaliumApi::class)
 class SecurityProvidersViewModel @Inject constructor(
     private val appPathsProvider: AppPathsProvider,
+    private val getCryptoServiceReport: GetCryptoServiceReportUseCase,
     private val networkDiagnosticsProvider: NetworkDiagnosticsProvider,
     private val networkStateObserver: NetworkStateObserver,
     private val selfServerConfig: SelfServerConfigUseCase,
@@ -55,9 +60,13 @@ class SecurityProvidersViewModel @Inject constructor(
                     userDatabase = appPathsProvider.userDatabaseSecurityStatus(),
                 )
             }
+            val appServices = withContext(dispatchers.io()) { appCryptoServices() }
+            val cryptoServices = getCryptoServiceReport().map(CryptoServiceUsage::toRow) +
+                    appServices.map(AppCryptoServiceInfo::toRow)
             _state.update { current ->
                 current.copy(
                     appPaths = appPathsProvider(),
+                    cryptoServices = cryptoServices,
                     databaseSecurity = databaseSecurity
                 )
             }
@@ -84,10 +93,36 @@ class SecurityProvidersViewModel @Inject constructor(
     }
 }
 
+private fun AppCryptoServiceInfo.toRow() = CryptoServiceRow(
+    label = name,
+    lookup = lookup,
+    algorithm = algorithm,
+    providerName = providerName,
+    providerVersion = providerVersion,
+)
+
+@OptIn(DebugKaliumApi::class)
+private fun CryptoServiceUsage.toRow() = CryptoServiceRow(
+    label = name,
+    lookup = lookup,
+    algorithm = algorithm,
+    providerName = providerName,
+    providerVersion = providerVersion,
+)
+
+/** One cryptographic lookup, and the provider that serves it on this device. */
+data class CryptoServiceRow(
+    val label: String,
+    val lookup: String,
+    val algorithm: String,
+    val providerName: String,
+    val providerVersion: String,
+)
+
 data class SecurityProvidersViewState(
-    val appPaths: List<AppPathEntry> = emptyList(),
+    val appPaths: List<LabelledValue> = emptyList(),
     val network: NetworkDiagnostics? = null,
-    val providers: List<SecurityProvider>? = null,
+    val cryptoServices: List<CryptoServiceRow>? = null,
     val databaseSecurity: DatabaseSecurityInfo? = null,
 )
 

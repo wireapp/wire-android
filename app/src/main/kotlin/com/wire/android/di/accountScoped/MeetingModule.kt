@@ -22,6 +22,8 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
+import com.wire.kalium.logic.feature.meeting.DeleteMeetingForEveryoneUseCase
+import com.wire.kalium.logic.feature.meeting.DeleteMeetingForMeUseCase
 import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.GetPaginatedMeetingOccurrencesUseCase
@@ -48,8 +50,12 @@ class MeetingModule {
         meetingScope.observeMeetingOccurrence
 
     @Provides
-    fun provideDeleteMeetingUseCase(meetingScope: MeetingScope): com.wire.kalium.logic.feature.meeting.DeleteMeetingUseCase =
-        meetingScope.deleteMeeting
+    fun provideDeleteMeetingForEveryoneUseCase(meetingScope: MeetingScope): DeleteMeetingForEveryoneUseCase =
+        meetingScope.deleteMeetingForEveryone
+
+    @Provides
+    fun provideDeleteMeetingForMeUseCase(meetingScope: MeetingScope): DeleteMeetingForMeUseCase =
+        meetingScope.deleteMeetingForMe
 
     @Provides
     fun provideCreateNewMeetingUseCase(meetingScope: MeetingScope): CreateNewMeetingUseCase =

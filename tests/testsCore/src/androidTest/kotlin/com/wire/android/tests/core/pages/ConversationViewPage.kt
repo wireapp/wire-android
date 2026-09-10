@@ -759,6 +759,26 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapLinkInCurrentConversation(link: String): ConversationViewPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = link)).click()
+        return this
+    }
+
+    fun assertLinkOpeningAlertVisible(link: String): ConversationViewPage {
+        val alertText = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = "This will take you to")
+        ).text.orEmpty()
+        if (!alertText.contains(link)) {
+            throw AssertionError("Link opening alert does not contain '$link'.")
+        }
+        return this
+    }
+
+    fun tapOpenButtonOnLinkAlert(): ConversationViewPage {
+        UiWaitUtils.waitElement(openButton).click()
+        return this
+    }
+
     fun assertSystemMessageVisible(message: String) = apply { waitElement(UiSelectorParams(textContains = message)) }
 
     fun assertVisibleMentionedNameIs(mentionedName: String): ConversationViewPage {

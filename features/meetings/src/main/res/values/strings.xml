@@ -73,6 +73,8 @@
     <string name="meeting_audio_permission_dialog_description">To join a meeting, allow Wire to access your microphone in your device settings.</string>
     <string name="delete_meeting_for_everyone_title">Delete meeting for everyone</string>
     <string name="delete_meeting_for_everyone_description">The meeting will be deleted for you and everybody else. All participants will be notified.</string>
+    <string name="delete_meeting_for_me_title">Delete meeting for me</string>
+    <string name="delete_meeting_for_me_description">The meeting will be deleted from your calendar. This will not affect other participants.</string>
     <string name="meeting_deleted_success">“%s” deleted</string>
     <string name="meeting_deleted_failure">There was an error while deleting meeting “%s”</string>
     <string name="new_meeting_now_failure_title">Could not start meeting</string>

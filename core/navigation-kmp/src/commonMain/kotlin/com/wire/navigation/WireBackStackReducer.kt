@@ -57,7 +57,7 @@ fun reduceBackStack(
 private fun MutableList<WireRoute>.removeCurrentFlow() {
     val currentFlowId = lastOrNull()?.flowId ?: return
     while (lastOrNull()?.flowId == currentFlowId) {
-        removeLast()
+        removeAt(lastIndex)
     }
 }
 
@@ -71,7 +71,7 @@ private fun MutableList<WireRoute>.removeFromFirst(routeId: String) {
 private fun MutableList<WireRoute>.removeConsecutiveRoutesFromTop() {
     val currentRouteId = lastOrNull()?.routeId ?: return
     while (lastOrNull()?.routeId == currentRouteId) {
-        removeLast()
+        removeAt(lastIndex)
     }
 }
 

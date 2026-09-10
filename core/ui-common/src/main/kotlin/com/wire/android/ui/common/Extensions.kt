@@ -81,7 +81,11 @@ fun rememberClickBlockAction(clickBlockParams: ClickBlockParams, clickAction: ()
                 clickBlockParams.blockWhenSyncing && syncStateObserver.isSyncing ->
                     Toast.makeText(context, waitUntilSynchronised, Toast.LENGTH_SHORT).show()
 
-                else -> clickerHandler.ensureSingleClick { clickAction() }
+                else -> if (clickBlockParams.debounceClicks) {
+                    clickerHandler.ensureSingleClick { clickAction() }
+                } else {
+                    clickAction()
+                }
             }
         }
     }

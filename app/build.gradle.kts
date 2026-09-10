@@ -184,6 +184,7 @@ dependencies {
     implementation(libs.kermit.io)
 
     implementation("com.wire.kalium:kalium-logic")
+    implementation("com.wire.kalium:kalium-network")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
     androidTestImplementation("com.wire.kalium:kalium-mocks")

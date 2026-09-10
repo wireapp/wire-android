@@ -74,7 +74,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
             isFavorite = conversationDetails.isFavorite,
-            folder = conversationDetails.folder
+            folder = conversationDetails.folder,
+            isSelfUserViewerOnly = conversationDetails.isSelfUserViewerOnly(selfUserTeamId)
         )
     }
 
@@ -101,7 +102,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
             hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
-            isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE
+            isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE,
+            isSelfUserViewerOnly = conversationDetails.isSelfUserViewerOnly(selfUserTeamId)
         )
     }
 
@@ -185,6 +187,13 @@ private fun Group.hasJoinableCall(joinableCallsByConversationId: Map<Conversatio
     joinableCallsByConversationId.containsKey(conversation.id) && isSelfUserMember
 
 private fun Boolean.withJoinableCall(hasJoinableCall: Boolean): Boolean = this || hasJoinableCall
+
+/**
+ * The self user only has viewer access when the conversation has a shared drive (Wire Cell)
+ * and the conversation is not owned by the self user's team.
+ */
+private fun Group.isSelfUserViewerOnly(selfUserTeamId: TeamId?): Boolean =
+    wireCell != null && conversation.teamId != selfUserTeamId
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) {

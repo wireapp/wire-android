@@ -14,7 +14,7 @@
             "link_preview_enabled": true
         },
         "dev": {
-            "application_id": "com.waz.zclient.dev",
+            "application_id": "com.wire.android.dev",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,

@@ -22,6 +22,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -154,61 +155,62 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(loader)
 
         // First call — triggers download
-        resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, Dispatchers.Default)
+        resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, dispatcher = Dispatchers.Default)
         // Second call — should use cache
-        val result = resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, Dispatchers.Default)
+        val result = resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, dispatcher = Dispatchers.Default)
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) { loader.load(any(), any(), any(), any(), any()) }
     }
 
     @Test
-    fun givenATruncatedDownload_whenResolving_thenItFailsAndNothingIsCached() = runTest {
-        val loader = writingLoader(bytes = 8)
+    fun givenADownload_whenResolving_thenTheLoaderWritesStraightToTheCachedPath() = runTest {
+        val loader = writingLoader(bytes = 4096)
         val resolver = resolver(loader)
 
-        // Promoting a short file would poison the cache: every later open would fail.
-        val result = resolver.resolve(null, "asset-short", "/cells/path/doc.pdf", null, 4096L, Dispatchers.Default)
+        val result = resolver.resolve(null, "asset-full", "/cells/path/doc.pdf", null, 4096L, dispatcher = Dispatchers.Default)
 
-        assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
-
-        val second = resolver.resolve(null, "asset-short", "/cells/path/doc.pdf", null, 4096L, Dispatchers.Default)
-        assertTrue(second.isFailure)
-        coVerify(exactly = 2) { loader.load(any(), any(), any(), any(), any()) }
-    }
-
-    @Test
-    fun givenACompleteDownload_whenResolving_thenItSucceeds() = runTest {
-        val resolver = resolver(writingLoader(bytes = 4096))
-
-        val result = resolver.resolve(null, "asset-full", "/cells/path/doc.pdf", null, 4096L, Dispatchers.Default)
-
+        // The path handed to the loader is recorded in the attachments DB by
+        // DownloadCellFileUseCase, so it must be the final one -- no staging, no rename.
+        val outFile = slot<File>()
+        coVerify { loader.load(any(), any(), any(), any(), capture(outFile)) }
+        assertEquals(outFile.captured, result.getOrNull())
         assertTrue(result.isSuccess)
+        assertTrue(outFile.captured.name.endsWith(".pdf"), "was ${outFile.captured.name}")
         assertEquals(4096L, result.getOrNull()?.length())
     }
 
     @Test
-    fun givenACachedAsset_whenInvalidated_thenTheNextResolveDownloadsAgain() = runTest {
-        val loader = writingLoader(bytes = 8)
-        val resolver = resolver(loader)
+    fun givenAFailedDownload_whenResolving_thenAnyPreviouslyCachedCopyIsLeftAlone() = runTest {
+        val good = writingLoader(bytes = 4096)
+        val cached = resolver(good)
+            .resolve(null, "asset-keep", "/cells/path/doc.pdf", null, 0L, dispatcher = Dispatchers.Default)
+            .getOrNull()
 
-        resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, Dispatchers.Default)
-        resolver.invalidate("asset-abc", Dispatchers.Default)
-        val result = resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, Dispatchers.Default)
+        val failing = mockk<PdfRemoteLoader> {
+            coEvery { load(any(), any(), any(), any(), any()) } returns Result.failure(Exception("offline"))
+        }
+        val result = resolver(failing)
+            .resolve(null, "asset-keep", "/cells/path/doc.pdf", null, 0L, forceRefresh = true, dispatcher = Dispatchers.Default)
 
-        assertTrue(result.isSuccess)
-        coVerify(exactly = 2) { loader.load(any(), any(), any(), any(), any()) }
+        // Deleting it would strand the path DownloadCellFileUseCase already wrote to the DB.
+        assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
+        assertTrue(cached?.exists() == true)
     }
 
     @Test
-    fun givenALocalFile_whenInvalidating_thenThatFileIsLeftAlone() = runTest {
-        val document = File(tempDir, "document.pdf").apply { writeText("%PDF-1.4") }
-        val resolver = resolver()
+    fun givenACachedAsset_whenForcingARefresh_thenItIsDownloadedAgain() = runTest {
+        val loader = writingLoader(bytes = 8)
+        val resolver = resolver(loader)
 
-        // invalidate() must only ever touch this module's cache, never a caller's own download.
-        resolver.invalidate("document", Dispatchers.Default)
+        resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, dispatcher = Dispatchers.Default)
+        val result = resolver.resolve(
+            null, "asset-abc", "/cells/path/doc.pdf", null, 0L,
+            forceRefresh = true, dispatcher = Dispatchers.Default,
+        )
 
-        assertTrue(document.exists())
+        assertTrue(result.isSuccess)
+        coVerify(exactly = 2) { loader.load(any(), any(), any(), any(), any()) }
     }
 
     private fun writingLoader(bytes: Int): PdfRemoteLoader = mockk {

@@ -73,7 +73,7 @@ internal class PdfViewerViewModelTest {
 
         assertEquals(PdfViewerState.Failure(PdfViewerError.DOWNLOAD_FAILED), viewModel.state.value)
         verify(exactly = 0) { openPdfDocument(any()) }
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -199,7 +199,7 @@ internal class PdfViewerViewModelTest {
         viewModel.retry()
 
         assertEquals(PdfViewerState.Content(pageCount = 3, firstPageAspectRatio = TEST_ASPECT_RATIO), viewModel.state.value)
-        coVerify(exactly = 2) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 2) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -211,7 +211,7 @@ internal class PdfViewerViewModelTest {
 
         assertEquals(PdfViewerState.Loading, viewModel.state.value)
         viewModel.retry()
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any()) }
 
         gate.complete(Unit)
 
@@ -219,39 +219,33 @@ internal class PdfViewerViewModelTest {
             PdfViewerState.Content(pageCount = DEFAULT_PAGE_COUNT, firstPageAspectRatio = TEST_ASPECT_RATIO),
             viewModel.state.value,
         )
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
-    fun `given the downloaded file cannot be opened, when loading, then the cached copy is evicted`() = runTest {
+    fun `given the initial load, when resolving, then the cached copy is used`() = runTest {
+        val (arrangement, _) = Arrangement().arrange()
+
+        coVerify(exactly = 1) {
+            arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), false, any())
+        }
+    }
+
+    @Test
+    fun `given an unopenable document, when retrying, then the file is downloaded again`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withOpenFailure(IOException("truncated"))
             .arrange()
 
-        // Without the eviction the same unusable bytes would be re-opened on every retry.
         assertEquals(PdfViewerState.Failure(PdfViewerError.INVALID_DOCUMENT), viewModel.state.value)
-        coVerify(exactly = 1) { arrangement.sourceResolver.invalidate(any(), any()) }
-    }
 
-    @Test
-    fun `given a document without pages, when loading, then the cached copy is evicted`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withPageCount(0)
-            .arrange()
+        viewModel.retry()
 
-        assertEquals(PdfViewerState.Failure(PdfViewerError.INVALID_DOCUMENT), viewModel.state.value)
-        coVerify(exactly = 1) { arrangement.sourceResolver.invalidate(any(), any()) }
-    }
-
-    @Test
-    fun `given the source cannot be resolved, when loading, then no eviction is attempted`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withResolveFailure(PdfViewerError.FILE_NOT_FOUND)
-            .arrange()
-
-        // Nothing was downloaded, so there is nothing to evict.
-        assertEquals(PdfViewerState.Failure(PdfViewerError.FILE_NOT_FOUND), viewModel.state.value)
-        coVerify(exactly = 0) { arrangement.sourceResolver.invalidate(any(), any()) }
+        // Re-downloading is the only recovery available: the cached file cannot be deleted here
+        // because DownloadCellFileUseCase records its path in the attachments DB.
+        coVerify(exactly = 1) {
+            arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), true, any())
+        }
     }
 
     private class Arrangement {
@@ -268,21 +262,20 @@ internal class PdfViewerViewModelTest {
             every { document.pageCount } returns DEFAULT_PAGE_COUNT
             every { document.aspectRatio(any()) } returns TEST_ASPECT_RATIO
             every { document.renderPage(any(), any()) } returns bitmap
-            coEvery { sourceResolver.invalidate(any(), any()) } returns Unit
             withResolveSuccess()
         }
 
         fun withResolveSuccess() = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any()) } returns Result.success(file)
+            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any()) } returns Result.success(file)
         }
 
         fun withResolveFailure(error: PdfViewerError) = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any()) } returns
+            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any()) } returns
                     Result.failure(PdfSourceException(error))
         }
 
         fun withResolveGatedBy(gate: CompletableDeferred<Unit>) = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any()) } coAnswers {
                 gate.await()
                 Result.success(file)
             }

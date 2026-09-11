@@ -89,7 +89,7 @@ class PdfViewerViewModel @AssistedInject constructor(
 
     fun retry() {
         if (_state.value is PdfViewerState.Loading) return
-        load()
+        load(forceRefresh = true)
     }
 
     /**
@@ -111,26 +111,33 @@ class PdfViewerViewModel @AssistedInject constructor(
         return rendered
     }
 
-    private fun load() {
+    private fun load(forceRefresh: Boolean = false) {
         loadJob?.cancel()
         closeDocument()
         _state.value = PdfViewerState.Loading
         loadJob = viewModelScope.launch {
-            val file = sourceResolver.resolve(localPath, assetId, remotePath, conversationId, assetSize, dispatchers.io())
+            val file = sourceResolver.resolve(
+                localPath = localPath,
+                assetId = assetId,
+                remotePath = remotePath,
+                conversationId = conversationId,
+                assetSize = assetSize,
+                forceRefresh = forceRefresh,
+                dispatcher = dispatchers.io(),
+            ).getOrElse { cause ->
+                _state.value = PdfViewerState.Failure(cause.toViewerError())
+                return@launch
+            }
+
+            val opened = withContext(dispatchers.io()) { openPdfDocument(file) }
                 .getOrElse { cause ->
                     _state.value = PdfViewerState.Failure(cause.toViewerError())
                     return@launch
                 }
 
-            val opened = withContext(dispatchers.io()) { openPdfDocument(file) }
-                .getOrElse { cause ->
-                    failAfterUnusableDownload(cause.toViewerError())
-                    return@launch
-                }
-
             if (opened.pageCount == 0) {
                 opened.close()
-                failAfterUnusableDownload(PdfViewerError.INVALID_DOCUMENT)
+                _state.value = PdfViewerState.Failure(PdfViewerError.INVALID_DOCUMENT)
                 return@launch
             }
 
@@ -142,15 +149,6 @@ class PdfViewerViewModel @AssistedInject constructor(
                 firstPageAspectRatio = firstPageAspectRatio,
             )
         }
-    }
-
-    /**
-     * Reports [error] and evicts the cached download, so that retrying fetches the file again
-     * instead of re-opening the same unusable bytes forever.
-     */
-    private suspend fun failAfterUnusableDownload(error: PdfViewerError) {
-        sourceResolver.invalidate(assetId, dispatchers.io())
-        _state.value = PdfViewerState.Failure(error)
     }
 
     private fun closeDocument() {

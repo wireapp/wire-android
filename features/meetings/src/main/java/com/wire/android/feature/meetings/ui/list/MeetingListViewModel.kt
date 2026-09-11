@@ -104,7 +104,7 @@ class MeetingListViewModelImpl @AssistedInject constructor(
             pagingDateAndTimeZone.value = currentTime.toLocalDateTime(currentTimeZone).date to currentTimeZone
         }
 
-    private val pagingDataFlow = pagingDateAndTimeZone  // refresh whole list when local date or time zone changes
+    private val pagingDataFlow = pagingDateAndTimeZone // refresh whole list when local date or time zone changes
         .flatMapLatest {
             getMeetingsPaginated(type = type)
         }

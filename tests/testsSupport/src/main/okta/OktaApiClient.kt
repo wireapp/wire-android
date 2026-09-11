@@ -21,6 +21,7 @@
 package okta
 
 import android.content.Context
+import backendUtils.BackendClient
 import com.wire.android.testSupport.BuildConfig
 import com.wire.android.testSupport.R
 import org.json.JSONArray
@@ -46,10 +47,8 @@ class OktaApiClient {
 
     companion object {
         @JvmStatic
-        fun getFinalizeUrlDependingOnBackend(backendUrl: String): String {
-            val trimmed = backendUrl.removeSuffix("/")
-            return "$trimmed/sso/finalize-login"
-        }
+        fun getFinalizeUrlDependingOnBackend(backend: BackendClient): String =
+            with(backend) { "sso/finalize-login".composeUnversionedUrl() }
     }
 
     // ───────────────────── Retry wrapper ─────────────────────

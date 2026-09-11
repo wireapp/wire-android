@@ -32,8 +32,8 @@ import java.net.URL
 
 suspend fun BackendClient.sendConnectionRequest(fromUser: ClientUser, toUser: ClientUser) {
     val token = getAuthToken(fromUser)
-    val url =
-        URL("connections/${BackendClient.loadBackend(toUser.backendName.orEmpty()).domain}/${toUser.id}".composeCompleteUrl())
+    val targetDomain = BackendClient.loadBackend(toUser.backendName.orEmpty()).domain
+    val url = URL("connections/$targetDomain/${toUser.id}".composePublicApiUrl())
 
     val headers = defaultheaders.toMutableMap().apply {
         put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
@@ -50,7 +50,7 @@ suspend fun BackendClient.sendConnectionRequest(fromUser: ClientUser, toUser: Cl
     } catch (e: Exception) {
         if (e.message?.contains("404") == true) {
             // Fallback to old endpoint
-            val fallbackUrl = URL("connections".composeCompleteUrl())
+            val fallbackUrl = URL("connections".composePublicApiUrl())
             val requestBody = JSONObject().apply {
                 put("user", toUser.id)
                 put("name", toUser.name)
@@ -134,7 +134,7 @@ private suspend fun BackendClient.getAllConnections(user: ClientUser): List<Conn
 }
 
 private fun BackendClient.getConnectionsInfo(token: AccessToken?, pagingState: String?): JSONObject {
-    val url = URL("list-connections".composeCompleteUrl())
+    val url = URL("list-connections".composePublicApiUrl())
 
     val headers = defaultheaders.toMutableMap().apply {
         put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
@@ -157,7 +157,7 @@ private fun BackendClient.getConnectionsInfo(token: AccessToken?, pagingState: S
         e.printStackTrace()
         if (e.message?.contains("404") == true) {
             // Fallback for old backend
-            val fallbackUrl = URL("connections".composeCompleteUrl())
+            val fallbackUrl = URL("connections".composePublicApiUrl())
             val output = NetworkBackendClient.sendJsonRequestWithCookies(
                 url = fallbackUrl,
                 method = "GET",
@@ -178,7 +178,7 @@ suspend fun BackendClient.changeConnectRequestStatus(
     newStatus: ConnectionStatus
 ) {
     val token = getAuthToken(asUser)
-    val url = URL("connections/$domain/$connectionId".composeCompleteUrl())
+    val url = URL("connections/$domain/$connectionId".composePublicApiUrl())
 
     val headers = defaultheaders.toMutableMap().apply {
         put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
@@ -199,7 +199,7 @@ suspend fun BackendClient.changeConnectRequestStatus(
     } catch (e: Exception) {
         if (e.message?.contains("404") == true) {
             // fallback for old backend
-            val fallbackUrl = URL("connections/$connectionId".composeCompleteUrl())
+            val fallbackUrl = URL("connections/$connectionId".composePublicApiUrl())
             NetworkBackendClient.sendJsonRequestWithCookies(
                 url = fallbackUrl,
                 method = "PUT",

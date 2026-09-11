@@ -33,7 +33,7 @@ import java.net.URI
 
 fun BackendClient.getBackendClientIds(forUser: ClientUser): List<String> {
     val token = runBlocking { getAuthToken(forUser) }
-    val url = URI("clients".composeCompleteUrl()).toURL()
+    val url = URI("clients".composePublicApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")
@@ -60,7 +60,7 @@ fun BackendClient.getBackendClientIds(forUser: ClientUser): List<String> {
 
 fun BackendClient.removeBackendClient(forUser: ClientUser, clientId: String) {
     val token = runBlocking { getAuthToken(forUser) }
-    val url = URI("clients/$clientId".composeCompleteUrl()).toURL()
+    val url = URI("clients/$clientId".composePublicApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")

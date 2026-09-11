@@ -41,7 +41,7 @@ data class ConversationInfoViewState(
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
     val accentId: Int = -1,
     val isWireCellEnabled: Boolean = false,
-    val notFound: Boolean = false,
+    val initialLoadingState: InitialLoadingState = InitialLoadingState.LOADING,
 ) {
     val showHistoryLoadingIndicator: Boolean get() = conversationType == Conversation.Type.Group.Channel
 }
@@ -75,3 +75,5 @@ sealed interface ConversationAvatar {
         data class Channel(override val conversationId: QualifiedID, val isPrivate: Boolean) : Group
     }
 }
+
+enum class InitialLoadingState { LOADING, LOADED, NOT_FOUND, OPENING_MEETINGS_UNSUPPORTED }

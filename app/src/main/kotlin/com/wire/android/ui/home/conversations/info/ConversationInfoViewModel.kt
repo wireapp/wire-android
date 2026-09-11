@@ -99,17 +99,28 @@ class ConversationInfoViewModel @AssistedInject constructor(
         when (this) {
             is ObserveConversationDetailsUseCase.Result.Failure -> {
                 when (val failure = this.storageFailure) {
-                    is StorageFailure.DataNotFound ->
-                        conversationInfoViewState = conversationInfoViewState.copy(notFound = true)
+                    is StorageFailure.DataNotFound -> {
+                        appLogger.e("Data could not be found when fetching details of the conversation")
+                        conversationInfoViewState = conversationInfoViewState.copy(initialLoadingState = InitialLoadingState.NOT_FOUND)
+                    }
 
-                    is StorageFailure.Generic ->
+                    is StorageFailure.Generic -> {
                         appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
+                        conversationInfoViewState = conversationInfoViewState.copy(initialLoadingState = InitialLoadingState.NOT_FOUND)
+                    }
                 }
             }
 
-            is ObserveConversationDetailsUseCase.Result.Success -> handleConversationDetails(
-                this.conversationDetails
-            )
+            is ObserveConversationDetailsUseCase.Result.Success -> when {
+                this.conversationDetails.conversation.type is Conversation.Type.Group.Meeting -> {
+                    appLogger.w("Meeting conversation type is not supported in ConversationInfoViewModel")
+                    conversationInfoViewState = conversationInfoViewState.copy(
+                        initialLoadingState = InitialLoadingState.OPENING_MEETINGS_UNSUPPORTED
+                    )
+                }
+
+                else -> handleConversationDetails(this.conversationDetails)
+            }
         }
     }
 
@@ -119,7 +130,7 @@ class ConversationInfoViewModel @AssistedInject constructor(
         val (isConversationUnavailable, _) = when (conversationDetails) {
             is ConversationDetails.OneOne ->
                 conversationDetails.otherUser
-                .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
+                    .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
 
             else -> false to false
         }
@@ -139,6 +150,7 @@ class ConversationInfoViewModel @AssistedInject constructor(
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             accentId = getAccentId(conversationDetails),
             isWireCellEnabled = wireCellEnabled && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
+            initialLoadingState = InitialLoadingState.LOADED,
         )
     }
 

@@ -328,7 +328,7 @@ class ConversationInfoViewModelTest {
     }
 
     @Test
-    fun `given conversation details are not found, when observing details, then call onNotFound`() = runTest {
+    fun `given conversation details are not found, when observing details, then set NOT_FOUND state`() = runTest {
         // Given
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailFailure(StorageFailure.DataNotFound)
@@ -336,7 +336,22 @@ class ConversationInfoViewModelTest {
         launch { viewModel.observeConversationDetails() }.run {
             advanceUntilIdle()
             // When - Then
-            assertEquals(true, viewModel.conversationInfoViewState.notFound)
+            assertEquals(InitialLoadingState.NOT_FOUND, viewModel.conversationInfoViewState.initialLoadingState)
+            cancel()
+        }
+    }
+
+    @Test
+    fun `given meeting type conversation, when observing details, then set OPENING_MEETINGS_UNSUPPORTED state`() = runTest {
+        // Given
+        val meetingConversationDetails = mockConversationDetailsGroup(conversationName = "Meeting", type = Conversation.Type.Group.Meeting)
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withConversationDetailUpdate(meetingConversationDetails)
+            .arrange()
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            // When - Then
+            assertEquals(InitialLoadingState.OPENING_MEETINGS_UNSUPPORTED, viewModel.conversationInfoViewState.initialLoadingState)
             cancel()
         }
     }

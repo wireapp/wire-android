@@ -17,6 +17,9 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.content.Intent
+import android.net.Uri
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.Assert.assertTrue
@@ -28,10 +31,17 @@ import kotlin.time.Duration.Companion.seconds
 data class CommonAppPage(private val device: UiDevice) {
     private val teamSettingsChangedAlert = UiSelectorParams(textContains = "Team Settings Changed")
     private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
+    private val wireEnterpriseAlert = UiSelectorParams(textContains = "Wire Enterprise")
+    private val learnMoreWireEnterpriseLink = UiSelectorParams(textContains = "Learn more about Wire")
+    private val upgradeNowButton = UiSelectorParams(text = "Upgrade now")
     private val okButton = UiSelectorParams(text = "OK")
+    private val cancelButton = UiSelectorParams(text = "Cancel")
     private val closeWebPageButton = UiSelectorParams(description = "Close tab")
+    private val joinConversationButton = UiSelectorParams(text = "Join")
 
     private fun teamSettingsChangedAlertSubtext(text: String) = UiSelectorParams(textContains = text)
+
+    private fun wireEnterpriseAlertText(text: String) = UiSelectorParams(textContains = text)
 
     fun assertTeamSettingsChangedAlertVisible(): CommonAppPage {
         val alert = UiWaitUtils.waitElement(teamSettingsChangedAlert)
@@ -45,8 +55,36 @@ data class CommonAppPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertWireEnterpriseAlertVisible(): CommonAppPage {
+        val alert = UiWaitUtils.waitElement(wireEnterpriseAlert)
+        assertTrue("Wire Enterprise alert is not visible", !alert.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertWireEnterpriseAlertTextVisible(text: String): CommonAppPage {
+        val alertText = UiWaitUtils.waitElement(wireEnterpriseAlertText(text))
+        assertTrue("Wire Enterprise alert text is not visible", !alertText.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapLearnMoreWireEnterpriseLink(): CommonAppPage {
+        UiWaitUtils.waitElement(learnMoreWireEnterpriseLink).click()
+        return this
+    }
+
+    fun tapUpgradeNowButtonOnEnterpriseAlert(): CommonAppPage {
+        UiWaitUtils.waitElement(upgradeNowButton).click()
+        return this
+    }
+
     fun tapOkButtonOnAlert(): CommonAppPage {
         UiWaitUtils.waitElement(okButton).click()
+        device.waitForIdle()
+        return this
+    }
+
+    fun tapCancelButtonOnAlert(): CommonAppPage {
+        UiWaitUtils.waitElement(cancelButton).click()
         device.waitForIdle()
         return this
     }
@@ -108,6 +146,22 @@ data class CommonAppPage(private val device: UiDevice) {
             closeWebPageButton,
             timeout = UiWaitUtils.SHORT_WAIT
         ).click()
+        return this
+    }
+
+    fun openDeepLink(deepLinkUrl: String): CommonAppPage {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(deepLinkUrl)
+            setPackage(UiAutomatorSetup.appPackage)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+        return this
+    }
+
+    fun tapJoinConversationButton(): CommonAppPage {
+        UiWaitUtils.waitElement(joinConversationButton).click()
         return this
     }
 

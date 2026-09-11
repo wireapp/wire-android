@@ -24,9 +24,12 @@ import backendUtils.connection.acceptIncomingConnectionRequest
 import backendUtils.connection.sendConnectionRequest
 import backendUtils.conversation.addUsersToGroupConversation
 import backendUtils.conversation.createChannelTeamConversation
+import backendUtils.conversation.createGroupConversation
+import backendUtils.conversation.createInviteLink
 import backendUtils.conversation.createTeamConversation
 import backendUtils.conversation.deleteTeamConversation
 import backendUtils.conversation.getConversationByName
+import backendUtils.conversation.getInviteLink
 import backendUtils.conversation.removeUserFromGroupConversation
 import backendUtils.conversation.setArchivedStateForConversation
 import backendUtils.team.addServiceToConversation
@@ -302,6 +305,46 @@ class BackendSetupHelper(
             val dstTeam = backend.getTeamByName(chatOwner, teamName)
             backend.createTeamConversation(chatOwner, participants, chatName, dstTeam)
         }
+    }
+
+    fun userHasGroupConversationAsPersonalUser(
+        chatOwnerNameAlias: String,
+        chatName: String,
+        otherParticipantsNameAliases: String
+    ) {
+        val chatOwner = toClientUser(chatOwnerNameAlias)
+        val participants = usersManager
+            .splitAliases(otherParticipantsNameAliases)
+            .map(this::toClientUser)
+        val backend = backendFor(chatOwner)
+
+        runBlocking {
+            backend.createGroupConversation(chatOwner, participants, chatName)
+        }
+    }
+
+    fun userCreatesInviteLink(userNameAlias: String, conversationName: String) {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+
+        runBlocking {
+            backend.createInviteLink(user, conversation)
+        }
+    }
+
+    fun getClientDeepLinkForPublicConversation(userNameAlias: String, conversationName: String): String {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+        val inviteLink = runBlocking {
+            backend.getInviteLink(user, conversation)
+        }
+        val conversationJoinIndex = inviteLink.indexOf("conversation-join")
+        require(conversationJoinIndex >= 0) {
+            "Invite link does not contain a conversation-join path."
+        }
+        return "wire://${inviteLink.substring(conversationJoinIndex)}"
     }
 
     fun userHasChannelConversationInTeam(

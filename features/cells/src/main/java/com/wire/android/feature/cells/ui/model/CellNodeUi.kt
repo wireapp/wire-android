@@ -66,7 +66,7 @@ sealed class CellNodeUi {
         override val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
 
-    data class File internal constructor(
+    data class File(
         override val name: String?,
         override val uuid: String,
         override val userName: String?,

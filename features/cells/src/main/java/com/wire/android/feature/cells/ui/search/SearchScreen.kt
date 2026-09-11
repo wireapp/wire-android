@@ -40,8 +40,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
+import com.wire.android.feature.cells.ui.CellScreenContent
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.search.filter.FilterChipsRow
@@ -50,7 +50,6 @@ import com.wire.android.feature.cells.ui.search.filter.bottomsheet.conversation.
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.owner.FilterByOwnerBottomSheet
 import com.wire.android.feature.cells.ui.search.filter.bottomsheet.tags.FilterByTagsBottomSheet
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
-import com.wire.android.feature.cells.ui.searchScreenViewModel
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.bottomsheet.WireSheetValue

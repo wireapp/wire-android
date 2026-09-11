@@ -41,7 +41,14 @@ data class MultipartAttachmentUi(
     val progress: Float? = null,
     val isEditSupported: Boolean = false,
     val isAvailableOffline: Boolean = false,
+    val openLoadState: MultipartAttachmentOpenLoadState? = null,
 )
+
+sealed interface MultipartAttachmentOpenLoadState {
+    data class Loading(val progress: Float? = null) : MultipartAttachmentOpenLoadState
+    data class Ready(val localPath: String) : MultipartAttachmentOpenLoadState
+    data object Error : MultipartAttachmentOpenLoadState
+}
 
 enum class AssetSource {
     CELL, ASSET_STORAGE

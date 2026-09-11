@@ -5256,7 +5256,7 @@ public fun com.wire.android.ui.home.conversations.details.options.GroupConversat
     - selected: STABLE (class with no mutable properties)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.details.options.GroupConversationSettings(state: com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState, onChannelAccessItemClicked: kotlin.Function0<kotlin.Unit>, onGuestItemClicked: kotlin.Function0<kotlin.Unit>, onAppsAccessItemClicked: kotlin.Function0<kotlin.Unit>, onSelfDeletingClicked: kotlin.Function0<kotlin.Unit>, onReadReceiptSwitchClicked: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEditGroupName: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, mlsReadReceiptsEnabled: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.home.conversations.details.options.GroupConversationSettings(state: com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState, onChannelAccessItemClicked: kotlin.Function0<kotlin.Unit>, onGuestItemClicked: kotlin.Function0<kotlin.Unit>, onAppsAccessItemClicked: kotlin.Function0<kotlin.Unit>, onSelfDeletingClicked: kotlin.Function0<kotlin.Unit>, onReadReceiptSwitchClicked: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onEditGroupName: kotlin.Function0<kotlin.Unit>, onProtocolClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, lazyListState: androidx.compose.foundation.lazy.LazyListState, mlsReadReceiptsEnabled: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -5267,6 +5267,7 @@ public fun com.wire.android.ui.home.conversations.details.options.GroupConversat
     - onSelfDeletingClicked: STABLE (function type)
     - onReadReceiptSwitchClicked: STABLE (function type)
     - onEditGroupName: STABLE (function type)
+    - onProtocolClicked: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - mlsReadReceiptsEnabled: STABLE (primitive type)
@@ -5322,6 +5323,15 @@ public fun com.wire.android.ui.home.conversations.details.options.LoadingSection
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+private fun com.wire.android.ui.home.conversations.details.options.MlsMigrationConfirmationDialog(isLoading: kotlin.Boolean, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - isLoading: STABLE (primitive type)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
 private fun com.wire.android.ui.home.conversations.details.options.PreviewGroupConversationOptions(state: com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState): kotlin.Unit
   skippable: false
   restartable: true
@@ -5329,12 +5339,13 @@ private fun com.wire.android.ui.home.conversations.details.options.PreviewGroupC
     - state: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.details.options.ProtocolDetails(label: com.wire.android.util.ui.UIText, text: com.wire.android.util.ui.UIText): kotlin.Unit
+private fun com.wire.android.ui.home.conversations.details.options.ProtocolDetails(label: com.wire.android.util.ui.UIText, text: com.wire.android.util.ui.UIText, clickable: com.wire.android.model.Clickable): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - label: STABLE (class with no mutable properties)
     - text: STABLE (class with no mutable properties)
+    - clickable: STABLE (class with no mutable properties)
 
 @Composable
 private fun com.wire.android.ui.home.conversations.details.options.ReadReceiptOption(isSwitchEnabled: kotlin.Boolean, switchState: kotlin.Boolean, isLoading: kotlin.Boolean, onCheckedChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit

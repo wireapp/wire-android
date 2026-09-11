@@ -35,7 +35,7 @@ import java.net.URI
  */
 fun BackendClient.createScimAccessToken(asUser: ClientUser, description: String): String {
     val token = runBlocking { getAuthToken(asUser) }
-    val url = URI("scim/auth-tokens".composeCompleteUrl()).toURL()
+    val url = URI("scim/auth-tokens".composePublicApiUrl()).toURL()
 
     val requestBody = JSONObject().apply {
         put("description", description)

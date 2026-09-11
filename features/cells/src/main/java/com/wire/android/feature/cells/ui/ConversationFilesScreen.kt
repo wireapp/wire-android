@@ -335,6 +335,7 @@ internal fun ConversationFilesScreenContent(
                 showImageViewer = navigation::image,
                 showVideoViewer = navigation::video,
                 showAudioPlayer = navigation::audio,
+                showPdfViewer = navigation::pdf,
                 retryEditNodeError = { retryEditNodeError(it) },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,

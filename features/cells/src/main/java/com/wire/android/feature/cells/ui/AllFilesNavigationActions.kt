@@ -27,4 +27,5 @@ data class AllFilesNavigationActions(
     val showImageViewer: (CellNodeUi.File) -> Unit,
     val showVideoPlayer: (CellNodeUi.File) -> Unit,
     val showAudioPlayer: (CellNodeUi.File) -> Unit,
+    val showPdfViewer: (CellNodeUi.File) -> Unit,
 )

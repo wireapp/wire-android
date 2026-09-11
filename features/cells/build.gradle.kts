@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":core:ui-common"))
     implementation(project(":core:video-player"))
     implementation(project(":core:audio-player"))
+    implementation(project(":core:pdf-viewer"))
     implementation(libs.compose.activity)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)

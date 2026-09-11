@@ -21,8 +21,8 @@ import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
-import com.wire.android.navigation.routes.media.ImagesPreviewNavigation3ResultType
 import com.wire.android.navigation.routes.media.AuthenticatedImportMediaRoute
+import com.wire.android.navigation.routes.media.ImagesPreviewNavigation3ResultType
 import com.wire.android.navigation.routes.media.ImagesPreviewResult
 import com.wire.android.navigation.routes.media.ImagesPreviewRoute
 import com.wire.android.navigation.routes.media.MediaConversationId
@@ -30,8 +30,9 @@ import com.wire.android.navigation.routes.media.MediaGalleryNavigation3ResultTyp
 import com.wire.android.navigation.routes.media.MediaGalleryResult
 import com.wire.android.navigation.routes.media.MediaGalleryResultAction
 import com.wire.android.navigation.routes.media.MediaGalleryRoute
-import com.wire.android.navigation.routes.media.VideoPlayerRoute
 import com.wire.android.navigation.routes.media.MessageDetailsRoute
+import com.wire.android.navigation.routes.media.PdfViewerRoute
+import com.wire.android.navigation.routes.media.VideoPlayerRoute
 import com.wire.android.navigation.routes.media.toLegacy
 import com.wire.android.ui.calling.conversationCallViewModel
 import com.wire.android.ui.home.conversations.details.ConversationDetailsId
@@ -256,6 +257,21 @@ private fun ConversationNavigation3Entry(
             runtime.navigator.navigate(
                 WireNavigationCommand(
                     AudioPlayerRoute(route.sessionId, localPath, contentUrl, fileName)
+                )
+            )
+        }
+
+        override fun openPdfViewer(localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) {
+            runtime.navigator.navigate(
+                WireNavigationCommand(
+                    PdfViewerRoute(
+                        sessionId = route.sessionId,
+                        localPath = localPath,
+                        assetId = assetId,
+                        remotePath = remotePath,
+                        assetSize = assetSize,
+                        fileName = fileName,
+                    )
                 )
             )
         }

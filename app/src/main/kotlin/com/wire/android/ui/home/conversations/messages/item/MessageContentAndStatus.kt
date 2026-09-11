@@ -74,6 +74,13 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onAudioClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onPdfClicked: (
+        localPath: String?,
+        assetId: String?,
+        remotePath: String?,
+        assetSize: Long,
+        fileName: String?
+    ) -> Unit,
     onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
@@ -123,6 +130,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 onMultipartImageClick = onMultipartImageClickable,
                 onMultipartVideoClick = onVideoClicked,
                 onMultipartAudioClick = onAudioClicked,
+                onMultipartPdfClick = onPdfClicked,
                 onOpenProfile = onProfileClicked,
                 onLinkClick = onLinkClicked,
                 onReplyClick = onReplyClickable,
@@ -173,6 +181,13 @@ private fun MessageContent(
     onMultipartImageClick: (String) -> Unit,
     onMultipartVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onMultipartAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onMultipartPdfClick: (
+        localPath: String?,
+        assetId: String?,
+        remotePath: String?,
+        assetSize: Long,
+        fileName: String?
+    ) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,
@@ -468,6 +483,7 @@ private fun MessageContent(
                     onImageAttachmentClick = onMultipartImageClick,
                     onVideoAttachmentClick = onMultipartVideoClick,
                     onAudioAttachmentClick = onMultipartAudioClick,
+                    onPdfAttachmentClick = onMultipartPdfClick,
                 )
             }
 

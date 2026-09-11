@@ -20,6 +20,7 @@ package com.wire.android.di.accountScoped
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
+import com.wire.android.pdfviewer.PdfRemoteLoader
 import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
@@ -71,11 +72,14 @@ import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.cells.paginatedConversationsFlowUseCase
 import com.wire.kalium.cells.paginatedFilesFlowUseCase
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
+import java.io.IOException
+import okio.Path.Companion.toOkioPath
 
 @Suppress("TooManyFunctions")
 @BindingContainer
@@ -249,4 +253,20 @@ class CellsModule {
 
     @Provides
     fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNameUseCase = cellsScope.getUserName
+
+    @Provides
+    fun providePdfRemoteLoader(download: DownloadCellFileUseCase): PdfRemoteLoader =
+        PdfRemoteLoader { assetId, remotePath, conversationId, assetSize, outFile ->
+            download(
+                assetId = assetId,
+                conversationId = conversationId,
+                outFilePath = outFile.toPath().toOkioPath(),
+                assetSize = assetSize,
+                remoteFilePath = remotePath,
+                onProgressUpdate = {},
+            ).fold(
+                { failure -> Result.failure(IOException("PDF download failed: $failure")) },
+                { Result.success(Unit) },
+            )
+        }
 }

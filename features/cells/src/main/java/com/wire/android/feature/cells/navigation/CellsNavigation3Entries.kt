@@ -30,7 +30,7 @@ val PublicLinkExpirationNavigation3ResultType:
     )
 
 object CellsNavigation3Contribution {
-    const val ROUTE_REGISTRATION_COUNT: Int = 16
+    const val ROUTE_REGISTRATION_COUNT: Int = 17
 
     val resultTypes: List<WireNavigation3ResultType<*>> =
         listOf(
@@ -92,6 +92,9 @@ internal fun cellsNavigation3Entries(
         CellsNavigation3RouteScreen(it, runtime, onExitCells)
     }
     wireEntry<AudioPlayerRoute>(presentation = WireEntryPresentation.PopUp) {
+        CellsNavigation3RouteScreen(it, runtime, onExitCells)
+    }
+    wireEntry<PdfViewerRoute>(presentation = WireEntryPresentation.PopUp) {
         CellsNavigation3RouteScreen(it, runtime, onExitCells)
     }
     wireEntry<SearchRoute>(presentation = WireEntryPresentation.PopUp) {

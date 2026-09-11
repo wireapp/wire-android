@@ -17,7 +17,6 @@
  */
 package com.wire.android.di.metro
 
-import com.wire.android.audioplayer.AudioPlayerManualViewModelFactoryMetroBindings
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ImageLoadingModule
 import com.wire.android.di.SessionModule
@@ -41,6 +40,7 @@ import com.wire.android.feature.cells.ui.CellsMetroViewModelBindings
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryMetroBindings
 import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
 import com.wire.android.feature.sketch.SketchMetroViewModelBindings
+import com.wire.android.pdfviewer.PdfViewerManualViewModelFactoryMetroBindings
 import com.wire.android.search.SearchManualViewModelFactoryMetroBindings
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
 import com.wire.android.ui.calling.CallingManualViewModelFactoryMetroBindings
@@ -60,6 +60,7 @@ import com.wire.android.ui.home.conversations.ConversationSearchFolderMetroViewM
 import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryMetroBindings
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.videoplayer.VideoPlayerManualViewModelFactoryMetroBindings
+import com.wire.android.audioplayer.AudioPlayerManualViewModelFactoryMetroBindings
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
@@ -113,6 +114,7 @@ annotation class MetroSessionScope
         SearchManualViewModelFactoryMetroBindings::class,
         VideoPlayerManualViewModelFactoryMetroBindings::class,
         AudioPlayerManualViewModelFactoryMetroBindings::class,
+        PdfViewerManualViewModelFactoryMetroBindings::class,
         ImageLoadingModule::class,
     ]
 )

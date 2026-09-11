@@ -569,6 +569,12 @@
     <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="channel_name_description">Give this channel a meaningful name.</string>
     <string name="protocol">Protocol</string>
+    <string name="mls_migration_dialog_title">Change protocol to MLS?</string>
+    <string name="mls_migration_dialog_description">The standard messaging protocol will change from Proteus to Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Change Protocol</string>
+    <string name="mls_migration_success">Conversation migrated to MLS successfully.</string>
+    <string name="mls_migration_failure">Conversation migration to MLS failed.</string>
+    <string name="mls_migration_failure_with_backend_error">Conversation migration to MLS failed (HTTP %1$d, label: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
@@ -1389,6 +1395,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_dialog_restoring_backup_title">Restoring backup...</string>
     <string name="backup_label_conversation_restored">Conversations have been restored</string>
     <string name="backup_label_loading_conversations">Loading conversations</string>
+    <string name="backup_label_cancelling">Cancelling...</string>
     <string name="backup_dialog_restore_backup_title">Restore from backup </string>
     <string name="backup_dialog_restore_backup_message">The existing history on this device remains and will be completed by the new backup. You can restore history from all your devices and different platforms but not from another account.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
@@ -1754,6 +1761,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
     <string name="location_could_not_be_shared">Location could not be shared</string>
+    <string name="label_no_application_found_open_location">No application found to open location</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remove asset</string>
     <string name="asset_attention_description">Asset attention</string>

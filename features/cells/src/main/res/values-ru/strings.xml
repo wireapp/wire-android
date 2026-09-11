@@ -48,6 +48,7 @@
     <string name="share_file_via_link">Поделиться файлом по ссылке</string>
     <string name="share_folder_via_link">Поделиться папкой по ссылке</string>
     <string name="no_app_found">Не найдено приложение для открытия файла.</string>
+    <string name="file_not_supported">Не удается открыть этот файл. Тип файла не поддерживается.</string>
     <string name="cell_files_load_failure_message">Не удается загрузить. Пожалуйста, повторите попытку позже.</string>
     <string name="action_failed">Действие не удалось.</string>
     <string name="cancel">Отмена</string>

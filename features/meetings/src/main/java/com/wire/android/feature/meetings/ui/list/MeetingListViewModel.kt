@@ -47,11 +47,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.datetime.LocalDateTime
@@ -89,17 +89,22 @@ class MeetingListViewModelImpl @AssistedInject constructor(
         fun create(type: MeetingsTabItem): MeetingListViewModelImpl
     }
 
+    // The paging cache observes this key without keeping the system time observer subscribed.
+    private val pagingDateAndTimeZone = MutableStateFlow(
+        currentTimeZoneProvider().let { timeZone ->
+            currentTimeProvider().toLocalDateTime(timeZone).date to timeZone
+        }
+    )
+
     private val currentTimeFlow = systemTimeObserver()
         .map { currentTimeProvider() }
         .onStart { emit(currentTimeProvider()) }
-        .shareIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(), replay = 1)
-
-    private val pagingDataFlow = currentTimeFlow
-        .map { currentTime ->
+        .onEach { currentTime ->
             val currentTimeZone = currentTimeZoneProvider()
-            currentTime.toLocalDateTime(currentTimeZone).date to currentTimeZone // refresh whole list when local date or time zone changes
+            pagingDateAndTimeZone.value = currentTime.toLocalDateTime(currentTimeZone).date to currentTimeZone
         }
-        .distinctUntilChanged()
+
+    private val pagingDataFlow = pagingDateAndTimeZone  // refresh whole list when local date or time zone changes
         .flatMapLatest {
             getMeetingsPaginated(type = type)
         }

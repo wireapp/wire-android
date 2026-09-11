@@ -294,6 +294,64 @@ class MeetingListViewModelTest {
         }
     }
 
+    @Test
+    fun givenCachedPaging_whenUiUnsubscribes_thenTimeObservationStopsAndCacheIsReusedOnReturn() = runTest(dispatcher) {
+        val (arrangement, viewModelScenario) = Arrangement(dispatcher)
+            .withCurrentTimeProvider { Instant.parse("2026-01-01T12:00:00Z") }
+            .withGetMeetingsPaginated(emptyList())
+            .arrange()
+
+        viewModelScenario.use { scenario ->
+            scenario.viewModel.meetings.test {
+                awaitItem()
+                runCurrent()
+                assertEquals(1, arrangement.minuteTicks.subscriptionCount.value)
+                assertEquals(1, arrangement.systemTimeChanges.subscriptionCount.value)
+                cancelAndIgnoreRemainingEvents()
+            }
+            runCurrent()
+            assertEquals(0, arrangement.minuteTicks.subscriptionCount.value)
+            assertEquals(0, arrangement.systemTimeChanges.subscriptionCount.value)
+
+            scenario.viewModel.meetings.test {
+                awaitItem()
+                runCurrent()
+                assertEquals(1, arrangement.minuteTicks.subscriptionCount.value)
+                assertEquals(1, arrangement.systemTimeChanges.subscriptionCount.value)
+                coVerify(exactly = 1) { arrangement.getMeetingsPaginated(arrangement.type) }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+    }
+
+    @Test
+    fun givenUiUnsubscribed_whenMidnightPasses_thenPagingRefreshesOnlyWhenUiReturns() = runTest(dispatcher) {
+        val currentTime = Instant.parse("2026-01-01T23:59:30Z")
+        val (arrangement, viewModelScenario) = Arrangement(dispatcher)
+            .withCurrentTimeProvider { currentTime + testScheduler.currentTime.milliseconds }
+            .withGetMeetingsPaginated(emptyList())
+            .arrange()
+
+        viewModelScenario.use { scenario ->
+            scenario.viewModel.meetings.test {
+                awaitItem()
+                cancelAndIgnoreRemainingEvents()
+            }
+            runCurrent()
+            advanceTimeBy(30_000)
+            arrangement.minuteTicks.emit(Unit)
+            runCurrent()
+            coVerify(exactly = 1) { arrangement.getMeetingsPaginated(arrangement.type) }
+
+            scenario.viewModel.meetings.test {
+                awaitItem()
+                runCurrent()
+                coVerify(exactly = 2) { arrangement.getMeetingsPaginated(arrangement.type) }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+    }
+
     private fun List<MeetingListItem>.meetingItem() = meetingItems().single()
     private fun List<MeetingListItem>.meetingItems() = filterIsInstance<MeetingItem>()
     private fun MeetingItem.ongoingStatus() = status as MeetingItem.Status.Ongoing

@@ -1761,6 +1761,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
     <string name="location_could_not_be_shared">Location could not be shared</string>
+    <string name="label_no_application_found_open_location">No application found to open location</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remove asset</string>
     <string name="asset_attention_description">Asset attention</string>
@@ -1957,6 +1958,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
     <string name="label_system_message_admin_role_assigned">You were promoted to group admin</string>
+    <string name="label_system_message_adminless_delete_reminder">This group will be automatically deleted on %1$s, as there are no eligible group admins.</string>
+    <string name="last_message_adminless_delete_reminder">Will be deleted soon</string>
     <string name="more_information_about_this_server">More information about this backend</string>
 
     <!-- Pending messages service notification -->

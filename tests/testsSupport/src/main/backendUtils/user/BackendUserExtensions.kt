@@ -23,7 +23,6 @@ import backendUtils.BackendClient
 import backendUtils.auth.defaultheaders
 import backendUtils.auth.getAuthToken
 import kotlinx.coroutines.runBlocking
-import logger.WireTestLogger
 import network.NetworkBackendClient
 import network.NumberSequence
 import network.RequestOptions
@@ -38,8 +37,7 @@ import java.net.URLEncoder
 import kotlin.time.Duration.Companion.seconds
 
 fun BackendClient.createPersonalUserViaBackend(user: ClientUser): ClientUser {
-    WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("user is $user")
-    val url = URL(backendUrl + "register")
+    val url = URL("register".composePublicApiUrl())
 
     val requestBody = JSONObject().apply {
         put("email", user.email)
@@ -60,15 +58,13 @@ fun BackendClient.createPersonalUserViaBackend(user: ClientUser): ClientUser {
     user.accessCredentials = AccessCredentials(null, accessCookie)
 
     val activationCode = getActivationCodeForEmail(user.email.orEmpty())
-    WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null")
-        .info("code is $activationCode")
     activateRegisteredEmailByBackendCode(user.email.orEmpty(), activationCode)
 
     return user
 }
 
 fun BackendClient.createWirelessUserViaBackend(user: ClientUser): ClientUser {
-    val url = URL(backendUrl)
+    val url = URL("register".composePublicApiUrl())
 
     val requestBody = JSONObject().apply {
         put("name", user.name)
@@ -91,14 +87,13 @@ fun BackendClient.createWirelessUserViaBackend(user: ClientUser): ClientUser {
     user.accessCredentials = AccessCredentials(null, accessCookie)
 
     val activationCode = getActivationCodeForEmail(user.email.orEmpty())
-    WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("code is $activationCode")
     activateRegisteredEmailByBackendCode(user.email.orEmpty(), activationCode)
     return user
 }
 
 fun BackendClient.getActivationCodeForEmail(email: String): String {
     val encodedEmail = URLEncoder.encode(email, "UTF-8")
-    val url = URL("${backendUrl}i/users/activation-code?email=$encodedEmail")
+    val url = URL("users/activation-code?email=$encodedEmail".composeInternalApiUrl())
     val headers = mapOf(
         BackendClient.AUTHORIZATION to basicAuth.getEncoded(),
         "Accept" to BackendClient.applicationJson
@@ -113,7 +108,7 @@ fun BackendClient.getActivationCodeForEmail(email: String): String {
 }
 
 fun BackendClient.trigger2FA(email: String) {
-    val url = URL("${backendUrl}v5/verification-code/send")
+    val url = URL("verification-code/send".composePublicApiUrl())
 
     val requestBody = JSONObject().apply {
         put("action", "login")
@@ -142,7 +137,7 @@ fun BackendClient.getVerificationCode(user: ClientUser): String {
     trigger2FA(user.email.orEmpty())
 
     val encodedUserId = Uri.encode(user.id)
-    val url = URL("${backendUrl}i/users/$encodedUserId/verification-code/login")
+    val url = URL("users/$encodedUserId/verification-code/login".composeInternalApiUrl())
 
     val headers = mapOf(
         BackendClient.AUTHORIZATION to basicAuth.getEncoded(),
@@ -165,14 +160,13 @@ fun BackendClient.getVerificationCode(user: ClientUser): String {
 }
 
 fun BackendClient.activateRegisteredEmailByBackendCode(email: String, code: String): String {
-    val url = URL("${backendUrl}activate")
+    val url = URL("activate".composePublicApiUrl())
 
     val requestBody = JSONObject().apply {
         put("email", email)
         put("code", code)
         put("dryrun", false)
     }
-    WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null").info("JsonBody is $requestBody")
 
     NetworkBackendClient.sendJsonRequest(
         url = url,
@@ -184,9 +178,6 @@ fun BackendClient.activateRegisteredEmailByBackendCode(email: String, code: Stri
         )
     )
 
-    WireTestLogger.getLog(NetworkBackendClient::class.simpleName ?: "Null")
-        .info("JsonBody response is $requestBody")
-
     return "Email Registered"
 }
 
@@ -194,7 +185,7 @@ private fun BackendClient.getFeatureConfig(feature: String, user: ClientUser): J
     val token = runBlocking {
         getAuthToken(user)
     }
-    val url = URL(String.format("feature-configs/%s", feature).composeCompleteUrl())
+    val url = URL("feature-configs".composePublicApiUrl())
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")
@@ -209,13 +200,13 @@ private fun BackendClient.getFeatureConfig(feature: String, user: ClientUser): J
         )
     )
 
-    return JSONObject(response.body)
+    return JSONObject(response.body).getJSONObject(feature)
 }
 
 fun BackendClient.getUserNameByID(domain: String, id: String, user: ClientUser): String {
     val token = runBlocking { getAuthToken(user) }
 
-    val url = "users/$domain/$id/".composeCompleteUrl()
+    val url = "users/$domain/$id/".composePublicApiUrl()
     val headers = defaultheaders.toMutableMap().apply {
         put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
     }
@@ -235,7 +226,7 @@ fun BackendClient.isDevelopmentApiEnabled(user: ClientUser): Boolean {
 
 suspend fun BackendClient.getPropertyValues(user: ClientUser): JSONObject {
     val token = getAuthToken(user)
-    val url = URI("properties-values".composeCompleteUrl()).toURL()
+    val url = URI("properties-values".composePublicApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")
@@ -260,7 +251,7 @@ suspend fun BackendClient.getPropertyValues(user: ClientUser): JSONObject {
 }
 
 suspend fun BackendClient.setPropertyValue(user: ClientUser, propertyKey: String, properties: String) {
-    val url = "properties/$propertyKey".composeCompleteUrl()
+    val url = "properties/$propertyKey".composePublicApiUrl()
     val token = getAuthToken(user)
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")

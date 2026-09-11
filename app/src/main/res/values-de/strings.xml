@@ -540,6 +540,12 @@
     <string name="group_name_description">Geben Sie dieser Gruppe einen aussagekräftigen Namen.</string>
     <string name="channel_name_description">Geben Sie diesem Channel einen aussagekräftigen Namen.</string>
     <string name="protocol">Protokoll</string>
+    <string name="mls_migration_dialog_title">Protokoll auf MLS umstellen?</string>
+    <string name="mls_migration_dialog_description">Das Standard-Nachrichtenprotokoll wird von Proteus auf Messaging-Layer-Security (MLS) umgestellt.</string>
+    <string name="mls_migration_dialog_confirm">Protokoll umstellen</string>
+    <string name="mls_migration_success">Die Unterhaltung wurde erfolgreich auf MLS umgestellt.</string>
+    <string name="mls_migration_failure">Die Umstellung der Unterhaltung auf MLS ist fehlgeschlagen.</string>
+    <string name="mls_migration_failure_with_backend_error">Die Umstellung der Unterhaltung auf MLS ist fehlgeschlagen (HTTP %1$d, Bezeichnung: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher-Suite</string>
     <string name="last_key_material_update_label">Letzte Aktualisierung des Schlüssel-Materials</string>
@@ -1697,6 +1703,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="location_app_permission_dialog_body">Erlauben Sie Wire den Zugriff auf Ihren Gerätestandort, um Ihren Standort zu senden.</string>
     <string name="location_loading_label">Bitte warten…</string>
     <string name="location_could_not_be_shared">Standort konnte nicht geteilt werden</string>
+    <string name="label_no_application_found_open_location">Keine App zum Öffnen des Standortes gefunden</string>
     <!-- Asset Preview -->
     <string name="restricted_asset_error_toast_message">Das Versenden von Dateien ist aufgrund von Firmenbeschränkungen verboten</string>
     <!--    Ping dialog-->

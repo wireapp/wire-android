@@ -38,12 +38,12 @@ fun BackendClient.createIdentityProvider(user: ClientUser, metadata: String): St
     )
 }
 
-// Creates an identity provider through the backend v2 API and returns its id.
+// Creates an identity provider using the identity-provider v2 schema and returns its id.
 fun BackendClient.createIdentityProviderV2(user: ClientUser, metadata: String): String {
     return createIdentityProviderAtPath(
         user = user,
         metadata = metadata,
-        path = "v5/identity-providers?api_version=v2"
+        path = "identity-providers?api_version=v2"
     )
 }
 
@@ -53,7 +53,7 @@ private fun BackendClient.createIdentityProviderAtPath(
     path: String
 ): String {
     val token = runBlocking { getAuthToken(user) }
-    val url = URI(path.composeCompleteUrl()).toURL()
+    val url = URI(path.composePublicApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")

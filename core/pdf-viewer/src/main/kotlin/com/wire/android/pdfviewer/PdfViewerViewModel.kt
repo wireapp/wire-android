@@ -129,25 +129,34 @@ class PdfViewerViewModel @AssistedInject constructor(
                 return@launch
             }
 
-            val opened = withContext(dispatchers.io()) { openPdfDocument(file) }
-                .getOrElse { cause ->
+            var opened: PdfDocument? = null
+            var published = false
+            try {
+                val doc = withContext(dispatchers.io()) {
+                    openPdfDocument(file).onSuccess { opened = it }
+                }.getOrElse { cause ->
                     _state.value = PdfViewerState.Failure(cause.toViewerError())
                     return@launch
                 }
 
-            if (opened.pageCount == 0) {
-                opened.close()
-                _state.value = PdfViewerState.Failure(PdfViewerError.INVALID_DOCUMENT)
-                return@launch
+                if (doc.pageCount == 0) {
+                    _state.value = PdfViewerState.Failure(PdfViewerError.INVALID_DOCUMENT)
+                    return@launch
+                }
+
+                val firstPageAspectRatio = withContext(dispatchers.io()) { doc.aspectRatio(0) }
+
+                document = doc
+                published = true
+                _state.value = PdfViewerState.Content(
+                    pageCount = doc.pageCount,
+                    firstPageAspectRatio = firstPageAspectRatio,
+                )
+            } finally {
+                // Anything not handed over to [document] is ours to release: an empty document, a
+                // cancelled open, or a cancelled first-page read.
+                if (!published) opened?.close()
             }
-
-            val firstPageAspectRatio = withContext(dispatchers.io()) { opened.aspectRatio(0) }
-
-            document = opened
-            _state.value = PdfViewerState.Content(
-                pageCount = opened.pageCount,
-                firstPageAspectRatio = firstPageAspectRatio,
-            )
         }
     }
 

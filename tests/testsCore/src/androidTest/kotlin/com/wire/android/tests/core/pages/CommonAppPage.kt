@@ -30,6 +30,9 @@ import kotlin.time.Duration.Companion.seconds
 
 data class CommonAppPage(private val device: UiDevice) {
     private val teamSettingsChangedAlert = UiSelectorParams(textContains = "Team Settings Changed")
+    private val accountUsedOnAnotherDeviceAlert = UiSelectorParams(text = "Your account was used on")
+    private val manageDevicesButton = UiSelectorParams(text = "Manage Devices")
+    private val switchAccountButton = UiSelectorParams(text = "Switch Account")
     private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
     private val wireEnterpriseAlert = UiSelectorParams(textContains = "Wire Enterprise")
     private val learnMoreWireEnterpriseLink = UiSelectorParams(textContains = "Learn more about Wire")
@@ -40,6 +43,8 @@ data class CommonAppPage(private val device: UiDevice) {
     private val joinConversationButton = UiSelectorParams(text = "Join")
 
     private fun teamSettingsChangedAlertSubtext(text: String) = UiSelectorParams(textContains = text)
+    private fun secondAccountUsedOnAnotherDeviceAlert(accountName: String) =
+        UiSelectorParams(textContains = "Your account “$accountName")
 
     private fun wireEnterpriseAlertText(text: String) = UiSelectorParams(textContains = text)
 
@@ -74,6 +79,43 @@ data class CommonAppPage(private val device: UiDevice) {
 
     fun tapUpgradeNowButtonOnEnterpriseAlert(): CommonAppPage {
         UiWaitUtils.waitElement(upgradeNowButton).click()
+        return this
+    }
+
+    fun assertAccountUsedOnAnotherDeviceAlertVisible(): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = accountUsedOnAnotherDeviceAlert,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Account used on another device alert is not visible"
+        )
+        return this
+    }
+
+    fun assertSecondAccountUsedOnAnotherDeviceAlertVisible(accountName: String): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = secondAccountUsedOnAnotherDeviceAlert(accountName),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Account used on another device alert for '$accountName' is not visible"
+        )
+        return this
+    }
+
+    fun assertAddedDeviceAlertSubtextVisible(expectedSubtext: String): CommonAppPage {
+        val subtext = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = expectedSubtext),
+            timeout = UiWaitUtils.SHORT_TIMEOUT
+        )
+        assertTrue("Added device alert subtext is not visible", !subtext.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapManageDevicesButton(): CommonAppPage {
+        UiWaitUtils.waitElement(manageDevicesButton).click()
+        return this
+    }
+
+    fun tapSwitchAccountButton(): CommonAppPage {
+        UiWaitUtils.waitElement(switchAccountButton).click()
         return this
     }
 

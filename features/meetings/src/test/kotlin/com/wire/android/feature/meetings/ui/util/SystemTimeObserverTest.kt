@@ -23,21 +23,32 @@ import android.content.Intent
 import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SystemTimeObserverTest {
 
+    @AfterEach
+    fun tearDown() {
+        unmockkStatic(::supportsTimeZoneOffsetChanges)
+    }
+
     @Test
     fun givenSystemTimeObserver_whenCollected_thenRegistersWithoutEmittingAndUnregistersOnCancellation() = runTest {
-        val arrangement = Arrangement()
-        arrangement.observer().test {
+        val (arrangement, observer) = Arrangement().arrange()
+
+        observer().test {
             runCurrent()
             verify(exactly = 1) { arrangement.context.registerReceiver(any(), any()) }
             expectNoEvents()
@@ -48,16 +59,17 @@ class SystemTimeObserverTest {
 
     @Test
     fun givenSystemTimeObserver_whenSupportedBroadcastsArrive_thenEmitsImmediately() = runTest {
-        val arrangement = Arrangement()
-        arrangement.observer().test {
+        val (arrangement, observer) = Arrangement().arrange()
+
+        observer().test {
             runCurrent()
             listOf(
                 Intent.ACTION_TIME_TICK,
                 Intent.ACTION_DATE_CHANGED,
                 Intent.ACTION_TIME_CHANGED,
                 Intent.ACTION_TIMEZONE_CHANGED,
-                Intent.ACTION_TIMEZONE_OFFSET_CHANGED,
             ).forEach { action ->
+                assertTrue(action in observer.actions)
                 arrangement.broadcast(action)
                 assertEquals(Unit, awaitItem())
             }
@@ -67,8 +79,9 @@ class SystemTimeObserverTest {
 
     @Test
     fun givenSystemTimeObserver_whenUnrelatedOrNullBroadcastArrives_thenDoesNotEmit() = runTest {
-        val arrangement = Arrangement()
-        arrangement.observer().test {
+        val (arrangement, observer) = Arrangement().arrange()
+
+        observer().test {
             runCurrent()
             arrangement.broadcast(Intent.ACTION_SCREEN_ON)
             arrangement.receiver.captured.onReceive(arrangement.context, null)
@@ -77,13 +90,45 @@ class SystemTimeObserverTest {
         }
     }
 
+    @Test
+    fun givenAndroid14_whenCollected_thenOffsetActionIsNotRegisteredOrEmitted() = runTest {
+        val (arrangement, observer) = Arrangement().arrange()
+
+        observer().test {
+            runCurrent()
+            assertFalse(Intent.ACTION_TIMEZONE_OFFSET_CHANGED in observer.actions)
+            arrangement.broadcast(Intent.ACTION_TIMEZONE_OFFSET_CHANGED)
+            runCurrent()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun givenAndroid17_whenCollected_thenOffsetActionIsRegisteredAndEmitted() = runTest {
+        val (arrangement, observer) = Arrangement()
+            .withTimeZoneOffsetChangesSupported(true)
+            .arrange()
+
+        observer().test {
+            runCurrent()
+            assertTrue(Intent.ACTION_TIMEZONE_OFFSET_CHANGED in observer.actions)
+            arrangement.broadcast(Intent.ACTION_TIMEZONE_OFFSET_CHANGED)
+            assertEquals(Unit, awaitItem())
+        }
+    }
+
     private class Arrangement {
         val context = mockk<Context>(relaxed = true)
         val receiver = slot<BroadcastReceiver>()
-        val observer = SystemTimeObserver(context)
 
         init {
+            mockkStatic(::supportsTimeZoneOffsetChanges)
+            withTimeZoneOffsetChangesSupported(false)
             every { context.registerReceiver(capture(receiver), any()) } returns null
+        }
+
+        fun withTimeZoneOffsetChangesSupported(supported: Boolean) = apply {
+            every { supportsTimeZoneOffsetChanges() } returns supported
         }
 
         fun broadcast(action: String) {
@@ -91,5 +136,7 @@ class SystemTimeObserverTest {
             every { intent.action } returns action
             receiver.captured.onReceive(context, intent)
         }
+
+        fun arrange() = this to SystemTimeObserver(context)
     }
 }

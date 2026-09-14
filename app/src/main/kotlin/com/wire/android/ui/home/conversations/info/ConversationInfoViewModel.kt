@@ -106,7 +106,7 @@ class ConversationInfoViewModel @AssistedInject constructor(
 
                     is StorageFailure.Generic -> {
                         appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
-                        conversationInfoViewState = conversationInfoViewState.copy(initialLoadingState = InitialLoadingState.NOT_FOUND)
+                        conversationInfoViewState = conversationInfoViewState.copy(initialLoadingState = InitialLoadingState.UNKNOWN_ERROR)
                     }
                 }
             }

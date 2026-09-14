@@ -76,4 +76,4 @@ sealed interface ConversationAvatar {
     }
 }
 
-enum class InitialLoadingState { LOADING, LOADED, NOT_FOUND, OPENING_MEETINGS_UNSUPPORTED }
+enum class InitialLoadingState { LOADING, LOADED, NOT_FOUND, OPENING_MEETINGS_UNSUPPORTED, UNKNOWN_ERROR }

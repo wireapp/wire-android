@@ -181,6 +181,6 @@ internal fun ConversationMessageComposer(
 @Composable
 private fun LazyPagingItems<UIMessage>.isListLoading(): Boolean {
     var initialPagingRefreshLoadCompleted by rememberSaveable { mutableStateOf(false) }
-    if (loadState.refresh is LoadState.NotLoading) initialPagingRefreshLoadCompleted = true
+    if (loadState.refresh !is LoadState.Loading) initialPagingRefreshLoadCompleted = true
     return !initialPagingRefreshLoadCompleted
 }

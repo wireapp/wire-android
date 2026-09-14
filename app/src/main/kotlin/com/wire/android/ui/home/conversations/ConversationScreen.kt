@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -253,8 +254,18 @@ internal fun ConversationScreenRouteContent(
     }
     LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.initialLoadingState) {
         when (conversationInfoViewModel.conversationInfoViewState.initialLoadingState) {
-            InitialLoadingState.NOT_FOUND -> navigation.goBack()
-            InitialLoadingState.OPENING_MEETINGS_UNSUPPORTED -> navigation.goBack()
+            InitialLoadingState.NOT_FOUND -> {
+                Toast.makeText(context, R.string.error_conversation_not_found, Toast.LENGTH_SHORT).show()
+                navigation.goBack()
+            }
+            InitialLoadingState.UNKNOWN_ERROR -> {
+                Toast.makeText(context, R.string.error_conversation_unknown_error, Toast.LENGTH_SHORT).show()
+                navigation.goBack()
+            }
+            InitialLoadingState.OPENING_MEETINGS_UNSUPPORTED -> {
+                Toast.makeText(context, R.string.error_conversation_opening_meetings_unsupported, Toast.LENGTH_SHORT).show()
+                navigation.goBack()
+            }
             else -> {} // no-op
         }
     }

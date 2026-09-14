@@ -71,14 +71,34 @@ class PdfSourceResolver @Inject constructor(
         assetId: String,
         forceRefresh: Boolean,
     ): Result<File> {
-        val target = downloadFileFor(assetId, source.conversationId, source.remotePath, source.fileName)
-            ?: return Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
-        if (!forceRefresh && target.isReadableFile()) return Result.success(target)
-
-        return remoteLoader.load(assetId, source.remotePath, source.conversationId, source.assetSize, target).fold(
-            onSuccess = { Result.success(target) },
-            onFailure = { Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it)) },
+        val target = downloadFileFor(
+            assetId,
+            source.conversationId,
+            source.remotePath,
+            source.fileName,
         )
+
+        return when {
+            target == null ->
+                Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
+
+            !forceRefresh && target.isReadableFile() ->
+                Result.success(target)
+
+            else ->
+                remoteLoader.load(
+                    assetId,
+                    source.remotePath,
+                    source.conversationId,
+                    source.assetSize,
+                    target,
+                ).fold(
+                    onSuccess = { Result.success(target) },
+                    onFailure = {
+                        Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it))
+                    },
+                )
+        }
     }
 
     /**

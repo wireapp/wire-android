@@ -264,7 +264,8 @@ internal class PdfSourceResolverTest {
                     fileName = "doc.pdf",
                     assetSize = 0L,
                 ),
-                forceRefresh = true, dispatcher = Dispatchers.Default,
+                forceRefresh = true,
+                dispatcher = Dispatchers.Default,
             )
 
         // Deleting it would strand the path DownloadCellFileUseCase already wrote to the DB.
@@ -297,7 +298,8 @@ internal class PdfSourceResolverTest {
                 fileName = "doc.pdf",
                 assetSize = 0L,
             ),
-            forceRefresh = true, dispatcher = Dispatchers.Default,
+            forceRefresh = true,
+            dispatcher = Dispatchers.Default,
         )
 
         assertTrue(result.isSuccess)

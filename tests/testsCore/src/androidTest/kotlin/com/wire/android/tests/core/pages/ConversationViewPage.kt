@@ -106,6 +106,8 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val deleteForMeButton = UiSelectorParams(text = "Delete for Me")
     private val deleteForEveryoneButton = UiSelectorParams(text = "Delete for Everyone")
     private val retryButton = UiSelectorParams(text = "Retry")
+    private fun pollMessage(message: String) = UiSelectorParams(textContains = message)
+    private fun pollButton(buttonName: String) = UiSelectorParams(text = buttonName)
     private val deleteForMeConfirmationText = UiSelectorParams(text = "Delete this Message for yourself?")
     private val deletedMessageLabel = UiSelectorParams(text = "Deleted message")
     private val imageContextMenuButton = UiSelectorParams(description = "More options")
@@ -674,6 +676,31 @@ data class ConversationViewPage(private val device: UiDevice) {
             "Message '$message' is not visible in the conversation",
             !messageElement.visibleBounds.isEmpty
         )
+        return this
+    }
+
+    fun assertPollMessageVisible(message: String): ConversationViewPage {
+        UiWaitUtils.waitElement(pollMessage(message))
+        return this
+    }
+
+    fun assertPollButtonVisible(buttonName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(pollButton(buttonName))
+        return this
+    }
+
+    fun tapPollButton(buttonName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(pollButton(buttonName)).click()
+        return this
+    }
+
+    fun assertPollButtonSelected(buttonName: String): ConversationViewPage {
+        val selectionCompleted = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
+            val buttonContainer = findElementOrNull(pollButton(buttonName))?.parent
+                ?: return@retryUntilTimeout false
+            buttonContainer.findObject(By.clazz("android.widget.ProgressBar")) == null
+        }
+        Assert.assertTrue("Poll button '$buttonName' is not selected.", selectionCompleted)
         return this
     }
 

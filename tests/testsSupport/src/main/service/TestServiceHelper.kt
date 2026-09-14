@@ -41,6 +41,8 @@ import com.wire.android.testSupport.R
 import com.wire.android.testSupport.service.TestService
 import kotlinx.coroutines.runBlocking
 import network.HttpRequestException
+import org.json.JSONArray
+import org.json.JSONObject
 import service.enums.LegalHoldStatus
 import service.models.Conversation
 import service.models.Mentions
@@ -496,6 +498,63 @@ class TestServiceHelper(
         )
     }
 
+    @Suppress("LongParameterList")
+    fun userSendsPollMessageToConversation(
+        senderAlias: String,
+        pollMessage: String,
+        title: String,
+        buttons: String,
+        deviceName: String?,
+        conversationName: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, conversationName)
+        val pollButtons = JSONArray().apply {
+            buttons.split(",").map(String::trim).forEach(::put)
+        }
+
+        testServiceClient.sendCompositeText(
+            SendTextParams(
+                owner = sender,
+                deviceName = deviceName,
+                convoDomain = conversation.qualifiedID.domain,
+                convoId = conversation.qualifiedID.id,
+                timeout = resolveMessageTimeout(senderAlias, conversationName),
+                expectsReadConfirmation = conversation.isReceiptModeEnabled,
+                text = "**$title**\n$pollMessage",
+                buttons = pollButtons,
+                legalHoldStatus = LegalHoldStatus.DISABLED.code
+            )
+        )
+    }
+
+    fun userSendsButtonActionConfirmationToLatestPollMessage(
+        senderAlias: String,
+        receiverAlias: String,
+        deviceName: String?,
+        conversationName: String,
+        buttonText: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObj(sender, conversationName)
+        val pollMessage = getRecentPollMessage(
+            sender,
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain
+        )
+
+        testServiceClient.sendButtonActionConfirmation(
+            owner = sender,
+            receiverId = requireNotNull(receiver.id),
+            deviceName = deviceName,
+            convoId = conversation.qualifiedID.id,
+            referenceMessageId = pollMessage.getString("id"),
+            buttonId = getPollButtonId(pollMessage, buttonText)
+        )
+    }
+
     fun userSendMessageToPersonalMlsConversation(
         senderAlias: String,
         msg: String,
@@ -895,6 +954,33 @@ class TestServiceHelper(
             return messageIds.last()
         }
         throw IllegalStateException("The conversation contains no messages")
+    }
+
+    private fun getRecentPollMessage(
+        user: ClientUser,
+        deviceName: String?,
+        conversationId: String,
+        conversationDomain: String
+    ): JSONObject {
+        val messages = testServiceClient.getMessages(user, deviceName, conversationId, conversationDomain)
+        for (index in messages.length() - 1 downTo 0) {
+            val message = messages.getJSONObject(index)
+            if (message.optJSONObject("content")?.has("buttonList") == true) {
+                return message
+            }
+        }
+        throw IllegalStateException("The conversation contains no poll message")
+    }
+
+    private fun getPollButtonId(pollMessage: JSONObject, buttonText: String): String {
+        val buttons = pollMessage.getJSONObject("content").getJSONArray("buttonList")
+        for (index in 0 until buttons.length()) {
+            val button = buttons.getJSONObject(index)
+            if (button.getString("text") == buttonText) {
+                return button.getString("id")
+            }
+        }
+        throw IllegalStateException("Poll button '$buttonText' was not found")
     }
 
     private fun resolveMessageTimeout(

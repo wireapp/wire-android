@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import com.wire.android.di.ApplicationContext
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.channels.awaitClose
@@ -32,13 +33,15 @@ class SystemTimeObserver @Inject constructor(
 ) {
     /** Emits on system's minute ticks, and when the system date, clock, time zone, or time zone offset changes. */
     operator fun invoke(): Flow<Unit> = callbackFlow {
-        val actions = listOf(
-            Intent.ACTION_TIME_TICK,
-            Intent.ACTION_DATE_CHANGED,
-            Intent.ACTION_TIME_CHANGED,
-            Intent.ACTION_TIMEZONE_CHANGED,
-            Intent.ACTION_TIMEZONE_OFFSET_CHANGED,
-        )
+        val actions = buildList {
+            add(Intent.ACTION_TIME_TICK)
+            add(Intent.ACTION_DATE_CHANGED)
+            add(Intent.ACTION_TIME_CHANGED)
+            add(Intent.ACTION_TIMEZONE_CHANGED)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                add(Intent.ACTION_TIMEZONE_OFFSET_CHANGED)
+            }
+        }
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent?.action in actions) trySend(Unit)

@@ -37,6 +37,7 @@ import kotlin.time.Duration.Companion.seconds
 data class SettingsPage(private val device: UiDevice) {
     private val privacySettingsButton = UiSelectorParams(text = "Privacy Settings")
     private val backUpMenuButton = UiSelectorParams(text = "Back up & Restore Conversations")
+    private val manageDevicesMenuButton = UiSelectorParams(text = "Manage your Devices")
     private val restoreBackupButton = UiSelectorParams(text = "Restore from Backup")
 
     private val createBackupButton = UiSelectorParams(text = "Create a Backup")
@@ -310,6 +311,11 @@ data class SettingsPage(private val device: UiDevice) {
     fun tapAccountDetailsButton(): SettingsPage {
         val accountDetailsButton = UiWaitUtils.waitElement(accountDetails)
         accountDetailsButton.click()
+        return this
+    }
+
+    fun tapManageDevicesMenu(): SettingsPage {
+        UiWaitUtils.waitElement(manageDevicesMenuButton).click()
         return this
     }
 

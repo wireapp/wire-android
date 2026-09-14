@@ -68,6 +68,10 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val openButton = UiSelectorParams(text = "Open")
     private val cancelButton = UiSelectorParams(text = "Cancel")
+    private val verifiedProteusConversation =
+        UiSelectorParams(description = "All of all participants are verified (Proteus)")
+    private val conversationNoLongerVerifiedAlert = UiSelectorParams(text = "Conversation no longer verified")
+    private val sendAnywayButton = UiSelectorParams(text = "Send Anyway")
 
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
 
@@ -704,6 +708,21 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertConversationVerified(): ConversationViewPage {
+        UiWaitUtils.waitElement(verifiedProteusConversation)
+        return this
+    }
+
+    fun assertConversationNoLongerVerifiedAlertVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(conversationNoLongerVerifiedAlert)
+        return this
+    }
+
+    fun tapSendAnywayButtonOnDegradationAlert(): ConversationViewPage {
+        UiWaitUtils.waitElement(sendAnywayButton).click()
+        return this
+    }
+
     fun assertMessageIsDisplayedInConversationView(): ConversationViewPage {
         val message = UiWaitUtils.waitElement(anyTextMessage).text.orEmpty()
         Assert.assertTrue("Sent message is not displayed in the conversation view.", message.isNotEmpty())
@@ -884,6 +903,12 @@ data class ConversationViewPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Group conversation '$conversationName' is not in foreground.", e)
         }
+        return this
+    }
+
+    fun assertOneOnOneConversationInForeground(userName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(conversationDetails1On1(userName))
+        UiWaitUtils.waitElement(typeMessageField)
         return this
     }
 

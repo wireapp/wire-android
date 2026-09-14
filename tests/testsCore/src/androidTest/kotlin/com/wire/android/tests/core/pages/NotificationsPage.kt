@@ -106,6 +106,30 @@ class NotificationsPage(private val device: UiDevice) {
         return this
     }
 
+    fun iSeeIncomingGroupCall(groupName: String): NotificationsPage {
+        try {
+            UiWaitUtils.waitElement(
+                UiSelectorParams(textContains = groupName),
+                timeout = UiWaitUtils.SHORT_TIMEOUT
+            )
+            UiWaitUtils.waitElement(
+                incomingCallNotification,
+                timeout = UiWaitUtils.SHORT_TIMEOUT
+            )
+        } catch (_: AssertionError) {
+            Assert.assertTrue("Notification center did not open.", device.openNotification())
+            UiWaitUtils.waitElement(
+                UiSelectorParams(textContains = groupName),
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT
+            )
+            UiWaitUtils.waitElement(
+                incomingCallNotification,
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT
+            ).click()
+        }
+        return this
+    }
+
     fun iOpenCallNotificationToBringCallToForeground(): NotificationsPage {
         Assert.assertTrue("Notification center did not open.", device.openNotification())
         UiWaitUtils.waitElement(

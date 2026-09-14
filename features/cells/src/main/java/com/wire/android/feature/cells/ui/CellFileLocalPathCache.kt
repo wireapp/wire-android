@@ -70,10 +70,10 @@ class CellFileLocalPathCache @Inject constructor() {
         _fileReadyChannel.trySend(file)
     }
 
-    internal fun setOpenLoadState(uuid: String, state: OpenLoadState) =
+    fun setOpenLoadState(uuid: String, state: OpenLoadState) =
         _openLoadStates.update { it + (uuid to state) }
 
-    internal fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
+    fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
 
     internal fun setDownloadProgress(uuid: String, progress: Float?) =
         _downloadProgresses.update { it + (uuid to progress) }

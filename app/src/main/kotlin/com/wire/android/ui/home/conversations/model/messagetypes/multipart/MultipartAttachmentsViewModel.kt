@@ -74,11 +74,6 @@ interface MultipartAttachmentsViewModel {
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
     )
 
-    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
-        val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
-        return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
-    }
-
     fun mapAttachments(
         attachments: List<MessageAttachment>,
         offlineAttachmentIds: Set<String> = emptySet(),

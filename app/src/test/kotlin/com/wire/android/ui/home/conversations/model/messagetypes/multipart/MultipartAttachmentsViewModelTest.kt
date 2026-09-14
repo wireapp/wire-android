@@ -52,6 +52,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 typealias OpenImageCallback = (s: String) -> Unit
+typealias OpenAttachmentCallback = (attachment: MultipartAttachmentUi) -> Unit
 
 @ExtendWith(CoroutineTestExtension::class)
 class MultipartAttachmentsViewModelTest {
@@ -305,7 +306,7 @@ class MultipartAttachmentsViewModelTest {
 
         // Click again with a stale attachment snapshot (no openLoadState set).
         // The VM must use its own authoritative cache state — not the stale UI snapshot.
-        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk())
+        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk(), mockk(), mockk())
 
         // Controller.cancel() should have been called
         verify(exactly = 1) { arrangement.openFileDownloadController.cancel(pdfAttachment.uuid, any()) }
@@ -332,7 +333,7 @@ class MultipartAttachmentsViewModelTest {
         assertTrue(viewModel.openLoadStates.value[pdfAttachment.uuid] is MultipartAttachmentOpenLoadState.Ready)
 
         // Tap while in Ready state (stale attachment without openLoadState)
-        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk())
+        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk(), mockk(), mockk())
 
         // File must open directly — no new download triggered
         verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
@@ -348,30 +349,32 @@ class MultipartAttachmentsViewModelTest {
         )
 
         // No state in cache — VM delegates to the download controller
-        viewModel.onClick(pdfAttachment, mockk())
+        viewModel.onClick(pdfAttachment, mockk(), mockk(), mockk())
 
         verify(exactly = 1) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
     }
 
     @Test
-    fun `givenVideoAttachmentWithContentUrl_whenClicked_thenDownloadStartsInsteadOfOpeningUrl`() = runTest {
+    fun `givenVideoAttachmentWithContentUrl_whenClicked_thenVideoIsStreamedInPlayerInsteadOfOpeningUrl`() = runTest {
         val (arrangement, viewModel) = Arrangement().arrange()
         val videoAttachment = testAttachmentUi.copy(
             mimeType = "video/mp4",
             assetType = AttachmentFileType.VIDEO,
             contentUrl = "content/url",
         )
+        val openInVideoPlayer = mockk<OpenAttachmentCallback>(relaxed = true)
 
-        // A cell video always carries a pre-signed contentUrl, but it must still go through the
-        // download/loading flow so the spinner/progress is shown — not be opened via the URL.
-        viewModel.onClick(videoAttachment, mockk())
+        // A cell video always carries a pre-signed contentUrl, which the in-app video player streams.
+        // It must not be downloaded first, nor handed over to an external app.
+        viewModel.onClick(videoAttachment, mockk(), openInVideoPlayer, mockk())
 
-        verify(exactly = 1) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+        verify(exactly = 1) { openInVideoPlayer.invoke(videoAttachment) }
+        verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
         coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
     }
 
     @Test
-    fun `givenVideoAttachmentWithLocalPath_whenClicked_thenFileIsOpenedLocally`() = runTest {
+    fun `givenVideoAttachmentWithLocalPath_whenClicked_thenVideoIsPlayedFromLocalFile`() = runTest {
         val (arrangement, viewModel) = Arrangement().arrange()
         val videoAttachment = testAttachmentUi.copy(
             mimeType = "video/mp4",
@@ -379,11 +382,13 @@ class MultipartAttachmentsViewModelTest {
             contentUrl = "content/url",
             localPath = "local/path",
         )
+        val openInVideoPlayer = mockk<OpenAttachmentCallback>(relaxed = true)
 
-        viewModel.onClick(videoAttachment, mockk())
+        viewModel.onClick(videoAttachment, mockk(), openInVideoPlayer, mockk())
 
-        coVerify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
+        verify(exactly = 1) { openInVideoPlayer.invoke(videoAttachment) }
         verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
         coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
     }
     // TODO: Refresh asset tests (part of refresh update PR)
@@ -419,14 +424,6 @@ class MultipartAttachmentsViewModelTest {
 
         @MockK
         lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
-
-        fun withSlowDownload() = apply {
-            every { openFileDownloadController.start(any(), any(), any(), any()) } answers {
-                // Simulate slow download — just set Loading, don't call onOpenFile
-                val cellNode = secondArg<com.wire.android.feature.cells.ui.model.CellNodeUi.File>()
-                sharedPathCache.setOpenLoadState(cellNode.uuid, OpenLoadState.Loading())
-            }
-        }
 
         fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
             coEvery { refreshHelper.refresh(any()) } returns Unit

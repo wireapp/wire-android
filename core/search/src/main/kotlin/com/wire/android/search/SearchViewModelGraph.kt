@@ -33,16 +33,16 @@ object SearchManualViewModelFactoryGroup
 @Composable
 fun searchUserViewModel(
     conversationId: ConversationId? = null,
-    onlyConnectedContacts: Boolean = false,
+    onlySelfTeamAndDomain: Boolean = false,
 ): SearchUserViewModel =
     wireAssistedMetroViewModel<SearchUserViewModel, SearchManualViewModelFactory>(
         instanceKey = listOfNotNull(
             "search_user",
-            if (onlyConnectedContacts) "only_connected_contacts" else null,
+            if (onlySelfTeamAndDomain) "only_self_team_and_domain" else null,
             conversationId?.let { "conversation_id_${it.value}@${it.domain}" },
         ).joinToString("_")
     ) {
-        searchUserViewModel(conversationId, onlyConnectedContacts)
+        searchUserViewModel(conversationId, onlySelfTeamAndDomain)
     }
 
 @Composable

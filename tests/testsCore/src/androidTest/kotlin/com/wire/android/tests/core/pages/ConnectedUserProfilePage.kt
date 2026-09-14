@@ -44,6 +44,7 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val moveOutOfArchiveButton = UiSelectorParams(text = "Unarchive")
     private val notificationsButton = UiSelectorParams(text = "Notifications")
     private val devicesTab = UiSelectorParams(text = "DEVICES")
+    private val verifiedShield = UiSelectorParams(description = "Verified")
 
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
 
@@ -88,6 +89,23 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
             timeout = UiWaitUtils.VERY_LONG_TIMEOUT
         )
         assertTrue("Device '$deviceName' is not visible in the connected user profile", deviceItem != null)
+        return this
+    }
+
+    fun tapDevice(deviceName: String): ConnectedUserProfilePage {
+        val deviceItem = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(
+                UiSelectorParams(description = "$deviceName, Not Verified"),
+                UiSelectorParams(text = deviceName)
+            ),
+            timeout = UiWaitUtils.SHORT_TIMEOUT
+        ) ?: throw AssertionError("Device '$deviceName' is not visible in the connected user profile")
+        deviceItem.click()
+        return this
+    }
+
+    fun assertVerifiedShieldVisible(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(verifiedShield)
         return this
     }
 

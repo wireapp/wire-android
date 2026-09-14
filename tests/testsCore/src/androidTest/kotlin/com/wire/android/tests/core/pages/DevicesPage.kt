@@ -18,6 +18,7 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.toBySelector
@@ -29,6 +30,12 @@ data class DevicesPage(private val device: UiDevice) {
     private val otherDevicesSection = UiSelectorParams(text = "OTHER DEVICES")
     private val deviceItem = UiSelectorParams(resourceId = "device_item")
     private val deviceIdAndAddedDate = UiSelectorParams(textMatches = "(?s)(?=.*Proteus ID:)(?=.*Added:).*")
+    private val verifyDeviceToggle = UiSelector()
+        .className("android.view.View")
+        .clickable(true)
+        .checkable(true)
+    private val deviceNotVerified = UiSelectorParams(text = "Not Verified")
+    private val deviceVerified = UiSelectorParams(text = "Verified")
     private val backButton = UiSelectorParams(description = "Go back")
 
     fun assertManageDevicesPageVisible(): DevicesPage {
@@ -79,6 +86,34 @@ data class DevicesPage(private val device: UiDevice) {
                 errorMessage = "Other device '$deviceName' is still visible"
             )
         }
+        return this
+    }
+
+    fun tapDevice(deviceName: String): DevicesPage {
+        val deviceItem = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(
+                UiSelectorParams(description = "$deviceName, Not Verified"),
+                UiSelectorParams(text = deviceName)
+            ),
+            timeout = UiWaitUtils.SHORT_TIMEOUT
+        ) ?: throw AssertionError("Device '$deviceName' is not visible")
+        deviceItem.click()
+        return this
+    }
+
+    fun assertDeviceNotVerified(): DevicesPage {
+        UiWaitUtils.waitElement(deviceNotVerified)
+        return this
+    }
+
+    fun tapVerifyDeviceButton(): DevicesPage {
+        UiWaitUtils.waitElement(deviceNotVerified)
+        device.findObject(verifyDeviceToggle).click()
+        return this
+    }
+
+    fun assertDeviceVerified(): DevicesPage {
+        UiWaitUtils.waitElement(deviceVerified)
         return this
     }
 

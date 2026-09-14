@@ -17,9 +17,11 @@
  */
 package com.wire.android.util
 
+import android.text.format.DateFormat
 import androidx.compose.runtime.Stable
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
+import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -38,6 +40,10 @@ fun Instant.formatMediumDateTime(): String = DateAndTimeParsers.formatMediumDate
 
 @Stable
 fun Instant.formatFullDateShortTime(): String = DateAndTimeParsers.formatFullDateShortTime(this)
+
+@Stable
+fun Instant.formatMonthDayShortTime(is24Hour: Boolean): String =
+    DateAndTimeParsers.formatMonthDayShortTime(this, is24Hour)
 
 @Stable
 fun Instant.uiMessageDateTime(): String = DateAndTimeParsers.uiMessageDateTime(this)
@@ -106,6 +112,16 @@ class DateAndTimeParsers private constructor() {
         fun formatMediumDateTime(instant: Instant): String = mediumDateTimeFormat.format(instant.toJavaInstant())
 
         fun formatFullDateShortTime(instant: Instant): String = fullDateShortTimeFormatter.format(instant.toJavaInstant())
+
+        fun formatMonthDayShortTime(instant: Instant, is24Hour: Boolean): String {
+            val locale = Locale.getDefault()
+            val date = Date.from(instant.toJavaInstant())
+            val datePattern = DateFormat.getBestDateTimePattern(locale, "MMMMd")
+            val timePattern = DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm")
+            val formattedDate = SimpleDateFormat(datePattern, locale).format(date)
+            val formattedTime = SimpleDateFormat(timePattern, locale).format(date)
+            return "$formattedDate, $formattedTime"
+        }
 
         fun cellTimeFormat(instant: Instant): String {
             val timeFormatter = java.text.DateFormat.getTimeInstance(

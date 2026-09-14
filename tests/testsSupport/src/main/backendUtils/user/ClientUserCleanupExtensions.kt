@@ -57,7 +57,7 @@ fun ClientUser.deleteUser(backend: BackendClient) {
         backend.getAuthToken(this@deleteUser)
     }
     NetworkBackendClient.sendJsonRequest(
-        url = with(backend) { URL("self".composeCompleteUrl()) },
+        url = with(backend) { URL("self".composePublicApiUrl()) },
         method = "DELETE",
         body = JSONObject().apply {
             put("password", password)
@@ -75,7 +75,7 @@ fun ClientUser.deleteUser(backend: BackendClient) {
 
 fun ClientUser.triggerDeleteEmail(backend: BackendClient) {
     val connection = NetworkBackendClient.makeRequest(
-        url = with(backend) { URL("self".composeCompleteUrl()) },
+        url = with(backend) { URL("self".composePublicApiUrl()) },
         method = "DELETE",
         body = JSONObject(),
         options = RequestOptions(

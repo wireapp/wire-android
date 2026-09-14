@@ -59,6 +59,7 @@ class TestService(private val baseUri: String, private val testName: String) {
 
     companion object {
         private val log = WireTestLogger.getLog(TestService::class.java.simpleName)
+        private const val REDACTED_VALUE = "[REDACTED]"
         private const val CONNECT_TIMEOUT = 120000
         private const val STATUS_204 = 204
         private const val ZINFRA = "staging.zinfra.io"
@@ -90,7 +91,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         try {
             log.info("${c.requestMethod}: ${c.url}")
             request?.let {
-                log.info(" >>> Request: ${truncateOnlyOnBig(it.toString())}")
+                log.info(" >>> Request: ${truncateOnlyOnBig(it.redactSensitiveFields())}")
                 writeStream(it.toString(), c.outputStream)
             }
             status = c.responseCode
@@ -155,6 +156,11 @@ class TestService(private val baseUri: String, private val testName: String) {
         }
     }
 
+    private fun JSONObject.redactSensitiveFields(): String = JSONObject(toString()).apply {
+        if (has("password")) put("password", REDACTED_VALUE)
+        if (has("verificationCode")) put("verificationCode", REDACTED_VALUE)
+    }.toString()
+
     private fun assertResponseCode(responseCode: Int, acceptableResponseCodes: List<Int>) {
         if (!acceptableResponseCodes.contains(responseCode)) {
             throw HttpRequestException(
@@ -180,7 +186,7 @@ class TestService(private val baseUri: String, private val testName: String) {
             verificationCode?.let { put("verificationCode", it) }
             put("deviceName", deviceName)
             put("name", testName)
-            if (owner.backendName == "staging") {
+            if (owner.backendName.equals("staging", ignoreCase = true)) {
                 put("backend", "staging")
             } else {
                 val ownerBackend = BackendClient.loadBackend(owner.backendName.orEmpty())

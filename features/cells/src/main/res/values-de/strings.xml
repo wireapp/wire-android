@@ -47,6 +47,7 @@
     <string name="share_file_via_link">Datei über Link teilen</string>
     <string name="share_folder_via_link">Ordner per Link teilen</string>
     <string name="no_app_found">Keine App zum Öffnen dieser Datei gefunden.</string>
+    <string name="file_not_supported">Datei kann nicht geöffnet werden. Dateityp wird nicht unterstützt.</string>
     <string name="cell_files_load_failure_message">Laden nicht möglich. Bitte versuchen Sie es später erneut.</string>
     <string name="cancel">Abbrechen</string>
     <string name="confirm_delete_file_title">Datei löschen</string>

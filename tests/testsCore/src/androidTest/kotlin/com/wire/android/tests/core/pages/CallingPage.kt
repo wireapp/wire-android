@@ -34,12 +34,13 @@ import java.io.File
 import java.util.regex.Pattern
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.toBySelector
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 data class CallingPage(private val device: UiDevice) {
-    private val acceptCallButton = UiSelectorParams(description = "Accept call")
+    private val acceptCallButton = UiSelectorParams(description = "Answer")
 
     private val hangUpCallButton = UiSelectorParams(description = "Hang up call")
 
@@ -89,6 +90,14 @@ data class CallingPage(private val device: UiDevice) {
 
     private val participantMicrophoneOffIcon = UiSelectorParams(description = "Microphone off")
 
+    private val featureUnavailableAlert = UiSelectorParams(textContains = "Feature unavailable")
+
+    private val upgradeToEnterpriseAlert = UiSelectorParams(textContains = "Upgrade to Enterprise")
+
+    private fun featureUnavailableAlertSubtext(text: String) = UiSelectorParams(textContains = text)
+
+    private fun upgradeToEnterpriseAlertSubtext(text: String) = UiSelectorParams(textContains = text)
+
     fun iAcceptCall(): CallingPage {
         UiWaitUtils.waitElement(acceptCallButton, timeout = UiWaitUtils.VERY_LONG_TIMEOUT).click()
         return this
@@ -107,6 +116,15 @@ data class CallingPage(private val device: UiDevice) {
             )
         } catch (e: AssertionError) {
             throw AssertionError("User '$participantName' is not visible in the ongoing 1:1 call", e)
+        }
+        return this
+    }
+
+    fun iSeeOngoingOneOnOneCall(): CallingPage {
+        try {
+            UiWaitUtils.waitElement(hangUpCallButton)
+        } catch (e: AssertionError) {
+            throw AssertionError("Ongoing 1:1 call not displayed", e)
         }
         return this
     }
@@ -551,6 +569,51 @@ data class CallingPage(private val device: UiDevice) {
             UiWaitUtils.waitElement(hangUpCallButton)
         } catch (e: AssertionError) {
             throw AssertionError("Ongoing call not displayed", e)
+        }
+        return this
+    }
+
+    fun assertFeatureUnavailableAlertVisible(): CallingPage {
+        try {
+            UiWaitUtils.waitElement(featureUnavailableAlert)
+        } catch (e: AssertionError) {
+            throw AssertionError("Feature unavailable alert is not visible", e)
+        }
+        return this
+    }
+
+    fun assertFeatureUnavailableAlertNotVisible(): CallingPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = featureUnavailableAlert.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Feature unavailable alert is visible"
+        )
+        return this
+    }
+
+    fun assertFeatureUnavailableAlertSubtextVisible(text: String): CallingPage {
+        try {
+            UiWaitUtils.waitElement(featureUnavailableAlertSubtext(text))
+        } catch (e: AssertionError) {
+            throw AssertionError("Feature unavailable alert subtext '$text' is not visible", e)
+        }
+        return this
+    }
+
+    fun assertUpgradeToEnterpriseAlertVisible(): CallingPage {
+        try {
+            UiWaitUtils.waitElement(upgradeToEnterpriseAlert)
+        } catch (e: AssertionError) {
+            throw AssertionError("Upgrade to Enterprise alert is not visible", e)
+        }
+        return this
+    }
+
+    fun assertUpgradeToEnterpriseAlertSubtextVisible(text: String): CallingPage {
+        try {
+            UiWaitUtils.waitElement(upgradeToEnterpriseAlertSubtext(text))
+        } catch (e: AssertionError) {
+            throw AssertionError("Upgrade to Enterprise alert subtext '$text' is not visible", e)
         }
         return this
     }

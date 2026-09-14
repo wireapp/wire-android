@@ -27,6 +27,7 @@ data class ChromePage(private val device: UiDevice) {
 
     private val useWithoutAccountLocator = UiSelectorParams(text = "Use without an account")
     private val noThanksLocator = UiSelectorParams(text = "No thanks")
+    private val declineCookiesLocator = UiSelectorParams(text = "Decline")
     private val networkQualityArticleTitle = UiSelectorParams(textContains = "Check network quality")
 
     fun clickUseWithoutAccount(): ChromePage {
@@ -44,6 +45,13 @@ data class ChromePage(private val device: UiDevice) {
     fun dismissNotificationsPromptIfVisible(): ChromePage {
         runCatching {
             UiWaitUtils.waitElement(noThanksLocator, timeout = 2.seconds).click()
+        }
+        return this
+    }
+
+    fun dismissCookieConsentIfVisible(): ChromePage {
+        runCatching {
+            UiWaitUtils.waitElement(declineCookiesLocator, timeout = 2.seconds).click()
         }
         return this
     }

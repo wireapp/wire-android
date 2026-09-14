@@ -84,7 +84,6 @@ fun MultipartAttachmentsView(
                     PdfDocumentSource(
                         localPath = att.localPath,
                         assetId = att.uuid,
-                        remotePath = att.remotePath,
                         fileName = att.fileName,
                         assetSize = att.assetSize ?: 0L,
                     )

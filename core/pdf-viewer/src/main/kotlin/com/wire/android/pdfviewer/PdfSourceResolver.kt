@@ -59,10 +59,9 @@ class PdfSourceResolver @Inject constructor(
     ): Result<File> = withContext(dispatcher) {
         val localFile = source.localPath?.let(::File)
         val assetId = source.assetId
-        val remotePath = source.remotePath
         when {
             localFile != null && localFile.isReadableFile() -> Result.success(localFile)
-            assetId != null && remotePath != null -> download(source, assetId, remotePath, forceRefresh)
+            assetId != null -> download(source, assetId, forceRefresh)
             else -> Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
         }
     }
@@ -70,14 +69,13 @@ class PdfSourceResolver @Inject constructor(
     private suspend fun download(
         source: PdfDocumentSource,
         assetId: String,
-        remotePath: String,
         forceRefresh: Boolean,
     ): Result<File> {
-        val target = downloadFileFor(assetId, source.conversationId, remotePath, source.fileName)
+        val target = downloadFileFor(assetId, source.conversationId, source.remotePath, source.fileName)
             ?: return Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
         if (!forceRefresh && target.isReadableFile()) return Result.success(target)
 
-        return remoteLoader.load(assetId, remotePath, source.conversationId, source.assetSize, target).fold(
+        return remoteLoader.load(assetId, source.remotePath, source.conversationId, source.assetSize, target).fold(
             onSuccess = { Result.success(target) },
             onFailure = { Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it)) },
         )
@@ -96,13 +94,13 @@ class PdfSourceResolver @Inject constructor(
     private fun downloadFileFor(
         assetId: String,
         conversationId: String?,
-        remotePath: String,
+        remotePath: String?,
         fileName: String?,
     ): File? {
         val root = externalFilesDir()
         val fallbackFolder = conversationId ?: assetId
 
-        val relative = remotePath.trim('/').let { trimmed ->
+        val relative = remotePath.orEmpty().trim('/').let { trimmed ->
             when {
                 trimmed.isEmpty() -> "$fallbackFolder/${fileName ?: "$assetId.pdf"}"
                 !trimmed.contains('/') -> "$fallbackFolder/$trimmed"

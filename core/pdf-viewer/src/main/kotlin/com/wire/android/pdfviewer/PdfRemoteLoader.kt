@@ -32,14 +32,16 @@ fun interface PdfRemoteLoader {
      * Downloads the asset identified by [assetId] / [remotePath] into [outFile].
      *
      * @param assetId   UUID of the cell asset.
-     * @param remotePath S3 object key / remote path of the asset.
+     * @param remotePath S3 object key, when the caller has an authoritative one. Null lets the
+     *   download resolve the key itself, which is what a caller with a possibly stale copy of the
+     *   path must do.
      * @param conversationId Optional conversation the asset belongs to (used for DB metadata).
      * @param assetSize Expected byte size of the asset (used for progress tracking).
      * @param outFile   Target file to write the downloaded bytes into.
      */
     suspend fun load(
         assetId: String,
-        remotePath: String,
+        remotePath: String?,
         conversationId: String?,
         assetSize: Long,
         outFile: File,

@@ -121,22 +121,27 @@ internal class PdfSourceResolverTest {
     }
 
     @Test
-    fun givenAssetIdButNoRemotePath_whenResolving_thenItFailsAsNotFound() = runTest {
-        val resolver = resolver()
+    fun givenAnAssetIdButNoRemotePath_whenResolving_thenTheKeyIsLeftToTheDownloader() = runTest {
+        val loader = writingLoader(bytes = 8)
+        val resolver = resolver(loader)
 
         val result = resolver.resolve(
             PdfDocumentSource(
                 localPath = null,
                 assetId = "asset-123",
                 remotePath = null,
-                conversationId = null,
+                conversationId = "conv-42",
                 fileName = "doc.pdf",
                 assetSize = 0L,
             ),
             dispatcher = Dispatchers.Default,
         )
 
-        assertEquals(PdfViewerError.FILE_NOT_FOUND, result.viewerError())
+        // A caller without an authoritative path passes none, so DownloadCellFileUseCase resolves
+        // the object key from the attachments DB instead of being handed a stale one.
+        assertTrue(result.isSuccess)
+        coVerify(exactly = 1) { loader.load(any(), null, any(), any(), any()) }
+        assertEquals(File(File(tempDir, "files"), "conv-42/doc.pdf"), result.getOrNull())
     }
 
     @Test
@@ -147,12 +152,14 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(loader)
 
         val result = resolver.resolve(
-            localPath = File(tempDir, "gone.pdf").absolutePath,
-            assetId = "asset-123",
-            remotePath = "/cells/path/doc.pdf",
-            conversationId = null,
-            fileName = "doc.pdf",
-            assetSize = 0L,
+            PdfDocumentSource(
+                localPath = File(tempDir, "gone.pdf").absolutePath,
+                assetId = "asset-123",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
             dispatcher = Dispatchers.Default,
         )
 
@@ -232,16 +239,16 @@ internal class PdfSourceResolverTest {
         val good = writingLoader(bytes = 4096)
         val cached = resolver(good)
             .resolve(
-            PdfDocumentSource(
-                localPath = null,
-                assetId = "asset-keep",
-                remotePath = "/cells/path/doc.pdf",
-                conversationId = null,
-                fileName = "doc.pdf",
-                assetSize = 0L,
-            ),
-            dispatcher = Dispatchers.Default,
-        )
+                PdfDocumentSource(
+                    localPath = null,
+                    assetId = "asset-keep",
+                    remotePath = "/cells/path/doc.pdf",
+                    conversationId = null,
+                    fileName = "doc.pdf",
+                    assetSize = 0L,
+                ),
+                dispatcher = Dispatchers.Default,
+            )
             .getOrNull()
 
         val failing = mockk<PdfRemoteLoader> {
@@ -249,16 +256,16 @@ internal class PdfSourceResolverTest {
         }
         val result = resolver(failing)
             .resolve(
-            PdfDocumentSource(
-                localPath = null,
-                assetId = "asset-keep",
-                remotePath = "/cells/path/doc.pdf",
-                conversationId = null,
-                fileName = "doc.pdf",
-                assetSize = 0L,
-            ),
-            forceRefresh = true, dispatcher = Dispatchers.Default,
-        )
+                PdfDocumentSource(
+                    localPath = null,
+                    assetId = "asset-keep",
+                    remotePath = "/cells/path/doc.pdf",
+                    conversationId = null,
+                    fileName = "doc.pdf",
+                    assetSize = 0L,
+                ),
+                forceRefresh = true, dispatcher = Dispatchers.Default,
+            )
 
         // Deleting it would strand the path DownloadCellFileUseCase already wrote to the DB.
         assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())

@@ -29,8 +29,14 @@ import java.io.File
  * Turns the arguments of the PDF screen into a readable local file.
  *
  * [android.graphics.pdf.PdfRenderer] needs a seekable file descriptor, so a remote asset has
- * to be fetched into the app cache first. Already downloaded files are reused, which keeps
+ * to be fetched to local storage first. Already downloaded files are reused, which keeps
  * re-opening the same attachment instant.
+ *
+ * Downloads land in the same place as every other cells download — the per-conversation folder
+ * under app-specific external storage — rather than in a cache directory of our own, because
+ * `DownloadCellFileUseCase` records the path it is given in the attachments DB. A cache path
+ * would let the OS delete the file while the DB still reported it as downloaded, and a private
+ * directory would leave a second copy of a file the rest of the app already knows how to find.
  *
  * Remote downloads are delegated to [PdfRemoteLoader], which is backed in production by
  * `DownloadCellFileUseCase` — the same authenticated kalium S3 client used for offline file
@@ -43,7 +49,7 @@ class PdfSourceResolver @Inject constructor(
 ) {
 
     /**
-     * @param forceRefresh re-downloads even when a cached copy exists, which is how a document
+     * @param forceRefresh re-downloads even when a local copy exists, which is how a document
      *   that turned out to be unopenable gets a second chance.
      */
     @Suppress("LongParameterList")
@@ -52,6 +58,7 @@ class PdfSourceResolver @Inject constructor(
         assetId: String?,
         remotePath: String?,
         conversationId: String?,
+        fileName: String?,
         assetSize: Long,
         forceRefresh: Boolean = false,
         dispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -60,23 +67,24 @@ class PdfSourceResolver @Inject constructor(
         when {
             localFile != null && localFile.isReadableFile() -> Result.success(localFile)
             assetId != null && remotePath != null ->
-                download(assetId, remotePath, conversationId, assetSize, forceRefresh)
+                download(assetId, remotePath, conversationId, fileName, assetSize, forceRefresh)
 
             else -> Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
         }
     }
 
+    @Suppress("LongParameterList")
     private suspend fun download(
         assetId: String,
         remotePath: String,
         conversationId: String?,
+        fileName: String?,
         assetSize: Long,
         forceRefresh: Boolean,
     ): Result<File> {
-        val target = cacheFileFor(assetId)
+        val target = downloadFileFor(assetId, conversationId, remotePath, fileName)
+            ?: return Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
         if (!forceRefresh && target.isReadableFile()) return Result.success(target)
-
-        target.parentFile?.mkdirs()
 
         return remoteLoader.load(assetId, remotePath, conversationId, assetSize, target).fold(
             onSuccess = { Result.success(target) },
@@ -84,14 +92,46 @@ class PdfSourceResolver @Inject constructor(
         )
     }
 
-    private fun cacheFileFor(assetId: String): File =
-        File(File(context.cacheDir, CACHE_DIR_NAME), "$assetId.pdf")
+    /**
+     * `<externalFilesDir>/<conversationId>/<sub>/<folders>/<name>`, creating the folders as needed.
+     *
+     * [remotePath] is the cells object key and is already rooted at the conversation, so mirroring
+     * it reproduces the remote structure locally and keeps two same-named files in different
+     * folders apart.
+     *
+     * Returns null when [remotePath] would escape the download directory: it comes from the
+     * backend, so it is not trusted as a path.
+     */
+    private fun downloadFileFor(
+        assetId: String,
+        conversationId: String?,
+        remotePath: String,
+        fileName: String?,
+    ): File? {
+        val root = externalFilesDir()
+        val fallbackFolder = conversationId ?: assetId
+
+        val relative = remotePath.trim('/').let { trimmed ->
+            when {
+                trimmed.isEmpty() -> "$fallbackFolder/${fileName ?: "$assetId.pdf"}"
+                !trimmed.contains('/') -> "$fallbackFolder/$trimmed"
+                else -> trimmed
+            }
+        }
+
+        val target = File(root, relative)
+        val insideRoot = runCatching {
+            target.canonicalFile.toPath().startsWith(root.canonicalFile.toPath())
+        }.getOrDefault(false)
+        if (!insideRoot) return null
+
+        target.parentFile?.mkdirs()
+        return target
+    }
+
+    private fun externalFilesDir(): File = context.getExternalFilesDir(null) ?: context.filesDir
 
     private fun File.isReadableFile(): Boolean = isFile && canRead() && length() > 0
-
-    private companion object {
-        const val CACHE_DIR_NAME = "pdf-viewer"
-    }
 }
 
 /** Carries the user-facing [error] out of [PdfSourceResolver]. */

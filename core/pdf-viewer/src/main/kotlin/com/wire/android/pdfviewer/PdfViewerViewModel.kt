@@ -121,6 +121,7 @@ class PdfViewerViewModel @AssistedInject constructor(
                 assetId = assetId,
                 remotePath = remotePath,
                 conversationId = conversationId,
+                fileName = fileName,
                 assetSize = assetSize,
                 forceRefresh = forceRefresh,
                 dispatcher = dispatchers.io(),

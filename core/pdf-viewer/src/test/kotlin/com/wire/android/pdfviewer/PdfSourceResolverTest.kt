@@ -26,6 +26,7 @@ import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -47,6 +48,7 @@ internal class PdfSourceResolverTest {
             assetId = null,
             remotePath = null,
             conversationId = null,
+            fileName = "doc.pdf",
             assetSize = 0L,
             dispatcher = Dispatchers.Default
         )
@@ -64,6 +66,7 @@ internal class PdfSourceResolverTest {
             assetId = null,
             remotePath = null,
             conversationId = null,
+            fileName = "doc.pdf",
             assetSize = 0L,
             dispatcher = Dispatchers.Default
         )
@@ -81,6 +84,7 @@ internal class PdfSourceResolverTest {
             assetId = null,
             remotePath = null,
             conversationId = null,
+            fileName = "doc.pdf",
             assetSize = 0L,
             dispatcher = Dispatchers.Default
         )
@@ -100,6 +104,7 @@ internal class PdfSourceResolverTest {
             assetId = "asset-123",
             remotePath = "/cells/path/doc.pdf",
             conversationId = null,
+            fileName = "doc.pdf",
             assetSize = 1024L,
             dispatcher = Dispatchers.Default
         )
@@ -116,6 +121,7 @@ internal class PdfSourceResolverTest {
             assetId = "asset-123",
             remotePath = null,
             conversationId = null,
+            fileName = "doc.pdf",
             assetSize = 0L,
             dispatcher = Dispatchers.Default
         )
@@ -135,6 +141,7 @@ internal class PdfSourceResolverTest {
             assetId = "asset-123",
             remotePath = "/cells/path/doc.pdf",
             conversationId = null,
+            fileName = "doc.pdf",
             assetSize = 0L,
             dispatcher = Dispatchers.Default,
         )
@@ -144,7 +151,7 @@ internal class PdfSourceResolverTest {
     }
 
     @Test
-    fun givenSuccessfulDownload_whenCachedFileExists_thenLoaderIsNotCalledAgain() = runTest {
+    fun givenSuccessfulDownload_whenTheFileAlreadyExists_thenLoaderIsNotCalledAgain() = runTest {
         val loader = mockk<PdfRemoteLoader> {
             coEvery { load(any(), any(), any(), any(), any()) } coAnswers {
                 val outFile = arg<File>(4)
@@ -155,20 +162,29 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(loader)
 
         // First call — triggers download
-        resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, dispatcher = Dispatchers.Default)
+        resolver.resolve(
+            localPath = null, assetId = "asset-abc", remotePath = "/cells/path/doc.pdf",
+            conversationId = null, fileName = "doc.pdf", assetSize = 0L, dispatcher = Dispatchers.Default,
+        )
         // Second call — should use cache
-        val result = resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, dispatcher = Dispatchers.Default)
+        val result = resolver.resolve(
+            localPath = null, assetId = "asset-abc", remotePath = "/cells/path/doc.pdf",
+            conversationId = null, fileName = "doc.pdf", assetSize = 0L, dispatcher = Dispatchers.Default,
+        )
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) { loader.load(any(), any(), any(), any(), any()) }
     }
 
     @Test
-    fun givenADownload_whenResolving_thenTheLoaderWritesStraightToTheCachedPath() = runTest {
+    fun givenADownload_whenResolving_thenTheLoaderWritesStraightToTheFinalPath() = runTest {
         val loader = writingLoader(bytes = 4096)
         val resolver = resolver(loader)
 
-        val result = resolver.resolve(null, "asset-full", "/cells/path/doc.pdf", null, 4096L, dispatcher = Dispatchers.Default)
+        val result = resolver.resolve(
+            localPath = null, assetId = "asset-full", remotePath = "/cells/path/doc.pdf",
+            conversationId = null, fileName = "doc.pdf", assetSize = 4096L, dispatcher = Dispatchers.Default,
+        )
 
         // The path handed to the loader is recorded in the attachments DB by
         // DownloadCellFileUseCase, so it must be the final one -- no staging, no rename.
@@ -181,17 +197,24 @@ internal class PdfSourceResolverTest {
     }
 
     @Test
-    fun givenAFailedDownload_whenResolving_thenAnyPreviouslyCachedCopyIsLeftAlone() = runTest {
+    fun givenAFailedDownload_whenResolving_thenAnyPreviouslyDownloadedCopyIsLeftAlone() = runTest {
         val good = writingLoader(bytes = 4096)
         val cached = resolver(good)
-            .resolve(null, "asset-keep", "/cells/path/doc.pdf", null, 0L, dispatcher = Dispatchers.Default)
+            .resolve(
+                localPath = null, assetId = "asset-keep", remotePath = "/cells/path/doc.pdf",
+                conversationId = null, fileName = "doc.pdf", assetSize = 0L, dispatcher = Dispatchers.Default,
+            )
             .getOrNull()
 
         val failing = mockk<PdfRemoteLoader> {
             coEvery { load(any(), any(), any(), any(), any()) } returns Result.failure(Exception("offline"))
         }
         val result = resolver(failing)
-            .resolve(null, "asset-keep", "/cells/path/doc.pdf", null, 0L, forceRefresh = true, dispatcher = Dispatchers.Default)
+            .resolve(
+                localPath = null, assetId = "asset-keep", remotePath = "/cells/path/doc.pdf",
+                conversationId = null, fileName = "doc.pdf", assetSize = 0L,
+                forceRefresh = true, dispatcher = Dispatchers.Default,
+            )
 
         // Deleting it would strand the path DownloadCellFileUseCase already wrote to the DB.
         assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
@@ -199,18 +222,96 @@ internal class PdfSourceResolverTest {
     }
 
     @Test
-    fun givenACachedAsset_whenForcingARefresh_thenItIsDownloadedAgain() = runTest {
+    fun givenAnAlreadyDownloadedAsset_whenForcingARefresh_thenItIsDownloadedAgain() = runTest {
         val loader = writingLoader(bytes = 8)
         val resolver = resolver(loader)
 
-        resolver.resolve(null, "asset-abc", "/cells/path/doc.pdf", null, 0L, dispatcher = Dispatchers.Default)
+        resolver.resolve(
+            localPath = null, assetId = "asset-abc", remotePath = "/cells/path/doc.pdf",
+            conversationId = null, fileName = "doc.pdf", assetSize = 0L, dispatcher = Dispatchers.Default,
+        )
         val result = resolver.resolve(
-            null, "asset-abc", "/cells/path/doc.pdf", null, 0L,
+            localPath = null, assetId = "asset-abc", remotePath = "/cells/path/doc.pdf",
+            conversationId = null, fileName = "doc.pdf", assetSize = 0L,
             forceRefresh = true, dispatcher = Dispatchers.Default,
         )
 
         assertTrue(result.isSuccess)
         coVerify(exactly = 2) { loader.load(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenANodeInSubFolders_whenDownloading_thenTheRemoteStructureIsRecreated() = runTest {
+        val resolver = resolver(writingLoader(bytes = 8))
+
+        val result = resolver.resolve(
+            localPath = null, assetId = "asset-1", remotePath = "conv-42/reports/q3/report.pdf",
+            conversationId = "conv-42", fileName = "report.pdf", assetSize = 0L,
+            dispatcher = Dispatchers.Default,
+        )
+
+        val file = result.getOrNull()
+        assertEquals(File(File(tempDir, "files"), "conv-42/reports/q3/report.pdf"), file)
+        assertTrue(file?.parentFile?.isDirectory == true, "sub folders should have been created")
+    }
+
+    @Test
+    fun givenTwoSameNamedNodesInDifferentFolders_whenDownloading_thenTheyDoNotCollide() = runTest {
+        val resolver = resolver(writingLoader(bytes = 8))
+
+        val first = resolver.resolve(
+            localPath = null, assetId = "asset-1", remotePath = "conv-42/a/report.pdf",
+            conversationId = "conv-42", fileName = "report.pdf", assetSize = 0L,
+            dispatcher = Dispatchers.Default,
+        )
+        val second = resolver.resolve(
+            localPath = null, assetId = "asset-2", remotePath = "conv-42/b/report.pdf",
+            conversationId = "conv-42", fileName = "report.pdf", assetSize = 0L,
+            dispatcher = Dispatchers.Default,
+        )
+
+        assertNotEquals(first.getOrNull(), second.getOrNull())
+    }
+
+    @Test
+    fun givenARemotePathWithoutFolders_whenDownloading_thenItIsGroupedByConversation() = runTest {
+        val resolver = resolver(writingLoader(bytes = 8))
+
+        val result = resolver.resolve(
+            localPath = null, assetId = "asset-1", remotePath = "/report.pdf",
+            conversationId = "conv-42", fileName = "report.pdf", assetSize = 0L,
+            dispatcher = Dispatchers.Default,
+        )
+
+        assertEquals(File(File(tempDir, "files"), "conv-42/report.pdf"), result.getOrNull())
+    }
+
+    @Test
+    fun givenARemotePathThatClimbsOutOfTheRoot_whenDownloading_thenItIsRejected() = runTest {
+        val loader = writingLoader(bytes = 8)
+        val resolver = resolver(loader)
+
+        // remotePath is backend supplied, so it is never trusted as a path.
+        val result = resolver.resolve(
+            localPath = null, assetId = "asset-1", remotePath = "../../../evil.pdf",
+            conversationId = "conv-42", fileName = "evil.pdf", assetSize = 0L,
+            dispatcher = Dispatchers.Default,
+        )
+
+        assertEquals(PdfViewerError.FILE_NOT_FOUND, result.viewerError())
+        coVerify(exactly = 0) { loader.load(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenNoFileNameAndNoRemotePath_whenDownloading_thenTheAssetIdIsUsed() = runTest {
+        val resolver = resolver(writingLoader(bytes = 8))
+
+        val result = resolver.resolve(
+            localPath = null, assetId = "asset-1", remotePath = "", fileName = null,
+            conversationId = "conv-42", assetSize = 0L, dispatcher = Dispatchers.Default,
+        )
+
+        assertEquals(File(File(tempDir, "files"), "conv-42/asset-1.pdf"), result.getOrNull())
     }
 
     private fun writingLoader(bytes: Int): PdfRemoteLoader = mockk {
@@ -222,7 +323,7 @@ internal class PdfSourceResolverTest {
 
     private fun resolver(loader: PdfRemoteLoader = mockk(relaxed = true)): PdfSourceResolver {
         val context = mockk<Context>()
-        every { context.cacheDir } returns File(tempDir, "cache")
+        every { context.getExternalFilesDir(any()) } returns File(tempDir, "files")
         return PdfSourceResolver(context, loader)
     }
 

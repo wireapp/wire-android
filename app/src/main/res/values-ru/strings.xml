@@ -550,6 +550,12 @@
     <string name="group_name_description">Дайте этой группе осмысленное название.</string>
     <string name="channel_name_description">Дайте этому каналу осмысленное название.</string>
     <string name="protocol">Протокол</string>
+    <string name="mls_migration_dialog_title">Изменить протокол на MLS?</string>
+    <string name="mls_migration_dialog_description">Стандартный протокол обмена сообщениями изменится с Proteus на Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Изменить протокол</string>
+    <string name="mls_migration_success">Беседа успешно смигрирована на MLS.</string>
+    <string name="mls_migration_failure">Не удалось смигрировать беседу на MLS.</string>
+    <string name="mls_migration_failure_with_backend_error">Переход к MLS не удался (HTTP %1$d, метка: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Набор шифров</string>
     <string name="last_key_material_update_label">Последнее обновление набора ключей</string>
@@ -1813,6 +1819,7 @@
     <string name="location_app_permission_dialog_body">Разрешите Wire получить доступ к местоположению вашего устройства, чтобы иметь возможность им поделиться.</string>
     <string name="location_loading_label">Пожалуйста, подождите...</string>
     <string name="location_could_not_be_shared">Не удалось поделиться местоположением</string>
+    <string name="label_no_application_found_open_location">Не найдено приложение для открытия местоположения</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Удалить медиафайл</string>
     <string name="asset_attention_description">Уведомление</string>

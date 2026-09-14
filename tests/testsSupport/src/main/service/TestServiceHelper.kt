@@ -513,6 +513,38 @@ class TestServiceHelper(
         )
     }
 
+    fun userEditsLatestMessageInPersonalMlsConversation(
+        senderAlias: String,
+        newMessage: String,
+        deviceName: String,
+        conversationWithAlias: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObjPersonal(sender, conversationWithAlias)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val messageId = getRecentMessageId(sender, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.updateText(
+            sender,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            messageId,
+            newMessage
+        )
+    }
+
+    fun getRecentMessageIdInPersonalMlsConversation(
+        userAlias: String,
+        deviceName: String,
+        conversationWithAlias: String
+    ): String {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObjPersonal(user, conversationWithAlias)
+        return getRecentMessageId(user, deviceName, conversation.qualifiedID.id, conversation.qualifiedID.domain)
+    }
+
     fun assertMessageReceivedInPersonalMlsConversation(
         receiverAlias: String,
         deviceName: String,
@@ -573,6 +605,38 @@ class TestServiceHelper(
                     "in its MLS conversation with '$conversationWithAlias'."
             )
         }
+    }
+
+    fun userEditsLatestMessageInGroupConversation(
+        senderAlias: String,
+        newMessage: String,
+        deviceName: String,
+        conversationName: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, conversationName)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val messageId = getRecentMessageId(sender, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.updateText(
+            sender,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            messageId,
+            newMessage
+        )
+    }
+
+    fun getRecentMessageIdInGroupConversation(
+        userAlias: String,
+        deviceName: String,
+        conversationName: String
+    ): String {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        return getRecentMessageId(user, deviceName, conversation.qualifiedID.id, conversation.qualifiedID.domain)
     }
 
     fun assertMessageReceivedInGroupConversation(

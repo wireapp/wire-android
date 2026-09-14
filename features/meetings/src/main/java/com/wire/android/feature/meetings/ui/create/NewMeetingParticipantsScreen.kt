@@ -48,7 +48,7 @@ internal fun NewMeetingParticipantsRouteContent(
     onOpenUserProfile: (UserId) -> Unit,
 ) {
     SearchUsersAndAppsScreen(
-        onlyConnectedContacts = true,
+        onlySelfTeamAndDomain = true,
         searchTitle = stringResource(R.string.new_meeting_participants_title),
         selectedContacts = newMeetingViewModel.state.selectedContacts,
         onContactChecked = newMeetingViewModel::updateSelectedContact,

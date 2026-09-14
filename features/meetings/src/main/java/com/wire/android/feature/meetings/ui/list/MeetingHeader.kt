@@ -24,17 +24,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
+import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.BigSectionHeader
 import com.wire.android.ui.common.rowitem.SectionHeader
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
+import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration.Companion.days
 
 @Composable
 fun MeetingHeader(
@@ -78,4 +82,40 @@ private fun getDateHeaderString(time: Instant): String {
         currentLocalDate.minus(1, DateTimeUnit.DAY) -> stringResource(R.string.meeting_date_header_yesterday, dateString)
         else -> dateString
     }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMeetingHeaderOngoing() = WireTheme {
+    MeetingHeader(header = MeetingHeader.Ongoing)
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMeetingHeaderToday() = WireTheme {
+    MeetingHeader(header = MeetingHeader.Day(time = Clock.System.now()))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMeetingHeaderTomorrow() = WireTheme {
+    MeetingHeader(header = MeetingHeader.Day(time = Clock.System.now().plus(1.days)))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMeetingHeaderOtherDay() = WireTheme {
+    MeetingHeader(header = MeetingHeader.Day(time = Instant.parse("2024-06-01T10:00:00Z")))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMeetingHeaderDayAndHour() = WireTheme {
+    MeetingHeader(header = MeetingHeader.DayAndHour(time = Instant.parse("2024-06-01T10:00:00Z")))
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMeetingHeaderHour() = WireTheme {
+    MeetingHeader(header = MeetingHeader.Hour(time = Instant.parse("2024-06-01T12:00:00Z")))
 }

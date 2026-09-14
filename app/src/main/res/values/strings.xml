@@ -1040,6 +1040,9 @@
     <string name="left_conversation_success">You left the conversation.</string>
     <string name="delete_conversation_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <string name="error_conversation_not_found">Conversation could not be found</string>
+    <string name="error_conversation_unknown_error">There was an error while loading conversation</string>
+    <string name="error_conversation_opening_meetings_unsupported">Meeting type conversation cannot be opened</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversation was archived</string>
     <string name="success_unarchiving_conversation">Conversation was unarchived</string>

@@ -21,8 +21,8 @@ package com.wire.android.ui.home.conversations
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -53,7 +53,6 @@ import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.ui.calling.conversationCallViewModel
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
@@ -77,6 +76,7 @@ import com.wire.android.ui.home.conversations.edit.MessageOptionsModalSheetLayou
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
+import com.wire.android.ui.home.conversations.info.InitialLoadingState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
@@ -253,8 +253,22 @@ internal fun ConversationScreenRouteContent(
             conversationInfoViewModel.observeConversationDetails()
         }
     }
-    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.notFound) {
-        if (conversationInfoViewModel.conversationInfoViewState.notFound) navigation.goBack()
+    LaunchedEffect(conversationInfoViewModel.conversationInfoViewState.initialLoadingState) {
+        when (conversationInfoViewModel.conversationInfoViewState.initialLoadingState) {
+            InitialLoadingState.NOT_FOUND -> {
+                Toast.makeText(context, R.string.error_conversation_not_found, Toast.LENGTH_SHORT).show()
+                navigation.goBack()
+            }
+            InitialLoadingState.UNKNOWN_ERROR -> {
+                Toast.makeText(context, R.string.error_conversation_unknown_error, Toast.LENGTH_SHORT).show()
+                navigation.goBack()
+            }
+            InitialLoadingState.OPENING_MEETINGS_UNSUPPORTED -> {
+                Toast.makeText(context, R.string.error_conversation_opening_meetings_unsupported, Toast.LENGTH_SHORT).show()
+                navigation.goBack()
+            }
+            else -> {} // no-op
+        }
     }
 
     // set message composer input to edit mode when editMessage is not null from MessageDraft
@@ -543,8 +557,6 @@ internal fun ConversationScreenRouteContent(
         },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
-        isFetchingOlderMessages = conversationMessagesViewModel.conversationViewState.isFetchingOlderMessages,
-        hasMoreRemoteMessages = conversationMessagesViewModel.conversationViewState.hasMoreRemoteMessages,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
     )
     BackHandler {
@@ -676,8 +688,6 @@ private fun ConversationScreenContent(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     onReachedOldestMessage: () -> Unit = {},
-    isFetchingOlderMessages: Boolean = false,
-    hasMoreRemoteMessages: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -789,6 +799,7 @@ private fun ConversationScreenContent(
                         hasMoreRemoteMessages = conversationMessagesViewState.hasMoreRemoteMessages,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
+                        initialLoading = conversationInfoViewState.initialLoadingState != InitialLoadingState.LOADED,
                     )
                 }
             }
@@ -936,7 +947,5 @@ fun PreviewConversationScreen() = WireTheme {
         onAttachmentMenuClick = {},
         onAttachmentPicked = {},
         onAudioRecorded = {},
-        isFetchingOlderMessages = false,
-        hasMoreRemoteMessages = false,
     )
 }

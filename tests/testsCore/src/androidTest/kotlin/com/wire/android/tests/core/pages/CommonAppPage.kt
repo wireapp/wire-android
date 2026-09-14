@@ -17,6 +17,9 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.content.Intent
+import android.net.Uri
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.Assert.assertTrue
@@ -27,11 +30,23 @@ import kotlin.time.Duration.Companion.seconds
 
 data class CommonAppPage(private val device: UiDevice) {
     private val teamSettingsChangedAlert = UiSelectorParams(textContains = "Team Settings Changed")
+    private val accountUsedOnAnotherDeviceAlert = UiSelectorParams(text = "Your account was used on")
+    private val manageDevicesButton = UiSelectorParams(text = "Manage Devices")
+    private val switchAccountButton = UiSelectorParams(text = "Switch Account")
     private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
+    private val wireEnterpriseAlert = UiSelectorParams(textContains = "Wire Enterprise")
+    private val learnMoreWireEnterpriseLink = UiSelectorParams(textContains = "Learn more about Wire")
+    private val upgradeNowButton = UiSelectorParams(text = "Upgrade now")
     private val okButton = UiSelectorParams(text = "OK")
+    private val cancelButton = UiSelectorParams(text = "Cancel")
     private val closeWebPageButton = UiSelectorParams(description = "Close tab")
+    private val joinConversationButton = UiSelectorParams(text = "Join")
 
     private fun teamSettingsChangedAlertSubtext(text: String) = UiSelectorParams(textContains = text)
+    private fun secondAccountUsedOnAnotherDeviceAlert(accountName: String) =
+        UiSelectorParams(textContains = "Your account “$accountName")
+
+    private fun wireEnterpriseAlertText(text: String) = UiSelectorParams(textContains = text)
 
     fun assertTeamSettingsChangedAlertVisible(): CommonAppPage {
         val alert = UiWaitUtils.waitElement(teamSettingsChangedAlert)
@@ -45,8 +60,73 @@ data class CommonAppPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertWireEnterpriseAlertVisible(): CommonAppPage {
+        val alert = UiWaitUtils.waitElement(wireEnterpriseAlert)
+        assertTrue("Wire Enterprise alert is not visible", !alert.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertWireEnterpriseAlertTextVisible(text: String): CommonAppPage {
+        val alertText = UiWaitUtils.waitElement(wireEnterpriseAlertText(text))
+        assertTrue("Wire Enterprise alert text is not visible", !alertText.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapLearnMoreWireEnterpriseLink(): CommonAppPage {
+        UiWaitUtils.waitElement(learnMoreWireEnterpriseLink).click()
+        return this
+    }
+
+    fun tapUpgradeNowButtonOnEnterpriseAlert(): CommonAppPage {
+        UiWaitUtils.waitElement(upgradeNowButton).click()
+        return this
+    }
+
+    fun assertAccountUsedOnAnotherDeviceAlertVisible(): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = accountUsedOnAnotherDeviceAlert,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Account used on another device alert is not visible"
+        )
+        return this
+    }
+
+    fun assertSecondAccountUsedOnAnotherDeviceAlertVisible(accountName: String): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = secondAccountUsedOnAnotherDeviceAlert(accountName),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Account used on another device alert for '$accountName' is not visible"
+        )
+        return this
+    }
+
+    fun assertAddedDeviceAlertSubtextVisible(expectedSubtext: String): CommonAppPage {
+        val subtext = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = expectedSubtext),
+            timeout = UiWaitUtils.SHORT_TIMEOUT
+        )
+        assertTrue("Added device alert subtext is not visible", !subtext.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapManageDevicesButton(): CommonAppPage {
+        UiWaitUtils.waitElement(manageDevicesButton).click()
+        return this
+    }
+
+    fun tapSwitchAccountButton(): CommonAppPage {
+        UiWaitUtils.waitElement(switchAccountButton).click()
+        return this
+    }
+
     fun tapOkButtonOnAlert(): CommonAppPage {
         UiWaitUtils.waitElement(okButton).click()
+        device.waitForIdle()
+        return this
+    }
+
+    fun tapCancelButtonOnAlert(): CommonAppPage {
+        UiWaitUtils.waitElement(cancelButton).click()
         device.waitForIdle()
         return this
     }
@@ -108,6 +188,22 @@ data class CommonAppPage(private val device: UiDevice) {
             closeWebPageButton,
             timeout = UiWaitUtils.SHORT_WAIT
         ).click()
+        return this
+    }
+
+    fun openDeepLink(deepLinkUrl: String): CommonAppPage {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(deepLinkUrl)
+            setPackage(UiAutomatorSetup.appPackage)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+        return this
+    }
+
+    fun tapJoinConversationButton(): CommonAppPage {
+        UiWaitUtils.waitElement(joinConversationButton).click()
         return this
     }
 

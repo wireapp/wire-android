@@ -120,6 +120,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
+import com.wire.android.pdfviewer.PdfDocumentSource
 
 /**
  * The maximum number of participants to send a ping without showing a confirmation dialog.
@@ -453,6 +454,7 @@ internal fun ConversationScreenRouteContent(
         },
         onVideoClick = navigation::openVideoPlayer,
         onAudioClick = navigation::openAudioPlayer,
+        onPdfClick = navigation::openPdfViewer,
         onStartCall = {
             conversationCallViewModel.startCallIfPossible(conversationInfoViewModel.conversationInfoViewState.conversationType)
         },
@@ -656,6 +658,7 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onPdfClick: (PdfDocumentSource) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
@@ -768,6 +771,7 @@ private fun ConversationScreenContent(
                         onImageFullScreenMode = onImageFullScreenMode,
                         onVideoClick = onVideoClick,
                         onAudioClick = onAudioClick,
+                        onPdfClick = onPdfClick,
                         onReactionClicked = onReactionClick,
                         onResetSessionClicked = onResetSessionClick,
                         onOpenProfile = onOpenProfile,
@@ -912,6 +916,7 @@ fun PreviewConversationScreen() = WireTheme {
         onImageFullScreenMode = { _, _, _ -> },
         onVideoClick = { _, _, _ -> },
         onAudioClick = { _, _, _ -> },
+        onPdfClick = {},
         onStartCall = { },
         onJoinCall = { },
         onReactionClick = { _, _ -> },

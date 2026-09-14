@@ -52,6 +52,8 @@ import com.wire.android.feature.cells.ui.searchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsRouteScreen
 import com.wire.android.feature.cells.ui.versionHistoryViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryRouteScreen
+import com.wire.android.pdfviewer.PdfDocumentSource
+import com.wire.android.pdfviewer.PdfViewer
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.videoplayer.VideoPlayer
@@ -253,7 +255,17 @@ internal fun CellsNavigation3RouteScreen(
             fileName = route.fileName,
             onNavigateBack = navigateBack,
         )
-
+        is PdfViewerRoute -> PdfViewer(
+            source = PdfDocumentSource(
+                localPath = route.localPath,
+                assetId = route.assetId,
+                remotePath = route.remotePath,
+                conversationId = route.conversationId,
+                fileName = route.fileName,
+                assetSize = route.assetSize,
+            ),
+            onNavigateBack = navigateBack,
+        )
         is SearchRoute -> AnimatedVisibility(visible = true) {
             SearchRouteScreen(
                 navigation = filesNavigation,
@@ -383,6 +395,22 @@ private class Navigation3CellsFilesNavigation(
         runtime.navigator.navigate(
             WireNavigationCommand(
                 AudioPlayerRoute(sessionId, file.localPath, file.contentUrl, file.name)
+            )
+        )
+    }
+
+    override fun pdf(file: CellNodeUi.File) {
+        runtime.navigator.navigate(
+            WireNavigationCommand(
+                PdfViewerRoute(
+                    sessionId = sessionId,
+                    localPath = file.localPath,
+                    assetId = file.uuid,
+                    remotePath = file.remotePath,
+                    conversationId = file.conversationId,
+                    assetSize = file.size ?: 0L,
+                    fileName = file.name,
+                )
             )
         )
     }

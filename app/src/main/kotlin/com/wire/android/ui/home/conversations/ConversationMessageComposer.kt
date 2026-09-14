@@ -34,6 +34,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
+import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -66,6 +67,7 @@ internal fun ConversationMessageComposer(
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onPdfClick: (PdfDocumentSource) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
@@ -130,6 +132,7 @@ internal fun ConversationMessageComposer(
                     onImageClicked = onImageFullScreenMode,
                     onVideoClicked = onVideoClick,
                     onAudioClicked = onAudioClick,
+                    onPdfClicked = onPdfClick,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
                     onResetSessionClicked = onResetSessionClicked,

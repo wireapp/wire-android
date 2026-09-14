@@ -27,16 +27,9 @@ import com.wire.android.di.metro.wireAssistedMetroViewModel
 object PdfViewerManualViewModelFactoryGroup
 
 @Composable
-fun pdfViewerViewModel(
-    localPath: String?,
-    assetId: String?,
-    remotePath: String?,
-    conversationId: String?,
-    assetSize: Long,
-    fileName: String?,
-): PdfViewerViewModel =
+fun pdfViewerViewModel(source: PdfDocumentSource): PdfViewerViewModel =
     wireAssistedMetroViewModel<PdfViewerViewModel, PdfViewerManualViewModelFactory>(
-        instanceKey = "pdf_viewer_${localPath ?: assetId}"
+        instanceKey = "pdf_viewer_${source.localPath ?: source.assetId}"
     ) {
-        pdfViewerViewModel(localPath, assetId, remotePath, conversationId, assetSize, fileName)
+        pdfViewerViewModel(source)
     }

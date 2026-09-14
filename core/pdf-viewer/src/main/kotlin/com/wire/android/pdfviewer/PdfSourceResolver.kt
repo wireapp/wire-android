@@ -52,41 +52,32 @@ class PdfSourceResolver @Inject constructor(
      * @param forceRefresh re-downloads even when a local copy exists, which is how a document
      *   that turned out to be unopenable gets a second chance.
      */
-    @Suppress("LongParameterList")
     suspend fun resolve(
-        localPath: String?,
-        assetId: String?,
-        remotePath: String?,
-        conversationId: String?,
-        fileName: String?,
-        assetSize: Long,
+        source: PdfDocumentSource,
         forceRefresh: Boolean = false,
         dispatcher: CoroutineDispatcher = Dispatchers.IO,
     ): Result<File> = withContext(dispatcher) {
-        val localFile = localPath?.let(::File)
+        val localFile = source.localPath?.let(::File)
+        val assetId = source.assetId
+        val remotePath = source.remotePath
         when {
             localFile != null && localFile.isReadableFile() -> Result.success(localFile)
-            assetId != null && remotePath != null ->
-                download(assetId, remotePath, conversationId, fileName, assetSize, forceRefresh)
-
+            assetId != null && remotePath != null -> download(source, assetId, remotePath, forceRefresh)
             else -> Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
         }
     }
 
-    @Suppress("LongParameterList")
     private suspend fun download(
+        source: PdfDocumentSource,
         assetId: String,
         remotePath: String,
-        conversationId: String?,
-        fileName: String?,
-        assetSize: Long,
         forceRefresh: Boolean,
     ): Result<File> {
-        val target = downloadFileFor(assetId, conversationId, remotePath, fileName)
+        val target = downloadFileFor(assetId, source.conversationId, remotePath, source.fileName)
             ?: return Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
         if (!forceRefresh && target.isReadableFile()) return Result.success(target)
 
-        return remoteLoader.load(assetId, remotePath, conversationId, assetSize, target).fold(
+        return remoteLoader.load(assetId, remotePath, source.conversationId, source.assetSize, target).fold(
             onSuccess = { Result.success(target) },
             onFailure = { Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it)) },
         )

@@ -19,6 +19,7 @@ package com.wire.android.ui.home.conversations.messages.item
 
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
@@ -31,13 +32,7 @@ sealed class MessageClickActions {
     open val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> }
     open val onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit = { _, _, _ -> }
     open val onAudioClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit = { _, _, _ -> }
-    open val onPdfClicked: (
-        localPath: String?,
-        assetId: String?,
-        remotePath: String?,
-        assetSize: Long,
-        fileName: String?
-    ) -> Unit = { _, _, _, _, _ -> }
+    open val onPdfClicked: (PdfDocumentSource) -> Unit = {}
     open val onLinkClicked: (String) -> Unit = {}
     open val onReplyClicked: (UIMessage.Regular) -> Unit = {}
     open val onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit = { _, _ -> }
@@ -57,13 +52,7 @@ sealed class MessageClickActions {
         override val onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit = { _, _, _ -> },
         override val onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit = { _, _, _ -> },
         override val onAudioClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit = { _, _, _ -> },
-        override val onPdfClicked: (
-            localPath: String?,
-            assetId: String?,
-            remotePath: String?,
-            assetSize: Long,
-            fileName: String?
-        ) -> Unit = { _, _, _, _, _ -> },
+        override val onPdfClicked: (PdfDocumentSource) -> Unit = {},
         override val onLinkClicked: (String) -> Unit = {},
         override val onReplyClicked: (UIMessage.Regular) -> Unit = {},
         override val onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit = { _, _ -> },

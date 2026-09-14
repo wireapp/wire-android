@@ -20,6 +20,7 @@ import com.wire.android.ui.home.conversations.migration.ConversationMigrationVie
 import com.wire.android.ui.home.conversations.sendmessage.SendMessageViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
+import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
@@ -53,7 +54,7 @@ internal interface ConversationRouteScreenNavigation {
     fun openVideoPlayer(localPath: String?, contentUrl: String?, fileName: String?)
     fun openAudioPlayer(localPath: String?, contentUrl: String?, fileName: String?)
 
-    fun openPdfViewer(localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?)
+    fun openPdfViewer(source: PdfDocumentSource)
 
     fun openDrawingCanvas(
         conversationName: String,

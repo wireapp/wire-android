@@ -47,6 +47,7 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileRoute
 import com.wire.android.ui.userprofile.self.SelfUserProfileRoute
 import com.wire.android.ui.userprofile.service.ServiceDetailsNavArgs
 import com.wire.android.ui.userprofile.service.toServiceDetailsRoute
+import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireBackStackMode
@@ -261,16 +262,16 @@ private fun ConversationNavigation3Entry(
             )
         }
 
-        override fun openPdfViewer(localPath: String?, assetId: String?, remotePath: String?, assetSize: Long, fileName: String?) {
+        override fun openPdfViewer(source: PdfDocumentSource) {
             runtime.navigator.navigate(
                 WireNavigationCommand(
                     PdfViewerRoute(
                         sessionId = route.sessionId,
-                        localPath = localPath,
-                        assetId = assetId,
-                        remotePath = remotePath,
-                        assetSize = assetSize,
-                        fileName = fileName,
+                        localPath = source.localPath,
+                        assetId = source.assetId,
+                        remotePath = source.remotePath,
+                        assetSize = source.assetSize,
+                        fileName = source.fileName,
                     )
                 )
             )

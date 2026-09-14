@@ -73,7 +73,7 @@ internal class PdfViewerViewModelTest {
 
         assertEquals(PdfViewerState.Failure(PdfViewerError.DOWNLOAD_FAILED), viewModel.state.value)
         verify(exactly = 0) { openPdfDocument(any()) }
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any()) }
     }
 
     @Test
@@ -199,7 +199,7 @@ internal class PdfViewerViewModelTest {
         viewModel.retry()
 
         assertEquals(PdfViewerState.Content(pageCount = 3, firstPageAspectRatio = TEST_ASPECT_RATIO), viewModel.state.value)
-        coVerify(exactly = 2) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 2) { arrangement.sourceResolver.resolve(any(), any(), any()) }
     }
 
     @Test
@@ -211,7 +211,7 @@ internal class PdfViewerViewModelTest {
 
         assertEquals(PdfViewerState.Loading, viewModel.state.value)
         viewModel.retry()
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any()) }
 
         gate.complete(Unit)
 
@@ -219,7 +219,7 @@ internal class PdfViewerViewModelTest {
             PdfViewerState.Content(pageCount = DEFAULT_PAGE_COUNT, firstPageAspectRatio = TEST_ASPECT_RATIO),
             viewModel.state.value,
         )
-        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sourceResolver.resolve(any(), any(), any()) }
     }
 
     @Test
@@ -227,7 +227,7 @@ internal class PdfViewerViewModelTest {
         val (arrangement, _) = Arrangement().arrange()
 
         coVerify(exactly = 1) {
-            arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), false, any())
+            arrangement.sourceResolver.resolve(any(), false, any())
         }
     }
 
@@ -244,7 +244,7 @@ internal class PdfViewerViewModelTest {
         // Re-downloading is the only recovery available: the cached file cannot be deleted here
         // because DownloadCellFileUseCase records its path in the attachments DB.
         coVerify(exactly = 1) {
-            arrangement.sourceResolver.resolve(any(), any(), any(), any(), any(), any(), true, any())
+            arrangement.sourceResolver.resolve(any(), true, any())
         }
     }
 
@@ -266,16 +266,16 @@ internal class PdfViewerViewModelTest {
         }
 
         fun withResolveSuccess() = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any(), any()) } returns Result.success(file)
+            coEvery { sourceResolver.resolve(any(), any(), any()) } returns Result.success(file)
         }
 
         fun withResolveFailure(error: PdfViewerError) = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any(), any()) } returns
+            coEvery { sourceResolver.resolve(any(), any(), any()) } returns
                     Result.failure(PdfSourceException(error))
         }
 
         fun withResolveGatedBy(gate: CompletableDeferred<Unit>) = apply {
-            coEvery { sourceResolver.resolve(any(), any(), any(), any(), any(), any(), any(), any()) } coAnswers {
+            coEvery { sourceResolver.resolve(any(), any(), any()) } coAnswers {
                 gate.await()
                 Result.success(file)
             }
@@ -304,12 +304,7 @@ internal class PdfViewerViewModelTest {
         fun arrange(): Pair<Arrangement, PdfViewerViewModel> = this to PdfViewerViewModel(
             sourceResolver = sourceResolver,
             dispatchers = TestDispatcherProvider(),
-            localPath = "local/document.pdf",
-            assetId = null,
-            remotePath = null,
-            conversationId = null,
-            assetSize = 0L,
-            fileName = "document.pdf",
+            source = PdfDocumentSource(localPath = "local/document.pdf", fileName = "document.pdf"),
         )
     }
 

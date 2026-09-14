@@ -43,6 +43,7 @@ import com.wire.android.ui.home.conversations.multipartAttachmentsViewModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
+import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.id.ConversationId
@@ -60,13 +61,7 @@ fun MultipartAttachmentsView(
     onImageAttachmentClick: (String) -> Unit,
     onVideoAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onAudioAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
-    onPdfAttachmentClick: (
-        localPath: String?,
-        assetId: String?,
-        remotePath: String?,
-        assetSize: Long,
-        fileName: String?
-    ) -> Unit,
+    onPdfAttachmentClick: (PdfDocumentSource) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
@@ -84,7 +79,17 @@ fun MultipartAttachmentsView(
             openInAudioPlayer = { att ->
                 onAudioAttachmentClick(att.localPath, att.contentUrl, att.fileName)
             },
-            openInPdfViewer = { att -> onPdfAttachmentClick(att.localPath, att.uuid, att.remotePath, att.assetSize ?: 0L, att.fileName) },
+            openInPdfViewer = { att ->
+                onPdfAttachmentClick(
+                    PdfDocumentSource(
+                        localPath = att.localPath,
+                        assetId = att.uuid,
+                        remotePath = att.remotePath,
+                        fileName = att.fileName,
+                        assetSize = att.assetSize ?: 0L,
+                    )
+                )
+            },
         )
     }
 

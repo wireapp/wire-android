@@ -12,6 +12,7 @@ import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.videoplayer.VideoPlayer
+import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.android.pdfviewer.PdfViewer
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.android.ui.home.conversations.ConversationNavArgs
@@ -125,12 +126,14 @@ internal fun mediaNavigation3Entries(
     }
     wireEntry<PdfViewerRoute>(presentation = WireEntryPresentation.PopUp) { route ->
         PdfViewer(
-            localPath = route.localPath,
-            assetId = route.assetId,
-            remotePath = route.remotePath,
-            conversationId = route.conversationId,
-            assetSize = route.assetSize,
-            fileName = route.fileName,
+            source = PdfDocumentSource(
+                localPath = route.localPath,
+                assetId = route.assetId,
+                remotePath = route.remotePath,
+                conversationId = route.conversationId,
+                fileName = route.fileName,
+                assetSize = route.assetSize,
+            ),
             onNavigateBack = runtime.navigator::goBack,
         )
     }

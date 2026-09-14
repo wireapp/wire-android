@@ -61,6 +61,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.video.VideoMess
 import com.wire.android.ui.home.messagecomposer.LinkPreviewCard
 import com.wire.android.ui.theme.Accent
 import com.wire.android.util.launchGeoIntent
+import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import okio.Path.Companion.toPath
 
@@ -74,13 +75,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onImageClicked: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onAudioClicked: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
-    onPdfClicked: (
-        localPath: String?,
-        assetId: String?,
-        remotePath: String?,
-        assetSize: Long,
-        fileName: String?
-    ) -> Unit,
+    onPdfClicked: (PdfDocumentSource) -> Unit,
     onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
@@ -181,13 +176,7 @@ private fun MessageContent(
     onMultipartImageClick: (String) -> Unit,
     onMultipartVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onMultipartAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
-    onMultipartPdfClick: (
-        localPath: String?,
-        assetId: String?,
-        remotePath: String?,
-        assetSize: Long,
-        fileName: String?
-    ) -> Unit,
+    onMultipartPdfClick: (PdfDocumentSource) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onLinkClick: (String) -> Unit,
     onReplyClick: Clickable,

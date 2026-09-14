@@ -36,8 +36,8 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 /**
- * Opens a single PDF from either a local file ([localPath]) or a remote asset identified by
- * [assetId] and [remotePath], and renders its pages on demand.
+ * Opens the PDF described by [source] — an already downloaded file or a downloadable asset —
+ * and renders its pages on demand.
  *
  * Arguments are passed through the assisted [Factory] instead of a navigation destination so the
  * screen can be hosted from any module.
@@ -46,25 +46,12 @@ import java.io.IOException
 class PdfViewerViewModel @AssistedInject constructor(
     private val sourceResolver: PdfSourceResolver,
     private val dispatchers: DispatcherProvider,
-    @Assisted val localPath: String?,
-    @Assisted val assetId: String?,
-    @Assisted val remotePath: String?,
-    @Assisted val conversationId: String?,
-    @Assisted val assetSize: Long,
-    @Assisted val fileName: String?,
+    @Assisted val source: PdfDocumentSource,
 ) : ViewModel() {
 
-    @Suppress("LongParameterList")
     @AssistedFactory
     interface Factory {
-        fun create(
-            localPath: String?,
-            assetId: String?,
-            remotePath: String?,
-            conversationId: String?,
-            assetSize: Long,
-            fileName: String?,
-        ): PdfViewerViewModel
+        fun create(source: PdfDocumentSource): PdfViewerViewModel
     }
 
     private val _state = MutableStateFlow<PdfViewerState>(PdfViewerState.Loading)
@@ -117,12 +104,7 @@ class PdfViewerViewModel @AssistedInject constructor(
         _state.value = PdfViewerState.Loading
         loadJob = viewModelScope.launch {
             val file = sourceResolver.resolve(
-                localPath = localPath,
-                assetId = assetId,
-                remotePath = remotePath,
-                conversationId = conversationId,
-                fileName = fileName,
-                assetSize = assetSize,
+                source = source,
                 forceRefresh = forceRefresh,
                 dispatcher = dispatchers.io(),
             ).getOrElse { cause ->

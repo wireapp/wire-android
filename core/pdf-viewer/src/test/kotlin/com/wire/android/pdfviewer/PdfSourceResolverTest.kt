@@ -44,13 +44,15 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(loader)
 
         val result = resolver.resolve(
-            localPath = document.absolutePath,
-            assetId = null,
-            remotePath = null,
-            conversationId = null,
-            fileName = "doc.pdf",
-            assetSize = 0L,
-            dispatcher = Dispatchers.Default
+            PdfDocumentSource(
+                localPath = document.absolutePath,
+                assetId = null,
+                remotePath = null,
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
 
         assertEquals(document, result.getOrNull())
@@ -62,13 +64,15 @@ internal class PdfSourceResolverTest {
         val resolver = resolver()
 
         val result = resolver.resolve(
-            localPath = null,
-            assetId = null,
-            remotePath = null,
-            conversationId = null,
-            fileName = "doc.pdf",
-            assetSize = 0L,
-            dispatcher = Dispatchers.Default
+            PdfDocumentSource(
+                localPath = null,
+                assetId = null,
+                remotePath = null,
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
 
         assertEquals(PdfViewerError.FILE_NOT_FOUND, result.viewerError())
@@ -80,13 +84,15 @@ internal class PdfSourceResolverTest {
         val resolver = resolver()
 
         val result = resolver.resolve(
-            localPath = empty.absolutePath,
-            assetId = null,
-            remotePath = null,
-            conversationId = null,
-            fileName = "doc.pdf",
-            assetSize = 0L,
-            dispatcher = Dispatchers.Default
+            PdfDocumentSource(
+                localPath = empty.absolutePath,
+                assetId = null,
+                remotePath = null,
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
 
         assertEquals(PdfViewerError.FILE_NOT_FOUND, result.viewerError())
@@ -100,13 +106,15 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(loader)
 
         val result = resolver.resolve(
-            localPath = null,
-            assetId = "asset-123",
-            remotePath = "/cells/path/doc.pdf",
-            conversationId = null,
-            fileName = "doc.pdf",
-            assetSize = 1024L,
-            dispatcher = Dispatchers.Default
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-123",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 1024L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
 
         assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
@@ -117,13 +125,15 @@ internal class PdfSourceResolverTest {
         val resolver = resolver()
 
         val result = resolver.resolve(
-            localPath = null,
-            assetId = "asset-123",
-            remotePath = null,
-            conversationId = null,
-            fileName = "doc.pdf",
-            assetSize = 0L,
-            dispatcher = Dispatchers.Default
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-123",
+                remotePath = null,
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
 
         assertEquals(PdfViewerError.FILE_NOT_FOUND, result.viewerError())
@@ -163,13 +173,27 @@ internal class PdfSourceResolverTest {
 
         // First call — triggers download
         resolver.resolve(
-            localPath = null, assetId = "asset-abc", remotePath = "/cells/path/doc.pdf",
-            conversationId = null, fileName = "doc.pdf", assetSize = 0L, dispatcher = Dispatchers.Default,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-abc",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
         // Second call — should use cache
         val result = resolver.resolve(
-            localPath = null, assetId = "asset-abc", remotePath = "/cells/path/doc.pdf",
-            conversationId = null, fileName = "doc.pdf", assetSize = 0L, dispatcher = Dispatchers.Default,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-abc",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
 
         assertTrue(result.isSuccess)
@@ -182,8 +206,15 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(loader)
 
         val result = resolver.resolve(
-            localPath = null, assetId = "asset-full", remotePath = "/cells/path/doc.pdf",
-            conversationId = null, fileName = "doc.pdf", assetSize = 4096L, dispatcher = Dispatchers.Default,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-full",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 4096L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
 
         // The path handed to the loader is recorded in the attachments DB by
@@ -201,9 +232,16 @@ internal class PdfSourceResolverTest {
         val good = writingLoader(bytes = 4096)
         val cached = resolver(good)
             .resolve(
-                localPath = null, assetId = "asset-keep", remotePath = "/cells/path/doc.pdf",
-                conversationId = null, fileName = "doc.pdf", assetSize = 0L, dispatcher = Dispatchers.Default,
-            )
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-keep",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
+        )
             .getOrNull()
 
         val failing = mockk<PdfRemoteLoader> {
@@ -211,10 +249,16 @@ internal class PdfSourceResolverTest {
         }
         val result = resolver(failing)
             .resolve(
-                localPath = null, assetId = "asset-keep", remotePath = "/cells/path/doc.pdf",
-                conversationId = null, fileName = "doc.pdf", assetSize = 0L,
-                forceRefresh = true, dispatcher = Dispatchers.Default,
-            )
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-keep",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            forceRefresh = true, dispatcher = Dispatchers.Default,
+        )
 
         // Deleting it would strand the path DownloadCellFileUseCase already wrote to the DB.
         assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
@@ -227,12 +271,25 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(loader)
 
         resolver.resolve(
-            localPath = null, assetId = "asset-abc", remotePath = "/cells/path/doc.pdf",
-            conversationId = null, fileName = "doc.pdf", assetSize = 0L, dispatcher = Dispatchers.Default,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-abc",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
         val result = resolver.resolve(
-            localPath = null, assetId = "asset-abc", remotePath = "/cells/path/doc.pdf",
-            conversationId = null, fileName = "doc.pdf", assetSize = 0L,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-abc",
+                remotePath = "/cells/path/doc.pdf",
+                conversationId = null,
+                fileName = "doc.pdf",
+                assetSize = 0L,
+            ),
             forceRefresh = true, dispatcher = Dispatchers.Default,
         )
 
@@ -245,8 +302,14 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(writingLoader(bytes = 8))
 
         val result = resolver.resolve(
-            localPath = null, assetId = "asset-1", remotePath = "conv-42/reports/q3/report.pdf",
-            conversationId = "conv-42", fileName = "report.pdf", assetSize = 0L,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-1",
+                remotePath = "conv-42/reports/q3/report.pdf",
+                conversationId = "conv-42",
+                fileName = "report.pdf",
+                assetSize = 0L,
+            ),
             dispatcher = Dispatchers.Default,
         )
 
@@ -260,13 +323,25 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(writingLoader(bytes = 8))
 
         val first = resolver.resolve(
-            localPath = null, assetId = "asset-1", remotePath = "conv-42/a/report.pdf",
-            conversationId = "conv-42", fileName = "report.pdf", assetSize = 0L,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-1",
+                remotePath = "conv-42/a/report.pdf",
+                conversationId = "conv-42",
+                fileName = "report.pdf",
+                assetSize = 0L,
+            ),
             dispatcher = Dispatchers.Default,
         )
         val second = resolver.resolve(
-            localPath = null, assetId = "asset-2", remotePath = "conv-42/b/report.pdf",
-            conversationId = "conv-42", fileName = "report.pdf", assetSize = 0L,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-2",
+                remotePath = "conv-42/b/report.pdf",
+                conversationId = "conv-42",
+                fileName = "report.pdf",
+                assetSize = 0L,
+            ),
             dispatcher = Dispatchers.Default,
         )
 
@@ -278,8 +353,14 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(writingLoader(bytes = 8))
 
         val result = resolver.resolve(
-            localPath = null, assetId = "asset-1", remotePath = "/report.pdf",
-            conversationId = "conv-42", fileName = "report.pdf", assetSize = 0L,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-1",
+                remotePath = "/report.pdf",
+                conversationId = "conv-42",
+                fileName = "report.pdf",
+                assetSize = 0L,
+            ),
             dispatcher = Dispatchers.Default,
         )
 
@@ -293,8 +374,14 @@ internal class PdfSourceResolverTest {
 
         // remotePath is backend supplied, so it is never trusted as a path.
         val result = resolver.resolve(
-            localPath = null, assetId = "asset-1", remotePath = "../../../evil.pdf",
-            conversationId = "conv-42", fileName = "evil.pdf", assetSize = 0L,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-1",
+                remotePath = "../../../evil.pdf",
+                conversationId = "conv-42",
+                fileName = "evil.pdf",
+                assetSize = 0L,
+            ),
             dispatcher = Dispatchers.Default,
         )
 
@@ -307,8 +394,15 @@ internal class PdfSourceResolverTest {
         val resolver = resolver(writingLoader(bytes = 8))
 
         val result = resolver.resolve(
-            localPath = null, assetId = "asset-1", remotePath = "", fileName = null,
-            conversationId = "conv-42", assetSize = 0L, dispatcher = Dispatchers.Default,
+            PdfDocumentSource(
+                localPath = null,
+                assetId = "asset-1",
+                remotePath = "",
+                conversationId = "conv-42",
+                fileName = null,
+                assetSize = 0L,
+            ),
+            dispatcher = Dispatchers.Default,
         )
 
         assertEquals(File(File(tempDir, "files"), "conv-42/asset-1.pdf"), result.getOrNull())

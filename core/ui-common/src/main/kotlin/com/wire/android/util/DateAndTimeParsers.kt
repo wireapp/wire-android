@@ -84,6 +84,8 @@ class DateAndTimeParsers private constructor() {
                 this.timeZone = java.util.TimeZone.getDefault()
             }
 
+        private val shortTime24hFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault()).withZone(ZoneId.systemDefault())
+
         private val mediumDateTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fullDateShortTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
@@ -103,7 +105,7 @@ class DateAndTimeParsers private constructor() {
         private val videoMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
 
-        private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd", Locale.getDefault())
+        private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM d", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
 
         fun deviceDateTimeFormat(instant: Instant): String =
@@ -165,7 +167,7 @@ class DateAndTimeParsers private constructor() {
         fun videoMessageTime(timeMs: Long): String = videoMessageTimeFormat.format(java.time.Instant.ofEpochMilli(timeMs))
 
         fun meetingDate(instant: Instant): String = dayOfWeekMonthDayDateFormat.format(instant.toJavaInstant())
-        fun meetingTime(instant: Instant): String = shortTimeFormat.format(Date.from(instant.toJavaInstant()))
+        fun meetingTime(instant: Instant): String = shortTime24hFormat.format(instant.toJavaInstant())
 
         fun linkExpirationDate(timeMs: Long): String = dayOfWeekMonthDayDateFormat.format(java.time.Instant.ofEpochMilli(timeMs))
         fun linkExpirationTime(timeMs: Long): String = shortTimeFormat.format(Date.from(java.time.Instant.ofEpochMilli(timeMs)))

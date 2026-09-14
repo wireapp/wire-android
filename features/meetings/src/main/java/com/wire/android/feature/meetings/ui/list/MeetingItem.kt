@@ -204,19 +204,6 @@ internal fun MeetingLeadingIcon(
 }
 
 @Composable
-private fun MeetingOngoingDurationTimeSublineText(startedTime: Instant) {
-    val currentTime = rememberCurrentTimeProvider()
-    var currentDuration by remember { mutableStateOf(currentTime().minus(startedTime)) }
-    LaunchedEffect(currentDuration) {
-        val durationInWholeMinutes = currentDuration.inWholeMinutes.toDuration(DurationUnit.MINUTES)
-        val durationToNextFullMinute = durationInWholeMinutes.plus(1.minutes) - currentDuration
-        delay(durationToNextFullMinute.inWholeMilliseconds)
-        currentDuration = currentTime().minus(startedTime)
-    }
-    SublineText(text = "%d:%02d".format(currentDuration.inWholeMinutes / 60, currentDuration.inWholeMinutes % 60))
-}
-
-@Composable
 private fun RepeatingIntervalInfoLabel(repeatingInterval: MeetingItem.RepeatingInterval?) {
     if (repeatingInterval != null) {
         WireItemLabel(text = repeatingInterval.label.asString(), textStyle = typography().label01)
@@ -229,25 +216,7 @@ private fun MeetingTimeInfoRow(status: Status, repeatingInterval: MeetingItem.Re
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing3x)
     ) {
-        when (status) {
-            is Status.Scheduled -> {
-                SublineText(DateAndTimeParsers.meetingTime(status.startTime) + " - " + DateAndTimeParsers.meetingTime(status.endTime))
-            }
-
-            is Status.Ongoing -> {
-                SublineText(text = stringResource(R.string.meeting_started_at, DateAndTimeParsers.meetingTime(status.startTime)))
-                SublineText(text = "•")
-                MeetingOngoingDurationTimeSublineText(startedTime = status.startTime)
-            }
-
-            is Status.Ended -> {
-                SublineText(text = DateAndTimeParsers.meetingDate(status.startTime))
-                SublineText(text = "•")
-                SublineText(text = stringResource(R.string.meeting_started_at, DateAndTimeParsers.meetingTime(status.startTime)))
-                SublineText(text = "•")
-                SublineText(text = "%d:%02d".format(status.duration.inWholeMinutes / 60, status.duration.inWholeMinutes % 60))
-            }
-        }
+        SublineText(DateAndTimeParsers.meetingTime(status.startTime) + " - " + DateAndTimeParsers.meetingTime(status.endTime))
         RepeatingIntervalInfoLabel(repeatingInterval)
     }
 }

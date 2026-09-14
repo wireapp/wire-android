@@ -107,6 +107,76 @@ suspend fun BackendClient.createTeamConversation(
     return JSONObject(response).getJSONObject("qualified_id").getString("id")
 }
 
+suspend fun BackendClient.createGroupConversation(
+    user: ClientUser,
+    contacts: List<ClientUser>,
+    conversationName: String
+): String {
+    val token = getAuthToken(user)
+    val url = URI("conversations".composePublicApiUrl()).toURL()
+
+    val (ids, qualifiedIds) = contacts.partition { it.backendName == user.backendName }
+    val requestBody = JSONObject().apply {
+        put("users", JSONArray().apply { ids.forEach { put(it.id) } })
+        put(
+            "qualified_users",
+            JSONArray().apply {
+                qualifiedIds.forEach {
+                    put(
+                        QualifiedID(
+                            it.id.orEmpty(),
+                            BackendClient.loadBackend(it.backendName.orEmpty()).domain
+                        ).toJSON()
+                    )
+                }
+            }
+        )
+        put("conversation_role", "wire_member")
+        put("name", conversationName)
+    }
+
+    val response = NetworkBackendClient.sendJsonRequest(
+        url = url,
+        method = "POST",
+        body = requestBody.toString(),
+        headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "Bearer ${token?.value}")
+        }
+    )
+    return JSONObject(response).getJSONObject("qualified_id").getString("id")
+}
+
+suspend fun BackendClient.createInviteLink(user: ClientUser, conversation: Conversation): String =
+    requestInviteLink(user, conversation, "POST")
+
+suspend fun BackendClient.getInviteLink(user: ClientUser, conversation: Conversation): String =
+    requestInviteLink(user, conversation, "GET")
+
+private suspend fun BackendClient.requestInviteLink(
+    user: ClientUser,
+    conversation: Conversation,
+    method: String
+): String {
+    val token = getAuthToken(user)
+    val url = URI("conversations/${conversation.id}/code".composePublicApiUrl()).toURL()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token?.type} ${token?.value}")
+    }
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = method,
+        body = if (method == "POST") {
+            JSONObject().put("password", JSONObject.NULL).toString()
+        } else {
+            null
+        },
+        headers = headers,
+        options = RequestOptions(accessToken = token)
+    )
+    val payload = JSONObject(response.body)
+    return payload.optJSONObject("data")?.getString("uri") ?: payload.getString("uri")
+}
+
 suspend fun BackendClient.createChannelTeamConversation(
     user: ClientUser,
     conversationName: String?,

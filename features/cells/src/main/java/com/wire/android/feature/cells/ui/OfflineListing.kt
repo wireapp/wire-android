@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.feature.cells.ui
 
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo

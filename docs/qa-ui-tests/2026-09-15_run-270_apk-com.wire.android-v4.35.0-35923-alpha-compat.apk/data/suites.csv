@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Tue Sep 15 13:22:12 CEST 2026","Tue Sep 15 13:24:01 CEST 2026","109164","","com.wire.android.tests.core.criticalFlows.FileSharingBetweenTeams","","com.wire.android.tests.core.criticalFlows.FileSharingBetweenTeams","givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt","givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt",""

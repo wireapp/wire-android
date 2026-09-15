@@ -40,11 +40,19 @@ data class SelfUserProfilePage(private val device: UiDevice) {
 
     private val infoTextCheckbox = UiSelectorParams(className = "android.widget.CheckBox")
 
+    private fun activeAccountName(accountName: String) =
+        UiSelectorParams(description = "Profile name, $accountName")
+
     fun iSeeUserProfilePage(timeout: Duration = 30.seconds): SelfUserProfilePage {
         UiWaitUtils.waitAnyVisible(
             selectors = listOf(userProfilePageTitle, logoutButton),
             timeout = timeout
         ) ?: throw AssertionError("User Profile Page is not displayed")
+        return this
+    }
+
+    fun assertCurrentAccountActive(accountName: String): SelfUserProfilePage {
+        UiWaitUtils.waitElement(activeAccountName(accountName))
         return this
     }
 

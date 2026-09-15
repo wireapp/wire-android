@@ -199,6 +199,7 @@ dependencies {
     implementation(libs.kermit.io)
 
     implementation("com.wire.kalium:kalium-logic")
+    implementation("com.wire.kalium:kalium-network")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
     implementation("com.wire.kalium:kalium-core-libsodium")
@@ -216,6 +217,7 @@ dependencies {
     implementationWithCoverage(projects.core.media)
     implementationWithCoverage(projects.core.videoPlayer)
     implementationWithCoverage(projects.core.audioPlayer)
+    implementationWithCoverage(projects.core.pdfViewer)
     implementationWithCoverage(projects.core.notification)
     implementationWithCoverage(projects.core.navigation)
     implementationWithCoverage(projects.core.search)

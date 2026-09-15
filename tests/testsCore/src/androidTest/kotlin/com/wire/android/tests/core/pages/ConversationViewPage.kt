@@ -31,6 +31,8 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
 import uiautomatorutils.UiWaitUtils.waitElement
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 import kotlin.time.Duration
@@ -66,6 +68,10 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val openButton = UiSelectorParams(text = "Open")
     private val cancelButton = UiSelectorParams(text = "Cancel")
+    private val verifiedProteusConversation =
+        UiSelectorParams(description = "All of all participants are verified (Proteus)")
+    private val conversationNoLongerVerifiedAlert = UiSelectorParams(text = "Conversation no longer verified")
+    private val sendAnywayButton = UiSelectorParams(text = "Send Anyway")
 
     private val downloadButtonOnVideoFile = UiSelectorParams(text = "Tap to download")
 
@@ -99,10 +105,13 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
     private val copyMessageOption = UiSelectorParams(description = "Copy the message")
+    private val editMessageOption = UiSelectorParams(description = "Edit the message")
     private val deleteMessageOption = UiSelectorParams(description = "Delete the message")
     private val deleteForMeButton = UiSelectorParams(text = "Delete for Me")
     private val deleteForEveryoneButton = UiSelectorParams(text = "Delete for Everyone")
     private val retryButton = UiSelectorParams(text = "Retry")
+    private fun pollMessage(message: String) = UiSelectorParams(textContains = message)
+    private fun pollButton(buttonName: String) = UiSelectorParams(text = buttonName)
     private val deleteForMeConfirmationText = UiSelectorParams(text = "Delete this Message for yourself?")
     private val deletedMessageLabel = UiSelectorParams(text = "Deleted message")
     private val imageContextMenuButton = UiSelectorParams(description = "More options")
@@ -270,6 +279,44 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun tapCopyMessageOption(): ConversationViewPage {
         UiWaitUtils.waitElement(copyMessageOption).click()
+        return this
+    }
+
+    fun tapEditMessageOption(): ConversationViewPage {
+        UiWaitUtils.waitElement(editMessageOption).click()
+        return this
+    }
+
+    fun assertEditMessageOptionVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(editMessageOption)
+        return this
+    }
+
+    fun editMessage(message: String): ConversationViewPage {
+        val inputField = UiWaitUtils.waitElement(messageInputField)
+        inputField.click()
+        inputField.text = message
+        return this
+    }
+
+    fun tapSendEditedMessageButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(editMessageOption).click()
+        return this
+    }
+
+    fun assertEditedLabelAndTimestampVisible(message: String): ConversationViewPage {
+        val messageContainer = UiWaitUtils.waitElement(UiSelectorParams(text = message)).parent
+        val labels = messageContainer.findObjects(By.clazz("android.widget.TextView")).map { it.text.orEmpty() }
+
+        Assert.assertTrue("Edited label is not visible for message '$message'.", "Edited" in labels)
+
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val currentTime = LocalTime.now()
+        val expectedTimes = setOf(currentTime.format(timeFormatter), currentTime.minusMinutes(1).format(timeFormatter))
+        Assert.assertTrue(
+            "Edited timestamp is not visible for message '$message'. Actual labels: $labels",
+            labels.any { it in expectedTimes }
+        )
         return this
     }
 
@@ -636,6 +683,46 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertPollMessageVisible(message: String): ConversationViewPage {
+        UiWaitUtils.waitElement(pollMessage(message))
+        return this
+    }
+
+    fun assertPollButtonVisible(buttonName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(pollButton(buttonName))
+        return this
+    }
+
+    fun tapPollButton(buttonName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(pollButton(buttonName)).click()
+        return this
+    }
+
+    fun assertPollButtonSelected(buttonName: String): ConversationViewPage {
+        val selectionCompleted = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
+            val buttonContainer = findElementOrNull(pollButton(buttonName))?.parent
+                ?: return@retryUntilTimeout false
+            buttonContainer.findObject(By.clazz("android.widget.ProgressBar")) == null
+        }
+        Assert.assertTrue("Poll button '$buttonName' is not selected.", selectionCompleted)
+        return this
+    }
+
+    fun assertConversationVerified(): ConversationViewPage {
+        UiWaitUtils.waitElement(verifiedProteusConversation)
+        return this
+    }
+
+    fun assertConversationNoLongerVerifiedAlertVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(conversationNoLongerVerifiedAlert)
+        return this
+    }
+
+    fun tapSendAnywayButtonOnDegradationAlert(): ConversationViewPage {
+        UiWaitUtils.waitElement(sendAnywayButton).click()
+        return this
+    }
+
     fun assertMessageIsDisplayedInConversationView(): ConversationViewPage {
         val message = UiWaitUtils.waitElement(anyTextMessage).text.orEmpty()
         Assert.assertTrue("Sent message is not displayed in the conversation view.", message.isNotEmpty())
@@ -759,6 +846,26 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapLinkInCurrentConversation(link: String): ConversationViewPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = link)).click()
+        return this
+    }
+
+    fun assertLinkOpeningAlertVisible(link: String): ConversationViewPage {
+        val alertText = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = "This will take you to")
+        ).text.orEmpty()
+        if (!alertText.contains(link)) {
+            throw AssertionError("Link opening alert does not contain '$link'.")
+        }
+        return this
+    }
+
+    fun tapOpenButtonOnLinkAlert(): ConversationViewPage {
+        UiWaitUtils.waitElement(openButton).click()
+        return this
+    }
+
     fun assertSystemMessageVisible(message: String) = apply { waitElement(UiSelectorParams(textContains = message)) }
 
     fun assertVisibleMentionedNameIs(mentionedName: String): ConversationViewPage {
@@ -796,6 +903,12 @@ data class ConversationViewPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Group conversation '$conversationName' is not in foreground.", e)
         }
+        return this
+    }
+
+    fun assertOneOnOneConversationInForeground(userName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(conversationDetails1On1(userName))
+        UiWaitUtils.waitElement(typeMessageField)
         return this
     }
 

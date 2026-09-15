@@ -68,6 +68,11 @@ object TestConversationItem {
         folder = null
     )
 
+    val VIEWER_ONLY_GROUP = GROUP.copy(
+        conversationId = QualifiedID("viewerOnlyValue", "domain"),
+        isSelfUserViewerOnly = true
+    )
+
     val CONNECTION = ConversationItem.ConnectionConversation(
         userAvatarData = UserAvatarData(),
         conversationId = QualifiedID("value", "domain"),

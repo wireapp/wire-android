@@ -17,10 +17,10 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.AUDIO
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
@@ -31,9 +31,10 @@ import com.wire.android.feature.cells.ui.OpenFileDownloadController
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
-import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
+import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -60,8 +61,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
@@ -73,7 +72,9 @@ interface MultipartAttachmentsViewModel {
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     )
+
     fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
         val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
         return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
@@ -96,6 +97,7 @@ interface MultipartAttachmentsViewModel {
                     is MultipartAttachmentGroup.Media -> {
                         group.copy(attachments = group.attachments + uiAttachment)
                     }
+
                     else -> {
                         result.add(group)
                         MultipartAttachmentGroup.Media(listOf(uiAttachment))
@@ -107,6 +109,7 @@ interface MultipartAttachmentsViewModel {
                     is MultipartAttachmentGroup.Files -> {
                         group.copy(attachments = group.attachments + uiAttachment)
                     }
+
                     else -> {
                         result.add(group)
                         MultipartAttachmentGroup.Files(listOf(uiAttachment))
@@ -141,7 +144,10 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-    ) {}
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
+    ) {
+    }
+
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
@@ -174,8 +180,6 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             .map { states -> states.mapValues { (_, state) -> state.toMultipartState() } }
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
-    private val uploadProgress = mutableStateMapOf<String, Float>()
-
     override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()
         .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
@@ -192,7 +196,8 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-        ) {
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
+    ) {
         // Always use the authoritative shared-cache state — the `attachment` snapshot may be stale
         // if recomposition hasn't fired yet when the user taps.
         val currentLoadState = sharedPathCache.openLoadStates.value[attachment.uuid]
@@ -220,6 +225,9 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
 
             attachment.isAudio() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
                 openInAudioPlayer(attachment)
+
+            attachment.isPdf() && (attachment.localFileAvailable() || attachment.canDownloadRemotely()) ->
+                openInPdfViewer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -320,6 +328,8 @@ private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
 
 private fun MultipartAttachmentUi.isAudio() = assetType == AUDIO
 
+private fun MultipartAttachmentUi.isPdf() = assetType == PDF
+
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {
         IMAGE, VIDEO -> true
@@ -328,7 +338,8 @@ private fun MessageAttachment.isMediaAttachment() =
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO)
+private fun MultipartAttachmentUi.canDownloadRemotely() = remotePath != null && assetType == PDF
 
 /**
  * Maps [OpenLoadState] (cells-module type) to [MultipartAttachmentOpenLoadState].

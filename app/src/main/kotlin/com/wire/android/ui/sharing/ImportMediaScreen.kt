@@ -91,7 +91,9 @@ import com.wire.android.ui.home.conversations.selfdeletion.selfDeletionMenuItems
 import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.common.previewConversationItems
 import com.wire.android.ui.home.conversationslist.common.previewConversationItemsFlow
+import com.wire.android.ui.home.conversationslist.common.previewViewerOnlyConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.android.ui.home.messagecomposer.SelfDeletionDuration
 import com.wire.android.ui.home.newconversation.common.SendContentButton
 import com.wire.android.ui.importMediaAuthenticatedViewModel
@@ -515,6 +517,7 @@ private fun ImportMediaContent(
             lazyPagingConversations = lazyPagingConversations,
             selectedConversations = state.selectedConversationItem,
             isSelectableList = true,
+            isConversationEnabled = state::isConversationSelectable,
             searchQuery = searchQuery,
             onConversationSelectedOnRadioGroup = onConversationClicked,
             onOpenConversation = onConversationClicked,
@@ -706,6 +709,42 @@ fun PreviewImportMediaTextScreenRegular() {
                 importedAssets = persistentListOf(),
                 importedText = "This is a shared text message \n" +
                         "This is a second line with a veeeeeeeeeeeeeeeeeeeeeeeeeeery long shared text message"
+            ),
+            searchQueryTextState = rememberTextFieldState(),
+            avatarAsset = null,
+            onConversationClicked = {},
+            checkRestrictionsAndSendImportedMedia = {},
+            onNewSelfDeletionTimerPicked = {},
+            infoMessage = MutableSharedFlow(),
+            onRemoveAsset = { _ -> },
+            navigateBack = {}
+        )
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewImportMediaScreenWithViewerOnlyConversation() {
+    val conversations: List<ConversationItemType> =
+        listOf<ConversationItemType>(previewViewerOnlyConversationItem()) + previewConversationItems(withSections = false)
+    WireTheme {
+        ImportMediaRegularContent(
+            importMediaAuthenticatedState = ImportMediaAuthenticatedState(
+                conversations = previewConversationItemsFlow(list = conversations),
+                importedAssets = persistentListOf(
+                    ImportedMediaAsset(
+                        AssetBundle(
+                            "key",
+                            "image/png",
+                            "".toPath(),
+                            20,
+                            "preview.png",
+                            assetType = AttachmentType.IMAGE
+                        ),
+                        assetSizeExceeded = null
+                    ),
+                ),
+                drivePermissionsEnabled = true,
             ),
             searchQueryTextState = rememberTextFieldState(),
             avatarAsset = null,

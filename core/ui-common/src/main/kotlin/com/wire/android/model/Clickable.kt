@@ -30,4 +30,5 @@ data class Clickable(
 data class ClickBlockParams(
     val blockWhenSyncing: Boolean = false,
     val blockWhenConnecting: Boolean = false,
+    val debounceClicks: Boolean = true,
 )

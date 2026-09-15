@@ -105,6 +105,7 @@ internal fun CellScreenContent(
     showImageViewer: (CellNodeUi.File) -> Unit = {},
     showVideoViewer: (CellNodeUi.File) -> Unit = {},
     showAudioPlayer: (CellNodeUi.File) -> Unit = {},
+    showPdfViewer: (CellNodeUi.File) -> Unit = {},
     fileReadyFlow: Flow<CellNodeUi.File>? = emptyFlow(),
 ) {
 
@@ -266,6 +267,7 @@ internal fun CellScreenContent(
             is OpenImageViewer -> showImageViewer(action.file)
             is OpenVideoViewer -> showVideoViewer(action.file)
             is OpenAudioPlayer -> showAudioPlayer(action.file)
+            is OpenPdfViewer -> showPdfViewer(action.file)
         }
     }
 

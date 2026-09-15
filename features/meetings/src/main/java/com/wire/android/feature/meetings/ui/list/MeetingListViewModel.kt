@@ -35,25 +35,25 @@ import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUseCase
+import com.wire.android.feature.meetings.ui.util.SystemTimeObserver
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.isActive
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -77,6 +77,8 @@ class MeetingListViewModelPreview(type: MeetingsTabItem) : MeetingListViewModel 
 class MeetingListViewModelImpl @AssistedInject constructor(
     @Assisted val type: MeetingsTabItem,
     override val currentTimeProvider: CurrentTimeProvider,
+    currentTimeZoneProvider: CurrentTimeZoneProvider,
+    systemTimeObserver: SystemTimeObserver,
     getMeetingsPaginated: GetPaginatedFlowOfMeetingsUseCase,
     observeActiveCalls: ObserveActiveCallsUseCase,
     dispatcher: DispatcherProvider,
@@ -87,16 +89,23 @@ class MeetingListViewModelImpl @AssistedInject constructor(
         fun create(type: MeetingsTabItem): MeetingListViewModelImpl
     }
 
-    private val alignedTickerFlow = flow {
-        while (currentCoroutineContext().isActive) {
-            val currentTime = currentTimeProvider()
-            emit(currentTime)
-            delay(currentTime.millisToNextFullMinute())
+    // The paging cache observes this key without keeping the system time observer subscribed.
+    private val pagingDateAndTimeZone = MutableStateFlow(
+        currentTimeZoneProvider().let { timeZone ->
+            currentTimeProvider().toLocalDateTime(timeZone).date to timeZone
         }
-    }
+    )
 
-    private val pagingDataFlow = flowOf(type)
-        .flatMapLatest { type ->
+    private val currentTimeFlow = systemTimeObserver()
+        .map { currentTimeProvider() }
+        .onStart { emit(currentTimeProvider()) }
+        .onEach { currentTime ->
+            val currentTimeZone = currentTimeZoneProvider()
+            pagingDateAndTimeZone.value = currentTime.toLocalDateTime(currentTimeZone).date to currentTimeZone
+        }
+
+    private val pagingDataFlow = pagingDateAndTimeZone // refresh whole list when local date or time zone changes
+        .flatMapLatest {
             getMeetingsPaginated(type = type)
         }
         .flowOn(dispatcher.io())
@@ -104,8 +113,8 @@ class MeetingListViewModelImpl @AssistedInject constructor(
 
     override val meetings: Flow<PagingData<MeetingListItem>> = combine(
         pagingDataFlow,
-        observeActiveCalls(),
-        alignedTickerFlow
+        observeActiveCalls(), // update item statuses when active calls change
+        currentTimeFlow // update item statuses on every minute tick or when system date/time/timezone changes
     ) { pagingData, activeCalls, currentTime ->
         pagingData
             .map { item ->
@@ -152,9 +161,6 @@ private fun generateHeader(
         else -> null
     }
 }
-
-@Suppress("MagicNumber")
-private fun Instant.millisToNextFullMinute(): Long = 60_000L - (this.toEpochMilliseconds() % 60_000L)
 
 /** Extension function to create a header time at the start of the hour of the meeting's start time. */
 private fun LocalDateTime.headerDayHourTime() = date.atTime(hour, 0, 0).toInstant(TimeZone.currentSystemDefault())

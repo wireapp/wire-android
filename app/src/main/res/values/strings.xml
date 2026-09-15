@@ -569,6 +569,12 @@
     <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="channel_name_description">Give this channel a meaningful name.</string>
     <string name="protocol">Protocol</string>
+    <string name="mls_migration_dialog_title">Change protocol to MLS?</string>
+    <string name="mls_migration_dialog_description">The standard messaging protocol will change from Proteus to Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Change Protocol</string>
+    <string name="mls_migration_success">Conversation migrated to MLS successfully.</string>
+    <string name="mls_migration_failure">Conversation migration to MLS failed.</string>
+    <string name="mls_migration_failure_with_backend_error">Conversation migration to MLS failed (HTTP %1$d, label: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
@@ -1034,6 +1040,9 @@
     <string name="left_conversation_success">You left the conversation.</string>
     <string name="delete_conversation_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <string name="error_conversation_not_found">Conversation could not be found</string>
+    <string name="error_conversation_unknown_error">There was an error while loading conversation</string>
+    <string name="error_conversation_opening_meetings_unsupported">Meeting type conversation cannot be opened</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversation was archived</string>
     <string name="success_unarchiving_conversation">Conversation was unarchived</string>
@@ -1755,6 +1764,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
     <string name="location_could_not_be_shared">Location could not be shared</string>
+    <string name="label_no_application_found_open_location">No application found to open location</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remove asset</string>
     <string name="asset_attention_description">Asset attention</string>
@@ -1951,6 +1961,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
     <string name="label_system_message_admin_role_assigned">You were promoted to group admin</string>
+    <string name="label_system_message_adminless_delete_reminder">This group will be automatically deleted on %1$s, as there are no eligible group admins.</string>
+    <string name="last_message_adminless_delete_reminder">Will be deleted soon</string>
     <string name="more_information_about_this_server">More information about this backend</string>
 
     <!-- Pending messages service notification -->

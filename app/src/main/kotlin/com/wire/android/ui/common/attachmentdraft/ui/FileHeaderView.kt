@@ -18,6 +18,7 @@
 package com.wire.android.ui.common.attachmentdraft.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +58,8 @@ fun FileHeaderView(
     label: String? = null,
     labelColor: Color? = null,
     isError: Boolean = false,
+    showLabelInBubble: Boolean = false,
+    leadingContent: (@Composable () -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val attachmentFileType = type ?: remember(extension) { AttachmentFileType.fromExtension(extension) }
@@ -67,19 +70,25 @@ fun FileHeaderView(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)
     ) {
-        if (isError) {
-            Icon(
-                modifier = Modifier.size(dimensions().spacing16x),
-                painter = painterResource(R.drawable.ic_warning_amber),
-                tint = colorsScheme().error,
-                contentDescription = null,
-            )
+        if (leadingContent != null) {
+            Box(modifier = Modifier.size(dimensions().spacing16x), contentAlignment = Alignment.Center) {
+                leadingContent()
+            }
         } else {
-            Image(
-                modifier = Modifier.size(dimensions().spacing16x),
-                painter = painterResource(id = attachmentFileType.icon()),
-                contentDescription = null,
-            )
+            if (isError) {
+                Icon(
+                    modifier = Modifier.size(dimensions().spacing16x),
+                    painter = painterResource(R.drawable.ic_warning_amber),
+                    tint = colorsScheme().error,
+                    contentDescription = null,
+                )
+            } else {
+                Image(
+                    modifier = Modifier.size(dimensions().spacing16x),
+                    painter = painterResource(id = attachmentFileType.icon()),
+                    contentDescription = null,
+                )
+            }
         }
         Text(
             text = "${extension.uppercase()} ($sizeString)",
@@ -87,11 +96,11 @@ fun FileHeaderView(
             color = messageStyle.textColor(),
         )
         Spacer(modifier = Modifier.weight(1f))
-        if (!messageStyle.isBubble()) {
+        if (!messageStyle.isBubble() || showLabelInBubble) {
             label?.let {
                 Text(
                     text = label,
-                    style = typography().body02,
+                    style = typography().subline01,
                     color = labelColor ?: messageStyle.textColor(),
                 )
             }
@@ -116,13 +125,11 @@ private fun PreviewFileHeader() {
             FileHeaderView(
                 extension = "DOCX",
                 size = 6796203,
-                label = "Downloading...",
                 messageStyle = MessageStyle.NORMAL
             )
             FileHeaderView(
                 extension = "ZIP",
                 size = 512746,
-                label = "Tap to view",
                 messageStyle = MessageStyle.NORMAL
             )
             FileHeaderView(

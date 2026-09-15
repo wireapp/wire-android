@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
@@ -25,8 +26,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -38,16 +38,19 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
-import com.wire.android.ui.home.conversations.multipartAttachmentsViewModel
+import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.grid.AssetGridPreview
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.standalone.AssetPreview
+import com.wire.android.ui.home.conversations.multipartAttachmentsViewModel
 import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.isFailed
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAttachment
+import com.wire.android.feature.cells.R as cellsR
 
 /**
  * Displays a list of message attachments as a grid or a single attachment card.
@@ -68,8 +71,15 @@ fun MultipartAttachmentsView(
         else -> multipartAttachmentsViewModel(conversationId)
     }
 ) {
-    // Collect to trigger recomposition when offline availability changes.
-    val offlineAttachmentIds by viewModel.offlineAttachmentIds.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val offlineAttachmentIds = viewModel.offlineAttachmentIds.collectAsStateWithLifecycle().value
+    val openLoadStates = viewModel.openLoadStates.collectAsStateWithLifecycle().value
+
+    LaunchedEffect(viewModel) {
+        viewModel.openAttachmentErrorEvent.collect {
+            Toast.makeText(context, cellsR.string.no_app_found, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     val handleClick: (MultipartAttachmentUi) -> Unit = { clicked ->
         viewModel.onClick(
@@ -95,11 +105,17 @@ fun MultipartAttachmentsView(
     // TODO I found out that empty attachments list is not handled here and it shows empty message with no information
     if (attachments.size == 1) {
         val attachment = attachments.first()
-        val item = remember(attachment, offlineAttachmentIds) {
-            viewModel.mapAttachment(attachment)
-        }
-        item.let {
-            AssetPreview(
+        val openLoadState = openLoadStates[attachment.assetId()]
+        val loadingProgress = (openLoadState as? MultipartAttachmentOpenLoadState.Loading)?.progress
+        val readyLocalPath = (openLoadState as? MultipartAttachmentOpenLoadState.Ready)?.localPath
+        val uiModel = attachment.toUiModel(
+            progress = loadingProgress,
+            isAvailableOffline = attachment.assetId() in offlineAttachmentIds,
+        ).copy(
+            openLoadState = openLoadState,
+            localPath = readyLocalPath ?: attachment.toUiModel().localPath,
+        )
+        AssetPreview(
                 modifier = modifier
                     .onVisibilityChanged { visible ->
                         if (visible) {
@@ -108,15 +124,16 @@ fun MultipartAttachmentsView(
                             viewModel.onAttachmentsHidden(attachments)
                         }
                     },
-                item = it,
+                item = uiModel,
                 messageStyle = messageStyle,
-                onClick = { handleClick(it) },
+                onClick = { handleClick(uiModel) },
             )
-        }
     } else {
-        val groups = remember(attachments, offlineAttachmentIds) {
-            viewModel.mapAttachments(attachments = attachments)
-        }
+        val groups = viewModel.mapAttachments(
+            attachments = attachments,
+            offlineAttachmentIds = offlineAttachmentIds,
+            openLoadStates = openLoadStates,
+        )
 
         Column(
             modifier = modifier

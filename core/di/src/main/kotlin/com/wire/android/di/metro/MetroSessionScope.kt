@@ -15,12 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.model
+package com.wire.android.di.metro
 
-import okio.Path
+import dev.zacsweers.metro.Scope
 
-sealed interface OpenLoadState {
-    data class Loading(val progress: Float = 0f) : OpenLoadState
-    data class Ready(val localPath: Path) : OpenLoadState
-    data object Error : OpenLoadState
-}
+/**
+ * Scope of a single logged-in account, implemented by the `AppSessionViewModelGraph` extension.
+ *
+ * Lives in `:core:di` rather than `:app` so that feature modules can scope bindings that depend on
+ * account-scoped kalium use cases — anything reachable from `CellsScope` and friends must not be
+ * `AppScope`, or it would outlive the account it belongs to.
+ */
+@Scope
+annotation class MetroSessionScope

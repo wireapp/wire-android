@@ -34,6 +34,8 @@ import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Controller responsible for managing the download and open flow for cell files.
@@ -44,7 +46,13 @@ import dev.zacsweers.metro.Inject
  * Once the download completes, it updates the cache with either a "Ready" state (if the spinner
  * was shown) or opens the file immediately (if the download was fast). It also handles cancellation
  * of in-progress downloads and error states.
+ *
+ * Scoped to [AppScope] to match [CellFileLocalPathCache]: the load state it publishes is shared
+ * app-wide, so [activeDownloads] must be too. Otherwise a download started from one ViewModel
+ * (e.g. `CellViewModel`) could not be cancelled from another (e.g. `MultipartAttachmentsViewModel`)
+ * even though both render the same spinner.
  */
+@SingleIn(AppScope::class)
 class OpenFileDownloadController @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,

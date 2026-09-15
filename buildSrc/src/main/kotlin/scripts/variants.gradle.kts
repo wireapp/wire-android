@@ -34,13 +34,14 @@ plugins { id("com.android.application") apply false }
 fun NamedDomainObjectContainer<ApplicationProductFlavor>.createAppFlavour(
     flavorApplicationId: String,
     sharedUserId: String,
+    appName: String,
     flavour: ProductFlavors
 ) {
     create(flavour.buildName) {
         dimension = flavour.dimensions
         applicationId = flavorApplicationId
         versionNameSuffix = flavour.versionNameSuffix
-        resValue("string", "app_name", flavour.appName)
+        resValue("string", "app_name", appName)
         manifestPlaceholders["sharedUserId"] = sharedUserId
         manifestPlaceholders["appAuthRedirectScheme"] = flavorApplicationId
     }
@@ -158,9 +159,11 @@ android {
             }
             // prefer value from FeatureConfigs if defined, otherwise fallback to in-code flavor value.
             val userId: String = (flavorSpecificMap[FeatureConfigs.USER_ID.value] as? String) ?: flavor.shareduserId
+            val appName: String = (flavorSpecificMap[FeatureConfigs.APP_NAME.value] as? String) ?: flavor.appName
             createAppFlavour(
                 flavorApplicationId = flavorApplicationId,
                 sharedUserId = userId,
+                appName = appName,
                 flavour = flavor
             )
         }

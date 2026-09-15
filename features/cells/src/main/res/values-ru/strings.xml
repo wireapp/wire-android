@@ -259,6 +259,7 @@
     <string name="sort_name_z_to_a">Я-А</string>
     <string name="sort_size_smallest_first">Сначала маленькие</string>
     <string name="sort_size_largest_first">Сначала большие</string>
+    <string name="content_description_offline_available">Доступен оффлайн</string>
     <string name="content_description_image_message">Изображение</string>
     <string name="cells_video_enter_fullscreen">Полноэкранный режим</string>
     <string name="cells_video_exit_fullscreen">Выход из полноэкранного режима</string>

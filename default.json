@@ -15,6 +15,7 @@
         },
         "dev": {
             "application_id": "com.waz.zclient.dev",
+            "application_name": "Wire Dev",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,
@@ -46,6 +47,7 @@
         },
         "beta": {
             "application_id": "com.wire.android.internal",
+            "application_name": "Wire Beta",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,
@@ -59,6 +61,7 @@
         },
         "alpha": {
             "application_id": "com.wire.internal",
+            "application_name": "Wire Alpha",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,

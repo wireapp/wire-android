@@ -30,7 +30,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     /**
      * General APP Coordinates
      */
-    APP_NAME("application_name", ConfigType.STRING), // Currently not being used (?)
+    APP_NAME("application_name", ConfigType.STRING),
     APPLICATION_ID("application_id", ConfigType.STRING), // Currently not being used (?)
     USER_ID("application_user_id", ConfigType.STRING),
     PRIVATE_BUILD("application_is_private_build", ConfigType.BOOLEAN),

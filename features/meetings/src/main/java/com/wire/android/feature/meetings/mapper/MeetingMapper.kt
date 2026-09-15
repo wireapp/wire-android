@@ -51,7 +51,7 @@ fun MeetingOccurrence.toMeetingItem(time: Instant, ongoingCallStatus: MeetingIte
 
         else -> Status.Ongoing(
             startTime = occurrenceStartTime,
-            scheduledEndTime = occurrenceEndTime,
+            endTime = occurrenceEndTime,
             ongoingCallStatus = ongoingCallStatus
         )
     },

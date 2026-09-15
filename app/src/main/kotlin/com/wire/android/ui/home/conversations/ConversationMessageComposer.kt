@@ -12,11 +12,17 @@ package com.wire.android.ui.home.conversations
 import android.net.Uri
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.paging.LoadState
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import com.wire.android.media.audiomessage.PlayingAudioMessage
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messagelist.ConversationMessageList
@@ -28,6 +34,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
+import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -60,6 +67,7 @@ internal fun ConversationMessageComposer(
     onImageFullScreenMode: (UIMessage.Regular, Boolean, String?) -> Unit,
     onVideoClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onAudioClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
+    onPdfClick: (PdfDocumentSource) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
@@ -88,11 +96,16 @@ internal fun ConversationMessageComposer(
     hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
+    initialLoading: Boolean = false,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItemsWithLifecycle()
 
     val lazyListState = rememberSaveable(unreadEventCount, lazyPagingMessages, saver = LazyListState.Saver) {
         LazyListState(unreadEventCount)
+    }
+
+    if (initialLoading || lazyPagingMessages.isListLoading()) {
+        return LoadingListContent(reverseLayout = true)
     }
 
     val emojiPickerState = rememberWireModalSheetState<String>(skipPartiallyExpanded = false)
@@ -119,6 +132,7 @@ internal fun ConversationMessageComposer(
                     onImageClicked = onImageFullScreenMode,
                     onVideoClicked = onVideoClick,
                     onAudioClicked = onAudioClick,
+                    onPdfClicked = onPdfClick,
                     onLinkClicked = onLinkClick,
                     onReplyClicked = onNavigateToReplyOriginalMessage,
                     onResetSessionClicked = onResetSessionClicked,
@@ -165,4 +179,11 @@ internal fun ConversationMessageComposer(
             onReactionClicked(messageId, emoji)
         },
     )
+}
+
+@Composable
+private fun LazyPagingItems<UIMessage>.isListLoading(): Boolean {
+    var initialPagingRefreshLoadCompleted by rememberSaveable { mutableStateOf(false) }
+    if (loadState.refresh !is LoadState.Loading) initialPagingRefreshLoadCompleted = true
+    return !initialPagingRefreshLoadCompleted
 }

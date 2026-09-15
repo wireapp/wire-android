@@ -146,7 +146,7 @@ private fun EmptyMeetingListContent(type: MeetingsTabItem, modifier: Modifier = 
 @Composable
 private fun LazyPagingItems<MeetingListItem>.isLoading(): Boolean {
     var initialLoadCompleted by remember { mutableStateOf(false) }
-    if (loadState.refresh is LoadState.NotLoading) {
+    if (loadState.refresh !is LoadState.Loading) {
         initialLoadCompleted = true
     }
     return !initialLoadCompleted && loadState.refresh == LoadState.Loading && itemCount == 0

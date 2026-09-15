@@ -32,11 +32,13 @@ import com.wire.android.util.PreviewMultipleThemes
 fun LoadingListContent(
     modifier: Modifier = Modifier,
     userScrollEnabled: Boolean = false,
+    reverseLayout: Boolean = false,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
     LazyColumn(
         state = lazyListState,
         userScrollEnabled = userScrollEnabled,
+        reverseLayout = reverseLayout,
         modifier = modifier.fillMaxSize()
     ) {
         items(count = LOADING_PLACEHOLDER_ITEMS_COUNT) { index ->

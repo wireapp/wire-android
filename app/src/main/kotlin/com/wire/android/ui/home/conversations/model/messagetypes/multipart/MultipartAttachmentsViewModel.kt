@@ -72,7 +72,13 @@ interface MultipartAttachmentsViewModel {
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     )
+
+    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
+        val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
+        return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
+    }
 
     fun mapAttachments(
         attachments: List<MessageAttachment>,
@@ -138,6 +144,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     ) {
     }
 
@@ -189,6 +196,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
     ) {
         // Always use the authoritative shared-cache state — the `attachment` snapshot may be stale
         // if recomposition hasn't fired yet when the user taps.
@@ -217,6 +225,9 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
 
             attachment.isAudio() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
                 openInAudioPlayer(attachment)
+
+            attachment.isPdf() && (attachment.localFileAvailable() || attachment.canDownloadRemotely()) ->
+                openInPdfViewer(attachment)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -317,6 +328,8 @@ private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
 
 private fun MultipartAttachmentUi.isAudio() = assetType == AUDIO
 
+private fun MultipartAttachmentUi.isPdf() = assetType == PDF
+
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {
         IMAGE, VIDEO -> true
@@ -325,7 +338,8 @@ private fun MessageAttachment.isMediaAttachment() =
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO)
+private fun MultipartAttachmentUi.canDownloadRemotely() = remotePath != null && assetType == PDF
 
 /**
  * Maps [OpenLoadState] (cells-module type) to [MultipartAttachmentOpenLoadState].

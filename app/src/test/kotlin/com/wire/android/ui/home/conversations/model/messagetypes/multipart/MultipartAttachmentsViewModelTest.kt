@@ -296,7 +296,7 @@ class MultipartAttachmentsViewModelTest {
         )
 
         coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
-        coVerify(exactly = 1) { arrangement.download(any(), any(), any(), any(), any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
     }
 
     @Test
@@ -386,7 +386,7 @@ class MultipartAttachmentsViewModelTest {
 
         // Click again with a stale attachment snapshot (no openLoadState set).
         // The VM must use its own authoritative cache state — not the stale UI snapshot.
-        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk(), mockk(), mockk())
+        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk(), mockk(), mockk(), mockk())
 
         // Controller.cancel() should have been called
         verify(exactly = 1) { arrangement.openFileDownloadController.cancel(pdfAttachment.uuid, any()) }
@@ -413,7 +413,7 @@ class MultipartAttachmentsViewModelTest {
         assertTrue(viewModel.openLoadStates.value[pdfAttachment.uuid] is MultipartAttachmentOpenLoadState.Ready)
 
         // Tap while in Ready state (stale attachment without openLoadState)
-        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk(), mockk(), mockk())
+        viewModel.onClick(pdfAttachment.copy(openLoadState = null), mockk(), mockk(), mockk(), mockk())
 
         // File must open directly — no new download triggered
         verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
@@ -423,13 +423,14 @@ class MultipartAttachmentsViewModelTest {
     @Test
     fun `givenNoActiveState_whenClicked_thenControllerStartIsCalled`() = runTest {
         val (arrangement, viewModel) = Arrangement().arrange()
-        val pdfAttachment = testAttachmentUi.copy(
-            mimeType = "application/pdf",
-            assetType = AttachmentFileType.PDF,
+        // Not a pdf - pdfs are handed over to the internal viewer instead of being downloaded here.
+        val attachment = testAttachmentUi.copy(
+            mimeType = "application/zip",
+            assetType = AttachmentFileType.ARCHIVE,
         )
 
         // No state in cache — VM delegates to the download controller
-        viewModel.onClick(pdfAttachment, mockk(), mockk(), mockk())
+        viewModel.onClick(attachment, mockk(), mockk(), mockk(), mockk())
 
         verify(exactly = 1) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
     }
@@ -446,7 +447,7 @@ class MultipartAttachmentsViewModelTest {
 
         // A cell video always carries a pre-signed contentUrl, which the in-app video player streams.
         // It must not be downloaded first, nor handed over to an external app.
-        viewModel.onClick(videoAttachment, mockk(), openInVideoPlayer, mockk())
+        viewModel.onClick(videoAttachment, mockk(), openInVideoPlayer, mockk(), mockk())
 
         verify(exactly = 1) { openInVideoPlayer.invoke(videoAttachment) }
         verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
@@ -464,7 +465,7 @@ class MultipartAttachmentsViewModelTest {
         )
         val openInVideoPlayer = mockk<OpenAttachmentCallback>(relaxed = true)
 
-        viewModel.onClick(videoAttachment, mockk(), openInVideoPlayer, mockk())
+        viewModel.onClick(videoAttachment, mockk(), openInVideoPlayer, mockk(), mockk())
 
         verify(exactly = 1) { openInVideoPlayer.invoke(videoAttachment) }
         verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }

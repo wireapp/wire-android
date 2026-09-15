@@ -52,6 +52,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MessageOperationResult
 import io.mockk.MockKAnnotations
+import io.mockk.coAnswers
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

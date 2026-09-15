@@ -2546,7 +2546,7 @@ public fun com.wire.android.ui.common.attachmentdraft.ui.AttachmentVideoView(att
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView(extension: kotlin.String, size: kotlin.Long?, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, modifier: androidx.compose.ui.Modifier, type: com.wire.android.feature.cells.domain.model.AttachmentFileType?, label: kotlin.String?, labelColor: androidx.compose.ui.graphics.Color?, isError: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView(extension: kotlin.String, size: kotlin.Long?, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, modifier: androidx.compose.ui.Modifier, type: com.wire.android.feature.cells.domain.model.AttachmentFileType?, label: kotlin.String?, labelColor: androidx.compose.ui.graphics.Color?, isError: kotlin.Boolean, showLabelInBubble: kotlin.Boolean, leadingContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -2558,6 +2558,8 @@ public fun com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView(extensio
     - label: STABLE (class with no mutable properties)
     - labelColor: STABLE (marked @Stable or @Immutable)
     - isError: STABLE (primitive type)
+    - showLabelInBubble: STABLE (primitive type)
+    - leadingContent: STABLE (composable function type)
 
 @Composable
 public fun com.wire.android.ui.common.banner.PreviewSecurityClassificationBannerState(state: com.wire.kalium.logic.feature.conversation.SecurityClassificationType, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
@@ -8051,13 +8053,23 @@ public fun com.wire.android.ui.home.featureFlagNotificationViewModel(): com.wire
   params:
 
 @Composable
-private fun com.wire.android.ui.home.gallery.MediaGalleryContent(state: com.wire.android.ui.home.gallery.MediaGalleryViewState, onCloseClick: kotlin.Function0<kotlin.Unit>, onOptionsClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+private fun com.wire.android.ui.home.gallery.MediaGalleryContent(state: com.wire.android.ui.home.gallery.MediaGalleryViewState, onCloseClick: kotlin.Function0<kotlin.Unit>, onOptionsClick: kotlin.Function0<kotlin.Unit>, onRetryClick: kotlin.Function0<kotlin.Unit>, onAssetRenderFailed: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - state: RUNTIME (requires runtime check)
     - onCloseClick: STABLE (function type)
     - onOptionsClick: STABLE (function type)
+    - onRetryClick: STABLE (function type)
+    - onAssetRenderFailed: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.home.gallery.MediaGalleryLoadFailure(onRetryClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onRetryClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -8091,13 +8103,14 @@ public fun com.wire.android.ui.home.gallery.MediaGalleryScreenTopAppBar(title: k
     - onOptionsClick: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.gallery.ZoomableImage(image: com.wire.android.ui.home.gallery.MediaGalleryImage, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.home.gallery.ZoomableImage(image: com.wire.android.ui.home.gallery.MediaGalleryImage, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier, onRenderFailed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - image: STABLE (class with no mutable properties)
     - contentDescription: STABLE (String is immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - onRenderFailed: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.home.homeDrawerViewModel(): com.wire.android.ui.home.drawer.HomeDrawerViewModel

@@ -259,13 +259,6 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingAttendingRow
     - returnToCall: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingDurationTimeSublineText(startedTime: kotlinx.datetime.Instant): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - startedTime: STABLE (matched by stability configuration)
-
-@Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(startTime: kotlinx.datetime.Instant): kotlin.Unit
   skippable: true
   restartable: true

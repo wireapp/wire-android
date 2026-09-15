@@ -1621,12 +1621,13 @@ public fun com.wire.android.ui.common.rowitem.EmptyListContent(title: kotlin.Str
     - footer: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.ui.common.rowitem.LoadingListContent(modifier: androidx.compose.ui.Modifier, userScrollEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
+public fun com.wire.android.ui.common.rowitem.LoadingListContent(modifier: androidx.compose.ui.Modifier, userScrollEnabled: kotlin.Boolean, reverseLayout: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - modifier: STABLE (marked @Stable or @Immutable)
     - userScrollEnabled: STABLE (primitive type)
+    - reverseLayout: STABLE (primitive type)
     - lazyListState: STABLE (marked @Stable or @Immutable)
 
 @Composable

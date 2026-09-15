@@ -88,15 +88,23 @@ internal fun BoxScope.FileAssetPreview(
                 if (loadingProgress != null) {
                     CircularProgressIndicator(
                         progress = { loadingProgress },
-                        color = colorsScheme().primary,
-                        trackColor = colorsScheme().primaryVariant,
+                        color = colorsScheme().primaryVariant,
+                        trackColor = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+                            colorsScheme().selfBubble.primaryOnSecondary
+                        } else {
+                            colorsScheme().otherBubble.primaryOnSecondary
+                        },
                         strokeWidth = dimensions().spacing2x,
                         strokeCap = StrokeCap.Round,
                     )
                 } else {
                     CircularProgressIndicator(
-                        color = colorsScheme().primary,
-                        trackColor = colorsScheme().primaryVariant,
+                        color = colorsScheme().primaryVariant,
+                        trackColor = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+                            colorsScheme().selfBubble.primaryOnSecondary
+                        } else {
+                            colorsScheme().otherBubble.primaryOnSecondary
+                        },
                         strokeWidth = dimensions().spacing2x,
                         strokeCap = StrokeCap.Round,
                     )
@@ -109,7 +117,11 @@ internal fun BoxScope.FileAssetPreview(
                 Icon(
                     painter = painterResource(commonR.drawable.ic_check_circle),
                     contentDescription = stringResource(cellsR.string.content_description_offline_available),
-                    tint = colorsScheme().primary,
+                    tint = if (messageStyle == MessageStyle.BUBBLE_SELF) {
+                        colorsScheme().selfBubble.primaryOnSecondary
+                    } else {
+                        colorsScheme().otherBubble.primaryOnSecondary
+                    },
                 )
             }
         }

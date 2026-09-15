@@ -33,8 +33,8 @@ import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
+import com.wire.android.di.metro.MetroSessionScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
 
 /**
@@ -47,12 +47,13 @@ import dev.zacsweers.metro.SingleIn
  * was shown) or opens the file immediately (if the download was fast). It also handles cancellation
  * of in-progress downloads and error states.
  *
- * Scoped to [AppScope] to match [CellFileLocalPathCache]: the load state it publishes is shared
- * app-wide, so [activeDownloads] must be too. Otherwise a download started from one ViewModel
- * (e.g. `CellViewModel`) could not be cancelled from another (e.g. `MultipartAttachmentsViewModel`)
- * even though both render the same spinner.
+ * Scoped to [MetroSessionScope] to match [CellFileLocalPathCache]: the load state it publishes is
+ * shared by every ViewModel in the session, so [activeDownloads] must be too. With a narrower scope
+ * a download started from one ViewModel (e.g. `CellViewModel`) could not be cancelled from another
+ * (e.g. `MultipartAttachmentsViewModel`) even though both render the same spinner. It cannot be
+ * `AppScope` either — [DownloadCellFileUseCase] comes from the per-account `CellsScope`.
  */
-@SingleIn(AppScope::class)
+@SingleIn(MetroSessionScope::class)
 class OpenFileDownloadController @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,

@@ -126,7 +126,7 @@ fun MultipartAttachmentsView(
                     },
                 item = uiModel,
                 messageStyle = messageStyle,
-                onClick = { handleClick(it) },
+                onClick = { handleClick(uiModel) },
             )
     } else {
         val groups = viewModel.mapAttachments(

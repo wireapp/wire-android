@@ -66,12 +66,8 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
-import dev.zacsweers.metro.Scope
 import dev.zacsweers.metro.asContribution
 import dev.zacsweers.metrox.viewmodel.ViewModelGraph
-
-@Scope
-annotation class MetroSessionScope
 
 @GraphExtension(
     MetroSessionScope::class,

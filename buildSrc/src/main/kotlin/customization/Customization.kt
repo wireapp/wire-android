@@ -80,8 +80,16 @@ object Customization {
     private const val DEFAULT_JSON_FILE_NAME = "default.json"
 
     private val configurationFileImporter = ConfigurationFileImporter()
-    private val properties = Properties().apply {
-        val localProperties = File(GIT_PROPERTIES_FILE_NAME)
+
+    /**
+     * Loads [GIT_PROPERTIES_FILE_NAME], resolved relative to [rootDir] rather than the JVM's
+     * working directory, which is not guaranteed to be the project root (e.g. when Gradle is
+     * launched by Android Studio). Loaded fresh on every call rather than cached, since this is
+     * an `object` and a cached value would otherwise survive for the lifetime of the Gradle
+     * daemon, ignoring later edits to `local.properties` until the daemon is restarted.
+     */
+    private fun loadProperties(rootDir: File): Properties = Properties().apply {
+        val localProperties = File(rootDir, GIT_PROPERTIES_FILE_NAME)
         if (localProperties.exists()) {
             load(localProperties.inputStream())
         }
@@ -97,7 +105,7 @@ object Customization {
     fun getBuildtimeConfiguration(
         rootDir: File
     ): BuildTimeConfiguration {
-        return if (isCustomizationEnabled()) {
+        return if (isCustomizationEnabled(rootDir)) {
             val customFile = getCustomisationFileFromGitProperties(rootDir)
             getBuildtimeConfiguration(rootDir, CustomizationOption.FromFile(customFile))
         } else {
@@ -145,14 +153,15 @@ object Customization {
     private fun getCustomisationFileFromGitProperties(
         rootDir: File
     ): File {
+        val properties = loadProperties(rootDir)
         val customCheckoutDir = File(rootDir, CUSTOM_CHECKOUT_DIR_NAME)
 
-        val customRepository: String = requireCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY)
-        val customBranch: String = requireCustomizationProperty(CustomizationGitProperty.CUSTOM_BRANCH)
-        val customFolder: String = requireCustomizationProperty(CustomizationGitProperty.CUSTOM_FOLDER)
-        val clientFolder: String = requireCustomizationProperty(CustomizationGitProperty.CLIENT_FOLDER)
-        val gitUser: String = requireCustomizationProperty(CustomizationGitProperty.GIT_USER)
-        val gitPassword: String = readCustomizationProperty(CustomizationGitProperty.GIT_PASSWORD).orEmpty()
+        val customRepository: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_REPOSITORY)
+        val customBranch: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_BRANCH)
+        val customFolder: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_FOLDER)
+        val clientFolder: String = requireCustomizationProperty(properties, CustomizationGitProperty.CLIENT_FOLDER)
+        val gitUser: String = requireCustomizationProperty(properties, CustomizationGitProperty.GIT_USER)
+        val gitPassword: String = readCustomizationProperty(properties, CustomizationGitProperty.GIT_PASSWORD).orEmpty()
 
         if (customCheckoutDir.exists()) {
             customCheckoutDir.deleteRecursively()
@@ -243,13 +252,14 @@ object Customization {
         data class FromFile(val customJsonFile: File) : CustomizationOption()
     }
 
-    fun isCustomizationEnabled(): Boolean = readCustomizationProperty(CustomizationGitProperty.CUSTOM_REPOSITORY) != null
+    fun isCustomizationEnabled(rootDir: File): Boolean =
+        readCustomizationProperty(loadProperties(rootDir), CustomizationGitProperty.CUSTOM_REPOSITORY) != null
 
-    private fun readCustomizationProperty(property: CustomizationGitProperty): String? =
+    private fun readCustomizationProperty(properties: Properties, property: CustomizationGitProperty): String? =
         System.getenv(property.variableName) ?: properties.getProperty(property.variableName)
 
-    private fun requireCustomizationProperty(property: CustomizationGitProperty): String =
-        requireNotNull(readCustomizationProperty(property)) {
+    private fun requireCustomizationProperty(properties: Properties, property: CustomizationGitProperty): String =
+        requireNotNull(readCustomizationProperty(properties, property)) {
             "Missing ${property.variableName} property defined in $GIT_PROPERTIES_FILE_NAME or environment variable"
         }
 }

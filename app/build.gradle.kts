@@ -226,7 +226,7 @@ dependencies {
 
     // Anonymous Analytics
     val flavors = getFlavorsSettings()
-    val isCustomBuild = isCustomizationEnabled()
+    val isCustomBuild = isCustomizationEnabled(rootDir)
     flavors.flavorMap.entries.forEach { (key, configs) ->
         if (configs["analytics_enabled"] as? Boolean == true && !isCustomBuild) {
             println(">> Dependency Anonymous Analytics is enabled for [$key] flavor")

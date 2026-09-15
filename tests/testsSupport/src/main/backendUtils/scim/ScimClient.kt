@@ -30,7 +30,8 @@ import java.net.URI
 
 // SCIM provisioning client used to create managed users in Wire after IdP credentials are prepared.
 class ScimClient(
-    private val backend: BackendClient
+    private val backend: BackendClient,
+    private val identityProviderId: String? = null
 ) {
     private var scimAuthToken: String? = null
 
@@ -45,7 +46,11 @@ class ScimClient(
     }
 
     private fun createProfile(asUser: ClientUser, profile: JSONObject): String {
-        val token = scimAuthToken ?: backend.createScimAccessToken(asUser, TOKEN_DESCRIPTION).also {
+        val token = scimAuthToken ?: backend.createScimAccessToken(
+            asUser,
+            TOKEN_DESCRIPTION,
+            identityProviderId
+        ).also {
             scimAuthToken = it
         }
 

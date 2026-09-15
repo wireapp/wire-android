@@ -25,6 +25,7 @@ import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
@@ -45,6 +46,8 @@ import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
+import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -74,7 +77,7 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.io.File
+import kotlin.io.path.createTempDirectory
 import com.wire.kalium.cells.data.SortingCriteria as KaliumSortingCriteria
 
 class CellViewModelTest {
@@ -107,6 +110,19 @@ class CellViewModelTest {
             )
         )
         val localFilePath = "localPath".toPath()
+
+        val offlineFileInSubFolder = OfflineFileInfo(
+            id = "fileUuid",
+            conversationId = "conversationId",
+            name = "report.pdf",
+            mimeType = "application/pdf",
+            owner = "",
+            localPath = "/local/report.pdf",
+            size = 1024L,
+            downloadedAt = 1L,
+            modifiedAt = 1234567890L,
+            remotePath = "conversationId/reports/report.pdf",
+        )
     }
 
     private val dispatcher = UnconfinedTestDispatcher()
@@ -500,6 +516,68 @@ class CellViewModelTest {
         }
     }
 
+    @Test
+    fun `GIVEN offline file saved in a subfolder WHEN browsing the conversation offline THEN the folder is listed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withNoNetwork()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
+            assertEquals(1, size)
+            assertTrue(first() is CellNodeUi.Folder)
+            assertEquals("reports", first().name)
+            assertEquals("conversationId/reports", first().remotePath)
+        }
+    }
+
+    @Test
+    fun `GIVEN offline file saved in a subfolder WHEN browsing that folder offline THEN the file is listed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId/reports")
+            .withNoNetwork()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
+            assertEquals(1, size)
+            assertTrue(first() is CellNodeUi.File)
+            assertEquals("report.pdf", first().name)
+            assertTrue(first().isAvailableOffline)
+        }
+    }
+
+    @Test
+    fun `GIVEN a file in a subfolder WHEN made available offline THEN it is saved with its path and conversation`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId/reports")
+            .withDownloadSuccess()
+            .withMakeAvailableOfflineSelected()
+            .arrange()
+
+        val file = testFiles[0].copy(
+            conversationId = null,
+            localPath = null,
+            remotePath = "conversationId/reports/report.pdf",
+        ).toUiModel()
+
+        viewModel.sendIntent(
+            CellViewIntent.OnMenuItemActionSelected(file, NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
+        )
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.saveOfflineFile(
+                match {
+                    it.remotePath == "conversationId/reports/report.pdf" && it.conversationId == "conversationId"
+                }
+            )
+        }
+    }
+
     private class Arrangement(
         private var conversationId: String? = null,
         private var inAppImageViewerEnabled: Boolean = false,
@@ -541,6 +619,9 @@ class CellViewModelTest {
 
         @MockK
         lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
+
+        @MockK
+        lateinit var saveOfflineFile: SaveOfflineFileUseCase
 
         @MockK
         lateinit var deleteOfflineFile: DeleteOfflineFileUseCase
@@ -629,6 +710,22 @@ class CellViewModelTest {
             coEvery { isCellAvailableUseCase.invoke() } returns false.right()
         }
 
+        fun withNoNetwork() = apply {
+            every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.NotConnected)
+        }
+
+        fun withOfflineFiles(files: List<OfflineFileInfo>) = apply {
+            every { observeOfflineFiles() } returns flowOf(files)
+        }
+
+        /** Makes the (mocked) actions menu answer every selected action with "make available offline". */
+        fun withMakeAvailableOfflineSelected() = apply {
+            every { cellFileActionsMenu.onMenuItemAction(any(), any(), any(), any(), any()) } answers {
+                val node = arg<CellNodeUi>(2) as CellNodeUi.File
+                arg<(CellFileActionsMenu.MenuActionResult) -> Unit>(4)(CellFileActionsMenu.MakeAvailableOffline(node))
+            }
+        }
+
         fun withInAppImageViewerEnabled() = apply {
             inAppImageViewerEnabled = true
         }
@@ -648,7 +745,7 @@ class CellViewModelTest {
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
-            every { fileHelper.getExternalFilesDir() } returns File("")
+            every { fileHelper.getExternalFilesDir() } returns createTempDirectory("cells-view-model-test").toFile()
 
             coEvery { getWireCellsConfig() } returns null
 
@@ -661,7 +758,7 @@ class CellViewModelTest {
             val offlineFileDownloadController = OfflineFileDownloadController(
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
-                saveOfflineFile = mockk(relaxUnitFun = true),
+                saveOfflineFile = saveOfflineFile,
                 sharedPathCache = sharedPathCache,
             )
 

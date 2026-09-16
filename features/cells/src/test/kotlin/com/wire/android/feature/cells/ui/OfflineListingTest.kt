@@ -18,8 +18,8 @@
 package com.wire.android.feature.cells.ui
 
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
-import org.junit.Test
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class OfflineListingTest {
 
@@ -91,7 +91,7 @@ class OfflineListingTest {
             offlineFiles = listOf(offlineFile(id = "1", name = "report.pdf", path = "other-conversation/report.pdf")),
         )
 
-        assertEquals(emptyList(), listing)
+        assertEquals(emptyList<OfflineListingEntry>(), listing)
     }
 
     @Test
@@ -125,7 +125,7 @@ class OfflineListingTest {
         val folderListing = buildOfflineListing(currentPath = "$CONVERSATION_ID/reports", offlineFiles = listOf(legacyFile))
 
         assertEquals(listOf(OfflineListingEntry.FileEntry(legacyFile)), rootListing)
-        assertEquals(emptyList(), folderListing)
+        assertEquals(emptyList<OfflineListingEntry>(), folderListing)
     }
 
     @Test

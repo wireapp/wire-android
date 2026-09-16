@@ -5,18 +5,34 @@ Some customers want a custom APK, with their own logo and other build-time custo
 In order to do keep these customizations private, we do not store customer-specific customizations
 in this repository.
 
-We support fetching a "customization" directory from another git repository during build time.
+We support fetching a "customization" directory from another git repository during build time, or,
+for local development, copying it from a local folder instead.
 
-In order to fetch from this repository, the following values must be set as environment variables or
+In order to fetch from a git repository, the following values must be set as environment variables or
 in the `local.properties` file during Gradle configuration:
 
 | Variable          | Description                                                                                                        |
 |-------------------|--------------------------------------------------------------------------------------------------------------------|
 | CUSTOM_REPOSITORY | URL to the Git repository that contains all customizations                                                         |
+| CUSTOM_BRANCH     | Branch of CUSTOM_REPOSITORY to check out                                                                           |
 | GRGIT_USER        | Git credentials: username for checking out the repository                                                          |
 | GRGIT_PASSWORD    | Git credentials: password for checking out the repository                                                          |
 | CUSTOM_FOLDER     | Name/path of the "customization root" directory. Represented below as "customizationRoot", but it can be whatever. |
 | CLIENT_FOLDER     | Name of the custom build directory within the "CUSTOM_FOLDER"                                                      |
+
+Alternatively, instead of a git repository, a local folder can be used as the customization source.
+This is useful for local development, when iterating on customization files without needing to push
+them to a repository first. To use a local folder, set `CUSTOM_LOCAL_FOLDER` instead of
+`CUSTOM_REPOSITORY`/`CUSTOM_BRANCH`/`GRGIT_USER`/`GRGIT_PASSWORD`:
+
+| Variable            | Description                                                                                                                          |
+|---------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| CUSTOM_LOCAL_FOLDER | Path to a local folder with the same structure as CUSTOM_REPOSITORY would have. Relative paths are resolved from the project root.    |
+| CUSTOM_FOLDER       | Name/path of the "customization root" directory. Represented below as "customizationRoot", but it can be whatever.                    |
+| CLIENT_FOLDER       | Name of the custom build directory within the "CUSTOM_FOLDER"                                                                          |
+
+The local folder is simply copied over on every Gradle configuration, instead of being checked out
+from git. Setting both `CUSTOM_REPOSITORY` and `CUSTOM_LOCAL_FOLDER` at the same time is an error.
 
 > [!NOTE]
 > This CUSTOM_FOLDER and CLIENT_FOLDER were made to keep compatibility with the old Android app.

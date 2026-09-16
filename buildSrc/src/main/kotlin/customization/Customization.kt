@@ -159,8 +159,9 @@ object Customization {
     }
 
     /**
-     * Uses environment variables or properties file to checkout a git repository
-     * containing the customization file.
+     * Uses environment variables or properties file to obtain the customization file, either by
+     * checking out a git repository or by copying a local folder, depending on which of
+     * [CustomizationGitProperty.CUSTOM_REPOSITORY] or [CustomizationGitProperty.CUSTOM_LOCAL_FOLDER] is set.
      * @see CustomizationGitProperty
      */
     private fun getCustomisationFileFromGitProperties(
@@ -169,10 +170,61 @@ object Customization {
         val properties = loadProperties(rootDir)
         val customCheckoutDir = File(rootDir, CUSTOM_CHECKOUT_DIR_NAME)
 
-        val customRepository: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_REPOSITORY)
-        val customBranch: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_BRANCH)
         val customFolder: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_FOLDER)
         val clientFolder: String = requireCustomizationProperty(properties, CustomizationGitProperty.CLIENT_FOLDER)
+
+        val customLocalFolder = readCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_LOCAL_FOLDER)
+        val customRepository = readCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_REPOSITORY)
+        require(customLocalFolder == null || customRepository == null) {
+            "${CustomizationGitProperty.CUSTOM_LOCAL_FOLDER.variableName} and ${CustomizationGitProperty.CUSTOM_REPOSITORY.variableName} " +
+                "are mutually exclusive: only one customization source can be used at a time."
+        }
+
+        if (customLocalFolder != null) {
+            copyLocalCustomizationFolder(rootDir, customLocalFolder, customCheckoutDir)
+        } else {
+            cloneCustomizationRepository(properties, customCheckoutDir)
+        }
+
+        return File(customCheckoutDir, "$customFolder/$clientFolder/$CUSTOM_JSON_FILE_NAME")
+    }
+
+    /**
+     * Copies [customLocalFolderPath] (resolved relative to [rootDir] if not absolute) into
+     * [customCheckoutDir], as a local alternative to [cloneCustomizationRepository].
+     */
+    private fun copyLocalCustomizationFolder(
+        rootDir: File,
+        customLocalFolderPath: String,
+        customCheckoutDir: File
+    ) {
+        val sourceDir = File(customLocalFolderPath).let { if (it.isAbsolute) it else File(rootDir, customLocalFolderPath) }
+        require(sourceDir.isDirectory) {
+            "${CustomizationGitProperty.CUSTOM_LOCAL_FOLDER.variableName} '$customLocalFolderPath' " +
+                "(resolved to '${sourceDir.absolutePath}') does not exist or is not a directory"
+        }
+
+        println(">> Customization local folder specified: copying '${sourceDir.absolutePath}' into '${customCheckoutDir.absolutePath}'...")
+
+        if (customCheckoutDir.exists()) {
+            customCheckoutDir.deleteRecursively()
+        }
+        sourceDir.copyRecursively(customCheckoutDir, overwrite = true)
+
+        println(">> Customization folder copied successfully into '${customCheckoutDir.absolutePath}'")
+    }
+
+    /**
+     * Uses environment variables or properties file to checkout a git repository
+     * containing the customization file.
+     * @see CustomizationGitProperty
+     */
+    private fun cloneCustomizationRepository(
+        properties: Properties,
+        customCheckoutDir: File
+    ) {
+        val customRepository: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_REPOSITORY)
+        val customBranch: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_BRANCH)
         val gitUser: String = requireCustomizationProperty(properties, CustomizationGitProperty.GIT_USER)
         val gitPassword: String = readCustomizationProperty(properties, CustomizationGitProperty.GIT_PASSWORD).orEmpty()
 
@@ -189,8 +241,6 @@ object Customization {
         cloneWithTimeout(customCheckoutDir, customRepository, customBranch, credentials)
 
         println(">> Customization repository checked out successfully into '${customCheckoutDir.absolutePath}'")
-
-        return File(customCheckoutDir, "$customFolder/$clientFolder/$CUSTOM_JSON_FILE_NAME")
     }
 
     /**
@@ -274,8 +324,17 @@ object Customization {
     enum class CustomizationGitProperty(val variableName: String) {
         /**
          * The Git repository where the customization files are located.
+         * Mutually exclusive with [CUSTOM_LOCAL_FOLDER]: setting both is an error.
          */
         CUSTOM_REPOSITORY("CUSTOM_REPOSITORY"),
+
+        /**
+         * A local folder to use as the customization source, as an alternative to [CUSTOM_REPOSITORY].
+         * Instead of checking out a git repository, this folder is copied as-is into the checkout directory.
+         * Expected to have the same structure as [CUSTOM_REPOSITORY] would (i.e. contain [CUSTOM_FOLDER]/[CLIENT_FOLDER]).
+         * Resolved relative to the project's root directory if not an absolute path.
+         */
+        CUSTOM_LOCAL_FOLDER("CUSTOM_LOCAL_FOLDER"),
 
         /**
          * The branch of the [CUSTOM_REPOSITORY] to check out.
@@ -316,8 +375,11 @@ object Customization {
         data class FromFile(val customJsonFile: File) : CustomizationOption()
     }
 
-    fun isCustomizationEnabled(rootDir: File): Boolean =
-        readCustomizationProperty(loadProperties(rootDir), CustomizationGitProperty.CUSTOM_REPOSITORY) != null
+    fun isCustomizationEnabled(rootDir: File): Boolean {
+        val properties = loadProperties(rootDir)
+        return readCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_REPOSITORY) != null ||
+            readCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_LOCAL_FOLDER) != null
+    }
 
     private fun readCustomizationProperty(properties: Properties, property: CustomizationGitProperty): String? =
         System.getenv(property.variableName) ?: properties.getProperty(property.variableName)

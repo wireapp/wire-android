@@ -23,8 +23,11 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -82,6 +85,25 @@ import com.wire.kalium.cells.data.SortingCriteria as KaliumSortingCriteria
 class CellViewModelTest {
 
     private companion object {
+        const val EDITOR_URL = "https://collabora.example.com/edit"
+        const val PDF_RENDITION_URL = "https://cells.example.com/previews/document.pdf?signed"
+
+        /** An office document: the backend offers an editor for it and generates a PDF rendition. */
+        val editableDocument = Node.File(
+            uuid = "documentUuid",
+            conversationId = "conversationId",
+            versionId = "versionId",
+            name = "document.docx",
+            mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            remotePath = "remotePath/document.docx",
+            localPath = "localPath/document.docx",
+            contentUrl = "https://example.com/document.docx",
+            size = 1024,
+            modifiedTime = 1234567890L,
+            isEditSupported = true,
+            pdfPreviewUrl = PDF_RENDITION_URL,
+        )
+
         val testFiles = listOf(
             Node.File(
                 uuid = "fileUuid",
@@ -298,6 +320,72 @@ class CellViewModelTest {
             assert(action is OpenPdfViewer)
         }
         coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given editable document when clicked with editor access then the online editor is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withEditorUrl(EDITOR_URL)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(editableDocument.toUiModel()))
+
+            expectNoEvents()
+        }
+        coVerify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL) }
+    }
+
+    @Test
+    fun `given editable document when clicked with viewer access then its pdf rendition is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(editableDocument.copy(isViewerOnly = true).toUiModel()))
+
+            val action = awaitItem()
+            assertTrue(action is OpenPdfViewer)
+            assertEquals(PDF_RENDITION_URL, (action as OpenPdfViewer).file.pdfRenditionUrl())
+        }
+        coVerify(exactly = 0) { arrangement.getEditorUrlUseCase(any()) }
+    }
+
+    @Test
+    fun `given editable document without pdf rendition when clicked with viewer access then an error is shown`() = runTest {
+        // The backend has no rendition yet: still processing, failed, or the type is not convertible.
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+        val withoutRendition = editableDocument.copy(isViewerOnly = true, pdfPreviewUrl = null)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(withoutRendition.toUiModel()))
+
+            assertEquals(ShowError(CellError.OTHER_ERROR), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given editable document when clicked while offline then the editor is not opened`() = runTest {
+        // Both the editor and the rendition come from the backend, so offline keeps the regular
+        // open path — here the local copy.
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withNoNetwork()
+            .withEditorUrl(EDITOR_URL)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(editableDocument.toUiModel()))
+
+            expectNoEvents()
+        }
+        coVerify(exactly = 0) { arrangement.getEditorUrlUseCase(any()) }
+        coVerify(exactly = 0) { arrangement.onlineEditor.open(any()) }
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
     @Test
@@ -611,6 +699,9 @@ class CellViewModelTest {
         lateinit var onlineEditor: OnlineEditor
 
         @MockK
+        lateinit var kaliumConfigs: KaliumConfigs
+
+        @MockK
         lateinit var cellFileActionsMenu: CellFileActionsMenu
 
         @MockK
@@ -709,6 +800,10 @@ class CellViewModelTest {
             coEvery { isCellAvailableUseCase.invoke() } returns false.right()
         }
 
+        fun withEditorUrl(url: String?) = apply {
+            coEvery { getEditorUrlUseCase(any()) } returns Either.Right(url)
+        }
+
         fun withNoNetwork() = apply {
             every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.NotConnected)
         }
@@ -747,6 +842,7 @@ class CellViewModelTest {
             every { fileHelper.getExternalFilesDir() } returns createTempDirectory("cells-view-model-test").toFile()
 
             coEvery { getWireCellsConfig() } returns null
+            every { kaliumConfigs.collaboraIntegration } returns true
 
             val openFileDownloadController = OpenFileDownloadController(
                 download = downloadCellFileUseCase,
@@ -769,8 +865,9 @@ class CellViewModelTest {
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
-                onlineEditor = onlineEditor,
                 getEditorUrl = getEditorUrlUseCase,
+                featureFlags = kaliumConfigs,
+                onlineEditor = onlineEditor,
                 cellFileActionsMenu = cellFileActionsMenu,
                 getWireCellsConfig = getWireCellsConfig,
                 sharedPathCache = sharedPathCache,

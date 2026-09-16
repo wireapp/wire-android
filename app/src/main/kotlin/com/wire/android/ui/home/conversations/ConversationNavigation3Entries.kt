@@ -272,6 +272,7 @@ private fun ConversationNavigation3Entry(
                         remotePath = source.remotePath,
                         assetSize = source.assetSize,
                         fileName = source.fileName,
+                        preSignedUrl = source.preSignedUrl,
                     )
                 )
             )

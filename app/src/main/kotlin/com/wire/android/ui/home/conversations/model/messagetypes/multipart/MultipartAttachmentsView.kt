@@ -89,13 +89,14 @@ fun MultipartAttachmentsView(
             openInAudioPlayer = { att ->
                 onAudioAttachmentClick(att.localPath, att.contentUrl, att.fileName)
             },
-            openInPdfViewer = { att ->
+            openInPdfViewer = { att, pdfPreviewUrl ->
                 onPdfAttachmentClick(
                     PdfDocumentSource(
-                        localPath = att.localPath,
+                        localPath = att.localPath.takeIf { pdfPreviewUrl == null },
                         assetId = att.uuid,
                         fileName = att.fileName,
                         assetSize = att.assetSize ?: 0L,
+                        preSignedUrl = pdfPreviewUrl,
                     )
                 )
             },
@@ -116,18 +117,18 @@ fun MultipartAttachmentsView(
             localPath = readyLocalPath ?: attachment.toUiModel().localPath,
         )
         AssetPreview(
-                modifier = modifier
-                    .onVisibilityChanged { visible ->
-                        if (visible) {
-                            viewModel.onAttachmentsVisible(attachments)
-                        } else {
-                            viewModel.onAttachmentsHidden(attachments)
-                        }
-                    },
-                item = uiModel,
-                messageStyle = messageStyle,
-                onClick = { handleClick(uiModel) },
-            )
+            modifier = modifier
+                .onVisibilityChanged { visible ->
+                    if (visible) {
+                        viewModel.onAttachmentsVisible(attachments)
+                    } else {
+                        viewModel.onAttachmentsHidden(attachments)
+                    }
+                },
+            item = uiModel,
+            messageStyle = messageStyle,
+            onClick = { handleClick(uiModel) },
+        )
     } else {
         val groups = viewModel.mapAttachments(
             attachments = attachments,

@@ -33,6 +33,7 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
@@ -65,6 +66,7 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Assisted
@@ -105,6 +107,7 @@ class CellViewModel @AssistedInject constructor(
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val getEditorUrl: GetEditorUrlUseCase,
+    private val featureFlags: KaliumConfigs,
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
@@ -368,13 +371,43 @@ class CellViewModel @AssistedInject constructor(
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
-            cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
             cellNode.openLoadState is OpenLoadState.Loading -> cancelOpenDownload(cellNode.uuid)
             cellNode.downloadProgress != null -> offlineFileDownloadController.cancel(cellNode.uuid, viewModelScope)
+            cellNode.isEditableDocument() -> openEditableDocument(cellNode)
+            cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
             cellNode.openLoadState is OpenLoadState.Error -> startOpenDownload(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
             else -> startOpenDownload(cellNode)
+        }
+    }
+
+    /**
+     * Both the editor and the PDF rendition are served by the backend, so while offline such a
+     * document falls back to the regular open path — a local copy, if there is one.
+     */
+    private fun CellNodeUi.File.isEditableDocument() =
+        isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration && isOnline.value
+
+    private fun CellNodeUi.isViewerOnlyWithDrivePermissions() = isViewerOnly && drivePermissionsEnabled
+
+    /**
+     * Documents, presentations and spreadsheets open in the online editor. A user with viewer
+     * access can't edit them, so they are shown read-only through the PDF rendition the backend
+     * generates for them. Without such a rendition (still processing, failed or unsupported) there
+     * is nothing a viewer may be shown, which is reported the same way as for any other file a
+     * viewer can't open.
+     */
+    private fun openEditableDocument(cellNode: CellNodeUi.File) {
+        if (!cellNode.isViewerOnlyWithDrivePermissions()) {
+            editNode(cellNode.uuid)
+            return
+        }
+
+        if (cellNode.pdfRenditionUrl() != null) {
+            sendAction(OpenPdfViewer(cellNode))
+        } else {
+            sendAction(ShowError(CellError.OTHER_ERROR))
         }
     }
 

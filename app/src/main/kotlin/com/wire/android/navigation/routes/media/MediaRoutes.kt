@@ -84,6 +84,7 @@ data class PdfViewerRoute(
     val conversationId: String? = null,
     val assetSize: Long = 0L,
     val fileName: String? = null,
+    val preSignedUrl: String? = null,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
 ) : SessionRoute {
     override val routeId = ROUTE_ID

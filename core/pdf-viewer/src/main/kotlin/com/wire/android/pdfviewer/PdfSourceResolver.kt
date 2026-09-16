@@ -46,6 +46,7 @@ import java.io.File
 class PdfSourceResolver @Inject constructor(
     @ApplicationContext private val context: Context,
     private val remoteLoader: PdfRemoteLoader,
+    private val preSignedLoader: PdfPreSignedLoader,
 ) {
 
     /**
@@ -59,11 +60,41 @@ class PdfSourceResolver @Inject constructor(
     ): Result<File> = withContext(dispatcher) {
         val localFile = source.localPath?.let(::File)
         val assetId = source.assetId
+        val preSignedUrl = source.preSignedUrl
         when {
+            preSignedUrl != null -> downloadPreSigned(source, preSignedUrl, forceRefresh)
             localFile != null && localFile.isReadableFile() -> Result.success(localFile)
             assetId != null -> download(source, assetId, forceRefresh)
             else -> Result.failure(PdfSourceException(PdfViewerError.FILE_NOT_FOUND))
         }
+    }
+
+    /**
+     * A rendition is derived from the attachment rather than being the attachment, so it goes to
+     * the cache directory: it must not end up recorded as the asset's downloaded copy, and losing
+     * it to a cache eviction only costs one download.
+     */
+    private suspend fun downloadPreSigned(
+        source: PdfDocumentSource,
+        preSignedUrl: String,
+        forceRefresh: Boolean,
+    ): Result<File> {
+        val target = File(
+            File(context.cacheDir, PDF_RENDITION_DIR).apply { mkdirs() },
+            "${source.assetId ?: preSignedUrl.hashCode().toString()}.pdf",
+        )
+
+        if (!forceRefresh && target.isReadableFile()) {
+            return Result.success(target)
+        }
+
+        return preSignedLoader.load(preSignedUrl, target).fold(
+            onSuccess = { Result.success(target) },
+            onFailure = {
+                target.delete()
+                Result.failure(PdfSourceException(PdfViewerError.DOWNLOAD_FAILED, it))
+            },
+        )
     }
 
     private suspend fun download(
@@ -141,6 +172,10 @@ class PdfSourceResolver @Inject constructor(
     private fun externalFilesDir(): File = context.getExternalFilesDir(null) ?: context.filesDir
 
     private fun File.isReadableFile(): Boolean = isFile && canRead() && length() > 0
+
+    private companion object {
+        const val PDF_RENDITION_DIR = "pdf-renditions"
+    }
 }
 
 /** Carries the user-facing [error] out of [PdfSourceResolver]. */

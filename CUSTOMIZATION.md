@@ -22,14 +22,15 @@ in the `local.properties` file during Gradle configuration:
 
 Alternatively, instead of a git repository, a local folder can be used as the customization source.
 This is useful for local development, when iterating on customization files without needing to push
-them to a repository first. To use a local folder, set `CUSTOM_LOCAL_FOLDER` instead of
-`CUSTOM_REPOSITORY`/`CUSTOM_BRANCH`/`GRGIT_USER`/`GRGIT_PASSWORD`:
+them to a repository first. To use a local folder, set only `CUSTOM_LOCAL_FOLDER`, instead of
+`CUSTOM_REPOSITORY`/`CUSTOM_BRANCH`/`GRGIT_USER`/`GRGIT_PASSWORD`/`CUSTOM_FOLDER`/`CLIENT_FOLDER`:
 
-| Variable            | Description                                                                                                                          |
-|---------------------|----------------------------------------------------------------------------------------------------------------------------------------|
-| CUSTOM_LOCAL_FOLDER | Path to a local folder with the same structure as CUSTOM_REPOSITORY would have. Relative paths are resolved from the project root.    |
-| CUSTOM_FOLDER       | Name/path of the "customization root" directory. Represented below as "customizationRoot", but it can be whatever.                    |
-| CLIENT_FOLDER       | Name of the custom build directory within the "CUSTOM_FOLDER"                                                                          |
+| Variable            | Description                                                                                                                       |
+|---------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| CUSTOM_LOCAL_FOLDER | Path to the local build folder (i.e. the same folder that would be at "CUSTOM_FOLDER/CLIENT_FOLDER" in a git repository). Relative paths are resolved from the project root. |
+
+Unlike the git repository case, `CUSTOM_FOLDER` and `CLIENT_FOLDER` are not needed (and are ignored)
+when `CUSTOM_LOCAL_FOLDER` is set: it must point directly at the folder containing `custom-reloaded.json`.
 
 The local folder is simply copied over on every Gradle configuration, instead of being checked out
 from git. Setting both `CUSTOM_REPOSITORY` and `CUSTOM_LOCAL_FOLDER` at the same time is an error.

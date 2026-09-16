@@ -39,24 +39,22 @@ class CustomizationLocalFolderTest {
         File(rootDir.root, "default.json").writeText(
             """{"flavors":{"dev":{}},"foo":"default"}"""
         )
-        val clientDir = File(rootDir.root, "mysource/customRoot/clientA")
-        clientDir.mkdirs()
-        File(clientDir, "custom-reloaded.json").writeText(
+        val sourceDir = File(rootDir.root, "mysource")
+        sourceDir.mkdirs()
+        File(sourceDir, "custom-reloaded.json").writeText(
             """{"flavors":{"dev":{}},"foo":"custom"}"""
         )
 
         File(rootDir.root, "local.properties").writeText(
             """
             CUSTOM_LOCAL_FOLDER=mysource
-            CUSTOM_FOLDER=customRoot
-            CLIENT_FOLDER=clientA
             """.trimIndent()
         )
 
         val result = Customization.getBuildtimeConfiguration(rootDir.root)
 
         assertEquals("custom", result.flavorSettings.flavorMap["dev"]!!["foo"])
-        assertTrue(File(rootDir.root, "custom/customRoot/clientA/custom-reloaded.json").exists())
+        assertTrue(File(rootDir.root, "custom/custom-reloaded.json").exists())
     }
 
     @Test
@@ -68,8 +66,6 @@ class CustomizationLocalFolderTest {
             """
             CUSTOM_LOCAL_FOLDER=mysource
             CUSTOM_REPOSITORY=git@example.com:foo.git
-            CUSTOM_FOLDER=customRoot
-            CLIENT_FOLDER=clientA
             """.trimIndent()
         )
 

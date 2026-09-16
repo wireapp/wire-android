@@ -162,6 +162,9 @@ object Customization {
      * Uses environment variables or properties file to obtain the customization file, either by
      * checking out a git repository or by copying a local folder, depending on which of
      * [CustomizationGitProperty.CUSTOM_REPOSITORY] or [CustomizationGitProperty.CUSTOM_LOCAL_FOLDER] is set.
+     * [CustomizationGitProperty.CUSTOM_FOLDER] and [CustomizationGitProperty.CLIENT_FOLDER] are only
+     * needed (and only read) for the git repository case: [CustomizationGitProperty.CUSTOM_LOCAL_FOLDER]
+     * is expected to point directly at the client build folder.
      * @see CustomizationGitProperty
      */
     private fun getCustomisationFileFromGitProperties(
@@ -170,9 +173,6 @@ object Customization {
         val properties = loadProperties(rootDir)
         val customCheckoutDir = File(rootDir, CUSTOM_CHECKOUT_DIR_NAME)
 
-        val customFolder: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_FOLDER)
-        val clientFolder: String = requireCustomizationProperty(properties, CustomizationGitProperty.CLIENT_FOLDER)
-
         val customLocalFolder = readCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_LOCAL_FOLDER)
         val customRepository = readCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_REPOSITORY)
         require(customLocalFolder == null || customRepository == null) {
@@ -180,13 +180,15 @@ object Customization {
                 "are mutually exclusive: only one customization source can be used at a time."
         }
 
-        if (customLocalFolder != null) {
+        return if (customLocalFolder != null) {
             copyLocalCustomizationFolder(rootDir, customLocalFolder, customCheckoutDir)
+            File(customCheckoutDir, CUSTOM_JSON_FILE_NAME)
         } else {
+            val customFolder: String = requireCustomizationProperty(properties, CustomizationGitProperty.CUSTOM_FOLDER)
+            val clientFolder: String = requireCustomizationProperty(properties, CustomizationGitProperty.CLIENT_FOLDER)
             cloneCustomizationRepository(properties, customCheckoutDir)
+            File(customCheckoutDir, "$customFolder/$clientFolder/$CUSTOM_JSON_FILE_NAME")
         }
-
-        return File(customCheckoutDir, "$customFolder/$clientFolder/$CUSTOM_JSON_FILE_NAME")
     }
 
     /**
@@ -331,7 +333,9 @@ object Customization {
         /**
          * A local folder to use as the customization source, as an alternative to [CUSTOM_REPOSITORY].
          * Instead of checking out a git repository, this folder is copied as-is into the checkout directory.
-         * Expected to have the same structure as [CUSTOM_REPOSITORY] would (i.e. contain [CUSTOM_FOLDER]/[CLIENT_FOLDER]).
+         * Unlike [CUSTOM_REPOSITORY], this is expected to point directly at the client build folder
+         * (i.e. the folder containing `custom-reloaded.json`), so [CUSTOM_FOLDER] and [CLIENT_FOLDER]
+         * are not needed (and are ignored) when this is set.
          * Resolved relative to the project's root directory if not an absolute path.
          */
         CUSTOM_LOCAL_FOLDER("CUSTOM_LOCAL_FOLDER"),
@@ -343,11 +347,13 @@ object Customization {
 
         /**
          * The path to the root of the customization files within the [CUSTOM_REPOSITORY] files.
+         * Only used when checking out [CUSTOM_REPOSITORY]; not needed for [CUSTOM_LOCAL_FOLDER].
          */
         CUSTOM_FOLDER("CUSTOM_FOLDER"),
 
         /**
          * The name of the specific directory within the [CUSTOM_FOLDER] that contains the customization files for the build.
+         * Only used when checking out [CUSTOM_REPOSITORY]; not needed for [CUSTOM_LOCAL_FOLDER].
          */
         CLIENT_FOLDER("CLIENT_FOLDER"),
 

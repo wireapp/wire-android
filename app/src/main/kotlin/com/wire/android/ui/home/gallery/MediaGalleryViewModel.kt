@@ -22,15 +22,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogState
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
+import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -51,8 +55,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
@@ -92,46 +94,75 @@ class MediaGalleryViewModel @AssistedInject constructor(
         getViewerAccess()
     }
 
+    private fun updateState(update: (MediaGalleryViewState) -> MediaGalleryViewState) {
+        mediaGalleryViewState = update(mediaGalleryViewState)
+    }
+
+    private fun setAssetState(newState: MediaGalleryAssetState) =
+        updateState { it.copy(assetState = newState) }
+
     private fun getViewerAccess() = viewModelScope.launch {
-        mediaGalleryViewState = mediaGalleryViewState.copy(
-            viewerAccess = !isSelfUserViewerOnConversation(conversationId)
-        )
+        val isViewerOnly = isSelfUserViewerOnConversation(conversationId)
+        updateState { it.copy(viewerAccess = !isViewerOnly) }
     }
 
     private fun setupImageAsset() = viewModelScope.launch {
-        if (cellAssetId == null) {
-            mediaGalleryViewState = mediaGalleryViewState.copy(
-                imageAsset = MediaGalleryImage.PrivateAsset(
-                    asset = ImageAsset.PrivateAsset(
-                        navigationArgs.conversationId,
-                        navigationArgs.messageId,
-                        navigationArgs.isSelfAsset,
-                        navigationArgs.isEphemeral
-                    )
+        val image = if (cellAssetId == null) {
+            MediaGalleryImage.PrivateAsset(
+                asset = ImageAsset.PrivateAsset(
+                    navigationArgs.conversationId,
+                    navigationArgs.messageId,
+                    navigationArgs.isSelfAsset,
+                    navigationArgs.isEphemeral
                 )
             )
         } else {
-            getAttachment(cellAssetId).onSuccess { attachment ->
-                (attachment as? CellAssetContent)?.let { cellAsset ->
-                    val localPath = cellAsset.localPath
-                    val url = cellAsset.contentUrl ?: cellAsset.previewUrl
+            resolveCellImage(cellAssetId)
+        }
 
-                    if (localPath != null) {
-                        mediaGalleryViewState = mediaGalleryViewState.copy(
-                            imageAsset = MediaGalleryImage.LocalAsset(localPath)
-                        )
-                    } else if (url != null) {
-                        mediaGalleryViewState = mediaGalleryViewState.copy(
-                            imageAsset = MediaGalleryImage.UrlAsset(
-                                url = url,
-                                placeholder = cellAsset.previewUrl,
-                                contentHash = cellAsset.contentHash,
-                            )
-                        )
-                    }
-                }
+        setAssetState(image?.let { MediaGalleryAssetState.Loaded(it) } ?: MediaGalleryAssetState.Failure)
+    }
+
+    private suspend fun resolveCellImage(cellAssetId: String): MediaGalleryImage? {
+        val attachment = getAttachment(cellAssetId).getOrNull()
+        val cellAsset = attachment as? CellAssetContent
+
+        if (cellAsset == null) {
+            appLogger.w("$TAG no cell attachment for $cellAssetId (got ${attachment?.let { it::class.simpleName }})")
+            return null
+        }
+
+        val localPath = cellAsset.localPath?.takeIf { fileManager.localFileExists(it) }
+        val url = cellAsset.contentUrl ?: cellAsset.previewUrl
+
+        return when {
+            localPath != null -> MediaGalleryImage.LocalAsset(localPath)
+            url != null -> MediaGalleryImage.UrlAsset(
+                url = url,
+                placeholder = cellAsset.previewUrl.takeIf { cellAsset.contentUrl != null },
+                contentHash = cellAsset.contentHash,
+            )
+
+            else -> {
+                appLogger.w("$TAG $cellAssetId has no usable local path, content URL or preview URL")
+                null
             }
         }
+    }
+
+    fun retryLoadingAsset() {
+        setAssetState(MediaGalleryAssetState.Loading)
+        setupImageAsset()
+    }
+
+    /**
+     * The asset resolved to a path or URL, but the image itself could not be rendered — a deleted
+     * local file or an expired pre-signed URL. Surfaced as an error so the viewer never sits on a
+     * blank screen; recovering needs a fresh URL, which the explicit retry asks for.
+     */
+    fun onAssetRenderFailed() {
+        appLogger.w("$TAG could not render the resolved image")
+        setAssetState(MediaGalleryAssetState.Failure)
     }
 
     private fun shareAsset() = viewModelScope.launch {
@@ -190,9 +221,8 @@ class MediaGalleryViewModel @AssistedInject constructor(
             else -> null
         }
 
-    private fun updateMediaGalleryTitle(conversationName: String?) {
-        mediaGalleryViewState = mediaGalleryViewState.copy(screenTitle = conversationName)
-    }
+    private fun updateMediaGalleryTitle(conversationName: String?) =
+        updateState { it.copy(screenTitle = conversationName) }
 
     fun saveImageToExternalStorage() {
         viewModelScope.launch {
@@ -315,16 +345,12 @@ class MediaGalleryViewModel @AssistedInject constructor(
         }
     }
 
-    fun onOptionsClick() {
-        mediaGalleryViewState = mediaGalleryViewState.copy(
-            menuItems = buildMenuOptions()
-        )
-    }
+    fun onOptionsClick() = updateState { it.copy(menuItems = buildMenuOptions()) }
 
-    fun onOptionsDismissed() {
-        mediaGalleryViewState = mediaGalleryViewState.copy(
-            menuItems = emptyList()
-        )
+    fun onOptionsDismissed() = updateState { it.copy(menuItems = emptyList()) }
+
+    private companion object {
+        const val TAG = "MediaGalleryViewModel"
     }
 }
 

@@ -54,7 +54,7 @@ class MeetingMapperTest {
     fun givenMeetingEndedWithinBuffer_whenMappingToMeetingItem_thenStatusIsOngoing() {
         val startTime = currentTime - 30.minutes
         val endTime = currentTime - 5.minutes
-        val expected = meetingItem(Ongoing(startTime = startTime, scheduledEndTime = endTime, ongoingCallStatus = ongoingCall))
+        val expected = meetingItem(Ongoing(startTime = startTime, endTime = endTime, ongoingCallStatus = ongoingCall))
         val result = meeting(startTime = startTime, endTime = endTime).toMeetingItem(time = currentTime, ongoingCallStatus = ongoingCall)
         assertEquals(expected, result)
     }
@@ -119,6 +119,7 @@ class MeetingMapperTest {
             title = TITLE,
             startTime = startTime,
             endTime = endTime,
+            tzid = "Europe/Berlin",
             recurrence = Meeting.Recurrence(frequency = Meeting.Recurrence.Frequency.DAILY, interval = 1L, until = null),
         ),
         occurrenceId = "$MEETING_ID-occurrence",

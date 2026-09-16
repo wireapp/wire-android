@@ -91,10 +91,11 @@ aboutLibraries = "14.0.0-b03"
 cyclonedx = "3.1.0"
 leakCanary = "2.14"
 ksp = "2.3.7"
+kermitIo = "2.0.5"
 
 # Benchmark
 benchmark-macro-junit4 = "1.4.1"
-benchmark-baselineprofile-plugin = "1.5.0-beta01"
+benchmark-baselineprofile-plugin = "1.5.0-rc01"
 profileinstaller = "1.4.1"
 
 # Testing
@@ -169,6 +170,7 @@ libsodium-bindings-jvm = { module = "com.ionspin.kotlin:multiplatform-crypto-lib
 
 ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 ksp-symbol-processing-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
+kermit-io = { module = "co.touchlab:kermit-io", version.ref = "kermitIo" }
 
 allure-kotlin-model   = { module = "io.qameta.allure:allure-kotlin-model",   version.ref = "allureKotlin" }
 allure-kotlin-commons = { module = "io.qameta.allure:allure-kotlin-commons", version.ref = "allureKotlin" }
@@ -198,6 +200,7 @@ androidx-lifecycle-liveData = { module = "androidx.lifecycle:lifecycle-livedata-
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-viewModelTesting = { module = "androidx.lifecycle:lifecycle-viewmodel-testing", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModelSavedState = { module = "androidx.lifecycle:lifecycle-viewmodel-savedstate", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModelNavigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-lifecycle" }

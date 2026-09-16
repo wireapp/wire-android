@@ -124,7 +124,7 @@ class CellViewModel @AssistedInject constructor(
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
-    ) : ActionsViewModel<CellViewAction>() {
+) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
     interface Factory {
@@ -375,7 +375,7 @@ class CellViewModel @AssistedInject constructor(
     private fun startOpenDownload(cellNode: CellNodeUi.File) {
         openFileDownloadController.start(
             scope = viewModelScope,
-            cellNode = cellNode,
+            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: navArgs.conversationId),
             onOpenFile = ::openLocalFile,
             onError = { sendAction(ShowError(it)) },
         )
@@ -434,63 +434,63 @@ class CellViewModel @AssistedInject constructor(
 
     @Suppress("ReturnCount")
     private fun openFileContentUrl(file: CellNodeUi.File) {
-        when (file.assetType) {
-            AttachmentFileType.IMAGE -> {
-                if (file.shouldOpenInAppImageViewer()) {
-                    sendAction(OpenImageViewer(file))
-                    return
-                }
-            }
-            AttachmentFileType.VIDEO -> {
-                sendAction(OpenVideoViewer(file))
-                return
-            }
-            AttachmentFileType.AUDIO -> {
-                sendAction(OpenAudioPlayer(file))
-                return
-            }
-            else -> Unit
+        inAppViewerAction(file)?.let {
+            sendAction(it)
+            return
         }
-        file.contentUrl?.let { url ->
-            fileHelper.openAssetUrlWithExternalApp(
-                url = url,
-                mimeType = file.mimeType,
-                onError = {
-                    sendAction(ShowError(CellError.NO_APP_FOUND))
-                }
-            )
+
+        val isViewerWithDrivePermissions = isViewerOnly.value && drivePermissionsEnabled
+
+        if (!isViewerWithDrivePermissions) {
+            file.contentUrl?.let { url ->
+                fileHelper.openAssetUrlWithExternalApp(
+                    url = url,
+                    mimeType = file.mimeType,
+                    onError = {
+                        sendAction(ShowError(CellError.NO_APP_FOUND))
+                    }
+                )
+            }
+        } else {
+            sendAction(ShowError(CellError.FILE_NOT_SUPPORTED))
         }
     }
 
     @Suppress("ReturnCount")
     private fun openLocalFile(file: CellNodeUi.File) {
-        when (file.assetType) {
-            AttachmentFileType.IMAGE -> {
-                if (file.shouldOpenInAppImageViewer()) {
-                    sendAction(OpenImageViewer(file))
-                    return
-                }
-            }
-            AttachmentFileType.VIDEO -> {
-                sendAction(OpenVideoViewer(file))
-                return
-            }
-            AttachmentFileType.AUDIO -> {
-                sendAction(OpenAudioPlayer(file))
-                return
-            }
-            else -> Unit
+        inAppViewerAction(file)?.let {
+            sendAction(it)
+            return
         }
-        file.localPath?.let { path ->
-            fileHelper.openAssetFileWithExternalApp(
-                localPath = path.toPath(),
-                assetName = file.name,
-                mimeType = file.mimeType,
-                onError = {
-                    sendAction(ShowError(CellError.NO_APP_FOUND))
-                }
-            )
+        val isViewerWithDrivePermissions = isViewerOnly.value && drivePermissionsEnabled
+
+        if (!isViewerWithDrivePermissions) {
+            file.localPath?.let { path ->
+                fileHelper.openAssetFileWithExternalApp(
+                    localPath = path.toPath(),
+                    assetName = file.name,
+                    mimeType = file.mimeType,
+                    onError = {
+                        sendAction(ShowError(CellError.NO_APP_FOUND))
+                    }
+                )
+            }
+        } else {
+            sendAction(ShowError(CellError.FILE_NOT_SUPPORTED))
         }
+    }
+
+    /**
+     * The in-app viewer that can show [file], or null when the file has to be handed over to
+     * another app.
+     */
+    private fun inAppViewerAction(file: CellNodeUi.File): CellViewAction? = when (file.assetType) {
+        AttachmentFileType.IMAGE -> OpenImageViewer(file).takeIf { file.shouldOpenInAppImageViewer() }
+        AttachmentFileType.VIDEO -> OpenVideoViewer(file)
+        AttachmentFileType.AUDIO -> OpenAudioPlayer(file)
+        AttachmentFileType.PDF ->
+            OpenPdfViewer(file).takeIf { file.localPath != null || file.remotePath != null }
+        else -> null
     }
 
     private fun CellNodeUi.File.shouldOpenInAppImageViewer(): Boolean =
@@ -733,8 +733,10 @@ internal data object ShowOfflineFileSaved : CellViewAction
 internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
+internal data class OpenPdfViewer(val file: CellNodeUi.File) : CellViewAction
 
-internal enum class CellError(val message: Int) {
+enum class CellError(val message: Int) {
+    FILE_NOT_SUPPORTED(R.string.file_not_supported),
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed),
     DOWNLOAD_FAILED(R.string.action_failed),

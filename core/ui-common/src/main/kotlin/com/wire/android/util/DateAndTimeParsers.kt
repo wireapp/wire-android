@@ -17,9 +17,11 @@
  */
 package com.wire.android.util
 
+import android.text.format.DateFormat
 import androidx.compose.runtime.Stable
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
+import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -38,6 +40,10 @@ fun Instant.formatMediumDateTime(): String = DateAndTimeParsers.formatMediumDate
 
 @Stable
 fun Instant.formatFullDateShortTime(): String = DateAndTimeParsers.formatFullDateShortTime(this)
+
+@Stable
+fun Instant.formatMonthDayShortTime(is24Hour: Boolean): String =
+    DateAndTimeParsers.formatMonthDayShortTime(this, is24Hour)
 
 @Stable
 fun Instant.uiMessageDateTime(): String = DateAndTimeParsers.uiMessageDateTime(this)
@@ -78,6 +84,8 @@ class DateAndTimeParsers private constructor() {
                 this.timeZone = java.util.TimeZone.getDefault()
             }
 
+        private val shortTime24hFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault()).withZone(ZoneId.systemDefault())
+
         private val mediumDateTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)
             .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fullDateShortTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
@@ -97,7 +105,7 @@ class DateAndTimeParsers private constructor() {
         private val videoMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
 
-        private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd", Locale.getDefault())
+        private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM d", Locale.getDefault())
             .withZone(ZoneId.systemDefault())
 
         fun deviceDateTimeFormat(instant: Instant): String =
@@ -106,6 +114,16 @@ class DateAndTimeParsers private constructor() {
         fun formatMediumDateTime(instant: Instant): String = mediumDateTimeFormat.format(instant.toJavaInstant())
 
         fun formatFullDateShortTime(instant: Instant): String = fullDateShortTimeFormatter.format(instant.toJavaInstant())
+
+        fun formatMonthDayShortTime(instant: Instant, is24Hour: Boolean): String {
+            val locale = Locale.getDefault()
+            val date = Date.from(instant.toJavaInstant())
+            val datePattern = DateFormat.getBestDateTimePattern(locale, "MMMMd")
+            val timePattern = DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm")
+            val formattedDate = SimpleDateFormat(datePattern, locale).format(date)
+            val formattedTime = SimpleDateFormat(timePattern, locale).format(date)
+            return "$formattedDate, $formattedTime"
+        }
 
         fun cellTimeFormat(instant: Instant): String {
             val timeFormatter = java.text.DateFormat.getTimeInstance(
@@ -149,7 +167,7 @@ class DateAndTimeParsers private constructor() {
         fun videoMessageTime(timeMs: Long): String = videoMessageTimeFormat.format(java.time.Instant.ofEpochMilli(timeMs))
 
         fun meetingDate(instant: Instant): String = dayOfWeekMonthDayDateFormat.format(instant.toJavaInstant())
-        fun meetingTime(instant: Instant): String = shortTimeFormat.format(Date.from(instant.toJavaInstant()))
+        fun meetingTime(instant: Instant): String = shortTime24hFormat.format(instant.toJavaInstant())
 
         fun linkExpirationDate(timeMs: Long): String = dayOfWeekMonthDayDateFormat.format(java.time.Instant.ofEpochMilli(timeMs))
         fun linkExpirationTime(timeMs: Long): String = shortTimeFormat.format(Date.from(java.time.Instant.ofEpochMilli(timeMs)))

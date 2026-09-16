@@ -55,7 +55,7 @@ object SSOServiceHelper {
             context
         )
         enableSsoFeature(owner, teamName)
-        val finalizeUrl = OktaApiClient.getFinalizeUrlDependingOnBackend(backend.backendUrl)
+        val finalizeUrl = OktaApiClient.getFinalizeUrlDependingOnBackend(backend)
         client.createApplication(owner.name + " " + teamName + UUID.randomUUID().toString(), finalizeUrl, context)
 
         val metadata = client.getApplicationMetadata()
@@ -245,7 +245,9 @@ object SSOServiceHelper {
         val dstTeam = runBlocking {
             backend.getTeamByName(clientUser, teamName)
         }
-        val url = URL("${backend.backendUrl}i/teams/${URLEncoder.encode(dstTeam.id, "UTF-8")}/features/sso")
+        val url = with(backend) {
+            URL("teams/${URLEncoder.encode(dstTeam.id, "UTF-8")}/features/sso".composeInternalApiUrl())
+        }
         val headers = mapOf(
             AUTHORIZATION to backend.basicAuth.getEncoded(),
             accept to applicationJson,

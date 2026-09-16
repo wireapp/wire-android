@@ -231,11 +231,12 @@ internal fun withMockConversationDetailsOneOnOne(
 internal fun mockConversationDetailsGroup(
     conversationName: String,
     mockedConversationId: ConversationId = ConversationId("someId", "someDomain"),
+    type: Conversation.Type = Conversation.Type.Group.Regular,
     teamId: TeamId? = TestConversation.GROUP().teamId,
     wireCell: String? = null,
 ) = ConversationDetails.Group.Regular(
     conversation = TestConversation.GROUP()
-        .copy(name = conversationName, id = mockedConversationId, teamId = teamId),
+        .copy(name = conversationName, id = mockedConversationId, teamId = teamId, type = type),
     isSelfUserMember = true,
     selfRole = Conversation.Member.Role.Member,
     wireCell = wireCell,

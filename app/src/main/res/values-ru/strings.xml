@@ -550,6 +550,12 @@
     <string name="group_name_description">Дайте этой группе осмысленное название.</string>
     <string name="channel_name_description">Дайте этому каналу осмысленное название.</string>
     <string name="protocol">Протокол</string>
+    <string name="mls_migration_dialog_title">Изменить протокол на MLS?</string>
+    <string name="mls_migration_dialog_description">Стандартный протокол обмена сообщениями изменится с Proteus на Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Изменить протокол</string>
+    <string name="mls_migration_success">Беседа успешно смигрирована на MLS.</string>
+    <string name="mls_migration_failure">Не удалось смигрировать беседу на MLS.</string>
+    <string name="mls_migration_failure_with_backend_error">Переход к MLS не удался (HTTP %1$d, метка: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Набор шифров</string>
     <string name="last_key_material_update_label">Последнее обновление набора ключей</string>
@@ -1060,6 +1066,9 @@
     <string name="left_conversation_success">Вы покинули беседу.</string>
     <string name="delete_conversation_conversation_error">При удалении беседы произошла ошибка</string>
     <string name="error_limit_number_assets_imported_exceeded">Одновременно можно отправить не более 20 файлов</string>
+    <string name="error_conversation_not_found">Не удалось найти беседу</string>
+    <string name="error_conversation_unknown_error">При загрузке беседы произошла ошибка</string>
+    <string name="error_conversation_opening_meetings_unsupported">Беседу типа \'Встреча\' открыть невозможно</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Беседа архивирована</string>
     <string name="success_unarchiving_conversation">Беседа разархивирована</string>
@@ -1411,6 +1420,7 @@
     <string name="backup_dialog_restoring_backup_title">Восстановление резервной копии...</string>
     <string name="backup_label_conversation_restored">Беседы были восстановлены</string>
     <string name="backup_label_loading_conversations">Загрузка бесед</string>
+    <string name="backup_label_cancelling">Отмена...</string>
     <string name="backup_dialog_restore_backup_title">Восстановить из резервной копии </string>
     <string name="backup_dialog_restore_backup_message">Текущая история на этом устройстве сохранится и будет дополнена новой резервной копией. Вы можете восстановить историю со всех ваших устройств и разных платформ, но не из другого аккаунта.</string>
     <string name="backup_dialog_choose_backup_file_option">Выберите резервную копию</string>
@@ -1812,6 +1822,7 @@
     <string name="location_app_permission_dialog_body">Разрешите Wire получить доступ к местоположению вашего устройства, чтобы иметь возможность им поделиться.</string>
     <string name="location_loading_label">Пожалуйста, подождите...</string>
     <string name="location_could_not_be_shared">Не удалось поделиться местоположением</string>
+    <string name="label_no_application_found_open_location">Не найдено приложение для открытия местоположения</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Удалить медиафайл</string>
     <string name="asset_attention_description">Уведомление</string>
@@ -1944,6 +1955,8 @@
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
     <string name="label_system_message_admin_role_assigned">Вы были назначены администратором группы</string>
+    <string name="label_system_message_adminless_delete_reminder">Эта группа будет автоматически удалена %1$s, так как в ней нет администраторов, отвечающих требованиям.</string>
+    <string name="last_message_adminless_delete_reminder">Будет удалена в ближайшее время</string>
     <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
     <!-- Pending messages service notification -->
     <string name="pending_messages_notification_waiting">Ожидание подключения</string>

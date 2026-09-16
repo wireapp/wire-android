@@ -26,12 +26,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import com.wire.android.di.metro.MetroSessionScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
 
 /**
- * Singleton shared state for the Cells file-open feature.
+ * Shared state for the Cells file-open feature, one instance per logged-in account.
  *
  * Centralised here so that `CellViewModel` and `SearchScreenViewModel` share the same
  * reactive state without any UI-layer wiring.
@@ -39,15 +39,19 @@ import dev.zacsweers.metro.SingleIn
  * - [fileReadyEvents]: emitted when a slow download finishes so the UI can show a snackbar.
  * - [openLoadStates]: per-uuid Loading / Ready / Error state consumed by paging combines.
  * - [downloadProgresses]: per-uuid offline-download progress
+ *
+ * Scoped to [MetroSessionScope] rather than `AppScope` so the paths and load states it holds are
+ * discarded on logout instead of surviving into the next account, and so that
+ * [OpenFileDownloadController] — which depends on the per-account `CellsScope` — can share it.
  */
-@SingleIn(AppScope::class)
+@SingleIn(MetroSessionScope::class)
 class CellFileLocalPathCache @Inject constructor() {
 
     private val _fileReadyChannel = Channel<CellNodeUi.File>(Channel.BUFFERED)
     val fileReadyEvents: Flow<CellNodeUi.File> = _fileReadyChannel.receiveAsFlow()
 
     private val _openLoadStates = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
-    internal val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
+    val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
 
     private val _downloadProgresses = MutableStateFlow<Map<String, Float?>>(emptyMap())
     internal val downloadProgresses: StateFlow<Map<String, Float?>> = _downloadProgresses.asStateFlow()
@@ -70,10 +74,10 @@ class CellFileLocalPathCache @Inject constructor() {
         _fileReadyChannel.trySend(file)
     }
 
-    internal fun setOpenLoadState(uuid: String, state: OpenLoadState) =
+    fun setOpenLoadState(uuid: String, state: OpenLoadState) =
         _openLoadStates.update { it + (uuid to state) }
 
-    internal fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
+    fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
 
     internal fun setDownloadProgress(uuid: String, progress: Float?) =
         _downloadProgresses.update { it + (uuid to progress) }

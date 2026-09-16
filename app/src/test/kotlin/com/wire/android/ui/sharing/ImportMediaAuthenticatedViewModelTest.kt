@@ -32,6 +32,7 @@ import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearchUseCase
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.kalium.logic.data.asset.AttachmentType
+import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -80,6 +81,57 @@ class ImportMediaAuthenticatedViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun `given drive permissions enabled, when clicking a viewer only conversation, then do not select it`() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val (arrangement, viewModel) = Arrangement(drivePermissionsEnabled = true).arrange()
+
+            // When
+            viewModel.onConversationClicked(TestConversationItem.VIEWER_ONLY_GROUP)
+            advanceUntilIdle()
+
+            // Then
+            assertTrue(viewModel.importMediaState.selectedConversationItem.isEmpty())
+            coVerify(exactly = 0) {
+                arrangement.observeSelfDeletionSettingsForConversation(any(), any())
+            }
+        }
+
+    @Test
+    fun `given drive permissions enabled, when clicking a conversation with edit access, then select it`() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val (_, viewModel) = Arrangement(drivePermissionsEnabled = true).arrange()
+
+            // When
+            viewModel.onConversationClicked(TestConversationItem.GROUP)
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(
+                listOf(TestConversationItem.GROUP.conversationId),
+                viewModel.importMediaState.selectedConversationItem
+            )
+        }
+
+    @Test
+    fun `given drive permissions disabled, when clicking a viewer only conversation, then select it`() =
+        runTest(dispatcherProvider.main()) {
+            // Given
+            val (_, viewModel) = Arrangement(drivePermissionsEnabled = false).arrange()
+
+            // When
+            viewModel.onConversationClicked(TestConversationItem.VIEWER_ONLY_GROUP)
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(
+                listOf(TestConversationItem.VIEWER_ONLY_GROUP.conversationId),
+                viewModel.importMediaState.selectedConversationItem
+            )
+        }
 
     @Test
     fun `given content uri from Wire file provider, when checking provider uri, then match it`() {
@@ -469,7 +521,7 @@ class ImportMediaAuthenticatedViewModelTest {
         assetType = AttachmentType.GENERIC_FILE
     )
 
-    inner class Arrangement {
+    inner class Arrangement(private val drivePermissionsEnabled: Boolean = false) {
         val context = mockk<Context> {
             every { packageName } returns "com.wire.android"
         }
@@ -499,6 +551,9 @@ class ImportMediaAuthenticatedViewModelTest {
             coEvery {
                 getSelfUser.invoke()
             } returns flowOf(TestUser.SELF_USER)
+            coEvery {
+                observeSelfDeletionSettingsForConversation(any(), any())
+            } returns flowOf(SelfDeletionTimer.Disabled)
             mockUri()
         }
 
@@ -518,6 +573,7 @@ class ImportMediaAuthenticatedViewModelTest {
             persistNewSelfDeletionTimerUseCase = persistNewSelfDeletionTimerUseCase,
             observeSelfDeletionSettingsForConversation = observeSelfDeletionSettingsForConversation,
             dispatchers = dispatcherProvider,
+            drivePermissionsEnabled = drivePermissionsEnabled,
         )
     }
 }

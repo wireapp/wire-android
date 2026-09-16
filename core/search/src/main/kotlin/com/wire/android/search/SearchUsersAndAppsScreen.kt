@@ -89,7 +89,7 @@ fun SearchUsersAndAppsScreen(
     itemActionType: ItemActionType,
     modifier: Modifier = Modifier,
     conversationId: ConversationId? = null,
-    onlyConnectedContacts: Boolean = false,
+    onlySelfTeamAndDomain: Boolean = false,
     shouldHideBottomActionForSearch: Boolean = false,
     shouldHideBottomActionForServices: Boolean = false,
     isAppsTabVisible: Boolean = false,
@@ -215,7 +215,7 @@ fun SearchUsersAndAppsScreen(
                         SearchPeopleTabItem.PEOPLE -> {
                             SearchAllPeopleOrContactsScreen(
                                 conversationId = conversationId,
-                                onlyConnectedContacts = onlyConnectedContacts,
+                                onlySelfTeamAndDomain = onlySelfTeamAndDomain,
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                 contactsSelected = selectedContacts,
                                 onOpenUserProfile = onOpenUserProfile,
@@ -274,8 +274,8 @@ private fun SearchAllPeopleOrContactsScreen(
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
     conversationId: ConversationId? = null,
-    onlyConnectedContacts: Boolean = false,
-    searchUserViewModel: SearchUserViewModel = searchUserViewModel(conversationId, onlyConnectedContacts),
+    onlySelfTeamAndDomain: Boolean = false,
+    searchUserViewModel: SearchUserViewModel = searchUserViewModel(conversationId, onlySelfTeamAndDomain),
     lazyListState: LazyListState = rememberLazyListState(),
     firstContactFocusRequester: FocusRequester? = null,
     nextFocusRequester: FocusRequester? = null,

@@ -25,6 +25,7 @@ import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsReadyUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationScope
@@ -309,6 +310,11 @@ class ConversationModule {
     @Provides
     fun provideIsOneToOneConversationCreatedUseCase(conversationScope: ConversationScope): IsOneToOneConversationCreatedUseCase =
         conversationScope.isOneToOneConversationCreatedUseCase
+
+    @Provides
+    fun provideCheckOneToOneConversationIsReadyUseCase(
+        conversationScope: ConversationScope
+    ): CheckOneToOneConversationIsReadyUseCase = conversationScope.checkOneToOneConversationIsReadyUseCase
 
     @Provides
     fun provideGetConversationProtocolInfoUseCase(conversationScope: ConversationScope): GetConversationProtocolInfoUseCase =

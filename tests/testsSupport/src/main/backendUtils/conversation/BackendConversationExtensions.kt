@@ -49,7 +49,7 @@ suspend fun BackendClient.createTeamConversation(
     team: Team
 ): String {
     val token = getAuthToken(user)
-    val url = URI("conversations".composeCompleteUrl()).toURL()
+    val url = URI("conversations".composePublicApiUrl()).toURL()
 
     val (ids, qids) = contacts?.partition { it.backendName == user.backendName }
         ?: (emptyList<ClientUser>() to emptyList<ClientUser>())
@@ -104,7 +104,77 @@ suspend fun BackendClient.createTeamConversation(
             put("Authorization", "Bearer ${token?.value}")
         }
     )
-    return JSONObject(response).getString("id")
+    return JSONObject(response).getJSONObject("qualified_id").getString("id")
+}
+
+suspend fun BackendClient.createGroupConversation(
+    user: ClientUser,
+    contacts: List<ClientUser>,
+    conversationName: String
+): String {
+    val token = getAuthToken(user)
+    val url = URI("conversations".composePublicApiUrl()).toURL()
+
+    val (ids, qualifiedIds) = contacts.partition { it.backendName == user.backendName }
+    val requestBody = JSONObject().apply {
+        put("users", JSONArray().apply { ids.forEach { put(it.id) } })
+        put(
+            "qualified_users",
+            JSONArray().apply {
+                qualifiedIds.forEach {
+                    put(
+                        QualifiedID(
+                            it.id.orEmpty(),
+                            BackendClient.loadBackend(it.backendName.orEmpty()).domain
+                        ).toJSON()
+                    )
+                }
+            }
+        )
+        put("conversation_role", "wire_member")
+        put("name", conversationName)
+    }
+
+    val response = NetworkBackendClient.sendJsonRequest(
+        url = url,
+        method = "POST",
+        body = requestBody.toString(),
+        headers = defaultheaders.toMutableMap().apply {
+            put("Authorization", "Bearer ${token?.value}")
+        }
+    )
+    return JSONObject(response).getJSONObject("qualified_id").getString("id")
+}
+
+suspend fun BackendClient.createInviteLink(user: ClientUser, conversation: Conversation): String =
+    requestInviteLink(user, conversation, "POST")
+
+suspend fun BackendClient.getInviteLink(user: ClientUser, conversation: Conversation): String =
+    requestInviteLink(user, conversation, "GET")
+
+private suspend fun BackendClient.requestInviteLink(
+    user: ClientUser,
+    conversation: Conversation,
+    method: String
+): String {
+    val token = getAuthToken(user)
+    val url = URI("conversations/${conversation.id}/code".composePublicApiUrl()).toURL()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token?.type} ${token?.value}")
+    }
+    val response = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = method,
+        body = if (method == "POST") {
+            JSONObject().put("password", JSONObject.NULL).toString()
+        } else {
+            null
+        },
+        headers = headers,
+        options = RequestOptions(accessToken = token)
+    )
+    val payload = JSONObject(response.body)
+    return payload.optJSONObject("data")?.getString("uri") ?: payload.getString("uri")
 }
 
 suspend fun BackendClient.createChannelTeamConversation(
@@ -113,7 +183,7 @@ suspend fun BackendClient.createChannelTeamConversation(
     team: Team
 ): String {
     val token = getAuthToken(user)
-    val url = URI("conversations".composeCompleteUrl()).toURL()
+    val url = URI("conversations".composePublicApiUrl()).toURL()
 
     val requestBody = JSONObject().apply {
         put("users", JSONArray())
@@ -151,11 +221,11 @@ suspend fun BackendClient.createChannelTeamConversation(
             put("Authorization", "Bearer ${token?.value}")
         }
     )
-    return JSONObject(response).getString("id")
+    return JSONObject(response).getJSONObject("qualified_id").getString("id")
 }
 
 fun BackendClient.getConversationObjects(token: AccessToken, conversationIDs: JSONArray): JSONObject {
-    val url = "v10/conversations/list".composeCompleteUrl()
+    val url = "conversations/list".composePublicApiUrl()
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token.type} ${token.value}")
     }
@@ -228,7 +298,7 @@ fun BackendClient.getConversationByName(user: ClientUser, name: String): Convers
 }
 
 fun BackendClient.getConversationIDs(token: AccessToken, pagingState: String? = null): JSONObject {
-    val url = "conversations/list-ids".composeCompleteUrl()
+    val url = "conversations/list-ids".composePublicApiUrl()
 
     val requestBody = JSONObject().apply {
         put("paging_state", pagingState)
@@ -254,7 +324,7 @@ fun BackendClient.addUsersToGroupConversation(
     contacts: List<ClientUser>,
     conversation: Conversation
 ): JSONObject {
-    val url = "conversations/${conversation.id}/members/v2".composeCompleteUrl()
+    val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/members".composePublicApiUrl()
 
     val requestBody = JSONObject().apply {
         val userIds = JSONArray().apply {
@@ -288,7 +358,7 @@ fun BackendClient.setArchivedStateForConversation(
     isArchived: Boolean
 ) {
     val token = runBlocking { getAuthToken(asUser) }
-    val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/self".composeCompleteUrl()
+    val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/self".composePublicApiUrl()
     val headers = defaultheaders.toMutableMap().apply {
         put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
     }
@@ -323,7 +393,7 @@ fun BackendClient.removeUserFromGroupConversation(
 ) {
     val contactDomain = BackendClient.loadBackend(contact.backendName.orEmpty()).domain
     val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/members/$contactDomain/${contact.id}"
-        .composeCompleteUrl()
+        .composePublicApiUrl()
     val token = runBlocking { getAuthToken(asUser) }
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")
@@ -349,7 +419,7 @@ fun BackendClient.deleteTeamConversation(
     val teamId = conversation.teamId ?: asUser.teamId
         ?: throw IllegalStateException("Team ID is missing for conversation '${conversation.name}'.")
     val token = runBlocking { getAuthToken(asUser) }
-    val url = "teams/$teamId/conversations/${conversation.id}".composeCompleteUrl()
+    val url = "teams/$teamId/conversations/${conversation.id}".composePublicApiUrl()
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", "${token?.type} ${token?.value}")
     }

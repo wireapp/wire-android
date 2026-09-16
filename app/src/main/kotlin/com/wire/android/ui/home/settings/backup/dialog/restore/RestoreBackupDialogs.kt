@@ -125,6 +125,9 @@ fun RestoreProgressDialog(
     isRestoreCompleted: Boolean,
     restoreProgress: Float,
     onOpenConversation: () -> Unit,
+    canCancel: Boolean,
+    isCancelling: Boolean,
+    onCancelBackupRestore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val progress by animateFloatAsState(targetValue = restoreProgress)
@@ -135,11 +138,20 @@ fun RestoreProgressDialog(
             // User is not able to dismiss the dialog
         },
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onOpenConversation,
-            text = if (isRestoreCompleted) stringResource(R.string.label_ok) else "",
-            type = WireDialogButtonType.Primary,
-            state = if (isRestoreCompleted) WireButtonState.Default else WireButtonState.Disabled,
-            loading = !isRestoreCompleted,
+            onClick = if (isRestoreCompleted) onOpenConversation else onCancelBackupRestore,
+            text = when {
+                isRestoreCompleted -> stringResource(R.string.label_ok)
+                isCancelling -> stringResource(R.string.backup_label_cancelling)
+                canCancel -> stringResource(R.string.label_cancel)
+                else -> ""
+            },
+            type = if (isRestoreCompleted) WireDialogButtonType.Primary else WireDialogButtonType.Secondary,
+            state = if (isRestoreCompleted || (canCancel && !isCancelling)) {
+                WireButtonState.Default
+            } else {
+                WireButtonState.Disabled
+            },
+            loading = !isRestoreCompleted && (!canCancel || isCancelling),
             loadingIndicatorAlignment = IconAlignment.Center
         ),
     ) {
@@ -171,6 +183,9 @@ fun PreviewRestoreProgressDialog() = WireTheme {
     RestoreProgressDialog(
         isRestoreCompleted = false,
         restoreProgress = 0.5f,
-        onOpenConversation = {}
+        onOpenConversation = {},
+        canCancel = true,
+        isCancelling = false,
+        onCancelBackupRestore = {},
     )
 }

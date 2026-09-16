@@ -26,6 +26,8 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import com.wire.android.appLogger
+import com.wire.android.util.crypto.AppCryptoServiceInfo
+import com.wire.android.util.crypto.appCryptoServiceInfo
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.findParameterValue
 import com.wire.android.util.removeQueryParams
@@ -210,6 +212,22 @@ class OAuthUseCase(
         const val CODE_VERIFIER_CHALLENGE_METHOD = "S256"
         const val MESSAGE_DIGEST_ALGORITHM = "SHA-256"
         val MESSAGE_DIGEST = MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM)
+
+        /**
+         * Which providers serve PKCE crypto, for the security providers debug screen.
+         *
+         * Lives here, next to the call sites, so it shares their algorithm constants: change a constant
+         * and this follows automatically instead of quietly reporting the old one.
+         */
+        fun cryptoServices(): List<AppCryptoServiceInfo> = listOfNotNull(
+            appCryptoServiceInfo("OAuth PKCE verifier", "SecureRandom()") {
+                SecureRandom().run { algorithm to provider }
+            },
+            appCryptoServiceInfo("OAuth PKCE challenge", "MessageDigest.getInstance(\"$MESSAGE_DIGEST_ALGORITHM\")") {
+                MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM).run { algorithm to provider }
+            },
+        )
+
         const val ENCODING = Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
         val URL_AUTH_REDIRECT: Uri = Uri.Builder().scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.E2EI_DEEPLINK_HOST)

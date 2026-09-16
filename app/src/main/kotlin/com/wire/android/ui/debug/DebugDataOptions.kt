@@ -60,7 +60,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.feature.debug.MIN_DEBUG_E2EI_CERTIFICATE_EXPIRATION_SECONDS
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 
 @Composable
 fun DebugDataOptions(
@@ -108,7 +108,7 @@ fun DebugDataOptionsContent(
     onForceUpdateApiVersions: () -> Unit,
     enrollE2EICertificate: () -> Unit,
     e2eiCertificateExpirationInputState: TextFieldState,
-    handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
+    handleE2EIEnrollmentResult: (EnrollE2EIResult) -> Unit,
     dismissCertificateDialog: () -> Unit,
     checkCrlRevocationList: () -> Unit,
     forceCRLExpirationAfterOneMinute: Boolean,

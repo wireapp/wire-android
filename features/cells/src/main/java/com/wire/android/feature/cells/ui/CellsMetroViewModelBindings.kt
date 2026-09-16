@@ -20,8 +20,6 @@
 
 package com.wire.android.feature.cells.ui
 
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerViewModel
-import com.wire.android.feature.cells.ui.audioplayer.AudioPlayerNavArgs
 import com.wire.android.feature.cells.ui.create.file.CreateFileViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileScreenNavArgs
 import com.wire.android.feature.cells.ui.create.folder.CreateFolderViewModel
@@ -64,7 +62,6 @@ internal interface CellsManualViewModelFactory : ManualViewModelAssistedFactory 
     fun addRemoveTags(navArgs: AddRemoveTagsNavArgs): AddRemoveTagsViewModel
     fun versionHistory(navArgs: VersionHistoryNavArgs): VersionHistoryViewModel
     fun imageViewer(navArgs: CellImageViewerNavArgs): CellImageViewerViewModel
-    fun audioPlayer(context: android.content.Context, navArgs: AudioPlayerNavArgs): AudioPlayerViewModel
 }
 
 @BindingContainer
@@ -87,7 +84,6 @@ object CellsMetroViewModelBindings {
         addRemoveTagsFactory: AddRemoveTagsViewModel.Factory,
         versionHistoryFactory: VersionHistoryViewModel.Factory,
         imageViewerFactory: CellImageViewerViewModel.Factory,
-        audioPlayerFactory: AudioPlayerViewModel.Factory,
     ): ManualViewModelAssistedFactory =
         object : CellsManualViewModelFactory {
             override fun cell(navArgs: CellFilesNavArgs) = cellFactory.create(navArgs, null)
@@ -105,7 +101,5 @@ object CellsMetroViewModelBindings {
             override fun addRemoveTags(navArgs: AddRemoveTagsNavArgs) = addRemoveTagsFactory.create(navArgs)
             override fun versionHistory(navArgs: VersionHistoryNavArgs) = versionHistoryFactory.create(navArgs)
             override fun imageViewer(navArgs: CellImageViewerNavArgs) = imageViewerFactory.create(navArgs)
-            override fun audioPlayer(context: android.content.Context, navArgs: AudioPlayerNavArgs) =
-                audioPlayerFactory.create(context, navArgs.localPath, navArgs.contentUrl, navArgs.fileName)
         }
 }

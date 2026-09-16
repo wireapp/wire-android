@@ -21,18 +21,55 @@ import com.wire.android.di.KaliumCoreLogic
 import dev.zacsweers.metro.Inject
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.e2ei.OAuthUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.e2ei.usecase.E2EIEnrollmentResult
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
-import com.wire.kalium.logic.feature.e2ei.usecase.InitialEnrollmentResult
+import com.wire.kalium.logic.data.e2ei.E2EIAuthenticationRequest
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
+
+internal data class E2EIOAuthRequest(
+    val id: Long,
+    val authenticationRequest: E2EIAuthenticationRequest,
+)
+
+internal class E2EIOAuthCoordinator {
+    private val nextRequestId = AtomicLong()
+    private val pendingRequests = ConcurrentHashMap<Long, CompletableDeferred<OAuthUseCase.OAuthResult>>()
+    private val requestChannel = Channel<E2EIOAuthRequest>(Channel.BUFFERED)
+
+    val requestFlow = requestChannel.receiveAsFlow()
+
+    suspend fun authenticate(request: E2EIAuthenticationRequest): String {
+        val requestId = nextRequestId.incrementAndGet()
+        val result = CompletableDeferred<OAuthUseCase.OAuthResult>()
+        pendingRequests[requestId] = result
+        return try {
+            requestChannel.send(E2EIOAuthRequest(requestId, request))
+            when (val oAuthResult = result.await()) {
+                is OAuthUseCase.OAuthResult.Success -> oAuthResult.idToken
+                is OAuthUseCase.OAuthResult.Failed -> throw E2EIAuthenticationException(oAuthResult.reason)
+            }
+        } finally {
+            pendingRequests.remove(requestId)?.cancel()
+        }
+    }
+
+    fun handleResult(requestId: Long, oAuthResult: OAuthUseCase.OAuthResult) {
+        pendingRequests[requestId]?.complete(oAuthResult)
+    }
+}
+
+internal class E2EIAuthenticationException(reason: String) : Exception(reason)
 
 class GetE2EICertificateViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -40,65 +77,28 @@ class GetE2EICertificateViewModel @Inject constructor(
     val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
-    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
+    private val oAuthCoordinator = E2EIOAuthCoordinator()
 
-    val requestOAuthFlow = MutableSharedFlow<E2EIEnrollmentResult.Initialized>()
-    val enrollmentResultFlow = MutableSharedFlow<FinalizeEnrollmentResult>()
+    internal val requestOAuthFlow = oAuthCoordinator.requestFlow
+    val enrollmentResultFlow = MutableSharedFlow<EnrollE2EIResult>()
 
-    fun handleOAuthResult(oAuthResult: OAuthUseCase.OAuthResult, initialEnrollmentResult: E2EIEnrollmentResult.Initialized) {
-        scope.launch {
-            when (oAuthResult) {
-                is OAuthUseCase.OAuthResult.Success -> finalizeEnrollment(oAuthResult, initialEnrollmentResult)
-
-                is OAuthUseCase.OAuthResult.Failed -> enrollmentResultFlow.emit(
-                    FinalizeEnrollmentResult.Failure.OAuthError(oAuthResult.reason)
-                )
-            }
-        }
+    internal fun handleOAuthResult(requestId: Long, oAuthResult: OAuthUseCase.OAuthResult) {
+        oAuthCoordinator.handleResult(requestId, oAuthResult)
     }
 
     fun getCertificate(isNewClient: Boolean) {
-        scope.launch {
+        viewModelScope.launch(dispatcherProvider.default()) {
             val currentSessionResult = currentSession()
             if (currentSessionResult is CurrentSessionResult.Success && currentSessionResult.accountInfo.isValid()) {
                 val result = coreLogic.getSessionScope(currentSessionResult.accountInfo.userId)
                     .users
                     .enrollE2EI
-                    .initialEnrollment(isNewClientRegistration = isNewClient)
-                when (result) {
-                    is InitialEnrollmentResult.Failure -> {
-                        enrollmentResultFlow.emit(FinalizeEnrollmentResult.Failure.Generic(result.toE2EIFailure()))
-                    }
-
-                    is InitialEnrollmentResult.Success -> {
-                        requestOAuthFlow.emit(result.initializationResult)
-                    }
-                }
+                    .invoke(
+                        isNewClientRegistration = isNewClient,
+                        authenticate = oAuthCoordinator::authenticate,
+                    )
+                enrollmentResultFlow.emit(result)
             }
         }
-    }
-
-    private suspend fun finalizeEnrollment(
-        oAuthResult: OAuthUseCase.OAuthResult.Success,
-        initialEnrollmentResult: E2EIEnrollmentResult.Initialized
-    ) {
-        val currentSessionResult = currentSession()
-
-        if (currentSessionResult is CurrentSessionResult.Success && currentSessionResult.accountInfo.isValid()) {
-            val enrollmentResult = coreLogic.getSessionScope(currentSessionResult.accountInfo.userId)
-                .users
-                .enrollE2EI.finalizeEnrollment(
-                    oAuthResult.idToken,
-                    oAuthResult.authState,
-                    initialEnrollmentResult
-                )
-            enrollmentResultFlow.emit(enrollmentResult)
-        }
-    }
-
-    private fun InitialEnrollmentResult.Failure.toE2EIFailure() = when (this) {
-        is InitialEnrollmentResult.Failure.E2EIDisabled -> com.wire.kalium.common.error.E2EIFailure.Disabled
-        is InitialEnrollmentResult.Failure.MissingTeamSettings -> com.wire.kalium.common.error.E2EIFailure.MissingTeamSettings
-        is InitialEnrollmentResult.Failure.Generic -> this.e2EIFailure
     }
 }

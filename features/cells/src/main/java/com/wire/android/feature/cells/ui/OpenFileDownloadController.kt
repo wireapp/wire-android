@@ -21,7 +21,6 @@ import com.wire.android.feature.cells.ui.OpenFileDownloadController.Companion.SP
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onSuccess
@@ -33,8 +32,10 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toOkioPath
-import dev.zacsweers.metro.Inject
 import java.io.File
+import com.wire.android.di.metro.MetroSessionScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Controller responsible for managing the download and open flow for cell files.
@@ -45,20 +46,26 @@ import java.io.File
  * Once the download completes, it updates the cache with either a "Ready" state (if the spinner
  * was shown) or opens the file immediately (if the download was fast). It also handles cancellation
  * of in-progress downloads and error states.
+ *
+ * Scoped to [MetroSessionScope] to match [CellFileLocalPathCache]: the load state it publishes is
+ * shared by every ViewModel in the session, so [activeDownloads] must be too. With a narrower scope
+ * a download started from one ViewModel (e.g. `CellViewModel`) could not be cancelled from another
+ * (e.g. `MultipartAttachmentsViewModel`) even though both render the same spinner. It cannot be
+ * `AppScope` either — [DownloadCellFileUseCase] comes from the per-account `CellsScope`.
  */
+@SingleIn(MetroSessionScope::class)
 class OpenFileDownloadController @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,
-    private val fileNameResolver: FileNameResolver,
     private val sharedPathCache: CellFileLocalPathCache,
 ) {
     private data class ActiveDownload(val job: Job, val filePath: Path)
 
     private val activeDownloads = mutableMapOf<String, ActiveDownload>()
 
-    internal val openLoadStates = sharedPathCache.openLoadStates
+    val openLoadStates = sharedPathCache.openLoadStates
 
-    internal fun start(
+    fun start(
         scope: CoroutineScope,
         cellNode: CellNodeUi.File,
         onOpenFile: (CellNodeUi.File) -> Unit,
@@ -68,7 +75,7 @@ class OpenFileDownloadController @Inject constructor(
         // (node.localPath) or recorded in this session's completed-paths guard (covers the
         // window between download completion and paging source refresh).
         val knownPath = cellNode.localPath ?: sharedPathCache.getCompletedPath(cellNode.uuid)
-        if (knownPath != null) {
+        if (knownPath != null && File(knownPath).exists()) {
             onOpenFile(cellNode.copy(localPath = knownPath))
             return
         }
@@ -81,9 +88,9 @@ class OpenFileDownloadController @Inject constructor(
             return
         }
 
-        val filePath = fileNameResolver
-            .getUniqueFile(fileHelper.getExternalFilesDir(), nodeName)
-            .toPath()
+        val filePath = File(fileHelper.getExternalFilesDir(), cellNode.conversationId ?: cellNode.uuid)
+            .also { it.mkdirs() }
+            .let { File(it, nodeName) }
             .toOkioPath()
 
         val job = scope.launch {
@@ -159,7 +166,7 @@ class OpenFileDownloadController @Inject constructor(
         }
     }
 
-    internal fun cancel(uuid: String, scope: CoroutineScope) {
+    fun cancel(uuid: String, scope: CoroutineScope) {
         val active = activeDownloads.remove(uuid) ?: return
         active.job.cancel()
         sharedPathCache.clearOpenLoadState(uuid)

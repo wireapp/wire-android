@@ -50,7 +50,7 @@ class ScimClient(
         }
 
         val response = NetworkBackendClient.sendJsonRequest(
-            url = URI("${backend.backendUrl}scim/v2/Users").toURL(),
+            url = with(backend) { URI("scim/v2/Users".composePublicApiUrl()).toURL() },
             method = "POST",
             body = profile.toString(),
             headers = mapOf(

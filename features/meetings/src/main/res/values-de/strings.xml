@@ -68,6 +68,8 @@
     <string name="meeting_audio_permission_dialog_description">Um an einem Meeting teilzunehmen, erlauben Sie Wire in den Geräteeinstellungen den Zugriff auf Ihr Mikrofon.</string>
     <string name="delete_meeting_for_everyone_title">Meeting für alle löschen</string>
     <string name="delete_meeting_for_everyone_description">Das Meeting wird für Sie und alle anderen gelöscht. Alle Teilnehmer werden darüber informiert.</string>
+    <string name="delete_meeting_for_me_title">Meeting für mich löschen</string>
+    <string name="delete_meeting_for_me_description">Das Meeting wird aus Ihrem Kalender gelöscht. Dies wirkt sich nicht auf andere Teilnehmer aus.</string>
     <string name="meeting_deleted_success">“%s” gelöscht</string>
     <string name="new_meeting_now_failure_title">Meeting konnte nicht gestartet werden</string>
     <string name="new_meeting_now_failure_description">Beim Starten des Meetings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>

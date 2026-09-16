@@ -266,6 +266,8 @@ jobs:
 
       - name: Set up Android SDK (ANDROID_HOME + adb)
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
+        with:
+          packages: platform-tools
 
       # Verify required CLIs on the runner before setup continues.
       - name: Ensure required tools exist
@@ -280,7 +282,7 @@ jobs:
         run: make qa-ui-setup cmd=resolve-flavor
 
       - name: Configure AWS credentials (for S3)
-        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

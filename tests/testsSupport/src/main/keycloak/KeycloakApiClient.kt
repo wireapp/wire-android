@@ -58,7 +58,7 @@ class KeycloakApiClient(
     )
 
     fun createSamlClient(teamId: String) {
-        val finalizeUrl = "${backend.backendUrl}sso/finalize-login/$teamId"
+        val finalizeUrl = with(backend) { "sso/finalize-login/$teamId".composeUnversionedUrl() }
         val requestBody = JSONObject().apply {
             put("clientId", finalizeUrl)
             put("enabled", true)

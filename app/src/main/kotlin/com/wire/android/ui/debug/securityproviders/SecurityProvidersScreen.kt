@@ -75,7 +75,15 @@ internal fun SecurityProvidersRouteScreen(
             ) {
                 SectionHeader(stringResource(R.string.debug_settings_app_paths))
                 state.appPaths.forEach { entry ->
-                    SettingsItem(title = stringResource(entry.labelRes), text = entry.path)
+                    SettingsItem(title = stringResource(entry.labelRes), text = entry.value)
+                }
+
+                SectionHeader(stringResource(R.string.debug_settings_entropy_sources))
+                if (state.cryptoServices?.isEmpty() == true) {
+                    SettingsItem(text = stringResource(R.string.debug_settings_crypto_services_empty))
+                }
+                state.cryptoServices?.forEach { row ->
+                    CryptoServiceListItem(row)
                 }
 
                 state.network?.let { network ->

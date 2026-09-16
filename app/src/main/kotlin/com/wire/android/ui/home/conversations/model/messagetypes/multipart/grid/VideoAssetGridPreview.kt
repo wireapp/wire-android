@@ -33,6 +33,7 @@ import coil3.video.VideoFrameDecoder
 import com.wire.android.R
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
@@ -67,13 +68,15 @@ internal fun BoxScope.VideoAssetGridPreview(
             messageStyle = messageStyle
         )
     }
-    item.contentUrl?.let {
-        Image(
-            modifier = Modifier
-                .size(dimensions().spacing48x)
-                .align(Alignment.Center),
-            painter = painterResource(id = R.drawable.ic_play_circle_filled),
-            contentDescription = null,
-        )
+     if (item.openLoadState !is MultipartAttachmentOpenLoadState.Loading) {
+        item.contentUrl?.let {
+            Image(
+                modifier = Modifier
+                    .size(dimensions().spacing48x)
+                    .align(Alignment.Center),
+                painter = painterResource(id = R.drawable.ic_play_circle_filled),
+                contentDescription = null,
+            )
+        }
     }
 }

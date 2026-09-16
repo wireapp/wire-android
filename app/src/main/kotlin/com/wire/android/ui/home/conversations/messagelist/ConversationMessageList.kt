@@ -94,6 +94,7 @@ import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldS
 import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResolver
 import com.wire.android.ui.home.conversations.LocalAudioMessageKeyInScopeResolver
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
@@ -124,6 +125,7 @@ fun ConversationMessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
+    adminlessGroupDeletionTimestamp: Instant?,
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     onUpdateConversationReadDate: (Instant) -> Unit,
@@ -301,6 +303,14 @@ fun ConversationMessageList(
                 ),
                 modifier = Modifier.fillMaxSize(),
             ) {
+                if (adminlessGroupDeletionTimestamp != null && lazyPagingMessages.itemCount == 0) {
+                    item(
+                        key = "adminless_group_delete_reminder",
+                        contentType = "adminless_group_delete_reminder",
+                    ) {
+                        AdminlessGroupDeleteReminderItem(adminlessGroupDeletionTimestamp)
+                    }
+                }
                 items(
                     count = lazyPagingMessages.itemCount,
                     key = lazyPagingMessages.itemKey { it.header.messageId },
@@ -351,6 +361,12 @@ fun ConversationMessageList(
                         } else {
                             SwipeableMessageConfiguration.NotSwipeable
                         }
+                    }
+
+                    // Multiple children in a reverse-layout item are placed in reverse order,
+                    // so emitting the reminder first displays it below the newest message.
+                    if (index == 0 && adminlessGroupDeletionTimestamp != null) {
+                        AdminlessGroupDeleteReminderItem(adminlessGroupDeletionTimestamp)
                     }
 
                     MessageContainerItem(

@@ -19,7 +19,6 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.util.FileHelper
-import com.wire.android.feature.cells.util.FileNameResolver
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
@@ -43,7 +42,6 @@ import dev.zacsweers.metro.Inject
 class OfflineFileDownloadController @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,
-    private val fileNameResolver: FileNameResolver,
     private val saveOfflineFile: SaveOfflineFileUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
 ) {
@@ -62,7 +60,7 @@ class OfflineFileDownloadController @Inject constructor(
         // If the file already exists locally (loaded this session or stored in DB),
         // skip the download and just persist the offline metadata.
         val existingPath = cellNode.localPath ?: sharedPathCache.getCompletedPath(cellNode.uuid)
-        if (existingPath != null) {
+        if (existingPath != null && File(existingPath).exists()) {
             saveExistingOfflineFile(scope, cellNode, existingPath, onSuccess, onError)
             return
         }
@@ -74,9 +72,9 @@ class OfflineFileDownloadController @Inject constructor(
             onError(CellError.OTHER_ERROR)
             return
         }
-        val filePath = fileNameResolver
-            .getUniqueFile(fileHelper.getExternalFilesDir(), nodeName)
-            .toPath()
+        val filePath = File(fileHelper.getExternalFilesDir(), cellNode.conversationId ?: cellNode.uuid)
+            .also { it.mkdirs() }
+            .let { File(it, nodeName) }
             .toOkioPath()
 
         val job = scope.launch {

@@ -52,7 +52,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.SupportPage
 import com.wire.android.util.supportUrlResource
 import com.wire.android.util.ui.PreviewMultipleThemes
-import com.wire.kalium.logic.feature.e2ei.usecase.FinalizeEnrollmentResult
+import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
 
 @Composable
 internal fun E2EIEnrollmentRouteScreen(
@@ -91,7 +91,7 @@ private fun E2EIEnrollmentScreenContent(
     dismissSuccess: () -> Unit,
     dismissErrorDialog: () -> Unit,
     enrollE2EICertificate: () -> Unit,
-    handleE2EIEnrollmentResult: (FinalizeEnrollmentResult) -> Unit,
+    handleE2EIEnrollmentResult: (EnrollE2EIResult) -> Unit,
     openCertificateDetails: () -> Unit,
     onBackButtonClicked: () -> Unit,
     onCancelEnrollmentClicked: () -> Unit,

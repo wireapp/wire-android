@@ -22,6 +22,10 @@ import org.ajoberstar.grgit.Credentials
 import org.ajoberstar.grgit.Grgit
 import java.io.File
 import java.util.Properties
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 object Customization {
 
@@ -31,6 +35,15 @@ object Customization {
      * @see CustomizationGitProperty
      */
     private const val GIT_PROPERTIES_FILE_NAME = "local.properties"
+
+    /**
+     * Maximum time allowed for cloning the customization repository.
+     * Grgit/JGit does not expose a timeout for this operation, and on some setups (e.g. SSH auth
+     * that needs a host-key confirmation or a passphrase, with no terminal attached to prompt for
+     * it) the clone can block indefinitely. Bounding it here turns a silent, indefinite Gradle sync
+     * hang into a clear failure.
+     */
+    private const val CLONE_TIMEOUT_SECONDS = 120L
 
     /**
      * The name of the directory used for storing customization files temporarily.
@@ -163,19 +176,70 @@ object Customization {
         val gitUser: String = requireCustomizationProperty(properties, CustomizationGitProperty.GIT_USER)
         val gitPassword: String = readCustomizationProperty(properties, CustomizationGitProperty.GIT_PASSWORD).orEmpty()
 
+        println(
+            ">> Customization repository specified: checking out branch '$customBranch' of '$customRepository' " +
+                "(this can take a while and may hang if git credentials/SSH access are not set up correctly)..."
+        )
+
         if (customCheckoutDir.exists()) {
             customCheckoutDir.deleteRecursively()
         }
 
         val credentials = Credentials(gitUser, gitPassword)
-        Grgit.clone(mapOf(
-            "dir" to customCheckoutDir,
-            "uri" to customRepository,
-            "refToCheckout" to customBranch,
-            "credentials" to credentials
-        ))
+        cloneWithTimeout(customCheckoutDir, customRepository, customBranch, credentials)
+
+        println(">> Customization repository checked out successfully into '${customCheckoutDir.absolutePath}'")
 
         return File(customCheckoutDir, "$customFolder/$clientFolder/$CUSTOM_JSON_FILE_NAME")
+    }
+
+    /**
+     * Runs [Grgit.clone] on a separate, throwaway daemon thread and waits for it for at most
+     * [CLONE_TIMEOUT_SECONDS]. Grgit/JGit exposes no timeout option for cloning, so this is enforced
+     * manually. A fresh executor is created per call (rather than reused) so that if a clone gets
+     * stuck and its thread never unblocks, it does not prevent a subsequent Gradle sync from retrying.
+     */
+    private fun cloneWithTimeout(
+        customCheckoutDir: File,
+        customRepository: String,
+        customBranch: String,
+        credentials: Credentials,
+    ) {
+        val executor = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "grgit-customization-clone").apply { isDaemon = true }
+        }
+        try {
+            val future = executor.submit {
+                Grgit.clone(mapOf(
+                    "dir" to customCheckoutDir,
+                    "uri" to customRepository,
+                    "refToCheckout" to customBranch,
+                    "credentials" to credentials
+                ))
+            }
+            try {
+                future.get(CLONE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            } catch (e: TimeoutException) {
+                future.cancel(true)
+                throw IllegalStateException(
+                    """
+                    |Timed out after ${CLONE_TIMEOUT_SECONDS}s while cloning the customization repository '$customRepository' (branch '$customBranch').
+                    |This usually means git could not authenticate non-interactively (e.g. an SSH host-key confirmation or passphrase
+                    |prompt with no terminal attached), or the repository/network is unreachable.
+                    |Try running 'git clone $customRepository' manually from the same environment Android Studio uses, or remove the
+                    |CUSTOM_REPOSITORY/CUSTOM_BRANCH/CUSTOM_FOLDER/CLIENT_FOLDER/GRGIT_USER properties from local.properties to disable customization.
+                    """.trimMargin(),
+                    e
+                )
+            } catch (e: ExecutionException) {
+                throw IllegalStateException(
+                    "Failed to clone customization repository '$customRepository': ${e.cause?.message}",
+                    e.cause ?: e
+                )
+            }
+        } finally {
+            executor.shutdownNow()
+        }
     }
 
     private fun getCustomBuildConfigs(

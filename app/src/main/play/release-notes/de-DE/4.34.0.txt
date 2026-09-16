@@ -1,0 +1,7 @@
+Neu
+Drive: Sortieroption in der Standardansicht in Geteiltes Drive
+
+Behoben
+- Absturz beim Versenden ausstehender Nachrichten
+- Problem beim Erstellen einer MLS-Gruppe
+- Die App verblieb im Zustand „Warten auf Netzwerk“

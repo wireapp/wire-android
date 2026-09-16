@@ -121,9 +121,11 @@ app/version.txt
 \#*#
 /secrets.json
 .claude
+/custom
 
 # Ignore Allure test result artifacts
 allure-results/
 allure-results.tar
+
 AGENTS.md
 CLAUDE.md

@@ -2,6 +2,8 @@ package com.wire.android.ui.newauthentication.login
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.ui.authentication.login.SavedStateLoginSavedInputStore
+import com.wire.android.ui.authentication.login.sso.PendingSsoLogin
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.ServerConfigProvider
@@ -77,6 +79,43 @@ class NewLoginViewModelTest {
     @AfterEach
     fun tearDown() {
         SupportUrlResolver.setBaseUrl(null)
+    }
+
+    @Test
+    fun `SSO initiation retains backend identity and route across view model recreation`() = runTest(dispatchers.main()) {
+        for (emailIdp in listOf(null, "email-idp")) {
+            val (arrangement, viewModel) = Arrangement().withInitiateSSOSuccess("https://sso.example.com").arrange()
+            viewModel.initiateSSO(ServerConfig.STAGING, SSO_CODE_WITH_PREFIX, emailIdp)
+            val expected = PendingSsoLogin("idp-id", "server-config-id", emailIdp == null)
+            assertEquals(expected, SavedStateLoginSavedInputStore(arrangement.savedStateHandle).pendingSsoLogin)
+
+            val (_, restored) = arrangement.arrange()
+            restored.handleSSOResult(DeepLinkResult.SSOLogin.Success("cookie", "server-config-id"))
+            advanceUntilIdle()
+
+            coVerify {
+                arrangement.loginSSOViewModelExtension.establishSSOSession(
+                    cookie = "cookie", serverConfigId = "server-config-id",
+                    consumeNomadServiceUrl = any(), consumeCookieLabel = any(),
+                    onAuthScopeFailure = any(), onSSOLoginFailure = any(), onAddAuthenticatedUserFailure = any(),
+                    onSuccess = any(), onSsoIdentityChanged = any(),
+                    ssoIdentityProviderId = emailIdp, pendingSsoLogin = expected,
+                )
+            }
+            assertEquals(null, SavedStateLoginSavedInputStore(arrangement.savedStateHandle).pendingSsoLogin)
+        }
+    }
+
+    @Test
+    fun `failed new SSO attempt discards previous identity and route`() = runTest(dispatchers.main()) {
+        val (arrangement, viewModel) = Arrangement().withInitiateSSOSuccess("https://sso.example.com").arrange()
+        viewModel.initiateSSO(ServerConfig.STAGING, SSO_CODE_WITH_PREFIX, "email-idp")
+        arrangement.withInitiateSSOFailure(SSOInitiateLoginResult.Failure.InvalidCode)
+
+        viewModel.initiateSSO(ServerConfig.STAGING, SSO_CODE_WITH_PREFIX)
+
+        assertEquals(null, SavedStateLoginSavedInputStore(arrangement.savedStateHandle).pendingSsoLogin)
+        assertEquals(null, arrangement.savedStateHandle.get<String>("pending_sso_identity_provider_id"))
     }
 
     @Test
@@ -434,7 +473,8 @@ class NewLoginViewModelTest {
 
         coVerify {
             arrangement.loginSSOViewModelExtension.establishSSOSession(
-                any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                    pendingSsoLogin = any()
             )
         }
     }
@@ -467,7 +507,8 @@ class NewLoginViewModelTest {
                 any(),
                 any(),
                 any(),
-                any()
+                any(),
+                    pendingSsoLogin = any()
             )
         }
         assertEquals(nomadServiceUrl, consumeNomadServiceUrlProviders[0]())
@@ -680,8 +721,7 @@ class NewLoginViewModelTest {
         @MockK
         lateinit var loginSSOViewModelExtension: LoginSSOViewModelExtension
 
-        @MockK
-        private lateinit var savedStateHandle: SavedStateHandle
+        val savedStateHandle = SavedStateHandle()
 
         private var loginNavArgs = LoginNavArgs()
 
@@ -716,15 +756,6 @@ class NewLoginViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every {
-                savedStateHandle.get<String>(any())
-            } returns null
-            every {
-                savedStateHandle[any()] = any<String>()
-            } returns Unit
-            every {
-                savedStateHandle.remove<String>(any())
-            } returns null
             every { coreLogic.getGlobalScope().deleteSession } returns deleteSessionUseCase
             every { coreLogic.getSessionScope(any()).logout } returns logoutUseCase
         }
@@ -793,7 +824,9 @@ class NewLoginViewModelTest {
             coEvery {
                 loginSSOViewModelExtension.initiateSSO(any(), any(), any(), any(), any(), any())
             } coAnswers {
-                arg<suspend (String) -> Unit>(5)(url)
+                arg<suspend (SSOInitiateLoginResult.Success) -> Unit>(5)(
+                    SSOInitiateLoginResult.Success(url, "idp-id", "server-config-id")
+                )
             }
         }
 
@@ -824,7 +857,8 @@ class NewLoginViewModelTest {
         fun withEstablishSSOSessionAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
             coEvery {
                 loginSSOViewModelExtension.establishSSOSession(
-                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                    pendingSsoLogin = any()
                 )
             } coAnswers {
                 arg<(AutoVersionAuthScopeUseCase.Result.Failure) -> Unit>(4)(failure)
@@ -834,7 +868,8 @@ class NewLoginViewModelTest {
         fun withEstablishSSOSessionLoginFailure(failure: SSOLoginSessionResult.Failure) = apply {
             coEvery {
                 loginSSOViewModelExtension.establishSSOSession(
-                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                    pendingSsoLogin = any()
                 )
             } coAnswers {
                 arg<(SSOLoginSessionResult.Failure) -> Unit>(5)(failure)
@@ -844,7 +879,8 @@ class NewLoginViewModelTest {
         fun withEstablishSSOSessionAddUserFailure(failure: AddAuthenticatedUserUseCase.Result.Failure) = apply {
             coEvery {
                 loginSSOViewModelExtension.establishSSOSession(
-                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                    pendingSsoLogin = any()
                 )
             } coAnswers {
                 arg<(AddAuthenticatedUserUseCase.Result.Failure) -> Unit>(6)(failure)
@@ -854,7 +890,8 @@ class NewLoginViewModelTest {
         fun withEstablishSSOSessionSuccess(userId: UserId) = apply {
             coEvery {
                 loginSSOViewModelExtension.establishSSOSession(
-                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
+                    pendingSsoLogin = any()
                 )
             } coAnswers {
                 arg<suspend (UserId) -> Unit>(7)(userId)
@@ -872,16 +909,12 @@ class NewLoginViewModelTest {
         }
 
         fun withEmptyUserIdentifierAndNoPreFilledIdentifier() = apply {
-            every {
-                savedStateHandle.get<String>(any())
-            } returns null
+            savedStateHandle["user_identifier"] = null
             loginNavArgs = LoginNavArgs()
         }
 
         fun withUserIdentifierAlreadySet(userIdentifier: String) = apply {
-            every {
-                savedStateHandle.get<String>(any())
-            } returns userIdentifier
+            savedStateHandle["user_identifier"] = userIdentifier
         }
 
         fun withPreFilledUserIdentifier(userIdentifier: String) = apply {

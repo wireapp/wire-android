@@ -147,6 +147,10 @@ class RemoveUserTests : BaseUiTest() {
             )
         }
 
+        step("Then I see system message This user is no longer available in conversation view") {
+            pages.conversationViewPage.assertSystemMessageVisible("This user is no longer available")
+        }
+
         step("And I close the conversation view through the back arrow") {
             pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
         }

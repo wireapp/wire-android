@@ -68,13 +68,13 @@ class LoginSSOViewModelExtension(
         cookieLabel: String? = null,
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOInitiateFailure: (SSOInitiateLoginResult.Failure) -> Unit,
-        onSuccess: suspend (redirectUrl: String) -> Unit,
+        onSuccess: suspend (SSOInitiateLoginResult.Success) -> Unit,
     ) {
         withAuthenticationScope(serverConfig, onAuthScopeFailure) { authScope ->
             authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode, cookieLabel)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> onSSOInitiateFailure(result)
-                    is SSOInitiateLoginResult.Success -> onSuccess(result.requestUrl)
+                    is SSOInitiateLoginResult.Success -> onSuccess(result)
                 }
             }
         }
@@ -110,6 +110,7 @@ class LoginSSOViewModelExtension(
             onAddAuthenticatedUserFailure(AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged)
         },
         ssoIdentityProviderId: String? = null,
+        pendingSsoLogin: PendingSsoLogin? = null,
     ) {
         val authScope = when (val result = coreLogic.authenticationScopeForConfigId(serverConfigId)) {
             is AutoVersionAuthScopeUseCase.Result.Success -> {
@@ -123,7 +124,18 @@ class LoginSSOViewModelExtension(
             }
         }
 
-        val ssoLoginSuccess = when (val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(cookie)) {
+        val hasMatchingContext = pendingSsoLogin?.let { it.serverConfigId == serverConfigId } ?: (ssoIdentityProviderId != null)
+        val ssoLoginResult = if (hasMatchingContext) {
+            authScope.ssoLoginScope.getLoginSession(
+                cookie,
+                checkIdpChangeDetection = pendingSsoLogin?.requiresCapabilityCheck == true
+            )
+        } else {
+            SSOLoginSessionResult.Failure.Generic(
+                CoreFailure.Unknown(IllegalStateException("Missing or mismatched SSO login context; restart sign-in"))
+            )
+        }
+        val ssoLoginSuccess = when (ssoLoginResult) {
             is SSOLoginSessionResult.Failure -> {
                 onSSOLoginFailure(ssoLoginResult)
                 return
@@ -139,7 +151,11 @@ class LoginSSOViewModelExtension(
             managedBy = ssoLoginSuccess.managedBy,
             isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
             nomadServiceUrl = consumeNomadServiceUrl(),
-            ssoIdentityProviderId = ssoIdentityProviderId,
+            ssoIdentityProviderId = if (pendingSsoLogin?.requiresCapabilityCheck == true) {
+                pendingSsoLogin.identityProviderId.takeIf { ssoLoginSuccess.isIdpChangeDetectionEnabled }
+            } else {
+                ssoIdentityProviderId
+            },
         )
         val authenticatedUserResult = addAuthenticatedUser(
             session,

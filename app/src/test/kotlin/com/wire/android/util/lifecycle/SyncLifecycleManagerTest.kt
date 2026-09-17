@@ -27,11 +27,14 @@ import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import io.mockk.MockKAnnotations
+import com.wire.kalium.logic.sync.ForegroundActionsUseCase
+import com.wire.kalium.logic.sync.SyncRequest
+import io.mockk.coVerify
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -98,6 +101,101 @@ class SyncLifecycleManagerTest {
         assertEquals(1, arrangement.syncExecutor.waitUntilLiveCount)
     }
 
+    @Test
+    fun `visibility transitions check registration and release foreground sync`() = runTest {
+        val (arrangement, manager) = Arrangement().arrange()
+        val job = launch { manager.observeAppLifecycle() }
+        advanceUntilIdle()
+        coVerify(exactly = 0) { arrangement.foregroundActions.registerMLSClientIfNeeded() }
+
+        arrangement.visibility.value = true
+        advanceUntilIdle()
+        assertEquals(1, arrangement.syncExecutor.activeRequests)
+        coVerify(exactly = 1) { arrangement.foregroundActions.registerMLSClientIfNeeded() }
+        arrangement.visibility.value = true
+        advanceUntilIdle()
+        coVerify(exactly = 1) { arrangement.foregroundActions.registerMLSClientIfNeeded() }
+
+        arrangement.visibility.value = false
+        advanceUntilIdle()
+        assertEquals(0, arrangement.syncExecutor.activeRequests)
+        arrangement.visibility.value = true
+        advanceUntilIdle()
+        coVerify(exactly = 2) { arrangement.foregroundActions.registerMLSClientIfNeeded() }
+        job.cancel()
+        advanceUntilIdle()
+        assertEquals(0, arrangement.syncExecutor.activeRequests)
+    }
+
+    @Test
+    fun `registration failure keeps foreground sync active and retries on next foreground`() = runTest {
+        val (arrangement, manager) = Arrangement().withAppInTheForeground().arrange()
+        coEvery {
+            arrangement.foregroundActions.registerMLSClientIfNeeded()
+        } throws IllegalStateException("test failure")
+        val job = launch { manager.observeAppLifecycle() }
+        advanceUntilIdle()
+        assertEquals(1, arrangement.syncExecutor.activeRequests)
+        arrangement.visibility.value = false
+        advanceUntilIdle()
+        assertEquals(0, arrangement.syncExecutor.activeRequests)
+        coEvery { arrangement.foregroundActions.registerMLSClientIfNeeded() } returns Unit
+        arrangement.visibility.value = true
+        advanceUntilIdle()
+        coVerify(exactly = 2) { arrangement.foregroundActions.registerMLSClientIfNeeded() }
+        assertEquals(1, arrangement.syncExecutor.activeRequests)
+        job.cancel()
+    }
+
+    @Test
+    fun `background cancels pending registration check`() = runTest {
+        val (arrangement, manager) = Arrangement().withAppInTheForeground().arrange()
+        var cancelled = false
+        coEvery { arrangement.foregroundActions.registerMLSClientIfNeeded() } coAnswers {
+            try {
+                awaitCancellation()
+            } finally {
+                cancelled = true
+            }
+        }
+        val job = launch { manager.observeAppLifecycle() }
+        advanceUntilIdle()
+        arrangement.visibility.value = false
+        advanceUntilIdle()
+        assertEquals(true, cancelled)
+        assertEquals(0, arrangement.syncExecutor.activeRequests)
+        job.cancel()
+    }
+
+    @Test
+    fun `new valid session while visible checks each account`() = runTest {
+        val (arrangement, manager) = Arrangement().withAppInTheForeground().arrange()
+        val secondUser = TestUser.SELF_USER_ID.copy(value = "second-user")
+        every { arrangement.coreLogic.getSessionScope(secondUser) } returns arrangement.userSessionScope
+        val job = launch { manager.observeAppLifecycle() }
+        advanceUntilIdle()
+        arrangement.sessions.value = GetAllSessionsResult.Success(
+            listOf(AccountInfo.Valid(TestUser.SELF_USER_ID), AccountInfo.Valid(secondUser))
+        )
+        advanceUntilIdle()
+        coVerify(exactly = 3) { arrangement.foregroundActions.registerMLSClientIfNeeded() }
+        assertEquals(2, arrangement.syncExecutor.activeRequests)
+        job.cancel()
+    }
+
+    private class TrackingSyncExecutor : FakeSyncExecutor() {
+        var activeRequests = 0
+
+        override suspend fun <T> request(executorAction: suspend SyncRequest.() -> T): T {
+            activeRequests++
+            return try {
+                super.request(executorAction)
+            } finally {
+                activeRequests--
+            }
+        }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -112,7 +210,14 @@ class SyncLifecycleManagerTest {
         @MockK
         lateinit var observeValidAccountsUseCase: ObserveSessionsUseCase
 
-        var syncExecutor = FakeSyncExecutor()
+        @MockK
+        lateinit var foregroundActions: ForegroundActionsUseCase
+
+        val visibility = MutableStateFlow(false)
+        val sessions = MutableStateFlow<GetAllSessionsResult>(
+            GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.SELF_USER_ID)))
+        )
+        val syncExecutor = TrackingSyncExecutor()
 
         private val syncLifecycleManager by lazy {
             SyncLifecycleManager(currentScreenManager, coreLogic)
@@ -122,21 +227,17 @@ class SyncLifecycleManagerTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { coreLogic.getGlobalScope().observeAllValidSessionsFlow } returns observeValidAccountsUseCase
             every { coreLogic.getSessionScope(TestUser.SELF_USER_ID) } returns userSessionScope
-            coEvery { observeValidAccountsUseCase.invoke() } returns flowOf(
-                GetAllSessionsResult.Success(
-                    listOf(
-                        AccountInfo.Valid(TestUser.SELF_USER_ID)
-                    )
-                )
-            )
+            coEvery { observeValidAccountsUseCase.invoke() } returns sessions
+            every { userSessionScope.users.foregroundActions } returns foregroundActions
+            every { currentScreenManager.isAppVisibleFlow() } returns visibility
         }
 
         fun withAppInTheBackground() = apply {
-            every { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(false)
+            visibility.value = false
         }
 
         fun withAppInTheForeground() = apply {
-            every { currentScreenManager.isAppVisibleFlow() } returns MutableStateFlow(true)
+            visibility.value = true
         }
 
         fun arrange() = this to syncLifecycleManager.also {

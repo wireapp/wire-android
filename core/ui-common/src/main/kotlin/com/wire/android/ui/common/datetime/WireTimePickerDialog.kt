@@ -70,7 +70,7 @@ fun WireTimePickerDialog(
             selectedTime = selectedTime,
             is24hour = is24hour,
             onTimeSelected = onTimeSelected,
-            onDismiss = onDismiss,
+            onDismiss = onDismiss
         )
     }
 }

@@ -65,6 +65,12 @@ data class LoginPage(private val device: UiDevice) {
     private val removeDevicePasswordSelector = UiSelectorParams(className = "android.widget.EditText")
     private val removeButtonSelector = UiSelectorParams(text = "Remove")
 
+    fun assertEmailInputPageVisible(): LoginPage {
+        val emailInput = UiWaitUtils.waitElement(emailInputFieldSelector)
+        assertTrue("Email input page is not visible", !emailInput.visibleBounds.isEmpty)
+        return this
+    }
+
     fun enterPersonalUserLoggingEmail(email: String): LoginPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         // Click the input field (waits until visible)

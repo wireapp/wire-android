@@ -52,6 +52,7 @@ data class ConversationListPage(private val device: UiDevice) {
     private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
         UiSelectorParams(text = conversationName)
     }
+    private val deletedStatus = UiSelectorParams(text = "Deleted")
     private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
 
     private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
@@ -276,6 +277,21 @@ data class ConversationListPage(private val device: UiDevice) {
     fun assertConversationVisible(conversationName: String): ConversationListPage {
         val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertConversationDeletedStatusVisible(conversationName: String): ConversationListPage {
+        val deletedStatusIsVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            findElementOrNull(conversationNameSelector(conversationName))
+                ?.parent
+                ?.findObject(deletedStatus.toBySelector())
+                ?.visibleBounds
+                ?.isEmpty == false
+        }
+        assertTrue(
+            "Deleted status is not visible for conversation '$conversationName'",
+            deletedStatusIsVisible
+        )
         return this
     }
 

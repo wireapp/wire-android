@@ -310,8 +310,8 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
      * Editable attachments — documents, presentations and spreadsheets — open in the online editor.
      * A user with viewer access can't edit them, so they are shown read-only through the PDF
      * rendition the backend generates for them. Without such a rendition (still processing, failed
-     * or unsupported) the original file is downloaded and handed to an external app, which is the
-     * same fallback as for any other attachment.
+     * or unsupported) there is nothing a viewer may be shown: the original file is deliberately not
+     * handed over, since viewer access is what stops them from taking it.
      */
     private fun openEditableAttachment(
         attachment: MultipartAttachmentUi,

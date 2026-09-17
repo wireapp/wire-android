@@ -478,6 +478,7 @@ class MultipartAttachmentsViewModelTest {
         coVerify(exactly = 0) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
         coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
     }
+
     @Test
     fun `givenEditableAttachmentAndEditorAccess_whenClicked_thenOnlineEditorIsOpened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
@@ -510,7 +511,8 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `givenEditableAttachmentWithoutPdfRenditionAndViewerAccess_whenClicked_thenOriginalIsDownloaded`() = runTest {
+    fun `givenEditableAttachmentWithoutPdfRenditionAndViewerAccess_whenClicked_thenNothingIsOpened`() = runTest {
+        // The backend has no rendition yet: still processing, failed, or the type is not convertible.
         val (arrangement, viewModel) = Arrangement()
             .withCollaboraEnabled()
             .withViewerOnlyAccess()
@@ -520,9 +522,10 @@ class MultipartAttachmentsViewModelTest {
 
         viewModel.onClick(testEditableAttachmentUi, mockk(), mockk(), mockk(), openInPdfViewer)
 
-        verify(exactly = 1) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+        // A viewer has nothing to read, and must not be handed the original file either.
         verify(exactly = 0) { openInPdfViewer.invoke(any(), any()) }
         verify(exactly = 0) { arrangement.onlineEditor.open(any()) }
+        verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
     }
 
     @Test

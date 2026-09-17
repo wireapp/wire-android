@@ -27,7 +27,9 @@ import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.sync.ForegroundActionsUseCase
 import com.wire.kalium.logic.sync.SyncRequestResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -78,13 +80,26 @@ class SyncLifecycleManager @Inject constructor(
                         val userId = accountInfo.userId
                         launch {
                             logger.i("!!!!! Starting foreground sync request for user ${userId.value.obfuscateId()}.")
-                            coreLogic.getSessionScope(userId).syncExecutor.request {
+                            val sessionScope = coreLogic.getSessionScope(userId)
+                            sessionScope.syncExecutor.request {
+                                startMLSRegistrationCheck(sessionScope.users.foregroundActions)
                                 awaitCancellation()
                             }
                         }
                     }
                 }
             }
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun startMLSRegistrationCheck(foregroundActions: ForegroundActionsUseCase) {
+        try {
+            foregroundActions.registerMLSClientIfNeeded()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logger.e("Error while checking MLS client registration", e)
+        }
     }
 
     /**

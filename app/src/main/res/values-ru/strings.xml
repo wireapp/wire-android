@@ -1066,6 +1066,9 @@
     <string name="left_conversation_success">Вы покинули беседу.</string>
     <string name="delete_conversation_conversation_error">При удалении беседы произошла ошибка</string>
     <string name="error_limit_number_assets_imported_exceeded">Одновременно можно отправить не более 20 файлов</string>
+    <string name="error_conversation_not_found">Не удалось найти беседу</string>
+    <string name="error_conversation_unknown_error">При загрузке беседы произошла ошибка</string>
+    <string name="error_conversation_opening_meetings_unsupported">Беседу типа \'Встреча\' открыть невозможно</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Беседа архивирована</string>
     <string name="success_unarchiving_conversation">Беседа разархивирована</string>
@@ -1952,6 +1955,8 @@
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
     <string name="label_system_message_admin_role_assigned">Вы были назначены администратором группы</string>
+    <string name="label_system_message_adminless_delete_reminder">Эта группа будет автоматически удалена %1$s, так как в ней нет администраторов, отвечающих требованиям.</string>
+    <string name="last_message_adminless_delete_reminder">Будет удалена в ближайшее время</string>
     <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
     <!-- Pending messages service notification -->
     <string name="pending_messages_notification_waiting">Ожидание подключения</string>

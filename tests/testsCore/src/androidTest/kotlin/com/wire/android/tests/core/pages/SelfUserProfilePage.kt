@@ -22,6 +22,7 @@ import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.toBySelector
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -32,7 +33,7 @@ data class SelfUserProfilePage(private val device: UiDevice) {
     private val clearDataAlert = UiSelectorParams(text = "Clear Data?")
     private val newTeamOrAddAccountButton = UiSelectorParams(text = "New Team or Add Account")
     private val newAccountButton = UiSelectorParams(resourceId = "New Team or Account")
-    private val otherAccountsHeader = UiSelectorParams(text = "Your Other Accounts")
+    private val otherAccountsHeader = UiSelectorParams(text = "YOUR OTHER ACCOUNTS")
     private val cancelLoginDialogTitle = UiSelectorParams(text = "Are you sure you want to cancel?")
     private val cancelLoginDialogCancelButton = UiSelectorParams(text = "Cancel")
     private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
@@ -71,6 +72,21 @@ data class SelfUserProfilePage(private val device: UiDevice) {
             params = otherAccountsHeader,
             timeout = timeout,
             errorMessage = "Other accounts section is not visible."
+        )
+        return this
+    }
+
+    fun assertOtherLoggedInAccountVisible(displayName: String): SelfUserProfilePage {
+        assertOtherAccountsVisible()
+        UiWaitUtils.waitElement(UiSelectorParams(text = displayName))
+        return this
+    }
+
+    fun assertNoOtherAccountsLoggedIn(timeout: Duration = 15.seconds): SelfUserProfilePage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = otherAccountsHeader.toBySelector(),
+            timeout = timeout,
+            errorMessage = "Other logged-in accounts are still visible."
         )
         return this
     }

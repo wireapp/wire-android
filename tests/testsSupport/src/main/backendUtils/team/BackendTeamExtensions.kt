@@ -33,6 +33,7 @@ import com.wire.android.testSupport.backendConnections.team.Team
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import logger.WireTestLogger
+import network.AssetUploadMetadata
 import network.HttpRequestException
 import network.HttpResponseWithCookies
 import network.NetworkBackendClient
@@ -41,6 +42,7 @@ import network.RequestOptions
 import org.json.JSONArray
 import org.json.JSONObject
 import service.models.Conversation
+import service.models.QualifiedID
 import service.models.TeamMember
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
@@ -343,9 +345,17 @@ private suspend fun BackendClient.uploadImageAsset(
         NetworkBackendClient.uploadAsset(
             URL(TeamRoutes.UploadAsset.route.composePublicApiUrl()),
             token,
-            true,
-            "eternal",
-            imageBytes
+            imageBytes,
+            AssetUploadMetadata(
+                isPublic = true,
+                retention = "eternal",
+                conversationId = QualifiedID(
+                    id = "00000000-0000-0000-0000-000000000000",
+                    domain = domain
+                ),
+                filename = "default_team_avatar.jpg",
+                filetype = "image/jpeg"
+            )
         )
     }
 }

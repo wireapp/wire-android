@@ -18,6 +18,7 @@
 package network
 
 import org.json.JSONObject
+import service.models.QualifiedID
 import user.utils.AccessCookie
 import user.utils.AccessCredentials
 import user.utils.AccessToken
@@ -73,6 +74,22 @@ data class RequestOptions(
     val cookie: AccessCookie? = null,
     val proxy: Proxy? = null
 )
+
+data class AssetUploadMetadata(
+    val isPublic: Boolean,
+    val retention: String,
+    val conversationId: QualifiedID,
+    val filename: String,
+    val filetype: String
+) {
+    fun toJson(): JSONObject = JSONObject().apply {
+        put("public", isPublic)
+        put("retention", retention)
+        put("convId", conversationId.toJSON())
+        put("filename", filename)
+        put("filetype", filetype)
+    }
+}
 
 object NetworkBackendClient {
     // Proxies are keyed by origin to avoid passing proxy options through every backend helper call.
@@ -199,7 +216,12 @@ object NetworkBackendClient {
 
     @Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
     @Throws(Exception::class)
-    fun uploadAsset(url: URL, token: AccessToken?, isPublic: Boolean, retention: String, content: ByteArray): String {
+    fun uploadAsset(
+        url: URL,
+        token: AccessToken?,
+        content: ByteArray,
+        metadata: AssetUploadMetadata
+    ): String {
         val boundary = "frontier"
         val base64Encoder: Base64.Encoder = Base64.getEncoder()
 
@@ -211,21 +233,18 @@ object NetworkBackendClient {
         digest.update(content)
         val md5 = base64Encoder.encodeToString(digest.digest())
 
-        val metadata = JSONObject().apply {
-            put("public", isPublic)
-            put("retention", retention)
-        }
+        val metadataJson = metadata.toJson()
 
         val multipartBodyBuilder = ByteArrayOutputStream()
 
         val metadataPartHeader = StringBuilder().apply {
             append("--").append(boundary).append("\r\n")
             append("Content-Type: application/json; charset=utf-8\r\n")
-            append("Content-length: ").append(metadata.toString().length).append("\r\n")
+            append("Content-length: ").append(metadataJson.toString().length).append("\r\n")
             append("\r\n")
         }.toString().toByteArray()
         multipartBodyBuilder.write(metadataPartHeader)
-        multipartBodyBuilder.write(metadata.toString().toByteArray())
+        multipartBodyBuilder.write(metadataJson.toString().toByteArray())
         multipartBodyBuilder.write("\r\n".toByteArray())
 
         val contentPartHeader = StringBuilder().apply {

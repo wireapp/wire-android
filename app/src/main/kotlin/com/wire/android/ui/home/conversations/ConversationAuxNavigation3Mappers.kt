@@ -19,6 +19,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.mls.CipherSuite
+import com.wire.navigation.WireSessionId
 import kotlinx.datetime.Instant
 
 internal fun ConversationAuxId.toQualifiedId() = QualifiedID(value, domain)
@@ -26,6 +27,13 @@ internal fun QualifiedID.toConversationAuxId() = ConversationAuxId(value, domain
 
 internal fun ConversationFoldersRoute.toViewModelArgs() = ConversationFoldersNavArgs(
     conversationId = conversationId.toQualifiedId(),
+    conversationName = conversationName,
+    currentFolderId = currentFolderId,
+)
+
+internal fun ConversationFoldersNavArgs.toNavigation3Route(sessionId: WireSessionId) = ConversationFoldersRoute(
+    sessionId = sessionId,
+    conversationId = conversationId.toConversationAuxId(),
     conversationName = conversationName,
     currentFolderId = currentFolderId,
 )

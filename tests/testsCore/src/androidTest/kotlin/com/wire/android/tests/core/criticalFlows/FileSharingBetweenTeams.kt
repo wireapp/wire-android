@@ -24,7 +24,9 @@ import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
+import deleteDownloadedFilesContaining
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +46,11 @@ class FileSharingBetweenTeams : BaseUiTest() {
     fun setUp() {
         initCommonTestHelpers()
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
+    }
+
+    @After
+    fun tearDown() {
+        deleteDownloadedFilesContaining("File")
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")

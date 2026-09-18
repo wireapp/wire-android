@@ -68,6 +68,14 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val notificationsButton = UiSelectorParams(text = "Notifications")
 
+    private val selfDeletingMessagesOption = UiSelectorParams(text = "Self-deleting messages")
+
+    private val enforceMessageDeletionOption = UiSelectorParams(text = "Enforce message deletion")
+
+    private val clickableToggle = UiSelector().className("android.view.View").clickable(true)
+
+    private val applyButton = UiSelectorParams(text = "Apply")
+
     private fun notificationStatusSelector(status: String) = UiSelectorParams(text = status)
 
     private val guestOptions = UiSelectorParams(text = "Guests")
@@ -103,6 +111,44 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapNotificationStatus(status: String): GroupConversationDetailsPage {
         UiWaitUtils.waitElement(notificationStatusSelector(status)).click()
+        return this
+    }
+
+    fun assertSelfDeletingMessagesState(expectedState: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(selfDeletingMessagesOption)
+        val option = device.findObject(UiSelector().text("Self-deleting messages"))
+        val state = option.getFromParent(UiSelector().text(expectedState))
+        assertTrue(
+            "Self-deleting messages option is not in $expectedState state.",
+            state.exists() && !state.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun tapSelfDeletingMessagesOption(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(selfDeletingMessagesOption).parent.click()
+        return this
+    }
+
+    fun tapSelfDeletingMessagesToggle(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(enforceMessageDeletionOption)
+        val label = device.findObject(UiSelector().text("Enforce message deletion"))
+        val toggle = label.getFromParent(clickableToggle)
+        assertTrue(
+            "Self-deleting messages toggle is not visible.",
+            toggle.exists() && !toggle.visibleBounds.isEmpty
+        )
+        toggle.click()
+        return this
+    }
+
+    fun tapSelfDeletingMessagesTimer(timer: String): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = timer)).click()
+        return this
+    }
+
+    fun tapApplyButton(): GroupConversationDetailsPage {
+        UiWaitUtils.waitElement(applyButton).click()
         return this
     }
 

@@ -31,6 +31,7 @@ data class DocumentsUIPage(private val device: UiDevice) {
     private val doneButton = UiSelectorParams(textContains = "Done")
     private val imagePreview = UiSelectorParams(className = "android.widget.ImageView")
     private val mediaGrid = UiSelectorParams(description = "Media grid")
+    private val androidMediaGrid = UiSelectorParams(className = "android.widget.GridView")
     private val downloadsOption = UiSelectorParams(textContains = "Download")
     private val showRootsButton = UiSelectorParams(description = "Show roots")
 
@@ -80,10 +81,11 @@ data class DocumentsUIPage(private val device: UiDevice) {
     }
 
     fun selectMostRecentImageInPhotoPicker(): DocumentsUIPage {
-        val grid = UiWaitUtils.waitElement(mediaGrid)
+        val grid = UiWaitUtils.waitAnyVisible(listOf(mediaGrid, androidMediaGrid))
+            ?: throw AssertionError("Media grid is not visible in the photo picker.")
         val image = grid.findObject(By.desc(Pattern.compile("Photo taken on.*")))
             ?: throw AssertionError("No image was visible in the photo picker.")
-        image.parent.click()
+        if (image.isClickable) image.click() else image.parent.click()
         return this
     }
 

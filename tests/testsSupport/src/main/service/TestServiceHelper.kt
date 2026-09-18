@@ -222,12 +222,14 @@ class TestServiceHelper(
         )
     }
 
+    @Suppress("LongParameterList")
     fun contactSendsLocalImageConversation(
         context: Context,
         fileName: String,
         senderAlias: String,
         deviceName: String?,
-        dstConvoName: String
+        dstConvoName: String,
+        messageTimer: Duration? = null
     ) {
         val image = getRawResourceAsFile(context, R.raw.testing_image, fileName)
         val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
@@ -242,7 +244,7 @@ class TestServiceHelper(
                 deviceName = deviceName,
                 convoId = conversation.qualifiedID.id,
                 convoDomain = conversation.qualifiedID.domain,
-                timeout = getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+                timeout = messageTimer ?: getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
                 filePath = image.absolutePath.orEmpty(),
                 type = "image/jpeg",
                 otherAlgorithm = false,
@@ -900,6 +902,26 @@ class TestServiceHelper(
     ) {
         val user = toClientUser(userAlias)
         val conversation = toConvoObj(user, conversationName)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendEphemeralConfirmationDelivered(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
+    }
+
+    fun userReadsRecentMessageFromPersonalConversation(
+        userAlias: String,
+        conversationWithAlias: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObjPersonal(user, conversationWithAlias)
         val conversationId = conversation.qualifiedID.id
         val conversationDomain = conversation.qualifiedID.domain
         val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)

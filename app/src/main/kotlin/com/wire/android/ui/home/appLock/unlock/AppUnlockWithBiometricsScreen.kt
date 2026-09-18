@@ -38,6 +38,7 @@ import com.wire.android.appLogger
 import com.wire.android.biometric.showBiometricPrompt
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.wireLogoTint
 
 @Composable
 internal fun AppUnlockWithBiometricsRouteScreen(
@@ -86,7 +87,7 @@ private fun AppUnLockBackground() {
                 .padding(top = dimensions().spacing80x)
                 .align(Alignment.TopCenter),
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-            tint = MaterialTheme.colorScheme.onBackground,
+            tint = wireLogoTint(MaterialTheme.colorScheme.onBackground),
             contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo)
         )
     }

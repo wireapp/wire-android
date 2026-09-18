@@ -56,6 +56,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.common.wireLogoTint
 import com.wire.android.ui.home.settings.forgotLockScreenViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -131,7 +132,7 @@ fun ForgotLockCodeScreenContent(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-                    tint = MaterialTheme.colorScheme.onBackground,
+                    tint = wireLogoTint(MaterialTheme.colorScheme.onBackground),
                     contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing56x)
                 )

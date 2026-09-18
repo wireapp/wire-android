@@ -66,6 +66,7 @@ import com.wire.android.ui.common.textfield.WireAutoFillType
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.typography
+import com.wire.android.ui.common.wireLogoTint
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -173,7 +174,7 @@ private fun LoginContent(
                     } else {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-                            tint = MaterialTheme.colorScheme.onBackground,
+                            tint = wireLogoTint(MaterialTheme.colorScheme.onBackground),
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(horizontal = dimensions().spacing32x)

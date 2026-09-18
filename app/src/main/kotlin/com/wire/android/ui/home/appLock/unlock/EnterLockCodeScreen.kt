@@ -56,6 +56,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.wireLogoTint
 import com.wire.android.ui.home.settings.enterLockScreenViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -117,7 +118,7 @@ fun EnterLockCodeScreenContent(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-                    tint = MaterialTheme.colorScheme.onBackground,
+                    tint = wireLogoTint(MaterialTheme.colorScheme.onBackground),
                     contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo),
                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing56x)
                 )

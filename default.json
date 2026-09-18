@@ -93,6 +93,7 @@
         }
     },
     "application_name": "Wire",
+    "logo_uses_drawable_colors": false,
     "allow_sso_authentication_option": true,
     "url_support": "https://support.wire.com",
     "allow_account_creation": true,

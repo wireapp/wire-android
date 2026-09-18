@@ -168,4 +168,11 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
 
     DRIVE_PERMISSIONS_ENABLED("drive_permissions_enabled", ConfigType.BOOLEAN),
+
+    /**
+     * When true, the Wire logo (splash, welcome, login, app-lock screens and home drawer) is
+     * drawn using the colors baked into its own drawable instead of being tinted at runtime to a
+     * single theme color.
+     */
+    LOGO_USES_DRAWABLE_COLORS("logo_uses_drawable_colors", ConfigType.BOOLEAN),
 }

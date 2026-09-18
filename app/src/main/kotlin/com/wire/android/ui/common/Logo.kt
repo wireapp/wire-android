@@ -21,9 +21,11 @@ package com.wire.android.ui.common
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import com.wire.android.BuildConfig
 import com.wire.android.R
 
 @Composable
@@ -33,6 +35,13 @@ fun Logo(modifier: Modifier = Modifier) {
         contentDescription = null,
         contentScale = ContentScale.Fit,
         modifier = modifier,
-        colorFilter = ColorFilter.tint(colorsScheme().onSurface)
+        colorFilter = if (BuildConfig.LOGO_USES_DRAWABLE_COLORS) null else ColorFilter.tint(colorsScheme().onSurface)
     )
 }
+
+/**
+ * The tint to apply to [R.drawable.ic_wire_logo] when drawn as an [androidx.compose.material3.Icon],
+ * respecting [BuildConfig.LOGO_USES_DRAWABLE_COLORS]. [Color.Unspecified] leaves the drawable's own colors untouched.
+ */
+@Composable
+fun wireLogoTint(tint: Color): Color = if (BuildConfig.LOGO_USES_DRAWABLE_COLORS) Color.Unspecified else tint

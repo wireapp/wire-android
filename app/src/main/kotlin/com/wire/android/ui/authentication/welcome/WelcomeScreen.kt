@@ -85,6 +85,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.common.wireLogoTint
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -179,7 +180,7 @@ private fun WelcomeContent(
 
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-                tint = MaterialTheme.colorScheme.onBackground,
+                tint = wireLogoTint(MaterialTheme.colorScheme.onBackground),
                 contentDescription = null
             )
 

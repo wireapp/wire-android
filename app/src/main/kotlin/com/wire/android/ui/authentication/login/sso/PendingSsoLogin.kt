@@ -16,12 +16,15 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.authentication.login
+package com.wire.android.ui.authentication.login.sso
 
-import com.wire.android.ui.authentication.login.sso.PendingSsoLogin
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-interface LoginSavedInputStore {
-    var pendingSsoLogin: PendingSsoLogin?
-    var userIdentifier: String?
-    var ssoCode: String?
-}
+/** Non-secret identity of the login that opened the SSO browser. */
+@Parcelize
+data class PendingSsoLogin(
+    val identityProviderId: String,
+    val serverConfigId: String,
+    val requiresCapabilityCheck: Boolean,
+) : Parcelable

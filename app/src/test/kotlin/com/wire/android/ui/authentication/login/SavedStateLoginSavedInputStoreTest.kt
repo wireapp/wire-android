@@ -19,10 +19,25 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.ui.authentication.login.sso.PendingSsoLogin
 import com.wire.android.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class SavedStateLoginSavedInputStoreTest {
+
+    @Test
+    fun givenPendingSso_whenStoreIsRecreated_thenIdentityBackendAndRouteArePreserved() {
+        for (requiresCheck in listOf(true, false)) {
+            val state = SavedStateHandle()
+            val pending = PendingSsoLogin("idp", "backend", requiresCheck)
+            SavedStateLoginSavedInputStore(state).pendingSsoLogin = pending
+
+            val restored = SavedStateLoginSavedInputStore(state)
+            restored.pendingSsoLogin shouldBeEqualTo pending
+            restored.pendingSsoLogin = null
+            SavedStateLoginSavedInputStore(state).pendingSsoLogin shouldBeEqualTo null
+        }
+    }
 
     @Test
     fun givenUserIdentifierIsSet_whenReadingItBack_thenValueIsReturned() {

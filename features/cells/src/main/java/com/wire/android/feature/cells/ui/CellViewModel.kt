@@ -286,25 +286,31 @@ class CellViewModel @AssistedInject constructor(
         }
     }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
 
+    /**
+     * Files saved for offline use, listed folder by folder so browsing a conversation without
+     * network shows the same structure as online: only the nodes of the folder currently open.
+     */
     private val offlineNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
             observeOfflineFiles(),
             sharedPathCache.openLoadStates,
             offlineFileDownloadController.downloadProgresses,
         ) { offlineFiles, openLoadStates, downloadProgresses ->
-            val filtered = if (rootConversationId != null) {
-                offlineFiles.filter { it.conversationId == rootConversationId }
-            } else {
-                offlineFiles
-            }
+            val entries = buildOfflineListing(
+                currentPath = navArgs.conversationId,
+                offlineFiles = offlineFiles,
+            )
             PagingData.from(
-                data = filtered.map { info ->
-                    info.toCellNodeUi(
-                        conversationName = info.conversationId?.let { getConversationName(it) },
-                        userName = info.owner.ifEmpty { null }?.let { getUserName(it) },
-                        openLoadState = openLoadStates[info.id],
-                        downloadProgress = downloadProgresses[info.id],
-                    )
+                data = entries.map { entry ->
+                    when (entry) {
+                        is OfflineListingEntry.FolderEntry -> entry.toCellNodeUi()
+                        is OfflineListingEntry.FileEntry -> entry.info.toCellNodeUi(
+                            conversationName = entry.info.conversationId?.let { getConversationName(it) },
+                            userName = entry.info.owner.ifEmpty { null }?.let { getUserName(it) },
+                            openLoadState = openLoadStates[entry.info.id],
+                            downloadProgress = downloadProgresses[entry.info.id],
+                        )
+                    }
                 },
                 sourceLoadStates = LoadStates(
                     refresh = LoadState.NotLoading(true),
@@ -536,7 +542,10 @@ class CellViewModel @AssistedInject constructor(
         offlineFileDownloadController.start(
             scope = viewModelScope,
             cellNode = node.copy(
-                conversationId = navArgs.conversationId
+                // Nodes listed inside a conversation don't carry their conversation id, and
+                // [navArgs.conversationId] is the path of the folder being browsed, so only its
+                // root segment is the conversation the file belongs to.
+                conversationId = node.conversationId ?: rootConversationId,
             ),
             onSuccess = { _ -> sendAction(ShowOfflineFileSaved) },
             onError = { sendAction(ShowError(it)) },
@@ -659,6 +668,19 @@ class CellViewModel @AssistedInject constructor(
         isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
     }
 
+    /** Folder rebuilt from offline files: it only carries what is needed to render and open it. */
+    private fun OfflineListingEntry.FolderEntry.toCellNodeUi(): CellNodeUi.Folder = CellNodeUi.Folder(
+        uuid = remotePath,
+        name = name,
+        remotePath = remotePath,
+        modifiedTime = modifiedTime,
+        size = null,
+        userName = null,
+        userHandle = null,
+        ownerUserId = null,
+        conversationName = null,
+    )
+
     private fun OfflineFileInfo.toCellNodeUi(
         conversationName: String? = null,
         userName: String? = null,
@@ -679,6 +701,7 @@ class CellViewModel @AssistedInject constructor(
             },
             size = size,
             localPath = localPath,
+            remotePath = remotePath,
             ownerUserId = owner.ifEmpty { null },
             userName = userName,
             userHandle = null,

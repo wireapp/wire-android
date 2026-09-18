@@ -424,10 +424,76 @@ internal class PdfSourceResolverTest {
         }
     }
 
-    private fun resolver(loader: PdfRemoteLoader = mockk(relaxed = true)): PdfSourceResolver {
+    private fun resolver(
+        loader: PdfRemoteLoader = mockk(relaxed = true),
+        preSignedLoader: PdfPreSignedLoader = mockk(relaxed = true),
+    ): PdfSourceResolver {
         val context = mockk<Context>()
         every { context.getExternalFilesDir(any()) } returns File(tempDir, "files")
-        return PdfSourceResolver(context, loader)
+        every { context.cacheDir } returns File(tempDir, "cache")
+        return PdfSourceResolver(context, loader, preSignedLoader)
+    }
+
+    @Test
+    fun givenAPreSignedUrl_whenResolving_thenTheRenditionIsDownloadedAndTheAssetIsNotFetched() = runTest {
+        val assetLoader = mockk<PdfRemoteLoader>(relaxed = true)
+        val renditionLoader = mockk<PdfPreSignedLoader> {
+            coEvery { load(any(), any()) } answers {
+                secondArg<File>().writeText("%PDF-1.4")
+                Result.success(Unit)
+            }
+        }
+
+        val result = resolver(assetLoader, renditionLoader).resolve(
+            PdfDocumentSource(
+                assetId = "asset-uuid",
+                fileName = "document.docx",
+                preSignedUrl = "https://cells.example.com/previews/document.pdf?signed",
+            ),
+            dispatcher = Dispatchers.Default,
+        )
+
+        assertTrue(result.getOrNull()?.isFile == true)
+        coVerify(exactly = 1) { renditionLoader.load("https://cells.example.com/previews/document.pdf?signed", any()) }
+        // The document itself is not a PDF, so it must never be downloaded for rendering.
+        coVerify(exactly = 0) { assetLoader.load(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenAPreSignedUrlAndALocalCopyOfTheDocument_whenResolving_thenTheLocalCopyIsNotRendered() = runTest {
+        val document = File(tempDir, "document.docx").apply { writeText("not a pdf") }
+        val renditionLoader = mockk<PdfPreSignedLoader> {
+            coEvery { load(any(), any()) } answers {
+                secondArg<File>().writeText("%PDF-1.4")
+                Result.success(Unit)
+            }
+        }
+
+        val result = resolver(preSignedLoader = renditionLoader).resolve(
+            PdfDocumentSource(
+                localPath = document.absolutePath,
+                assetId = "asset-uuid",
+                preSignedUrl = "https://cells.example.com/previews/document.pdf?signed",
+            ),
+            dispatcher = Dispatchers.Default,
+        )
+
+        assertNotEquals(document, result.getOrNull())
+        coVerify(exactly = 1) { renditionLoader.load(any(), any()) }
+    }
+
+    @Test
+    fun givenTheRenditionDownloadFails_whenResolving_thenDownloadFailedIsReported() = runTest {
+        val renditionLoader = mockk<PdfPreSignedLoader> {
+            coEvery { load(any(), any()) } returns Result.failure(java.io.IOException("boom"))
+        }
+
+        val result = resolver(preSignedLoader = renditionLoader).resolve(
+            PdfDocumentSource(assetId = "asset-uuid", preSignedUrl = "https://cells.example.com/p.pdf"),
+            dispatcher = Dispatchers.Default,
+        )
+
+        assertEquals(PdfViewerError.DOWNLOAD_FAILED, result.viewerError())
     }
 
     private fun Result<File>.viewerError(): PdfViewerError? =

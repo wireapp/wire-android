@@ -40,8 +40,10 @@ import com.wire.android.ui.common.multipart.toUiModel
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.GetPdfPreviewUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
@@ -49,11 +51,15 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,18 +76,15 @@ interface MultipartAttachmentsViewModel {
     val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>>
 
     val openAttachmentErrorEvent: Flow<Unit>
+
+    @Suppress("LongParameterList")
     fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit,
     )
-
-    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
-        val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
-        return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
-    }
 
     fun mapAttachments(
         attachments: List<MessageAttachment>,
@@ -147,7 +150,7 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit,
     ) {
     }
 
@@ -167,6 +170,8 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     private val fileManager: FileManager,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
+    private val getPdfPreviewUrl: GetPdfPreviewUrlUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
@@ -189,17 +194,25 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
 
     private var isCollaboraEnabled: Boolean = false
 
+    /**
+     * `true` when the self user only has viewer access to this conversation and therefore can't edit its files.
+     * Resolved on the first click on an editable attachment and cached for the next ones.
+     */
+    private val viewerOnlyAccess: Deferred<Boolean> = viewModelScope.async(start = CoroutineStart.LAZY) {
+        featureFlags.drivePermissionsEnabled && !isSelfUserViewerOnConversation(conversationId)
+    }
+
     init {
         loadWireCellConfig()
     }
 
-    @Suppress("CyclomaticComplexMethod")
+    @Suppress("CyclomaticComplexMethod", "LongParameterList")
     override fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-        openInPdfViewer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit,
     ) {
         // Always use the authoritative shared-cache state — the `attachment` snapshot may be stale
         // if recomposition hasn't fired yet when the user taps.
@@ -217,7 +230,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
             attachment.isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration ->
-                openOnlineEditor(attachment.uuid)
+                openEditableAttachment(attachment, openInPdfViewer)
 
             attachment.fileNotFound() -> {
                 refreshHelper.refresh(attachment.uuid)
@@ -230,7 +243,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
                 openInAudioPlayer(attachment)
 
             attachment.isPdf() && (attachment.localFileAvailable() || attachment.canDownloadRemotely()) ->
-                openInPdfViewer(attachment)
+                openInPdfViewer(attachment, null)
 
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
@@ -293,7 +306,30 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         )
     }
 
-    private fun openOnlineEditor(attachmentUuid: String) = viewModelScope.launch {
+    /**
+     * Editable attachments — documents, presentations and spreadsheets — open in the online editor.
+     * A user with viewer access can't edit them, so they are shown read-only through the PDF
+     * rendition the backend generates for them. Without such a rendition (still processing, failed
+     * or unsupported) there is nothing a viewer may be shown: the original file is deliberately not
+     * handed over, since viewer access is what stops them from taking it.
+     */
+    private fun openEditableAttachment(
+        attachment: MultipartAttachmentUi,
+        openInPdfViewer: (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit,
+    ) = viewModelScope.launch {
+        if (!viewerOnlyAccess.await()) {
+            openOnlineEditor(attachment.uuid)
+            return@launch
+        }
+
+        val pdfPreviewUrl = getPdfPreviewUrl(attachment.uuid).getOrNull()
+
+        if (pdfPreviewUrl != null) {
+            openInPdfViewer(attachment, pdfPreviewUrl)
+        }
+    }
+
+    private suspend fun openOnlineEditor(attachmentUuid: String) {
         getEditorUrl(attachmentUuid)
             .onSuccess { url ->
                 if (url != null) {

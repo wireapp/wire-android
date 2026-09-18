@@ -144,7 +144,7 @@ fun NewMeetingContent(
                 onNavigationPressed = {
                     if (!state.isSubmitting) onBackPressed()
                 },
-                navigationIconType = NavigationIconType.Back(
+                navigationIconType = NavigationIconType.Close(
                     contentDescription = R.string.content_description_new_meeting_back_icon
                 ),
             )
@@ -504,6 +504,7 @@ private fun TimeInput(
         WireTimePickerDialog(
             title = timePlaceholder,
             selectedTime = time.toEpochMilliseconds().asTimePickerResult(),
+            is24hour = true,
             onTimeSelected = { timePickerResult ->
                 val timeZone = TimeZone.currentSystemDefault()
                 val dateDateTime = time.toLocalDateTime(timeZone)

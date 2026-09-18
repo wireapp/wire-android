@@ -22,6 +22,7 @@ import androidx.compose.runtime.Stable
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import java.text.SimpleDateFormat
+import java.time.Year
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -146,8 +147,11 @@ class DateAndTimeParsers private constructor() {
         }
 
         fun cellFileDateTime(instant: Instant): String {
+            val zoneId = ZoneId.systemDefault()
 
-            val dateString = cellDateFormat(instant)
+            val isFromAnotherYear = instant.toJavaInstant().atZone(zoneId).year != Year.now(zoneId).value
+
+            val dateString = cellDateFormat(instant, showYear = isFromAnotherYear)
             val timeString = cellTimeFormat(instant)
 
             return "$dateString, $timeString"

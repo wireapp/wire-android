@@ -25,6 +25,7 @@
     <string name="meeting_attending">Anwesend</string>
     <string name="meeting_starting_in">Beginnt in %1$s</string>
     <string name="meeting_button_show_all">Alle anzeigen</string>
+    <string name="meeting_date_header_ongoing">Aktuell</string>
     <string name="meeting_date_header_today">Heute (%1$s)</string>
     <string name="meeting_date_header_tomorrow">Morgen (%1$s)</string>
     <string name="meeting_date_header_yesterday">Gestern (%1$s)</string>
@@ -43,8 +44,10 @@
     <string name="new_meeting_participants_title">Teilnehmer auswählen</string>
     <string name="new_meeting_now">Meeting starten</string>
     <string name="new_meeting_schedule">Meeting planen</string>
+    <string name="new_meeting_edit">Meeting bearbeiten</string>
     <string name="new_meeting_action_start">Meeting starten</string>
     <string name="new_meeting_action_schedule">Planen</string>
+    <string name="new_meeting_action_edit">Änderungen bestätigen</string>
     <string name="new_meeting_title_input_label">Titel</string>
     <string name="new_meeting_title_input_placeholder">Meeting-Titel eingeben</string>
     <string name="new_meeting_participants_input_label">Teilnehmer</string>
@@ -77,6 +80,12 @@
     <string name="new_meeting_now_failure_description">Beim Starten des Meetings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
     <string name="new_meeting_schedule_failure_title">Meeting konnte nicht geplant werden</string>
     <string name="new_meeting_schedule_failure_description">Beim Planen des Meetings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
+    <string name="new_meeting_edit_failure_title">Meeting konnte nicht aktualisiert werden</string>
+    <string name="new_meeting_edit_failure_description">Beim Aktualisieren des Meetings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
+    <string name="new_meeting_edit_init_failure_title">Meeting konnte nicht geladen werden</string>
+    <string name="new_meeting_edit_conversation_name_failure_action">Wiederholen</string>
+    <string name="meeting_join_failure_title">Sie konnten nicht beitreten</string>
+    <string name="meeting_join_failure_description">Beim Beitritt des Meetings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
     <plurals name="new_meeting_participants_input_more_suffix">
         <item quantity="one">+%1$d mehr</item>
         <item quantity="other">+%1$d weitere</item>

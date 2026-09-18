@@ -60,6 +60,7 @@
     <string name="error_delete_public_link">Öffentlicher Link kann nicht entfernt werden.</string>
     <string name="error_load_public_link">Öffentlicher Link kann nicht geladen werden.</string>
     <string name="error_create_public_link">Öffentlicher Link kann nicht erstellt werden.</string>
+    <string name="cell_files_download_failure_message">Download fehlgeschlagen.</string>
     <string name="no_space_left_error">Nicht genügend Speicherplatz, um die Datei herunterzuladen.</string>
     <string name="download_file_message">Diese Datei wurde noch nicht heruntergeladen. Jetzt herunterladen?</string>
     <string name="download">Herunterladen</string>

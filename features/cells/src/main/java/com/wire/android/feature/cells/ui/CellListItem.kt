@@ -492,43 +492,64 @@ private fun PublicLinkIcon(
  * Subtitle of a node, whose leading detail follows the sorting the list is showing, so that the
  * value the items are ordered by is always visible.
  *
- * In Drive, where the conversation is what identifies a node, it reads `<detail> in <conversation>`,
- * with the detail being the modified date, the owner name or the size. Everywhere else the
- * conversation is already given by the screen, so it reads `<detail> by <owner>` instead, with the
- * detail being the size when sorting by size and the modified date otherwise.
+ * Where a node is identified by the conversation it lives in, such as Drive, it is named after that
+ * conversation; everywhere else the conversation is already given by the screen, so it is named
+ * after its owner instead.
  */
 @Composable
 private fun CellNodeUi.subtitle(showConversationName: Boolean, sortBy: SortBy): String? {
-    val context = LocalContext.current
-    val formattedTime = modifiedTime?.let {
-        remember(it) { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
+    val conversation = conversationName?.takeIf { showConversationName }
+    return when {
+        conversation != null -> conversationSubtitle(conversation, sortBy)
+        else -> ownerSubtitle(sortBy)
     }
-    val formattedSize = size?.let {
-        remember(it) { FileSizeFormatter(context).formatSize(it) }
-    }
+}
 
-    val conversationDetail = when (sortBy) {
-        SortBy.Modified -> formattedTime
-        SortBy.Size -> formattedSize
+/**
+ * Reads `<detail> in <conversation>`, the detail being the value the list is sorted by: the modified
+ * date, the size, or the owner name when sorting by name. Nodes missing that value are named after
+ * their owner, which is what sorting by name shows anyway.
+ */
+@Composable
+private fun CellNodeUi.conversationSubtitle(conversation: String, sortBy: SortBy): String {
+    val sortedDetail = when (sortBy) {
+        SortBy.Modified -> formattedModifiedTime()
+        SortBy.Size -> formattedSize()
         SortBy.Name, SortBy.Default -> userName
     }
-    val ownerDetail = when (sortBy) {
-        SortBy.Size -> formattedSize
-        SortBy.Modified, SortBy.Name, SortBy.Default -> formattedTime
-    }
+    return (sortedDetail ?: userName)
+        ?.let { stringResource(R.string.file_subtitle, it, conversation) }
+        ?: conversation
+}
 
+/**
+ * Reads `<detail> by <owner>`, the detail being the size when the list is sorted by size and the
+ * modified date otherwise, since that is the one attribute every other sorting leaves unsaid.
+ */
+@Composable
+private fun CellNodeUi.ownerSubtitle(sortBy: SortBy): String? {
+    val sortedDetail = if (sortBy == SortBy.Size) formattedSize() else formattedModifiedTime()
+    val owner = userName
     return when {
-        showConversationName && conversationDetail != null && conversationName != null ->
-            stringResource(R.string.file_subtitle, conversationDetail, conversationName!!)
+        sortedDetail != null && owner != null -> stringResource(
+            id = R.string.file_subtitle_modified,
+            sortedDetail,
+            owner
+        )
 
-        userName != null && ownerDetail != null ->
-            stringResource(R.string.file_subtitle_modified, ownerDetail, userName!!)
-
-        userName != null -> userName
-        showConversationName && conversationName != null -> conversationName
-        ownerDetail != null -> ownerDetail
-        else -> null
+        else -> owner ?: sortedDetail
     }
+}
+
+@Composable
+private fun CellNodeUi.formattedModifiedTime(): String? = modifiedTime?.let {
+    remember(it) { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
+}
+
+@Composable
+private fun CellNodeUi.formattedSize(): String? {
+    val context = LocalContext.current
+    return size?.let { remember(it) { FileSizeFormatter(context).formatSize(it) } }
 }
 
 @PreviewMultipleThemes

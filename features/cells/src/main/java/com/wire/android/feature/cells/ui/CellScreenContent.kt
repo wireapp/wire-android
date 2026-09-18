@@ -63,6 +63,7 @@ import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog
+import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.util.SupportPage
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.dimensions
@@ -107,6 +108,7 @@ internal fun CellScreenContent(
     showAudioPlayer: (CellNodeUi.File) -> Unit = {},
     showPdfViewer: (CellNodeUi.File) -> Unit = {},
     fileReadyFlow: Flow<CellNodeUi.File>? = emptyFlow(),
+    sortBy: SortBy = SortBy.Default,
 ) {
 
     val context = LocalContext.current
@@ -150,8 +152,9 @@ internal fun CellScreenContent(
                 onItemMenuClick = { sendIntent(CellViewIntent.OnItemMenuClick(it)) },
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
-                showConversationName = !isOffline || isAllFiles || isRecycleBin,
+                showConversationName = showsConversationName(isOffline, isAllFiles, isRecycleBin, isSearchResult),
                 showViewerOnlyIcon = showViewerOnlyIcon,
+                sortBy = sortBy,
             )
     }
 
@@ -292,6 +295,22 @@ internal fun CellScreenContent(
             }
         }
     }
+}
+
+/**
+ * Whether the conversation name identifies an item on this screen. It only does on the lists that
+ * can span conversations: a conversation's own files list is already scoped to one conversation, so
+ * there the items are named by their owner instead. Offline, nodes outside those lists have no
+ * conversation data to show.
+ */
+private fun showsConversationName(
+    isOffline: Boolean,
+    isAllFiles: Boolean,
+    isRecycleBin: Boolean,
+    isSearchResult: Boolean,
+): Boolean {
+    val spansConversations = isAllFiles || isRecycleBin || isSearchResult
+    return spansConversations && (!isOffline || isAllFiles || isRecycleBin)
 }
 
 @Composable

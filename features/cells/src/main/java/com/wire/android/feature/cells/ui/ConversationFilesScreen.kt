@@ -340,6 +340,7 @@ internal fun ConversationFilesScreenContent(
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
                 fileReadyFlow = fileReadyFlow,
+                sortBy = sortingCriteria.by,
             )
         }
     }

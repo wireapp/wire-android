@@ -465,6 +465,59 @@ fun BackendClient.getSelfDeletingMessagesSettings(teamMember: ClientUser): JSONO
     return JSONObject(response.body)
 }
 
+suspend fun BackendClient.setSearchVisibilityInbound(team: Team, enabled: Boolean) {
+    val teamId = Uri.encode(team.id)
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("teams/$teamId/features/searchVisibilityInbound".composeInternalApiUrl()).toURL(),
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().put("status", if (enabled) "enabled" else "disabled").toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
+suspend fun BackendClient.setTeamSearchVisibilityEnabled(team: Team, enabled: Boolean) {
+    val teamId = Uri.encode(team.id)
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("teams/$teamId/features/searchVisibility".composeInternalApiUrl()).toURL(),
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().put("status", if (enabled) "enabled" else "disabled").toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
+suspend fun BackendClient.setTeamSearchVisibility(team: Team, searchVisibility: String) {
+    val teamId = Uri.encode(team.id)
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("teams/$teamId/search-visibility".composeInternalApiUrl()).toURL(),
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().put("search_visibility", searchVisibility).toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+}
+
 suspend fun BackendClient.switchServiceForTeam(
     ownerOrAdminUser: ClientUser,
     teamId: String,

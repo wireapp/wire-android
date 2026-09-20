@@ -21,6 +21,7 @@ import androidx.test.uiautomator.UiDevice
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.toBySelector
 import user.usermanager.ClientUserManager
 
 data class SearchPage(private val device: UiDevice) {
@@ -46,6 +47,24 @@ data class SearchPage(private val device: UiDevice) {
         }
         return this
     }
+
+    fun assertUsernameNotInSearchResult(expectedUsername: String): SearchPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = UiSelectorParams(
+                className = "android.widget.TextView",
+                text = expectedUsername
+            ).toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "User '$expectedUsername' is visible in the search results."
+        )
+        return this
+    }
+
+    fun assertUniqueUsernameInSearchResultIs(expectedUniqueUsername: String): SearchPage =
+        assertUsernameInSearchResultIs("@${expectedUniqueUsername.trimStart('@')}")
+
+    fun assertUniqueUsernameNotInSearchResult(expectedUniqueUsername: String): SearchPage =
+        assertUsernameNotInSearchResult("@${expectedUniqueUsername.trimStart('@')}")
 
     fun tapSearchPeopleField(): SearchPage {
         val searchField = UiWaitUtils.waitElement(searchFieldSearchPeople)
@@ -102,6 +121,17 @@ data class SearchPage(private val device: UiDevice) {
         return this
     }
 
+    fun typeUniqueUserNamePartiallyInSearchField(clientUserManager: ClientUserManager, alias: String): SearchPage {
+        val uniqueUserName = clientUserManager.findUserBy(
+            alias,
+            ClientUserManager.FindBy.NAME_ALIAS
+        ).uniqueUsername.orEmpty()
+        val partialUniqueUserName = uniqueUserName.dropLast(2)
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text =
+            " $partialUniqueUserName "
+        return this
+    }
+
     fun typeUserNameInSearchField(clientUserManager: ClientUserManager, alias: String): SearchPage {
         // Resolve the alias to the username
         val userName = clientUserManager.replaceAliasesOccurrences(
@@ -111,6 +141,30 @@ data class SearchPage(private val device: UiDevice) {
         val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
         field.click()
         UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text = userName
+        return this
+    }
+
+    fun typeFirstCharactersOfUserNameInSearchField(
+        clientUserManager: ClientUserManager,
+        alias: String,
+        characterCount: Int
+    ): SearchPage {
+        val userName = clientUserManager.replaceAliasesOccurrences(
+            alias,
+            ClientUserManager.FindBy.NAME_ALIAS
+        )
+        val searchText = userName.take(characterCount)
+        val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
+        field.click()
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text = searchText
+        return this
+    }
+
+    fun typeUserEmailInSearchField(clientUserManager: ClientUserManager, alias: String): SearchPage {
+        val email = clientUserManager.findUserByEmailOrEmailAlias(alias).email.orEmpty()
+        val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
+        field.click()
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text = email
         return this
     }
 }

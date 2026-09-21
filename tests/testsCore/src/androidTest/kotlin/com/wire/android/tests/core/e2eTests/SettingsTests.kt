@@ -282,10 +282,10 @@ class SettingsTests : BaseUiTest() {
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIOpenReportBug_thenAndroidShareSheetIsDisplayed() {
-        step("Given There is a team owner user1Name with team ResetPassword") {
+        step("Given There is a team owner user1Name with team ReportBug") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
-                "ResetPassword",
+                "ReportBug",
                 "en_US",
                 true,
                 backendClient,
@@ -293,11 +293,11 @@ class SettingsTests : BaseUiTest() {
             )
         }
 
-        step("And User user1Name adds user user2Name to team ResetPassword with role Member") {
+        step("And User user1Name adds user user2Name to team ReportBug with role Member") {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
-                "ResetPassword",
+                "ReportBug",
                 TeamRoles.Member,
                 backendClient,
                 context,

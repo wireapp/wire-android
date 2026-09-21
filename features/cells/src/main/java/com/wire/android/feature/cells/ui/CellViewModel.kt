@@ -128,6 +128,7 @@ class CellViewModel @AssistedInject constructor(
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
+    @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory

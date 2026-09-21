@@ -113,6 +113,7 @@ internal fun ConversationFilesRouteScreen(
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
         drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
+        driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
 
@@ -149,6 +150,7 @@ internal fun ConversationFilesScreenContent(
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
     showViewerAccessBanner: Boolean = false,
     drivePermissionsEnabled: Boolean = false,
+    driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
 ) {
     val sharedScope = LocalSharedTransitionScope.current
@@ -195,6 +197,7 @@ internal fun ConversationFilesScreenContent(
             newActionBottomSheetState.hide()
             uploadFilesFlow.launch()
         },
+        driveDirectUploadEnabled = driveDirectUploadEnabled,
     )
 
     CellsOptionsBottomSheet(

@@ -42,6 +42,7 @@ internal fun CellsNewActionBottomSheet(
     onCreateFolder: () -> Unit,
     onCreateFile: () -> Unit,
     onUploadFiles: () -> Unit,
+    driveDirectUploadEnabled: Boolean = false,
 ) {
     WireModalSheetLayout(
         onDismissRequest = onDismiss,
@@ -61,11 +62,13 @@ internal fun CellsNewActionBottomSheet(
                         onClicked = onCreateFile,
                     )
                 }
-                add {
-                    UploadFilesSheetItem(
-                        title = stringResource(R.string.cells_upload_files),
-                        onClicked = onUploadFiles,
-                    )
+                if (driveDirectUploadEnabled) {
+                    add {
+                        UploadFilesSheetItem(
+                            title = stringResource(R.string.cells_upload_files),
+                            onClicked = onUploadFiles,
+                        )
+                    }
                 }
             }
         )
@@ -138,7 +141,8 @@ private fun PreviewFilesNewActionsBottomSheet() {
             onDismiss = {},
             onCreateFolder = {},
             onCreateFile = {},
-            onUploadFiles = {}
+            onUploadFiles = {},
+            driveDirectUploadEnabled = true,
         )
     }
 }

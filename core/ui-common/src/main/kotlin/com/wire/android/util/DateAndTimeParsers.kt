@@ -111,7 +111,6 @@ class DateAndTimeParsers private constructor() {
     companion object {
         private val longDateShortTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
         private val shortTimeFormat = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-        private val shortTime24hFormat = DateTimeFormatter.ofPattern("HH:mm")
         private val mediumDateTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)
         private val fullDateShortTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
         private val fileDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss")
@@ -227,7 +226,7 @@ class DateAndTimeParsers private constructor() {
             instant: Instant,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = shortTime24hFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
+        ): String = shortTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
         fun linkExpirationDate(
             timeMs: Long,

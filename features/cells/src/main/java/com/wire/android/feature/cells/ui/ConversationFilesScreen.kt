@@ -72,6 +72,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -156,6 +157,14 @@ internal fun ConversationFilesScreenContent(
     val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
+    val uploadFilesFlow = rememberChooseMultipleFilesFlow(
+        onFileBrowserItemPicked = { uris ->
+            sendIntent(CellViewIntent.OnFilesPickedForUpload(uris))
+        },
+        onPermissionDenied = { /* Nothing to do */ },
+        onPermissionPermanentlyDenied = { /* Nothing to do */ },
+    )
+
     val isFabVisible = when {
         showViewerAccessBanner && drivePermissionsEnabled -> false
         pagingListItems.isLoading() -> false
@@ -181,7 +190,11 @@ internal fun ConversationFilesScreenContent(
         onCreateFile = {
             newActionBottomSheetState.hide()
             fileTypeBottomSheetState.show()
-        }
+        },
+        onUploadFiles = {
+            newActionBottomSheetState.hide()
+            uploadFilesFlow.launch()
+        },
     )
 
     CellsOptionsBottomSheet(

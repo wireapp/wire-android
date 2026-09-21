@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -358,7 +359,17 @@ class CellViewModel @AssistedInject constructor(
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnCancelDownload -> cancelDownload(intent.uuid)
+            is CellViewIntent.OnFilesPickedForUpload -> onFilesPickedForUpload(intent.uris)
         }
+    }
+
+    /**
+     * Hands the picked files off through [CellViewAction] so the screen can drive the actual upload.
+     * Upload execution itself is not implemented here.
+     */
+    private fun onFilesPickedForUpload(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        sendAction(FilesPickedForUpload(uris))
     }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
@@ -765,6 +776,7 @@ sealed interface CellViewIntent {
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnParentFolderRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnCancelDownload(val uuid: String) : CellViewIntent
+    data class OnFilesPickedForUpload(val uris: List<Uri>) : CellViewIntent
 }
 
 sealed interface CellViewAction
@@ -790,6 +802,7 @@ internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenPdfViewer(val file: CellNodeUi.File) : CellViewAction
+internal data class FilesPickedForUpload(val uris: List<Uri>) : CellViewAction
 
 enum class CellError(val message: Int) {
     FILE_NOT_SUPPORTED(R.string.file_not_supported),
@@ -808,3 +821,4 @@ internal fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
     CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L
+

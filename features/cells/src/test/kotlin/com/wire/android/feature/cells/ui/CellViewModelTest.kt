@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.net.Uri
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -62,6 +63,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -662,6 +664,31 @@ class CellViewModelTest {
                     it.remotePath == "conversationId/reports/report.pdf" && it.conversationId == "conversationId"
                 }
             )
+        }
+    }
+
+    @Test
+    fun `given files picked for upload when forwarded then all files are forwarded unchanged`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+        val pickedUris = List(5) { mockk<Uri>() }
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+            val action = awaitItem()
+            assertTrue(action is FilesPickedForUpload)
+            assertEquals(pickedUris, (action as FilesPickedForUpload).uris)
+        }
+    }
+
+    @Test
+    fun `given no files picked for upload when forwarded then no action is sent`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(emptyList()))
+
+            expectNoEvents()
         }
     }
 

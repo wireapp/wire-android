@@ -85,15 +85,13 @@ class LoginSSOViewModelExtensionTest {
     }
 
     @Test
-    fun `missing or different backend context cannot complete login`() = runTest {
-        for (pending in listOf(null, PendingSsoLogin("idp", "other-server", true))) {
-            val arrangement = EstablishArrangement(true)
-            arrangement.establish(pending)
+    fun `different backend context cannot complete login`() = runTest {
+        val arrangement = EstablishArrangement(true)
+        arrangement.establish(PendingSsoLogin("idp", "other-server", true))
 
-            assertTrue(arrangement.failed)
-            coVerify(exactly = 0) { arrangement.getLoginSession(any(), any()) }
-            coVerify(exactly = 0) { arrangement.addAuthenticatedUser(any(), any()) }
-        }
+        assertTrue(arrangement.failed)
+        coVerify(exactly = 0) { arrangement.getLoginSession(any(), any()) }
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUser(any(), any()) }
     }
 
     private class EstablishArrangement(enabled: Boolean) {
@@ -115,7 +113,7 @@ class LoginSSOViewModelExtensionTest {
             coEvery { addAuthenticatedUser(any(), false) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         }
 
-        suspend fun establish(pending: PendingSsoLogin?, emailIdp: String? = null) {
+        suspend fun establish(pending: PendingSsoLogin, emailIdp: String? = null) {
             extension.establishSSOSession(
                 cookie = "cookie",
                 serverConfigId = "server",

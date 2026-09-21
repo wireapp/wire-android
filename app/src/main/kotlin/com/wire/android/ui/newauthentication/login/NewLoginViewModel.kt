@@ -45,6 +45,7 @@ import com.wire.android.ui.authentication.login.sso.PendingSsoLogin
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.ReplaceRetainedSsoSessionResult
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
+import com.wire.android.ui.authentication.login.sso.missingSsoLoginContextFailure
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
 import com.wire.android.ui.authentication.toBackendConfigUrl
 import com.wire.android.ui.common.ActionsViewModel
@@ -461,13 +462,20 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
+                val pendingSsoLogin = consumePendingSsoLogin()
+                if (pendingSsoLogin == null) {
+                    consumePendingSsoIdentityProviderId()
+                    updateLoginFlowState(missingSsoLoginContextFailure().toLoginError())
+                    return
+                }
+
                 val isNomadFlow = pendingNomadServiceUrl != null
                 viewModelScope.launch(dispatchers.io()) {
                     ssoExtension.establishSSOSession(
                         cookie = ssoLoginResult.cookie,
                         serverConfigId = ssoLoginResult.serverConfigId,
                         ssoIdentityProviderId = consumePendingSsoIdentityProviderId(),
-                        pendingSsoLogin = ssoLoginStore.pendingSsoLogin.also { ssoLoginStore.pendingSsoLogin = null },
+                        pendingSsoLogin = pendingSsoLogin,
                         consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
                         consumeCookieLabel = ::consumePendingCookieLabel,
                         onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
@@ -670,6 +678,10 @@ class NewLoginViewModel(
 
     private fun consumePendingSsoIdentityProviderId(): String? =
         savedStateHandle.remove(PENDING_SSO_IDENTITY_PROVIDER_ID_KEY)
+
+    private fun consumePendingSsoLogin(): PendingSsoLogin? = ssoLoginStore.pendingSsoLogin.also {
+        ssoLoginStore.pendingSsoLogin = null
+    }
 
     companion object {
         private const val TAG = "[NewLoginViewModel]"

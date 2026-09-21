@@ -663,7 +663,7 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given automated nomad login, when establishSSOSession is called twice, then nomad url is consumed once`() = runTest {
+    fun `given automated nomad login, when establishSSOSession is called twice, then second callback is rejected`() = runTest {
         val expectedCookie = "some-cookie"
         val nomadServiceUrl = "https://nomad.example.com/service"
         val (arrangement, loginViewModel) = Arrangement()
@@ -676,7 +676,7 @@ class LoginSSOViewModelTest {
         loginViewModel.establishSSOSession(expectedCookie, SERVER_CONFIG.id)
         advanceUntilIdle()
 
-        coVerify(exactly = 2) {
+        coVerify(exactly = 1) {
             arrangement.ssoExtension.establishSSOSession(
                 eq(expectedCookie),
                 eq(SERVER_CONFIG.id),
@@ -691,7 +691,22 @@ class LoginSSOViewModelTest {
             )
         }
         assertEquals(nomadServiceUrl, consumeNomadServiceUrlProviders[0]())
-        assertEquals(null, consumeNomadServiceUrlProviders[1]())
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>()
+    }
+
+    @Test
+    fun `given missing pending SSO context, when callback succeeds, then reject it before establishing session`() = runTest {
+        val (arrangement, loginViewModel) = Arrangement().arrange()
+
+        loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("cookie", SERVER_CONFIG.id))
+        advanceUntilIdle()
+
+        loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Error.DialogError.GenericError>()
+        coVerify(exactly = 0) {
+            arrangement.ssoExtension.establishSSOSession(
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), pendingSsoLogin = any()
+            )
+        }
     }
 
     @Test
@@ -1161,6 +1176,8 @@ class LoginSSOViewModelTest {
 
     private class Arrangement {
 
+        private var pendingSsoLogin: PendingSsoLogin? = null
+
         @MockK
         lateinit var savedInputStore: LoginSavedInputStore
 
@@ -1220,8 +1237,10 @@ class LoginSSOViewModelTest {
 
         init {
             MockKAnnotations.init(this)
-            every { savedInputStore.pendingSsoLogin } returns null
-            every { savedInputStore.pendingSsoLogin = any() } returns Unit
+            every { savedInputStore.pendingSsoLogin } answers { pendingSsoLogin }
+            every { savedInputStore.pendingSsoLogin = any() } answers {
+                pendingSsoLogin = firstArg()
+            }
             every { savedInputStore.ssoCode } returns null
             every { savedInputStore.ssoCode = any<String>() } returns Unit
             every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
@@ -1266,6 +1285,7 @@ class LoginSSOViewModelTest {
         }
 
         fun withEstablishSSOSession(cookie: String, customConfig: ServerConfig = SERVER_CONFIG) = apply {
+            pendingSsoLogin = PendingSsoLogin("idp-id", customConfig.id, true)
             coEvery {
                 ssoExtension.establishSSOSession(
                     eq(cookie),
@@ -1287,6 +1307,7 @@ class LoginSSOViewModelTest {
             session: StoreSessionParam,
             customConfig: ServerConfig = SERVER_CONFIG,
         ) = apply {
+            pendingSsoLogin = PendingSsoLogin("idp-id", customConfig.id, true)
             coEvery {
                 ssoExtension.establishSSOSession(
                     eq(cookie),

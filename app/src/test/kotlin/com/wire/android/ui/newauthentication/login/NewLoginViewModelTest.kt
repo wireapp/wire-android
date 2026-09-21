@@ -484,11 +484,12 @@ class NewLoginViewModelTest {
         testEstablishSSOSessionWhenHandlingSSOResult()
 
     @Test
-    fun `given automated nomad login, when handling SSO result twice, then nomad url is consumed once`() = runTest(dispatchers.main()) {
+    fun `given automated nomad login, when handling SSO result twice, then second callback is rejected`() = runTest(dispatchers.main()) {
         val ssoDeepLinkResult = DeepLinkResult.SSOLogin.Success("cookie", "server-config-id")
         val nomadServiceUrl = "https://nomad.example.com/service"
         val (arrangement, viewModel) = Arrangement()
             .withNomadAutoLogin(nomadServiceUrl)
+            .withPendingSsoLogin()
             .arrange()
         val consumeNomadServiceUrlProviders = mutableListOf<() -> String?>()
 
@@ -496,7 +497,7 @@ class NewLoginViewModelTest {
         viewModel.handleSSOResult(ssoDeepLinkResult)
         advanceUntilIdle()
 
-        coVerify(exactly = 2) {
+        coVerify(exactly = 1) {
             arrangement.loginSSOViewModelExtension.establishSSOSession(
                 eq("cookie"),
                 eq("server-config-id"),
@@ -512,8 +513,26 @@ class NewLoginViewModelTest {
             )
         }
         assertEquals(nomadServiceUrl, consumeNomadServiceUrlProviders[0]())
-        assertEquals(null, consumeNomadServiceUrlProviders[1]())
+        assertInstanceOf<NewLoginFlowState.Error.DialogError.GenericError>(viewModel.state.flowState)
     }
+
+    @Test
+    fun `given missing pending SSO context, when callback succeeds, then reject it before establishing session`() =
+        runTest(dispatchers.main()) {
+            val (arrangement, viewModel) = Arrangement().arrange()
+            arrangement.savedStateHandle["pending_sso_identity_provider_id"] = "email-idp"
+
+            viewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("cookie", "server-config-id"))
+            advanceUntilIdle()
+
+            assertInstanceOf<NewLoginFlowState.Error.DialogError.GenericError>(viewModel.state.flowState)
+            assertEquals(null, arrangement.savedStateHandle.get<String>("pending_sso_identity_provider_id"))
+            coVerify(exactly = 0) {
+                arrangement.loginSSOViewModelExtension.establishSSOSession(
+                    any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), pendingSsoLogin = any()
+                )
+            }
+        }
 
     @Test
     fun `given SSO result failure, when handling SSO result, then update error state`() = runTest(dispatchers.main()) {
@@ -855,6 +874,7 @@ class NewLoginViewModelTest {
         }
 
         fun withEstablishSSOSessionAuthScopeFailure(failure: AutoVersionAuthScopeUseCase.Result.Failure) = apply {
+            withPendingSsoLogin()
             coEvery {
                 loginSSOViewModelExtension.establishSSOSession(
                     any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
@@ -866,6 +886,7 @@ class NewLoginViewModelTest {
         }
 
         fun withEstablishSSOSessionLoginFailure(failure: SSOLoginSessionResult.Failure) = apply {
+            withPendingSsoLogin()
             coEvery {
                 loginSSOViewModelExtension.establishSSOSession(
                     any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
@@ -877,6 +898,7 @@ class NewLoginViewModelTest {
         }
 
         fun withEstablishSSOSessionAddUserFailure(failure: AddAuthenticatedUserUseCase.Result.Failure) = apply {
+            withPendingSsoLogin()
             coEvery {
                 loginSSOViewModelExtension.establishSSOSession(
                     any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
@@ -888,6 +910,7 @@ class NewLoginViewModelTest {
         }
 
         fun withEstablishSSOSessionSuccess(userId: UserId) = apply {
+            withPendingSsoLogin()
             coEvery {
                 loginSSOViewModelExtension.establishSSOSession(
                     any(), any(), any(), any(), any(), any(), any(), any(), any(), any(),
@@ -906,6 +929,11 @@ class NewLoginViewModelTest {
                     cookieLabel = "shared-device"
                 )
             )
+        }
+
+        fun withPendingSsoLogin() = apply {
+            SavedStateLoginSavedInputStore(savedStateHandle).pendingSsoLogin =
+                PendingSsoLogin("idp-id", "server-config-id", requiresCapabilityCheck = true)
         }
 
         fun withEmptyUserIdentifierAndNoPreFilledIdentifier() = apply {

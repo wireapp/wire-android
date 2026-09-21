@@ -340,13 +340,19 @@ class LoginSSOViewModel : LoginViewModel {
         cookie: String,
         serverConfigId: String,
     ) {
+        val pendingSsoLogin = consumePendingSsoLogin()
+        if (pendingSsoLogin == null) {
+            updateSSOFlowState(missingSsoLoginContextFailure().toLoginError())
+            return
+        }
+
         updateSSOFlowState(LoginState.Loading)
         val isNomadFlow = pendingNomadServiceUrl != null
         viewModelScope.launch {
             ssoExtension.establishSSOSession(
                 cookie = cookie,
                 serverConfigId = serverConfigId,
-                pendingSsoLogin = savedInputStore.pendingSsoLogin.also { savedInputStore.pendingSsoLogin = null },
+                pendingSsoLogin = pendingSsoLogin,
                 consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
                 consumeCookieLabel = ::consumePendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
@@ -499,6 +505,10 @@ class LoginSSOViewModel : LoginViewModel {
 
     private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
         pendingCookieLabel = null
+    }
+
+    private fun consumePendingSsoLogin(): PendingSsoLogin? = savedInputStore.pendingSsoLogin.also {
+        savedInputStore.pendingSsoLogin = null
     }
 }
 

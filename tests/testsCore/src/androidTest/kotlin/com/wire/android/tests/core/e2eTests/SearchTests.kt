@@ -142,7 +142,10 @@ class SearchTests : BaseUiTest() {
         }
 
         step("Then I do not see user name user2Name in Search result list") {
-            pages.searchPage.assertUsernameNotInSearchResult(member1.name ?: "")
+            pages.searchPage.apply {
+                assertNoSearchResultsVisible()
+                assertUsernameNotInSearchResult(member1.name ?: "")
+            }
         }
     }
 

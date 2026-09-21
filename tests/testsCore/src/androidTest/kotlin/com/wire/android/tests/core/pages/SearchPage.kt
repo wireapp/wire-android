@@ -31,6 +31,9 @@ data class SearchPage(private val device: UiDevice) {
     private val closeSearchInputFieldButton = UiSelectorParams(
         description = "Go back to add participants view"
     )
+    private val noSearchResults = UiSelectorParams(
+        text = "No results could be found. Please try again."
+    )
 
     fun assertUsernameInSearchResultIs(expectedHandle: String): SearchPage {
         val handleSelector = UiSelectorParams(
@@ -56,6 +59,14 @@ data class SearchPage(private val device: UiDevice) {
             ).toBySelector(),
             timeout = UiWaitUtils.SHORT_TIMEOUT,
             errorMessage = "User '$expectedUsername' is visible in the search results."
+        )
+        return this
+    }
+
+    fun assertNoSearchResultsVisible(): SearchPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = noSearchResults,
+            errorMessage = "Search did not finish with an empty result list."
         )
         return this
     }

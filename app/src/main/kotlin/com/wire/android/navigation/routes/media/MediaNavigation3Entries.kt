@@ -133,6 +133,7 @@ internal fun mediaNavigation3Entries(
                 conversationId = route.conversationId,
                 fileName = route.fileName,
                 assetSize = route.assetSize,
+                preSignedUrl = route.preSignedUrl,
             ),
             onNavigateBack = runtime.navigator::goBack,
         )

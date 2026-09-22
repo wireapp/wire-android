@@ -27,13 +27,18 @@ import com.wire.android.ui.common.multipart.AssetSource
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.util.FileManager
+import com.wire.kalium.cells.domain.model.WireCellsConfig
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.GetPdfPreviewUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
+import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.CellAssetContent
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -53,6 +58,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 typealias OpenImageCallback = (s: String) -> Unit
 typealias OpenAttachmentCallback = (attachment: MultipartAttachmentUi) -> Unit
+typealias OpenPdfCallback = (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit
 
 @ExtendWith(CoroutineTestExtension::class)
 class MultipartAttachmentsViewModelTest {
@@ -204,7 +210,7 @@ class MultipartAttachmentsViewModelTest {
 
         val callback = mockk<OpenImageCallback>(relaxed = true)
 
-        viewModel.onClick(testAttachmentUi, callback, {}, {}, {})
+        viewModel.onClick(testAttachmentUi, callback, {}, {}, { _, _ -> })
 
         coVerify(exactly = 1) { callback.invoke(testAttachmentUi.uuid) }
     }
@@ -223,7 +229,7 @@ class MultipartAttachmentsViewModelTest {
             openInImageViewer = callback,
             openInVideoPlayer = { },
             openInAudioPlayer = { },
-            openInPdfViewer = { },
+            openInPdfViewer = { _, _ -> },
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
@@ -246,7 +252,7 @@ class MultipartAttachmentsViewModelTest {
             openInImageViewer = callback,
             openInVideoPlayer = { },
             openInAudioPlayer = { },
-            openInPdfViewer = { },
+            openInPdfViewer = { _, _ -> },
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
@@ -269,7 +275,7 @@ class MultipartAttachmentsViewModelTest {
             openInImageViewer = callback,
             openInVideoPlayer = { },
             openInAudioPlayer = { },
-            openInPdfViewer = { },
+            openInPdfViewer = { _, _ -> },
         )
 
         coVerify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
@@ -292,7 +298,7 @@ class MultipartAttachmentsViewModelTest {
             openInImageViewer = callback,
             openInVideoPlayer = { },
             openInAudioPlayer = { },
-            openInPdfViewer = { },
+            openInPdfViewer = { _, _ -> },
         )
 
         coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
@@ -304,7 +310,7 @@ class MultipartAttachmentsViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 
-        val callback = mockk<OpenAttachmentCallback>(relaxed = true)
+        val callback = mockk<OpenPdfCallback>(relaxed = true)
         val attachment = testAttachmentUi.copy(
             mimeType = "application/pdf",
             assetType = AttachmentFileType.PDF,
@@ -319,7 +325,7 @@ class MultipartAttachmentsViewModelTest {
             openInPdfViewer = callback,
         )
 
-        coVerify(exactly = 1) { callback.invoke(attachment) }
+        coVerify(exactly = 1) { callback.invoke(attachment, null) }
         coVerify(exactly = 0) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
     }
 
@@ -328,7 +334,7 @@ class MultipartAttachmentsViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 
-        val callback = mockk<OpenAttachmentCallback>(relaxed = true)
+        val callback = mockk<OpenPdfCallback>(relaxed = true)
         val attachment = testAttachmentUi.copy(
             mimeType = "application/pdf",
             assetType = AttachmentFileType.PDF,
@@ -343,7 +349,7 @@ class MultipartAttachmentsViewModelTest {
             openInPdfViewer = callback,
         )
 
-        coVerify(exactly = 1) { callback.invoke(attachment) }
+        coVerify(exactly = 1) { callback.invoke(attachment, null) }
         coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
     }
 
@@ -352,7 +358,7 @@ class MultipartAttachmentsViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 
-        val callback = mockk<OpenAttachmentCallback>(relaxed = true)
+        val callback = mockk<OpenPdfCallback>(relaxed = true)
 
         viewModel.onClick(
             attachment = testAttachmentUi.copy(
@@ -366,7 +372,7 @@ class MultipartAttachmentsViewModelTest {
             openInPdfViewer = callback,
         )
 
-        coVerify(exactly = 0) { callback.invoke(any()) }
+        coVerify(exactly = 0) { callback.invoke(any(), any()) }
         coVerify(exactly = 0) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
     }
 
@@ -472,6 +478,72 @@ class MultipartAttachmentsViewModelTest {
         coVerify(exactly = 0) { arrangement.fileManager.openWithExternalApp(any(), any(), any(), any()) }
         coVerify(exactly = 0) { arrangement.fileManager.openUrlWithExternalApp(any(), any(), any()) }
     }
+
+    @Test
+    fun `givenEditableAttachmentAndEditorAccess_whenClicked_thenOnlineEditorIsOpened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCollaboraEnabled()
+            .arrange()
+        val openInPdfViewer = mockk<OpenPdfCallback>(relaxed = true)
+
+        viewModel.onClick(testEditableAttachmentUi, mockk(), mockk(), mockk(), openInPdfViewer)
+
+        coVerify(exactly = 1) { arrangement.getEditorUrl(testEditableAttachmentUi.uuid) }
+        verify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL) }
+        coVerify(exactly = 0) { arrangement.getPdfPreviewUrl(any()) }
+        verify(exactly = 0) { openInPdfViewer.invoke(any(), any()) }
+    }
+
+    @Test
+    fun `givenEditableAttachmentAndViewerAccess_whenClicked_thenPdfRenditionIsOpenedInsteadOfEditor`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCollaboraEnabled()
+            .withViewerOnlyAccess()
+            .arrange()
+        val openInPdfViewer = mockk<OpenPdfCallback>(relaxed = true)
+
+        viewModel.onClick(testEditableAttachmentUi, mockk(), mockk(), mockk(), openInPdfViewer)
+
+        verify(exactly = 1) { openInPdfViewer.invoke(testEditableAttachmentUi, PDF_RENDITION_URL) }
+        verify(exactly = 0) { arrangement.onlineEditor.open(any()) }
+        coVerify(exactly = 0) { arrangement.getEditorUrl(any()) }
+        verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `givenEditableAttachmentWithoutPdfRenditionAndViewerAccess_whenClicked_thenNothingIsOpened`() = runTest {
+        // The backend has no rendition yet: still processing, failed, or the type is not convertible.
+        val (arrangement, viewModel) = Arrangement()
+            .withCollaboraEnabled()
+            .withViewerOnlyAccess()
+            .withoutPdfRendition()
+            .arrange()
+        val openInPdfViewer = mockk<OpenPdfCallback>(relaxed = true)
+
+        viewModel.onClick(testEditableAttachmentUi, mockk(), mockk(), mockk(), openInPdfViewer)
+
+        // A viewer has nothing to read, and must not be handed the original file either.
+        verify(exactly = 0) { openInPdfViewer.invoke(any(), any()) }
+        verify(exactly = 0) { arrangement.onlineEditor.open(any()) }
+        verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `givenEditableAttachmentAndDrivePermissionsDisabled_whenClicked_thenOnlineEditorIsOpened`() = runTest {
+        // Viewer restrictions only apply while the drive permissions feature is on.
+        val (arrangement, viewModel) = Arrangement()
+            .withCollaboraEnabled()
+            .withViewerOnlyAccess()
+            .withDrivePermissionsDisabled()
+            .arrange()
+        val openInPdfViewer = mockk<OpenPdfCallback>(relaxed = true)
+
+        viewModel.onClick(testEditableAttachmentUi, mockk(), mockk(), mockk(), openInPdfViewer)
+
+        verify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL) }
+        verify(exactly = 0) { openInPdfViewer.invoke(any(), any()) }
+    }
+
     // TODO: Refresh asset tests (part of refresh update PR)
 
     private class Arrangement {
@@ -504,13 +576,51 @@ class MultipartAttachmentsViewModelTest {
         lateinit var getWireCellsConfig: GetWireCellConfigurationUseCase
 
         @MockK
+        lateinit var getPdfPreviewUrl: GetPdfPreviewUrlUseCase
+
+        @MockK
+        lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
+
+        @MockK
         lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
+
+        private var collaboraEdition: CollaboraEdition = CollaboraEdition.NO
+        private var viewerOnly: Boolean = false
+        private var drivePermissionsEnabled: Boolean = true
+        private var pdfRenditionUrl: String? = PDF_RENDITION_URL
+
+        fun withCollaboraEnabled() = apply {
+            collaboraEdition = CollaboraEdition.CODE
+        }
+
+        fun withViewerOnlyAccess() = apply {
+            viewerOnly = true
+        }
+
+        fun withDrivePermissionsDisabled() = apply {
+            drivePermissionsEnabled = false
+        }
+
+        /** The backend has no PDF rendition for the document — still processing, failed or unsupported. */
+        fun withoutPdfRendition() = apply {
+            pdfRenditionUrl = null
+        }
 
         fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
             coEvery { refreshHelper.refresh(any()) } returns Unit
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
-            coEvery { getWireCellsConfig() } returns null
+            coEvery { getWireCellsConfig() } returns WireCellsConfig(
+                backendUrl = null,
+                collabora = collaboraEdition,
+                teamQuotaBytes = null,
+            )
+            every { kaliumConfigs.collaboraIntegration } returns true
+            every { kaliumConfigs.drivePermissionsEnabled } returns drivePermissionsEnabled
+            // The use case returns `true` when the self user has full access to the conversation.
+            coEvery { isSelfUserViewerOnConversation(testConversationId) } returns !viewerOnly
+            coEvery { getEditorUrl(any()) } returns Either.Right(EDITOR_URL)
+            coEvery { getPdfPreviewUrl(any()) } returns Either.Right(pdfRenditionUrl)
             every { observeOfflineFiles() } returns flowOf(emptyList<OfflineFileInfo>())
 
             // Default: controller.cancel() clears state from the shared cache
@@ -533,12 +643,16 @@ class MultipartAttachmentsViewModelTest {
                 fileManager = fileManager,
                 featureFlags = kaliumConfigs,
                 getWireCellsConfig = getWireCellsConfig,
+                getPdfPreviewUrl = getPdfPreviewUrl,
+                isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
                 observeOfflineFiles = observeOfflineFiles,
             )
         }
     }
 
     private companion object {
+        const val EDITOR_URL = "https://collabora.wire.com/edit"
+        const val PDF_RENDITION_URL = "https://cells.wire.com/previews/document.pdf?presigned=true"
         val testConversationId = ConversationId("test-conversation-id", "test-domain")
 
         val testAssetContent = CellAssetContent(
@@ -561,6 +675,14 @@ class MultipartAttachmentsViewModelTest {
             assetType = AttachmentFileType.IMAGE,
             assetSize = 0,
             transferStatus = AssetTransferStatus.NOT_DOWNLOADED,
+        )
+        val testEditableAttachmentUi = testAttachmentUi.copy(
+            uuid = "asset_doc",
+            fileName = "document.docx",
+            mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            assetType = AttachmentFileType.DOC,
+            isEditSupported = true,
+            contentUrl = "https://cells.wire.com/document.docx?presigned=true",
         )
     }
 }

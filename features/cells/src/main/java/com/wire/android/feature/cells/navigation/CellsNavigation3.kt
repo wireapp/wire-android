@@ -210,6 +210,8 @@ data class PdfViewerRoute(
     val conversationId: String? = null,
     val assetSize: Long = 0L,
     val fileName: String? = null,
+    /** Set when the document is displayed through a PDF rendition served by this URL. */
+    val preSignedUrl: String? = null,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
 ) : CellsRoute {
     override val routeId = ROUTE_ID

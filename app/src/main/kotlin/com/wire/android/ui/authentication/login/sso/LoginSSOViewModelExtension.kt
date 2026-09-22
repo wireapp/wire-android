@@ -134,10 +134,12 @@ class LoginSSOViewModelExtension(
             }
         }
 
-        when (val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(
-            cookie,
-            checkIdpChangeDetection = pendingSsoLogin.requiresCapabilityCheck
-        )) {
+        when (
+            val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(
+                cookie,
+                checkIdpChangeDetection = pendingSsoLogin.requiresCapabilityCheck
+            )
+        ) {
             is SSOLoginSessionResult.Failure -> onSSOLoginFailure(ssoLoginResult)
             is SSOLoginSessionResult.Success -> {
                 val session = StoreSessionParam(

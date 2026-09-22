@@ -51,6 +51,12 @@ data class SettingsPage(private val device: UiDevice) {
     private val appLockPassCode = UiSelectorParams(text = "Set a passcode")
 
     private val accountDetails = UiSelectorParams(text = "Account Details")
+    private val networkSettingsButton = UiSelectorParams(text = "Network Settings")
+    private val reportBugButton = UiSelectorParams(textContains = "Report Bug")
+    private val shareSheetSelectors = listOf(
+        UiSelectorParams(resourceId = "android:id/profile_tabhost"),
+        UiSelectorParams(resourceId = "android:id/resolver_list")
+    )
     private val profileNamePageHeading = UiSelectorParams(text = "Your profile name")
     private val editProfileNameInput = UiSelectorParams(className = "android.widget.EditText")
     private val toggle = UiSelector().className("android.view.View")
@@ -71,9 +77,15 @@ data class SettingsPage(private val device: UiDevice) {
 
     private val passcodeField = UiSelectorParams(resourceId = "password")
 
-    private val displayedEmail = UiSelectorParams(textContains = "@wire.engineering")
+    private fun displayedEmailAddress(email: String) =
+        UiSelectorParams(text = email)
 
-    private val displayedDomain = UiSelectorParams(textContains = "staging.zinfra")
+    private fun displayedTeamName(teamName: String) =
+        UiSelectorParams(text = teamName, fromParentText = "TEAM")
+
+    private fun displayedDomain(domain: String) =
+        UiSelectorParams(text = domain, fromParentText = "DOMAIN")
+
     private fun displayedProfileName(profileName: String) =
         UiSelectorParams(text = profileName, fromParentText = "PROFILE NAME")
 
@@ -99,6 +111,8 @@ data class SettingsPage(private val device: UiDevice) {
         .checked(false)
 
     private val saveButton = UiSelectorParams(text = "Save")
+
+    private val websocketConnectionLabel = UiSelector().textContains("Websocket")
     fun assertSendAnonymousUsageDataToggleIsOn(): SettingsPage {
         scrollTextIntoView("Send anonymous usage data")
         val container = device.findObject(
@@ -314,20 +328,60 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun openReportBugMenu(): SettingsPage {
+        scrollTextIntoView("Report Bug")
+        UiWaitUtils.waitElement(reportBugButton).click()
+        return this
+    }
+
+    fun tapNetworkSettingsButton(): SettingsPage {
+        UiWaitUtils.waitElement(networkSettingsButton).click()
+        return this
+    }
+
+    fun assertWebsocketSwitchState(expectedState: String): SettingsPage {
+        val label = device.findObject(websocketConnectionLabel)
+        val state = label.getFromParent(UiSelector().text(expectedState))
+        assertTrue(
+            "Websocket switch is not in '$expectedState' state",
+            state.exists() && !state.visibleBounds.isEmpty
+        )
+        return this
+    }
+
+    fun tapWebsocketConnectionButton(): SettingsPage {
+        val label = device.findObject(websocketConnectionLabel)
+        val websocketToggle = label.getFromParent(clickableToggle)
+        assertTrue("Websocket connection switch is not visible", websocketToggle.exists())
+        websocketToggle.click()
+        return this
+    }
+
+    fun assertShareSheetIsDisplayed(): SettingsPage {
+        UiWaitUtils.waitAnyVisible(shareSheetSelectors)
+            ?: throw AssertionError("Android share sheet is not visible.")
+        return this
+    }
+
     fun tapManageDevicesMenu(): SettingsPage {
         UiWaitUtils.waitElement(manageDevicesMenuButton).click()
         return this
     }
 
     fun verifyDisplayedEmailAddress(expectedEmail: String): SettingsPage {
-        val emailElement = UiWaitUtils.waitElement(displayedEmail)
+        val emailElement = UiWaitUtils.waitElement(displayedEmailAddress(expectedEmail))
         val actualEmail = emailElement.text
         assertThat("Displayed email does not match expected", actualEmail, `is`(expectedEmail))
         return this
     }
 
+    fun verifyDisplayedTeamName(expectedTeamName: String): SettingsPage {
+        UiWaitUtils.waitElement(displayedTeamName(expectedTeamName))
+        return this
+    }
+
     fun verifyDisplayedDomain(expectedDomain: String): SettingsPage {
-        val domainElement = UiWaitUtils.waitElement(displayedDomain)
+        val domainElement = UiWaitUtils.waitElement(displayedDomain(expectedDomain))
         val actualDomain = domainElement.text
         assertThat("Displayed domain does not match expected", actualDomain, `is`(expectedDomain))
         return this
@@ -356,14 +410,14 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
-    fun clickDisplayedEmailAddress(): SettingsPage {
-        val emailElement = UiWaitUtils.waitElement(displayedEmail)
+    fun clickDisplayedEmailAddress(expectedEmail: String): SettingsPage {
+        val emailElement = UiWaitUtils.waitElement(displayedEmailAddress(expectedEmail))
         emailElement.click()
         return this
     }
 
-    fun changeToNewEmailAddress(newEmail: String): SettingsPage {
-        val emailElement = UiWaitUtils.waitElement(displayedEmail)
+    fun changeToNewEmailAddress(currentEmail: String, newEmail: String): SettingsPage {
+        val emailElement = UiWaitUtils.waitElement(displayedEmailAddress(currentEmail))
         emailElement.text = "" // Clear the input field
         emailElement.text = newEmail
         return this
@@ -403,6 +457,19 @@ data class SettingsPage(private val device: UiDevice) {
         val editBox = UiWaitUtils.findElementOrNull(editProfileNameInput)
         Assert.assertTrue("Profile name heading is visible", heading == null || heading.visibleBounds.isEmpty)
         Assert.assertTrue("Profile name edit box is visible", editBox == null || editBox.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertEditProfileNamePageIsDisplayed(): SettingsPage {
+        UiWaitUtils.waitElement(profileNamePageHeading)
+        UiWaitUtils.waitElement(editProfileNameInput)
+        return this
+    }
+
+    fun editProfileName(newName: String): SettingsPage {
+        val profileNameInput = UiWaitUtils.waitElement(editProfileNameInput)
+        profileNameInput.text = ""
+        profileNameInput.text = newName
         return this
     }
 
@@ -458,7 +525,7 @@ data class SettingsPage(private val device: UiDevice) {
     }
 
     fun assertDisplayedEmailAddressIsNewEmail(expectedEmail: String): SettingsPage {
-        val emailElement = UiWaitUtils.waitElement(displayedEmail)
+        val emailElement = UiWaitUtils.waitElement(displayedEmailAddress(expectedEmail))
         val actualEmail = emailElement.text
         assertThat("Displayed email does not match expected", actualEmail, `is`(expectedEmail))
         return this

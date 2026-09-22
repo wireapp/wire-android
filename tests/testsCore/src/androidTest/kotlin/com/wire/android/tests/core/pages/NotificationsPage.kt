@@ -27,6 +27,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class NotificationsPage(private val device: UiDevice) {
     private val incomingCallNotification = UiSelectorParams(textMatches = ".*(Calling|calling|Incoming call).*")
+    private val websocketServiceNotification = UiSelectorParams(textContains = "service is running")
 
     fun waitUntilNotificationPopUpGone(timeout: Duration = 10.seconds) {
         val replyButton = By.text("Reply")
@@ -52,6 +53,11 @@ class NotificationsPage(private val device: UiDevice) {
 
     fun closeNotificationCenter(): NotificationsPage {
         device.pressBack()
+        return this
+    }
+
+    fun assertWebsocketServiceNotificationVisible(): NotificationsPage {
+        UiWaitUtils.waitElement(websocketServiceNotification)
         return this
     }
 

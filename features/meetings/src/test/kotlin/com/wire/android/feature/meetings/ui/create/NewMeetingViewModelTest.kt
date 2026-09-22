@@ -863,7 +863,7 @@ class NewMeetingViewModelTest {
         }
 
     @Test
-    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithStartTimeChanges_thenCurrentLocalTzidIsPassed() =
+    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithStartTimeChanges_thenOriginalMeetingTzidIsPassed() =
         runTest(dispatcher) {
             val currentTime = Instant.parse("2026-01-01T12:00:00Z")
             val meetingTimeZoneId = "America/New_York"
@@ -874,7 +874,7 @@ class NewMeetingViewModelTest {
             val updateMeeting = UPSERT_MEETING.copy(
                 startTime = updatedStartTime,
                 endTime = updatedStartTime + 1.hours, // it's recalculated based on the original duration of the meeting
-                tzid = localTimeZoneID, // since time changes are made, the tzid should also be updated to the current local tzid
+                tzid = meetingTimeZoneId, // keep the original tzid
                 otherParticipants = emptyList()
             )
             val (arrangement, viewModel) = arrangeViewModel(
@@ -899,7 +899,7 @@ class NewMeetingViewModelTest {
         }
 
     @Test
-    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithEndTimeChanges_thenCurrentLocalTzidIsPassed() =
+    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithEndTimeChanges_thenOriginalMeetingTzidIsPassed() =
         runTest(dispatcher) {
             val currentTime = Instant.parse("2026-01-01T12:00:00Z")
             val meetingTimeZoneId = "America/New_York"
@@ -910,7 +910,7 @@ class NewMeetingViewModelTest {
             val updateMeeting = UPSERT_MEETING.copy(
                 startTime = nextOccurrence.occurrenceStartTime,
                 endTime = updatedEndTime,
-                tzid = localTimeZoneID, // since time changes are made, the tzid should also be updated to the current local tzid
+                tzid = meetingTimeZoneId, // keep the original tzid
                 otherParticipants = emptyList()
             )
             val (arrangement, viewModel) = arrangeViewModel(

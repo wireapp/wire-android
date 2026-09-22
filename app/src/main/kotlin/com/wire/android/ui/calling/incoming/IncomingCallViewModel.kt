@@ -163,6 +163,5 @@ class IncomingCallViewModel @AssistedInject constructor(
 }
 
 sealed interface IncomingCallViewActions {
-    data object AppLocked : IncomingCallViewActions
     data class RejectedCall(val conversationId: ConversationId) : IncomingCallViewActions
 }

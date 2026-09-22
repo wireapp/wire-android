@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Date
 import java.util.Locale
+import java.time.Year
 
 //region convenience ext functions
 @Stable
@@ -175,7 +176,8 @@ class DateAndTimeParsers private constructor() {
         ): String {
             val isFromAnotherYear = instant.toJavaInstant().atZone(zoneId).year != Year.now(zoneId).value
 
-            val dateString = cellDateFormat(instant = instant,
+            val dateString = cellDateFormat(
+                instant = instant,
                 showYear = isFromAnotherYear,
                 locale = locale,
                 zoneId = zoneId

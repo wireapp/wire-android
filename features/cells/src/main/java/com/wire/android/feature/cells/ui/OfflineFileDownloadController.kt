@@ -72,7 +72,10 @@ class OfflineFileDownloadController @Inject constructor(
             onError(CellError.OTHER_ERROR)
             return
         }
-        val filePath = File(fileHelper.getExternalFilesDir(), cellNode.conversationId ?: cellNode.uuid)
+        // Stored under <conversation>/<uuid>/ so files with the same name living in different
+        // folders of the same conversation do not overwrite each other.
+        val filePath = File(fileHelper.getExternalFilesDir(), cellNode.conversationId.orEmpty())
+            .let { File(it, cellNode.uuid) }
             .also { it.mkdirs() }
             .let { File(it, nodeName) }
             .toOkioPath()
@@ -108,6 +111,7 @@ class OfflineFileDownloadController @Inject constructor(
                     downloadedAt = System.currentTimeMillis(),
                     conversationId = cellNode.conversationId,
                     modifiedAt = cellNode.modifiedTime,
+                    remotePath = cellNode.remotePath,
                 )
             )
             onSuccess(existingPath)
@@ -156,6 +160,7 @@ class OfflineFileDownloadController @Inject constructor(
                     downloadedAt = System.currentTimeMillis(),
                     conversationId = cellNode.conversationId,
                     modifiedAt = cellNode.modifiedTime,
+                    remotePath = cellNode.remotePath,
                 )
             )
             onSuccess(filePath.toString())

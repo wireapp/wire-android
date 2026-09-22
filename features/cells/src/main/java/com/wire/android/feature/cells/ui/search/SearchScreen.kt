@@ -191,6 +191,7 @@ internal fun SearchRouteScreen(
                 sendIntent = { cellViewModel.sendIntent(it) },
                 menuState = cellViewModel.menu,
                 isSearchResult = true,
+                sortBy = uiState.sortingCriteria.by,
                 isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,
                 isDeleteInProgress = cellViewModel.isDeleteInProgress.collectAsState().value,
                 openFolder = { path, title, parentFolderUuid ->

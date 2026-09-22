@@ -18,4 +18,12 @@
   -->
 <resources>
     <string name="label_membership_service">App</string>
+    <string name="login_password_placeholder">Lösenord</string>
+    <string name="login_password_label">LÖSENORD</string>
+    <string name="content_description_reveal_password">Visa lösenord</string>
+    <string name="content_description_hide_password">Dölj lösenord</string>
+    <string name="content_description_close_button">Stäng</string>
+    <string name="generate_password_button_text">Generera lösenord</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Avbryt</string>
 </resources>

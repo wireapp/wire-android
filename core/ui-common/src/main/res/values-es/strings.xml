@@ -16,4 +16,16 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">Contrase&#241;a</string>
+    <string name="login_password_label">CONTRASE&#209;A</string>
+    <string name="content_description_reveal_password">Mostrar contraseña</string>
+    <string name="content_description_hide_password">Ocultar contraseña</string>
+    <string name="label_wait_until_synchronised">Espera hasta que la aplicaci&#243;n est&#233; sincronizada</string>
+    <string name="label_wait_until_connected">Por favor espera hasta que la conexión de internet se haya recuperado</string>
+    <string name="content_description_close_button">cerrar</string>
+    <string name="content_description_menu_button">Navegación principal</string>
+    <string name="content_description_drop_down_icon">Menú desplegable</string>
+    <string name="label_ok">Aceptar</string>
+    <string name="label_cancel">Cancelar</string>
+</resources>

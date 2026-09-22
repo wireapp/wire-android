@@ -65,4 +65,24 @@
     <string name="content_description_conversation_search_icon">Значок поиска</string>
     <string name="content_description_conversation_search_input">Поиск</string>
     <string name="content_description_clear_content">Очистить контент</string>
+    <string name="no_camera_app">Не найдено приложение камеры для выполнения этого действия.</string>
+    <string name="content_description_right_arrow">Стрелка вправо</string>
+    <string name="label_user_deleted">Удалено</string>
+    <string name="label_user_blocked">Заблокирован(-а)</string>
+    <string name="username_unavailable_label">Имя недоступно</string>
+    <string name="content_description_add_contact">Добавить контакт</string>
+    <string name="content_description_open_link_label">открыть ссылку</string>
+    <string name="legal_hold_learn_more_button">Подробнее о юридических ограничениях</string>
+    <string name="legal_hold_connection_failed_dialog_title">Невозможно добавить</string>
+    <string name="legal_hold_connection_failed_dialog_description">Вы не можете подключиться к этому пользователю из-за юридических ограничений.</string>
+    <string name="connection_request_sent">Запрос на добавление отправлен</string>
+    <string name="connection_request_sent_federation_denied_error">Ваш бэкэнд не взаимодействует с бэкэндом %1$s. Вы не можете соединиться с ним.</string>
+    <string name="connection_request_sent_error">Не удалось отправить запрос на добавление</string>
+    <string name="connection_request_cancel_error">Запрос на добавление не может быть отменен</string>
+    <string name="connection_request_canceled">Запрос на добавление отменен</string>
+    <string name="connection_request_ignored">Вы проигнорировали запрос %1$s</string>
+    <string name="connection_request_accept_error">Запрос на добавление не может быть принят</string>
+    <string name="connection_request_accepted">Запрос на добавление принят</string>
+    <string name="connection_request_ignore_error">Запрос на добавление не может быть проигнорирован</string>
+    <string name="error_unblocking_user">Пользователь не может быть разблокирован</string>
 </resources>

@@ -827,4 +827,10 @@ Prosimy u&#380;y&#263; zarz&#261;dzania zespo&#322;ami (%1$s) na tym &#347;rodow
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <!-- Apps-->
+    <string name="app_version">Wersja aplikacji</string>
+    <string name="label_ok">OK</string>
+    <string name="label_open">Otwórz</string>
+    <string name="label_apply">Zastosuj</string>
+    <string name="label_try_again">Spróbuj ponownie</string>
+    <string name="label_done">Gotowe</string>
 </resources>

@@ -16,4 +16,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">パスワード</string>
+    <string name="login_password_label">パスワード</string>
+    <string name="content_description_reveal_password">パスワードを表示</string>
+    <string name="content_description_hide_password">パスワードを非表示</string>
+    <string name="content_description_menu_button">メインナビゲーション</string>
+    <string name="content_description_drop_down_icon">ドロップダウンの矢印</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">キャンセル</string>
+</resources>

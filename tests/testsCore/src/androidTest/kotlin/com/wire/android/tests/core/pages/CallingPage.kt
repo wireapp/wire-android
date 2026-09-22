@@ -40,7 +40,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 data class CallingPage(private val device: UiDevice) {
-    private val acceptCallButton = UiSelectorParams(description = "Answer")
+    private val acceptCallButton = UiSelectorParams(description = "Accept call")
 
     private val hangUpCallButton = UiSelectorParams(description = "Hang up call")
 

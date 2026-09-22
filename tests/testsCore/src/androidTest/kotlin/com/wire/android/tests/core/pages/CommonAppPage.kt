@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import android.content.Intent
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.Assert.assertTrue
@@ -177,6 +178,34 @@ data class CommonAppPage(private val device: UiDevice) {
             "Wire app is still in foreground: ${device.currentPackageName}",
             wireAppIsNotInForeground
         )
+        return this
+    }
+
+    @Suppress("MagicNumber")
+    fun swipeWireAppAwayFromBackground(): CommonAppPage {
+        device.pressRecentApps()
+        device.waitForIdle()
+        val packageManager = InstrumentationRegistry.getInstrumentation().context.packageManager
+        val appName = packageManager.getApplicationLabel(
+            packageManager.getApplicationInfo(UiAutomatorSetup.appPackage, 0)
+        ).toString()
+        val wireApp = By.desc(appName)
+        val wireAppCard = UiWaitUtils.waitElement(
+            UiSelectorParams(description = appName),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        val cardBounds = wireAppCard.visibleBounds
+        device.executeShellCommand(
+            "input touchscreen swipe ${cardBounds.centerX()} " +
+                "${cardBounds.bottom - cardBounds.height() / 4} " +
+                "${cardBounds.centerX()} 0 200"
+        )
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = wireApp,
+            timeout = UiWaitUtils.SHORT_WAIT,
+            errorMessage = "Wire app is still running in the background"
+        )
+        device.pressBack()
         return this
     }
 

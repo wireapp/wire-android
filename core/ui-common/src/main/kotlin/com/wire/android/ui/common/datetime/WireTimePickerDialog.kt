@@ -53,7 +53,6 @@ import kotlinx.datetime.toLocalDateTime
 fun WireTimePickerDialog(
     title: String,
     selectedTime: TimePickerResult?,
-    is24hour: Boolean = false,
     onTimeSelected: (TimePickerResult) -> Unit = {},
     onDismiss: () -> Unit = {},
 ) {
@@ -68,7 +67,6 @@ fun WireTimePickerDialog(
         TimePickerDialogContent(
             title = title,
             selectedTime = selectedTime,
-            is24hour = is24hour,
             onTimeSelected = onTimeSelected,
             onDismiss = onDismiss
         )
@@ -80,14 +78,12 @@ fun WireTimePickerDialog(
 private fun TimePickerDialogContent(
     title: String,
     selectedTime: TimePickerResult?,
-    is24hour: Boolean,
     onTimeSelected: (TimePickerResult) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val timePickerState = rememberTimePickerState(
         initialHour = selectedTime?.hour ?: 0,
         initialMinute = selectedTime?.minute ?: 0,
-        is24Hour = is24hour
     )
 
     Column(modifier = Modifier.background(color = colorsScheme().surface)) {
@@ -152,7 +148,6 @@ private fun PreviewTimePicker() {
         TimePickerDialogContent(
             title = "Expiration date",
             selectedTime = null,
-            is24hour = false,
             onTimeSelected = {},
             onDismiss = {},
         )

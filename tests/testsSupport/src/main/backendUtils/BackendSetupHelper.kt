@@ -38,6 +38,9 @@ import backendUtils.team.enableChannelFeatureViaBackdoorTeam
 import backendUtils.team.enableForceAppLockFeature
 import backendUtils.team.enableMLSFeatureTeam
 import backendUtils.team.getTeamByName
+import backendUtils.team.setSearchVisibilityInbound
+import backendUtils.team.setTeamSearchVisibility
+import backendUtils.team.setTeamSearchVisibilityEnabled
 import backendUtils.team.switchServiceForTeam
 import backendUtils.team.TeamRoles
 import backendUtils.team.unlockChannelFeature
@@ -249,6 +252,33 @@ class BackendSetupHelper(
 
     fun userEnablesServiceForTeam(ownerOrAdminUserAlias: String, serviceName: String, teamName: String) {
         userSwitchesServicesForTeam(ownerOrAdminUserAlias, true, serviceName, teamName)
+    }
+
+    fun setSearchVisibilityInbound(ownerUserAlias: String, teamName: String, enabled: Boolean) {
+        val owner = toClientUser(ownerUserAlias)
+        val backend = backendFor(owner)
+        runBlocking {
+            val team = backend.getTeamByName(owner, teamName)
+            backend.setSearchVisibilityInbound(team, enabled)
+        }
+    }
+
+    fun setTeamSearchVisibilityEnabled(ownerUserAlias: String, teamName: String, enabled: Boolean) {
+        val owner = toClientUser(ownerUserAlias)
+        val backend = backendFor(owner)
+        runBlocking {
+            val team = backend.getTeamByName(owner, teamName)
+            backend.setTeamSearchVisibilityEnabled(team, enabled)
+        }
+    }
+
+    fun setTeamSearchVisibility(ownerUserAlias: String, teamName: String, searchVisibility: String) {
+        val owner = toClientUser(ownerUserAlias)
+        val backend = backendFor(owner)
+        runBlocking {
+            val team = backend.getTeamByName(owner, teamName)
+            backend.setTeamSearchVisibility(team, searchVisibility)
+        }
     }
 
     fun userSwitchesServicesForTeam(

@@ -113,7 +113,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
             isMlsMigrationEnabled.value = when (val result = withContext(dispatcher.io()) { getFeatureConfig() }) {
                 is GetFeatureConfigResult.Success -> {
                     val migrationConfig = result.featureConfigModel.mlsMigrationModel
-                    migrationConfig?.status == Status.ENABLED
+                    migrationConfig?.status == Status.ENABLED && migrationConfig.allowManualMigration
                 }
 
                 is GetFeatureConfigResult.Failure -> {

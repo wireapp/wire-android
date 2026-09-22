@@ -21,8 +21,6 @@ import android.text.format.DateFormat
 import androidx.compose.runtime.Stable
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
-import java.text.SimpleDateFormat
-import java.time.Year
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -31,41 +29,77 @@ import java.util.Locale
 
 //region convenience ext functions
 @Stable
-fun Date.toMediumOnlyDateTime(): String = DateAndTimeParsers.toMediumOnlyDateTime(this)
+fun Date.toMediumOnlyDateTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.toMediumOnlyDateTime(this, locale, zoneId)
 
 @Stable
-fun Instant.deviceDateTimeFormat(): String = DateAndTimeParsers.deviceDateTimeFormat(this)
+fun Instant.deviceDateTimeFormat(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.deviceDateTimeFormat(this, locale, zoneId)
 
 @Stable
-fun Instant.formatMediumDateTime(): String = DateAndTimeParsers.formatMediumDateTime(this)
+fun Instant.formatMediumDateTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.formatMediumDateTime(this, locale, zoneId)
 
 @Stable
-fun Instant.formatFullDateShortTime(): String = DateAndTimeParsers.formatFullDateShortTime(this)
+fun Instant.formatFullDateShortTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.formatFullDateShortTime(this, locale, zoneId)
 
 @Stable
-fun Instant.formatMonthDayShortTime(is24Hour: Boolean): String =
-    DateAndTimeParsers.formatMonthDayShortTime(this, is24Hour)
+fun Instant.formatMonthDayShortTime(
+    is24Hour: Boolean,
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.formatMonthDayShortTime(this, is24Hour, locale, zoneId)
 
 @Stable
-fun Instant.uiMessageDateTime(): String = DateAndTimeParsers.uiMessageDateTime(this)
+fun Instant.uiMessageDateTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.uiMessageDateTime(this, locale, zoneId)
 
 @Stable
-fun Instant.fileDateTime(): String = DateAndTimeParsers.fileDateTime(this)
+fun Instant.fileDateTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.fileDateTime(this, locale, zoneId)
 
 @Stable
-fun Instant.cellFileDateTime(): String = DateAndTimeParsers.cellFileDateTime(this)
+fun Instant.cellFileDateTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.cellFileDateTime(this, locale, zoneId)
 
 @Stable
-fun Instant.cellFileTime(): String = DateAndTimeParsers.cellTimeFormat(this)
+fun Instant.cellFileTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.cellTimeFormat(this, locale, zoneId)
 
 @Stable
-fun Instant.uiReadReceiptDateTime(): String = DateAndTimeParsers.uiReadReceiptDateTime(this)
+fun Instant.uiReadReceiptDateTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.uiReadReceiptDateTime(this, locale, zoneId)
 
 @Stable
-fun Long.uiLinkExpirationDate(): String = DateAndTimeParsers.linkExpirationDate(this)
+fun Long.uiLinkExpirationDate(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.linkExpirationDate(this, locale, zoneId)
 
 @Stable
-fun Long.uiLinkExpirationTime(): String = DateAndTimeParsers.linkExpirationTime(this)
+fun Long.uiLinkExpirationTime(
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault(),
+): String = DateAndTimeParsers.linkExpirationTime(this, locale, zoneId)
 //endregion
 
 /**
@@ -75,105 +109,140 @@ class DateAndTimeParsers private constructor() {
 
     @Suppress("TooManyFunctions")
     companion object {
-        private val longDateShortTimeFormat =
-            java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.LONG, java.text.DateFormat.SHORT, Locale.getDefault()).apply {
-                this.timeZone = java.util.TimeZone.getDefault()
-            }
-
-        private val shortTimeFormat =
-            java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).apply {
-                this.timeZone = java.util.TimeZone.getDefault()
-            }
-
-        private val shortTime24hFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault()).withZone(ZoneId.systemDefault())
-
+        private val longDateShortTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
+        private val shortTimeFormat = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
         private val mediumDateTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)
-            .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
         private val fullDateShortTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
-            .withZone(ZoneId.systemDefault()).withLocale(Locale.getDefault())
-        private val fileDateTimeFormat =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss", Locale.getDefault()).withZone(ZoneId.systemDefault())
-        private val readReceiptDateTimeFormat =
-            DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a", Locale.getDefault()).withZone(ZoneId.systemDefault())
-        private val mediumOnlyDateTimeFormat =
-            DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault()).withZone(ZoneId.systemDefault())
-        private val messageTimeFormatter = java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, Locale.getDefault()).apply {
-            this.timeZone = java.util.TimeZone.getDefault()
-        }
-        private val audioMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss", Locale.getDefault())
-            .withZone(ZoneId.systemDefault())
+        private val fileDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss")
+        private val readReceiptDateTimeFormat = DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a")
+        private val mediumOnlyDateTimeFormat = DateTimeFormatter.ofPattern("MMM dd, yyyy")
+        private val durationMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss")
+        private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM d")
 
-        private val videoMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss", Locale.getDefault())
-            .withZone(ZoneId.systemDefault())
+        fun deviceDateTimeFormat(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = longDateShortTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
-        private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM d", Locale.getDefault())
-            .withZone(ZoneId.systemDefault())
+        fun formatMediumDateTime(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = mediumDateTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
-        fun deviceDateTimeFormat(instant: Instant): String =
-            longDateShortTimeFormat.format(Date.from(instant.toJavaInstant()))
+        fun formatFullDateShortTime(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = fullDateShortTimeFormatter.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
-        fun formatMediumDateTime(instant: Instant): String = mediumDateTimeFormat.format(instant.toJavaInstant())
-
-        fun formatFullDateShortTime(instant: Instant): String = fullDateShortTimeFormatter.format(instant.toJavaInstant())
-
-        fun formatMonthDayShortTime(instant: Instant, is24Hour: Boolean): String {
-            val locale = Locale.getDefault()
-            val date = Date.from(instant.toJavaInstant())
+        fun formatMonthDayShortTime(
+            instant: Instant,
+            is24Hour: Boolean,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String {
+            val date = instant.toJavaInstant()
             val datePattern = DateFormat.getBestDateTimePattern(locale, "MMMMd")
             val timePattern = DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm")
-            val formattedDate = SimpleDateFormat(datePattern, locale).format(date)
-            val formattedTime = SimpleDateFormat(timePattern, locale).format(date)
+            val formattedDate = DateTimeFormatter.ofPattern(datePattern).withLocale(locale).withZone(zoneId).format(date)
+            val formattedTime = DateTimeFormatter.ofPattern(timePattern).withLocale(locale).withZone(zoneId).format(date)
             return "$formattedDate, $formattedTime"
         }
 
-        fun cellTimeFormat(instant: Instant): String {
-            val timeFormatter = java.text.DateFormat.getTimeInstance(
-                java.text.DateFormat.SHORT,
-                Locale.getDefault()
-            ).apply {
-                timeZone = java.util.TimeZone.getDefault()
-            }
-            return timeFormatter.format(Date.from(instant.toJavaInstant()))
-        }
+        fun cellTimeFormat(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = shortTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
-        fun cellDateFormat(instant: Instant, showYear: Boolean = false): String {
+        fun cellDateFormat(
+            instant: Instant,
+            showYear: Boolean = false,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String {
             val pattern = if (showYear) "MMM dd, yyyy" else "MMM dd"
-
-            val formatter = DateTimeFormatter
-                .ofPattern(pattern, Locale.getDefault())
-                .withZone(ZoneId.systemDefault())
-
+            val formatter = DateTimeFormatter.ofPattern(pattern).withLocale(locale).withZone(zoneId)
             return formatter.format(instant.toJavaInstant())
         }
 
-        fun cellFileDateTime(instant: Instant): String {
-            val zoneId = ZoneId.systemDefault()
-
+        fun cellFileDateTime(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String {
             val isFromAnotherYear = instant.toJavaInstant().atZone(zoneId).year != Year.now(zoneId).value
 
-            val dateString = cellDateFormat(instant, showYear = isFromAnotherYear)
-            val timeString = cellTimeFormat(instant)
+            val dateString = cellDateFormat(instant = instant,
+                showYear = isFromAnotherYear,
+                locale = locale,
+                zoneId = zoneId
+            )
+            val timeString = cellTimeFormat(instant = instant, locale = locale, zoneId = zoneId)
 
             return "$dateString, $timeString"
         }
 
-        fun fileDateTime(instant: Instant): String = fileDateTimeFormat.format(instant.toJavaInstant())
+        fun fileDateTime(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = fileDateTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
-        fun uiReadReceiptDateTime(instant: Instant): String = readReceiptDateTimeFormat.format(instant.toJavaInstant())
+        fun uiReadReceiptDateTime(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = readReceiptDateTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
-        fun toMediumOnlyDateTime(date: Date): String = mediumOnlyDateTimeFormat.format(date.toInstant())
+        fun toMediumOnlyDateTime(
+            date: Date,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = mediumOnlyDateTimeFormat.withLocale(locale).withZone(zoneId).format(date.toInstant())
 
-        fun uiMessageDateTime(instant: Instant): String =
-            messageTimeFormatter.format(Date.from(instant.toJavaInstant()))
+        fun uiMessageDateTime(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = shortTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
-        fun audioMessageTime(timeMs: Long): String = audioMessageTimeFormat.format(java.time.Instant.ofEpochMilli(timeMs))
+        fun audioMessageTime(
+            timeMs: Long,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = durationMessageTimeFormat.withLocale(locale).withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
 
-        fun videoMessageTime(timeMs: Long): String = videoMessageTimeFormat.format(java.time.Instant.ofEpochMilli(timeMs))
+        fun videoMessageTime(
+            timeMs: Long,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = durationMessageTimeFormat.withLocale(locale).withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
 
-        fun meetingDate(instant: Instant): String = dayOfWeekMonthDayDateFormat.format(instant.toJavaInstant())
-        fun meetingTime(instant: Instant): String = shortTime24hFormat.format(instant.toJavaInstant())
+        fun meetingDate(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = dayOfWeekMonthDayDateFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
-        fun linkExpirationDate(timeMs: Long): String = dayOfWeekMonthDayDateFormat.format(java.time.Instant.ofEpochMilli(timeMs))
-        fun linkExpirationTime(timeMs: Long): String = shortTimeFormat.format(Date.from(java.time.Instant.ofEpochMilli(timeMs)))
+        fun meetingTime(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = shortTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
+
+        fun linkExpirationDate(
+            timeMs: Long,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = dayOfWeekMonthDayDateFormat.withLocale(locale).withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
+
+        fun linkExpirationTime(
+            timeMs: Long,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = shortTimeFormat.withLocale(locale).withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
     }
 }

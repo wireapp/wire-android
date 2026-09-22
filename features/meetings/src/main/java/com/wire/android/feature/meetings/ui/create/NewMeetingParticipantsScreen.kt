@@ -56,7 +56,9 @@ internal fun NewMeetingParticipantsRouteContent(
             newMeetingViewModel.resetSelectedContacts()
             onNavigateBack()
         },
-        navigationIconType = NavigationIconType.Back(R.string.content_description_new_meeting_participants_back_icon),
+        navigationIconType = NavigationIconType.Close(
+            contentDescription = R.string.content_description_new_meeting_participants_back_icon
+        ),
         itemActionType = ItemActionType.CHECK,
         isAppsTabVisible = false,
         onOpenUserProfile = { contact ->

@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -63,6 +64,7 @@ fun MeetingList(
         LocalInspectionMode.current -> remember(type) { MeetingListViewModelPreview(type = type) }
         else -> meetingListViewModel(type)
     }
+    val displayTimeZone by meetingListViewModel.displayTimeZoneFlow.collectAsStateWithLifecycle()
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItemsWithLifecycle()
     when {
         lazyPagingItems.isLoading() -> LoadingListContent(
@@ -101,11 +103,13 @@ fun MeetingList(
                     when (item) {
                         is MeetingHeader -> MeetingHeader(
                             header = item,
+                            displayTimeZone = displayTimeZone,
                             modifier = Modifier.animateItem()
                         )
 
                         is MeetingItem -> MeetingItem(
                             meeting = item,
+                            displayTimeZone = displayTimeZone,
                             modifier = Modifier.animateItem(),
                             openMeetingOptions = openMeetingOptions,
                             startCall = startCall,

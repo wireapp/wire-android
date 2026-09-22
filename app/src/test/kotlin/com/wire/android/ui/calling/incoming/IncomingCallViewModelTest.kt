@@ -121,7 +121,6 @@ class IncomingCallViewModelTest {
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
             muteCall = muteCall,
-            lockCodeTimeManager = lockCodeTimeManager,
             callNotificationManager = callNotificationManager,
         )
     }

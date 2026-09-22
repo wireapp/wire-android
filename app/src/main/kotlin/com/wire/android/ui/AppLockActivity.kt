@@ -40,18 +40,24 @@ import com.wire.android.ui.home.appLock.AppLockNavigation3Actions
 import com.wire.android.ui.home.appLock.AppLockNavigation3Contribution
 import com.wire.android.ui.home.appLock.AppUnlockWithBiometricsRoute
 import com.wire.android.ui.home.appLock.EnterLockCodeRoute
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.home.appLock.SetLockCodeRoute
 import com.wire.android.ui.home.appLock.resolveAppLockStartRoute
 import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireSessionId
+import dev.zacsweers.metro.Inject
 
 class AppLockActivity : BaseActivity() {
 
     private val qualifiedIdMapper = QualifiedIdMapper(null)
 
+    @Inject
+    lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
         val sessionId = intent.getStringExtra(EXTRA_USER_ID)
             ?.let(qualifiedIdMapper::fromStringToQualifiedID)
@@ -85,6 +91,14 @@ class AppLockActivity : BaseActivity() {
                 appGraph = this@AppLockActivity.wireApplicationGraph,
                 startRoute = startRoute,
             )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (lockCodeTimeManager.value.isAppLocked().not()) {
+            finish() // if the app already unlocked, finish to avoid showing the lock screen again
         }
     }
 

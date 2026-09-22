@@ -23,10 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.CurrentAccount
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.notification.CallNotificationManager
-import com.wire.android.ui.calling.incoming.IncomingCallState.WaitingUnlockState
+import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 import com.wire.android.ui.common.ActionsViewModel
-import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
@@ -41,13 +41,10 @@ import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.calling.CallingManualViewModelFactoryGroup
 
 @Suppress("LongParameterList")
 @WireAssistedViewModelBinding(CallingManualViewModelFactoryGroup::class)
@@ -61,7 +58,6 @@ class IncomingCallViewModel @AssistedInject constructor(
     private val muteCall: MuteCallUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
-    private val lockCodeTimeManager: LockCodeTimeManager
 ) : ActionsViewModel<IncomingCallViewActions>() {
     @AssistedFactory
     interface Factory {
@@ -81,26 +77,6 @@ class IncomingCallViewModel @AssistedInject constructor(
             }
             launch {
                 observeEstablishedCall()
-            }
-            launch {
-                observeAppLockStatus()
-            }
-        }
-    }
-
-    private suspend fun observeAppLockStatus() {
-        lockCodeTimeManager.observeAppLock().distinctUntilChanged().collectLatest { isLocked ->
-            if (!isLocked) {
-                when (incomingCallState.waitingUnlockState) {
-                    WaitingUnlockState.DEFAULT -> {
-                        // do nothing
-                    }
-
-                    WaitingUnlockState.JOIN_CALL -> acceptCall()
-                    WaitingUnlockState.JOIN_CALL_ANYWAY -> acceptCallAnyway()
-                    WaitingUnlockState.DECLINE_CALL -> declineCall()
-                }
-                incomingCallState = incomingCallState.copy(waitingUnlockState = WaitingUnlockState.DEFAULT)
             }
         }
     }
@@ -126,20 +102,13 @@ class IncomingCallViewModel @AssistedInject constructor(
 
     fun declineCall() {
         viewModelScope.launch {
-            lockCodeTimeManager.observeAppLock().first().let {
-                if (it) {
-                    incomingCallState = incomingCallState.copy(waitingUnlockState = WaitingUnlockState.DECLINE_CALL)
-                    sendAction(IncomingCallViewActions.AppLocked)
-                } else {
-                    observeIncomingCallJob.cancel()
-                    launch { rejectCall(conversationId = conversationId) }
-                    launch {
-                        incomingCallState =
-                            incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
-                    }
-                    sendAction(IncomingCallViewActions.RejectedCall(conversationId))
-                }
+            observeIncomingCallJob.cancel()
+            launch { rejectCall(conversationId = conversationId) }
+            launch {
+                incomingCallState =
+                    incomingCallState.copy(flowState = IncomingCallState.FlowState.CallClosed)
             }
+            sendAction(IncomingCallViewActions.RejectedCall(conversationId))
         }
     }
 
@@ -153,44 +122,29 @@ class IncomingCallViewModel @AssistedInject constructor(
 
     fun acceptCallAnyway() {
         viewModelScope.launch {
-            lockCodeTimeManager.observeAppLock().first().let {
-                if (it) {
-                    incomingCallState = incomingCallState.copy(waitingUnlockState = WaitingUnlockState.JOIN_CALL_ANYWAY)
-                    sendAction(IncomingCallViewActions.AppLocked)
-                } else {
-                    observeEstablishedCallSharedFlow.firstOrNull()?.let {
-                        endCall(it)
-                        // we need to update mute state to false, so if the user re-join the call te mic will will be muted
-                        muteCall(it, false)
-                        delay(DELAY_END_CALL)
-                    }
-                    acceptCall()
-                }
+            observeEstablishedCallSharedFlow.firstOrNull()?.let {
+                endCall(it)
+                // we need to update mute state to false, so if the user re-join the call te mic will will be muted
+                muteCall(it, false)
+                delay(DELAY_END_CALL)
             }
+            acceptCall()
         }
     }
 
     fun acceptCall() {
         viewModelScope.launch {
-            lockCodeTimeManager.observeAppLock().first().let {
-                if (it) {
-                    incomingCallState =
-                        incomingCallState.copy(waitingUnlockState = WaitingUnlockState.JOIN_CALL)
-                    sendAction(IncomingCallViewActions.AppLocked)
-                } else {
-                    if (observeEstablishedCallSharedFlow.first() != null) {
-                        showJoinCallAnywayDialog()
-                    } else {
-                        dismissJoinCallAnywayDialog()
-                        observeIncomingCallJob.cancel()
+            if (observeEstablishedCallSharedFlow.first() != null) {
+                showJoinCallAnywayDialog()
+            } else {
+                dismissJoinCallAnywayDialog()
+                observeIncomingCallJob.cancel()
 
-                        acceptCall(conversationId = conversationId)
-                        incomingCallState = incomingCallState.copy(
-                            flowState = IncomingCallState.FlowState.CallAccepted(conversationId)
-                        )
-                        callNotificationManager.hideIncomingCallNotification(currentAccount.toString(), conversationId.toString())
-                    }
-                }
+                acceptCall(conversationId = conversationId)
+                incomingCallState = incomingCallState.copy(
+                    flowState = IncomingCallState.FlowState.CallAccepted(conversationId)
+                )
+                callNotificationManager.hideIncomingCallNotification(currentAccount.toString(), conversationId.toString())
             }
         }
     }
@@ -199,8 +153,6 @@ class IncomingCallViewModel @AssistedInject constructor(
         viewModelScope.launch {
             // if call is already accepted or waiting with accepting for the unlock, no need to bring back the notification
             if (incomingCallState.flowState is IncomingCallState.FlowState.CallAccepted) return@launch
-            // if the call is being answered but is waiting for unlock, no need to bring back the notification
-            if (incomingCallState.waitingUnlockState != WaitingUnlockState.DEFAULT) return@launch
             callNotificationManager.bringBackIncomingCallNotification(currentAccount.toString(), conversationId.toString())
         }
     }

@@ -1,0 +1,16 @@
+New
+- Join or start a meeting in seconds without a group
+- Prevent adminless groups
+- Drive: View PDFs directly in the app
+
+Improvements
+- Drive:
+ • Loading state when opening files
+ • Download handling
+
+Fixes
+- Canceling a backup restore didn't work
+- Crash when showing a location
+- Missing note when people start a conversation with someone who is not logged in
+- Display of pending connection status
+- Drive: Several loading issues

@@ -1,0 +1,16 @@
+Neu
+- Schnell und ohne Gruppe an Meetings teilnehmen
+- Gruppen ohne Admin vermeiden
+- Drive: PDFs direkt in App anzeigen
+
+Verbessert
+- Drive:
+ • Ladezustand beim Öffnen von Dateien
+ • Verhalten beim Download
+
+Behoben
+- Abbruch der Wiederherstellung eines Backups nicht möglich
+- Absturz beim Anzeigen des Standorts
+- Fehlender Hinweis, wenn man eine Unterhaltung mit jemandem beginnen will, der nicht angemeldet ist
+- Anzeige des Status „Kontaktanfrage ausstehend“
+- Drive: Ladeprobleme

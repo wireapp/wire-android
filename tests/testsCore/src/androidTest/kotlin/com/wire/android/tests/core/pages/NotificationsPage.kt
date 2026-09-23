@@ -27,17 +27,14 @@ import kotlin.time.Duration.Companion.seconds
 
 class NotificationsPage(private val device: UiDevice) {
     private val incomingCallNotification = UiSelectorParams(textMatches = ".*(Calling|calling|Incoming call).*")
+    private val incomingGroupCall = UiSelectorParams(text = "is calling…")
+    private val acceptCallButton = UiSelectorParams(description = "Accept call")
+    private val ongoingCallNotification = UiSelectorParams(textContains = "Ongoing call")
     private val websocketServiceNotification = UiSelectorParams(textContains = "service is running")
 
     fun waitUntilNotificationPopUpGone(timeout: Duration = 10.seconds) {
         val replyButton = By.text("Reply")
-        val appearedWithinProbeWindow = UiWaitUtils.retryUntilTimeout(
-            timeout = 1.seconds,
-            pollingInterval = UiWaitUtils.POLLING_FAST
-        ) {
-            device.hasObject(replyButton)
-        }
-        if (appearedWithinProbeWindow) {
+        if (device.hasObject(replyButton)) {
             UiWaitUtils.waitUntilGoneOrThrow(
                 selector = replyButton,
                 timeout = timeout,
@@ -88,6 +85,11 @@ class NotificationsPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapMessageNotification(message: String): NotificationsPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = message)).click()
+        return this
+    }
+
     fun iSeeOneOnOneIncomingCallNotification(userName: String): NotificationsPage {
         UiWaitUtils.waitElement(
             UiSelectorParams(textContains = userName),
@@ -115,12 +117,12 @@ class NotificationsPage(private val device: UiDevice) {
     fun iSeeIncomingGroupCall(groupName: String): NotificationsPage {
         try {
             UiWaitUtils.waitElement(
-                UiSelectorParams(textContains = groupName),
-                timeout = UiWaitUtils.SHORT_TIMEOUT
+                UiSelectorParams(text = groupName),
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT
             )
             UiWaitUtils.waitElement(
-                incomingCallNotification,
-                timeout = UiWaitUtils.SHORT_TIMEOUT
+                incomingGroupCall,
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT
             )
         } catch (_: AssertionError) {
             Assert.assertTrue("Notification center did not open.", device.openNotification())
@@ -132,7 +134,17 @@ class NotificationsPage(private val device: UiDevice) {
                 incomingCallNotification,
                 timeout = UiWaitUtils.MEDIUM_TIMEOUT
             ).click()
+            UiWaitUtils.waitElement(
+                acceptCallButton,
+                timeout = UiWaitUtils.MEDIUM_TIMEOUT
+            )
         }
+        return this
+    }
+
+    fun assertOngoingGroupCallNotificationVisible(groupName: String): NotificationsPage {
+        UiWaitUtils.waitElement(ongoingCallNotification)
+        UiWaitUtils.waitElement(UiSelectorParams(textContains = groupName))
         return this
     }
 
@@ -156,6 +168,18 @@ class NotificationsPage(private val device: UiDevice) {
             device.hasObject(By.text(message))
         }
         Assert.assertFalse("Message '$message' is visible in notification center.", messageAppeared)
+        return this
+    }
+
+    fun waitUntilMessageNotificationGone(
+        message: String,
+        timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT
+    ): NotificationsPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.text(message),
+            timeout = timeout,
+            errorMessage = "Message '$message' is still visible in notification center."
+        )
         return this
     }
 }

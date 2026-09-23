@@ -27,55 +27,65 @@ enum class SortBy(val label: Int, val visible: Boolean = true) {
     Size(R.string.sort_by_size),
 }
 
-enum class SortDirection(val isDescending: Boolean) {
-    Asc(false),
-    Desc(true);
-
-    @Suppress("MagicNumber")
-    val rotationAngle: Float get() = if (isDescending) 180f else 0f
+/**
+ * Which way the arrow of the sort row points, telling apart the two options a sorting offers: up
+ * for the one listed first, down for its reverse. This is how the sorting reads, not how it is
+ * queried — see [SortingCriteria.isDescending] for that.
+ */
+@Suppress("MagicNumber")
+enum class SortArrow(val rotationAngle: Float) {
+    Up(0f),
+    Down(180f),
 }
 
 sealed interface SortingCriteria {
     val by: SortBy
     val label: Int
-    val direction: SortDirection
+    val arrow: SortArrow
 
-    val isDescending: Boolean get() = direction.isDescending
-    val rotationAngle: Float get() = direction.rotationAngle
+    val isDescending: Boolean
+
+    val rotationAngle: Float get() = arrow.rotationAngle
 
     data object FoldersFirst : SortingCriteria {
         override val by: SortBy = SortBy.Default
         override val label: Int = R.string.sort_by
-        override val direction: SortDirection = SortDirection.Asc
+        override val arrow: SortArrow = SortArrow.Up
+        override val isDescending: Boolean = false
     }
 
     sealed class ByDate(
         override val label: Int,
-        override val direction: SortDirection,
+        override val arrow: SortArrow,
+        override val isDescending: Boolean,
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Modified
 
-        data object NewestFirst : ByDate(R.string.sort_modified_newest_first, SortDirection.Asc)
-        data object OldestFirst : ByDate(R.string.sort_modified_oldest_first, SortDirection.Desc)
+        // The newest date is the largest timestamp, so it is the descending query that puts the
+        // newest first — the opposite of how the name and size sortings are queried.
+        data object NewestFirst : ByDate(R.string.sort_modified_newest_first, SortArrow.Up, isDescending = true)
+        data object OldestFirst : ByDate(R.string.sort_modified_oldest_first, SortArrow.Down, isDescending = false)
     }
 
     sealed class ByName(
         override val label: Int,
-        override val direction: SortDirection,
+        override val arrow: SortArrow,
+        override val isDescending: Boolean,
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Name
 
-        data object AtoZ : ByName(R.string.sort_name_a_to_z, SortDirection.Asc)
-        data object ZtoA : ByName(R.string.sort_name_z_to_a, SortDirection.Desc)
+        data object AtoZ : ByName(R.string.sort_name_a_to_z, SortArrow.Up, isDescending = false)
+        data object ZtoA : ByName(R.string.sort_name_z_to_a, SortArrow.Down, isDescending = true)
     }
 
     sealed class BySize(
         override val label: Int,
-        override val direction: SortDirection,
+        override val arrow: SortArrow,
+        override val isDescending: Boolean,
     ) : SortingCriteria {
         override val by: SortBy = SortBy.Size
 
-        data object SmallestFirst : BySize(R.string.sort_size_smallest_first, SortDirection.Asc)
-        data object LargestFirst : BySize(R.string.sort_size_largest_first, SortDirection.Desc)
+        data object SmallestFirst : BySize(R.string.sort_size_smallest_first, SortArrow.Up, isDescending = false)
+        data object LargestFirst : BySize(R.string.sort_size_largest_first, SortArrow.Down, isDescending = true)
     }
 }

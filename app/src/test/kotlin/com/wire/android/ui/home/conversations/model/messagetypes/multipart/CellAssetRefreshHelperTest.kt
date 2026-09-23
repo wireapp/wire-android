@@ -52,7 +52,8 @@ class CellAssetRefreshHelperTest {
                 cellAsset.copy(
                     contentUrlExpiresAt = expiration
                 )
-            )
+            ),
+            conversationId = "conv1"
         )
 
         assertTrue(refreshHelper.regularAssets.contains(cellAsset.id))
@@ -72,7 +73,8 @@ class CellAssetRefreshHelperTest {
                 cellAsset.copy(
                     contentUrlExpiresAt = null
                 )
-            )
+            ),
+            conversationId = "conv1"
         )
 
         assertTrue(refreshHelper.regularAssets.contains(cellAsset.id))
@@ -92,14 +94,15 @@ class CellAssetRefreshHelperTest {
         var count = 0
 
         val (_, refreshHelper) = Arrangement()
-            .withRefreshAsset {
+            .withRefreshAsset { _, _ ->
                 count++
                 testNode.right()
             }
             .arrange(this)
 
         refreshHelper.onAttachmentsVisible(
-            listOf(cellAsset)
+            listOf(cellAsset),
+            conversationId = "conv1"
         )
 
         assertEquals(1, count)
@@ -111,16 +114,17 @@ class CellAssetRefreshHelperTest {
         var count = 0
 
         val (_, refreshHelper) = Arrangement()
-            .withRefreshAsset {
+            .withRefreshAsset { _, _ ->
                 count++
                 testNode.right()
             }
             .arrange(this)
 
-        refreshHelper.regularAssets[cellAsset.id] = Unit
+        refreshHelper.regularAssets[cellAsset.id] = null
 
         refreshHelper.onAttachmentsVisible(
-            listOf(cellAsset)
+            listOf(cellAsset),
+            conversationId = "conv1"
         )
 
         assertEquals(0, count)
@@ -132,7 +136,7 @@ class CellAssetRefreshHelperTest {
         var count = 0
 
         val (_, refreshHelper) = Arrangement()
-            .withRefreshAsset {
+            .withRefreshAsset { _, _ ->
                 count++
                 testNode.right()
             }
@@ -145,7 +149,8 @@ class CellAssetRefreshHelperTest {
                 cellAsset.copy(
                     contentUrlExpiresAt = expiration
                 )
-            )
+            ),
+            conversationId = "conv1"
         )
 
         assertTrue(refreshHelper.regularAssets.contains(cellAsset.id))
@@ -171,7 +176,7 @@ class CellAssetRefreshHelperTest {
             collaboraIntegration = true
         )
 
-        var refreshAsset = RefreshCellAssetStateUseCase { testNode.right() }
+        var refreshAsset = RefreshCellAssetStateUseCase { _, _ -> testNode.right() }
 
         fun withRefreshAsset(useCase: RefreshCellAssetStateUseCase) = apply {
             refreshAsset = useCase

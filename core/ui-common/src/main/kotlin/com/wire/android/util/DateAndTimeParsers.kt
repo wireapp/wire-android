@@ -76,7 +76,8 @@ fun Instant.fileDateTime(
 fun Instant.cellFileDateTime(
     locale: Locale = Locale.getDefault(),
     zoneId: ZoneId = ZoneId.systemDefault(),
-): String = DateAndTimeParsers.cellFileDateTime(this, locale, zoneId)
+    currentYear: Int = Year.now(zoneId).value,
+): String = DateAndTimeParsers.cellFileDateTime(this, locale, zoneId, currentYear)
 
 @Stable
 fun Instant.cellFileTime(
@@ -173,8 +174,9 @@ class DateAndTimeParsers private constructor() {
             instant: Instant,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
+            currentYear: Int = Year.now(zoneId).value,
         ): String {
-            val isFromAnotherYear = instant.toJavaInstant().atZone(zoneId).year != Year.now(zoneId).value
+            val isFromAnotherYear = instant.toJavaInstant().atZone(zoneId).year != currentYear
 
             val dateString = cellDateFormat(
                 instant = instant,

@@ -39,7 +39,7 @@
     <string name="meeting_options_delete_meeting_for_everyone">Удалить встречу для всех</string>
     <string name="meetings_empty_title_next">Предстоящих встреч пока нет</string>
     <string name="meetings_empty_title_past">Прошлых встреч пока нет</string>
-    <string name="meetings_empty_text_next">"Начните встречу с членами команды, гостями или внешними участниками."</string>
+    <string name="meetings_empty_text_next">Начните встречу с членами вашей команды.</string>
     <string name="meetings_empty_text_past">Предыдущие встречи будут перечислены здесь.</string>
     <string name="new_meeting_title">Новая встреча</string>
     <string name="new_meeting_participants_title">Выбрать участников</string>

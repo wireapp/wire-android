@@ -459,4 +459,6 @@ Yedek dosyayı korumak için güçlü bir şifre seçin.</string>
     <!-- enterprise configurations -->
     <!--    channel not available dialog-->
     <!-- Apps-->
+    <string name="label_wait_until_synchronised">Lütfen uygulama senkronize edilene kadar bekleyin</string>
+    <string name="label_wait_until_connected">Lütfen internet bağlantısı yeniden sağlanana kadar bekleyin</string>
 </resources>

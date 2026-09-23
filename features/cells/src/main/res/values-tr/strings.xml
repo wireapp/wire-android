@@ -77,4 +77,6 @@
     <string name="add_tag_label">Etiket ekle</string>
     <string name="enter_name_label">Etiket adı girin</string>
     <string name="tags_edited">Etiketler düzenlendi</string>
+    <string name="label_on">AÇIK</string>
+    <string name="label_off">KAPALI</string>
 </resources>

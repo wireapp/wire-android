@@ -16,4 +16,19 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">Jelszó</string>
+    <string name="login_password_label">JELSZÓ</string>
+    <string name="content_description_reveal_password">Jelszó megjelenítése</string>
+    <string name="content_description_hide_password">Jelszó elrejtése</string>
+    <string name="label_wait_until_synchronised">Várjon, amíg az alkalmazás szinkronizál</string>
+    <string name="label_wait_until_connected">Várjon, amíg az internetkapcsolat helyreáll</string>
+    <string name="content_description_close_button">bezárás</string>
+    <string name="content_description_menu_button">Menü gomb</string>
+    <string name="content_description_drop_down_icon">Lefelé nyíló ikon</string>
+    <string name="content_description_pending_connection_badge">kapcsolatkérelem jóváhagyása függőben</string>
+    <string name="content_description_alert">Riasztás</string>
+    <string name="generate_password_button_text">Jelszógenerálás</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Mégsem</string>
+</resources>

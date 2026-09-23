@@ -16,4 +16,14 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">Has&#322;o</string>
+    <string name="login_password_label">HAS&#321;O</string>
+    <string name="content_description_reveal_password">Poka&#380; has&#322;o</string>
+    <string name="content_description_hide_password">Ukryj has&#322;o</string>
+    <string name="label_wait_until_synchronised">Prosz&#281; czeka&#263;, a&#380; aplikacja b&#281;dzie zsynchronizowana</string>
+    <string name="content_description_menu_button">G&#322;&#243;wne menu nawigacyjne</string>
+    <string name="content_description_drop_down_icon">Strza&#322;ka rozwijaj&#261;ca list&#281;</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Anuluj</string>
+</resources>

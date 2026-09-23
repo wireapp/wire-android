@@ -34,4 +34,6 @@
     <string name="cells_new_label_content_description">අලුත්</string>
     <string name="cells_create_folder">ෆෝල්ඩරය සාදන්න</string>
     <string name="cells_folder_name">ෆෝල්ඩරයේ නම</string>
+    <string name="label_on">සක්‍රියයි</string>
+    <string name="label_off">අක්‍රියයි</string>
 </resources>

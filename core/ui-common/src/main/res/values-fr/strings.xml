@@ -16,4 +16,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">Mot de passe</string>
+    <string name="login_password_label">MOT DE PASSE</string>
+    <string name="content_description_reveal_password">Afficher le mot de passe</string>
+    <string name="content_description_hide_password">Cacher le mot de passe</string>
+    <string name="content_description_menu_button">Navigation principale</string>
+    <string name="content_description_drop_down_icon">Flèche déroulante</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Annuler</string>
+</resources>

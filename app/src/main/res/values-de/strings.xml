@@ -1826,4 +1826,12 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s hat **Apps** für diese Unterhaltung deaktiviert</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
     <string name="more_information_about_this_server">Mehr Informationen über dieses Backend</string>
+    <string name="content_description_ping_message">Ping-Nachricht</string>
+    <string name="content_description_message_sent_status">Nachricht wurde gesendet</string>
+    <string name="mls_migration_dialog_title">Protokoll auf MLS umstellen?</string>
+    <string name="mls_migration_dialog_description">Das Standard-Nachrichtenprotokoll wird von Proteus auf Messaging-Layer-Security (MLS) umgestellt.</string>
+    <string name="mls_migration_dialog_confirm">Protokoll umstellen</string>
+    <string name="mls_migration_success">Die Unterhaltung wurde erfolgreich auf MLS umgestellt.</string>
+    <string name="mls_migration_failure">Die Umstellung der Unterhaltung auf MLS ist fehlgeschlagen.</string>
+    <string name="mls_migration_failure_with_backend_error">Die Umstellung der Unterhaltung auf MLS ist fehlgeschlagen (HTTP %1$d, Bezeichnung: %2$s).</string>
 </resources>

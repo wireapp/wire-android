@@ -16,4 +16,19 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">මුරපදය</string>
+    <string name="login_password_label">මුරපදය</string>
+    <string name="content_description_reveal_password">මුරපදය පෙන්වන්න</string>
+    <string name="content_description_hide_password">මුරපදය සඟවන්න</string>
+    <string name="label_wait_until_synchronised">යෙදුම සමමුහූර්ත වන තෙක් රැඳී සිටින්න</string>
+    <string name="label_wait_until_connected">අන්තර්ජාල සම්බන්ධතාවය ප්‍රත්‍යර්පණය වන තෙක් රැඳෙන්න</string>
+    <string name="content_description_close_button">වසන්න</string>
+    <string name="content_description_menu_button">ප්‍රධාන යාත්‍රණය</string>
+    <string name="content_description_drop_down_icon">වට්ටෝරු ඊතලය</string>
+    <string name="content_description_pending_connection_badge">සම්බන්ධතා ඉල්ලීම අනුමත කිරීමට නියමිතයි</string>
+    <string name="content_description_alert">අනතුරු ඇඟවීම</string>
+    <string name="generate_password_button_text">මුරපදය උත්පාදනය</string>
+    <string name="label_ok">හරි</string>
+    <string name="label_cancel">අවලංගු</string>
+</resources>

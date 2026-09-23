@@ -16,4 +16,19 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">Senha</string>
+    <string name="login_password_label">SENHA</string>
+    <string name="content_description_reveal_password">Mostrar senha</string>
+    <string name="content_description_hide_password">Ocultar senha</string>
+    <string name="label_wait_until_synchronised">Por favor, aguarde até que o aplicativo esteja sincronizado</string>
+    <string name="label_wait_until_connected">Por favor, aguarde até que a conexão com a Internet seja restaurada</string>
+    <string name="content_description_close_button">fechar</string>
+    <string name="content_description_menu_button">Navegação principal</string>
+    <string name="content_description_drop_down_icon">Seta para baixo</string>
+    <string name="content_description_pending_connection_badge">aprovação do pedido de conexão pendente</string>
+    <string name="content_description_alert">Alerta</string>
+    <string name="generate_password_button_text">Gerar Senha</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Cancelar</string>
+</resources>

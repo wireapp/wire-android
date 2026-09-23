@@ -38,6 +38,8 @@ data class SelfUserProfilePage(private val device: UiDevice) {
     private val cancelLoginDialogCancelButton = UiSelectorParams(text = "Cancel")
     private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
     private val okButton = UiSelectorParams(text = "OK")
+    private val availabilitySelector = UiSelectorParams(text = "None")
+    private val closeProfileButton = UiSelectorParams(description = "Close your profile")
 
     private val infoTextCheckbox = UiSelectorParams(className = "android.widget.CheckBox")
 
@@ -54,6 +56,32 @@ data class SelfUserProfilePage(private val device: UiDevice) {
 
     fun assertCurrentAccountActive(accountName: String): SelfUserProfilePage {
         UiWaitUtils.waitElement(activeAccountName(accountName))
+        return this
+    }
+
+    fun assertChangeStatusOptionsVisible(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(availabilitySelector)
+        return this
+    }
+
+    fun changeAvailabilityStatus(status: String): SelfUserProfilePage {
+        UiWaitUtils.waitElement(availabilitySelector).click()
+        UiWaitUtils.waitElement(UiSelectorParams(text = status)).click()
+        return this
+    }
+
+    fun assertStatusChangeTextVisible(text: String): SelfUserProfilePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = text))
+        return this
+    }
+
+    fun confirmStatusChange(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(okButton).click()
+        return this
+    }
+
+    fun closeUserProfile(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(closeProfileButton).click()
         return this
     }
 

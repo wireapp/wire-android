@@ -24,6 +24,7 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
@@ -347,6 +348,110 @@ class MeetingListViewModelTest {
                 awaitItem()
                 runCurrent()
                 coVerify(exactly = 2) { arrangement.getMeetingsPaginated(arrangement.type) }
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+    }
+
+    @Test
+    fun givenUnchangedMeetings_whenTimeZoneChangesWithinSameDay_thenDisplayTimeZoneUpdates() = runTest(dispatcher) {
+        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        var timeZone: TimeZone = TimeZone.UTC
+        val (arrangement, viewModelScenario) = Arrangement(dispatcher)
+            .withCurrentTimeProvider { currentTime }
+            .withTimeZoneProvider { timeZone }
+            .withGetMeetingsPaginated(listOf(meeting(startTime = currentTime + 30.minutes)))
+            .arrange()
+
+        viewModelScenario.use { scenario ->
+            scenario.viewModel.displayTimeZoneFlow.test {
+                assertEquals(TimeZone.UTC, awaitItem())
+                scenario.viewModel.meetings.test {
+                    val initialItems = awaitItem().items()
+                    runCurrent()
+                    assertEquals(1, arrangement.systemTimeChanges.subscriptionCount.value)
+                    assertEquals(1, arrangement.minuteTicks.subscriptionCount.value)
+
+                    timeZone = TimeZone.of("Europe/Berlin")
+                    arrangement.systemTimeChanges.emit(Unit)
+                    runCurrent()
+
+                    assertEquals(initialItems, expectMostRecentItem().items())
+                    cancelAndIgnoreRemainingEvents()
+                }
+                assertEquals(timeZone, awaitItem())
+                arrangement.minuteTicks.emit(Unit)
+                runCurrent()
+                expectNoEvents()
+                cancelAndIgnoreRemainingEvents()
+            }
+            runCurrent()
+            assertEquals(0, arrangement.systemTimeChanges.subscriptionCount.value)
+            assertEquals(0, arrangement.minuteTicks.subscriptionCount.value)
+        }
+    }
+
+    @Test
+    fun givenMeetingsAcrossLocalMidnight_whenTimeZoneChanges_thenHeadersUseObservedTimeZone() = runTest(dispatcher) {
+        var timeZone: TimeZone = TimeZone.UTC
+        val (arrangement, viewModelScenario) = Arrangement(dispatcher)
+            .withCurrentTimeProvider { Instant.parse("2026-01-01T12:00:00Z") }
+            .withTimeZoneProvider { timeZone }
+            .withGetMeetingsPaginated(
+                listOf(
+                    meeting(meetingId = MeetingId("first", "domain"), startTime = Instant.parse("2026-01-01T22:30:00Z")),
+                    meeting(meetingId = MeetingId("second", "domain"), startTime = Instant.parse("2026-01-01T23:30:00Z")),
+                )
+            )
+            .arrange()
+
+        viewModelScenario.use { scenario ->
+            scenario.viewModel.meetings.test {
+                assertEquals(1, awaitItem().items().filterIsInstance<MeetingHeader.Day>().size)
+
+                timeZone = TimeZone.of("Europe/Berlin")
+                arrangement.systemTimeChanges.emit(Unit)
+                runCurrent()
+
+                assertEquals(
+                    listOf(Instant.parse("2026-01-01T22:00:00Z"), Instant.parse("2026-01-01T23:00:00Z")),
+                    expectMostRecentItem().items().filterIsInstance<MeetingHeader.Day>().map { it.time }
+                )
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+    }
+
+    @Test
+    fun givenTimezoneChangedWhileUnsubscribed_whenUiReturns_thenDisplayTimeZoneUpdatesWithoutBroadcast() = runTest(dispatcher) {
+        var timeZone: TimeZone = TimeZone.UTC
+        val (arrangement, viewModelScenario) = Arrangement(dispatcher)
+            .withCurrentTimeProvider { Instant.parse("2026-01-01T12:00:00Z") }
+            .withTimeZoneProvider { timeZone }
+            .withGetMeetingsPaginated(emptyList())
+            .arrange()
+
+        viewModelScenario.use { scenario ->
+            scenario.viewModel.displayTimeZoneFlow.test {
+                assertEquals(TimeZone.UTC, awaitItem())
+                scenario.viewModel.meetings.test {
+                    awaitItem()
+                    cancelAndIgnoreRemainingEvents()
+                }
+                runCurrent()
+                // Display timezone collection alone must not keep system time observation active.
+                assertEquals(0, arrangement.systemTimeChanges.subscriptionCount.value)
+                timeZone = TimeZone.of("Europe/Berlin")
+                arrangement.systemTimeChanges.emit(Unit)
+                runCurrent()
+                expectNoEvents()
+
+                scenario.viewModel.meetings.test {
+                    awaitItem()
+                    runCurrent()
+                    cancelAndIgnoreRemainingEvents()
+                }
+                assertEquals(timeZone, awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
         }

@@ -805,12 +805,29 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertSelfDeleteTimerButtonVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(selfDeleteTimerButton)
+        return this
+    }
+
+    fun assertSelfDeleteTimerOptionsNotVisible(): ConversationViewPage {
+        listOf("OFF", "10 seconds", "1 minute", "5 minutes", "1 hour", "1 day", "7 days", "4 weeks").forEach {
+            assertElementNotVisible(selfDeleteOption(it), "self-deleting timer option '$it'", timeoutSeconds = 1)
+        }
+        return this
+    }
+
     fun assertSelfDeleteOptionVisible(label: String) {
         try {
             UiWaitUtils.waitElement(selfDeleteOption(label))
         } catch (e: AssertionError) {
             throw AssertionError("Self-destruct option '$label' is not visible", e)
         }
+    }
+
+    fun assertSelfDeleteOptionSelected(label: String) {
+        val option = UiWaitUtils.waitElement(selfDeleteOption(label))
+        Assert.assertTrue("Self-destruct option '$label' is not selected", option.parent?.isChecked == true)
     }
 
     fun tapSelfDeleteOption(label: String) {
@@ -867,6 +884,13 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertSystemMessageVisible(message: String) = apply { waitElement(UiSelectorParams(textContains = message)) }
+
+    fun assertSystemMessageVisibleOnlyOnce(message: String): ConversationViewPage {
+        UiWaitUtils.waitElement(UiSelectorParams(textContains = message))
+        val messages = device.findObjects(By.textContains(message))
+        Assert.assertEquals("System message '$message' is duplicated.", 1, messages.size)
+        return this
+    }
 
     fun assertVisibleMentionedNameIs(mentionedName: String): ConversationViewPage {
         try {
@@ -1041,6 +1065,13 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun longPressImageMessage(): ConversationViewPage {
+        val image = UiWaitUtils.waitElement(sentQRImage)
+        val center = image.visibleCenter
+        device.swipe(center.x, center.y, center.x, center.y, 120)
+        return this
+    }
+
     fun assertImageContextMenuButtonVisible(): ConversationViewPage {
         UiWaitUtils.waitElement(imageContextMenuButton)
         return this
@@ -1057,6 +1088,16 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertSelfDeletingImageContextMenuOptionsVisible(): ConversationViewPage {
+        listOf("Download", "Delete", "Message Details").forEach {
+            UiWaitUtils.waitElement(UiSelectorParams(text = it))
+        }
+        listOf("Reply", "Copy text", "Edit text", "REACTIONS").forEach {
+            assertElementNotVisible(UiSelectorParams(text = it), "context menu option '$it'", timeoutSeconds = 1)
+        }
+        return this
+    }
+
     fun assertImageSavedToDownloadsToastVisible(): ConversationViewPage {
         UiWaitUtils.waitUntilVisibleOrThrow(
             params = UiSelectorParams(text = "Saved to Downloads folder"),
@@ -1066,8 +1107,8 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertImageNotVisible(): ConversationViewPage {
-        assertElementNotVisible(sentQRImage, "image")
+    fun assertImageNotVisible(timeoutSeconds: Int = 5): ConversationViewPage {
+        assertElementNotVisible(sentQRImage, "image", timeoutSeconds)
         return this
     }
 

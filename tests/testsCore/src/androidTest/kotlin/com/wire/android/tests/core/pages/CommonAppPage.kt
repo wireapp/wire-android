@@ -34,6 +34,7 @@ data class CommonAppPage(private val device: UiDevice) {
     private val manageDevicesButton = UiSelectorParams(text = "Manage Devices")
     private val switchAccountButton = UiSelectorParams(text = "Switch Account")
     private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
+    private val deletedAccountDialogTitle = UiSelectorParams(text = "Deleted account")
     private val wireEnterpriseAlert = UiSelectorParams(textContains = "Wire Enterprise")
     private val learnMoreWireEnterpriseLink = UiSelectorParams(textContains = "Learn more about Wire")
     private val upgradeNowButton = UiSelectorParams(text = "Upgrade now")
@@ -147,6 +148,23 @@ data class CommonAppPage(private val device: UiDevice) {
     }
 
     fun confirmRemovedDeviceDialog(): CommonAppPage = tapOkButtonOnAlert()
+
+    fun assertDeletedAccountDialogVisible(): CommonAppPage {
+        val dialog = UiWaitUtils.waitElement(deletedAccountDialogTitle)
+        assertTrue("Deleted account dialog is not visible", !dialog.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertDeletedAccountDialogSubtextVisible(expectedSubtext: String): CommonAppPage {
+        val subtext = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = expectedSubtext),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Deleted account dialog subtext is not visible", !subtext.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun confirmDeletedAccountDialog(): CommonAppPage = tapOkButtonOnAlert()
 
     fun assertWireAppIsNotInForeground(): CommonAppPage {
         val wireAppIsNotInForeground = UiWaitUtils.retryUntilTimeout(

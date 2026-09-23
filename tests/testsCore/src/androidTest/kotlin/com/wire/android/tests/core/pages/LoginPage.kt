@@ -53,6 +53,7 @@ data class LoginPage(private val device: UiDevice) {
     private val incorrectCredentialsAlertOkButtonSelector = UiSelectorParams(text = "OK")
     private val proceedButtonSelector = UiSelectorParams(text = "Proceed")
     private val proceedButtonGoneSelector = UiSelector().text("Proceed")
+    private val customBackendDialogTitleSelector = UiSelectorParams(text = "Redirect to an on-premises backend?")
     private val backendConfigSuccessContinueButtonSelector =
         UiSelectorParams(resourceId = "backendConfigSuccessContinueButton")
     private val confirmButtonSelector = UiSelectorParams(text = "Confirm")
@@ -64,6 +65,12 @@ data class LoginPage(private val device: UiDevice) {
     private val removeDeviceDialogSelector = UiSelectorParams(text = "Remove the following device?")
     private val removeDevicePasswordSelector = UiSelectorParams(className = "android.widget.EditText")
     private val removeButtonSelector = UiSelectorParams(text = "Remove")
+
+    fun assertEmailInputPageVisible(): LoginPage {
+        val emailInput = UiWaitUtils.waitElement(emailInputFieldSelector)
+        assertTrue("Email input page is not visible", !emailInput.visibleBounds.isEmpty)
+        return this
+    }
 
     fun enterPersonalUserLoggingEmail(email: String): LoginPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -428,6 +435,30 @@ data class LoginPage(private val device: UiDevice) {
         }
 
         waitForBackendConfigSuccessScreenAfterBackendDeeplink()
+        return this
+    }
+
+    fun clickProceedButtonOnCustomBackendAlert(): LoginPage {
+        val clicked = UiWaitUtils.clickWhenClickable(
+            proceedButtonSelector,
+            timeout = UiWaitUtils.LONG_TIMEOUT
+        )
+        assertTrue("Proceed button on custom backend alert was not clickable", clicked)
+        return this
+    }
+
+    fun assertCustomBackendAlertVisible(expectedBackendHost: String): LoginPage {
+        UiWaitUtils.waitElement(customBackendDialogTitleSelector)
+        UiWaitUtils.waitElement(UiSelectorParams(textContains = expectedBackendHost))
+        return this
+    }
+
+    fun assertOnPremBackendLoginPageVisible(expectedBackendHost: String): LoginPage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = "Welcome to Wire Enterprise for $expectedBackendHost!"),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        )
+        UiWaitUtils.waitElement(emailInputFieldSelector)
         return this
     }
 

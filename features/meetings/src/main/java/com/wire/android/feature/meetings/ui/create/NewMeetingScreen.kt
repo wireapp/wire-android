@@ -144,7 +144,7 @@ fun NewMeetingContent(
                 onNavigationPressed = {
                     if (!state.isSubmitting) onBackPressed()
                 },
-                navigationIconType = NavigationIconType.Back(
+                navigationIconType = NavigationIconType.Close(
                     contentDescription = R.string.content_description_new_meeting_back_icon
                 ),
             )

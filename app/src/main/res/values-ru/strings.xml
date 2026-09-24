@@ -1926,4 +1926,31 @@
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
     <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
+    <string name="label_learn_more_about_mls">Узнайте больше о MLS</string>
+    <string name="content_description_backend_config_camera_button">Сканировать QR-код</string>
+    <string name="report_misuse_screen_title">Сообщить о злоупотреблении</string>
+    <string name="mls_migration_dialog_title">Изменить протокол на MLS?</string>
+    <string name="mls_migration_dialog_description">Стандартный протокол обмена сообщениями изменится с Proteus на Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Изменить протокол</string>
+    <string name="mls_migration_success">Беседа успешно смигрирована на MLS.</string>
+    <string name="mls_migration_failure">Не удалось смигрировать беседу на MLS.</string>
+    <string name="mls_migration_failure_with_backend_error">Переход к MLS не удался (HTTP %1$d, метка: %2$s).</string>
+    <plurals name="label_system_message_conversation_failed_add_members_details_missing_key_packages">
+        <item quantity="one">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="few">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="many">Не удалось добавить %1$s в беседу. Возможно, у них нет клиента, поддерживающего протокол MLS.</item>
+        <item quantity="other">Не удалось добавить %1$s в беседу. Возможно, у него нет клиента, поддерживающего протокол MLS.</item>
+    </plurals>
+    <string name="connection_label_unverified_support_disclaimer">Команда поддержки Wirex никогда не свяжется с вами в приложении.</string>
+    <string name="cross_backend_login_blocked_title">Переключение бэкэндов заблокировано</string>
+    <string name="cross_backend_login_blocked_message">В данный момент вы не можете войти в другой бэкенд. Сначала необходимо осуществить выход, а затем войти в другой бэкенд.</string>
+    <string name="enterprise_login_error_missing_backend_config">Требуется настройка бэкенда. Перейдите по ссылке для настройки или обратитесь к администратору.</string>
+    <string name="missing_backend_config_title">Настройте приложение</string>
+    <string name="missing_backend_config_description">Чтобы начать, введите ссылку или сосканируйте QR-код, предоставленный вашей администрацией.</string>
+    <string name="missing_backend_config_input_label">Конфигурационная ссылка</string>
+    <string name="missing_backend_config_input_placeholder">Введите ссылку или сосканируйте QR-код</string>
+    <string name="missing_backend_config_button_setup">Настроить</string>
+    <string name="missing_backend_config_error">Произошла ошибка. Проверьте ссылку и подключение, а затем попробуйте еще раз.</string>
+    <string name="backend_config_success_title">Приложение настроено</string>
+    <string name="backend_config_success_description">На следующем шаге вы можете войти</string>
 </resources>

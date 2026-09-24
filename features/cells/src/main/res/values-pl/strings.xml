@@ -16,4 +16,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="label_on">W&#322;&#261;czone</string>
+    <string name="label_off">Wy&#322;&#261;czone</string>
+</resources>

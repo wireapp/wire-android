@@ -200,4 +200,5 @@
     <string name="create_file_screen_title">Datei %1$s erstellen</string>
     <string name="empty_screen_learn_more_conversation">Erfahren Sie mehr über Geteiltes Drive</string>
     <string name="empty_screen_learn_more">Mehr erfahren</string>
+    <string name="public_link_set_password_error">Passwort-Aktualisierung fehlgeschlagen. Bitte versuche es erneut.</string>
 </resources>

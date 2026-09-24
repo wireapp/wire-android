@@ -18,4 +18,5 @@
   -->
 <resources>
     <string name="confirm_changes_dismiss">Scarta</string>
+    <string name="content_description_send_button">Invia</string>
 </resources>

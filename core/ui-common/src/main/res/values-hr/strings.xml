@@ -16,4 +16,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
-<resources></resources>
+<resources>
+    <string name="login_password_placeholder">Lozinka</string>
+    <string name="login_password_label">LOZINKA</string>
+    <string name="content_description_reveal_password">Prikaži lozinku</string>
+    <string name="content_description_hide_password">Sakrij lozinku</string>
+    <string name="content_description_menu_button">Glavna navigacija</string>
+    <string name="content_description_drop_down_icon">Padajući izbornik strelica</string>
+    <string name="label_ok">U redu</string>
+    <string name="label_cancel">Odustani</string>
+</resources>

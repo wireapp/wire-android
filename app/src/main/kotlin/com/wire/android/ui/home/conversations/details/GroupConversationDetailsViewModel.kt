@@ -221,7 +221,7 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
                         mlsVerificationStatus = groupDetails.conversation.mlsVerificationStatus,
                         legalHoldStatus = groupDetails.conversation.legalHoldStatus,
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
-                        isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed(),
+                        isGuestAllowed = groupDetails.conversation.isGuestAccessEnabled(),
                         isUpdatingNameAllowed = canSelfPerformAdminTasks && !isSelfExternalMember,
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,

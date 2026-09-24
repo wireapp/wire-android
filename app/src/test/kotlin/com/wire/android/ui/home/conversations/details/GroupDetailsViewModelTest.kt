@@ -300,6 +300,27 @@ class GroupDetailsViewModelTest {
     }
 
     @Test
+    fun `given manual migration disallowed, then protocol taps and confirmation do not migrate`() = runTest {
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
+            selfRole = Conversation.Member.Role.Admin,
+        )
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withMlsMigrationFeatureFlag(Status.ENABLED, allowManualMigration = false)
+            .withSelfTeamId(TeamId("team_id"))
+            .withConversationDetailUpdate(details)
+            .arrange()
+
+        repeat(10) { viewModel.onProtocolTapped() }
+        viewModel.onMlsMigrationConfirmed()
+
+        assertEquals(false, viewModel.groupOptionsState.value.canManuallyMigrateToMLS)
+        assertEquals(false, viewModel.groupOptionsState.value.shouldShowMlsMigrationDialog)
+        assertEquals(false, viewModel.groupOptionsState.value.isMigratingToMLS)
+        coVerify(exactly = 0) { arrangement.migrateConversationToMLS(any()) }
+    }
+
+    @Test
     fun `given migration flag disabled, then protocol taps do not show migration dialog`() = runTest {
         val details = testGroup.copy(
             conversation = testGroup.conversation.copy(protocol = Conversation.ProtocolInfo.Proteus),
@@ -1141,12 +1162,13 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { migrateConversationToMLS(any()) } coAnswers { completion.await() }
     }
 
-    fun withMlsMigrationFeatureFlag(status: Status, startTime: Instant? = null) = apply {
+    fun withMlsMigrationFeatureFlag(status: Status, startTime: Instant? = null, allowManualMigration: Boolean = true) = apply {
         val featureConfigModel = mockk<FeatureConfigModel>()
         every { featureConfigModel.mlsMigrationModel } returns MLSMigrationModel(
             startTime = startTime,
             endTime = null,
             status = status,
+            allowManualMigration = allowManualMigration,
         )
         coEvery { getFeatureConfig() } returns GetFeatureConfigResult.Success(featureConfigModel)
     }

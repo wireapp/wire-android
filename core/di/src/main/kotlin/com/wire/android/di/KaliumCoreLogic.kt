@@ -30,4 +30,3 @@ annotation class ApplicationContext
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class CurrentAccount
-

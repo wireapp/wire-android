@@ -25,28 +25,30 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import com.wire.android.di.CurrentAccount
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.mapper.toMeetingItem
 import com.wire.android.feature.meetings.mapper.toOngoingCallStatus
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
-import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
+import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUseCase
 import com.wire.android.feature.meetings.ui.util.SystemTimeObserver
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.CurrentTimeZoneProvider
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -83,6 +85,7 @@ class MeetingListViewModelPreview(type: MeetingsTabItem) : MeetingListViewModel 
 @WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)
 class MeetingListViewModelImpl @AssistedInject constructor(
     @Assisted val type: MeetingsTabItem,
+    @CurrentAccount private val selfUserId: UserId,
     override val currentTimeProvider: CurrentTimeProvider,
     override val currentTimeZoneProvider: CurrentTimeZoneProvider,
     systemTimeObserver: SystemTimeObserver,
@@ -125,13 +128,19 @@ class MeetingListViewModelImpl @AssistedInject constructor(
         pagingDataFlow,
         observeActiveCalls(), // update item statuses when active calls change
         currentTimeAndTimeZoneFlow // update item statuses on every minute tick or when system date/time/timezone changes
-    ) { pagingData, activeCalls, (currentTime, timeZone) ->
+    ) { pagingData, activeCalls, _ ->
+        val currentTime = currentTimeProvider()
+        val currentTimeZone = currentTimeZoneProvider()
         pagingData
             .map { item ->
                 val activeCall = activeCalls.find { it.conversationId == item.meeting.conversationId }
-                item.toMeetingItem(time = currentTime, ongoingCallStatus = activeCall?.toOngoingCallStatus())
+                item.toMeetingItem(
+                    time = currentTime,
+                    ongoingCallStatus = activeCall?.toOngoingCallStatus(),
+                    selfUserId = selfUserId
+                )
             }
-            .insertHeaders(type = type, timeZone = timeZone)
+            .insertHeaders(type = type, timeZone = currentTimeZone)
     }.shareIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(), replay = 1)
 }
 

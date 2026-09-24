@@ -25,6 +25,7 @@ import com.wire.android.feature.meetings.model.MeetingItem.SelfRole
 import com.wire.android.feature.meetings.model.MeetingItem.Status.Ended
 import com.wire.android.feature.meetings.model.MeetingItem.Status.Ongoing
 import com.wire.android.feature.meetings.model.MeetingItem.Status.Scheduled
+import com.wire.android.model.NameBasedAvatar
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -34,19 +35,82 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.data.user.UserId
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.time.Duration.Companion.minutes
 
 class MeetingMapperTest {
+
+    @Test
+    fun givenGrouplessParticipants_whenMapping_thenCreatorAndSelfLeadWithRemainingOrderPreserved() {
+        val creator = MeetingOccurrence.Participant(UserId("creator", "wire.com"), "Creator", 1)
+        val self = MeetingOccurrence.Participant(UserId("self", "wire.com"), "Self", 2)
+        val remainingFirst = MeetingOccurrence.Participant(UserId("z", "wire.com"), "Z", 3)
+        val remainingSecond = MeetingOccurrence.Participant(UserId("a", "wire.com"), "A", 4)
+        val originalOrder = listOf(remainingFirst, self, remainingSecond, creator)
+        val occurrence = meeting(currentTime, currentTime + 30.minutes).let {
+            it.copy(
+                meeting = it.meeting.copy(creatorId = creator.userId),
+                conversationType = MeetingOccurrence.ConversationType.Meeting,
+                participants = originalOrder
+            )
+        }
+
+        val result = occurrence.toMeetingItem(currentTime, null, self.userId)
+
+        val avatars = (result.belongingType as BelongingType.Groupless).avatars
+        assertEquals(
+            listOf(creator, self, remainingFirst, remainingSecond).map { NameBasedAvatar(it.name, it.accentColor) },
+            avatars.map { it.nameBasedAvatar }
+        )
+        assertEquals(originalOrder, occurrence.participants)
+    }
+
+    @Test
+    fun givenSelfIsGrouplessCreator_whenMapping_thenSelfAppearsOnlyOnceAtTheStart() {
+        val self = MeetingOccurrence.Participant(UserId("self", "wire.com"), "Self", 2)
+        val other = MeetingOccurrence.Participant(UserId("other", "wire.com"), "Other", 3)
+        val occurrence = meeting(currentTime, currentTime + 30.minutes).let {
+            it.copy(
+                meeting = it.meeting.copy(creatorId = self.userId),
+                conversationType = MeetingOccurrence.ConversationType.Meeting,
+                participants = listOf(other, self)
+            )
+        }
+
+        val result = occurrence.toMeetingItem(currentTime, null, self.userId)
+
+        assertEquals(
+            listOf(NameBasedAvatar("Self", 2), NameBasedAvatar("Other", 3)),
+            (result.belongingType as BelongingType.Groupless).avatars.map { it.nameBasedAvatar }
+        )
+    }
+
+    @Test
+    fun givenSelfFirstInOneOnOneParticipants_whenMapping_thenOtherUserAvatarIsUsed() {
+        val self = MeetingOccurrence.Participant(UserId("self", "wire.com"), "Self", 1)
+        val other = MeetingOccurrence.Participant(UserId("other", "wire.com"), "Other", 3)
+        val time = Instant.parse("2026-06-01T10:00:00Z")
+        val occurrence = meeting(time, time + 30.minutes).copy(
+            conversationType = MeetingOccurrence.ConversationType.OneOnOne,
+            participants = listOf(self, other)
+        )
+
+        val result = occurrence.toMeetingItem(time, null, self.userId)
+
+        val belongingType = result.belongingType as BelongingType.OneOnOne
+        assertEquals(NameBasedAvatar("Other", 3), belongingType.avatar.nameBasedAvatar)
+        assertEquals(listOf(self, other), occurrence.participants)
+    }
 
     @Test
     fun givenMeetingStartsInFuture_whenMappingToMeetingItem_thenStatusIsScheduled() {
         val startTime = currentTime + 10.minutes
         val endTime = currentTime + 40.minutes
         val expected = meetingItem(Scheduled(startTime = startTime, endTime = endTime))
-        val result = meeting(startTime = startTime, endTime = endTime).toMeetingItem(time = currentTime, ongoingCallStatus = null)
+        val result = meeting(startTime = startTime, endTime = endTime)
+            .toMeetingItem(selfUserId = UserId("self", "wire.com"), time = currentTime, ongoingCallStatus = null)
         assertEquals(expected, result)
     }
 
@@ -55,7 +119,8 @@ class MeetingMapperTest {
         val startTime = currentTime - 30.minutes
         val endTime = currentTime - 5.minutes
         val expected = meetingItem(Ongoing(startTime = startTime, endTime = endTime, ongoingCallStatus = ongoingCall))
-        val result = meeting(startTime = startTime, endTime = endTime).toMeetingItem(time = currentTime, ongoingCallStatus = ongoingCall)
+        val result = meeting(startTime = startTime, endTime = endTime)
+            .toMeetingItem(selfUserId = UserId("self", "wire.com"), time = currentTime, ongoingCallStatus = ongoingCall)
         assertEquals(expected, result)
     }
 
@@ -64,7 +129,8 @@ class MeetingMapperTest {
         val startTime = currentTime - 60.minutes
         val endTime = currentTime - 10.minutes
         val expected = meetingItem(Ended(startTime = startTime, endTime = endTime))
-        val result = meeting(startTime = startTime, endTime = endTime).toMeetingItem(time = currentTime, ongoingCallStatus = ongoingCall)
+        val result = meeting(startTime = startTime, endTime = endTime)
+            .toMeetingItem(selfUserId = UserId("self", "wire.com"), time = currentTime, ongoingCallStatus = ongoingCall)
         assertEquals(expected, result)
     }
 
@@ -112,6 +178,7 @@ class MeetingMapperTest {
     }
 
     private fun meeting(startTime: Instant, endTime: Instant) = MeetingOccurrence(
+        participants = emptyList(),
         meeting = Meeting(
             meetingId = MEETING_ID,
             conversationId = CONVERSATION_ID,

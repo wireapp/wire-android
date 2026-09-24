@@ -541,6 +541,7 @@ class CellViewModel @AssistedInject constructor(
         AttachmentFileType.AUDIO -> OpenAudioPlayer(file)
         AttachmentFileType.PDF ->
             OpenPdfViewer(file).takeIf { file.localPath != null || file.remotePath != null }
+
         else -> null
     }
 
@@ -822,4 +823,3 @@ internal fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
     CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L
-

@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.net.Uri
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -665,6 +666,31 @@ class CellViewModelTest {
         }
     }
 
+    @Test
+    fun `given files picked for upload when forwarded then all files are forwarded unchanged`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+        val pickedUris = List(5) { mockk<Uri>() }
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+            val action = awaitItem()
+            assertTrue(action is FilesPickedForUpload)
+            assertEquals(pickedUris, (action as FilesPickedForUpload).uris)
+        }
+    }
+
+    @Test
+    fun `given no files picked for upload when forwarded then no action is sent`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(emptyList()))
+
+            expectNoEvents()
+        }
+    }
+
     private class Arrangement(
         private var conversationId: String? = null,
         private var inAppImageViewerEnabled: Boolean = false,
@@ -885,6 +911,7 @@ class CellViewModelTest {
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
                 drivePermissionsEnabled = true,
+                driveDirectUploadEnabled = true,
             )
         }
     }

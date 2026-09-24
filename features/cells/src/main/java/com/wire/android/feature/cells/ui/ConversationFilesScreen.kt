@@ -72,6 +72,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -112,6 +113,7 @@ internal fun ConversationFilesRouteScreen(
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
         drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
+        driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
 
@@ -148,6 +150,7 @@ internal fun ConversationFilesScreenContent(
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
     showViewerAccessBanner: Boolean = false,
     drivePermissionsEnabled: Boolean = false,
+    driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
 ) {
     val sharedScope = LocalSharedTransitionScope.current
@@ -155,6 +158,14 @@ internal fun ConversationFilesScreenContent(
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
     val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
+
+    val uploadFilesFlow = rememberChooseMultipleFilesFlow(
+        onFileBrowserItemPicked = { uris ->
+            sendIntent(CellViewIntent.OnFilesPickedForUpload(uris))
+        },
+        onPermissionDenied = { /* Nothing to do */ },
+        onPermissionPermanentlyDenied = { /* Nothing to do */ },
+    )
 
     val isFabVisible = when {
         showViewerAccessBanner && drivePermissionsEnabled -> false
@@ -181,7 +192,12 @@ internal fun ConversationFilesScreenContent(
         onCreateFile = {
             newActionBottomSheetState.hide()
             fileTypeBottomSheetState.show()
-        }
+        },
+        onUploadFiles = {
+            newActionBottomSheetState.hide()
+            uploadFilesFlow.launch()
+        },
+        driveDirectUploadEnabled = driveDirectUploadEnabled,
     )
 
     CellsOptionsBottomSheet(

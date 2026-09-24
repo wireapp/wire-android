@@ -41,6 +41,8 @@ internal fun CellsNewActionBottomSheet(
     onDismiss: () -> Unit,
     onCreateFolder: () -> Unit,
     onCreateFile: () -> Unit,
+    onUploadFiles: () -> Unit,
+    driveDirectUploadEnabled: Boolean = false,
 ) {
     WireModalSheetLayout(
         onDismissRequest = onDismiss,
@@ -59,6 +61,14 @@ internal fun CellsNewActionBottomSheet(
                         title = stringResource(R.string.cells_create_file),
                         onClicked = onCreateFile,
                     )
+                }
+                if (driveDirectUploadEnabled) {
+                    add {
+                        UploadFilesSheetItem(
+                            title = stringResource(R.string.cells_upload_files),
+                            onClicked = onUploadFiles,
+                        )
+                    }
                 }
             }
         )
@@ -103,6 +113,25 @@ private fun CreateFileSheetItem(
     )
 }
 
+@Composable
+private fun UploadFilesSheetItem(
+    title: String,
+    onClicked: () -> Unit,
+) {
+    MenuBottomSheetItem(
+        title = title,
+        onItemClick = onClicked,
+        leading = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_upload),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(MaterialTheme.wireDimensions.wireIconButtonSize)
+            )
+        },
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewFilesNewActionsBottomSheet() {
@@ -111,7 +140,9 @@ private fun PreviewFilesNewActionsBottomSheet() {
             sheetState = rememberWireModalSheetState(WireSheetValue.Expanded(value = Unit)),
             onDismiss = {},
             onCreateFolder = {},
-            onCreateFile = {}
+            onCreateFile = {},
+            onUploadFiles = {},
+            driveDirectUploadEnabled = true,
         )
     }
 }

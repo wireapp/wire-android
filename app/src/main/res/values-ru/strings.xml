@@ -627,13 +627,11 @@
     <string name="leave_conversation_admin_options_dialog_description_with_promote">Вы - единственный администратор.\nНазначьте другого пользователя, прежде чем покинуть, или удалите группу, если она больше не нужна.</string>
     <string name="leave_conversation_admin_options_dialog_description_with_promote_no_delete">Вы - единственный администратор.\nНазначьте другого пользователя, прежде чем покинуть.</string>
     <string name="leave_conversation_admin_options_dialog_description_no_promote">Вы - единственный администратор. Другие участники не могут быть администраторами.\nДобавьте хотя бы одного члена команды и назначьте его администратором, прежде чем покинуть. Или удалите группу, если она больше не нужна.</string>
-    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">В группе нет других подходящих администраторов, и вы как персональный пользователь не можете удалить группу. Однако добавьте другого члена команды и сделайте его администратором, чтобы удалить группу.</string>
     <string name="leave_conversation_admin_options_dialog_promote_button">Назначить нового администратора</string>
     <string name="leave_conversation_admin_options_dialog_delete_button">Удалить группу</string>
     <string name="promote_admin_screen_title">Назначить нового администратора</string>
     <string name="promote_admin_search_placeholder">Введите имя или email</string>
     <string name="promote_admin_button">Назначить администратором и покинуть группу</string>
-    <string name="promote_admin_error_failed_to_promote">Не удалось назначить пользователя администратором</string>
     <string name="promote_admin_error_failed_to_leave">Не удалось покинуть беседу</string>
     <string name="delete_conversation_conversation_menu_item">Удалить беседу…</string>
     <string name="delete_conversation_conversation_dialog_title">Удалить “%s”?</string>
@@ -1068,7 +1066,6 @@
     <string name="error_limit_number_assets_imported_exceeded">Одновременно можно отправить не более 20 файлов</string>
     <string name="error_conversation_not_found">Не удалось найти беседу</string>
     <string name="error_conversation_unknown_error">При загрузке беседы произошла ошибка</string>
-    <string name="error_conversation_opening_meetings_unsupported">Беседу типа \'Встреча\' открыть невозможно</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Беседа архивирована</string>
     <string name="success_unarchiving_conversation">Беседа разархивирована</string>

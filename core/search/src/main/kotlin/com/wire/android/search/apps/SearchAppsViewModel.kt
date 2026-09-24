@@ -22,15 +22,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
+import com.wire.android.search.SearchManualViewModelFactoryGroup
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.util.AppsUtil
 import com.wire.android.util.EMPTY
+import com.wire.kalium.common.logger.kaliumLogger
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
 import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
+import com.wire.kalium.logic.feature.app.SyncAppsUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
@@ -43,6 +47,8 @@ import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -50,14 +56,14 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.search.SearchManualViewModelFactoryGroup
 
+@Suppress("LongParameterList")
 @WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)
 class SearchAppsViewModel @AssistedInject constructor(
     @Assisted private val protocolInfo: Conversation.ProtocolInfo?,
     private val getAllServices: ObserveAllServicesUseCase,
     private val syncServices: SyncServicesUseCase,
+    private val syncApps: SyncAppsUseCase,
     private val getAllApps: ObserveAllAppsUseCase,
     private val contactMapper: ContactMapper,
     private val searchServicesByName: SearchServicesByNameUseCase,
@@ -71,6 +77,7 @@ class SearchAppsViewModel @AssistedInject constructor(
     }
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
     private var servicesSynced = false
+    private var appsSync: Deferred<SyncAppsUseCase.Result>? = null
     var state: SearchServicesState by mutableStateOf(SearchServicesState(isLoading = true))
         private set
 
@@ -111,29 +118,37 @@ class SearchAppsViewModel @AssistedInject constructor(
         }
     }
 
-    private fun search(query: String, appsAllowedResult: AppsAllowedResult.Enabled) {
-        viewModelScope.launch {
-            val showNewApps = AppsUtil.isAppsAllowed(
-                appsAllowedResult = appsAllowedResult,
-                conversationProtocol = protocolInfo
-            )
+    private suspend fun search(query: String, appsAllowedResult: AppsAllowedResult.Enabled) {
+        val showNewApps = AppsUtil.isAppsAllowed(
+            appsAllowedResult = appsAllowedResult,
+            conversationProtocol = protocolInfo
+        )
 
-            val result = if (showNewApps) {
-                if (query.isEmpty()) getAllApps() else searchAppsByName(query)
-            } else {
-                if (!servicesSynced) {
-                    servicesSynced = true
-                    launch { syncServices() }
+        val result = if (showNewApps) {
+            if (query.isEmpty() && appsSync == null) {
+                appsSync = viewModelScope.async {
+                    syncApps().also { syncResult ->
+                        if (syncResult is SyncAppsUseCase.Result.Failure) {
+                            kaliumLogger.w("Failed to refresh apps; using the local cache: ${syncResult.error}")
+                        }
+                    }
                 }
-                if (query.isEmpty()) getAllServices() else searchServicesByName(query)
             }
-
-            state = state.copy(
-                isLoading = false,
-                searchQuery = query,
-                result = result.first().map(contactMapper::fromService).toImmutableList()
-            )
+            appsSync?.await()
+            if (query.isEmpty()) getAllApps() else searchAppsByName(query)
+        } else {
+            if (!servicesSynced) {
+                servicesSynced = true
+                viewModelScope.launch { syncServices() }
+            }
+            if (query.isEmpty()) getAllServices() else searchServicesByName(query)
         }
+
+        state = state.copy(
+            isLoading = false,
+            searchQuery = query,
+            result = result.first().map(contactMapper::fromService).toImmutableList()
+        )
     }
 }
 

@@ -483,6 +483,22 @@ class TestServiceHelper(
         return usersManager.findUserByNameOrNameAlias(nameAlias)
     }
 
+    fun userSetsAvailabilityStatus(
+        userAlias: String,
+        deviceName: String?,
+        availability: String
+    ) {
+        val availabilityTypes = listOf("NONE", "AVAILABLE", "AWAY", "BUSY")
+        val availabilityType = availabilityTypes.indexOf(availability)
+        require(availabilityType >= 0) { "Unsupported availability status '$availability'." }
+
+        val user = toClientUser(userAlias)
+        val teamId = requireNotNull(user.teamId) {
+            "User '$userAlias' must belong to a team before setting availability."
+        }
+        testServiceClient.setAvailability(user, deviceName, teamId, availabilityType)
+    }
+
     fun userSendMessageToConversation(
         senderAlias: String,
         msg: String,

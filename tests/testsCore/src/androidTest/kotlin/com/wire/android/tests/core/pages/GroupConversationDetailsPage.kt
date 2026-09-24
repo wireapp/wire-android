@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert.assertTrue
@@ -339,6 +340,23 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
                 e
             )
         }
+        return this
+    }
+
+    fun assertUserAvailabilityStatusIconVisible(userName: String): GroupConversationDetailsPage {
+        val statusIconVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            device.findObjects(By.text(userName)).any { userNameElement ->
+                generateSequence(userNameElement) { it.parent }
+                    .take(5)
+                    .any { parent ->
+                        parent.findObject(By.res("status_indicator"))?.visibleBounds?.isEmpty == false
+                    }
+            }
+        }
+        assertTrue(
+            "Status icon is not displayed next to user '$userName' in the participants list.",
+            statusIconVisible
+        )
         return this
     }
 

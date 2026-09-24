@@ -39,12 +39,16 @@ data class SelfUserProfilePage(private val device: UiDevice) {
     private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
     private val okButton = UiSelectorParams(text = "OK")
     private val availabilitySelector = UiSelectorParams(text = "None")
+    private val availabilityLabel = UiSelectorParams(text = "AVAILABILITY")
+    private val statusChangeInfoText = UiSelectorParams(textContains = "You will")
     private val closeProfileButton = UiSelectorParams(description = "Close your profile")
 
     private val infoTextCheckbox = UiSelectorParams(className = "android.widget.CheckBox")
 
     private fun activeAccountName(accountName: String) =
         UiSelectorParams(description = "Profile name, $accountName")
+
+    private fun availabilityStatus(status: String) = UiSelectorParams(text = status)
 
     fun iSeeUserProfilePage(timeout: Duration = 30.seconds): SelfUserProfilePage {
         UiWaitUtils.waitAnyVisible(
@@ -75,15 +79,44 @@ data class SelfUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertAvailabilityOptionsVisible(currentStatus: String = "None"): SelfUserProfilePage {
+        UiWaitUtils.waitElement(availabilityLabel)
+        UiWaitUtils.waitElement(availabilityStatus(currentStatus))
+        return this
+    }
+
+    fun changeAvailabilityStatus(currentStatus: String, newStatus: String): SelfUserProfilePage {
+        UiWaitUtils.waitElement(availabilityStatus(currentStatus)).click()
+        UiWaitUtils.waitElement(availabilityStatus(newStatus)).click()
+        return this
+    }
+
+    fun assertStatusChangeInfoText(expectedText: String): SelfUserProfilePage {
+        val actualText = UiWaitUtils.waitElement(statusChangeInfoText).text
+        if (actualText != expectedText) {
+            throw AssertionError(
+                "Status information text does not match. Expected '$expectedText', but was '$actualText'."
+            )
+        }
+        return this
+    }
+
     fun confirmStatusChange(): SelfUserProfilePage {
         UiWaitUtils.waitElement(okButton).click()
         return this
     }
 
-    fun closeUserProfile(): SelfUserProfilePage {
+    fun assertAvailabilityStatusSelected(status: String): SelfUserProfilePage {
+        UiWaitUtils.waitElement(availabilityStatus(status))
+        return this
+    }
+
+    fun tapCloseProfileButton(): SelfUserProfilePage {
         UiWaitUtils.waitElement(closeProfileButton).click()
         return this
     }
+
+    fun closeUserProfile(): SelfUserProfilePage = tapCloseProfileButton()
 
     fun tapLogoutButton(): SelfUserProfilePage {
         UiWaitUtils.waitElement(logoutButton).click()

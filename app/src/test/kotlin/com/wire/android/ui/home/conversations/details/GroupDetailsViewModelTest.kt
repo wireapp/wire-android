@@ -85,12 +85,43 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class GroupDetailsViewModelTest {
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `guest access follows observed roles and code for groups and channels`(channel: Boolean) = runTest {
+        val disabled = testGroup.conversation.copy(
+            access = listOf(Conversation.Access.INVITE),
+            accessRole = listOf(
+                Conversation.AccessRole.TEAM_MEMBER,
+                Conversation.AccessRole.NON_TEAM_MEMBER,
+                Conversation.AccessRole.SERVICE
+            )
+        )
+        fun details(conversation: Conversation): ConversationDetails = if (channel) {
+            testChannel.copy(conversation = conversation.copy(type = Conversation.Type.Group.Channel))
+        } else {
+            testGroup.copy(conversation = conversation.copy(type = Conversation.Type.Group.Regular))
+        }
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(details(disabled))
+            .arrange()
+        assertEquals(false, viewModel.groupOptionsState.value.isGuestAllowed)
+        arrangement.withConversationDetailUpdate(details(disabled.copy(
+            access = disabled.access + Conversation.Access.CODE,
+            accessRole = disabled.accessRole + Conversation.AccessRole.GUEST
+        )))
+        assertEquals(true, viewModel.groupOptionsState.value.isGuestAllowed)
+        arrangement.withConversationDetailUpdate(details(disabled))
+        assertEquals(false, viewModel.groupOptionsState.value.isGuestAllowed)
+    }
+
     @Test
     fun `given Proteus conversation admin and migration flag enabled, then fifth protocol tap shows migration dialog`() = runTest {
         val details = testGroup.copy(
@@ -364,7 +395,7 @@ class GroupDetailsViewModelTest {
         assertEquals(details.conversation.name, viewModel.groupOptionsState.value.groupName)
         assertEquals(details.conversation.isTeamGroup(), viewModel.groupOptionsState.value.areAccessOptionsAvailable)
         assertEquals(
-            (details.conversation.isGuestAllowed() || details.conversation.isNonTeamMemberAllowed()),
+            details.conversation.isGuestAccessEnabled(),
             viewModel.groupOptionsState.value.isGuestAllowed
         )
         assertEquals(true, viewModel.groupOptionsState.value.isUpdatingNameAllowed)

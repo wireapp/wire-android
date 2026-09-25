@@ -42,6 +42,7 @@ import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsNavArgs
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
+import com.wire.android.feature.cells.ui.upload.UploadStatusViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryNavArgs
 
@@ -108,3 +109,7 @@ internal fun versionHistoryViewModel(navArgs: VersionHistoryNavArgs): VersionHis
 @Composable
 internal fun cellImageViewerViewModel(navArgs: CellImageViewerNavArgs): CellImageViewerViewModel =
     wireAssistedMetroViewModel<CellImageViewerViewModel, CellsManualViewModelFactory> { imageViewer(navArgs) }
+
+@Composable
+internal fun uploadStatusViewModel(): UploadStatusViewModel =
+    wireAssistedMetroViewModel<UploadStatusViewModel, CellsManualViewModelFactory> { uploadStatus() }

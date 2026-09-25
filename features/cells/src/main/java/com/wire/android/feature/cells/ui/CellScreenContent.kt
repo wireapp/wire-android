@@ -107,6 +107,7 @@ internal fun CellScreenContent(
     showVideoViewer: (CellNodeUi.File) -> Unit = {},
     showAudioPlayer: (CellNodeUi.File) -> Unit = {},
     showPdfViewer: (CellNodeUi.File) -> Unit = {},
+    showUploadStatusScreen: () -> Unit = {},
     fileReadyFlow: Flow<CellNodeUi.File>? = emptyFlow(),
     sortBy: SortBy = SortBy.Default,
 ) {
@@ -271,7 +272,7 @@ internal fun CellScreenContent(
             is OpenVideoViewer -> showVideoViewer(action.file)
             is OpenAudioPlayer -> showAudioPlayer(action.file)
             is OpenPdfViewer -> showPdfViewer(action.file)
-            is FilesPickedForUpload -> Unit
+            is FilesPickedForUpload -> showUploadStatusScreen()
         }
     }
 

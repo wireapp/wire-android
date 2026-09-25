@@ -38,6 +38,7 @@ import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
 import com.wire.android.feature.cells.ui.search.sort.SortBy
@@ -48,6 +49,8 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
+import com.wire.kalium.cells.domain.CellUploadCoordinator
+import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -124,6 +127,8 @@ class CellViewModel @AssistedInject constructor(
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     private val userDataStore: UserDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
+    private val uploadFilePreparer: DriveUploadFilePreparer,
+    private val uploadCoordinator: CellUploadCoordinator,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
@@ -163,6 +168,11 @@ class CellViewModel @AssistedInject constructor(
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1, extraBufferCapacity = 1)
 
     private val cellAvailableFlow = MutableStateFlow(false)
+
+    private val _uploadConfirmation = MutableStateFlow<UploadConfirmation?>(null)
+    internal val uploadConfirmation: StateFlow<UploadConfirmation?> = _uploadConfirmation.asStateFlow()
+
+    private var pendingUploadUris: List<Uri> = emptyList()
 
     // AllFiles context (no conversationId, not recycle bin) defaults to newest-first;
     // ConversationFiles and RecycleBin default to folders-first.
@@ -212,6 +222,26 @@ class CellViewModel @AssistedInject constructor(
         loadWireCellConfig()
         checkCellAvailabilityAndRefresh()
         checkViewerAccess()
+        refreshOnUploadsCompletedInThisFolder()
+    }
+
+    /**
+     * The paging source has no way to know a node it already fetched just got published, so a completed
+     * upload into the folder currently open has to trigger a refresh explicitly, or the file stays
+     * invisible until the user leaves and re-enters.
+     */
+    private fun refreshOnUploadsCompletedInThisFolder() {
+        val destinationFolderPath = currentNodeUuid() ?: return
+        val refreshedIds = mutableSetOf<String>()
+        viewModelScope.launch {
+            uploadCoordinator.uploads.collect { uploads ->
+                val completedHere = uploads.filter {
+                    it.state is CellUploadState.Completed && it.request.destinationFolderPath == destinationFolderPath
+                }
+                val hasNewlyCompleted = completedHere.count { refreshedIds.add(it.id) } > 0
+                if (hasNewlyCompleted) refreshNodes()
+            }
+        }
     }
 
     private fun checkViewerAccess() = viewModelScope.launch {
@@ -365,12 +395,43 @@ class CellViewModel @AssistedInject constructor(
     }
 
     /**
-     * Hands the picked files off through [CellViewAction] so the screen can drive the actual upload.
-     * Upload execution itself is not implemented here.
+     * Resolves the display name of each picked [Uri] (no staging yet) and surfaces [uploadConfirmation]
+     * so the screen can show the confirmation dialog before anything is actually uploaded.
      */
     private fun onFilesPickedForUpload(uris: List<Uri>) {
         if (uris.isEmpty()) return
+        val destinationFolderPath = currentNodeUuid() ?: return
+        pendingUploadUris = uris
+        viewModelScope.launch {
+            val fileNames = uris.map { uploadFilePreparer.fileName(it) ?: it.lastPathSegment ?: it.toString() }
+            _uploadConfirmation.value = UploadConfirmation(fileNames, destinationFolderPath)
+        }
+    }
+
+    /**
+     * Sends [CellViewAction] immediately so the screen can navigate to the upload status screen without
+     * waiting on staging, then stages each picked file into a local file and hands the batch to the
+     * upload coordinator. Files that fail to stage (e.g. no longer accessible) are silently dropped from
+     * the batch rather than failing the whole selection.
+     */
+    internal fun confirmUpload() {
+        val destinationFolderPath = _uploadConfirmation.value?.destinationFolderPath ?: return
+        val uris = pendingUploadUris
+        _uploadConfirmation.value = null
+        pendingUploadUris = emptyList()
+
         sendAction(FilesPickedForUpload(uris))
+        viewModelScope.launch {
+            val requests = uris.mapNotNull { uploadFilePreparer.prepare(it, destinationFolderPath) }
+            if (requests.isNotEmpty()) {
+                uploadCoordinator.enqueue(requests)
+            }
+        }
+    }
+
+    internal fun cancelUploadConfirmation() {
+        _uploadConfirmation.value = null
+        pendingUploadUris = emptyList()
     }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
@@ -804,6 +865,12 @@ internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenPdfViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class FilesPickedForUpload(val uris: List<Uri>) : CellViewAction
+
+/** Files awaiting user confirmation before [CellViewModel.confirmUpload] actually starts uploading them. */
+internal data class UploadConfirmation(
+    val fileNames: List<String>,
+    val destinationFolderPath: String,
+)
 
 enum class CellError(val message: Int) {
     FILE_NOT_SUPPORTED(R.string.file_not_supported),

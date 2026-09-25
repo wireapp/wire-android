@@ -57,11 +57,15 @@ import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toNavArg
+import com.wire.android.feature.cells.ui.upload.UploadConfirmationDialog
+import com.wire.android.feature.cells.ui.upload.UploadStatusBottomSheetContent
+import com.wire.android.feature.cells.ui.upload.UploadStatusIndicator
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.navigation.transition.SHARED_ELEMENT_TOP_APP_BAR_KEY
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.banner.ViewerAccessBanner
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -73,6 +77,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
+import com.wire.kalium.cells.domain.CellUploadItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,10 +94,22 @@ internal fun ConversationFilesRouteScreen(
     val isOnlineState by viewModel.isOnline.collectAsState()
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
     val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
+    val uploadStatusViewModel = uploadStatusViewModel()
+    val uploads by uploadStatusViewModel.uploads.collectAsState()
+    val uploadConfirmation by viewModel.uploadConfirmation.collectAsState()
 
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
         navigation = navigation,
+        uploads = uploads,
+        onCancelUpload = uploadStatusViewModel::cancel,
+        onCancelAllUploads = uploadStatusViewModel::cancelAll,
+        onRetryUpload = uploadStatusViewModel::retry,
+        onRetryAllFailedUploads = uploadStatusViewModel::retryAllFailed,
+        onDismissUpload = uploadStatusViewModel::dismiss,
+        uploadConfirmation = uploadConfirmation,
+        onConfirmUpload = viewModel::confirmUpload,
+        onCancelUploadConfirmation = viewModel::cancelUploadConfirmation,
         currentNodeUuid = viewModel.currentNodeUuid(),
         isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
@@ -152,10 +169,20 @@ internal fun ConversationFilesScreenContent(
     drivePermissionsEnabled: Boolean = false,
     driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
+    uploads: List<CellUploadItem> = emptyList(),
+    onCancelUpload: (String) -> Unit = {},
+    onCancelAllUploads: () -> Unit = {},
+    onRetryUpload: (String) -> Unit = {},
+    onRetryAllFailedUploads: () -> Unit = {},
+    onDismissUpload: (String) -> Unit = {},
+    uploadConfirmation: UploadConfirmation? = null,
+    onConfirmUpload: () -> Unit = {},
+    onCancelUploadConfirmation: () -> Unit = {},
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
+    val uploadStatusSheetState = rememberWireModalSheetState<Unit>()
     val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
@@ -229,6 +256,29 @@ internal fun ConversationFilesScreenContent(
             fileTypeBottomSheetState.hide()
         },
     )
+
+    WireModalSheetLayout(sheetState = uploadStatusSheetState) {
+        UploadStatusBottomSheetContent(
+            uploads = uploads,
+            onCollapse = uploadStatusSheetState::hide,
+            onCancel = onCancelUpload,
+            onCancelAll = onCancelAllUploads,
+            onRetry = onRetryUpload,
+            onRetryAllFailed = onRetryAllFailedUploads,
+            onDismiss = onDismissUpload,
+        )
+    }
+
+    uploadConfirmation?.let { confirmation ->
+        val destinationName = breadcrumbs?.lastOrNull() ?: screenTitle ?: stringResource(R.string.conversation_files_title)
+        UploadConfirmationDialog(
+            fileNames = confirmation.fileNames,
+            destinationName = destinationName,
+            onConfirm = onConfirmUpload,
+            onDismiss = onCancelUploadConfirmation,
+        )
+    }
+
     with(sharedScope) {
         WireScaffold(
             modifier = modifier,
@@ -319,6 +369,12 @@ internal fun ConversationFilesScreenContent(
                     }
                 }
             },
+            bottomBar = {
+                UploadStatusIndicator(
+                    uploads = uploads,
+                    onClick = { uploadStatusSheetState.show() },
+                )
+            },
         ) { innerPadding ->
             CellScreenContent(
                 modifier = Modifier.padding(innerPadding),
@@ -348,6 +404,7 @@ internal fun ConversationFilesScreenContent(
                 showRenameScreen = navigation::rename,
                 showAddRemoveTagsScreen = navigation::tags,
                 showVersionHistoryScreen = navigation::versionHistory,
+                showUploadStatusScreen = { uploadStatusSheetState.show() },
                 showImageViewer = navigation::image,
                 showVideoViewer = navigation::video,
                 showAudioPlayer = navigation::audio,

@@ -23,6 +23,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellA
 import com.wire.android.pdfviewer.PdfPreSignedLoader
 import com.wire.android.pdfviewer.PdfRemoteLoader
 import com.wire.kalium.cells.CellsScope
+import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
@@ -111,6 +112,9 @@ class CellsModule {
 
     @Provides
     fun provideCellUploadManager(cellsScope: CellsScope): CellUploadManager = cellsScope.uploadManager
+
+    @Provides
+    fun provideCellUploadCoordinator(cellsScope: CellsScope): CellUploadCoordinator = cellsScope.uploadCoordinator
 
     @Provides
     fun provideObserveFilesUseCase(cellsScope: CellsScope): GetPaginatedNodesUseCase = cellsScope.observeFiles

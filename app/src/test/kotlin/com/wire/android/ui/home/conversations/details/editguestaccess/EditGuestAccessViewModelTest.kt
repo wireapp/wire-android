@@ -307,10 +307,12 @@ class EditGuestAccessViewModelTest {
         coVerify(exactly = 0) { arrangement.generateGuestRoomLink(any(), any()) }
         coVerify(exactly = 0) { arrangement.updateConversationAccessRole(any(), any(), any()) }
 
-        flow.value = details(disabled.copy(
-            access = disabled.access + Conversation.Access.CODE,
-            accessRole = disabled.accessRole + Conversation.AccessRole.GUEST
-        ))
+        flow.value = details(
+            disabled.copy(
+                access = disabled.access + Conversation.Access.CODE,
+                accessRole = disabled.accessRole + Conversation.AccessRole.GUEST
+            )
+        )
         advanceUntilIdle()
         assertEquals(true, viewModel.editGuestAccessState.isGuestAccessAllowed)
         assertEquals(false, viewModel.shouldDisableGenerateGuestLinkButton())
@@ -428,12 +430,18 @@ class EditGuestAccessViewModelTest {
         }
 
         fun withEnabledGuestAccess() = apply {
-            withConversationDetails(flowOf(ObserveConversationDetailsUseCase.Result.Success(
-                TestConversationDetails.GROUP.copy(conversation = TestConversation.GROUP().copy(
-                    access = listOf(Conversation.Access.INVITE, Conversation.Access.CODE),
-                    accessRole = listOf(Conversation.AccessRole.GUEST, Conversation.AccessRole.NON_TEAM_MEMBER)
-                ))
-            )))
+            withConversationDetails(
+                flowOf(
+                    ObserveConversationDetailsUseCase.Result.Success(
+                        TestConversationDetails.GROUP.copy(
+                            conversation = TestConversation.GROUP().copy(
+                                access = listOf(Conversation.Access.INVITE, Conversation.Access.CODE),
+                                accessRole = listOf(Conversation.AccessRole.GUEST, Conversation.AccessRole.NON_TEAM_MEMBER)
+                            )
+                        )
+                    )
+                )
+            )
             withConversationMembers(flowOf(ConversationParticipantsData(isSelfAnAdmin = true)))
         }
 

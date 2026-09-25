@@ -26,3 +26,7 @@ annotation class KaliumCoreLogic
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ApplicationContext
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CurrentAccount

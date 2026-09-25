@@ -51,6 +51,8 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -118,7 +120,7 @@ class UpdateAppsAccessViewModelTest {
                         add(Conversation.AccessRole.SERVICE)
                         remove(Conversation.AccessRole.NON_TEAM_MEMBER)
                     },
-                access = Conversation.defaultGroupAccess
+                access = emptySet()
             )
         }
     }
@@ -158,7 +160,7 @@ class UpdateAppsAccessViewModelTest {
                 accessRoles = Conversation.defaultGroupAccessRoles.toMutableSet().apply {
                     remove(Conversation.AccessRole.NON_TEAM_MEMBER)
                 },
-                access = Conversation.defaultGroupAccess
+                access = emptySet()
             )
         }
     }
@@ -350,6 +352,55 @@ class UpdateAppsAccessViewModelTest {
         assertEquals(false, viewModel.updateAppsAccessState.shouldShowDisableAppsConfirmationDialog)
         assertEquals(initialServicesAllowed, viewModel.updateAppsAccessState.isAppAccessAllowed)
         assertEquals(false, viewModel.updateAppsAccessState.isLoadingAppsOption)
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `app changes preserve observed access despite stale navigation`(enable: Boolean) = runTest {
+        val roles = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.EXTERNAL)
+        val initial = testGroup.copy(
+            conversation = testGroup.conversation.copy(
+                access = listOf(Conversation.Access.INVITE),
+                accessRole = roles
+            )
+        )
+        val (arrangement, viewModel) = UpdateAppsAccessViewModelArrangement()
+            .withConversationDetailUpdate(initial)
+            .withConversationMembersUpdate(ConversationParticipantsData(isSelfAnAdmin = true))
+            .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
+            .withUpdateConversationAccessUseCaseReturns(UpdateConversationAccessRoleUseCase.Result.Success)
+            .arrange()
+        advanceUntilIdle()
+        // Preserve all modes from the most recent observation, not the initial snapshot or navigation boolean.
+        val latest = initial.copy(
+            conversation = initial.conversation.copy(
+                access = Conversation.Access.entries.toList(),
+                accessRole = roles + Conversation.AccessRole.SERVICE
+            )
+        )
+        arrangement.withConversationDetailUpdate(latest)
+        advanceUntilIdle()
+        viewModel.onAppsAccessUpdate(enable)
+        if (!enable) viewModel.onServiceDialogConfirm()
+        advanceUntilIdle()
+        coVerify(exactly = 1) {
+            arrangement.changeAccessForAppsInConversationUseCase(
+                conversationId = latest.conversation.id,
+                accessRoles = if (enable) (roles + Conversation.AccessRole.SERVICE).toSet() else roles.toSet(),
+                access = latest.conversation.access.toSet()
+            )
+        }
+    }
+
+    @Test
+    fun `app updates do nothing before conversation data is available`() = runTest {
+        val (arrangement, viewModel) = UpdateAppsAccessViewModelArrangement().arrange()
+        viewModel.onAppsAccessUpdate(true)
+        viewModel.onServiceDialogConfirm()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
+        assertEquals(false, viewModel.updateAppsAccessState.isLoadingAppsOption)
+        coVerify(exactly = 0) { arrangement.changeAccessForAppsInConversationUseCase(any(), any(), any()) }
     }
 
     companion object {

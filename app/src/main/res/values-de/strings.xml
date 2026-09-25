@@ -616,11 +616,14 @@
     <string name="leave_conversation_admin_options_dialog_description_with_promote">Sie sind der einzige Admin.\nErnennen Sie vor dem Verlassen der Gruppe einen anderen Teilnehmer zum Admin oder löschen Sie die Gruppe, wenn sie nicht mehr benötigt wird.</string>
     <string name="leave_conversation_admin_options_dialog_description_with_promote_no_delete">Sie sind der einzige Admin\nErnennen Sie einen anderen Teilnehmer, bevor Sie gehen.</string>
     <string name="leave_conversation_admin_options_dialog_description_no_promote">Sie sind der einzige Admin. Die anderen Teilnehmer können keine Admins sein.\nFügen Sie mindestens ein Team-Mitglied hinzu und ernennen Sie es zum Admin, bevor Sie gehen. Alternativ löschen Sie die Gruppe, wenn sie nicht mehr benötigt wird.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">Fügen Sie mindestens ein Team-Mitglied aus dem Team hinzu, das diese Gruppe erstellt hat, und ernennen Sie es zum  Admin, bevor Sie die Gruppe verlassen.</string>
     <string name="leave_conversation_admin_options_dialog_promote_button">Neuen Admin ernennen</string>
     <string name="leave_conversation_admin_options_dialog_delete_button">Gruppe löschen</string>
     <string name="promote_admin_screen_title">Neuen Admin ernennen</string>
     <string name="promote_admin_search_placeholder">Name oder E-Mail-Adresse eingeben</string>
     <string name="promote_admin_button">Als Admin ernennen und Gruppe verlassen</string>
+    <string name="promote_admin_error_failed_to_promote">Gruppen-Mitglied konnte nicht zum Admin ernannt werden</string>
+    <string name="promote_admin_error_failed_to_leave">Verlassen der Unterhaltung fehlgeschlagen</string>
     <string name="delete_conversation_conversation_menu_item">Unterhaltung löschen…</string>
     <string name="delete_conversation_conversation_dialog_title">\"%s\" löschen?</string>
     <string name="delete_conversation_conversation_dialog_description">Dies wird die Gruppe und alle Inhalte für alle Teilnehmer auf allen Geräten löschen. Es gibt keine Möglichkeit, den Inhalt wiederherzustellen. Alle Teilnehmer werden darüber benachrichtigt.</string>
@@ -1006,6 +1009,8 @@
     <string name="left_conversation_success">Sie haben die Unterhaltung verlassen.</string>
     <string name="delete_conversation_conversation_error">Beim Löschen der Unterhaltung ist ein Fehler aufgetreten</string>
     <string name="error_limit_number_assets_imported_exceeded">Sie können nur bis zu 20 Dateien gleichzeitig senden</string>
+    <string name="error_conversation_not_found">Unterhaltung wurde nicht gefunden</string>
+    <string name="error_conversation_opening_meetings_unsupported">In diesem Meeting können Sie die Chat-Funktion nicht nutzen</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Unterhaltung wurde archiviert</string>
     <string name="success_unarchiving_conversation">Unterhaltung wurde reaktiviert</string>
@@ -1268,6 +1273,7 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
     <!--nomad account blocks login dialog-->
+    <string name="nomad_login_blocked_message">Anmeldung nicht möglich, wenn ein anderes Konto aktiv ist</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
     <string name="cross_backend_login_blocked_title">Wechseln der Backends ist gesperrt</string>
     <string name="cross_backend_login_blocked_message">Derzeit können Sie sich nicht bei einem anderen Backend anmelden. Melden Sie sich zunächst ab und melden Sie sich dann bei einem anderen Backend an.</string>
@@ -1791,6 +1797,7 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="restriction_keep_websocket_title">WebSocket-Verbindung behalten</string>
     <string name="restriction_keep_websocket_description">Dauerhafte WebSocket-Verbindung für alle Benutzer erzwingen</string>
     <string name="settings_keep_websocket_enforced_by_organization">Diese Einstellung wird von Ihrer Organisation verwaltet.</string>
+    <string name="enterprise_login_error_missing_backend_config">Backend-Konfiguration ist erforderlich. Öffnen Sie einen Konfigurationslink oder wenden Sie sich an Ihren Admin.</string>
     <string name="missing_backend_config_title">Richten Sie Ihre App ein</string>
     <string name="missing_backend_config_description">Um loszulegen, geben Sie den Link ein oder scannen Sie den von Ihrer Verwaltung bereitgestellten QR-Code.</string>
     <string name="missing_backend_config_input_label">Konfigurationslink</string>

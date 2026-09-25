@@ -113,10 +113,14 @@ class GroupDetailsViewModelTest {
             .withConversationDetailUpdate(details(disabled))
             .arrange()
         assertEquals(false, viewModel.groupOptionsState.value.isGuestAllowed)
-        arrangement.withConversationDetailUpdate(details(disabled.copy(
-            access = disabled.access + Conversation.Access.CODE,
-            accessRole = disabled.accessRole + Conversation.AccessRole.GUEST
-        )))
+        arrangement.withConversationDetailUpdate(
+            details(
+                disabled.copy(
+                    access = disabled.access + Conversation.Access.CODE,
+                    accessRole = disabled.accessRole + Conversation.AccessRole.GUEST
+                )
+            )
+        )
         assertEquals(true, viewModel.groupOptionsState.value.isGuestAllowed)
         arrangement.withConversationDetailUpdate(details(disabled))
         assertEquals(false, viewModel.groupOptionsState.value.isGuestAllowed)

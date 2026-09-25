@@ -358,10 +358,12 @@ class UpdateAppsAccessViewModelTest {
     @ValueSource(booleans = [false, true])
     fun `app changes preserve observed access despite stale navigation`(enable: Boolean) = runTest {
         val roles = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.EXTERNAL)
-        val initial = testGroup.copy(conversation = testGroup.conversation.copy(
-            access = listOf(Conversation.Access.INVITE),
-            accessRole = roles
-        ))
+        val initial = testGroup.copy(
+            conversation = testGroup.conversation.copy(
+                access = listOf(Conversation.Access.INVITE),
+                accessRole = roles
+            )
+        )
         val (arrangement, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withConversationDetailUpdate(initial)
             .withConversationMembersUpdate(ConversationParticipantsData(isSelfAnAdmin = true))
@@ -370,10 +372,12 @@ class UpdateAppsAccessViewModelTest {
             .arrange()
         advanceUntilIdle()
         // Preserve all modes from the most recent observation, not the initial snapshot or navigation boolean.
-        val latest = initial.copy(conversation = initial.conversation.copy(
-            access = Conversation.Access.entries.toList(),
-            accessRole = roles + Conversation.AccessRole.SERVICE
-        ))
+        val latest = initial.copy(
+            conversation = initial.conversation.copy(
+                access = Conversation.Access.entries.toList(),
+                accessRole = roles + Conversation.AccessRole.SERVICE
+            )
+        )
         arrangement.withConversationDetailUpdate(latest)
         advanceUntilIdle()
         viewModel.onAppsAccessUpdate(enable)

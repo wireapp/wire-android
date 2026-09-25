@@ -97,8 +97,10 @@ class AppLockActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
 
-        if (lockCodeTimeManager.value.isAppLocked().not()) {
-            finish() // if the app already unlocked, finish to avoid showing the lock screen again
+        // if the app already unlocked, and this activity is opened to unlock, not to set team-enforced app lock,
+        // then finish to avoid showing the lock screen again
+        if (lockCodeTimeManager.value.isAppLocked().not() && intent.getBooleanExtra(SET_TEAM_APP_LOCK, false).not()) {
+            finish()
         }
     }
 

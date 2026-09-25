@@ -42,7 +42,6 @@ import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.appLogger
 import com.wire.android.ui.LocalActivity
-import com.wire.android.ui.calling.CallActivity
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.common.ObserveRotation
@@ -135,7 +134,6 @@ fun IncomingCallScreen(
     }
     HandleActions(incomingCallViewModel.actions) { action ->
         when (action) {
-            IncomingCallViewActions.AppLocked -> (activity as CallActivity).openAppLockActivity()
             is IncomingCallViewActions.RejectedCall -> activity.finishAndRemoveTask()
         }
     }

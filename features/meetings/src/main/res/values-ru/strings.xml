@@ -39,7 +39,7 @@
     <string name="meeting_options_delete_meeting_for_everyone">Удалить встречу для всех</string>
     <string name="meetings_empty_title_next">Предстоящих встреч пока нет</string>
     <string name="meetings_empty_title_past">Прошлых встреч пока нет</string>
-    <string name="meetings_empty_text_next">Начните встречу с членами вашей команды.</string>
+    <string name="meetings_empty_text_next">Начать встречу с членами вашей команды.</string>
     <string name="meetings_empty_text_past">Предыдущие встречи будут перечислены здесь.</string>
     <string name="new_meeting_title">Новая встреча</string>
     <string name="new_meeting_participants_title">Выбрать участников</string>
@@ -86,7 +86,10 @@
     <string name="new_meeting_schedule_failure_description">Что-то пошло не так при планировании встречи. Попробуйте еще раз.</string>
     <string name="new_meeting_edit_failure_title">Не удалось обновить встречу</string>
     <string name="new_meeting_edit_failure_description">Что-то пошло не так при обновлении встречи. Попробуйте еще раз.</string>
+    <string name="new_meeting_edit_init_failure_title">Не удалось изменить встречу</string>
+    <string name="new_meeting_edit_init_failure_description">Не удается изменить встречу. Пожалуйста, попробуйте еще раз.</string>
     <string name="new_meeting_edit_conversation_name_failure_title">Не удалось обновить имя вызова</string>
+    <string name="new_meeting_edit_conversation_name_failure_description">Название встречи было обновлено, но в приглашении может по-прежнему отображаться прежнее название. Пожалуйста, попробуйте еще раз.</string>
     <string name="new_meeting_edit_conversation_name_failure_action">Повторить</string>
     <string name="meeting_join_failure_title">Не удалось присоединиться к встрече</string>
     <string name="meeting_join_failure_description">При подключении к встрече произошла ошибка. Попробуйте еще раз.</string>

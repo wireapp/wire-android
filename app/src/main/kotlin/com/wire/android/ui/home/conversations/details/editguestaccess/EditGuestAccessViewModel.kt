@@ -89,11 +89,14 @@ class EditGuestAccessViewModel @AssistedInject constructor(
 
     var editGuestAccessState by mutableStateOf(
         EditGuestAccessState(
-            isGuestAccessAllowed = accessParams.isGuestAccessAllowed,
+            isGuestAccessAllowed = false,
             isServicesAccessAllowed = accessParams.isServicesAllowed,
             isUpdatingGuestAccessAllowed = accessParams.isUpdatingGuestAccessAllowed
         )
     )
+
+    private val syncCodeMutex = Mutex()
+    private var isGuestCodeUpdated = false
 
     init {
         observeConversationDetails()
@@ -102,9 +105,6 @@ class EditGuestAccessViewModel @AssistedInject constructor(
         checkIfUserCanCreatePasswordProtectedLinks()
     }
 
-    private val syncCodeMutex = Mutex()
-
-    private var isGuestCodeUpdated = false
     private fun updateConversationCodeOnce() {
         viewModelScope.launch {
             syncCodeMutex.withLock {
@@ -164,8 +164,7 @@ class EditGuestAccessViewModel @AssistedInject constructor(
                 val isSelfChannelTeamAdmin =
                     (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
-                val isGuestAllowed =
-                    conversationDetails.conversation.isGuestAllowed() || conversationDetails.conversation.isNonTeamMemberAllowed()
+                val isGuestAllowed = conversationDetails.conversation.isGuestAccessEnabled()
                 val isMLSConversation = conversationDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
 
                 editGuestAccessState = editGuestAccessState.copy(
@@ -229,7 +228,9 @@ class EditGuestAccessViewModel @AssistedInject constructor(
     }
 
     fun onRequestGuestRoomLink() {
+        if (shouldDisableGenerateGuestLinkButton()) return
         viewModelScope.launch {
+            if (shouldDisableGenerateGuestLinkButton()) return@launch
             safeCreateGuestLink(null)
         }
     }
@@ -306,5 +307,6 @@ class EditGuestAccessViewModel @AssistedInject constructor(
 
     fun shouldDisableGenerateGuestLinkButton() = !editGuestAccessState.isGuestRoomLinkFeatureEnabled ||
             !editGuestAccessState.isGuestAccessAllowed ||
+            editGuestAccessState.isUpdatingGuestAccess ||
             editGuestAccessState.isGeneratingGuestRoomLink
 }

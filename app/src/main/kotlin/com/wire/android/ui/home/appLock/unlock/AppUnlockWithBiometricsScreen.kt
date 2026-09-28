@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.lifecycle.withResumed
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.biometric.showBiometricPrompt
@@ -53,24 +54,27 @@ internal fun AppUnlockWithBiometricsRouteScreen(
     )
 
     LaunchedEffect(Unit) {
-        activity.showBiometricPrompt(
-            onSuccess = {
-                appLogger.i("appLock: app Unlocked with biometrics")
-                onUnlocked()
-            },
-            onCancel = {
-                appLogger.i("appLock: biometrics unlock canceled")
-                onCancel()
-            },
-            onTooManyFailedAttempts = {
-                Toast.makeText(activity, tooManyAttemptsMessage, Toast.LENGTH_SHORT).show()
-                onRequestPasscode()
-            },
-            onRequestPasscode = {
-                appLogger.i("appLock: requesting passcode from biometrics unlock")
-                onRequestPasscode()
-            }
-        )
+        activity.lifecycle.withResumed { // wait until the activity is resumed to show the biometric prompt, otherwise it will fail
+            activity.showBiometricPrompt(
+                onSuccess = {
+                    appLogger.i("appLock: app Unlocked with biometrics")
+                    onUnlocked()
+                },
+                onCancel = {
+                    appLogger.i("appLock: biometrics unlock canceled")
+                    onCancel()
+                },
+                onTooManyFailedAttempts = {
+                    appLogger.i("appLock: biometrics too many failed attempts, requesting passcode")
+                    Toast.makeText(activity, tooManyAttemptsMessage, Toast.LENGTH_SHORT).show()
+                    onRequestPasscode()
+                },
+                onRequestPasscode = {
+                    appLogger.i("appLock: requesting passcode from biometrics unlock")
+                    onRequestPasscode()
+                }
+            )
+        }
     }
 }
 

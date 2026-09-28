@@ -271,6 +271,7 @@ internal fun CellScreenContent(
             is OpenVideoViewer -> showVideoViewer(action.file)
             is OpenAudioPlayer -> showAudioPlayer(action.file)
             is OpenPdfViewer -> showPdfViewer(action.file)
+            is FilesPickedForUpload -> Unit
         }
     }
 

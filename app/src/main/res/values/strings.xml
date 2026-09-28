@@ -1090,6 +1090,23 @@
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
     <string name="notification_uploading_files">Uploading files…</string>
+    <plurals name="notification_drive_upload_uploading_title">
+        <item quantity="one">Uploading %1$d file</item>
+        <item quantity="other">Uploading %1$d files</item>
+    </plurals>
+    <string name="notification_drive_upload_progress_text">%1$d of %2$d completed</string>
+    <string name="notification_drive_upload_complete_title">Upload complete</string>
+    <plurals name="notification_drive_upload_complete_text">
+        <item quantity="one">%1$d file uploaded</item>
+        <item quantity="other">%1$d files uploaded</item>
+    </plurals>
+    <string name="notification_drive_upload_partial_title">%1$d of %2$d uploaded</string>
+    <plurals name="notification_drive_upload_partial_text">
+        <item quantity="one">%1$d file couldn\'t be uploaded</item>
+        <item quantity="other">%1$d files couldn\'t be uploaded</item>
+    </plurals>
+    <string name="notification_drive_upload_action_cancel_all">Cancel all</string>
+    <string name="notification_drive_upload_action_retry">Retry</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>

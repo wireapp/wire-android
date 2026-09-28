@@ -45,6 +45,7 @@ import com.wire.android.feature.analytics.globalAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.navigation.runtime.WireNavigationDiagnostics
+import com.wire.android.notification.DriveUploadNotificationManager
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
@@ -53,6 +54,7 @@ import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.android.workmanager.worker.enqueueAssetUploadObserver
+import com.wire.android.workmanager.worker.observeAnyUploadInProgress
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -117,6 +119,9 @@ class WireApplication : BaseApp() {
     lateinit var analyticsManager: Lazy<AnonymousAnalyticsManager>
 
     @Inject
+    lateinit var driveUploadNotificationManager: Lazy<DriveUploadNotificationManager>
+
+    @Inject
     lateinit var workManager: WorkManager
 
     override val workManagerConfiguration: Configuration
@@ -159,6 +164,11 @@ class WireApplication : BaseApp() {
             launch {
                 traceStartup("deferred.assetUpload.observe.start")
                 observeAssetUploadState()
+            }
+
+            launch {
+                traceStartup("deferred.driveUploadNotification.observe.start")
+                driveUploadNotificationManager.value.observeAndNotify()
             }
 
             launch {
@@ -219,7 +229,7 @@ class WireApplication : BaseApp() {
             .filterIsInstance<CurrentSessionResult.Success>()
             .map { it.accountInfo.userId }
             .flatMapLatest {
-                coreLogic.value.getSessionScope(it).messages.observeAssetUploadState()
+                coreLogic.value.getSessionScope(it).observeAnyUploadInProgress()
             }
             .collect { uploadInProgress ->
                 if (uploadInProgress) {

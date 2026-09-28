@@ -28,6 +28,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.wire.android.notification.broadcastreceivers.DriveUploadActionReceiver
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
@@ -247,6 +248,28 @@ fun stopAudioPendingIntent(context: Context): PendingIntent {
     )
 }
 
+fun cancelAllDriveUploadsPendingIntent(context: Context, userId: String): PendingIntent {
+    val intent = DriveUploadActionReceiver.newIntent(context, userId, DriveUploadActionReceiver.ACTION_CANCEL_ALL)
+
+    return PendingIntent.getBroadcast(
+        context.applicationContext,
+        getRequestCode(CANCEL_ALL_DRIVE_UPLOADS_REQUEST_CODE, userId),
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+}
+
+fun retryFailedDriveUploadsPendingIntent(context: Context, userId: String): PendingIntent {
+    val intent = DriveUploadActionReceiver.newIntent(context, userId, DriveUploadActionReceiver.ACTION_RETRY_FAILED)
+
+    return PendingIntent.getBroadcast(
+        context.applicationContext,
+        getRequestCode(RETRY_DRIVE_UPLOADS_REQUEST_CODE, userId),
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+}
+
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DECLINE_CALL_REQUEST_CODE = "decline_call_"
 private const val FULL_SCREEN_REQUEST_CODE = "incoming_call_"
@@ -256,6 +279,8 @@ private const val OUTGOING_CALL_REQUEST_CODE = "outgoing_call_"
 private const val END_ONGOING_CALL_REQUEST_CODE = "hang_up_call_"
 private const val PLAY_PAUSE_AUDIO_REQUEST_CODE = "play_or_pause_audio_"
 private const val STOP_AUDIO_REQUEST_CODE = "stop_audio_"
+private const val CANCEL_ALL_DRIVE_UPLOADS_REQUEST_CODE = "cancel_all_drive_uploads_"
+private const val RETRY_DRIVE_UPLOADS_REQUEST_CODE = "retry_drive_uploads_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
 private const val REPLY_MESSAGE_REQUEST_CODE_PREFIX = "reply_"

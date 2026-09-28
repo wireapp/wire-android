@@ -52,6 +52,9 @@ object NotificationConstants {
     const val OTHER_CHANNEL_ID = "com.wire.android.other"
     const val OTHER_CHANNEL_NAME = "Other essential actions"
 
+    const val DRIVE_UPLOAD_CHANNEL_ID = "com.wire.android.drive_upload"
+    const val DRIVE_UPLOAD_CHANNEL_NAME = "Shared Drive uploads"
+
     private const val CHANNEL_GROUP_ID_PREFIX = "com.wire.notification_channel_group"
 
     // MessagesSummaryNotification ID depends on User, use fun getMessagesSummaryId(userId: UserId) to get it
@@ -101,4 +104,5 @@ enum class NotificationIds {
     PLAYING_AUDIO_MESSAGE_ID,
     UPLOADING_DATA_NOTIFICATION_ID,
     PENDING_MESSAGES_SYNC_NOTIFICATION_ID,
+    DRIVE_UPLOAD_NOTIFICATION_ID,
 }

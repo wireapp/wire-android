@@ -346,9 +346,14 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
+    suspend fun initialStartupSnapshot(): InitialStartupSnapshot = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
         val currentValidUserId = resolveInitialCurrentUserId()
+        val initialAppState = when {
+            currentValidUserId == null -> InitialAppState.NotLoggedIn
+            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.EnrollE2EI(currentValidUserId)
+            else -> InitialAppState.LoggedIn
+        }
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
                 currentUserId = currentValidUserId,
@@ -356,12 +361,13 @@ class WireActivityViewModel @Inject constructor(
                 sessionTransitionReason = null,
             )
         }
-        when {
-            currentValidUserId == null -> InitialAppState.NotLoggedIn
-            shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.EnrollE2EI(currentValidUserId)
-            else -> InitialAppState.LoggedIn
-        }
+        InitialStartupSnapshot(
+            initialAppState = initialAppState,
+            currentUserId = currentValidUserId,
+        )
     }
+
+    suspend fun initialAppState(): InitialAppState = initialStartupSnapshot().initialAppState
 
     private suspend fun handleInvalidSession(userId: UserId, logoutReason: LogoutReason) {
         when (logoutReason) {
@@ -1054,6 +1060,11 @@ sealed interface InitialAppState {
     data object LoggedIn : InitialAppState
     data class EnrollE2EI(val userId: UserId) : InitialAppState
 }
+
+data class InitialStartupSnapshot(
+    val initialAppState: InitialAppState,
+    val currentUserId: UserId?,
+)
 
 sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction

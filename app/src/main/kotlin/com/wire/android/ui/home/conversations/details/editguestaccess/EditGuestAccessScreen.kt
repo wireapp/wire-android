@@ -68,10 +68,12 @@ internal fun EditGuestAccessRouteScreen(
     val sheetState = rememberWireModalSheetState<Unit>()
     val onSheetItemClick: (Boolean) -> Unit = { isPasswordProtected ->
         sheetState.hide()
-        if (isPasswordProtected) {
-            onCreatePasswordProtectedLink()
-        } else {
-            viewModel.onRequestGuestRoomLink()
+        if (!viewModel.shouldDisableGenerateGuestLinkButton()) {
+            if (isPasswordProtected) {
+                onCreatePasswordProtectedLink()
+            } else {
+                viewModel.onRequestGuestRoomLink()
+            }
         }
     }
     CreateGuestLinkBottomSheet(

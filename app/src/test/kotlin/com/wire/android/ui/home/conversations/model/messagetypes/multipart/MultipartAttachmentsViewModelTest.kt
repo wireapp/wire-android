@@ -233,7 +233,7 @@ class MultipartAttachmentsViewModelTest {
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
-        coVerify(exactly = 1) { arrangement.refreshHelper.refresh(testAttachmentUi.uuid) }
+        coVerify(exactly = 1) { arrangement.refreshHelper.refresh(testAttachmentUi.uuid, any()) }
     }
 
     @Test
@@ -256,7 +256,7 @@ class MultipartAttachmentsViewModelTest {
         )
 
         coVerify(exactly = 0) { callback.invoke(testAttachmentUi.uuid) }
-        coVerify(exactly = 1) { arrangement.refreshHelper.refresh(testAttachmentUi.uuid) }
+        coVerify(exactly = 1) { arrangement.refreshHelper.refresh(testAttachmentUi.uuid, any()) }
     }
 
     @Test
@@ -607,7 +607,7 @@ class MultipartAttachmentsViewModelTest {
         }
 
         fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
-            coEvery { refreshHelper.refresh(any()) } returns Unit
+            coEvery { refreshHelper.refresh(any(), any()) } returns Unit
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
             coEvery { fileManager.openUrlWithExternalApp(any(), any(), any()) } returns Unit
             coEvery { getWireCellsConfig() } returns WireCellsConfig(

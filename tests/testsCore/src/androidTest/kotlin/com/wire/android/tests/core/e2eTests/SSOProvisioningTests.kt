@@ -31,7 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
-import uiautomatorutils.UiWaitUtils.STABLE_TIMEOUT
 import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
 
@@ -231,24 +230,13 @@ class SSOProvisioningTests : BaseUiTest() {
             }
         }
 
-        step("And I tap login button on Keycloak Page and wait until I am logged in from keycloak page") {
+        step("And I tap login button on Keycloak Page") {
             pages.ssoPage.tapKeycloakSignIn()
-            pages.registrationPage.waitUntilLoginFlowIsCompleted()
         }
 
-        step("And I wait until I am fully logged in") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-            }
+        step("And I dismiss post-login prompts and wait for conversation list") {
+            pages.registrationPage.waitUntilConversationPageVisibleDismissingPostLoginPrompts()
         }
-
-        step("And I decline share data alert") {
-            UiWaitUtils.waitFor(1.seconds)
-            pages.registrationPage.clickDeclineShareDataAlert()
-        }
-
-        UiWaitUtils.waitFor(STABLE_TIMEOUT) // wait for websocket notification to disappear
 
         step("And I open Account Details from conversation list menu") {
             pages.conversationListPage.apply {

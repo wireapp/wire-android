@@ -32,13 +32,14 @@ import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.services.ServicesManager
+import com.wire.android.ui.AppLockActivity
 import com.wire.android.ui.calling.CallActivity
-import com.wire.android.ui.calling.CallActivityDestination
-import com.wire.android.ui.calling.CallActivityRequest
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
-import com.wire.android.ui.calling.ongoing.OngoingCallActivity.Companion.TAG
+import com.wire.android.ui.calling.CallActivityDestination
+import com.wire.android.ui.calling.CallActivityRequest
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import dev.zacsweers.metro.Inject
 
 /**
@@ -56,6 +57,9 @@ class OngoingCallActivity : CallActivity() {
 
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
+
+    @Inject
+    lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
 
     override val destination: CallActivityDestination = CallActivityDestination.ONGOING
 
@@ -92,6 +96,14 @@ class OngoingCallActivity : CallActivity() {
     override fun onResume() {
         super.onResume()
         proximitySensorManager.registerListener()
+
+        if (lockCodeTimeManager.value.isAppLocked()) {
+            startActivity(
+                Intent(this@OngoingCallActivity, AppLockActivity::class.java).apply {
+                    putExtra(AppLockActivity.EXTRA_USER_ID, intent.getStringExtra(EXTRA_USER_ID))
+                }
+            )
+        }
     }
 
     override fun onPause() {

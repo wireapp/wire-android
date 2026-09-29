@@ -159,7 +159,7 @@ object SSOServiceHelper {
     ) {
         val owner = clientUserManager.findUserByNameOrNameAlias(ownerNameAlias)
         val backend = loadBackend(owner.backendName.orEmpty())
-        val scimClient = ScimClient(backend)
+        val scimClient = ScimClient(backend, currentIdentityProviderId)
         val aliases = clientUserManager.splitAliases(userNameAliases)
 
         for (userNameAlias in aliases) {

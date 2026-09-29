@@ -18,7 +18,10 @@
 
 package com.wire.android.ui.authentication.login
 
+import com.wire.android.ui.authentication.login.sso.PendingSsoLogin
+
 interface LoginSavedInputStore {
+    var pendingSsoLogin: PendingSsoLogin?
     var userIdentifier: String?
     var ssoCode: String?
 }

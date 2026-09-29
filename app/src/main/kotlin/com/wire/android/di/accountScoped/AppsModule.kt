@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
 import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
 import com.wire.kalium.logic.feature.app.ObserveIsAppMemberUseCase
 import com.wire.kalium.logic.feature.app.SearchAppsByNameUseCase
+import com.wire.kalium.logic.feature.app.SyncAppsUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
 
@@ -53,4 +54,8 @@ class AppsModule {
     @Provides
     fun provideObserveAllAppsUseCase(appScope: AppScope): ObserveAllAppsUseCase =
         appScope.observeAllApps
+
+    @Provides
+    fun provideSyncAppsUseCase(appScope: AppScope): SyncAppsUseCase =
+        appScope.syncApps
 }

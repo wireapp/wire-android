@@ -37,6 +37,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlinx.datetime.toJavaZoneId
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.days
 
@@ -44,7 +45,9 @@ import kotlin.time.Duration.Companion.days
 fun MeetingHeader(
     header: MeetingHeader,
     modifier: Modifier = Modifier,
+    displayTimeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) {
+    val displayZoneId = displayTimeZone.toJavaZoneId()
     Column(modifier = modifier) {
         when (header) {
             is MeetingHeader.Ongoing -> BigSectionHeader(
@@ -53,29 +56,29 @@ fun MeetingHeader(
             )
 
             is MeetingHeader.Day -> BigSectionHeader(
-                    name = getDateHeaderString(header.time),
-                    modifier = Modifier.padding(top = dimensions().spacing24x),
-                )
+                name = getDateHeaderString(time = header.time, displayTimeZone = displayTimeZone),
+                modifier = Modifier.padding(top = dimensions().spacing24x),
+            )
 
             is MeetingHeader.DayAndHour -> {
                 BigSectionHeader(
-                    name = getDateHeaderString(header.time),
+                    name = getDateHeaderString(time = header.time, displayTimeZone = displayTimeZone),
                     modifier = Modifier.padding(top = dimensions().spacing8x),
                 )
-                SectionHeader(name = DateAndTimeParsers.meetingTime(header.time))
+                SectionHeader(name = DateAndTimeParsers.meetingTime(instant = header.time, zoneId = displayZoneId))
             }
 
-            is MeetingHeader.Hour -> SectionHeader(name = DateAndTimeParsers.meetingTime(header.time))
+            is MeetingHeader.Hour -> SectionHeader(name = DateAndTimeParsers.meetingTime(instant = header.time, zoneId = displayZoneId))
         }
     }
 }
 
 @Composable
-private fun getDateHeaderString(time: Instant): String {
+private fun getDateHeaderString(time: Instant, displayTimeZone: TimeZone): String {
     val currentTime = rememberCurrentTimeProvider()
-    val dateString = DateAndTimeParsers.meetingDate(time)
-    val currentLocalDate = currentTime().toLocalDateTime(TimeZone.currentSystemDefault()).date
-    val localDate = time.toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val dateString = DateAndTimeParsers.meetingDate(time, zoneId = displayTimeZone.toJavaZoneId())
+    val currentLocalDate = currentTime().toLocalDateTime(displayTimeZone).date
+    val localDate = time.toLocalDateTime(displayTimeZone).date
     return when (localDate) {
         currentLocalDate -> stringResource(R.string.meeting_date_header_today, dateString)
         currentLocalDate.plus(1, DateTimeUnit.DAY) -> stringResource(R.string.meeting_date_header_tomorrow, dateString)

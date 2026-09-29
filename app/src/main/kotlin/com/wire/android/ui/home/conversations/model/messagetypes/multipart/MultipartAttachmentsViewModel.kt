@@ -233,7 +233,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
                 openEditableAttachment(attachment, openInPdfViewer)
 
             attachment.fileNotFound() -> {
-                refreshHelper.refresh(attachment.uuid)
+                refreshHelper.refresh(attachment.uuid, conversationId.toString())
             }
 
             attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
@@ -252,7 +252,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     }
 
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {
-        refreshHelper.onAttachmentsVisible(attachments)
+        refreshHelper.onAttachmentsVisible(attachments, conversationId.toString())
     }
 
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {

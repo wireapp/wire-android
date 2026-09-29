@@ -19,6 +19,7 @@
 package com.wire.android.ui.authentication.login
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.ui.authentication.login.sso.PendingSsoLogin
 
 private const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
 private const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
@@ -26,6 +27,12 @@ private const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
 class SavedStateLoginSavedInputStore(
     private val savedStateHandle: SavedStateHandle,
 ) : LoginSavedInputStore {
+    override var pendingSsoLogin: PendingSsoLogin?
+        get() = savedStateHandle["pending_sso_login"]
+        set(value) {
+            savedStateHandle["pending_sso_login"] = value
+        }
+
     override var userIdentifier: String?
         get() = savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY]
         set(value) {

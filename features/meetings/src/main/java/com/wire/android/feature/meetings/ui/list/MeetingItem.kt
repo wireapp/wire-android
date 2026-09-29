@@ -79,6 +79,8 @@ import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaZoneId
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -88,6 +90,7 @@ import com.wire.android.ui.common.R as commonR
 fun MeetingItem(
     meeting: MeetingItem,
     modifier: Modifier = Modifier,
+    displayTimeZone: TimeZone = TimeZone.currentSystemDefault(),
     openMeetingOptions: (occurrenceId: String) -> Unit = {},
     startCall: (conversationId: ConversationId) -> Unit = {},
     joinCall: (conversationId: ConversationId) -> Unit = {},
@@ -115,6 +118,7 @@ fun MeetingItem(
             Column {
                 MeetingTimeInfoRow(
                     status = meeting.status,
+                    displayTimeZone = displayTimeZone,
                     repeatingInterval = meeting.repeatingInterval
                 )
                 MeetingBelongingInfoRow(
@@ -211,12 +215,16 @@ private fun RepeatingIntervalInfoLabel(repeatingInterval: MeetingItem.RepeatingI
 }
 
 @Composable
-private fun MeetingTimeInfoRow(status: Status, repeatingInterval: MeetingItem.RepeatingInterval?) {
+private fun MeetingTimeInfoRow(status: Status, repeatingInterval: MeetingItem.RepeatingInterval?, displayTimeZone: TimeZone) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing3x)
     ) {
-        SublineText(DateAndTimeParsers.meetingTime(status.startTime) + " - " + DateAndTimeParsers.meetingTime(status.endTime))
+        val zoneId = displayTimeZone.toJavaZoneId()
+        SublineText(
+            DateAndTimeParsers.meetingTime(instant = status.startTime, zoneId = zoneId) + " - " +
+                    DateAndTimeParsers.meetingTime(instant = status.endTime, zoneId = zoneId)
+        )
         RepeatingIntervalInfoLabel(repeatingInterval)
     }
 }

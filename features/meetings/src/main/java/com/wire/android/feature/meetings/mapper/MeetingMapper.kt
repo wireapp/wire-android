@@ -20,22 +20,28 @@ package com.wire.android.feature.meetings.mapper
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingItem.Status
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
+import com.wire.kalium.logic.data.user.UserId
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
-import kotlin.time.Duration.Companion.minutes
 
 private val BUFFER_TIME = 5.minutes
 
-fun MeetingOccurrence.toMeetingItem(time: Instant, ongoingCallStatus: MeetingItem.OngoingCallStatus?): MeetingItem = MeetingItem(
+fun MeetingOccurrence.toMeetingItem(
+    time: Instant,
+    ongoingCallStatus: MeetingItem.OngoingCallStatus?,
+    selfUserId: UserId,
+): MeetingItem = MeetingItem(
     occurrenceId = occurrenceId,
     meetingId = meeting.meetingId,
     conversationId = meeting.conversationId,
-    belongingType = toBelongingType(),
+    belongingType = toBelongingType(selfUserId),
     repeatingInterval = meeting.recurrence?.toRepeatingInterval(),
     title = meeting.title,
     status = when {
@@ -65,11 +71,15 @@ fun MeetingOccurrence.SelfRole.toItemSelfRole(): MeetingItem.SelfRole = when (th
     MeetingOccurrence.SelfRole.Member -> MeetingItem.SelfRole.Member
 }
 
-private fun MeetingOccurrence.toBelongingType(): MeetingItem.BelongingType = when (val conversationType = conversationType) {
+private fun MeetingOccurrence.toBelongingType(selfId: UserId): MeetingItem.BelongingType = when (val conversationType = conversationType) {
     is MeetingOccurrence.ConversationType.Meeting -> MeetingItem.BelongingType.Groupless(
-        avatars = conversationType.previewPictures.map {
-            UserAvatarData(asset = ImageAsset.UserAvatarAsset(it))
-        }.toImmutableList(),
+        avatars = participants.sortedBy {
+            when (it.userId) {
+                meeting.creatorId -> 0
+                selfId -> 1
+                else -> 2
+            }
+        }.map(::toUserAvatarData).toImmutableList(),
     )
 
     is MeetingOccurrence.ConversationType.Group -> MeetingItem.BelongingType.Group(
@@ -83,9 +93,14 @@ private fun MeetingOccurrence.toBelongingType(): MeetingItem.BelongingType = whe
 
     is MeetingOccurrence.ConversationType.OneOnOne -> MeetingItem.BelongingType.OneOnOne(
         username = conversationName,
-        avatar = UserAvatarData(asset = conversationType.previewPicture?.let { ImageAsset.UserAvatarAsset(it) }),
+        avatar = participants.firstOrNull { it.userId != selfId }?.let(::toUserAvatarData) ?: UserAvatarData(),
     )
 }
+
+private fun toUserAvatarData(avatar: MeetingOccurrence.Participant): UserAvatarData = UserAvatarData(
+    asset = avatar.assetId?.let { ImageAsset.UserAvatarAsset(it) },
+    nameBasedAvatar = NameBasedAvatar(avatar.name, avatar.accentColor)
+)
 
 fun Call.toOngoingCallStatus() = when (status) {
     CallStatus.STARTED,

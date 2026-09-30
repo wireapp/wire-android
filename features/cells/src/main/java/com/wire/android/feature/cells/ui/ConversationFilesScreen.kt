@@ -404,7 +404,7 @@ internal fun ConversationFilesScreenContent(
                 showRenameScreen = navigation::rename,
                 showAddRemoveTagsScreen = navigation::tags,
                 showVersionHistoryScreen = navigation::versionHistory,
-                showUploadStatusScreen = { uploadStatusSheetState.show() },
+                showUploadStatusBottomSheet = { uploadStatusSheetState.show() },
                 showImageViewer = navigation::image,
                 showVideoViewer = navigation::video,
                 showAudioPlayer = navigation::audio,

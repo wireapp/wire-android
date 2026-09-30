@@ -74,8 +74,9 @@ class DriveUploadNotificationManager @Inject constructor(
         }
 
         notificationChannelsManager.createRegularChannel(
-            NotificationConstants.DRIVE_UPLOAD_CHANNEL_ID,
-            NotificationConstants.DRIVE_UPLOAD_CHANNEL_NAME,
+            channelId = NotificationConstants.DRIVE_UPLOAD_CHANNEL_ID,
+            channelName = NotificationConstants.DRIVE_UPLOAD_CHANNEL_NAME,
+            importance = NotificationManagerCompat.IMPORTANCE_LOW
         )
 
         val notification = buildNotification(userId, uploads)

@@ -192,9 +192,9 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    fun createRegularChannel(channelId: String, channelName: String) {
+    fun createRegularChannel(channelId: String, channelName: String, importance: Int = NotificationManagerCompat.IMPORTANCE_HIGH) {
         val notificationChannel = NotificationChannelCompat
-            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_HIGH)
+            .Builder(channelId, importance)
             .setName(channelName)
             .setShowBadge(false)
             .build()

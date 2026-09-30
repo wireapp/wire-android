@@ -63,6 +63,8 @@ It might be that after cloning the Android project, some build issues appear on 
 
 # App flavours
 
+See [Beta releases](docs/beta-releases.md) for creating and resuming tagged beta builds.
+
 We have a few different app flavours with different intended usages. Each app flavour has a different icon background colour to enable easier distinction.
 To see how they are customised in details, check [the flavour configuration file](./default.json).
 

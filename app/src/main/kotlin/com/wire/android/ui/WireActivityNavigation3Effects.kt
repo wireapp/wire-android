@@ -15,6 +15,8 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.R
+import com.wire.android.feature.cells.navigation.CellsFilesArguments
+import com.wire.android.feature.cells.navigation.ConversationFilesRoute
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.routes.auth.AuthenticationLoginArguments
@@ -106,6 +108,7 @@ internal object WireActivityNavigation3EffectResolver {
         is OnSSOLogin -> ssoLogin(action, routes)
         OnShowImportMediaScreen -> importMedia(currentSessionId)
         is OpenConversation -> openConversation(action, currentSessionId)
+        is OpenDriveFiles -> openDriveFiles(action, currentSessionId)
         OnUnknownDeepLink -> unknownDeepLink(routes)
         is ShowToast -> WireActivityNavigation3EffectResolution(
             toastMessageResId = action.messageResId
@@ -245,6 +248,32 @@ internal object WireActivityNavigation3EffectResolver {
                         conversationId = ConversationRouteId(
                             action.result.conversationId.value,
                             action.result.conversationId.domain,
+                        ),
+                    ),
+                    WireBackStackMode.UPDATE_EXISTING,
+                )
+            )
+        }
+        return WireActivityNavigation3EffectResolution(mutations)
+    }
+
+    private fun openDriveFiles(
+        action: OpenDriveFiles,
+        currentSessionId: WireSessionId?,
+    ): WireActivityNavigation3EffectResolution {
+        val sessionId = action.result.targetSessionId?.let {
+            WireSessionId(it.value, it.domain)
+        } ?: requireSession(currentSessionId, action)
+        val mutations = buildList {
+            if (action.result.switchedAccount) {
+                add(navigate(HomeRoute(sessionId), WireBackStackMode.CLEAR_WHOLE))
+            }
+            add(
+                navigate(
+                    ConversationFilesRoute(
+                        sessionId = sessionId,
+                        args = CellsFilesArguments(
+                            conversationId = action.result.conversationId.toString(),
                         ),
                     ),
                     WireBackStackMode.UPDATE_EXISTING,

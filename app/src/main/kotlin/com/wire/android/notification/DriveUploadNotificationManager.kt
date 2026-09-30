@@ -19,6 +19,7 @@
 package com.wire.android.notification
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -93,7 +94,7 @@ class DriveUploadNotificationManager @Inject constructor(
 
         val builder = NotificationCompat.Builder(context, NotificationConstants.DRIVE_UPLOAD_CHANNEL_ID)
             .setSmallIcon(NR.drawable.notification_icon_small)
-            .setContentIntent(openAppPendingIntent(context))
+            .setContentIntent(contentIntent(userId, uploads))
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -129,6 +130,18 @@ class DriveUploadNotificationManager @Inject constructor(
 
         return builder.build()
     }
+
+    /**
+     * Opens the batch's Shared Drive conversation directly, so long as every upload targets the same one:
+     * uploads are only ever enqueued from a single [ConversationFilesScreen][com.wire.android.feature.cells.ui.ConversationFilesScreen],
+     * so this should always hold, but falls back to just opening the app rather than guessing otherwise.
+     */
+    private fun contentIntent(userId: UserId, uploads: List<CellUploadItem>): PendingIntent =
+        uploads.map { it.request.destinationFolderPath.substringBefore("/") }
+            .distinct()
+            .singleOrNull()
+            ?.let { conversationId -> driveFilesPendingIntent(context, conversationId, userId.toString()) }
+            ?: openAppPendingIntent(context)
 
     /** Weighted by bytes rather than file count, so one large file mid-transfer still moves the bar. */
     private fun NotificationCompat.Builder.applyProgress(uploads: List<CellUploadItem>): NotificationCompat.Builder {

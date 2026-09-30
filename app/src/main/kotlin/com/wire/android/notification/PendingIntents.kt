@@ -59,6 +59,25 @@ fun messagePendingIntent(context: Context, conversationId: String, userId: Strin
     )
 }
 
+fun driveFilesPendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent {
+    val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
+        data = Uri.Builder()
+            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
+            .authority(DeepLinkProcessor.DRIVE_FILES_DEEPLINK_HOST)
+            .appendPath(conversationId)
+            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
+            .build()
+    }
+    val requestCode = getRequestCode(OPEN_DRIVE_FILES_REQUEST_CODE_PREFIX, userId.orEmpty(), conversationId)
+
+    return PendingIntent.getActivity(
+        context.applicationContext,
+        requestCode,
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+}
+
 fun otherUserProfilePendingIntent(context: Context, destinationUserId: String, userId: String): PendingIntent {
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
@@ -282,6 +301,7 @@ private const val STOP_AUDIO_REQUEST_CODE = "stop_audio_"
 private const val CANCEL_ALL_DRIVE_UPLOADS_REQUEST_CODE = "cancel_all_drive_uploads_"
 private const val RETRY_DRIVE_UPLOADS_REQUEST_CODE = "retry_drive_uploads_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
+private const val OPEN_DRIVE_FILES_REQUEST_CODE_PREFIX = "open_drive_files_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
 private const val REPLY_MESSAGE_REQUEST_CODE_PREFIX = "reply_"
 

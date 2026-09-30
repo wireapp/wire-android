@@ -59,6 +59,12 @@ sealed class DeepLinkResult {
         val targetSessionId: QualifiedID? = null,
     ) : DeepLinkResult()
 
+    data class OpenDriveFiles(
+        val conversationId: ConversationId,
+        val switchedAccount: Boolean = false,
+        val targetSessionId: QualifiedID? = null,
+    ) : DeepLinkResult()
+
     data class OpenOtherUserProfile(
         val userId: QualifiedID,
         val switchedAccount: Boolean = false,
@@ -158,6 +164,8 @@ class DeepLinkProcessor @Inject constructor(
         return when (uri.host) {
             CONVERSATION_DEEPLINK_HOST ->
                 getOpenConversationDeepLinkResult(uri, switchedAccount, targetSessionId)
+            DRIVE_FILES_DEEPLINK_HOST ->
+                getOpenDriveFilesDeepLinkResult(uri, switchedAccount, targetSessionId)
             OTHER_USER_PROFILE_DEEPLINK_HOST ->
                 getOpenOtherUserProfileDeepLinkResult(uri, switchedAccount, targetSessionId)
             JOIN_CONVERSATION_DEEPLINK_HOST ->
@@ -219,6 +227,15 @@ class DeepLinkProcessor @Inject constructor(
     ): DeepLinkResult =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let { conversationId ->
             DeepLinkResult.OpenConversation(conversationId, switchedAccount, targetSessionId)
+        } ?: DeepLinkResult.Unknown
+
+    private fun getOpenDriveFilesDeepLinkResult(
+        uri: Uri,
+        switchedAccount: Boolean,
+        targetSessionId: QualifiedID?,
+    ): DeepLinkResult =
+        uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let { conversationId ->
+            DeepLinkResult.OpenDriveFiles(conversationId, switchedAccount, targetSessionId)
         } ?: DeepLinkResult.Unknown
 
     private fun getOpenOtherUserProfileDeepLinkResult(
@@ -290,6 +307,7 @@ class DeepLinkProcessor @Inject constructor(
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
+        const val DRIVE_FILES_DEEPLINK_HOST = "drive-files"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
         const val MIGRATION_LOGIN_HOST = "migration-login"
         const val JOIN_CONVERSATION_DEEPLINK_HOST = "conversation-join"

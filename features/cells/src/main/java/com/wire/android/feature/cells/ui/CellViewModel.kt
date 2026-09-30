@@ -395,7 +395,7 @@ class CellViewModel @AssistedInject constructor(
     }
 
     /**
-     * Resolves the display name of each picked [Uri] (no staging yet) and surfaces [uploadConfirmation]
+     * Resolves the display name of each picked [Uri] and surfaces [uploadConfirmation]
      * so the screen can show the confirmation dialog before anything is actually uploaded.
      */
     private fun onFilesPickedForUpload(uris: List<Uri>) {
@@ -602,6 +602,7 @@ class CellViewModel @AssistedInject constructor(
         AttachmentFileType.AUDIO -> OpenAudioPlayer(file)
         AttachmentFileType.PDF ->
             OpenPdfViewer(file).takeIf { file.localPath != null || file.remotePath != null }
+
         else -> null
     }
 
@@ -866,7 +867,6 @@ internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenPdfViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class FilesPickedForUpload(val uris: List<Uri>) : CellViewAction
 
-/** Files awaiting user confirmation before [CellViewModel.confirmUpload] actually starts uploading them. */
 internal data class UploadConfirmation(
     val fileNames: List<String>,
     val destinationFolderPath: String,
@@ -889,4 +889,3 @@ internal fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
     CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L
-

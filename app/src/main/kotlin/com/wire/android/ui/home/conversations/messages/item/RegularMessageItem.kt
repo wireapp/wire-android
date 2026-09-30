@@ -123,6 +123,7 @@ fun RegularMessageItem(
                 }
 
             val errorSlot: (@Composable () -> Unit)? = when {
+                isDeleted -> null
                 sendingFailed -> {
                     {
                         MessageSendFailureWarning(

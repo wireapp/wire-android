@@ -18,6 +18,7 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.wire.android.gradle.version.BetaReleaseVersion
 import com.wire.android.gradle.configureAndroidKotlinTests
 import com.wire.android.gradle.configureCompose
 import com.wire.android.gradle.configureKotlinAndroid
@@ -75,6 +76,18 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         }
 
         extensions.configure<ApplicationAndroidComponentsExtension> {
+            val betaReleaseVersion = BetaReleaseVersion.resolve(
+                AndroidApp.versionName,
+                providers.environmentVariable("WIRE_RELEASE_VERSION").orNull
+            )
+            if (betaReleaseVersion != null) {
+                finalizeDsl { android ->
+                    android.productFlavors.getByName("beta").apply {
+                        versionName = betaReleaseVersion
+                        versionNameSuffix = ""
+                    }
+                }
+            }
             onVariants(selector().all()) { variant ->
                 val taskName = "rename${variant.name.replaceFirstChar { firstChar ->
                     if (firstChar.isLowerCase()) firstChar.titlecase() else firstChar.toString()

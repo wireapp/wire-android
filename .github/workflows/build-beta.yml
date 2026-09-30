@@ -1,0 +1,105 @@
+name: "Beta release"
+run-name: "Beta release ${{ github.ref_name }}"
+
+on:
+  push:
+    tags:
+      - 'v*-beta.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read # download build artifacts
+
+concurrency:
+  group: beta-release
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  validate:
+    name: Validate beta tag
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Validate tag and source
+        env:
+          TAG: ${{ github.ref_name }}
+          BETA_TRACK: ${{ vars.BETA_APP_TRACK_INTERNAL }}
+        run: |
+          pattern='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-beta\.[1-9][0-9]*$'
+          if [[ ! "$TAG" =~ $pattern ]]; then
+            echo "Expected vX.Y.Z-beta.N without leading zeros"
+            exit 1
+          fi
+          version=$(sed -nE 's/^[[:space:]]*const val versionName = "([^"]+)".*/\1/p' build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt)
+          if [[ "$TAG" != v"$version"-beta.* ]]; then
+            echo "Tag must match the app version: v${version}-beta.N"
+            exit 1
+          fi
+          git merge-base --is-ancestor HEAD origin/develop
+          if [[ -z "$BETA_TRACK" ]]; then
+            echo "Set the BETA_APP_TRACK_INTERNAL repository variable"
+            exit 1
+          fi
+
+  build:
+    needs: validate
+    permissions:
+      contents: write # required by the existing build and deployment workflows
+      actions: read # required by build-unified
+      security-events: write # upload workflow security reports
+    uses: ./.github/workflows/build-unified.yml
+    with:
+      concurrency-group-suffix: beta
+      release-version: ${{ github.ref_name }}
+      build-config: |
+        [
+          {
+            "flavor": "Beta",
+            "variant": "Release",
+            "keystore-type": "prerelease",
+            "build-type": "both",
+            "generate-version-file": true,
+            "deployment-targets": [
+              {"type": "s3"},
+              {
+                "type": "google-play",
+                "package-name": "com.wire.android.internal",
+                "track": "${{ vars.BETA_APP_TRACK_INTERNAL }}",
+                "status": "completed"
+              }
+            ]
+          }
+        ]
+      enable-deployment: true
+    secrets: inherit # zizmor: ignore[secrets-inherit] -- use the existing build workflow's signing and deployment secrets
+
+  publish:
+    name: Publish beta prerelease
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the prerelease and attach its binaries
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: Beta-Release-artifacts
+          path: artifacts/
+
+      - name: Publish prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" --verify-tag --prerelease --latest=false \
+            --generate-notes --title "Beta $TAG" \
+            artifacts/apk/beta/release/*.apk artifacts/bundle/betaRelease/*.aab artifacts/version.txt

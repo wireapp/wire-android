@@ -16,6 +16,11 @@ on:
         description: "Suffix for the concurrency group"
         required: true
         type: string
+      release-version:
+        description: "Optional beta release tag"
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read # reusable workflow default; deploy job escalates explicitly where required
@@ -156,6 +161,8 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
+    env:
+      WIRE_RELEASE_VERSION: ${{ inputs.release-version }}
     needs: [ workflow-security, lint, style, compose-stability, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     strategy:

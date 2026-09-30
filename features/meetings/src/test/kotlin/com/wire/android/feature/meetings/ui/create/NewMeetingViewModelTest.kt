@@ -1045,6 +1045,7 @@ class NewMeetingViewModelTest {
 
     private val MEETING_TIME_ZONE_ID = "Europe/Berlin"
     private val MEETING_OCCURRENCE = MeetingOccurrence(
+        participants = emptyList(),
         meeting = Meeting(
             meetingId = MeetingId("meeting-id", "domain"),
             conversationId = ConversationId("conversation-id", "domain"),

@@ -168,4 +168,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
 
     DRIVE_PERMISSIONS_ENABLED("drive_permissions_enabled", ConfigType.BOOLEAN),
+
+    DRIVE_DIRECT_UPLOAD_ENABLED("drive_direct_upload_enabled", ConfigType.BOOLEAN),
 }

@@ -152,8 +152,8 @@ class AccountManagement : BaseUiTest() {
 
             step("Change email address and verify confirmation notification") {
                 pages.settingsPage.apply {
-                    clickDisplayedEmailAddress()
-                    changeToNewEmailAddress(newEmail.email ?: "")
+                    clickDisplayedEmailAddress(teamMember?.email ?: "")
+                    changeToNewEmailAddress(teamMember?.email ?: "", newEmail.email ?: "")
                     clickSaveButton()
                     assertNotificationWithNewEmail(newEmail.email ?: "")
                 }

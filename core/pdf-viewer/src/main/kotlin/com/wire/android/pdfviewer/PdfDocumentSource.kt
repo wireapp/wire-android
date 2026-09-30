@@ -20,8 +20,9 @@ package com.wire.android.pdfviewer
 /**
  * Everything needed to get hold of a PDF, from the tap that opens it through to the download.
  *
- * A document is reachable either because it is already on disk ([localPath]) or because it can be
- * downloaded ([assetId] + [remotePath]); the rest is metadata used to place and label it.
+ * A document is reachable either because it is already on disk ([localPath]), because it can be
+ * downloaded ([assetId] + [remotePath]), or because a self-contained URL serves it
+ * ([preSignedUrl]); the rest is metadata used to place and label it.
  *
  * @param localPath already downloaded copy, when there is one.
  * @param assetId cell asset UUID, used to download and to name the fallback file.
@@ -29,6 +30,10 @@ package com.wire.android.pdfviewer
  * @param conversationId conversation the asset belongs to, when it has one.
  * @param fileName display name, also used as the local file name.
  * @param assetSize expected size in bytes, 0 when unknown.
+ * @param preSignedUrl URL serving the PDF directly. Used for documents that are not PDFs
+ *   themselves and are displayed through the PDF rendition the backend generated for them, which
+ *   is only reachable by its own pre-signed URL. Such a rendition is a derived file rather than
+ *   the attachment itself, so it is cached instead of being stored as the asset's local copy.
  */
 data class PdfDocumentSource(
     val localPath: String? = null,
@@ -37,4 +42,5 @@ data class PdfDocumentSource(
     val conversationId: String? = null,
     val fileName: String? = null,
     val assetSize: Long = 0L,
+    val preSignedUrl: String? = null,
 )

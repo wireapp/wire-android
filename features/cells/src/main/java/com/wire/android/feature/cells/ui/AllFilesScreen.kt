@@ -108,7 +108,8 @@ fun AllFilesScreen(
             showAudioPlayer = navigationActions.showAudioPlayer,
             showPdfViewer = navigationActions.showPdfViewer,
             fileReadyFlow = viewModel.fileReadyFlow,
-            showViewerOnlyIcon = viewModel.drivePermissionsEnabled
+            showViewerOnlyIcon = viewModel.drivePermissionsEnabled,
+            sortBy = sortingCriteria.by,
         )
     }
 }

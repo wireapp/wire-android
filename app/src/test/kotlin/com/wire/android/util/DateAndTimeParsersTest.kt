@@ -187,7 +187,7 @@ class DateAndTimeParsersTest {
     fun givenExplicitZoneId_whenCellFileDateTimeIsFormatted_thenReturnValueInRequestedZone(zone: String, expected: String) {
         val zoneId = ZoneId.of(zone)
 
-        val result = TEST_INSTANT.cellFileDateTime(zoneId = zoneId)
+        val result = TEST_INSTANT.cellFileDateTime(zoneId = zoneId, currentYear = 2022)
 
         assertEquals(expected, result.normalizeSpaces())
     }

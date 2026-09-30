@@ -82,7 +82,13 @@ sealed class CellNodeUi {
         val localPath: String?,
         val contentHash: String? = null,
         val contentUrl: String? = null,
+        /** Pre-signed URL of the image preview of this file, used to show its thumbnail. */
         val previewUrl: String? = null,
+        /**
+         * Pre-signed URL of the PDF rendition of this file, which only documents the backend can
+         * convert have. It is what allows displaying them without an editor.
+         */
+        val pdfPreviewUrl: String? = null,
         override val tags: List<String> = emptyList(),
         val isEditSupported: Boolean = false,
         internal override val openLoadState: OpenLoadState? = null,
@@ -108,6 +114,7 @@ internal fun Node.File.toUiModel(
     contentHash = contentHash,
     contentUrl = contentUrl,
     previewUrl = previewUrl,
+    pdfPreviewUrl = pdfPreviewUrl,
     userName = userName,
     userHandle = userHandle,
     ownerUserId = ownerUserId,
@@ -153,3 +160,10 @@ internal fun CellNodeUi.File.withSessionState(
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
 internal fun CellNodeUi.isEditSupported() = (this as? CellNodeUi.File)?.isEditSupported == true
+
+/**
+ * The PDF rendition to display this file with, or null when the file is to be rendered from
+ * itself — a PDF already is its own best rendition, and the rendition of anything else is only
+ * useful because the original can't be rendered.
+ */
+fun CellNodeUi.File.pdfRenditionUrl() = pdfPreviewUrl?.takeIf { assetType != PDF }

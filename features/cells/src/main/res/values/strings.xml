@@ -72,6 +72,7 @@
     <string name="cells_new_label">New</string>
     <string name="cells_new_label_content_description">New</string>
     <string name="cells_create_folder">Create Folder</string>
+    <string name="cells_upload_files">Upload Files</string>
     <string name="cells_folder_name">Folder Name</string>
     <string name="loading_files">Loading files…</string>
     <string name="tap_to_cancel_loading">Tap to cancel loading</string>

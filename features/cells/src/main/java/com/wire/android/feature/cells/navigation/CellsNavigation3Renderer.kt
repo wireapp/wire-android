@@ -33,6 +33,7 @@ import com.wire.android.feature.cells.ui.createFileViewModel
 import com.wire.android.feature.cells.ui.createFolderViewModel
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreenContent
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.moveToFolderViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen
 import com.wire.android.feature.cells.ui.publicLinkExpirationViewModel
@@ -263,6 +264,7 @@ internal fun CellsNavigation3RouteScreen(
                 conversationId = route.conversationId,
                 fileName = route.fileName,
                 assetSize = route.assetSize,
+                preSignedUrl = route.preSignedUrl,
             ),
             onNavigateBack = navigateBack,
         )
@@ -400,16 +402,20 @@ private class Navigation3CellsFilesNavigation(
     }
 
     override fun pdf(file: CellNodeUi.File) {
+        val renditionUrl = file.pdfRenditionUrl()
         runtime.navigator.navigate(
             WireNavigationCommand(
                 PdfViewerRoute(
                     sessionId = sessionId,
-                    localPath = file.localPath,
+                    // A document shown through its PDF rendition has a local copy that is not a
+                    // PDF, so only the rendition may be rendered for it.
+                    localPath = file.localPath.takeIf { renditionUrl == null },
                     assetId = file.uuid,
                     remotePath = file.remotePath,
                     conversationId = file.conversationId,
                     assetSize = file.size ?: 0L,
                     fileName = file.name,
+                    preSignedUrl = renditionUrl,
                 )
             )
         )

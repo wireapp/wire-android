@@ -244,13 +244,19 @@ class LoginSSOViewModel : LoginViewModel {
                     onFetchSSOSettingsFailure = {},
                     onSuccess = { defaultSSOCode ->
                         if (defaultSSOCode != null) {
+                            savedInputStore.pendingSsoLogin = null
                             ssoExtension.initiateSSO(
                                 serverConfig = state.serverLinks,
                                 ssoCode = defaultSSOCode,
                                 cookieLabel = pendingCookieLabel,
                                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
-                                onSuccess = { requestUrl -> openWebUrl(requestUrl, state.serverLinks) }
+                                onSuccess = { result ->
+                                    savedInputStore.pendingSsoLogin = PendingSsoLogin(
+                                        result.identityProviderId, result.serverConfigId, requiresCapabilityCheck = true
+                                    )
+                                    openWebUrl(result.requestUrl, state.serverLinks)
+                                }
                             )
                         }
                     }
@@ -312,13 +318,19 @@ class LoginSSOViewModel : LoginViewModel {
 
     private fun ssoLoginWithCodeFlow() {
         viewModelScope.launch {
+            savedInputStore.pendingSsoLogin = null
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoTextState.text.toString(),
                 cookieLabel = pendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
-                onSuccess = { requestUrl -> openWebUrl(requestUrl, serverConfig) }
+                onSuccess = { result ->
+                    savedInputStore.pendingSsoLogin = PendingSsoLogin(
+                        result.identityProviderId, result.serverConfigId, requiresCapabilityCheck = true
+                    )
+                    openWebUrl(result.requestUrl, serverConfig)
+                }
             )
         }
     }
@@ -328,12 +340,19 @@ class LoginSSOViewModel : LoginViewModel {
         cookie: String,
         serverConfigId: String,
     ) {
+        val pendingSsoLogin = consumePendingSsoLogin()
+        if (pendingSsoLogin == null) {
+            updateSSOFlowState(missingSsoLoginContextFailure().toLoginError())
+            return
+        }
+
         updateSSOFlowState(LoginState.Loading)
         val isNomadFlow = pendingNomadServiceUrl != null
         viewModelScope.launch {
             ssoExtension.establishSSOSession(
                 cookie = cookie,
                 serverConfigId = serverConfigId,
+                pendingSsoLogin = pendingSsoLogin,
                 consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
                 consumeCookieLabel = ::consumePendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
@@ -364,8 +383,10 @@ class LoginSSOViewModel : LoginViewModel {
                 )
             }
 
-            is DeepLinkResult.SSOLogin.Failure ->
+            is DeepLinkResult.SSOLogin.Failure -> {
+                savedInputStore.pendingSsoLogin = null
                 updateSSOFlowState(LoginState.Error.DialogError.SSOResultError(ssoLoginResult.ssoError))
+            }
 
             null -> {}
         }
@@ -484,6 +505,10 @@ class LoginSSOViewModel : LoginViewModel {
 
     private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
         pendingCookieLabel = null
+    }
+
+    private fun consumePendingSsoLogin(): PendingSsoLogin? = savedInputStore.pendingSsoLogin.also {
+        savedInputStore.pendingSsoLogin = null
     }
 }
 

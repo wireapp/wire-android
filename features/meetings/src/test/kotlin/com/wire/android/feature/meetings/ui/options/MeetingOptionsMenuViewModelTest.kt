@@ -317,6 +317,7 @@ class MeetingOptionsMenuViewModelTest {
         occurrenceStartTime: Instant,
         occurrenceEndTime: Instant = occurrenceStartTime + 30.minutes
     ) = MeetingOccurrence(
+        participants = emptyList(),
         meeting = Meeting(
             meetingId = MEETING_ID,
             conversationId = CONVERSATION_ID,

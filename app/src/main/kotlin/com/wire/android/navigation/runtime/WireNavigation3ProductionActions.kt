@@ -25,6 +25,7 @@ import com.wire.android.feature.cells.navigation.CellsFilesArguments
 import com.wire.android.feature.cells.navigation.CellsSearchType
 import com.wire.android.feature.cells.navigation.ConversationFilesRoute
 import com.wire.android.feature.cells.navigation.PdfViewerRoute
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.navigation.PublicLinkRoute
 import com.wire.android.feature.cells.navigation.SearchRoute
 import com.wire.android.feature.cells.navigation.VideoPlayerRoute
@@ -197,16 +198,20 @@ internal class WireNavigation3ProductionActions(
                 )
             )
         },
-        showPdfViewer = {
+        showPdfViewer = { file ->
+            val renditionUrl = file.pdfRenditionUrl()
             navigate(
                 PdfViewerRoute(
                     sessionId = requireSession(),
-                    localPath = it.localPath,
-                    assetId = it.uuid,
-                    remotePath = it.remotePath,
-                    conversationId = it.conversationId,
-                    assetSize = it.size ?: 0L,
-                    fileName = it.name,
+                    // A document shown through its PDF rendition has a local copy that is not a
+                    // PDF, so only the rendition may be rendered for it.
+                    localPath = file.localPath.takeIf { renditionUrl == null },
+                    assetId = file.uuid,
+                    remotePath = file.remotePath,
+                    conversationId = file.conversationId,
+                    assetSize = file.size ?: 0L,
+                    fileName = file.name,
+                    preSignedUrl = renditionUrl,
                 )
             )
         },

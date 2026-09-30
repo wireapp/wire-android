@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Date
 import java.util.Locale
+import java.time.Year
 
 //region convenience ext functions
 @Stable
@@ -75,7 +76,8 @@ fun Instant.fileDateTime(
 fun Instant.cellFileDateTime(
     locale: Locale = Locale.getDefault(),
     zoneId: ZoneId = ZoneId.systemDefault(),
-): String = DateAndTimeParsers.cellFileDateTime(this, locale, zoneId)
+    currentYear: Int = Year.now(zoneId).value,
+): String = DateAndTimeParsers.cellFileDateTime(this, locale, zoneId, currentYear)
 
 @Stable
 fun Instant.cellFileTime(
@@ -172,9 +174,16 @@ class DateAndTimeParsers private constructor() {
             instant: Instant,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
+            currentYear: Int = Year.now(zoneId).value,
         ): String {
+            val isFromAnotherYear = instant.toJavaInstant().atZone(zoneId).year != currentYear
 
-            val dateString = cellDateFormat(instant = instant, showYear = false, locale = locale, zoneId = zoneId)
+            val dateString = cellDateFormat(
+                instant = instant,
+                showYear = isFromAnotherYear,
+                locale = locale,
+                zoneId = zoneId
+            )
             val timeString = cellTimeFormat(instant = instant, locale = locale, zoneId = zoneId)
 
             return "$dateString, $timeString"

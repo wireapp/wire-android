@@ -187,20 +187,22 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingBelongingInfoRow(co
     - type: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.list.MeetingHeader(header: com.wire.android.feature.meetings.model.MeetingHeader, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.list.MeetingHeader(header: com.wire.android.feature.meetings.model.MeetingHeader, modifier: androidx.compose.ui.Modifier, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - header: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - displayTimeZone: STABLE (matched by stability configuration)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.list.MeetingItem(meeting: com.wire.android.feature.meetings.model.MeetingItem, modifier: androidx.compose.ui.Modifier, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.list.MeetingItem(meeting: com.wire.android.feature.meetings.model.MeetingItem, modifier: androidx.compose.ui.Modifier, displayTimeZone: kotlinx.datetime.TimeZone, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - meeting: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - displayTimeZone: STABLE (matched by stability configuration)
     - openMeetingOptions: STABLE (function type)
     - startCall: STABLE (function type)
     - joinCall: STABLE (function type)
@@ -266,12 +268,13 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBo
     - startTime: STABLE (matched by stability configuration)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingTimeInfoRow(status: com.wire.android.feature.meetings.model.MeetingItem.Status, repeatingInterval: com.wire.android.feature.meetings.model.MeetingItem.RepeatingInterval?): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.list.MeetingTimeInfoRow(status: com.wire.android.feature.meetings.model.MeetingItem.Status, repeatingInterval: com.wire.android.feature.meetings.model.MeetingItem.RepeatingInterval?, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - status: STABLE (marked @Stable or @Immutable)
     - repeatingInterval: STABLE (marked @Stable or @Immutable)
+    - displayTimeZone: STABLE (matched by stability configuration)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.PrimaryBodyText(text: kotlin.String): kotlin.Unit
@@ -303,11 +306,12 @@ internal fun com.wire.android.feature.meetings.ui.list.VideoCallIcon(tint: andro
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlinx.datetime.Instant): kotlin.String
+private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlinx.datetime.Instant, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.String
   skippable: true
   restartable: true
   params:
     - time: STABLE (matched by stability configuration)
+    - displayTimeZone: STABLE (matched by stability configuration)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.isLoading(): kotlin.Boolean

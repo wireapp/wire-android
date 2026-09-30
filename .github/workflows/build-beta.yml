@@ -79,7 +79,20 @@ jobs:
           }
         ]
       enable-deployment: true
-    secrets: inherit # zizmor: ignore[secrets-inherit] -- use the existing build workflow's signing and deployment secrets
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      ENCODED_KEYSTORE_PRE_RELEASE: ${{ secrets.ENCODED_KEYSTORE_PRE_RELEASE }}
+      SIGNING_KEY_ALIAS_PRE_RELEASE: ${{ secrets.SIGNING_KEY_ALIAS_PRE_RELEASE }}
+      SIGNING_KEY_PASSWORD_PRE_RELEASE: ${{ secrets.SIGNING_KEY_PASSWORD_PRE_RELEASE }}
+      SIGNING_STORE_PASSWORD_PRE_RELEASE: ${{ secrets.SIGNING_STORE_PASSWORD_PRE_RELEASE }}
+      DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+      DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+      ENABLE_SIGNING: ${{ secrets.ENABLE_SIGNING }}
+      DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
 
   publish:
     name: Publish beta prerelease

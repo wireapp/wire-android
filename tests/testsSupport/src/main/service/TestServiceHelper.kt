@@ -439,6 +439,25 @@ class TestServiceHelper(
         }
     }
 
+    fun userCreatesMLSGroupConversation(
+        ownerAlias: String,
+        participantAliases: String,
+        conversationName: String,
+        deviceName: String
+    ) {
+        val owner = toClientUser(ownerAlias)
+        val participants = usersManager
+            .splitAliases(participantAliases)
+            .map(::toClientUser)
+
+        testServiceClient.createConversation(
+            owner = owner,
+            participants = participants,
+            chatName = conversationName,
+            deviceName = deviceName
+        )
+    }
+
     fun isSendReadReceiptEnabled(userNameAlias: String): Boolean {
         val user = toClientUser(userNameAlias)
         val backend = backendFor(user)

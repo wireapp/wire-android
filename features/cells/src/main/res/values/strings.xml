@@ -79,6 +79,7 @@
     </plurals>
     <string name="cells_upload_status_title_complete">Upload complete</string>
     <string name="cells_upload_status_title_partial">%1$d of %2$d uploaded</string>
+    <string name="cells_upload_status_title_failed_partial">%1$d of %2$d couldn\'t upload</string>
     <plurals name="cells_upload_status_subtitle_failed_count">
         <item quantity="one">%1$d couldn\'t upload</item>
         <item quantity="other">%1$d couldn\'t upload</item>

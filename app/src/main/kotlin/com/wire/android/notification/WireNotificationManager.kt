@@ -47,7 +47,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.cancellable
@@ -59,8 +65,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -71,6 +75,7 @@ import java.util.concurrent.atomic.AtomicReference
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.flow.onEach
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -81,6 +86,7 @@ class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val currentScreenManager: CurrentScreenManager,
     private val messagesNotificationManager: MessageNotificationManager,
+    private val meetingNotificationManager: MeetingNotificationManager,
     private val callNotificationManager: CallNotificationManager,
     private val syncLifecycleManager: SyncLifecycleManager,
     private val servicesManager: ServicesManager,
@@ -103,7 +109,7 @@ class WireNotificationManager @Inject constructor(
     }
 
     /**
-     * Observes all the Message and Call notifications while app is running
+     * Observes all the Message, Meeting and Call notifications while app is running
      */
     suspend fun observeNotificationsAndCallsWhileRunning(
         userIds: List<UserId>,
@@ -111,7 +117,7 @@ class WireNotificationManager @Inject constructor(
     ) = observeNotificationsAndCalls(userIds, scope, observingWhileRunningJobs)
 
     /**
-     * Observes all the Message and Call notifications persistently.
+     * Observes all the Message, Meeting and Call notifications persistently.
      * Use for Persistent WebSocket connection only.
      */
     suspend fun observeNotificationsAndCallsPersistently(
@@ -127,6 +133,7 @@ class WireNotificationManager @Inject constructor(
         observingWhileRunningJobs.cancelAndClearAll()
         observingPersistentlyJobs.cancelAndClearAll()
         messagesNotificationManager.hideAllNotifications()
+        meetingNotificationManager.hideAllNotifications()
         callNotificationManager.hideAllCallNotifications()
         servicesManager.stopCallService()
     }
@@ -145,14 +152,14 @@ class WireNotificationManager @Inject constructor(
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         val userId = checkIfUserIsAuthenticated(userIdValue) ?: return
 
-        val syncAndNotificationJobForUser = fetchAndShowMessageNotificationsJob(userId)
+        val syncAndNotificationJobForUser = fetchAndShowNotificationsJob(userId)
 
         // Join the jobs for the user, waiting for its completion
         syncAndNotificationJobForUser?.start()
         syncAndNotificationJobForUser?.join()
     }
 
-    private suspend fun fetchAndShowMessageNotificationsJob(userId: UserId): Job? =
+    private suspend fun fetchAndShowNotificationsJob(userId: UserId): Job? =
         fetchOnceMutex.withLock {
             // Use the lock to create a new coroutine if needed
             val currentJobForUser = fetchOnceJobs[userId]
@@ -178,23 +185,25 @@ class WireNotificationManager @Inject constructor(
         }
 
     private suspend fun triggerSyncForUserIfAuthenticated(userId: UserId) {
-        appLogger.d("$TAG checking the notifications once")
+        var observeLocalNotificationsJob: Job? = null
+        var observeCallsJob: Job? = null
+        try {
+            appLogger.d("$TAG checking the notifications once")
+            observeLocalNotificationsJob = observeLocalNotificationsOnceJob(userId)
+            observeCallsJob = observeCallNotificationsOnceJob(userId)
+            val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
 
-        val observeMessagesJob = observeMessageNotificationsOnceJob(userId)
-        val observeCallsJob = observeCallNotificationsOnceJob(userId)
-
-        val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
-
-        if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
-            appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
-            retrySync(userId, stayAliveDuration)
-        } else {
-            appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
-            syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+            if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
+                appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
+                retrySync(userId, stayAliveDuration)
+            } else {
+                appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
+                syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+            }
+        } finally {
+            observeLocalNotificationsJob?.cancel("$TAG checked the notifications once, canceling observing.")
+            observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
         }
-
-        observeMessagesJob?.cancel("$TAG checked the notifications once, canceling observing.")
-        observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
     }
 
     /**
@@ -247,19 +256,17 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private suspend fun observeMessageNotificationsOnceJob(userId: UserId): Job? {
-        val isMessagesAlreadyObserving =
-            observingWhileRunningJobs.userJobs[userId]?.run { messagesJob.isActive }
-                ?: observingPersistentlyJobs.userJobs[userId]?.run { messagesJob.isActive }
-                ?: false
+    private fun observeLocalNotificationsOnceJob(userId: UserId): Job? {
+        val isAlreadyObserving = observingWhileRunningJobs.userJobs[userId]?.localNotificationsJob?.isActive == true ||
+                observingPersistentlyJobs.userJobs[userId]?.localNotificationsJob?.isActive == true
 
-        return if (isMessagesAlreadyObserving) {
+        return if (isAlreadyObserving) {
             // notifications are already observed, just need to connect to websocket.
             appLogger.d("$TAG checking the notifications once, but notifications are already observed, no need to start a new job")
             null
         } else {
-            scope.launch {
-                observeMessageNotifications(
+            scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                observeLocalNotifications(
                     userId,
                     MutableStateFlow(CurrentScreen.InBackground)
                 )
@@ -267,7 +274,7 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private suspend fun observeCallNotificationsOnceJob(userId: UserId): Job? {
+    private fun observeCallNotificationsOnceJob(userId: UserId): Job? {
         val isCallsAlreadyObserving =
             observingWhileRunningJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
                 ?: observingPersistentlyJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
@@ -332,8 +339,8 @@ class WireNotificationManager @Inject constructor(
                     incomingCallsJob = scope.launch(dispatcherProvider.default()) {
                         observeIncomingCalls(userId)
                     },
-                    messagesJob = scope.launch(dispatcherProvider.default()) {
-                        observeMessageNotifications(userId, currentScreenState)
+                    localNotificationsJob = scope.launch(dispatcherProvider.default()) {
+                        observeLocalNotifications(userId, currentScreenState)
                     },
                 )
                 observingJobs.userJobs[userId] = jobs
@@ -364,6 +371,7 @@ class WireNotificationManager @Inject constructor(
 
     private fun stopObservingForUser(userId: UserId, observingJobs: ObservingJobs) {
         messagesNotificationManager.hideAllNotificationsForUser(userId)
+        meetingNotificationManager.hideAllNotificationsForUser(userId)
         callNotificationManager.hideAllIncomingCallNotificationsForUser(userId)
         observingJobs.userJobs[userId]?.cancelAll()
         observingJobs.userJobs.remove(userId)
@@ -428,33 +436,27 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    /**
-     * Infinitely listen for the new Message notifications and show it.
-     * Can be used for listening for the Notifications when the app is running.
-     * @param userId QualifiedID of User that we want to observe for
-     * @param currentScreenState StateFlow that informs which screen is currently visible,
-     * so we can filter the notifications if user is in the Conversation that receives a new messages
-     */
-    private suspend fun observeMessageNotifications(
+    /** Observes the shared local-notification stream once and routes each family to its handler. */
+    private suspend fun observeLocalNotifications(
         userId: UserId,
         currentScreenState: StateFlow<CurrentScreen>
-    ) {
-        val selfUserNameState = coreLogic.getSessionScope(userId)
-            .users
-            .observeSelfUser()
+    ) = coroutineScope {
+        val sessionScope = coreLogic.getSessionScope(userId)
+
+        // Cache state within this observation job without waiting before subscribing to notifications. Both use-case calls can suspend.
+        // Wrapping them in flow { emitAll(...) } runs them in the stateIn coroutines, so loading this state does not delay listening
+        // for ephemeral notifications. Null means not loaded yet; never assume E2EI allows notifications before its first value.
+        val e2eiRequired = flow { emitAll(sessionScope.observeE2EIRequired()) }
+            .map { it is E2EIRequiredResult.NoGracePeriod }
+            .stateIn(this, SharingStarted.Eagerly, null)
+            .filterNotNull()
+        val selfUserName = flow { emitAll(sessionScope.users.observeSelfUser()) }
             .onEach { it.logIfEmptyUserName() }
             .map { it.handle ?: it.name ?: "" }
-            .distinctUntilChanged()
-            .stateIn(scope)
+            .stateIn(this, SharingStarted.Eagerly, null)
+            .filterNotNull()
 
-        val isBlockedByE2EIRequiredState = coreLogic.getSessionScope(userId).observeE2EIRequired()
-            .map { it is E2EIRequiredResult.NoGracePeriod }
-            .distinctUntilChanged()
-            .stateIn(scope)
-
-        coreLogic.getSessionScope(userId)
-            .messages
-            .getNotifications()
+        sessionScope.messages.getNotifications()
             .cancellable()
             .onEach { newNotifications ->
                 playPingSoundIfNeeded(
@@ -462,29 +464,22 @@ class WireNotificationManager @Inject constructor(
                     notifications = newNotifications
                 )
             }
-            .map { newNotifications ->
-                // we don't want to display notifications for the Conversation that user currently in.
-                filterAccordingToScreenAndUpdateNotifyDate(
-                    currentScreenState.value,
-                    userId,
-                    newNotifications
-                )
-            }
-            .cancellable()
             .collect { newNotifications ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
-                if (isBlockedByE2EIRequiredState.value) {
+                val meetingNotifications = newNotifications.filterIsInstance<LocalNotification.Meeting>()
+                val conversationNotifications = newNotifications.filterIsInstance<LocalNotification.Conversation>()
+                    // we don't want to display notifications for the Conversation that user currently in.
+                    .filterAccordingToScreenAndUpdateNotifyDate(currentScreenState.value, userId)
+
+                if (e2eiRequired.first()) {
                     appLogger.d("$TAG notifications were skipped as E2EI is required")
                 } else {
-                    messagesNotificationManager.handleNotification(
-                        newNotifications,
-                        userId,
-                        selfUserNameState.value
-                    )
+                    meetingNotificationManager.handleNotifications(meetingNotifications, userId)
+                    messagesNotificationManager.handleNotification(conversationNotifications, userId, selfUserName.first())
                 }
 
-                newNotifications
-                    .filterIsInstance<LocalNotification.Conversation>()
+                conversationNotifications
+                    .filterIsInstance<LocalNotification.Conversation.NewMessages>()
                     .filter { it.messages.isNotEmpty() }
                     .forEach { conversation ->
                         val lastNotified = conversation.messages.maxOf { it.time }
@@ -526,16 +521,15 @@ class WireNotificationManager @Inject constructor(
             }
     }
 
-    private suspend fun filterAccordingToScreenAndUpdateNotifyDate(
+    private suspend fun List<LocalNotification.Conversation>.filterAccordingToScreenAndUpdateNotifyDate(
         currentScreen: CurrentScreen,
         userId: UserId,
-        newNotifications: List<LocalNotification>
     ) =
         if (currentScreen is CurrentScreen.Conversation) {
             markMessagesAsNotified(userId, currentScreen.id)
-            newNotifications.filter { it.conversationId != currentScreen.id }
+            this.filter { it.conversationId != currentScreen.id }
         } else {
-            newNotifications
+            this
         }
 
     private suspend fun markMessagesAsNotified(
@@ -572,7 +566,7 @@ class WireNotificationManager @Inject constructor(
             val containsPingMessage = notifications
                 .any {
                     it.conversationId == conversationId &&
-                            it is LocalNotification.Conversation &&
+                            it is LocalNotification.Conversation.NewMessages &&
                             it.messages.any { message ->
                                 message is LocalNotificationMessage.Knock ||
                                         message is LocalNotificationMessage.SelfDeleteKnock
@@ -591,16 +585,16 @@ class WireNotificationManager @Inject constructor(
     private data class UserObservingJobs(
         val currentScreenJob: Job,
         val incomingCallsJob: Job,
-        val messagesJob: Job,
+        val localNotificationsJob: Job,
     ) {
         fun cancelAll() {
             currentScreenJob.cancel()
             incomingCallsJob.cancel()
-            messagesJob.cancel()
+            localNotificationsJob.cancel()
         }
 
         fun isAllActive(): Boolean =
-            currentScreenJob.isActive && incomingCallsJob.isActive && messagesJob.isActive
+            currentScreenJob.isActive && incomingCallsJob.isActive && localNotificationsJob.isActive
     }
 
     private data class ObservingJobs(

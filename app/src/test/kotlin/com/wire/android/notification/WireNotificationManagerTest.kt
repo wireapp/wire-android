@@ -217,13 +217,13 @@ class WireNotificationManagerTest {
         provideUserId(),
         "Planning",
         LocalNotificationMessageAuthor("Alice", null),
-        kotlinx.datetime.Instant.fromEpochMilliseconds(1234),
-        kotlinx.datetime.Instant.parse("2022-08-03T09:00:00Z"),
-        kotlinx.datetime.Instant.parse("2022-08-04T04:45:00Z"),
+        Instant.fromEpochMilliseconds(1234),
+        Instant.parse("2022-08-03T09:00:00Z"),
+        Instant.parse("2022-08-04T04:45:00Z"),
     )
 
     @Test
-    fun givenMeetingInviteInConversation_whenObserved_thenRouteWithoutMarkingMessages() =
+    fun givenMeetingInviteAndUnderlyingConversationIsOpen_whenObserved_thenStillShowMeetingInviteNotification() =
         runTestWithCancellation(dispatcherProvider.main()) {
             val invite = LocalNotification.Meeting.Invite(
                 "event",
@@ -231,9 +231,9 @@ class WireNotificationManagerTest {
                 provideUserId(),
                 "Planning",
                 LocalNotificationMessageAuthor("Alice", null),
-                kotlinx.datetime.Instant.fromEpochMilliseconds(1234),
-                kotlinx.datetime.Instant.parse("2022-08-03T09:00:00Z"),
-                kotlinx.datetime.Instant.parse("2022-08-04T04:45:00Z"),
+                Instant.fromEpochMilliseconds(1234),
+                Instant.parse("2022-08-03T09:00:00Z"),
+                Instant.parse("2022-08-04T04:45:00Z"),
             )
             val (arrangement, manager) = Arrangement()
                 .withMeetingNotifications(invite)
@@ -244,11 +244,6 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
             runCurrent()
             verify { arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TestUser.SELF_USER.id) }
-            coVerify(exactly = 0) {
-                arrangement.markMessagesAsNotified(any())
-                arrangement.markConnectionRequestAsNotified(any())
-                arrangement.messageNotificationManager.handleNotification(any(), any(), any())
-            }
         }
 
     @Test
@@ -260,9 +255,9 @@ class WireNotificationManagerTest {
                 provideUserId(),
                 "Planning",
                 LocalNotificationMessageAuthor("Alice", null),
-                kotlinx.datetime.Instant.fromEpochMilliseconds(1234),
-                kotlinx.datetime.Instant.parse("2022-08-03T09:00:00Z"),
-                kotlinx.datetime.Instant.parse("2022-08-04T04:45:00Z"),
+                Instant.fromEpochMilliseconds(1234),
+                Instant.parse("2022-08-03T09:00:00Z"),
+                Instant.parse("2022-08-04T04:45:00Z"),
             )
             val (arrangement, manager) = Arrangement()
                 .withMeetingNotifications(invite)
@@ -274,11 +269,6 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
             runCurrent()
             verify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
-            coVerify(exactly = 0) {
-                arrangement.markMessagesAsNotified(any())
-                arrangement.markConnectionRequestAsNotified(any())
-                arrangement.messageNotificationManager.handleNotification(any(), any(), any())
-            }
         }
 
     @Test

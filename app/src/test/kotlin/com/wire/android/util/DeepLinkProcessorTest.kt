@@ -50,6 +50,16 @@ import org.junit.jupiter.api.Test
 class DeepLinkProcessorTest {
 
     @Test
+    fun givenMeetingsLinkForOtherAccount_whenProcessing_thenSwitchAndOpenMeetings() = runTest {
+        val (arrangement, processor) = Arrangement()
+            .withConversationDeepLink(OTHER_USER_ID)
+            .withCurrentSessionSuccess(CURRENT_USER_ID)
+            .arrange()
+        coEvery { arrangement.uri.host } returns DeepLinkProcessor.MEETINGS_DEEPLINK_HOST
+        assertEquals(DeepLinkResult.OpenMeetings(OTHER_USER_ID), processor(arrangement.uri))
+    }
+
+    @Test
     fun `given a valid remote config deeplink, returns CustomServerConfig object`() = runTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withRemoteConfigDeeplink(FAKE_REMOTE_SERVER_URL)

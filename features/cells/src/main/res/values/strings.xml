@@ -88,7 +88,7 @@
     <string name="cells_upload_status_subtitle_uploading">Uploading…</string>
     <string name="cells_upload_status_subtitle_completed_with_size">Uploaded %1$s</string>
     <string name="cells_upload_status_subtitle_failed">Couldn\'t upload file</string>
-    <string name="cells_upload_status_subtitle_cancelled">Cancelled</string>
+    <string name="cells_upload_status_subtitle_cancelled">Canceled</string>
     <string name="cells_upload_status_retry_failed">Retry</string>
     <string name="cells_upload_status_cancel_all">Cancel all</string>
     <plurals name="cells_upload_confirmation_title">

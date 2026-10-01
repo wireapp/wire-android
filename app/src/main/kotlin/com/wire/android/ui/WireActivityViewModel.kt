@@ -97,7 +97,7 @@ import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
-import kotlinx.datetime.Instant
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -106,7 +106,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -116,11 +115,10 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.InputStreamReader
-import dev.zacsweers.metro.Inject
 
 private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
 
@@ -480,6 +478,7 @@ class WireActivityViewModel @Inject constructor(
                 }
 
                 is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
+                is DeepLinkResult.OpenMeetings -> sendAction(OpenMeetings(result))
                 is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
                 is DeepLinkResult.OpenOtherUserProfile -> onOpenUserProfileDeepLink(result)
 
@@ -1057,6 +1056,7 @@ sealed interface InitialAppState {
 
 sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
+internal data class OpenMeetings(val result: DeepLinkResult.OpenMeetings) : WireActivityViewAction
 internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction

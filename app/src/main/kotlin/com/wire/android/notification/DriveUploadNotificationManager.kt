@@ -100,66 +100,72 @@ class DriveUploadNotificationManager @Inject constructor(
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
 
         when {
-            active > 0 -> builder
-                .setContentTitle(
-                    context.resources.getQuantityString(R.plurals.notification_drive_upload_uploading_title, total, total)
-                )
-                .setContentText(context.getString(R.string.notification_drive_upload_progress_text, completed, total))
-                .setOngoing(true)
-                .setAutoCancel(false)
-                .applyProgress(uploads)
-                .addAction(getCancelAllDriveUploadsAction(context, userId.toString()))
+            active > 0 -> {
+                builder
+                    .setContentTitle(
+                        context.resources.getQuantityString(R.plurals.notification_drive_upload_uploading_title, total, total)
+                    )
+                    .setContentText(context.getString(R.string.notification_drive_upload_progress_text, completed, total))
+                    .setOngoing(true)
+                    .setAutoCancel(false)
+                    .applyProgress(uploads)
+                    .addAction(getCancelAllDriveUploadsAction(context, userId.toString()))
+            }
 
-            failed == 0 -> builder
-                .setContentTitle(context.getString(R.string.notification_drive_upload_complete_title))
-                .setContentText(
-                    context.resources.getQuantityString(R.plurals.notification_drive_upload_complete_text, completed, completed)
-                )
-                .setOngoing(false)
-                .setAutoCancel(true)
+            failed == 0 -> {
+                builder
+                    .setContentTitle(context.getString(R.string.notification_drive_upload_complete_title))
+                    .setContentText(
+                        context.resources.getQuantityString(R.plurals.notification_drive_upload_complete_text, completed, completed)
+                    )
+                    .setOngoing(false)
+                    .setAutoCancel(true)
+            }
 
-            else -> builder
-                .setContentTitle(context.getString(R.string.notification_drive_upload_partial_title, completed, total))
-                .setContentText(
-                    context.resources.getQuantityString(R.plurals.notification_drive_upload_partial_text, failed, failed)
-                )
-                .setOngoing(false)
-                .setAutoCancel(true)
-                .addAction(getRetryFailedDriveUploadsAction(context, userId.toString()))
-        }
-
-        return builder.build()
-    }
-
-    /**
-     * Opens the batch's Shared Drive conversation directly, so long as every upload targets the same one:
-     * uploads are only ever enqueued from a single [ConversationFilesScreen][com.wire.android.feature.cells.ui.ConversationFilesScreen],
-     * so this should always hold, but falls back to just opening the app rather than guessing otherwise.
-     */
-    private fun contentIntent(userId: UserId, uploads: List<CellUploadItem>): PendingIntent =
-        uploads.map { it.request.destinationFolderPath.substringBefore("/") }
-            .distinct()
-            .singleOrNull()
-            ?.let { conversationId -> driveFilesPendingIntent(context, conversationId, userId.toString()) }
-            ?: openAppPendingIntent(context)
-
-    /** Weighted by bytes rather than file count, so one large file mid-transfer still moves the bar. */
-    private fun NotificationCompat.Builder.applyProgress(uploads: List<CellUploadItem>): NotificationCompat.Builder {
-        val totalBytes = uploads.sumOf { it.sizeBytes.coerceAtLeast(0L) }
-        if (totalBytes <= 0L) {
-            return setProgress(0, 0, true)
-        }
-        val uploadedBytes = uploads.sumOf { item ->
-            when (val state = item.state) {
-                CellUploadState.Completed -> item.sizeBytes.coerceAtLeast(0L)
-                is CellUploadState.Uploading -> (item.sizeBytes.coerceAtLeast(0L) * state.progress).toLong()
-                else -> 0L
+            else -> {
+                builder
+                    .setContentTitle(context.getString(R.string.notification_drive_upload_partial_title, completed, total))
+                    .setContentText(
+                        context.resources.getQuantityString(R.plurals.notification_drive_upload_partial_text, failed, failed)
+                    )
+                    .setOngoing(false)
+                    .setAutoCancel(true)
+                    .addAction(getRetryFailedDriveUploadsAction(context, userId.toString()))
             }
         }
-        return setProgress(PROGRESS_MAX, ((uploadedBytes * PROGRESS_MAX) / totalBytes).toInt(), false)
-    }
 
-    private companion object {
-        const val PROGRESS_MAX = 100
+    return builder.build()
+}
+
+/**
+ * Opens the batch's Shared Drive conversation directly, so long as every upload targets the same one:
+ * uploads are only ever enqueued from a single [ConversationFilesScreen][com.wire.android.feature.cells.ui.ConversationFilesScreen],
+ * so this should always hold, but falls back to just opening the app rather than guessing otherwise.
+ */
+private fun contentIntent(userId: UserId, uploads: List<CellUploadItem>): PendingIntent =
+    uploads.map { it.request.destinationFolderPath.substringBefore("/") }
+        .distinct()
+        .singleOrNull()
+        ?.let { conversationId -> driveFilesPendingIntent(context, conversationId, userId.toString()) }
+        ?: openAppPendingIntent(context)
+
+/** Weighted by bytes rather than file count, so one large file mid-transfer still moves the bar. */
+private fun NotificationCompat.Builder.applyProgress(uploads: List<CellUploadItem>): NotificationCompat.Builder {
+    val totalBytes = uploads.sumOf { it.sizeBytes.coerceAtLeast(0L) }
+    if (totalBytes <= 0L) {
+        return setProgress(0, 0, true)
     }
+    val uploadedBytes = uploads.sumOf { item ->
+        when (val state = item.state) {
+            CellUploadState.Completed -> item.sizeBytes.coerceAtLeast(0L)
+            is CellUploadState.Uploading -> (item.sizeBytes.coerceAtLeast(0L) * state.progress).toLong()
+            else -> 0L
+        }
+    }
+    return setProgress(PROGRESS_MAX, ((uploadedBytes * PROGRESS_MAX) / totalBytes).toInt(), false)
+}
+
+private companion object {
+    const val PROGRESS_MAX = 100
+}
 }

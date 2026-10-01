@@ -139,11 +139,12 @@ class WireActivity : BaseActivity() {
             viewModel.observePersistentConnectionStatus()
 
             traceStartup("activity.initialAppState.start", startupAt)
-            val initialAppState = viewModel.initialAppState()
+            val startupSnapshot = viewModel.initialStartupSnapshot()
+            val initialAppState = startupSnapshot.initialAppState
             val initialRoute = WireInitialRouteResolver.resolve(
                 initialAppState = initialAppState,
                 loginType = WireStartupLoginType.fromCanUseNewLogin(loginTypeSelector.canUseNewLogin()),
-                activeSessionId = viewModel.globalAppState.currentUserId?.toWireSessionId(),
+                activeSessionId = startupSnapshot.currentUserId?.toWireSessionId(),
             )
             traceStartup("activity.initialAppState.resolved:${initialRoute.routeId}", startupAt)
             setComposableContent(initialRoute)

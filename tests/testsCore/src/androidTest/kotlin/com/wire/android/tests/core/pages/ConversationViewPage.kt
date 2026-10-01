@@ -863,6 +863,27 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertUserAvailabilityStatusIconVisible(userName: String): ConversationViewPage {
+        val statusIconVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            try {
+                device.findObjects(By.text(userName)).any { userNameElement ->
+                    generateSequence(userNameElement) { it.parent }
+                        .take(7)
+                        .any { parent ->
+                            parent.findObject(By.res("status_indicator"))?.visibleBounds?.isEmpty == false
+                        }
+                }
+            } catch (_: StaleObjectException) {
+                false
+            }
+        }
+        Assert.assertTrue(
+            "Status icon is not displayed next to user '$userName' in the conversation.",
+            statusIconVisible
+        )
+        return this
+    }
+
     fun tapLinkInCurrentConversation(link: String): ConversationViewPage {
         UiWaitUtils.waitElement(UiSelectorParams(text = link)).click()
         return this

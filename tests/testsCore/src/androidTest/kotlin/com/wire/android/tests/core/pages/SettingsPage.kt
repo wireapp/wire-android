@@ -339,6 +339,13 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertWebSocketToggleNotVisible(): SettingsPage {
+        val label = device.findObject(websocketConnectionLabel)
+        val websocketToggle = label.getFromParent(clickableToggle)
+        assertFalse("Websocket switch is visible", websocketToggle.exists())
+        return this
+    }
+
     fun assertWebsocketSwitchState(expectedState: String): SettingsPage {
         val label = device.findObject(websocketConnectionLabel)
         val state = label.getFromParent(UiSelector().text(expectedState))

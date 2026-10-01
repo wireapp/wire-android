@@ -24,6 +24,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestConversationDetails
+import com.wire.android.ui.home.conversations.details.GroupDetailsViewModelTest
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
@@ -48,12 +49,18 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.params.provider.ValueSource
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
@@ -79,6 +86,7 @@ class EditGuestAccessViewModelTest {
             // then
             coVerify(exactly = 1) { arrangement.updateConversationAccessRole(any(), any(), any()) }
             assertEquals(true, editGuestAccessViewModel.editGuestAccessState.isGuestAccessAllowed)
+            assertEquals(false, editGuestAccessViewModel.shouldDisableGenerateGuestLinkButton())
         }
 
     @Test
@@ -114,6 +122,9 @@ class EditGuestAccessViewModelTest {
             // then
             coVerify(inverse = true) { arrangement.updateConversationAccessRole(any(), any(), any()) }
             assertEquals(true, editGuestAccessViewModel.editGuestAccessState.shouldShowGuestAccessChangeConfirmationDialog)
+            assertEquals(true, editGuestAccessViewModel.shouldDisableGenerateGuestLinkButton())
+            editGuestAccessViewModel.onRequestGuestRoomLink()
+            coVerify(exactly = 0) { arrangement.generateGuestRoomLink(any(), any()) }
         }
 
     @Test
@@ -121,6 +132,7 @@ class EditGuestAccessViewModelTest {
         // given
         val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
             .withGenerateGuestRoomResult(GenerateGuestRoomLinkResult.Success)
+            .withEnabledGuestAccess()
             .arrange()
         advanceUntilIdle()
 
@@ -138,7 +150,7 @@ class EditGuestAccessViewModelTest {
         val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
             .withGenerateGuestRoomResult(
                 GenerateGuestRoomLinkResult.Failure(NetworkFailure.NoNetworkConnection(RuntimeException("no network")))
-            ).arrange()
+            ).withEnabledGuestAccess().arrange()
         advanceUntilIdle()
 
         // when
@@ -251,6 +263,102 @@ class EditGuestAccessViewModelTest {
             assertEquals(params.expectedResult, editGuestAccessViewModel.editGuestAccessState.isServicesAccessAllowed)
         }
 
+    @Test
+    fun `guest creation is disabled until conversation is observed`() = runTest(dispatcher.default()) {
+        val (arrangement, viewModel) = Arrangement(dispatcher).arrange()
+        viewModel.onRequestGuestRoomLink()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.editGuestAccessState.isGuestAccessAllowed)
+        assertEquals(true, viewModel.shouldDisableGenerateGuestLinkButton())
+        coVerify(exactly = 0) { arrangement.generateGuestRoomLink(any(), any()) }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun `observed guest access controls switch sync and creation`(channel: Boolean) = runTest(dispatcher.default()) {
+        val disabled = TestConversation.GROUP().copy(
+            access = listOf(Conversation.Access.INVITE),
+            accessRole = listOf(
+                Conversation.AccessRole.TEAM_MEMBER,
+                Conversation.AccessRole.NON_TEAM_MEMBER,
+                Conversation.AccessRole.SERVICE
+            )
+        )
+        fun details(conversation: Conversation) = ObserveConversationDetailsUseCase.Result.Success(
+            if (channel) {
+                GroupDetailsViewModelTest.testChannel.copy(
+                    conversation = conversation.copy(type = Conversation.Type.Group.Channel)
+                )
+            } else {
+                TestConversationDetails.GROUP.copy(conversation = conversation)
+            }
+        )
+        val flow = MutableStateFlow(details(disabled))
+        val (arrangement, viewModel) = Arrangement(dispatcher)
+            .withConversationDetails(flow)
+            .withConversationMembers(flowOf(ConversationParticipantsData(isSelfAnAdmin = true)))
+            .withGenerateGuestRoomResult(GenerateGuestRoomLinkResult.Success)
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.editGuestAccessState.isGuestAccessAllowed)
+        assertEquals(true, viewModel.shouldDisableGenerateGuestLinkButton())
+        viewModel.onRequestGuestRoomLink()
+        coVerify(exactly = 0) { arrangement.syncConversationCodeUseCase(any()) }
+        coVerify(exactly = 0) { arrangement.generateGuestRoomLink(any(), any()) }
+        coVerify(exactly = 0) { arrangement.updateConversationAccessRole(any(), any(), any()) }
+
+        flow.value = details(
+            disabled.copy(
+                access = disabled.access + Conversation.Access.CODE,
+                accessRole = disabled.accessRole + Conversation.AccessRole.GUEST
+            )
+        )
+        advanceUntilIdle()
+        assertEquals(true, viewModel.editGuestAccessState.isGuestAccessAllowed)
+        assertEquals(false, viewModel.shouldDisableGenerateGuestLinkButton())
+        viewModel.onRequestGuestRoomLink()
+        coVerify(exactly = 1) { arrangement.generateGuestRoomLink(any(), null) }
+        coVerify(exactly = 1) { arrangement.syncConversationCodeUseCase(any()) }
+
+        flow.value = details(disabled)
+        advanceUntilIdle()
+        assertEquals(true, viewModel.shouldDisableGenerateGuestLinkButton())
+        viewModel.onRequestGuestRoomLink()
+        coVerify(exactly = 1) { arrangement.generateGuestRoomLink(any(), null) }
+    }
+
+    @Test
+    fun `queued link request is rejected when guest access is disabled before execution`() = runTest {
+        val queuedDispatcher = StandardTestDispatcher(testScheduler)
+        Dispatchers.setMain(queuedDispatcher)
+        val (arrangement, viewModel) = Arrangement(TestDispatcherProvider(queuedDispatcher))
+            .withEnabledGuestAccess()
+            .arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.shouldDisableGenerateGuestLinkButton())
+        viewModel.onRequestGuestRoomLink()
+        viewModel.updateGuestAccess(false)
+        advanceUntilIdle()
+        coVerify(exactly = 0) { arrangement.generateGuestRoomLink(any(), any()) }
+    }
+
+    @Test
+    fun `pending and failed enable cannot generate a guest link`() = runTest(dispatcher.default()) {
+        val result = CompletableDeferred<UpdateConversationAccessRoleUseCase.Result>()
+        val (arrangement, viewModel) = Arrangement(dispatcher).arrange()
+        coEvery { arrangement.updateConversationAccessRole(any(), any(), any()) } coAnswers { result.await() }
+        viewModel.updateGuestAccess(true)
+        assertEquals(true, viewModel.shouldDisableGenerateGuestLinkButton())
+        viewModel.onRequestGuestRoomLink()
+        coVerify(exactly = 0) { arrangement.generateGuestRoomLink(any(), any()) }
+        result.complete(UpdateConversationAccessRoleUseCase.Result.Failure(CoreFailure.MissingClientRegistration))
+        advanceUntilIdle()
+        assertEquals(false, viewModel.editGuestAccessState.isGuestAccessAllowed)
+        assertEquals(true, viewModel.shouldDisableGenerateGuestLinkButton())
+        viewModel.onRequestGuestRoomLink()
+        coVerify(exactly = 0) { arrangement.generateGuestRoomLink(any(), any()) }
+    }
+
     private class Arrangement(dispatcherProvider: TestDispatcherProvider) {
         @MockK
         lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
@@ -319,6 +427,22 @@ class EditGuestAccessViewModelTest {
             coEvery { canCreatePasswordProtectedLinks() } returns true
             coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER)
             coEvery { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
+        }
+
+        fun withEnabledGuestAccess() = apply {
+            withConversationDetails(
+                flowOf(
+                    ObserveConversationDetailsUseCase.Result.Success(
+                        TestConversationDetails.GROUP.copy(
+                            conversation = TestConversation.GROUP().copy(
+                                access = listOf(Conversation.Access.INVITE, Conversation.Access.CODE),
+                                accessRole = listOf(Conversation.AccessRole.GUEST, Conversation.AccessRole.NON_TEAM_MEMBER)
+                            )
+                        )
+                    )
+                )
+            )
+            withConversationMembers(flowOf(ConversationParticipantsData(isSelfAnAdmin = true)))
         }
 
         fun withSyncConversationCodeSuccess() = apply {

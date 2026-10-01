@@ -28,6 +28,11 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
+import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import io.mockk.coVerify
 import io.mockk.coEvery
 import io.mockk.coVerifyOrder
 import io.mockk.every
@@ -39,6 +44,88 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class LoginSSOViewModelExtensionTest {
+
+    @Test
+    fun `email SSO bypasses capability and preserves its existing IdP`() = runTest {
+        val arrangement = EstablishArrangement(enabled = false)
+        arrangement.establish(PendingSsoLogin("canonical-idp", "server", false), emailIdp = "email-idp")
+
+        coVerify(exactly = 1) { arrangement.getLoginSession("cookie", false) }
+        coVerify(exactly = 1) {
+            arrangement.addAuthenticatedUser(match { it.ssoIdentityProviderId == "email-idp" }, false)
+        }
+    }
+
+    @Test
+    fun `code SSO supplies IdP only when capability is enabled`() = runTest {
+        for (enabled in listOf(true, false)) {
+            val arrangement = EstablishArrangement(enabled)
+            arrangement.establish(PendingSsoLogin("code-idp", "server", true))
+
+            coVerify(exactly = 1) { arrangement.getLoginSession("cookie", true) }
+            coVerify(exactly = 1) {
+                arrangement.addAuthenticatedUser(
+                    match { it.ssoIdentityProviderId == if (enabled) "code-idp" else null },
+                    false
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `settings failure stops before storing or opening a session`() = runTest {
+        val arrangement = EstablishArrangement(true)
+        coEvery { arrangement.getLoginSession("cookie", true) } returns
+            SSOLoginSessionResult.Failure.Generic(CoreFailure.Unknown(IllegalStateException("settings unavailable")))
+
+        arrangement.establish(PendingSsoLogin("idp", "server", true))
+
+        assertTrue(arrangement.failed)
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUser(any(), any()) }
+    }
+
+    @Test
+    fun `different backend context cannot complete login`() = runTest {
+        val arrangement = EstablishArrangement(true)
+        arrangement.establish(PendingSsoLogin("idp", "other-server", true))
+
+        assertTrue(arrangement.failed)
+        coVerify(exactly = 0) { arrangement.getLoginSession(any(), any()) }
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUser(any(), any()) }
+    }
+
+    private class EstablishArrangement(enabled: Boolean) {
+        val addAuthenticatedUser = mockk<AddAuthenticatedUserUseCase>()
+        val getLoginSession = mockk<GetSSOLoginSessionUseCase>()
+        private val authScope = mockk<AuthenticationScope>()
+        private val coreLogic = mockk<CoreLogic>()
+        private val userId = UserId("user", "domain")
+        private val extension = LoginSSOViewModelExtension(addAuthenticatedUser, coreLogic, false)
+        var failed = false
+
+        init {
+            coEvery { coreLogic.authenticationScopeForConfigId("server") } returns
+                AutoVersionAuthScopeUseCase.Result.Success(authScope)
+            every { authScope.ssoLoginScope.getLoginSession } returns getLoginSession
+            coEvery { getLoginSession(any(), any()) } returns SSOLoginSessionResult.Success(
+                AccountTokens(userId, "access", "refresh", "Bearer", null), null, null, null, enabled
+            )
+            coEvery { addAuthenticatedUser(any(), false) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        }
+
+        suspend fun establish(pending: PendingSsoLogin, emailIdp: String? = null) {
+            extension.establishSSOSession(
+                cookie = "cookie",
+                serverConfigId = "server",
+                pendingSsoLogin = pending,
+                ssoIdentityProviderId = emailIdp,
+                onAuthScopeFailure = { error("Unexpected auth scope failure") },
+                onSSOLoginFailure = { failed = true },
+                onAddAuthenticatedUserFailure = { error("Unexpected storage failure") },
+                onSuccess = {},
+            )
+        }
+    }
 
     @Test
     fun `given retained SSO session, when replacement is confirmed, then wipe data before storing new session`() = runTest {

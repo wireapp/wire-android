@@ -646,13 +646,13 @@
     <string name="leave_conversation_admin_options_dialog_description_with_promote">You\'re the only admin.\nPromote another participant before leaving, or delete the group if it is no longer needed.</string>
     <string name="leave_conversation_admin_options_dialog_description_with_promote_no_delete">You\'re the only admin.\nPromote another participant before leaving.</string>
     <string name="leave_conversation_admin_options_dialog_description_no_promote">You\'re the only admin. The other participants can\'t be admins.\nAdd at least one team member and promote them as an admin before you leave. Alternatively, delete the group if it is no longer needed.</string>
-    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">There are no other eligible admins in the group and as a personal user you cannot delete the group. However, add another team member and make that user admin to delete the group.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">Add at least one team member from the team that created this group and select them as an admin before you leave.</string>
     <string name="leave_conversation_admin_options_dialog_promote_button">Promote new admin</string>
     <string name="leave_conversation_admin_options_dialog_delete_button">Delete group</string>
     <string name="promote_admin_screen_title">Promote new admin</string>
     <string name="promote_admin_search_placeholder">Enter a name or email</string>
     <string name="promote_admin_button">Promote as admin and leave group</string>
-    <string name="promote_admin_error_failed_to_promote">Failed to promote user to admin</string>
+    <string name="promote_admin_error_failed_to_promote">Group member could not be promoted to admin</string>
     <string name="promote_admin_error_failed_to_leave">Failed to leave conversation</string>
     <string name="delete_conversation_conversation_menu_item">Delete Conversation…</string>
     <string name="delete_conversation_conversation_dialog_title">Delete “%s”?</string>
@@ -1042,7 +1042,7 @@
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
     <string name="error_conversation_not_found">Conversation could not be found</string>
     <string name="error_conversation_unknown_error">There was an error while loading conversation</string>
-    <string name="error_conversation_opening_meetings_unsupported">Meeting type conversation cannot be opened</string>
+    <string name="error_conversation_opening_meetings_unsupported">You can\'t use the chat option in this meeting</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversation was archived</string>
     <string name="success_unarchiving_conversation">Conversation was unarchived</string>

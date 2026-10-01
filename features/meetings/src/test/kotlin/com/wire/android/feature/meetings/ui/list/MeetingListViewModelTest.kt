@@ -466,6 +466,7 @@ class MeetingListViewModelTest {
         startTime: Instant,
         conversationId: ConversationId = ConversationId("conversation-id", "domain"),
     ) = MeetingOccurrence(
+        participants = emptyList(),
         meeting = Meeting(
             meetingId = meetingId,
             conversationId = conversationId,
@@ -542,6 +543,7 @@ class MeetingListViewModelTest {
         }
         fun arrange() = this to viewModelScenario {
             MeetingListViewModelImpl(
+                selfUserId = UserId("self", "wire.com"),
                 type = type,
                 dispatcher = TestDispatcherProvider(dispatcher),
                 currentTimeProvider = currentTimeProvider,

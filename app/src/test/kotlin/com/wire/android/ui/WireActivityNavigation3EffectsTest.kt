@@ -32,6 +32,17 @@ class WireActivityNavigation3EffectsTest {
     private val session = WireSessionId("user", "wire.example")
 
     @Test
+    fun givenMeetingInvite_whenResolving_thenOpenMeetingsForReceivingAccount() {
+        val target = QualifiedID("recipient", "wire.example")
+        val result = resolve(OpenMeetings(DeepLinkResult.OpenMeetings(target)), listOf(HomeRoute(session)))
+        val command = (result.mutations.single() as WireActivityNavigation3Mutation.Navigate).command
+        val home = assertInstanceOf(HomeRoute::class.java, command.destination)
+        assertEquals(WireSessionId(target.value, target.domain), home.sessionId)
+        assertEquals(HomeRoute.HomeDestination.MEETINGS, home.homeDestination)
+        assertEquals(WireBackStackMode.CLEAR_WHOLE, command.backStackMode)
+    }
+
+    @Test
     fun givenAuthorizationNeededOnEmptyWelcome_whenResolving_thenLoginClearsStackAndToastIsShown() {
         val result = resolve(OnAuthorizationNeeded, listOf(NewWelcomeEmptyStartRoute()))
         val command = result.singleCommand()

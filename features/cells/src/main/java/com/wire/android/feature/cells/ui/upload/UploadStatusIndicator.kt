@@ -167,8 +167,7 @@ internal fun UploadStatusIndicator(
                 tint = colorsScheme().secondaryText,
                 modifier = Modifier
                     .padding(top = dimensions().spacing8x, bottom = dimensions().spacing8x)
-                    .size(dimensions().spacing16x)
-                ,
+                    .size(dimensions().spacing16x),
             )
         }
     }

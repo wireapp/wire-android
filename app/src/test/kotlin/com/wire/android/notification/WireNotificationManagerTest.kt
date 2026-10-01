@@ -77,6 +77,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -96,6 +98,188 @@ import kotlin.time.Duration.Companion.minutes
 class WireNotificationManagerTest {
 
     private val dispatcherProvider = TestDispatcherProvider()
+
+    @Test
+    fun givenMixedNotifications_whenObserved_thenRouteEachFamilySeparately() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val invite = meetingInvite()
+            val message = provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(listOf(invite, message))
+                .withIncomingCalls(emptyList())
+                .withOutgoingCalls(emptyList())
+                .withCurrentScreen(CurrentScreen.Home)
+                .arrange()
+            manager.observeNotificationsAndCallsWhileRunning(listOf(TEST_AUTH_TOKEN.userId), this)
+            runCurrent()
+            verify { arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId) }
+            coVerify { arrangement.messageNotificationManager.handleNotification(listOf(message), TEST_AUTH_TOKEN.userId, any()) }
+            coVerify(exactly = 1) { arrangement.getNotificationsUseCase() }
+        }
+
+    @Test
+    fun givenMeetingDuringOneShotSync_whenSyncFinishes_thenCancelMeetingObserver() = runTest(dispatcherProvider.main()) {
+        val invite = meetingInvite()
+        val events = MutableSharedFlow<LocalNotification.Meeting>()
+        val (arrangement, manager) = Arrangement()
+            .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+            .withMeetingNotificationsFlow(events)
+            .withIncomingCalls(emptyList())
+            .arrange()
+        coEvery { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) } coAnswers {
+            runCurrent()
+            events.emit(invite)
+            runCurrent()
+        }
+
+        manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
+        runCurrent()
+        assertEquals(0, events.subscriptionCount.value)
+        verify(exactly = 1) {
+            arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId)
+        }
+    }
+
+    @Test
+    fun givenPersistentMeetingObserver_whenFetchingAndLoggingOut_thenReuseAndCancelObserver() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val invite = meetingInvite()
+            val events = MutableSharedFlow<LocalNotification.Meeting>()
+            val (arrangement, manager) = Arrangement()
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withMeetingNotificationsFlow(events)
+                .withIncomingCalls(emptyList())
+                .withOutgoingCalls(emptyList())
+                .withCurrentScreen(CurrentScreen.Home)
+                .arrange()
+            manager.observeNotificationsAndCallsPersistently(listOf(TEST_AUTH_TOKEN.userId), this)
+            runCurrent()
+            coEvery { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) } coAnswers {
+                runCurrent()
+                assertEquals(1, events.subscriptionCount.value)
+                events.emit(invite)
+                runCurrent()
+            }
+
+            manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
+            runCurrent()
+            assertEquals(1, events.subscriptionCount.value)
+            verify(exactly = 1) {
+                arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId)
+            }
+            manager.stopObservingOnLogout(TEST_AUTH_TOKEN.userId)
+            runCurrent()
+            assertEquals(0, events.subscriptionCount.value)
+            verify { arrangement.meetingNotificationManager.hideAllNotificationsForUser(TEST_AUTH_TOKEN.userId) }
+        }
+
+    @Test
+    fun givenDelayedSecurityState_whenInvitesArrive_thenWaitAndReuseStateUntilLogout() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val events = MutableSharedFlow<LocalNotification.Meeting>()
+            val security = MutableSharedFlow<E2EIRequiredResult>(replay = 1)
+            val (arrangement, manager) = Arrangement()
+                .withMeetingNotificationsFlow(events)
+                .withIncomingCalls(emptyList())
+                .withOutgoingCalls(emptyList())
+                .withCurrentScreen(CurrentScreen.SomeOther())
+                .arrange()
+            coEvery { arrangement.observeE2EIRequired() } returns security
+            manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
+            runCurrent()
+            assertEquals(1, events.subscriptionCount.value)
+            // One security observer for local notifications and one for incoming calls.
+            assertEquals(2, security.subscriptionCount.value)
+
+            events.emit(meetingInvite())
+            runCurrent()
+            verify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+            security.emit(E2EIRequiredResult.NotRequired)
+            runCurrent()
+            verify(exactly = 1) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+
+            security.emit(E2EIRequiredResult.NoGracePeriod.Create)
+            runCurrent()
+            events.emit(meetingInvite())
+            runCurrent()
+            verify(exactly = 1) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+            coVerify(exactly = 2) { arrangement.observeE2EIRequired() }
+
+            manager.stopObservingOnLogout(TestUser.SELF_USER.id)
+            runCurrent()
+            assertEquals(0, security.subscriptionCount.value)
+            assertEquals(0, events.subscriptionCount.value)
+        }
+
+    private fun meetingInvite() = LocalNotification.Meeting.Invite(
+        "event",
+        provideUserId(),
+        provideUserId(),
+        "Planning",
+        LocalNotificationMessageAuthor("Alice", null),
+        kotlinx.datetime.Instant.fromEpochMilliseconds(1234),
+        kotlinx.datetime.Instant.parse("2022-08-03T09:00:00Z"),
+        kotlinx.datetime.Instant.parse("2022-08-04T04:45:00Z"),
+    )
+
+    @Test
+    fun givenMeetingInviteInConversation_whenObserved_thenRouteWithoutMarkingMessages() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val invite = LocalNotification.Meeting.Invite(
+                "event",
+                provideUserId(),
+                provideUserId(),
+                "Planning",
+                LocalNotificationMessageAuthor("Alice", null),
+                kotlinx.datetime.Instant.fromEpochMilliseconds(1234),
+                kotlinx.datetime.Instant.parse("2022-08-03T09:00:00Z"),
+                kotlinx.datetime.Instant.parse("2022-08-04T04:45:00Z"),
+            )
+            val (arrangement, manager) = Arrangement()
+                .withMeetingNotifications(invite)
+                .withIncomingCalls(listOf())
+                .withOutgoingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.Conversation(invite.conversationId))
+                .arrange()
+            manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
+            runCurrent()
+            verify { arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TestUser.SELF_USER.id) }
+            coVerify(exactly = 0) {
+                arrangement.markMessagesAsNotified(any())
+                arrangement.markConnectionRequestAsNotified(any())
+                arrangement.messageNotificationManager.handleNotification(any(), any(), any())
+            }
+        }
+
+    @Test
+    fun givenMeetingInviteBlockedByE2EI_whenObserved_thenDoNotNotify() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val invite = LocalNotification.Meeting.Invite(
+                "event",
+                provideUserId(),
+                provideUserId(),
+                "Planning",
+                LocalNotificationMessageAuthor("Alice", null),
+                kotlinx.datetime.Instant.fromEpochMilliseconds(1234),
+                kotlinx.datetime.Instant.parse("2022-08-03T09:00:00Z"),
+                kotlinx.datetime.Instant.parse("2022-08-04T04:45:00Z"),
+            )
+            val (arrangement, manager) = Arrangement()
+                .withMeetingNotifications(invite)
+                .withIncomingCalls(listOf())
+                .withOutgoingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.Conversation(invite.conversationId))
+                .withObserveE2EIRequired(E2EIRequiredResult.NoGracePeriod.Create)
+                .arrange()
+            manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
+            runCurrent()
+            verify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+            coVerify(exactly = 0) {
+                arrangement.markMessagesAsNotified(any())
+                arrangement.markConnectionRequestAsNotified(any())
+                arrangement.messageNotificationManager.handleNotification(any(), any(), any())
+            }
+        }
 
     @Test
     fun givenNotAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenNothingHappen() = runTest(dispatcherProvider.main()) {
@@ -250,7 +434,7 @@ class WireNotificationManagerTest {
 
     @Test
     fun givenSomeNotifications_whenObserveCalled_thenCallNotificationShowed() = runTestWithCancellation(dispatcherProvider.main()) {
-        val messageNotifications = listOf<LocalNotification>(
+        val messageNotifications = listOf<LocalNotification.Conversation>(
             provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage())),
             provideLocalNotificationUpdateMessage()
         )
@@ -1200,16 +1384,19 @@ class WireNotificationManagerTest {
 
         private val currentSessionChannel = Channel<CurrentSessionResult>(capacity = Channel.UNLIMITED)
 
+        val meetingNotificationManager = io.mockk.mockk<MeetingNotificationManager>(relaxUnitFun = true)
+
         val wireNotificationManager by lazy {
             WireNotificationManager(
-                coreLogic,
-                currentScreenManager,
-                messageNotificationManager,
-                callNotificationManager,
-                syncLifecycleManager,
-                servicesManager,
-                dispatcherProvider,
-                pingRinger
+                coreLogic = coreLogic,
+                currentScreenManager = currentScreenManager,
+                messagesNotificationManager = messageNotificationManager,
+                meetingNotificationManager = meetingNotificationManager,
+                callNotificationManager = callNotificationManager,
+                syncLifecycleManager = syncLifecycleManager,
+                servicesManager = servicesManager,
+                dispatcherProvider = dispatcherProvider,
+                pingRinger = pingRinger,
             )
         }
 
@@ -1291,6 +1478,14 @@ class WireNotificationManagerTest {
         suspend fun withCurrentUserSession(session: CurrentSessionResult): Arrangement {
             currentSessionChannel.send(session)
             return this
+        }
+
+        fun withMeetingNotificationsFlow(events: Flow<LocalNotification.Meeting>): Arrangement = apply {
+            coEvery { getNotificationsUseCase() } returns events.map { listOf(it) }
+        }
+
+        fun withMeetingNotifications(invite: LocalNotification.Meeting): Arrangement = apply {
+            coEvery { getNotificationsUseCase() } returns flowOf(listOf(invite))
         }
 
         fun withMessageNotifications(notifications: List<LocalNotification>): Arrangement {
@@ -1406,7 +1601,7 @@ class WireNotificationManagerTest {
         private fun provideLocalNotificationConversation(
             id: ConversationId = ConversationId("conversation_value", "conversation_domain"),
             messages: List<LocalNotificationMessage> = listOf()
-        ) = LocalNotification.Conversation(
+        ) = LocalNotification.Conversation.NewMessages(
             id,
             "name_${id.value}",
             messages,
@@ -1416,8 +1611,8 @@ class WireNotificationManagerTest {
         private fun provideLocalNotificationUpdateMessage(
             id: ConversationId = ConversationId("conversation_value", "conversation_domain"),
             action: LocalNotificationUpdateMessageAction = LocalNotificationUpdateMessageAction.Edit("new text", "new_name_${id.value}")
-        ): LocalNotification.UpdateMessage {
-            return LocalNotification.UpdateMessage(id, "name_${id.value}", action)
+        ): LocalNotification.Conversation.UpdateMessage {
+            return LocalNotification.Conversation.UpdateMessage(id, "name_${id.value}", action)
         }
 
         private fun provideLocalNotificationMessage(): LocalNotificationMessage = LocalNotificationMessage.Text(

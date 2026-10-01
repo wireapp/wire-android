@@ -262,14 +262,14 @@ class UpgradeVersion : BaseUiTest() {
             }
         }
 
-        step("When I type the final migration message into the text input field and send it") {
+        step("When I type the final upgrade message into the text input field and send it") {
             pages.conversationViewPage.apply {
                 typeMessageInInputField("Upgrade was a success!")
                 clickSendButton()
             }
         }
 
-        step("Then I see the final migration message in current conversation") {
+        step("Then I see the final upgrade message in current conversation") {
             pages.conversationViewPage.apply {
                 assertSentMessageIsVisibleInCurrentConversation("Upgrade was a success!")
             }
@@ -281,10 +281,10 @@ class UpgradeVersion : BaseUiTest() {
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithMessageHistory_whenUpgradingWire_thenConversationHistoryIsPreserved() {
-        step("There is a team owner with a team named Migration") {
+        step("There is a team owner with a team named Upgrade") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
-                "Migration",
+                "Upgrade",
                 "en_US",
                 true,
                 backendClient,
@@ -296,7 +296,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
-                "Migration",
+                "Upgrade",
                 TeamRoles.Member,
                 backendClient,
                 context,
@@ -304,12 +304,12 @@ class UpgradeVersion : BaseUiTest() {
             )
         }
 
-        step("Team owner has group conversation HappyMigration with Member 1 and Member 2") {
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
             backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
-                "HappyMigration",
+                "HappyUpgrade",
                 "user2Name,user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -317,7 +317,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -325,7 +325,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user1Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -347,47 +347,47 @@ class UpgradeVersion : BaseUiTest() {
         step("I see all prepared conversations in the conversation list") {
             pages.conversationListPage.apply {
                 assertConversationListVisible()
-                assertGroupConversationVisible("HappyMigration")
+                assertGroupConversationVisible("HappyUpgrade")
                 assertConversationVisible(member2?.name.orEmpty())
                 assertConversationVisible(teamOwner?.name.orEmpty())
             }
         }
 
-        step("I open group conversation HappyMigration") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open group conversation HappyUpgrade") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
         }
 
-        step("Member 2 and Team Owner send messages to HappyMigration") {
+        step("Member 2 and Team Owner send messages to HappyUpgrade") {
             testServiceHelper.apply {
                 userSendMessageToConversation(
                     "user3Name",
                     "Hello!",
                     "Device1",
-                    "HappyMigration"
+                    "HappyUpgrade"
                 )
                 userSendMessageToConversation(
                     "user1Name",
                     "Hello to you, too!",
                     "Device1",
-                    "HappyMigration"
+                    "HappyUpgrade"
                 )
             }
         }
 
-        step("I see both received messages in HappyMigration") {
+        step("I see both received messages in HappyUpgrade") {
             pages.conversationViewPage.apply {
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello!")
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello to you, too!")
             }
         }
 
-        step("Member 2 sends an image to HappyMigration") {
+        step("Member 2 sends an image to HappyUpgrade") {
             testServiceHelper.contactSendsLocalImageConversation(
                 context,
                 "testing.jpg",
                 "user3Name",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
@@ -450,16 +450,16 @@ class UpgradeVersion : BaseUiTest() {
             pages.registrationPage.waitUntilLoginFlowIsCompleted()
         }
 
-        step("The unread messages and HappyMigration conversation remain visible") {
+        step("The unread messages and HappyUpgrade conversation remain visible") {
             pages.conversationListPage.apply {
                 assertConversationHasUnreadMessagesCount(member2?.name.orEmpty(), "1")
                 assertConversationHasUnreadMessagesCount(teamOwner?.name.orEmpty(), "1")
-                assertGroupConversationVisible("HappyMigration")
+                assertGroupConversationVisible("HappyUpgrade")
             }
         }
 
-        step("I open HappyMigration and see its message history") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open HappyUpgrade and see its message history") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
             pages.conversationViewPage.apply {
                 assertSentMessageIsVisibleInCurrentConversation("Hello as well!")
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello to you, too!")
@@ -471,28 +471,28 @@ class UpgradeVersion : BaseUiTest() {
         step("Team Owner sends a message after the upgrade") {
             testServiceHelper.userSendMessageToConversation(
                 "user1Name",
-                "Hello after Migration!",
+                "Hello after Upgrade!",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
         step("I see Team Owner's message after the upgrade") {
             pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation(
-                "Hello after Migration!"
+                "Hello after Upgrade!"
             )
         }
 
         step("I send a message after the upgrade") {
             pages.conversationViewPage.apply {
-                typeMessageInInputField("Migration was a success!")
+                typeMessageInInputField("Upgrade was a success!")
                 clickSendButton()
             }
         }
 
         step("I see my message after the upgrade") {
             pages.conversationViewPage.assertSentMessageIsVisibleInCurrentConversation(
-                "Migration was a success!"
+                "Upgrade was a success!"
             )
         }
     }
@@ -654,7 +654,7 @@ class UpgradeVersion : BaseUiTest() {
         step("Contact 1 sends a message after the upgrade") {
             testServiceHelper.userSendMessageToPersonalMlsConversation(
                 "user2Name",
-                "Hello after Migration!",
+                "Hello after Upgrade!",
                 "Device1",
                 "user1Name"
             )
@@ -662,20 +662,20 @@ class UpgradeVersion : BaseUiTest() {
 
         step("I see Contact 1's message after the upgrade") {
             pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation(
-                "Hello after Migration!"
+                "Hello after Upgrade!"
             )
         }
 
         step("I send a message after the upgrade") {
             pages.conversationViewPage.apply {
-                typeMessageInInputField("Migration was a success!")
+                typeMessageInInputField("Upgrade was a success!")
                 clickSendButton()
             }
         }
 
         step("I see my message after the upgrade") {
             pages.conversationViewPage.assertSentMessageIsVisibleInCurrentConversation(
-                "Migration was a success!"
+                "Upgrade was a success!"
             )
         }
     }
@@ -685,10 +685,10 @@ class UpgradeVersion : BaseUiTest() {
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithSharedAssets_whenUpgradingWire_thenAssetsArePreserved() {
-        step("There is a team owner with a team named Migration") {
+        step("There is a team owner with a team named Upgrade") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
-                "Migration",
+                "Upgrade",
                 "en_US",
                 true,
                 backendClient,
@@ -700,7 +700,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
-                "Migration",
+                "Upgrade",
                 TeamRoles.Member,
                 backendClient,
                 context,
@@ -721,12 +721,12 @@ class UpgradeVersion : BaseUiTest() {
             member2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("Team owner has group conversation HappyMigration with Member 1 and Member 2") {
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
             backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
-                "HappyMigration",
+                "HappyUpgrade",
                 "user2Name,user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -734,7 +734,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -742,7 +742,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user1Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -751,32 +751,32 @@ class UpgradeVersion : BaseUiTest() {
         step("I see all prepared conversations in the conversation list") {
             pages.conversationListPage.apply {
                 assertConversationListVisible()
-                assertGroupConversationVisible("HappyMigration")
+                assertGroupConversationVisible("HappyUpgrade")
                 assertConversationVisible(member2?.name.orEmpty())
                 assertConversationVisible(teamOwner?.name.orEmpty())
             }
         }
 
-        step("I open group conversation HappyMigration") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open group conversation HappyUpgrade") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
         }
 
-        step("Member 2 sends message Hello to HappyMigration") {
+        step("Member 2 sends message Hello to HappyUpgrade") {
             testServiceHelper.userSendMessageToConversation(
                 "user3Name",
                 "Hello!",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
-        step("Member 2 sends image testing.jpg to HappyMigration") {
+        step("Member 2 sends image testing.jpg to HappyUpgrade") {
             testServiceHelper.contactSendsLocalImageConversation(
                 context,
                 "testing.jpg",
                 "user3Name",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
@@ -784,13 +784,13 @@ class UpgradeVersion : BaseUiTest() {
             pages.conversationViewPage.assertImageIsVisible()
         }
 
-        step("Team Owner sends video testing.mp4 to HappyMigration") {
+        step("Team Owner sends video testing.mp4 to HappyUpgrade") {
             testServiceHelper.contactSendsLocalVideoConversation(
                 context,
                 "testing.mp4",
                 "user1Name",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
@@ -801,13 +801,13 @@ class UpgradeVersion : BaseUiTest() {
             }
         }
 
-        step("Member 2 sends a 1 KB text file named qa_random.txt to HappyMigration") {
+        step("Member 2 sends a 1 KB text file named qa_random.txt to HappyUpgrade") {
             testServiceHelper.contactSendsOneKbTextFileConversation(
                 context,
                 "qa_random.txt",
                 "user3Name",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
@@ -832,12 +832,12 @@ class UpgradeVersion : BaseUiTest() {
             pages.registrationPage.waitUntilLoginFlowIsCompleted()
         }
 
-        step("HappyMigration remains visible after the upgrade") {
-            pages.conversationListPage.assertGroupConversationVisible("HappyMigration")
+        step("HappyUpgrade remains visible after the upgrade") {
+            pages.conversationListPage.assertGroupConversationVisible("HappyUpgrade")
         }
 
-        step("I open HappyMigration and see all shared assets") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open HappyUpgrade and see all shared assets") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
             pages.conversationViewPage.apply {
                 assertImageIsVisible()
                 assertFileWithNameIsVisible("testing.mp4")
@@ -851,10 +851,10 @@ class UpgradeVersion : BaseUiTest() {
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserLeftGroup_whenUpgradingWire_thenHistoryRemainsVisibleAndNewMessagesAreNotReceived() {
-        step("There is a team owner with a team named Migration") {
+        step("There is a team owner with a team named Upgrade") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
-                "Migration",
+                "Upgrade",
                 "en_US",
                 true,
                 backendClient,
@@ -866,7 +866,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
-                "Migration",
+                "Upgrade",
                 TeamRoles.Member,
                 backendClient,
                 context,
@@ -887,12 +887,12 @@ class UpgradeVersion : BaseUiTest() {
             member2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("Team owner has group conversation HappyMigration with Member 1 and Member 2") {
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
             backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
-                "HappyMigration",
+                "HappyUpgrade",
                 "user2Name,user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -900,7 +900,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -908,7 +908,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user1Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -917,47 +917,47 @@ class UpgradeVersion : BaseUiTest() {
         step("I see all prepared conversations in the conversation list") {
             pages.conversationListPage.apply {
                 assertConversationListVisible()
-                assertGroupConversationVisible("HappyMigration")
+                assertGroupConversationVisible("HappyUpgrade")
                 assertConversationVisible(member2?.name.orEmpty())
                 assertConversationVisible(teamOwner?.name.orEmpty())
             }
         }
 
-        step("I open group conversation HappyMigration") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open group conversation HappyUpgrade") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
         }
 
-        step("Member 2 and Team Owner send messages to HappyMigration") {
+        step("Member 2 and Team Owner send messages to HappyUpgrade") {
             testServiceHelper.apply {
                 userSendMessageToConversation(
                     "user3Name",
                     "Hello!",
                     "Device1",
-                    "HappyMigration"
+                    "HappyUpgrade"
                 )
                 userSendMessageToConversation(
                     "user1Name",
                     "Hello to you, too!",
                     "Device1",
-                    "HappyMigration"
+                    "HappyUpgrade"
                 )
             }
         }
 
-        step("I see both received messages in HappyMigration") {
+        step("I see both received messages in HappyUpgrade") {
             pages.conversationViewPage.apply {
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello!")
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello to you, too!")
             }
         }
 
-        step("Member 2 sends image testing.jpg to HappyMigration") {
+        step("Member 2 sends image testing.jpg to HappyUpgrade") {
             testServiceHelper.contactSendsLocalImageConversation(
                 context,
                 "testing.jpg",
                 "user3Name",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
@@ -977,12 +977,12 @@ class UpgradeVersion : BaseUiTest() {
             pages.conversationViewPage.assertSentMessageIsVisibleInCurrentConversation("Hello as well!")
         }
 
-        step("I open HappyMigration details and show more options") {
-            pages.conversationViewPage.clickOnGroupConversationDetails("HappyMigration")
+        step("I open HappyUpgrade details and show more options") {
+            pages.conversationViewPage.clickOnGroupConversationDetails("HappyUpgrade")
             pages.groupConversationDetailsPage.tapShowMoreOptionsButton()
         }
 
-        step("I leave HappyMigration and confirm") {
+        step("I leave HappyUpgrade and confirm") {
             pages.groupConversationDetailsPage.apply {
                 tapLeaveConversationButton()
                 tapLeaveConversationConfirmButton()
@@ -1010,12 +1010,12 @@ class UpgradeVersion : BaseUiTest() {
             pages.registrationPage.waitUntilLoginFlowIsCompleted()
         }
 
-        step("HappyMigration remains visible after the upgrade") {
-            pages.conversationListPage.assertGroupConversationVisible("HappyMigration")
+        step("HappyUpgrade remains visible after the upgrade") {
+            pages.conversationListPage.assertGroupConversationVisible("HappyUpgrade")
         }
 
-        step("I open HappyMigration and see its history from before I left") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open HappyUpgrade and see its history from before I left") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
             pages.conversationViewPage.apply {
                 assertSentMessageIsVisibleInCurrentConversation("Hello as well!")
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello to you, too!")
@@ -1024,17 +1024,17 @@ class UpgradeVersion : BaseUiTest() {
             }
         }
 
-        step("Member 2 sends a message after I left HappyMigration") {
+        step("Member 2 sends a message after I left HappyUpgrade") {
             testServiceHelper.userSendMessageToConversation(
                 "user3Name",
-                "Hello after Migration",
+                "Hello after Upgrade",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
-        step("I do not see the message sent after I left HappyMigration") {
-            pages.conversationViewPage.assertMessageNotVisible("Hello after Migration")
+        step("I do not see the message sent after I left HappyUpgrade") {
+            pages.conversationViewPage.assertMessageNotVisible("Hello after Upgrade")
         }
     }
 
@@ -1043,10 +1043,10 @@ class UpgradeVersion : BaseUiTest() {
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserClearedGroupContent_whenUpgradingWire_thenClearedContentDoesNotReturn() {
-        step("There is a team owner with a team named Migration") {
+        step("There is a team owner with a team named Upgrade") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
-                "Migration",
+                "Upgrade",
                 "en_US",
                 true,
                 backendClient,
@@ -1058,7 +1058,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
-                "Migration",
+                "Upgrade",
                 TeamRoles.Member,
                 backendClient,
                 context,
@@ -1079,12 +1079,12 @@ class UpgradeVersion : BaseUiTest() {
             member2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("Team owner has group conversation HappyMigration with Member 1 and Member 2") {
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
             backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
-                "HappyMigration",
+                "HappyUpgrade",
                 "user2Name,user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -1092,7 +1092,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -1100,7 +1100,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user1Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -1109,47 +1109,47 @@ class UpgradeVersion : BaseUiTest() {
         step("I see all prepared conversations in the conversation list") {
             pages.conversationListPage.apply {
                 assertConversationListVisible()
-                assertGroupConversationVisible("HappyMigration")
+                assertGroupConversationVisible("HappyUpgrade")
                 assertConversationVisible(member2?.name.orEmpty())
                 assertConversationVisible(teamOwner?.name.orEmpty())
             }
         }
 
-        step("I open group conversation HappyMigration") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open group conversation HappyUpgrade") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
         }
 
-        step("Member 2 and Team Owner send messages to HappyMigration") {
+        step("Member 2 and Team Owner send messages to HappyUpgrade") {
             testServiceHelper.apply {
                 userSendMessageToConversation(
                     "user3Name",
                     "Hello!",
                     "Device1",
-                    "HappyMigration"
+                    "HappyUpgrade"
                 )
                 userSendMessageToConversation(
                     "user1Name",
                     "Hello to you, too!",
                     "Device1",
-                    "HappyMigration"
+                    "HappyUpgrade"
                 )
             }
         }
 
-        step("I see both received messages in HappyMigration") {
+        step("I see both received messages in HappyUpgrade") {
             pages.conversationViewPage.apply {
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello!")
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello to you, too!")
             }
         }
 
-        step("Member 2 sends image testing.jpg to HappyMigration") {
+        step("Member 2 sends image testing.jpg to HappyUpgrade") {
             testServiceHelper.contactSendsLocalImageConversation(
                 context,
                 "testing.jpg",
                 "user3Name",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
@@ -1169,8 +1169,8 @@ class UpgradeVersion : BaseUiTest() {
             pages.conversationViewPage.assertSentMessageIsVisibleInCurrentConversation("Hello as well!")
         }
 
-        step("I open HappyMigration details and show more options") {
-            pages.conversationViewPage.clickOnGroupConversationDetails("HappyMigration")
+        step("I open HappyUpgrade details and show more options") {
+            pages.conversationViewPage.clickOnGroupConversationDetails("HappyUpgrade")
             pages.groupConversationDetailsPage.tapShowMoreOptionsButton()
         }
 
@@ -1191,11 +1191,11 @@ class UpgradeVersion : BaseUiTest() {
             pages.groupConversationDetailsPage.tapCloseButtonOnGroupConversationDetailsPage()
         }
 
-        step("HappyMigration is in the foreground") {
-            pages.conversationViewPage.assertGroupConversationInForeground("HappyMigration")
+        step("HappyUpgrade is in the foreground") {
+            pages.conversationViewPage.assertGroupConversationInForeground("HappyUpgrade")
         }
 
-        step("I close HappyMigration") {
+        step("I close HappyUpgrade") {
             pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
         }
 
@@ -1213,12 +1213,12 @@ class UpgradeVersion : BaseUiTest() {
             pages.registrationPage.waitUntilLoginFlowIsCompleted()
         }
 
-        step("HappyMigration remains visible after the upgrade") {
-            pages.conversationListPage.assertGroupConversationVisible("HappyMigration")
+        step("HappyUpgrade remains visible after the upgrade") {
+            pages.conversationListPage.assertGroupConversationVisible("HappyUpgrade")
         }
 
-        step("I open HappyMigration and do not see the cleared content") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open HappyUpgrade and do not see the cleared content") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
             pages.conversationViewPage.apply {
                 assertMessageNotVisible("Hello as well!")
                 assertMessageNotVisible("Hello to you, too!")
@@ -1230,15 +1230,15 @@ class UpgradeVersion : BaseUiTest() {
         step("Member 2 sends a message after the upgrade") {
             testServiceHelper.userSendMessageToConversation(
                 "user3Name",
-                "Hello after Migration",
+                "Hello after Upgrade",
                 "Device1",
-                "HappyMigration"
+                "HappyUpgrade"
             )
         }
 
         step("I see the new message after the upgrade") {
             pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation(
-                "Hello after Migration"
+                "Hello after Upgrade"
             )
         }
     }
@@ -1248,10 +1248,10 @@ class UpgradeVersion : BaseUiTest() {
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenConversationWithRemovedTeamMember_whenUpgradingWire_thenDeletedStatusIsPreserved() {
-        step("There is a team owner with a team named Migration") {
+        step("There is a team owner with a team named Upgrade") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
-                "Migration",
+                "Upgrade",
                 "en_US",
                 true,
                 backendClient,
@@ -1263,7 +1263,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
-                "Migration",
+                "Upgrade",
                 TeamRoles.Member,
                 backendClient,
                 context,
@@ -1288,7 +1288,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -1296,7 +1296,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user1Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -1340,7 +1340,7 @@ class UpgradeVersion : BaseUiTest() {
             pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
         }
 
-        step("Team Owner removes Member 2 from Migration") {
+        step("Team Owner removes Member 2 from Upgrade") {
             requireNotNull(teamOwner).deleteTeamMember(
                 backendClient,
                 requireNotNull(member2?.id) { "Member 2 has no backend user ID." }
@@ -1378,10 +1378,10 @@ class UpgradeVersion : BaseUiTest() {
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenDeletedGroupConversation_whenUpgradingWire_thenConversationRemainsDeleted() {
-        step("There is a team owner with a team named Migration") {
+        step("There is a team owner with a team named Upgrade") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
-                "Migration",
+                "Upgrade",
                 "en_US",
                 true,
                 backendClient,
@@ -1393,7 +1393,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
-                "Migration",
+                "Upgrade",
                 TeamRoles.Member,
                 backendClient,
                 context,
@@ -1414,12 +1414,12 @@ class UpgradeVersion : BaseUiTest() {
             }
         }
 
-        step("Team owner has group conversation HappyMigration with Member 1 and Member 2") {
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
             backendSetupHelper.userHasGroupConversationInTeam(
                 "user1Name",
-                "HappyMigration",
+                "HappyUpgrade",
                 "user2Name,user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -1427,7 +1427,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user3Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -1435,7 +1435,7 @@ class UpgradeVersion : BaseUiTest() {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user1Name",
-                "Migration"
+                "Upgrade"
             )
         }
 
@@ -1444,34 +1444,34 @@ class UpgradeVersion : BaseUiTest() {
         step("I see all prepared conversations in the conversation list") {
             pages.conversationListPage.apply {
                 assertConversationListVisible()
-                assertGroupConversationVisible("HappyMigration")
+                assertGroupConversationVisible("HappyUpgrade")
                 assertConversationVisible(member2?.name.orEmpty())
                 assertConversationVisible(teamOwner?.name.orEmpty())
             }
         }
 
-        step("I open group conversation HappyMigration") {
-            pages.conversationListPage.clickGroupConversation("HappyMigration")
+        step("I open group conversation HappyUpgrade") {
+            pages.conversationListPage.clickGroupConversation("HappyUpgrade")
         }
 
-        step("Member 2 and Team Owner send messages to HappyMigration") {
+        step("Member 2 and Team Owner send messages to HappyUpgrade") {
             testServiceHelper.apply {
                 userSendMessageToConversation(
                     "user3Name",
                     "Hello!",
                     "Device1",
-                    "HappyMigration"
+                    "HappyUpgrade"
                 )
                 userSendMessageToConversation(
                     "user1Name",
                     "Hello to you, too!",
                     "Device1",
-                    "HappyMigration"
+                    "HappyUpgrade"
                 )
             }
         }
 
-        step("I see both received messages in HappyMigration") {
+        step("I see both received messages in HappyUpgrade") {
             pages.conversationViewPage.apply {
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello!")
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello to you, too!")
@@ -1490,14 +1490,14 @@ class UpgradeVersion : BaseUiTest() {
             closeKeyboardIfOpened()
         }
 
-        step("Team Owner deletes HappyMigration") {
-            backendSetupHelper.userDeletesGroupConversation("user1Name", "HappyMigration")
+        step("Team Owner deletes HappyUpgrade") {
+            backendSetupHelper.userDeletesGroupConversation("user1Name", "HappyUpgrade")
         }
 
-        step("HappyMigration is no longer visible") {
+        step("HappyUpgrade is no longer visible") {
             pages.conversationListPage.apply {
                 assertConversationListVisible()
-                assertConversationNotVisible("HappyMigration")
+                assertConversationNotVisible("HappyUpgrade")
             }
         }
 
@@ -1515,9 +1515,9 @@ class UpgradeVersion : BaseUiTest() {
             pages.registrationPage.waitUntilLoginFlowIsCompleted()
         }
 
-        step("HappyMigration remains deleted and the one-to-one conversations remain visible") {
+        step("HappyUpgrade remains deleted and the one-to-one conversations remain visible") {
             pages.conversationListPage.apply {
-                assertConversationNotVisible("HappyMigration")
+                assertConversationNotVisible("HappyUpgrade")
                 assertConversationVisible(teamOwner?.name.orEmpty())
                 assertConversationVisible(member2?.name.orEmpty())
             }

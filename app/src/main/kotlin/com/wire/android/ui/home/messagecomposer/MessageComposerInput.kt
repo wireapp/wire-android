@@ -310,7 +310,7 @@ private fun InputContent(
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("CyclomaticComplexMethod") // Focus gating keeps hardware and touch keyboard states in one text-field owner.
 @Composable
-private fun MessageComposerTextInput(
+internal fun MessageComposerTextInput(
     messageTextState: TextFieldState,
     focusRequester: FocusRequester,
     colors: WireTextFieldColors,

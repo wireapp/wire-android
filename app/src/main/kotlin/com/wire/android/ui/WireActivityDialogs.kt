@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.BuildConfig
@@ -120,8 +121,14 @@ internal fun WireActivityDialogs(
     activityViewModels: WireActivityScopedViewModels?,
     actions: WireActivityDialogActions,
 ) {
+    val context = LocalContext.current
     if (activityViewModels == null) {
         UpdateAppDialog(viewModel.globalAppState.updateAppDialog, actions.updateApp)
+        RestartAppDialog(
+            shouldShow = viewModel.globalAppState.restartAppDialog,
+            onRestart = { RestartActivity.restart(context) },
+            onDismiss = viewModel::dismissRestartAppDialog,
+        )
         CustomBackendDialog(
             state = viewModel.globalAppState.customBackendDialog,
             onDismiss = {
@@ -263,6 +270,11 @@ internal fun WireActivityDialogs(
             }
 
             UpdateAppDialog(viewModel.globalAppState.updateAppDialog, actions.updateApp)
+            RestartAppDialog(
+                shouldShow = viewModel.globalAppState.restartAppDialog,
+                onRestart = { RestartActivity.restart(context) },
+                onDismiss = viewModel::dismissRestartAppDialog,
+            )
             JoinConversationDialog(
                 joinedDialogState = viewModel.globalAppState.conversationJoinedDialog,
                 openConversation = actions.openJoinedConversation,
@@ -428,6 +440,32 @@ fun TeamAppLockFeatureFlagDialog(
             type = WireDialogButtonType.Primary,
         )
     )
+}
+
+@Composable
+fun RestartAppDialog(shouldShow: Boolean, onRestart: () -> Unit, onDismiss: () -> Unit) {
+    if (shouldShow) {
+        WireDialog(
+            title = stringResource(id = R.string.restart_app_dialog_title),
+            text = stringResource(R.string.restart_app_dialog_body),
+            onDismiss = onDismiss,
+            optionButton1Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.restart_app_dialog_button_later),
+                onClick = onDismiss,
+                type = WireDialogButtonType.Secondary,
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.restart_app_dialog_button_restart),
+                onClick = onRestart,
+                type = WireDialogButtonType.Primary,
+            ),
+            properties = wireDialogPropertiesBuilder(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = false
+            )
+        )
+    }
 }
 
 @Composable

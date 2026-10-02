@@ -58,6 +58,12 @@ class NewMemberMessaging : BaseUiTest() {
             )
             teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user1Name",
+                "Messaging",
+                backendClient
+            )
+
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -70,17 +76,21 @@ class NewMemberMessaging : BaseUiTest() {
 
             member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
 
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user3Name",
-                "Messaging"
-            )
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-            backendSetupHelper.userXAddedContactsToGroupChat("user1Name", "user2Name", "MyTeam")
+            testServiceHelper.apply {
+                listOf("user1Name", "user2Name", "user3Name").forEach { user ->
+                    addDevice(user, null, "Device1")
+                }
+
+                userCreatesMLSGroupConversation(
+                    ownerAlias = "user1Name",
+                    participantAliases = "user3Name",
+                    conversationName = "MyTeam",
+                    deviceName = "Device1"
+                )
+            }
         }
 
-        step("Login as new team member in Android app") {
+        step("Login as team owner in Android app") {
             pages.registrationPage.apply {
                 assertEmailWelcomePage()
             }
@@ -90,6 +100,51 @@ class NewMemberMessaging : BaseUiTest() {
                 clickContinueButtonOnBackendConfigSuccess()
             }
             pages.loginPage.apply {
+                enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
+                clickLoginButton()
+                enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
+                clickLoginButton()
+            }
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+
+        step("Add the new team member to the existing MLS group through the UI") {
+            pages.conversationListPage.clickGroupConversation("MyTeam")
+            pages.conversationViewPage.clickOnGroupConversationDetails("MyTeam")
+            pages.groupConversationDetailsPage.apply {
+                tapOnParticipantsTab()
+                tapAddParticipantsButton()
+                assertUsernameInSuggestionsListIs(member1?.name ?: "")
+                selectUserInSuggestionList(member1?.name ?: "")
+                tapContinueButton()
+                assertUsernameIsAddedToParticipantsList(member1?.name ?: "")
+                tapCloseButtonOnGroupConversationDetailsPage()
+            }
+            pages.conversationViewPage.apply {
+                assertSystemMessageVisible("You added ${member1?.name ?: ""} to the conversation")
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+
+        step("Log out the team owner") {
+            pages.conversationListPage.clickUserProfileButton()
+            pages.selfUserProfilePage.apply {
+                iSeeUserProfilePage()
+                tapLogoutButton()
+                tapLogoutButton()
+            }
+            pages.registrationPage.assertEmailWelcomePage(timeout = UiWaitUtils.MEDIUM_TIMEOUT)
+        }
+
+        step("Login as the new team member in Android app") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
                 enterTeamMemberLoggingEmail(member1?.email ?: "")
                 clickLoginButton()
                 enterTeamMemberLoggingPassword(member1?.password ?: "")
@@ -97,7 +152,6 @@ class NewMemberMessaging : BaseUiTest() {
             }
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
         }

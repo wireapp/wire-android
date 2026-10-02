@@ -32,19 +32,25 @@ import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.feature.UserSessionScope
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * A Worker that observes asset uploads and only completes when there are no uploads in progress.
  * This is required to let the network operations running when the app is in the background.
+ *
+ * It covers both message attachment drafts and Shared Drive direct uploads. The worker never uploads
+ * anything itself: the transfers keep running in their own session-scoped coroutines, and this only
+ * holds the process at foreground priority until they are all done.
  */
 class AssetUploadObserverWorker @AssistedInject constructor(
     @Assisted appContext: Context,
@@ -55,22 +61,24 @@ class AssetUploadObserverWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
 
-        // Wait until there are no uploads in progress
-        // switching to other user will cancel the observer and stop the worker
-        coreLogic.getGlobalScope().session.currentSessionFlow()
-            .filterIsInstance<CurrentSessionResult.Success>()
-            .map { it.accountInfo.userId }
-            .waitForUploadCompletion()
+        // Wait until no logged-in account has an upload in progress. Deliberately not scoped to just the
+        // current session: switching to an account with nothing uploading must not let this finish (and
+        // release foreground priority) while a different logged-in account's upload is still running.
+        coreLogic.getGlobalScope().observeValidAccounts()
+            .flatMapLatest { accounts -> accounts.anyUploadInProgress() }
+            .first { uploadInProgress -> !uploadInProgress }
 
         return Result.success()
     }
 
-    private suspend fun Flow<UserId>.waitForUploadCompletion() =
-        flatMapLatest { userId ->
-            coreLogic.getSessionScope(userId).messages.observeAssetUploadState()
-        }.first { uploadInProgress ->
-            uploadInProgress == false
+    private suspend fun List<Pair<SelfUser, Team?>>.anyUploadInProgress(): Flow<Boolean> {
+        if (isEmpty()) return flowOf(false)
+        val perAccountFlows = mutableListOf<Flow<Boolean>>()
+        for ((selfUser, _) in this) {
+            perAccountFlows += coreLogic.getSessionScope(selfUser.id).observeAnyUploadInProgress()
         }
+        return combine(perAccountFlows) { states -> states.any { it } }
+    }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
         notificationChannelsManager.createRegularChannel(
@@ -92,6 +100,19 @@ class AssetUploadObserverWorker @AssistedInject constructor(
         return ForegroundInfo(NotificationIds.UPLOADING_DATA_NOTIFICATION_ID.ordinal, notification)
     }
 }
+
+/**
+ * Emits true while either a message attachment draft or a Shared Drive direct upload is still transferring.
+ *
+ * Both kinds of upload keep the process alive through the same worker, so they are observed as one signal.
+ */
+internal suspend fun UserSessionScope.observeAnyUploadInProgress(): Flow<Boolean> =
+    combine(
+        messages.observeAssetUploadState(),
+        cells.uploadCoordinator.hasActiveUploads,
+    ) { attachmentUploadInProgress, driveUploadInProgress ->
+        attachmentUploadInProgress || driveUploadInProgress
+    }.distinctUntilChanged()
 
 fun WorkManager.enqueueAssetUploadObserver() {
     val workerName = "asset_upload_observer_worker"

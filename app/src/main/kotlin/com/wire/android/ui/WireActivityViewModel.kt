@@ -487,6 +487,7 @@ class WireActivityViewModel @Inject constructor(
 
                 is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
                 is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
+                is DeepLinkResult.OpenDriveFiles -> sendAction(OpenDriveFiles(result))
                 is DeepLinkResult.OpenOtherUserProfile -> onOpenUserProfileDeepLink(result)
 
                 DeepLinkResult.SharingIntent -> {
@@ -1068,6 +1069,7 @@ data class InitialStartupSnapshot(
 
 sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
+internal data class OpenDriveFiles(val result: DeepLinkResult.OpenDriveFiles) : WireActivityViewAction
 internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction

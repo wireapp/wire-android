@@ -363,6 +363,7 @@ class DeepLinkProcessorTest {
             coEvery { uri.host } returns DeepLinkProcessor.SSO_LOGIN_DEEPLINK_HOST
             coEvery { uri.lastPathSegment } returns DeepLinkProcessor.SSO_LOGIN_FAILURE
             coEvery { uri.getQueryParameter(DeepLinkProcessor.SSO_LOGIN_ERROR_PARAM) } returns error
+            coEvery { uri.getQueryParameter(DeepLinkProcessor.SSO_LOGIN_LEGACY_ERROR_PARAM) } returns null
             coEvery { uri.getQueryParameter(DeepLinkProcessor.SSO_LOGIN_COOKIE_PARAM) } returns null
             coEvery { uri.getQueryParameter(DeepLinkProcessor.SSO_LOGIN_SERVER_CONFIG_PARAM) } returns null
             coEvery { uri.getQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM) } returns null

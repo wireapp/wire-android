@@ -105,6 +105,8 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
     private val messageDetailsOption = UiSelectorParams(description = "Open Message Details")
+    private val replyOption = UiSelectorParams(description = "Reply to the message")
+    private val cancelReplyButton = UiSelectorParams(description = "Cancel message reply")
     private val copyMessageOption = UiSelectorParams(description = "Copy the message")
     private val editMessageOption = UiSelectorParams(description = "Edit the message")
     private val deleteMessageOption = UiSelectorParams(description = "Delete the message")
@@ -280,6 +282,45 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun tapMessageDetailsOption(): ConversationViewPage {
         UiWaitUtils.waitElement(messageDetailsOption).click()
+        return this
+    }
+    
+    fun assertReplyOptionVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(replyOption)
+        return this
+    }
+
+    fun tapReplyOption(): ConversationViewPage {
+        UiWaitUtils.waitElement(replyOption).click()
+        return this
+    }
+
+    fun assertReplyPreviewVisible(message: String): ConversationViewPage {
+        UiWaitUtils.waitElement(cancelReplyButton)
+        val previewVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            try {
+                val previewContainer = UiWaitUtils.findElementOrNull(cancelReplyButton)?.parent?.parent
+                previewContainer?.findObject(By.text(message))?.visibleBounds?.isEmpty == false
+            } catch (_: StaleObjectException) {
+                false
+            }
+        }
+        Assert.assertTrue("Reply preview does not contain message '$message'.", previewVisible)
+        return this
+    }
+
+    fun assertReplyToMessageVisible(reply: String, originalMessage: String): ConversationViewPage {
+        val replyVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            try {
+                device.findObjects(By.text(reply)).any { replyElement ->
+                    val quotedMessage = replyElement.parent?.findObject(By.text(originalMessage))
+                    !replyElement.visibleBounds.isEmpty && quotedMessage?.visibleBounds?.isEmpty == false
+                }
+            } catch (_: StaleObjectException) {
+                false
+            }
+        }
+        Assert.assertTrue("Reply '$reply' does not quote message '$originalMessage' in the conversation.", replyVisible)
         return this
     }
 

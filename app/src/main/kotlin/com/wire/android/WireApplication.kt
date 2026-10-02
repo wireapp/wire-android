@@ -126,6 +126,14 @@ class WireApplication : BaseApp() {
             .build()
 
     override fun onCreate() {
+        // Android creates an Application in the separate :restart process too. That process only
+        // relaunches Wire, so skip dependency injection, sync, and other normal app initialization.
+        // Calling super still performs the base Application initialization.
+        val processes = (getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager).runningAppProcesses
+        if (processes?.any { it.pid == android.os.Process.myPid() && it.processName == "$packageName:restart" } == true) {
+            super.onCreate()
+            return
+        }
         val startupAt = SystemClock.elapsedRealtime()
         traceStartup("application.onCreate.begin")
         appGraph.inject(this)

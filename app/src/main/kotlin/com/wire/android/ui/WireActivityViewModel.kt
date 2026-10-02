@@ -182,6 +182,7 @@ class WireActivityViewModel @Inject constructor(
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
 
     init {
+        observeApiVersionChange()
         observeSyncState()
         observeUpdateAppState()
         observeNewClientState()
@@ -245,6 +246,20 @@ class WireActivityViewModel @Inject constructor(
                 SupportUrlResolver.setBaseUrl(websiteUrl)
             }
         }
+    }
+
+    private fun observeApiVersionChange() {
+        viewModelScope.launch {
+            observeCurrentValidUserId.flatMapLatest { userId ->
+                userId?.let { coreLogic.value.getSessionScope(it).observeApiVersionChange() } ?: flowOf(false)
+            }.flowOn(dispatchers.io()).collect { changed ->
+                globalAppState = globalAppState.copy(restartAppDialog = changed)
+            }
+        }
+    }
+
+    fun dismissRestartAppDialog() {
+        globalAppState = globalAppState.copy(restartAppDialog = false)
     }
 
     private fun observeSyncState() {
@@ -1009,6 +1024,7 @@ data class GlobalAppState(
     val crossBackendLoginBlockedDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
+    val restartAppDialog: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientsData? = null,
     val screenshotCensoringEnabled: Boolean = true,

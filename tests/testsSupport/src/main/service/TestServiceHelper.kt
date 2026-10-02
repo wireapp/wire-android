@@ -58,7 +58,10 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.RandomAccessFile
+import java.nio.ByteBuffer
+import java.security.MessageDigest
 import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
@@ -294,6 +297,30 @@ class TestServiceHelper(
         val textFile = File(context.cacheDir, fileName)
         RandomAccessFile(textFile, "rws").use { file ->
             file.setLength(1024L * 1024L)
+        }
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            textFile.absolutePath.orEmpty(),
+            "text/plain"
+        )
+    }
+
+    fun contactSendsOneKbTextFileConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val textFile = File(context.cacheDir, fileName)
+        RandomAccessFile(textFile, "rws").use { file ->
+            file.setLength(1024L)
         }
         val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
 
@@ -725,6 +752,81 @@ class TestServiceHelper(
         )
     }
 
+    fun userRepliesToLatestTextMessageInGroupConversation(
+        senderAlias: String,
+        conversationName: String,
+        deviceName: String,
+        reply: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, conversationName)
+        sendReplyToLatestTextMessage(sender, conversation, deviceName, reply)
+    }
+
+    fun userRepliesToLatestTextMessageInPersonalMlsConversation(
+        senderAlias: String,
+        conversationWithAlias: String,
+        deviceName: String,
+        reply: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObjPersonal(sender, conversationWithAlias)
+        sendReplyToLatestTextMessage(sender, conversation, deviceName, reply)
+    }
+
+    private fun sendReplyToLatestTextMessage(
+        sender: ClientUser,
+        conversation: Conversation,
+        deviceName: String,
+        reply: String
+    ) {
+        var messageToQuote: JSONObject? = null
+        UiWaitUtils.retryUntilTimeout(UiWaitUtils.MEDIUM_TIMEOUT, pollingInterval = 1.seconds) {
+            val messages = testServiceClient.getMessages(
+                sender,
+                deviceName,
+                conversation.qualifiedID.id,
+                conversation.qualifiedID.domain
+            )
+            messageToQuote = (messages.length() - 1 downTo 0).firstNotNullOfOrNull { index ->
+                messages.getJSONObject(index).takeIf { it.optJSONObject("content")?.opt("value") is String }
+            }
+            messageToQuote != null
+        }
+        val quotedMessage = requireNotNull(messageToQuote) {
+            "No text message was received in '${conversation.qualifiedID.id}' by '${sender.name}' via '$deviceName'."
+        }
+        val date = quotedMessage.get("date")
+        val epochSeconds = if (date is JSONObject) {
+            date.getLong("epochSeconds")
+        } else {
+            Instant.parse(quotedMessage.getString("date")).epochSecond
+        }
+        val hash = generateTextReplyHash(quotedMessage.getJSONObject("content").getString("value"), epochSeconds)
+
+        testServiceClient.sendReply(
+            SendTextParams(
+                owner = sender,
+                deviceName = deviceName,
+                convoDomain = conversation.qualifiedID.domain,
+                convoId = conversation.qualifiedID.id,
+                timeout = noExpirationTimeout,
+                expectsReadConfirmation = conversation.isReceiptModeEnabled,
+                text = reply,
+                legalHoldStatus = LegalHoldStatus.DISABLED.code,
+                messageId = quotedMessage.getString("id")
+            ),
+            hash
+        )
+    }
+
+    private fun generateTextReplyHash(text: String, epochSeconds: Long): String {
+        // Wire quotes hash UTF-16 text (including its byte-order mark) followed by big-endian epoch seconds.
+        val timestampBytes = ByteBuffer.allocate(Long.SIZE_BYTES).putLong(epochSeconds).array()
+        val contentBytes = text.toByteArray(Charsets.UTF_16) + timestampBytes
+        return MessageDigest.getInstance("SHA-256").digest(contentBytes).joinToString("") { "%02x".format(it) }
+    }
+
     fun getRecentMessageIdInGroupConversation(
         userAlias: String,
         deviceName: String,
@@ -962,6 +1064,46 @@ class TestServiceHelper(
         val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
 
         testServiceClient.sendEphemeralConfirmationDelivered(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
+    }
+
+    fun userSendsReadReceiptOnLatestMessageInPersonalConversation(
+        userAlias: String,
+        conversationWithAlias: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObjPersonal(user, conversationWithAlias)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendConfirmationRead(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
+    }
+
+    fun userSendsReadReceiptOnLatestMessageInGroupConversation(
+        userAlias: String,
+        conversationName: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendConfirmationRead(
             user,
             deviceName,
             conversationId,

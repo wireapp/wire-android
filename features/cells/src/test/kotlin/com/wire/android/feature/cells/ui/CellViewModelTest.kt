@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.net.Uri
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -35,7 +36,9 @@ import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -62,6 +65,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,6 +80,8 @@ import okio.Path.Companion.toPath
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -665,6 +671,57 @@ class CellViewModelTest {
         }
     }
 
+    @Test
+    fun `given files picked for upload when forwarded then upload confirmation is populated`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val pickedUris = List(5) { mockk<Uri>() }
+
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+        val confirmation = viewModel.uploadConfirmation.value
+        assertNotNull(confirmation)
+        assertEquals(5, confirmation?.fileNames?.size)
+    }
+
+    @Test
+    fun `given no files picked for upload when forwarded then no confirmation is shown`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(emptyList()))
+
+        assertNull(viewModel.uploadConfirmation.value)
+    }
+
+    @Test
+    fun `given upload confirmed when forwarded then files are forwarded and confirmation is cleared`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val pickedUris = List(3) { mockk<Uri>() }
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+        viewModel.actions.test {
+            viewModel.confirmUpload()
+
+            val action = awaitItem()
+            assertTrue(action is FilesPickedForUpload)
+            assertEquals(pickedUris, (action as FilesPickedForUpload).uris)
+        }
+        assertNull(viewModel.uploadConfirmation.value)
+    }
+
+    @Test
+    fun `given upload confirmation cancelled when forwarded then no action is sent and confirmation is cleared`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val pickedUris = List(2) { mockk<Uri>() }
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+        viewModel.actions.test {
+            viewModel.cancelUploadConfirmation()
+
+            expectNoEvents()
+        }
+        assertNull(viewModel.uploadConfirmation.value)
+    }
+
     private class Arrangement(
         private var conversationId: String? = null,
         private var inAppImageViewerEnabled: Boolean = false,
@@ -737,6 +794,12 @@ class CellViewModelTest {
         @MockK
         lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+        @MockK
+        lateinit var uploadFilePreparer: DriveUploadFilePreparer
+
+        @MockK
+        lateinit var uploadCoordinator: CellUploadCoordinator
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -751,6 +814,9 @@ class CellViewModelTest {
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
             every { userDataStore.isViewerAccessBannerDismissed(any()) } returns flowOf(false)
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
+            coEvery { uploadFilePreparer.prepare(any(), any()) } returns null
+            coEvery { uploadFilePreparer.fileName(any()) } returns "file"
+            every { uploadCoordinator.uploads } returns MutableStateFlow(emptyList())
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
@@ -882,9 +948,12 @@ class CellViewModelTest {
                 isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
                 userDataStore = userDataStore,
                 qualifiedIdMapper = qualifiedIdMapper,
+                uploadFilePreparer = uploadFilePreparer,
+                uploadCoordinator = uploadCoordinator,
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
                 drivePermissionsEnabled = true,
+                driveDirectUploadEnabled = true,
             )
         }
     }

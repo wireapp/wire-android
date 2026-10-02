@@ -951,6 +951,46 @@ class TestServiceHelper(
         )
     }
 
+    fun userSendsReadReceiptOnLatestMessageInPersonalConversation(
+        userAlias: String,
+        conversationWithAlias: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObjPersonal(user, conversationWithAlias)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendConfirmationRead(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
+    }
+
+    fun userSendsReadReceiptOnLatestMessageInGroupConversation(
+        userAlias: String,
+        conversationName: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendConfirmationRead(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
+    }
+
     fun userTogglesReactionOnLatestMessage(
         senderAlias: String,
         convoName: String,

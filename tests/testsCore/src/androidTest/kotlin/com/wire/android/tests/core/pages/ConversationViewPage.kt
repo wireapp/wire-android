@@ -104,6 +104,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
 
     private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
+    private val messageDetailsOption = UiSelectorParams(description = "Open Message Details")
     private val copyMessageOption = UiSelectorParams(description = "Copy the message")
     private val editMessageOption = UiSelectorParams(description = "Edit the message")
     private val deleteMessageOption = UiSelectorParams(description = "Delete the message")
@@ -274,6 +275,11 @@ data class ConversationViewPage(private val device: UiDevice) {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .swipe(center.x, center.y, center.x, center.y, 120)
 
+        return this
+    }
+
+    fun tapMessageDetailsOption(): ConversationViewPage {
+        UiWaitUtils.waitElement(messageDetailsOption).click()
         return this
     }
 

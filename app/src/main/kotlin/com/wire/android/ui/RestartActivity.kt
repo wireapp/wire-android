@@ -53,9 +53,11 @@ class RestartActivity : ComponentActivity() {
             Process.killProcess(previousPid)
         }
         // Start Wire in a fresh task, then finish and terminate this temporary helper process.
-        startActivity(Intent.makeRestartActivityTask(
-            android.content.ComponentName(this, WireActivity::class.java)
-        ))
+        startActivity(
+            Intent.makeRestartActivityTask(
+                android.content.ComponentName(this, WireActivity::class.java)
+            )
+        )
         finish()
         Process.killProcess(Process.myPid())
     }
@@ -64,10 +66,12 @@ class RestartActivity : ComponentActivity() {
         private const val EXTRA_PID = "previous_process_id"
 
         fun restart(context: Context) {
-            context.startActivity(Intent(context, RestartActivity::class.java).apply {
-                putExtra(EXTRA_PID, Process.myPid())
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            })
+            context.startActivity(
+                Intent(context, RestartActivity::class.java).apply {
+                    putExtra(EXTRA_PID, Process.myPid())
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                }
+            )
         }
     }
 }

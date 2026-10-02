@@ -1293,6 +1293,61 @@ class WireActivityViewModelTest {
             }
         }
 
+    @Test
+    fun `given API mismatch at startup, then show restart dialog`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withApiVersionChanges(flowOf(true))
+            .arrange()
+
+        advanceUntilIdle()
+
+        assertTrue(viewModel.globalAppState.restartAppDialog)
+    }
+
+    @Test
+    fun `given API changes, when dismissed, then wait for another change before showing restart dialog`() = runTest {
+        val changes = MutableSharedFlow<Boolean>(replay = 1).apply { tryEmit(false) }
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withApiVersionChanges(changes)
+            .arrange()
+        advanceUntilIdle()
+        assertFalse(viewModel.globalAppState.restartAppDialog)
+
+        changes.emit(true)
+        advanceUntilIdle()
+        assertTrue(viewModel.globalAppState.restartAppDialog)
+
+        viewModel.dismissRestartAppDialog()
+        advanceUntilIdle()
+        assertFalse(viewModel.globalAppState.restartAppDialog)
+
+        changes.emit(true)
+        advanceUntilIdle()
+        assertTrue(viewModel.globalAppState.restartAppDialog)
+    }
+
+    @Test
+    fun `given restart dialog is shown, when session ends, then dismiss and stop observing old scope`() = runTest {
+        val session = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+        val changes = MutableSharedFlow<Boolean>(replay = 1).apply { tryEmit(true) }
+        val (_, viewModel) = Arrangement()
+            .withCurrentSessionFlow(session)
+            .withApiVersionChanges(changes)
+            .arrange()
+        advanceUntilIdle()
+        assertTrue(viewModel.globalAppState.restartAppDialog)
+
+        session.value = CurrentSessionResult.Failure.SessionNotFound
+        advanceUntilIdle()
+        assertFalse(viewModel.globalAppState.restartAppDialog)
+
+        changes.emit(true)
+        advanceUntilIdle()
+        assertFalse(viewModel.globalAppState.restartAppDialog)
+    }
+
     private class Arrangement {
 
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
@@ -1308,6 +1363,7 @@ class WireActivityViewModelTest {
             mockUri()
             coEvery { monitorSyncWorkUseCase() } returns Unit
             coEvery { currentSessionFlow() } returns flowOf()
+            every { coreLogic.getSessionScope(any()).observeApiVersionChange() } returns flowOf(false)
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
@@ -1469,6 +1525,10 @@ class WireActivityViewModelTest {
             )
         }
 
+        fun withApiVersionChanges(changes: Flow<Boolean>): Arrangement = apply {
+            every { coreLogic.getSessionScope(any()).observeApiVersionChange() } returns changes
+        }
+
         fun withSomeCurrentSession(): Arrangement = apply {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Success(TEST_ACCOUNT_INFO)
@@ -1511,6 +1571,7 @@ class WireActivityViewModelTest {
         fun withServerConfigForUser(userId: UserId, serverConfig: ServerConfig): Arrangement = apply {
             coEvery { coreLogic.getSessionScope(userId).users.serverLinks() } returns
                     SelfServerConfigUseCase.Result.Success(serverConfig)
+            every { coreLogic.getSessionScope(userId).observeApiVersionChange() } returns flowOf(false)
         }
 
         fun withDefaultServerConfig(serverConfig: ServerConfig.Links): Arrangement = apply {
@@ -1565,6 +1626,7 @@ class WireActivityViewModelTest {
                     domain
                 )
             } returns result
+            every { coreLogic.getSessionScope(TEST_ACCOUNT_INFO.userId).observeApiVersionChange() } returns flowOf(false)
         }
 
         fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {

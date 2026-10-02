@@ -284,7 +284,7 @@ data class ConversationViewPage(private val device: UiDevice) {
         UiWaitUtils.waitElement(messageDetailsOption).click()
         return this
     }
-    
+
     fun assertReplyOptionVisible(): ConversationViewPage {
         UiWaitUtils.waitElement(replyOption)
         return this

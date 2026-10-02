@@ -52,4 +52,8 @@ class UploadStatusViewModel @Inject constructor(
     fun dismiss(id: String) {
         coordinator.dismiss(id)
     }
+
+    fun dismissAll() {
+        coordinator.dismissAll()
+    }
 }

@@ -24,7 +24,9 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -37,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -107,6 +110,7 @@ internal fun ConversationFilesRouteScreen(
         onRetryUpload = uploadStatusViewModel::retry,
         onRetryAllFailedUploads = uploadStatusViewModel::retryAllFailed,
         onDismissUpload = uploadStatusViewModel::dismiss,
+        onDismissAllUploads = uploadStatusViewModel::dismissAll,
         uploadConfirmation = uploadConfirmation,
         onConfirmUpload = viewModel::confirmUpload,
         onCancelUploadConfirmation = viewModel::cancelUploadConfirmation,
@@ -175,6 +179,7 @@ internal fun ConversationFilesScreenContent(
     onRetryUpload: (String) -> Unit = {},
     onRetryAllFailedUploads: () -> Unit = {},
     onDismissUpload: (String) -> Unit = {},
+    onDismissAllUploads: () -> Unit = {},
     uploadConfirmation: UploadConfirmation? = null,
     onConfirmUpload: () -> Unit = {},
     onCancelUploadConfirmation: () -> Unit = {},
@@ -349,6 +354,9 @@ internal fun ConversationFilesScreenContent(
                         exit = fadeOut(),
                     ) {
                         FloatingActionButton(
+                            modifier = Modifier.padding(
+                                bottom = if (uploads.isNotEmpty()) dimensions().spacing72x else dimensions().spacing0x
+                            ),
                             text = stringResource(R.string.cells_new_label),
                             icon = {
                                 Image(
@@ -369,52 +377,58 @@ internal fun ConversationFilesScreenContent(
                     }
                 }
             },
-            bottomBar = {
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                CellScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    lazyListState = lazyListState,
+                    actionsFlow = actions,
+                    pagingListItems = pagingListItems,
+                    sendIntent = sendIntent,
+                    menuState = menu,
+                    isSearchResult = isSearchResult,
+                    isRestoreInProgress = isRestoreInProgress,
+                    isDeleteInProgress = isDeleteInProgress,
+                    isRecycleBin = isRecycleBin,
+                    isOffline = !isOnline,
+                    openFolder = { path, title, parentFolderUuid ->
+                        navigation.folder(
+                            CellFilesNavArgs(
+                                conversationId = path,
+                                screenTitle = title,
+                                isRecycleBin = isRecycleBin,
+                                parentFolderUuid = parentFolderUuid,
+                                breadcrumbs = (breadcrumbs ?: emptyArray()) + title,
+                            )
+                        )
+                    },
+                    showPublicLinkScreen = navigation::publicLink,
+                    showMoveToFolderScreen = navigation::move,
+                    showRenameScreen = navigation::rename,
+                    showAddRemoveTagsScreen = navigation::tags,
+                    showVersionHistoryScreen = navigation::versionHistory,
+                    showUploadStatusBottomSheet = { uploadStatusSheetState.show() },
+                    showImageViewer = navigation::image,
+                    showVideoViewer = navigation::video,
+                    showAudioPlayer = navigation::audio,
+                    showPdfViewer = navigation::pdf,
+                    retryEditNodeError = { retryEditNodeError(it) },
+                    isRefreshing = isRefreshing,
+                    onRefresh = onRefresh,
+                    fileReadyFlow = fileReadyFlow,
+                    sortBy = sortingCriteria.by,
+                )
                 UploadStatusIndicator(
                     uploads = uploads,
+                    onDismissAll = onDismissAllUploads,
                     onClick = { uploadStatusSheetState.show() },
+                    modifier = Modifier.align(Alignment.BottomCenter),
                 )
-            },
-        ) { innerPadding ->
-            CellScreenContent(
-                modifier = Modifier.padding(innerPadding),
-                lazyListState = lazyListState,
-                actionsFlow = actions,
-                pagingListItems = pagingListItems,
-                sendIntent = sendIntent,
-                menuState = menu,
-                isSearchResult = isSearchResult,
-                isRestoreInProgress = isRestoreInProgress,
-                isDeleteInProgress = isDeleteInProgress,
-                isRecycleBin = isRecycleBin,
-                isOffline = !isOnline,
-                openFolder = { path, title, parentFolderUuid ->
-                    navigation.folder(
-                        CellFilesNavArgs(
-                            conversationId = path,
-                            screenTitle = title,
-                            isRecycleBin = isRecycleBin,
-                            parentFolderUuid = parentFolderUuid,
-                            breadcrumbs = (breadcrumbs ?: emptyArray()) + title,
-                        )
-                    )
-                },
-                showPublicLinkScreen = navigation::publicLink,
-                showMoveToFolderScreen = navigation::move,
-                showRenameScreen = navigation::rename,
-                showAddRemoveTagsScreen = navigation::tags,
-                showVersionHistoryScreen = navigation::versionHistory,
-                showUploadStatusBottomSheet = { uploadStatusSheetState.show() },
-                showImageViewer = navigation::image,
-                showVideoViewer = navigation::video,
-                showAudioPlayer = navigation::audio,
-                showPdfViewer = navigation::pdf,
-                retryEditNodeError = { retryEditNodeError(it) },
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
-                fileReadyFlow = fileReadyFlow,
-                sortBy = sortingCriteria.by,
-            )
+            }
         }
     }
 }

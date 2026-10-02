@@ -46,7 +46,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -293,13 +292,11 @@ fun EnabledMessageComposer(
 
                         val keyboardActionHandler by remember {
                             derivedStateOf {
-                                KeyboardActionHandler {
-                                    if (canSendMessage) {
-                                        onSendButtonClicked()
-                                    } else {
-                                        Unit
-                                    }
-                                }
+                                messageComposerKeyboardActionHandler(
+                                    enterToSend = messageComposerViewState.value.enterToSend,
+                                    canSendMessage = canSendMessage,
+                                    onSend = onSendButtonClicked,
+                                )
                             }
                         }
 
@@ -309,17 +306,17 @@ fun EnabledMessageComposer(
                             keyboardOptions = keyboardOptions,
                             onKeyboardAction = keyboardActionHandler,
                             onHardwareEnter = { isShiftPressed ->
-                                if (isShiftPressed) {
-                                    messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {
-                                        append("\n")
-                                    }
-                                    true
-                                } else if (canSendMessage) {
-                                    onSendButtonClicked()
-                                    true
-                                } else {
-                                    false
-                                }
+                                handleMessageComposerEnter(
+                                    enterToSend = messageComposerViewState.value.enterToSend,
+                                    isShiftPressed = isShiftPressed,
+                                    canSendMessage = canSendMessage,
+                                    onNewLine = {
+                                        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {
+                                            append("\n")
+                                        }
+                                    },
+                                    onSend = onSendButtonClicked,
+                                )
                             },
                             onHardwareTab = {
                                 if (mentionSearchResult.isNotEmpty()) {

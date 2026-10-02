@@ -21,6 +21,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
@@ -32,6 +33,10 @@ internal fun ConversationFilesSlideRouteScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: CellViewModel,
 ) {
+    val uploadStatusViewModel = uploadStatusViewModel()
+    val uploads by uploadStatusViewModel.uploads.collectAsState()
+    val uploadConfirmation by viewModel.uploadConfirmation.collectAsState()
+
     LaunchedEffect(viewModel.navigateToRecycleBinRoot.collectAsState().value) {
         if (viewModel.navigateToRecycleBinRoot.value) {
             navigation.recycleBin(
@@ -67,5 +72,15 @@ internal fun ConversationFilesSlideRouteScreen(
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
         drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
+        driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
+        uploads = uploads,
+        onCancelUpload = uploadStatusViewModel::cancel,
+        onCancelAllUploads = uploadStatusViewModel::cancelAll,
+        onRetryUpload = uploadStatusViewModel::retry,
+        onRetryAllFailedUploads = uploadStatusViewModel::retryAllFailed,
+        onDismissUpload = uploadStatusViewModel::dismiss,
+        uploadConfirmation = uploadConfirmation,
+        onConfirmUpload = viewModel::confirmUpload,
+        onCancelUploadConfirmation = viewModel::cancelUploadConfirmation,
     )
 }

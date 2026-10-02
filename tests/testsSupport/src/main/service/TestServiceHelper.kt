@@ -311,6 +311,30 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsOneKbTextFileConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val textFile = File(context.cacheDir, fileName)
+        RandomAccessFile(textFile, "rws").use { file ->
+            file.setLength(1024L)
+        }
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            textFile.absolutePath.orEmpty(),
+            "text/plain"
+        )
+    }
+
     fun contactSendsLocalVideoPersonalMLSConversation(
         context: Context,
         fileName: String,

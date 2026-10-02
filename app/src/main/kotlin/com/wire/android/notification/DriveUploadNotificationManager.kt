@@ -29,13 +29,12 @@ import com.wire.kalium.cells.domain.CellUploadItem
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import com.wire.android.feature.notification.R as NR
 
 /**
@@ -58,19 +57,29 @@ class DriveUploadNotificationManager @Inject constructor(
     private val notificationManager = NotificationManagerCompat.from(context)
 
     suspend fun observeAndNotify() {
-        coreLogic.getGlobalScope().session.currentSessionFlow()
-            .filterIsInstance<CurrentSessionResult.Success>()
-            .map { it.accountInfo.userId }
-            .flatMapLatest { userId ->
-                coreLogic.getSessionScope(userId).cells.uploadCoordinator.uploads
-                    .map { uploads -> userId to uploads }
+        var previousUserIds = emptySet<UserId>()
+        coreLogic.getGlobalScope().observeValidAccounts()
+            .collectLatest { accounts ->
+                val currentUserIds = accounts.map { (selfUser, _) -> selfUser.id }.toSet()
+                (previousUserIds - currentUserIds).forEach { staleUserId ->
+                    notificationManager.cancel(NotificationConstants.getDriveUploadNotificationId(staleUserId))
+                }
+                previousUserIds = currentUserIds
+
+                coroutineScope {
+                    accounts.forEach { (selfUser, _) ->
+                        launch {
+                            coreLogic.getSessionScope(selfUser.id).cells.uploadCoordinator.uploads
+                                .collect { uploads -> updateNotification(selfUser.id, uploads) }
+                        }
+                    }
+                }
             }
-            .collect { (userId, uploads) -> updateNotification(userId, uploads) }
     }
 
     private fun updateNotification(userId: UserId, uploads: List<CellUploadItem>) {
         if (uploads.isEmpty()) {
-            notificationManager.cancel(NotificationIds.DRIVE_UPLOAD_NOTIFICATION_ID.ordinal)
+            notificationManager.cancel(NotificationConstants.getDriveUploadNotificationId(userId))
             return
         }
 
@@ -82,7 +91,7 @@ class DriveUploadNotificationManager @Inject constructor(
 
         val notification = buildNotification(userId, uploads)
         if (notificationManager.areNotificationsEnabled()) {
-            notificationManager.notify(NotificationIds.DRIVE_UPLOAD_NOTIFICATION_ID.ordinal, notification)
+            notificationManager.notify(NotificationConstants.getDriveUploadNotificationId(userId), notification)
         }
     }
 
@@ -134,38 +143,38 @@ class DriveUploadNotificationManager @Inject constructor(
             }
         }
 
-    return builder.build()
-}
-
-/**
- * Opens the batch's Shared Drive conversation directly, so long as every upload targets the same one:
- * uploads are only ever enqueued from a single [ConversationFilesScreen][com.wire.android.feature.cells.ui.ConversationFilesScreen],
- * so this should always hold, but falls back to just opening the app rather than guessing otherwise.
- */
-private fun contentIntent(userId: UserId, uploads: List<CellUploadItem>): PendingIntent =
-    uploads.map { it.request.destinationFolderPath.substringBefore("/") }
-        .distinct()
-        .singleOrNull()
-        ?.let { conversationId -> driveFilesPendingIntent(context, conversationId, userId.toString()) }
-        ?: openAppPendingIntent(context)
-
-/** Weighted by bytes rather than file count, so one large file mid-transfer still moves the bar. */
-private fun NotificationCompat.Builder.applyProgress(uploads: List<CellUploadItem>): NotificationCompat.Builder {
-    val totalBytes = uploads.sumOf { it.sizeBytes.coerceAtLeast(0L) }
-    if (totalBytes <= 0L) {
-        return setProgress(0, 0, true)
+        return builder.build()
     }
-    val uploadedBytes = uploads.sumOf { item ->
-        when (val state = item.state) {
-            CellUploadState.Completed -> item.sizeBytes.coerceAtLeast(0L)
-            is CellUploadState.Uploading -> (item.sizeBytes.coerceAtLeast(0L) * state.progress).toLong()
-            else -> 0L
+
+    /**
+     * Opens the batch's Shared Drive conversation directly, so long as every upload targets the same one:
+     * uploads are only ever enqueued from a single [ConversationFilesScreen][com.wire.android.feature.cells.ui.ConversationFilesScreen],
+     * so this should always hold, but falls back to just opening the app rather than guessing otherwise.
+     */
+    private fun contentIntent(userId: UserId, uploads: List<CellUploadItem>): PendingIntent =
+        uploads.map { it.request.destinationFolderPath.substringBefore("/") }
+            .distinct()
+            .singleOrNull()
+            ?.let { conversationId -> driveFilesPendingIntent(context, conversationId, userId.toString()) }
+            ?: openAppPendingIntent(context)
+
+    /** Weighted by bytes rather than file count, so one large file mid-transfer still moves the bar. */
+    private fun NotificationCompat.Builder.applyProgress(uploads: List<CellUploadItem>): NotificationCompat.Builder {
+        val totalBytes = uploads.sumOf { it.sizeBytes.coerceAtLeast(0L) }
+        if (totalBytes <= 0L) {
+            return setProgress(0, 0, true)
         }
+        val uploadedBytes = uploads.sumOf { item ->
+            when (val state = item.state) {
+                CellUploadState.Completed -> item.sizeBytes.coerceAtLeast(0L)
+                is CellUploadState.Uploading -> (item.sizeBytes.coerceAtLeast(0L) * state.progress).toLong()
+                else -> 0L
+            }
+        }
+        return setProgress(PROGRESS_MAX, ((uploadedBytes * PROGRESS_MAX) / totalBytes).toInt(), false)
     }
-    return setProgress(PROGRESS_MAX, ((uploadedBytes * PROGRESS_MAX) / totalBytes).toInt(), false)
-}
 
-private companion object {
-    const val PROGRESS_MAX = 100
-}
+    private companion object {
+        const val PROGRESS_MAX = 100
+    }
 }

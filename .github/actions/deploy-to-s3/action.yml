@@ -79,6 +79,11 @@ runs:
         version=$(echo "$filename" | sed -E 's/.*-v([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
         
         version_code=$(echo "$filename" | sed -n -E "s/.*-([0-9]+)-${BUILD_FLAVOUR_INPUT}-${BUILD_VARIANT_INPUT}\\.apk/\\1/p")
+
+        if [[ "$BUILD_FLAVOUR_INPUT" == "beta" && -f app/build/outputs/version.txt ]]; then
+          version=$(sed -n 's/^VersionName: //p' app/build/outputs/version.txt)
+          version_code=$(sed -n 's/^VersionCode: //p' app/build/outputs/version.txt)
+        fi
         
         if [[ -z "$version" ]]; then
           echo "Failed to extract version"

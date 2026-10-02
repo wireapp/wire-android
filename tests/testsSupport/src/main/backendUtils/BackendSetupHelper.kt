@@ -32,6 +32,7 @@ import backendUtils.conversation.getConversationByName
 import backendUtils.conversation.getInviteLink
 import backendUtils.conversation.removeUserFromGroupConversation
 import backendUtils.conversation.setArchivedStateForConversation
+import backendUtils.conversation.setReadReceiptsForConversation
 import backendUtils.team.addServiceToConversation
 import backendUtils.team.disableFileSharingFeature
 import backendUtils.team.enableChannelFeatureViaBackdoorTeam
@@ -335,6 +336,12 @@ class BackendSetupHelper(
             val dstTeam = backend.getTeamByName(chatOwner, teamName)
             backend.createTeamConversation(chatOwner, participants, chatName, dstTeam)
         }
+    }
+
+    fun userSetsReadReceiptsForConversation(userAlias: String, conversationName: String, enabled: Boolean) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        backendFor(user).setReadReceiptsForConversation(user, conversation, enabled)
     }
 
     fun userHasGroupConversationAsPersonalUser(

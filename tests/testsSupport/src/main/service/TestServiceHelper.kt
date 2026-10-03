@@ -1117,6 +1117,18 @@ class TestServiceHelper(
         convoName: String,
         deviceName: String,
         reaction: String
+    ) = userTogglesReactionsOnLatestMessage(
+        senderAlias,
+        convoName,
+        deviceName,
+        listOf(reaction)
+    )
+
+    fun userTogglesReactionsOnLatestMessage(
+        senderAlias: String,
+        convoName: String,
+        deviceName: String,
+        reactions: List<String>
     ) {
         val sender = toClientUser(senderAlias)
         val conversation = toConvoObj(sender, convoName)
@@ -1124,14 +1136,16 @@ class TestServiceHelper(
         val convoDomain = conversation.qualifiedID.domain
         val recentMessageId = getRecentMessageId(sender, deviceName, convoId, convoDomain)
 
-        testServiceClient.toggleReaction(
-            sender,
-            deviceName,
-            convoId,
-            convoDomain,
-            recentMessageId,
-            reaction
-        )
+        reactions.forEach { reaction ->
+            testServiceClient.toggleReaction(
+                sender,
+                deviceName,
+                convoId,
+                convoDomain,
+                recentMessageId,
+                reaction
+            )
+        }
     }
 
     private fun getRecentMessageId(

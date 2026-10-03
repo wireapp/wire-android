@@ -472,6 +472,11 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertReactionNotVisible(reaction: String): ConversationViewPage {
+        assertElementNotVisible(UiSelectorParams(text = reaction), "reaction '$reaction'")
+        return this
+    }
+
     fun tapDownloadButton(): ConversationViewPage {
         UiWaitUtils.waitElement(downloadButton).click()
         return this

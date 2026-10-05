@@ -34,13 +34,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.typography
@@ -54,9 +59,32 @@ internal fun UploadConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val destinationText = stringResource(R.string.cells_upload_confirmation_destination, destinationName)
+    val baseStyle = SpanStyle(
+        color = colorsScheme().onBackground,
+        fontWeight = typography().body01.fontWeight,
+        fontSize = typography().body01.fontSize,
+        fontFamily = typography().body01.fontFamily,
+        fontStyle = typography().body01.fontStyle,
+    )
     WireDialog(
         title = pluralStringResource(R.plurals.cells_upload_confirmation_title, fileNames.size, fileNames.size),
-        text = stringResource(R.string.cells_upload_confirmation_destination, destinationName),
+        text = remember(destinationText, destinationName, baseStyle) {
+            buildAnnotatedString {
+                withStyle(baseStyle) {
+                    val boldStart = destinationText.indexOf(destinationName)
+                    if (boldStart < 0) {
+                        append(destinationText)
+                    } else {
+                        append(destinationText.substring(0, boldStart))
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(destinationName)
+                        }
+                        append(destinationText.substring(boldStart + destinationName.length))
+                    }
+                }
+            }
+        },
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onConfirm,

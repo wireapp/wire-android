@@ -92,7 +92,9 @@ class DriveUploadFilePreparerTest {
     fun `given content uri whose query throws, when resolving fileName, then null is returned`() = runTest {
         val (arrangement, preparer) = Arrangement().arrange()
         every { arrangement.uri.scheme } returns ContentResolver.SCHEME_CONTENT
-        every { arrangement.contentResolver.query(arrangement.uri, null, null, null, null) } throws SecurityException("no permission")
+        every {
+            arrangement.contentResolver.query(arrangement.uri, null, null, null, null)
+        } throws SecurityException("no permission")
 
         val result = preparer.fileName(arrangement.uri)
 

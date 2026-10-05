@@ -53,7 +53,7 @@ class RegistrationPage(private val device: UiDevice) {
     private val confirmPasswordField = UiSelectorParams(resourceId = "confirmPassword")
     private val showPasswordButton = UiSelectorParams(description = "Show password")
     private val hidePasswordButton = UiSelectorParams(description = "Hide password")
-    private val userNameInfoText = UiSelectorParams(textContains = "Enter your username. It helps others to find")
+    private val userNameInfoText = UiSelectorParams(text = "Set username")
     private val userNameHelpText = UiSelectorParams(textContains = "At least 2 character")
     private val editTextClass = By.clazz("android.widget.EditText")
     private val confirmButton = UiSelectorParams(text = "Confirm")
@@ -303,26 +303,9 @@ class RegistrationPage(private val device: UiDevice) {
     }
 
     fun waitUntilConversationPageVisibleDismissingPostLoginPrompts(timeout: Duration = 45.seconds): RegistrationPage {
-        val visible = UiWaitUtils.retryUntilTimeout(
-            timeout = timeout,
-            pollingInterval = UiWaitUtils.POLLING_DEFAULT
-        ) {
-            clickAllowNotificationButton()
-            val consentDialogVisible = UiWaitUtils.findElementOrNull(consentDialogTitle)
-                ?.let { !it.visibleBounds.isEmpty } == true
-            if (consentDialogVisible) {
-                clickDeclineShareDataAlert(timeout = 1.seconds)
-            }
-
-            UiWaitUtils.waitAnyVisible(
-                selectors = listOf(conversationsPage, searchConversationsButton),
-                timeout = UiWaitUtils.POLLING_FAST,
-                pollingInterval = UiWaitUtils.POLLING_FAST
-            )?.let { !it.visibleBounds.isEmpty } == true
-        }
-        if (!visible) {
-            throw AssertionError("Conversations page is not visible after dismissing post-login prompts")
-        }
+        clickAllowNotificationButton()
+        clickDeclineShareDataAlert(timeout = timeout)
+        assertConversationPageVisible(timeout = timeout)
         return this
     }
 

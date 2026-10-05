@@ -656,6 +656,62 @@ suspend fun BackendClient.enableMLSFeatureTeam(
     )
 }
 
+suspend fun BackendClient.enableAppsFeatureTeam(team: Team) {
+    val teamId = Uri.encode(team.id)
+    val url = URI("teams/$teamId/features/apps".composeInternalApiUrl()).toURL()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().put("status", "enabled").toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
+suspend fun BackendClient.unlockAppsFeature(team: Team) {
+    val teamId = Uri.encode(team.id)
+    val url = URI("teams/$teamId/features/apps/unlocked".composeInternalApiUrl()).toURL()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+}
+
+suspend fun BackendClient.addTeamCollaborator(
+    asUser: ClientUser,
+    team: Team,
+    collaboratorUserId: String
+) {
+    val teamId = Uri.encode(team.id)
+    val url = URI("teams/$teamId/collaborators".composePublicApiUrl()).toURL()
+    val requestBody = JSONObject().apply {
+        put("user", collaboratorUserId)
+        put("permissions", JSONArray())
+    }
+
+    sendTeamRequest(
+        url = url,
+        method = "POST",
+        user = asUser,
+        body = requestBody.toString()
+    )
+}
+
 suspend fun BackendClient.enableChannelFeatureViaBackdoorTeam(team: Team) {
     val teamId = Uri.encode(team.id)
     val headers = defaultheaders.toMutableMap().apply {

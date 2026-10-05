@@ -144,7 +144,6 @@ inline fun <reified T : Any> rememberWireModalSheetState(
     }
 }
 
-// to simplify execution of the sheet with Unit value
 fun WireModalSheetState<Unit>.show(hideKeyboard: Boolean = false) = this.show(Unit, hideKeyboard = hideKeyboard)
 
 @Composable

@@ -65,6 +65,8 @@ data class SettingsPage(private val device: UiDevice) {
     private val toggleOffText = UiSelector().text("OFF")
     private val analyticsTrackingLabel = UiSelector().text("Analytics Tracking Identifier")
     private val anonymousUsageDataText = UiSelector().text("Send anonymous usage data")
+    private val sendReadReceiptsLabel = UiSelectorParams(text = "Send read receipts")
+    private val sendReadReceiptsText = UiSelector().text("Send read receipts")
     private val setAppLockInfoText = UiSelectorParams(
         textContains = "The app will lock itself after 1 minute of inactivity"
     )
@@ -160,6 +162,37 @@ data class SettingsPage(private val device: UiDevice) {
 
     fun clickPrivacySettingsButtonOnSettingsPage(): SettingsPage {
         UiWaitUtils.waitElement(privacySettingsButton).click()
+        return this
+    }
+
+    fun assertReadReceiptsToggleIsOn(): SettingsPage {
+        UiWaitUtils.waitElement(sendReadReceiptsLabel)
+        val onText = device.findObject(sendReadReceiptsText).getFromParent(toggleOnText)
+        val isOn = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            onText.exists() && !onText.visibleBounds.isEmpty
+        }
+        assertTrue("Send read receipts should be ON", isOn)
+        return this
+    }
+
+    fun assertReadReceiptsToggleIsOff(): SettingsPage {
+        UiWaitUtils.waitElement(sendReadReceiptsLabel)
+        val offText = device.findObject(sendReadReceiptsText).getFromParent(toggleOffText)
+        val isOff = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            offText.exists() && !offText.visibleBounds.isEmpty
+        }
+        assertTrue("Send read receipts should be OFF", isOff)
+        return this
+    }
+
+    fun tapReadReceiptsToggle(): SettingsPage {
+        UiWaitUtils.waitElement(sendReadReceiptsLabel)
+        val toggle = device.findObject(sendReadReceiptsText).getFromParent(clickableToggle)
+        val isVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            toggle.exists() && !toggle.visibleBounds.isEmpty
+        }
+        assertTrue("Send read receipts toggle is not visible", isVisible)
+        toggle.click()
         return this
     }
 

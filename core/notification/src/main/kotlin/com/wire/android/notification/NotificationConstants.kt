@@ -53,10 +53,15 @@ object NotificationConstants {
     const val OTHER_CHANNEL_ID = "com.wire.android.other"
     const val OTHER_CHANNEL_NAME = "Other essential actions"
 
+    const val DRIVE_UPLOAD_CHANNEL_ID = "com.wire.android.drive_upload"
+    const val DRIVE_UPLOAD_CHANNEL_NAME = "Shared Drive uploads"
+
     private const val CHANNEL_GROUP_ID_PREFIX = "com.wire.notification_channel_group"
 
     // MessagesSummaryNotification ID depends on User, use fun getMessagesSummaryId(userId: UserId) to get it
     private const val MESSAGE_SUMMARY_ID_STRING = "wire_messages_summary_notification"
+
+    private const val DRIVE_UPLOAD_ID_STRING = "wire_drive_upload_notification"
 
     private const val INCOMING_CALL_TAG_PREFIX = "wire_incoming_call_tag_"
     const val INCOMING_CALL_ID_PREFIX = "wire_incoming_call_"
@@ -69,6 +74,7 @@ object NotificationConstants {
     fun getConversationNotificationId(conversationIdString: String, userIdString: String) = (conversationIdString + userIdString).hashCode()
     fun getMessagesGroupKey(userId: UserId?): String = "$MESSAGE_GROUP_KEY_PREFIX${userId?.toString() ?: ""}"
     fun getMessagesSummaryId(userId: UserId): Int = "$MESSAGE_SUMMARY_ID_STRING$userId".hashCode()
+    fun getDriveUploadNotificationId(userId: UserId): Int = "$DRIVE_UPLOAD_ID_STRING$userId".hashCode()
     fun getChanelGroupIdForUser(userId: UserId): String = "$CHANNEL_GROUP_ID_PREFIX.$userId"
     fun getMessagesChannelId(userId: UserId): String = getChanelIdForUser(userId, MESSAGE_CHANNEL_ID)
     fun getPingsChannelId(userId: UserId): String = getChanelIdForUser(userId, PING_CHANNEL_ID)
@@ -111,5 +117,6 @@ enum class NotificationIds {
     PLAYING_AUDIO_MESSAGE_ID,
     UPLOADING_DATA_NOTIFICATION_ID,
     PENDING_MESSAGES_SYNC_NOTIFICATION_ID,
+    DRIVE_UPLOAD_NOTIFICATION_ID,
     MEETING_NOTIFICATION_ID,
 }

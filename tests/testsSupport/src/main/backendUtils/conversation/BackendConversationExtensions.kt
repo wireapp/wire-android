@@ -352,6 +352,32 @@ fun BackendClient.addUsersToGroupConversation(
     return JSONObject(response.body)
 }
 
+fun BackendClient.setReadReceiptsForConversation(
+    asUser: ClientUser,
+    conversation: Conversation,
+    enabled: Boolean
+) {
+    val token = runBlocking { getAuthToken(asUser) }
+    val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/receipt-mode".composePublicApiUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
+    }
+    val requestBody = JSONObject().put("receipt_mode", if (enabled) 1 else 0)
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI(url).toURL(),
+        method = "PUT",
+        body = requestBody.toString(),
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+}
+
 fun BackendClient.setArchivedStateForConversation(
     asUser: ClientUser,
     conversation: Conversation,

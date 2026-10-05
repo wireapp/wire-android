@@ -39,6 +39,9 @@ import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.CellUploadCoordinator
+import com.wire.kalium.cells.domain.CellUploadItem
+import com.wire.kalium.cells.domain.CellUploadRequest
+import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -722,6 +725,127 @@ class CellViewModelTest {
         assertNull(viewModel.uploadConfirmation.value)
     }
 
+    @Test
+    fun `given files stage successfully, when upload is confirmed, then coordinator enqueues the staged requests`() = runTest {
+        val uri1 = mockk<Uri>()
+        val uri2 = mockk<Uri>()
+        val request1 = CellUploadRequest(
+            localPath = "/tmp/a.txt".toPath(),
+            fileName = "a.txt",
+            sizeBytes = 10L,
+            destinationFolderPath = "conversationId",
+        )
+        val request2 = CellUploadRequest(
+            localPath = "/tmp/b.txt".toPath(),
+            fileName = "b.txt",
+            sizeBytes = 20L,
+            destinationFolderPath = "conversationId",
+        )
+        val (arrangement, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        coEvery { arrangement.uploadFilePreparer.prepare(uri1, "conversationId") } returns request1
+        coEvery { arrangement.uploadFilePreparer.prepare(uri2, "conversationId") } returns request2
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(listOf(uri1, uri2)))
+
+        viewModel.confirmUpload()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.uploadCoordinator.enqueue(listOf(request1, request2)) }
+    }
+
+    @Test
+    fun `given no files stage successfully, when upload is confirmed, then coordinator enqueue is never called`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val pickedUris = List(2) { mockk<Uri>() }
+        // default arrangement stubs uploadFilePreparer.prepare to return null for any uri
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+        viewModel.confirmUpload()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.uploadCoordinator.enqueue(any()) }
+    }
+
+    @Test
+    fun `given an upload completes in the currently open folder, when reported, then nodes are refreshed`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withLoadSuccess()
+            .arrange()
+        viewModel.nodesFlow.first()
+        coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+
+        arrangement.uploadsFlow.value = listOf(completedUpload(id = "1", destinationFolderPath = "conversationId"))
+        advanceUntilIdle()
+
+        coVerify(exactly = 2) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given an upload completes in a different folder, when reported, then nodes are not refreshed`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withLoadSuccess()
+            .arrange()
+        viewModel.nodesFlow.first()
+        coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+
+        arrangement.uploadsFlow.value = listOf(completedUpload(id = "1", destinationFolderPath = "anotherConversationId"))
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given a completed upload was already refreshed, when the list changes around it, then it is not refreshed again`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withLoadSuccess()
+            .arrange()
+        viewModel.nodesFlow.first()
+
+        val completed = completedUpload(id = "1", destinationFolderPath = "conversationId")
+        arrangement.uploadsFlow.value = listOf(completed)
+        advanceUntilIdle()
+        coVerify(exactly = 2) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+
+        // The list itself changes (a new, still-queued upload joins it), so the flow does re-emit, but
+        // id "1" was already refreshed and must not be counted again.
+        arrangement.uploadsFlow.value = listOf(completed, queuedUpload(id = "2", destinationFolderPath = "conversationId"))
+        advanceUntilIdle()
+
+        coVerify(exactly = 2) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given no conversation is open, when view model is created, then it never subscribes to uploads`() = runTest {
+        val (arrangement, _) = Arrangement().arrange()
+        advanceUntilIdle()
+
+        assertEquals(0, arrangement.uploadsFlow.subscriptionCount.value)
+    }
+
+    private fun completedUpload(id: String, destinationFolderPath: String) = CellUploadItem(
+        id = id,
+        request = CellUploadRequest(
+            localPath = "/tmp/$id.txt".toPath(),
+            fileName = "$id.txt",
+            sizeBytes = 10L,
+            destinationFolderPath = destinationFolderPath,
+        ),
+        state = CellUploadState.Completed,
+    )
+
+    private fun queuedUpload(id: String, destinationFolderPath: String) = CellUploadItem(
+        id = id,
+        request = CellUploadRequest(
+            localPath = "/tmp/$id.txt".toPath(),
+            fileName = "$id.txt",
+            sizeBytes = 10L,
+            destinationFolderPath = destinationFolderPath,
+        ),
+        state = CellUploadState.Queued,
+    )
+
     private class Arrangement(
         private var conversationId: String? = null,
         private var inAppImageViewerEnabled: Boolean = false,
@@ -800,6 +924,8 @@ class CellViewModelTest {
         @MockK
         lateinit var uploadCoordinator: CellUploadCoordinator
 
+        val uploadsFlow = MutableStateFlow<List<CellUploadItem>>(emptyList())
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -816,7 +942,7 @@ class CellViewModelTest {
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
             coEvery { uploadFilePreparer.prepare(any(), any()) } returns null
             coEvery { uploadFilePreparer.fileName(any()) } returns "file"
-            every { uploadCoordinator.uploads } returns MutableStateFlow(emptyList())
+            every { uploadCoordinator.uploads } returns uploadsFlow
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(

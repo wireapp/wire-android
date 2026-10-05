@@ -191,6 +191,12 @@ internal fun ConversationFilesScreenContent(
     val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
+    LaunchedEffect(uploads) {
+        if (uploads.isEmpty() && uploadStatusSheetState.isVisible) {
+            uploadStatusSheetState.hide()
+        }
+    }
+
     val uploadFilesFlow = rememberChooseMultipleFilesFlow(
         onFileBrowserItemPicked = { uris ->
             sendIntent(CellViewIntent.OnFilesPickedForUpload(uris))

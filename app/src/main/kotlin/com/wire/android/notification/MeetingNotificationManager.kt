@@ -39,7 +39,7 @@ class MeetingNotificationManager @Inject constructor(
     private val builder: MeetingNotificationBuilder,
 ) {
     fun handleNotifications(notifications: List<LocalNotification.Meeting>, userId: UserId) {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU ||
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         ) {
             notifications.forEach { notification ->

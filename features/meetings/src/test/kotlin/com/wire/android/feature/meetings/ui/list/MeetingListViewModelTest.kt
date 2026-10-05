@@ -42,6 +42,7 @@ import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
+import com.wire.kalium.logic.feature.meeting.SyncMeetingsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -457,6 +458,30 @@ class MeetingListViewModelTest {
         }
     }
 
+    @Test
+    fun givenEmptyList_whenLoadedRepeatedly_thenSyncOnlyOnce() = runTest(dispatcher) {
+        val (arrangement, scenario) = Arrangement(dispatcher).arrange()
+        scenario.use {
+            it.viewModel.onEmptyListLoaded()
+            it.viewModel.onEmptyListLoaded()
+            runCurrent()
+            coVerify(exactly = 1) { arrangement.syncMeetings() }
+        }
+    }
+
+    @Test
+    fun givenViewModel_whenNoEmptyListReported_thenDoNotSync() = runTest(dispatcher) {
+        val (arrangement, scenario) = Arrangement(dispatcher).arrange()
+        scenario.use {
+            runCurrent()
+            coVerify(exactly = 0) { arrangement.syncMeetings() }
+
+            it.viewModel.onEmptyListLoaded()
+            runCurrent()
+            coVerify(exactly = 1) { arrangement.syncMeetings() }
+        }
+    }
+
     private fun List<MeetingListItem>.meetingItem() = meetingItems().single()
     private fun List<MeetingListItem>.meetingItems() = filterIsInstance<MeetingItem>()
     private fun MeetingItem.ongoingStatus() = status as MeetingItem.Status.Ongoing
@@ -521,10 +546,14 @@ class MeetingListViewModelTest {
         @MockK
         lateinit var observeActiveCalls: ObserveActiveCallsUseCase
 
+        @MockK
+        lateinit var syncMeetings: SyncMeetingsUseCase
+
         init {
             MockKAnnotations.init(this)
             every { observeActiveCalls() } returns flowOf(emptyList())
             every { systemTimeObserver() } returns merge(systemTimeChanges, minuteTicks)
+            coEvery { syncMeetings() } returns SyncMeetingsUseCase.Result.Success
         }
         fun withTimeZoneProvider(timeZone: () -> TimeZone) = apply {
             currentTimeZoneProvider = CurrentTimeZoneProvider(timeZone)
@@ -549,6 +578,7 @@ class MeetingListViewModelTest {
                 systemTimeObserver = systemTimeObserver,
                 getMeetingsPaginated = getMeetingsPaginated,
                 observeActiveCalls = observeActiveCalls,
+                syncMeetings = syncMeetings,
             )
         }
     }

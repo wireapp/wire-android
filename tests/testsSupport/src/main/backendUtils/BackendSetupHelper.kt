@@ -32,8 +32,11 @@ import backendUtils.conversation.getConversationByName
 import backendUtils.conversation.getInviteLink
 import backendUtils.conversation.removeUserFromGroupConversation
 import backendUtils.conversation.setArchivedStateForConversation
+import backendUtils.team.addTeamCollaborator
+import backendUtils.conversation.setReadReceiptsForConversation
 import backendUtils.team.addServiceToConversation
 import backendUtils.team.disableFileSharingFeature
+import backendUtils.team.enableAppsFeatureTeam
 import backendUtils.team.enableChannelFeatureViaBackdoorTeam
 import backendUtils.team.enableForceAppLockFeature
 import backendUtils.team.enableMLSFeatureTeam
@@ -43,6 +46,7 @@ import backendUtils.team.setTeamSearchVisibility
 import backendUtils.team.setTeamSearchVisibilityEnabled
 import backendUtils.team.switchServiceForTeam
 import backendUtils.team.TeamRoles
+import backendUtils.team.unlockAppsFeature
 import backendUtils.team.unlockChannelFeature
 import backendUtils.team.unlockFileSharingFeature
 import backendUtils.team.updateUniqueUsername
@@ -173,8 +177,34 @@ class BackendSetupHelper(
                 defaultCipherSuite = 2,
                 allowedCipherSuites = listOf(2),
                 defaultProtocol = "mls",
-                allowedProtocols = listOf("mls", "proteus")
+                allowedProtocols = listOf("mls")
             )
+        }
+    }
+
+    fun userEnablesAppsForTeam(
+        ownerUserAlias: String,
+        teamName: String,
+        backendClient: BackendClient
+    ) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.unlockAppsFeature(team)
+            backendClient.enableAppsFeatureTeam(team)
+        }
+    }
+
+    fun userAddsAppAsTeamCollaborator(
+        ownerUserAlias: String,
+        teamName: String,
+        appUserId: String,
+        backendClient: BackendClient
+    ) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.addTeamCollaborator(owner, team, appUserId)
         }
     }
 
@@ -335,6 +365,12 @@ class BackendSetupHelper(
             val dstTeam = backend.getTeamByName(chatOwner, teamName)
             backend.createTeamConversation(chatOwner, participants, chatName, dstTeam)
         }
+    }
+
+    fun userSetsReadReceiptsForConversation(userAlias: String, conversationName: String, enabled: Boolean) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        backendFor(user).setReadReceiptsForConversation(user, conversation, enabled)
     }
 
     fun userHasGroupConversationAsPersonalUser(

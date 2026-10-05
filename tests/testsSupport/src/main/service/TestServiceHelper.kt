@@ -311,6 +311,30 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsOneKbTextFileConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val textFile = File(context.cacheDir, fileName)
+        RandomAccessFile(textFile, "rws").use { file ->
+            file.setLength(1024L)
+        }
+        val conversation = toConvoObj(toClientUser(senderAlias), dstConvoName)
+
+        testServiceClient.sendFile(
+            toClientUser(senderAlias),
+            deviceName,
+            conversation.qualifiedID.id,
+            conversation.qualifiedID.domain,
+            getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+            textFile.absolutePath.orEmpty(),
+            "text/plain"
+        )
+    }
+
     fun contactSendsLocalVideoPersonalMLSConversation(
         context: Context,
         fileName: String,
@@ -440,6 +464,25 @@ class TestServiceHelper(
                 throw RuntimeException("Wait and retry failed")
             }
         }
+    }
+
+    fun userCreatesMLSGroupConversation(
+        ownerAlias: String,
+        participantAliases: String,
+        conversationName: String,
+        deviceName: String
+    ) {
+        val owner = toClientUser(ownerAlias)
+        val participants = usersManager
+            .splitAliases(participantAliases)
+            .map(::toClientUser)
+
+        testServiceClient.createConversation(
+            owner = owner,
+            participants = participants,
+            chatName = conversationName,
+            deviceName = deviceName
+        )
     }
 
     fun isSendReadReceiptEnabled(userNameAlias: String): Boolean {
@@ -1021,6 +1064,46 @@ class TestServiceHelper(
         val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
 
         testServiceClient.sendEphemeralConfirmationDelivered(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
+    }
+
+    fun userSendsReadReceiptOnLatestMessageInPersonalConversation(
+        userAlias: String,
+        conversationWithAlias: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObjPersonal(user, conversationWithAlias)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendConfirmationRead(
+            user,
+            deviceName,
+            conversationId,
+            conversationDomain,
+            recentMessageId
+        )
+    }
+
+    fun userSendsReadReceiptOnLatestMessageInGroupConversation(
+        userAlias: String,
+        conversationName: String,
+        deviceName: String
+    ) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        val conversationId = conversation.qualifiedID.id
+        val conversationDomain = conversation.qualifiedID.domain
+        val recentMessageId = getRecentMessageId(user, deviceName, conversationId, conversationDomain)
+
+        testServiceClient.sendConfirmationRead(
             user,
             deviceName,
             conversationId,

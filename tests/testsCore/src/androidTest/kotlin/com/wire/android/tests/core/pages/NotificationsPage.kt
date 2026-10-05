@@ -19,11 +19,14 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.MEDIUM_TIMEOUT
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
+
+private const val NOTIFICATION_APPEARANCE_TIMEOUT_MS = 3_000L
 
 class NotificationsPage(private val device: UiDevice) {
     private val incomingCallNotification = UiSelectorParams(textMatches = ".*(Calling|calling|Incoming call).*")
@@ -32,8 +35,11 @@ class NotificationsPage(private val device: UiDevice) {
     private val ongoingCallNotification = UiSelectorParams(textContains = "Ongoing call")
     private val websocketServiceNotification = UiSelectorParams(textContains = "service is running")
 
-    fun waitUntilNotificationPopUpGone(timeout: Duration = 10.seconds) {
+    fun waitUntilNotificationPopUpGone(timeout: Duration = MEDIUM_TIMEOUT) {
         val replyButton = By.text("Reply")
+
+        device.wait(Until.hasObject(replyButton), NOTIFICATION_APPEARANCE_TIMEOUT_MS)
+
         if (device.hasObject(replyButton)) {
             UiWaitUtils.waitUntilGoneOrThrow(
                 selector = replyButton,

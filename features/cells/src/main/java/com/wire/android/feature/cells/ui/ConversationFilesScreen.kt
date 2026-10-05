@@ -237,7 +237,7 @@ internal fun ConversationFilesScreenContent(
                 CellFilesNavArgs(
                     conversationId = currentNodeUuid?.substringBefore("/"),
                     isRecycleBin = true,
-                    breadcrumbs = arrayOf(breadcrumbs?.first() ?: ""),
+                    breadcrumbs = arrayOf(breadcrumbs?.firstOrNull() ?: ""),
                 )
             )
             optionsBottomSheetState.hide()

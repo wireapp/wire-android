@@ -222,6 +222,14 @@ class DateAndTimeParsers private constructor() {
             zoneId: ZoneId = ZoneId.systemDefault(),
         ): String = dayOfWeekMonthDayDateFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
 
+        fun meetingDateShort(
+            instant: Instant,
+            locale: Locale = Locale.getDefault(),
+            zoneId: ZoneId = ZoneId.systemDefault(),
+        ): String = DateFormat.getBestDateTimePattern(locale, "EEE, d MMMM").let { pattern ->
+            DateTimeFormatter.ofPattern(pattern).withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
+        }
+
         fun meetingTime(
             instant: Instant,
             locale: Locale = Locale.getDefault(),

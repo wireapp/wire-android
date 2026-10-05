@@ -139,6 +139,10 @@ android {
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
     testOptions {
+        unitTests.all { test ->
+            // Robolectric loads multiple Android SDKs in the test JVM, separate from the Gradle daemon.
+            test.maxHeapSize = "2g"
+        }
         screenshotTests {
             imageDifferenceThreshold = 0.0001f // 0.01%
         }

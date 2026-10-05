@@ -77,6 +77,18 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 context
             )
 
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user1Name",
+                "sendTeam",
+                backendClient
+            )
+
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user3Name",
+                "receiveTeam",
+                backendClient
+            )
+
             backendSetupHelper.userXAddsUsersToTeam(
                 "user3Name",
                 "user4Name",

@@ -21,6 +21,7 @@ package com.wire.android.notification
 import com.wire.kalium.logic.data.user.UserId
 
 // TODO: The names need to be localisable
+@Suppress("TooManyFunctions")
 object NotificationConstants {
 
     const val INCOMING_CALL_CHANNEL_ID = "com.wire.android.notification_incoming_call_channel"
@@ -52,17 +53,28 @@ object NotificationConstants {
     const val OTHER_CHANNEL_ID = "com.wire.android.other"
     const val OTHER_CHANNEL_NAME = "Other essential actions"
 
+    const val DRIVE_UPLOAD_CHANNEL_ID = "com.wire.android.drive_upload"
+    const val DRIVE_UPLOAD_CHANNEL_NAME = "Shared Drive uploads"
+
     private const val CHANNEL_GROUP_ID_PREFIX = "com.wire.notification_channel_group"
 
     // MessagesSummaryNotification ID depends on User, use fun getMessagesSummaryId(userId: UserId) to get it
     private const val MESSAGE_SUMMARY_ID_STRING = "wire_messages_summary_notification"
 
+    private const val DRIVE_UPLOAD_ID_STRING = "wire_drive_upload_notification"
+
     private const val INCOMING_CALL_TAG_PREFIX = "wire_incoming_call_tag_"
     const val INCOMING_CALL_ID_PREFIX = "wire_incoming_call_"
+
+    private const val MEETING_CHANNEL_ID = "com.wire.android.notification_meeting_channel"
+    const val MEETING_CHANNEL_NAME = "Meetings"
+    private const val MEETING_GROUP_KEY_PREFIX = "wire_meeting_group_"
+    private const val MEETING_TAG_PREFIX = "wire_meeting_tag_"
 
     fun getConversationNotificationId(conversationIdString: String, userIdString: String) = (conversationIdString + userIdString).hashCode()
     fun getMessagesGroupKey(userId: UserId?): String = "$MESSAGE_GROUP_KEY_PREFIX${userId?.toString() ?: ""}"
     fun getMessagesSummaryId(userId: UserId): Int = "$MESSAGE_SUMMARY_ID_STRING$userId".hashCode()
+    fun getDriveUploadNotificationId(userId: UserId): Int = "$DRIVE_UPLOAD_ID_STRING$userId".hashCode()
     fun getChanelGroupIdForUser(userId: UserId): String = "$CHANNEL_GROUP_ID_PREFIX.$userId"
     fun getMessagesChannelId(userId: UserId): String = getChanelIdForUser(userId, MESSAGE_CHANNEL_ID)
     fun getPingsChannelId(userId: UserId): String = getChanelIdForUser(userId, PING_CHANNEL_ID)
@@ -72,6 +84,10 @@ object NotificationConstants {
         "$INCOMING_CALL_ID_PREFIX${userIdString}_$conversationIdString".hashCode()
 
     fun getIncomingCallTag(userIdString: String): String = "$INCOMING_CALL_TAG_PREFIX$userIdString"
+
+    fun getMeetingsChannelId(userId: UserId): String = getChanelIdForUser(userId, MEETING_CHANNEL_ID)
+    fun getMeetingTag(userId: UserId, meetingId: String, eventId: String): String = "$MEETING_TAG_PREFIX${userId}_${meetingId}_$eventId"
+    fun getMeetingsGroupKey(userId: UserId?): String = "$MEETING_GROUP_KEY_PREFIX${userId?.toString() ?: ""}"
 
     /**
      * @return NotificationChannelId [String] specific for user, use it to post a notifications.
@@ -101,4 +117,6 @@ enum class NotificationIds {
     PLAYING_AUDIO_MESSAGE_ID,
     UPLOADING_DATA_NOTIFICATION_ID,
     PENDING_MESSAGES_SYNC_NOTIFICATION_ID,
+    MEETING_NOTIFICATION_ID,
+    DRIVE_UPLOAD_NOTIFICATION_ID,
 }

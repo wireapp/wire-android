@@ -1054,6 +1054,23 @@
     <string name="notification_audio_message_body">Audionachricht</string>
     <string name="notification_deleting_conversation">Unterhaltung wird gelöscht…</string>
     <string name="notification_uploading_files">Dateien werden hochgeladen…</string>
+    <plurals name="notification_drive_upload_uploading_title">
+        <item quantity="one">%1$d Datei hochladen</item>
+        <item quantity="other">%1$d Dateien hochgeladen</item>
+    </plurals>
+    <string name="notification_drive_upload_progress_text">%1$d von %2$d abgeschlossen</string>
+    <string name="notification_drive_upload_complete_title">Upload abgeschlossen</string>
+    <plurals name="notification_drive_upload_complete_text">
+        <item quantity="one">%1$d Datei hochgeladen</item>
+        <item quantity="other">%1$d Dateien hochgeladen</item>
+    </plurals>
+    <string name="notification_drive_upload_partial_title">%1$d von %2$d hochgeladen</string>
+    <plurals name="notification_drive_upload_partial_text">
+        <item quantity="one">%1$d Datei nicht hochgeladen</item>
+        <item quantity="other">%1$d Dateien nicht hochgeladen</item>
+    </plurals>
+    <string name="notification_drive_upload_action_cancel_all">Alle abbrechen</string>
+    <string name="notification_drive_upload_action_retry">Wiederholen</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Konstante Bitrate</string>
     <string name="calling_button_label_microphone">Mikrofon</string>
@@ -1839,4 +1856,14 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <!-- Pending messages service notification -->
     <string name="pending_messages_notification_waiting">Auf Verbindung warten</string>
     <string name="pending_messages_notification_sending">Nachrichten werden gesendet</string>
+    <string name="notification_meeting_title">Meeting</string>
+    <string name="notification_meeting_title_ongoing">Aktuell: %1$s</string>
+    <string name="notification_meeting_invite">%1$s hat Sie zu einem Meeting am %2$s · %3$s bis %4$s eingeladen</string>
+    <string name="notification_meeting_invite_unknown">Sie wurden zu einem Meeting am %1$s · %2$s bis %3$s eingeladen</string>
+    <string name="notification_meeting_invite_short">Sie wurden zu einem Meeting eingeladen</string>
+    <string name="notification_meeting_update">%1$s hat dieses Meeting auf %2$s · %3$s bis %4$s verschoben</string>
+    <string name="notification_meeting_update_unknown">Meeting wurde auf %1$s · %2$s bis %3$s verschoben</string>
+    <string name="notification_meeting_update_short">Meeting aktualisiert</string>
+    <string name="notification_meeting_cancel">%1$s hat dieses Meeting abgesagt</string>
+    <string name="notification_meeting_cancel_short">Meeting abgesagt</string>
 </resources>

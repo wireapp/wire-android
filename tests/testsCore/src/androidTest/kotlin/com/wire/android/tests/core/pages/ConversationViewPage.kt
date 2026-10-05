@@ -104,6 +104,9 @@ data class ConversationViewPage(private val device: UiDevice) {
     private val backButton = UiSelectorParams(description = "Go back to conversation list")
 
     private val conversationOptionsButton = UiSelectorParams(description = "Open conversation options")
+    private val messageDetailsOption = UiSelectorParams(description = "Open Message Details")
+    private val replyOption = UiSelectorParams(description = "Reply to the message")
+    private val cancelReplyButton = UiSelectorParams(description = "Cancel message reply")
     private val copyMessageOption = UiSelectorParams(description = "Copy the message")
     private val editMessageOption = UiSelectorParams(description = "Edit the message")
     private val deleteMessageOption = UiSelectorParams(description = "Delete the message")
@@ -135,9 +138,11 @@ data class ConversationViewPage(private val device: UiDevice) {
         return UiSelectorParams(text = label, className = "android.widget.TextView")
     }
 
-    private fun sharingOption(label: String): UiSelectorParams {
-        return UiSelectorParams(text = label, className = "android.widget.TextView")
-    }
+    private fun sharingOption(label: String): List<UiSelectorParams> = listOf(
+        UiSelectorParams(description = label),
+        UiSelectorParams(text = label)
+    )
+
     private fun fileWithName(name: String): UiSelectorParams {
         return UiSelectorParams(text = name)
     }
@@ -274,6 +279,50 @@ data class ConversationViewPage(private val device: UiDevice) {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .swipe(center.x, center.y, center.x, center.y, 120)
 
+        return this
+    }
+
+    fun tapMessageDetailsOption(): ConversationViewPage {
+        UiWaitUtils.waitElement(messageDetailsOption).click()
+        return this
+    }
+
+    fun assertReplyOptionVisible(): ConversationViewPage {
+        UiWaitUtils.waitElement(replyOption)
+        return this
+    }
+
+    fun tapReplyOption(): ConversationViewPage {
+        UiWaitUtils.waitElement(replyOption).click()
+        return this
+    }
+
+    fun assertReplyPreviewVisible(message: String): ConversationViewPage {
+        UiWaitUtils.waitElement(cancelReplyButton)
+        val previewVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            try {
+                val previewContainer = UiWaitUtils.findElementOrNull(cancelReplyButton)?.parent?.parent
+                previewContainer?.findObject(By.text(message))?.visibleBounds?.isEmpty == false
+            } catch (_: StaleObjectException) {
+                false
+            }
+        }
+        Assert.assertTrue("Reply preview does not contain message '$message'.", previewVisible)
+        return this
+    }
+
+    fun assertReplyToMessageVisible(reply: String, originalMessage: String): ConversationViewPage {
+        val replyVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            try {
+                device.findObjects(By.text(reply)).any { replyElement ->
+                    val quotedMessage = replyElement.parent?.findObject(By.text(originalMessage))
+                    !replyElement.visibleBounds.isEmpty && quotedMessage?.visibleBounds?.isEmpty == false
+                }
+            } catch (_: StaleObjectException) {
+                false
+            }
+        }
+        Assert.assertTrue("Reply '$reply' does not quote message '$originalMessage' in the conversation.", replyVisible)
         return this
     }
 
@@ -839,7 +888,8 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun tapSharingOption(label: String) {
-        val element = UiWaitUtils.waitElement(sharingOption(label))
+        val element = UiWaitUtils.waitAnyVisible(sharingOption(label))
+            ?: throw AssertionError("Sharing option '$label' is not visible")
         element.click()
     }
 
@@ -1055,15 +1105,15 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertSharingOptionVisible(label: String) {
-        try {
-            UiWaitUtils.waitElement(sharingOption(label))
-        } catch (e: AssertionError) {
-            throw AssertionError("Sharing option '$label' is not visible", e)
+        if (UiWaitUtils.waitAnyVisible(sharingOption(label)) == null) {
+            throw AssertionError("Sharing option '$label' is not visible")
         }
     }
 
     fun assertSharingOptionNotVisible(label: String) {
-        assertElementNotVisible(sharingOption(label), "sharing option '$label'", timeoutSeconds = 1)
+        sharingOption(label).forEach { selector ->
+            assertElementNotVisible(selector, "sharing option '$label'", timeoutSeconds = 1)
+        }
     }
 
     fun iSeeSentQrCodeImageInCurrentConversation(): ConversationViewPage {

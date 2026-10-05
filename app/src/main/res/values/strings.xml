@@ -1090,6 +1090,23 @@
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
     <string name="notification_uploading_files">Uploading files…</string>
+    <plurals name="notification_drive_upload_uploading_title">
+        <item quantity="one">Uploading %1$d file</item>
+        <item quantity="other">Uploading %1$d files</item>
+    </plurals>
+    <string name="notification_drive_upload_progress_text">%1$d of %2$d completed</string>
+    <string name="notification_drive_upload_complete_title">Upload complete</string>
+    <plurals name="notification_drive_upload_complete_text">
+        <item quantity="one">%1$d file uploaded</item>
+        <item quantity="other">%1$d files uploaded</item>
+    </plurals>
+    <string name="notification_drive_upload_partial_title">%1$d of %2$d uploaded</string>
+    <plurals name="notification_drive_upload_partial_text">
+        <item quantity="one">%1$d file couldn\'t be uploaded</item>
+        <item quantity="other">%1$d files couldn\'t be uploaded</item>
+    </plurals>
+    <string name="notification_drive_upload_action_cancel_all">Cancel all</string>
+    <string name="notification_drive_upload_action_retry">Retry</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -1974,4 +1991,14 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="pending_messages_notification_waiting">Waiting for connection</string>
     <string name="pending_messages_notification_sending">Sending messages</string>
 
+    <string name="notification_meeting_title">Meeting</string>
+    <string name="notification_meeting_title_ongoing">Ongoing: %1$s</string>
+    <string name="notification_meeting_invite">%1$s invited you to a meeting on %2$s · %3$s to %4$s</string>
+    <string name="notification_meeting_invite_unknown">You are invited to a meeting on %1$s · %2$s to %3$s</string>
+    <string name="notification_meeting_invite_short">You are invited to a meeting</string>
+    <string name="notification_meeting_update">%1$s updated this meeting to %2$s · %3$s to %4$s</string>
+    <string name="notification_meeting_update_unknown">Meeting is updated to %1$s · %2$s to %3$s</string>
+    <string name="notification_meeting_update_short">Meeting updated</string>
+    <string name="notification_meeting_cancel">%1$s canceled this meeting</string>
+    <string name="notification_meeting_cancel_short">Meeting canceled</string>
 </resources>

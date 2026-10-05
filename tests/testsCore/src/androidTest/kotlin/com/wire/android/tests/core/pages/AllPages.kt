@@ -36,6 +36,8 @@ class AllPages(val device: UiDevice) {
 
     val conversationViewPage = ConversationViewPage(device)
 
+    val messageDetailsPage = MessageDetailsPage(device)
+
     val notificationsPage = NotificationsPage(device)
 
     val groupConversationDetailsPage = GroupConversationDetailsPage(device)

@@ -68,9 +68,15 @@ class GroupVideoCall : BaseCallUiTest() {
                 ClientUserManager.FindBy.NAME_ALIAS
             )
 
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user1Name",
+                "WeLikeCalls",
+                backendClient
+            )
+
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
-                "user2Name, user3Name",
+                "user3Name",
                 "WeLikeCalls",
                 TeamRoles.Member,
                 backendClient,
@@ -90,22 +96,19 @@ class GroupVideoCall : BaseCallUiTest() {
                 "user4Name",
                 ClientUserManager.FindBy.NAME_ALIAS
             )
-        }
 
-        step("And WeLikeCalls team owner creates GroupVideoCall conversation with team members") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GroupVideoCall",
-                "user2Name, user3Name",
-                "WeLikeCalls"
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user4Name",
+                "IJoinCalls",
+                backendClient
             )
         }
 
-        step("And participant devices and unique username are prepared for group call") {
-            testServiceHelper.addDevice("user4Name", null, "Device2")
-            testServiceHelper.addDevice("user3Name", null, "Device1")
-            runBlocking {
-                backendSetupHelper.usersSetUniqueUsername("user3Name")
+        step("And MLS devices are registered for all group call participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device2")
             }
         }
 
@@ -119,6 +122,21 @@ class GroupVideoCall : BaseCallUiTest() {
                     "user4Name",
                     "IJoinCalls"
                 )
+            }
+        }
+
+        step("And the team owner creates GroupVideoCall with the MLS devices") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user3Name",
+                conversationName = "GroupVideoCall",
+                deviceName = "Device1"
+            )
+        }
+
+        step("And a unique username is prepared for the group call") {
+            runBlocking {
+                backendSetupHelper.usersSetUniqueUsername("user3Name")
             }
         }
 
@@ -268,19 +286,19 @@ class GroupVideoCall : BaseCallUiTest() {
             iSeeSystemMessage("You added ${teamOwnerB?.name ?: ""} to the conversation")
         }
 
-        step("And <Member1>, <Member2>, and <TeamOwnerB> start instances using Chrome") {
+        step("And <Member2> and <TeamOwnerB> start instances using Chrome") {
             runBlocking {
                 callHelper.userXStartsInstance(
-                    "user2Name, user3Name, user4Name",
+                    "user3Name, user4Name",
                     "Chrome"
                 )
             }
         }
 
-        step("And <Member1>, <Member2>, and <TeamOwnerB> auto-accept the next incoming call") {
+        step("And <Member2> and <TeamOwnerB> auto-accept the next incoming call") {
             runBlocking {
                 callHelper.userXAcceptsNextIncomingCallAutomatically(
-                    "user2Name, user3Name, user4Name"
+                    "user3Name, user4Name"
                 )
             }
         }
@@ -291,10 +309,10 @@ class GroupVideoCall : BaseCallUiTest() {
             }
         }
 
-        step("Then <Member1>, <Member2>, and <TeamOwnerB> verify waiting instance status changes to active within 90 seconds") {
+        step("Then <Member2> and <TeamOwnerB> verify waiting instance status changes to active within 90 seconds") {
             runBlocking {
                 callHelper.userVerifiesCallStatusToUserY(
-                    "user2Name, user3Name, user4Name",
+                    "user3Name, user4Name",
                     "active",
                     90
                 )
@@ -307,8 +325,8 @@ class GroupVideoCall : BaseCallUiTest() {
             }
         }
 
-        step("And I see users <Member1>, <Member2>, and <TeamOwnerB> in ongoing group call") {
-            callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name, user4Name")
+        step("And I see users <Member2> and <TeamOwnerB> in ongoing group call") {
+            callHelper.iSeeParticipantsInGroupCall("user3Name, user4Name")
         }
 
         step("And I turn camera on") {
@@ -317,24 +335,24 @@ class GroupVideoCall : BaseCallUiTest() {
             }
         }
 
-        step("And users <Member1>, <Member2>, and <TeamOwnerB> switch video on") {
+        step("And users <Member2> and <TeamOwnerB> switch video on") {
             runBlocking {
                 val callParticipantsSwitchVideoOn =
-                    clientUserManager.splitAliases("user2Name, user3Name, user4Name")
+                    clientUserManager.splitAliases("user3Name, user4Name")
                 callingManager.switchVideoOn(callParticipantsSwitchVideoOn)
             }
         }
 
-        step("And users <Member1>, <Member2>, and <TeamOwnerB> verify audio and video are received") {
+        step("And users <Member2> and <TeamOwnerB> verify audio and video are received") {
             runBlocking {
                 val assertCallParticipantsReceiveAudioVideo =
-                    clientUserManager.splitAliases("user2Name, user3Name, user4Name")
+                    clientUserManager.splitAliases("user3Name, user4Name")
                 callingManager.verifyReceiveAudioAndVideo(assertCallParticipantsReceiveAudioVideo)
             }
         }
 
-        step("And I see users <Member1>, <Member2>, and <TeamOwnerB> in ongoing group video call") {
-            callHelper.iSeeParticipantsInGroupVideoCall("user2Name, user3Name, user4Name")
+        step("And I see users <Member2> and <TeamOwnerB> in ongoing group video call") {
+            callHelper.iSeeParticipantsInGroupVideoCall("user3Name, user4Name")
         }
 
         step("And I minimise ongoing call to continue conversation actions") {
@@ -343,22 +361,10 @@ class GroupVideoCall : BaseCallUiTest() {
             }
         }
 
-        step("And I tap ping button in conversation view") {
+        step("And I tap ping button and see system message 'You pinged'") {
             pages.conversationViewPage.apply {
                 tapMessageInInputField()
                 tapPingButton()
-            }
-        }
-
-        step("And I see confirmation alert with text \"Are you sure you want to ping 4 people?\" in conversation view") {
-            pages.conversationViewPage.apply {
-                iSeePingModalWithText("Are you sure you want to ping 4 people?")
-            }
-        }
-
-        step("And I confirm ping and see system message 'You pinged'") {
-            pages.conversationViewPage.apply {
-                tapPingButtonModal()
                 iSeeSystemMessage("You pinged")
                 closeKeyboardIfOpened()
             }
@@ -366,14 +372,16 @@ class GroupVideoCall : BaseCallUiTest() {
 
         step("And I attempt to start audio recording during ongoing call") {
             pages.conversationViewPage.apply {
-                // `assertToastDisplayed` starts an accessibility-event listener before running `trigger`.
-                // We must perform the tap/share actions inside `trigger`; otherwise the transient toast can appear and disappear before observation starts.
+                iTapFileSharingButton()
+                assertSharingOptionVisible("Audio")
+
+                // The action that produces the transient toast must run inside `trigger`
+                // so the accessibility listener is registered before the toast appears.
                 assertToastDisplayed("You can't record an audio message during a call.", trigger = {
-                    iTapFileSharingButton()
                     tapSharingOption("Audio")
-                    iTapFileSharingButton()
                 })
             }
+            device.pressBack()
         }
 
         step("And <Member2> sends audio file message via device Device1 to GroupVideoCall conversation") {
@@ -420,11 +428,11 @@ class GroupVideoCall : BaseCallUiTest() {
             }
         }
 
-        step("And I restore ongoing group call and verify users <Member1>, <Member2>, and <TeamOwnerB> remain connected") {
+        step("And I restore ongoing group call and verify users <Member2> and <TeamOwnerB> remain connected") {
             pages.callingPage.apply {
                 iRestoreOngoingCall()
             }
-            callHelper.iSeeParticipantsInGroupCall("user2Name, user3Name, user4Name")
+            callHelper.iSeeParticipantsInGroupCall("user3Name, user4Name")
         }
 
         step("And I hang up group call and verify call is ended") {

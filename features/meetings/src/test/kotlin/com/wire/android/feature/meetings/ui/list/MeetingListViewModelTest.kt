@@ -32,7 +32,6 @@ import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUs
 import com.wire.android.feature.meetings.ui.util.SystemTimeObserver
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.time.CurrentTimeZoneProvider
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -554,7 +553,7 @@ class MeetingListViewModelTest {
             MockKAnnotations.init(this)
             every { observeActiveCalls() } returns flowOf(emptyList())
             every { systemTimeObserver() } returns merge(systemTimeChanges, minuteTicks)
-            coEvery { syncMeetings() } returns Either.Right(Unit)
+            coEvery { syncMeetings() } returns SyncMeetingsUseCase.Result.Success
         }
         fun withTimeZoneProvider(timeZone: () -> TimeZone) = apply {
             currentTimeZoneProvider = CurrentTimeZoneProvider(timeZone)

@@ -95,6 +95,7 @@ sealed class DeepLinkResult {
     }
 }
 
+@Suppress("TooManyFunctions")
 @SingleIn(AppScope::class)
 class DeepLinkProcessor @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,

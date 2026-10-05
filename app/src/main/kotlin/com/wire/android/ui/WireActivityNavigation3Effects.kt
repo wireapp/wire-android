@@ -107,6 +107,7 @@ internal object WireActivityNavigation3EffectResolver {
         is OnOpenUserProfile -> openUserProfile(action, currentSessionId)
         is OnSSOLogin -> ssoLogin(action, routes)
         OnShowImportMediaScreen -> importMedia(currentSessionId)
+        is OpenMeetings -> openMeetings(action, currentSessionId)
         is OpenConversation -> openConversation(action, currentSessionId)
         is OpenDriveFiles -> openDriveFiles(action, currentSessionId)
         OnUnknownDeepLink -> unknownDeepLink(routes)
@@ -253,6 +254,19 @@ internal object WireActivityNavigation3EffectResolver {
                     WireBackStackMode.UPDATE_EXISTING,
                 )
             )
+        }
+        return WireActivityNavigation3EffectResolution(mutations)
+    }
+
+    private fun openMeetings(
+        action: OpenMeetings,
+        currentSessionId: WireSessionId?,
+    ): WireActivityNavigation3EffectResolution {
+        val sessionId = action.result.targetSessionId?.let {
+            WireSessionId(it.value, it.domain)
+        } ?: requireSession(currentSessionId, action)
+        val mutations = buildList {
+            add(navigate(HomeRoute(sessionId, homeDestination = HomeRoute.HomeDestination.MEETINGS), WireBackStackMode.CLEAR_WHOLE))
         }
         return WireActivityNavigation3EffectResolution(mutations)
     }

@@ -40,6 +40,24 @@ import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.util.deeplink.DeepLinkProcessor
 
+fun meetingsPendingIntent(context: Context, userId: String): PendingIntent {
+    val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
+        data = Uri.Builder()
+            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
+            .authority(DeepLinkProcessor.MEETINGS_DEEPLINK_HOST)
+            .appendQueryParameter(DeepLinkProcessor.USER_TO_USE_QUERY_PARAM, userId)
+            .build()
+    }
+    val requestCode = getRequestCode(OPEN_MEETINGS_REQUEST_CODE_PREFIX, userId)
+
+    return PendingIntent.getActivity(
+        context.applicationContext,
+        requestCode,
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
+}
+
 fun messagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent {
     val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
@@ -304,6 +322,7 @@ private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_DRIVE_FILES_REQUEST_CODE_PREFIX = "open_drive_files_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
 private const val REPLY_MESSAGE_REQUEST_CODE_PREFIX = "reply_"
+private const val OPEN_MEETINGS_REQUEST_CODE_PREFIX = "open_meetings_"
 
 private fun getRequestCode(prefix: String, vararg parameters: String): Int =
     (prefix + parameters.joinToString("_")).hashCode()

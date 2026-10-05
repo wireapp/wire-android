@@ -53,6 +53,10 @@ sealed class DeepLinkResult {
         data class Failure(val ssoError: SSOFailureCodes) : SSOLogin()
     }
 
+    data class OpenMeetings(
+        val targetSessionId: QualifiedID? = null,
+    ) : DeepLinkResult()
+
     data class OpenConversation(
         val conversationId: ConversationId,
         val switchedAccount: Boolean = false,
@@ -91,6 +95,7 @@ sealed class DeepLinkResult {
     }
 }
 
+@Suppress("TooManyFunctions")
 @SingleIn(AppScope::class)
 class DeepLinkProcessor @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
@@ -164,6 +169,8 @@ class DeepLinkProcessor @Inject constructor(
         return when (uri.host) {
             CONVERSATION_DEEPLINK_HOST ->
                 getOpenConversationDeepLinkResult(uri, switchedAccount, targetSessionId)
+            MEETINGS_DEEPLINK_HOST ->
+                getOpenMeetingsDeepLinkResult(targetSessionId)
             DRIVE_FILES_DEEPLINK_HOST ->
                 getOpenDriveFilesDeepLinkResult(uri, switchedAccount, targetSessionId)
             OTHER_USER_PROFILE_DEEPLINK_HOST ->
@@ -228,6 +235,8 @@ class DeepLinkProcessor @Inject constructor(
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let { conversationId ->
             DeepLinkResult.OpenConversation(conversationId, switchedAccount, targetSessionId)
         } ?: DeepLinkResult.Unknown
+
+    private fun getOpenMeetingsDeepLinkResult(targetSessionId: QualifiedID?): DeepLinkResult = DeepLinkResult.OpenMeetings(targetSessionId)
 
     private fun getOpenDriveFilesDeepLinkResult(
         uri: Uri,
@@ -306,6 +315,7 @@ class DeepLinkProcessor @Inject constructor(
         const val SSO_LOGIN_COOKIE_PARAM = "cookie"
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
+        const val MEETINGS_DEEPLINK_HOST = "meetings"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val DRIVE_FILES_DEEPLINK_HOST = "drive-files"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"

@@ -1113,6 +1113,29 @@
     <string name="notification_audio_message_body">Аудиосообщение</string>
     <string name="notification_deleting_conversation">Удаление беседы…</string>
     <string name="notification_uploading_files">Выгрузка файлов…</string>
+    <plurals name="notification_drive_upload_uploading_title">
+        <item quantity="one">Загрузка %1$d файла</item>
+        <item quantity="few">Загрузка %1$d файлов</item>
+        <item quantity="many">Загрузка %1$d файлов</item>
+        <item quantity="other">Загрузка %1$d файла</item>
+    </plurals>
+    <string name="notification_drive_upload_progress_text">%1$d из %2$d завершено</string>
+    <string name="notification_drive_upload_complete_title">Загрузка завершена</string>
+    <plurals name="notification_drive_upload_complete_text">
+        <item quantity="one">%1$d файл загружен</item>
+        <item quantity="few">%1$d файла загружено</item>
+        <item quantity="many">%1$d файлов загружено</item>
+        <item quantity="other">%1$d файла загружено</item>
+    </plurals>
+    <string name="notification_drive_upload_partial_title">%1$d из %2$d загружено</string>
+    <plurals name="notification_drive_upload_partial_text">
+        <item quantity="one">%1$d файл не может быть загружен</item>
+        <item quantity="few">%1$d файла не могут быть загружены</item>
+        <item quantity="many">%1$d файлов не могут быть загружены</item>
+        <item quantity="other">%1$d файла не могут быть загружены</item>
+    </plurals>
+    <string name="notification_drive_upload_action_cancel_all">Отменить все</string>
+    <string name="notification_drive_upload_action_retry">Повторить</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -1961,4 +1984,14 @@
     <!-- Pending messages service notification -->
     <string name="pending_messages_notification_waiting">Ожидание подключения</string>
     <string name="pending_messages_notification_sending">Отправка сообщений</string>
+    <string name="notification_meeting_title">Встреча</string>
+    <string name="notification_meeting_title_ongoing">Текущая: %1$s</string>
+    <string name="notification_meeting_invite">%1$s пригласил вас на встречу с %2$s · %3$s по %4$s</string>
+    <string name="notification_meeting_invite_unknown">Вы приглашены на встречу с %1$s · %2$s по %3$s</string>
+    <string name="notification_meeting_invite_short">Вас пригласили на встречу</string>
+    <string name="notification_meeting_update">%1$s обновил информацию об этой встрече: %2$s · %3$s - %4$s</string>
+    <string name="notification_meeting_update_unknown">Встреча обновлена: %1$s · %2$s - %3$s</string>
+    <string name="notification_meeting_update_short">Встрече обновлена</string>
+    <string name="notification_meeting_cancel">%1$s отменил(а) эту встречу</string>
+    <string name="notification_meeting_cancel_short">Встреча отменена</string>
 </resources>

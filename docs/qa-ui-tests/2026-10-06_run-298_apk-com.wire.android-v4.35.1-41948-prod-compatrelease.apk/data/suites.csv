@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Tue Oct 06 10:31:32 CEST 2026","Tue Oct 06 10:32:25 CEST 2026","53043","","com.wire.android.tests.core.e2eTests.TeamCreationTest","","com.wire.android.tests.core.e2eTests.TeamCreationTest","givenIWantToBeAbleToCreateATeam_whenICompleteTeamCreation_thenTeamIsCreatedAndTeamOwnerSuccessfullyLogsIn","givenIWantToBeAbleToCreateATeam_whenICompleteTeamCreation_thenTeamIsCreatedAndTeamOwnerSuccessfullyLogsIn",""

@@ -78,7 +78,7 @@ countly = "26.1.2"
 rss-parser = "6.0.7"
 
 # Logging
-dataDog = "1.19.3"
+dataDog = "3.14.1"
 
 # Lint
 lint-compose = "1.4.3"
@@ -271,7 +271,10 @@ rss-parser = { module = "com.prof18.rssparser:rssparser", version.ref = "rss-par
 lint-compose = { module = "com.slack.lint.compose:compose-lint-checks", version.ref = "lint-compose" }
 
 # Logging
-dataDog-core = { module = "com.datadoghq:dd-sdk-android", version.ref = "dataDog" }
+dataDog-core = { module = "com.datadoghq:dd-sdk-android-core", version.ref = "dataDog" }
+dataDog-logs = { module = "com.datadoghq:dd-sdk-android-logs", version.ref = "dataDog" }
+dataDog-trace = { module = "com.datadoghq:dd-sdk-android-trace", version.ref = "dataDog" }
+dataDog-rum = { module = "com.datadoghq:dd-sdk-android-rum", version.ref = "dataDog" }
 dataDog-compose = { module = "com.datadoghq:dd-sdk-android-compose", version.ref = "dataDog" }
 
 # OAuth

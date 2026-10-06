@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Tue Oct 06 18:00:51 CEST 2026","Tue Oct 06 18:02:14 CEST 2026","82900","","com.wire.android.tests.core.criticalFlows.GroupInteraction","","com.wire.android.tests.core.criticalFlows.GroupInteraction","givenTeamOwnerWithGroupConversationAndApp_whenValidatingReactionsAndInteractions_thenFlowSucceeds","givenTeamOwnerWithGroupConversationAndApp_whenValidatingReactionsAndInteractions_thenFlowSucceeds",""

@@ -463,11 +463,14 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun assertReactionAndUserCountVisible(reaction: String, userCount: Int): ConversationViewPage {
-        val reactionElement = UiWaitUtils.waitElement(UiSelectorParams(text = reaction))
-        val countElement = UiWaitUtils.waitElement(UiSelectorParams(text = userCount.toString()))
+        val reactionContainer = By.clickable(true)
+            .hasChild(By.text(reaction))
+            .hasChild(By.text(userCount.toString()))
+        val isVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
+            device.hasObject(reactionContainer)
+        }
 
-        assertTrue("Reaction '$reaction' is not visible", !reactionElement.visibleBounds.isEmpty)
-        assertTrue("Reaction count '$userCount' is not visible", !countElement.visibleBounds.isEmpty)
+        assertTrue("Reaction '$reaction' with count '$userCount' is not visible", isVisible)
 
         return this
     }

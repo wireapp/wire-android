@@ -362,6 +362,11 @@
                 android:name=".services.PlayingAudioMessageService"
                 android:exported="false"
                 android:foregroundServiceType="mediaPlayback" />
+        <activity
+            android:name=".ui.RestartActivity"
+            android:exported="false"
+            android:process=":restart"
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

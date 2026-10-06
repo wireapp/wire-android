@@ -47,6 +47,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val typeMessageField = UiSelectorParams(description = " Type a message")
     private val sentQRImage = UiSelectorParams(description = "Image message")
+    private val guestLink = UiSelectorParams(textContains = "conversation-join")
 
     private val sharedLocationContainer = UiSelectorParams(description = "Location item")
     private val attachNewFileButton = UiSelectorParams(description = "Add attachment")
@@ -856,6 +857,17 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun pasteClipboardIntoMessageInputField(): ConversationViewPage {
+        tapMessageInInputField()
+        device.pressKeyCode(KeyEvent.KEYCODE_PASTE)
+        return this
+    }
+
+    fun assertGuestLinkVisibleInCurrentConversation(): ConversationViewPage {
+        UiWaitUtils.waitElement(guestLink)
+        return this
+    }
+
     fun tapSelfDeleteTimerButton(): ConversationViewPage {
         val button = UiWaitUtils.waitElement(selfDeleteTimerButton)
         button.click()
@@ -964,6 +976,11 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun assertSystemMessageVisible(message: String) = apply { waitElement(UiSelectorParams(textContains = message)) }
 
+    fun assertSystemMessageNotVisible(message: String): ConversationViewPage {
+        assertElementNotVisible(UiSelectorParams(textContains = message), "system message '$message'")
+        return this
+    }
+
     fun assertSystemMessageVisibleOnlyOnce(message: String): ConversationViewPage {
         UiWaitUtils.waitElement(UiSelectorParams(textContains = message))
         val messages = device.findObjects(By.textContains(message))
@@ -988,6 +1005,11 @@ data class ConversationViewPage(private val device: UiDevice) {
             throw AssertionError("Conversation screen is not visible: 'Type a message' field not found.", e)
         }
 
+        return this
+    }
+
+    fun assertConversationScreenNotVisible(): ConversationViewPage {
+        assertElementNotVisible(typeMessageField, "conversation screen")
         return this
     }
 

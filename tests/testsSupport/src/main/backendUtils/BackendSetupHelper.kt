@@ -28,9 +28,11 @@ import backendUtils.conversation.createGroupConversation
 import backendUtils.conversation.createInviteLink
 import backendUtils.conversation.createTeamConversation
 import backendUtils.conversation.deleteTeamConversation
+import backendUtils.conversation.enableGuestAccessForConversation
 import backendUtils.conversation.getConversationByName
 import backendUtils.conversation.getInviteLink
 import backendUtils.conversation.removeUserFromGroupConversation
+import backendUtils.conversation.revokeInviteLink
 import backendUtils.conversation.setArchivedStateForConversation
 import backendUtils.team.addTeamCollaborator
 import backendUtils.conversation.setReadReceiptsForConversation
@@ -373,6 +375,12 @@ class BackendSetupHelper(
         backendFor(user).setReadReceiptsForConversation(user, conversation, enabled)
     }
 
+    fun userEnablesGuestAccessForConversation(userAlias: String, conversationName: String) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        backendFor(user).enableGuestAccessForConversation(user, conversation)
+    }
+
     fun userHasGroupConversationAsPersonalUser(
         chatOwnerNameAlias: String,
         chatName: String,
@@ -389,13 +397,27 @@ class BackendSetupHelper(
         }
     }
 
-    fun userCreatesInviteLink(userNameAlias: String, conversationName: String) {
+    fun userCreatesInviteLink(
+        userNameAlias: String,
+        conversationName: String,
+        password: String? = null
+    ) {
         val user = toClientUser(userNameAlias)
         val backend = backendFor(user)
         val conversation = toConvoObj(user, conversationName)
 
         runBlocking {
-            backend.createInviteLink(user, conversation)
+            backend.createInviteLink(user, conversation, password)
+        }
+    }
+
+    fun userRevokesInviteLink(userNameAlias: String, conversationName: String) {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+
+        runBlocking {
+            backend.revokeInviteLink(user, conversation)
         }
     }
 

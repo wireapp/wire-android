@@ -27,6 +27,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.ui.common.R
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.logic.failure.NoClientsForUser
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -301,7 +302,7 @@ class ConnectionActionButtonViewModelTest {
         }
 
     @Test
-    fun `given a conversationId, when trying to open the conversation and fails with MissingKeyPackages, then call MissingKeyPackage()`() =
+    fun `given a conversationId, when trying to open the conversation and fails with MissingKeyPackages, then show unable to start conversation`() =
         runTest {
             // given
             val (arrangement, viewModel) = ConnectionActionButtonArrangement()
@@ -320,11 +321,25 @@ class ConnectionActionButtonViewModelTest {
                     arrangement.getOrCreateOneToOneConversation(TestUser.USER_ID)
                 }
 
-                assertTrue(action is MissingKeyPackages)
+                assertTrue(action is UnableToStartConversation)
 
                 assertEquals(false, viewModel.actionableState().isPerformingAction)
             }
         }
+
+    @Test
+    fun `given recipient has no clients, when starting a conversation, then show unable to start conversation`() = runTest {
+        val (_, viewModel) = ConnectionActionButtonArrangement()
+            .withGetOneToOneConversation(CreateConversationResult.Failure(NoClientsForUser(TestUser.USER_ID)))
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onOpenConversation()
+
+            assertEquals(UnableToStartConversation, expectMostRecentItem())
+            assertEquals(false, viewModel.actionableState().isPerformingAction)
+        }
+    }
 
     companion object {
         val failure = CoreFailure.Unknown(RuntimeException("some error"))

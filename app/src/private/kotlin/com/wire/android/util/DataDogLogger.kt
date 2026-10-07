@@ -30,9 +30,8 @@ object DataDogLogger : LogWriter() {
     private val logger = Logger.Builder()
         .setNetworkInfoEnabled(true)
         .setLogcatLogsEnabled(false) // we already use platformLogWriter() along with DataDogLogger, don't need duplicates in LogCat
-        .setDatadogLogsEnabled(true)
         .setBundleWithTraceEnabled(true)
-        .setLoggerName("DATADOG")
+        .setName("DATADOG")
         .build()
 
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {

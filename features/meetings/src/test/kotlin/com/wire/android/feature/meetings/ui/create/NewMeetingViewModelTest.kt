@@ -291,12 +291,14 @@ class NewMeetingViewModelTest {
     }
 
     @Test
-    fun givenMeetNowTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenMeetNowTypeWithValidData_whenSubmitCreationIsCalled_thenSuccessRequestsCallInCreatedConversation() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        val createdConversationId = ConversationId("created-meet-now-conversation", "domain")
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.MeetNow)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(createdConversationId))
         )
 
         enterTitle(viewModel, "  Quick sync  ")
@@ -321,20 +323,20 @@ class NewMeetingViewModelTest {
             assertEquals(currentTime + 1.hours, viewModel.state.endTime)
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
-            cancelAndConsumeRemainingEvents()
+            assertEquals(NewMeetingViewActions.Success(conversationIdToStartACall = createdConversationId), awaitItem())
+            expectNoEvents()
         }
     }
 
     @Test
-    fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenSuccessDoesNotRequestCall() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("conversation-id", "domain")))
         )
         enterTitle(viewModel, createMeeting.title)
         viewModel.updateStartTime(createMeeting.startTime)
@@ -349,8 +351,8 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
-            cancelAndConsumeRemainingEvents()
+            assertEquals(NewMeetingViewActions.Success(conversationIdToStartACall = null), awaitItem())
+            expectNoEvents()
         }
     }
 
@@ -412,7 +414,7 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -462,7 +464,7 @@ class NewMeetingViewModelTest {
                 assertNull(viewModel.state.endTimeError)
                 assertFalse(viewModel.state.isSubmitting)
                 assertNull(viewModel.state.submitError)
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -604,7 +606,7 @@ class NewMeetingViewModelTest {
                 )
             }
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -789,7 +791,7 @@ class NewMeetingViewModelTest {
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withCurrentTimeProvider { currentTime }
                 .withCurrentTimeZone(localTimeZoneID)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("conversation-id", "domain")))
         )
         enterTitle(viewModel, createMeeting.title)
         viewModel.updateStartTime(createMeeting.startTime)
@@ -800,7 +802,7 @@ class NewMeetingViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -857,7 +859,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -893,7 +895,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -929,7 +931,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }

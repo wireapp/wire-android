@@ -12,9 +12,19 @@ package com.wire.android.feature.meetings.ui.create
 
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavEntryId
+import com.wire.navigation.WireNavResultContract
+import com.wire.navigation.WireNavResultContractId
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.navigation.WireSessionId
 import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.serialization.Serializable
+
+@Serializable
+data class NewMeetingResult(val conversationIdToStartACall: ConversationId? = null)
+
+val NewMeetingResultContract = WireNavResultContract<NewMeetingResult>(
+    WireNavResultContractId("meetings.new-meeting")
+)
 
 @Serializable
 enum class NewMeetingRouteType {

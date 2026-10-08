@@ -10,10 +10,11 @@
 
 package com.wire.android.ui.common.dialogs
 
+import android.graphics.Rect
 import android.os.SystemClock
 import android.view.InputDevice
-import android.view.MotionEvent
 import android.view.KeyEvent
+import android.view.MotionEvent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -75,9 +76,16 @@ class StartupAccountLimitDialogTest {
         showDialog()
         waitForNativeWindow()
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val metrics = instrumentation.targetContext.resources.displayMetrics
-        val x = metrics.widthPixels / 2f
-        val y = metrics.heightPixels / 5f
+        val dialogBounds = Rect().also { bounds ->
+            instrumentation.uiAutomation.rootInActiveWindow.getBoundsInScreen(bounds)
+        }
+        val screenHeight = instrumentation.targetContext.resources.displayMetrics.heightPixels
+        val x = dialogBounds.centerX().toFloat()
+        val y = if (dialogBounds.top > screenHeight - dialogBounds.bottom) {
+            dialogBounds.top - 1f
+        } else {
+            dialogBounds.bottom + 1f
+        }
         val time = SystemClock.uptimeMillis()
         for (action in listOf(MotionEvent.ACTION_DOWN, MotionEvent.ACTION_UP)) {
             val event = MotionEvent.obtain(time, SystemClock.uptimeMillis(), action, x, y, 0)

@@ -139,7 +139,7 @@ class WireActivity : BaseActivity() {
             viewModel.observePersistentConnectionStatus()
 
             traceStartup("activity.initialAppState.start", startupAt)
-            val startupSnapshot = viewModel.initialStartupSnapshot()
+            val startupSnapshot = viewModel.initialStartupSnapshot(taskId = taskId)
             val initialAppState = startupSnapshot.initialAppState
             val initialRoute = WireInitialRouteResolver.resolve(
                 initialAppState = initialAppState,

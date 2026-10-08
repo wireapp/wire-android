@@ -42,7 +42,11 @@ data class CommonAppPage(private val device: UiDevice) {
     private val okButton = UiSelectorParams(text = "OK")
     private val cancelButton = UiSelectorParams(text = "Cancel")
     private val closeWebPageButton = UiSelectorParams(description = "Close tab")
+    private val joinConversationDialogTitle = UiSelectorParams(text = "Join conversation?")
+    private val unableToJoinConversationDialogTitle = UiSelectorParams(text = "Unable to join conversation")
     private val joinConversationButton = UiSelectorParams(text = "Join")
+    private val joinConversationPasswordField = UiSelectorParams(className = "android.widget.EditText")
+    private val invalidPasswordError = UiSelectorParams(text = "Invalid password")
 
     private fun teamSettingsChangedAlertSubtext(text: String) = UiSelectorParams(textContains = text)
     private fun secondAccountUsedOnAnotherDeviceAlert(accountName: String) =
@@ -249,8 +253,56 @@ data class CommonAppPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertJoinConversationAlertVisible(): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = joinConversationDialogTitle,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Join conversation alert is not visible"
+        )
+        return this
+    }
+
+    fun assertJoinConversationAlertTextVisible(text: String): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(textContains = text),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Join conversation alert text '$text' is not visible"
+        )
+        return this
+    }
+
+    fun assertUnableToJoinConversationAlertVisible(): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = unableToJoinConversationDialogTitle,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Unable to join conversation alert is not visible"
+        )
+        return this
+    }
+
+    fun assertUnableToJoinConversationAlertTextVisible(text: String): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(textContains = text),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Unable to join conversation alert text '$text' is not visible"
+        )
+        return this
+    }
+
     fun tapJoinConversationButton(): CommonAppPage {
         UiWaitUtils.waitElement(joinConversationButton).click()
+        return this
+    }
+
+    fun enterJoinConversationPassword(password: String?): CommonAppPage {
+        val passwordField = UiWaitUtils.waitElement(joinConversationPasswordField)
+        passwordField.click()
+        passwordField.text = password
+        return this
+    }
+
+    fun assertInvalidPasswordErrorVisible(): CommonAppPage {
+        UiWaitUtils.waitElement(invalidPasswordError)
         return this
     }
 

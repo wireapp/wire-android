@@ -383,6 +383,14 @@ public fun com.wire.android.ui.SelfDeletingMessagesDialog(areSelfDeletingMessage
     - hideDialogStatus: STABLE (function type)
 
 @Composable
+private fun com.wire.android.ui.StartupAccountLimitDialogs(viewModel: com.wire.android.ui.WireActivityViewModel, logout: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
+    - logout: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.TeamAppLockFeatureFlagDialog(isTeamAppLockEnabled: kotlin.Boolean, onConfirm: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -2897,6 +2905,24 @@ public fun com.wire.android.ui.common.dialogs.ProgressDialog(title: kotlin.Strin
     - properties: STABLE (marked @Stable or @Immutable)
     - shape: STABLE (marked @Stable or @Immutable)
     - onDismiss: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.common.dialogs.StartupAccountLimitDialog(onLogout: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>, maxAccounts: kotlin.Int): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onLogout: STABLE (function type)
+    - onDismiss: STABLE (function type)
+    - maxAccounts: STABLE (primitive type)
+
+@Composable
+internal fun com.wire.android.ui.common.dialogs.StartupAccountLimitDialogFlow(visible: kotlin.Boolean, onDismiss: kotlin.Function0<kotlin.Unit>, logout: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - visible: STABLE (primitive type)
+    - onDismiss: STABLE (function type)
+    - logout: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.common.dialogs.SureAboutMessagingInDegradedConversationDialog(dialogState: com.wire.android.ui.home.conversations.SureAboutMessagingDialogState, sendAnyway: kotlin.Function0<kotlin.Unit>, hideDialog: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -8586,7 +8612,7 @@ public fun com.wire.android.ui.home.messagecomposer.MessageComposer(conversation
     - onAttachmentMenuClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.home.messagecomposer.MessageComposerTextInput(messageTextState: androidx.compose.foundation.text.input.TextFieldState, focusRequester: androidx.compose.ui.focus.FocusRequester, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, placeHolderText: kotlin.String, onFocused: kotlin.Function0<kotlin.Unit>, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyBoardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, onHardwareEnter: kotlin.Function1<@[ParameterName(name = \, onHardwareTab: kotlin.Function1<@[ParameterName(name = \, onHardwareEscape: kotlin.Function0<kotlin.Boolean>, useKeyboardActivationGate: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.home.messagecomposer.MessageComposerTextInput(messageTextState: androidx.compose.foundation.text.input.TextFieldState, focusRequester: androidx.compose.ui.focus.FocusRequester, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, placeHolderText: kotlin.String, onFocused: kotlin.Function0<kotlin.Unit>, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyBoardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, onHardwareEnter: kotlin.Function1<@[ParameterName(name = \, onHardwareTab: kotlin.Function1<@[ParameterName(name = \, onHardwareEscape: kotlin.Function0<kotlin.Boolean>, useKeyboardActivationGate: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:

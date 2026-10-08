@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import android.view.KeyEvent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
@@ -47,6 +48,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val typeMessageField = UiSelectorParams(description = " Type a message")
     private val sentQRImage = UiSelectorParams(description = "Image message")
+    private val guestLink = UiSelectorParams(textContains = "conversation-join")
 
     private val sharedLocationContainer = UiSelectorParams(description = "Location item")
     private val attachNewFileButton = UiSelectorParams(description = "Add attachment")
@@ -77,6 +79,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     private val messageInputField = UiSelectorParams(className = "android.widget.EditText")
     private val anyTextMessage = UiSelectorParams(className = "android.widget.TextView")
+    private val conversationMessages = UiSelectorParams(description = "Conversation messages. Press Enter to navigate messages.")
 
     private fun userInMentionList(userName: String): UiObject2 {
         var user: UiObject2? = null
@@ -561,19 +564,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     }
 
     fun clickSaveButtonOnDownloadModal(timeout: Duration = 8.seconds): ConversationViewPage {
-        val save = UiWaitUtils.waitElement(saveButton, timeout = timeout)
-        val bounds = runCatching { save.visibleBounds }.getOrNull()
-
-        runCatching { save.click() }
-        device.waitForIdle(300)
-
-        val stillVisible = UiWaitUtils.findElementOrNull(saveButton)
-            ?.let { runCatching { !it.visibleBounds.isEmpty }.getOrDefault(false) } == true
-
-        if (stillVisible && bounds != null && !bounds.isEmpty) {
-            device.click(bounds.centerX(), bounds.centerY())
-        }
-
+        UiWaitUtils.waitElement(saveButton, timeout = timeout).click()
         return this
     }
 
@@ -634,6 +625,18 @@ data class ConversationViewPage(private val device: UiDevice) {
             append(Regex.escape(extension))
             append(Regex.escape(suffix))
         }
+    }
+
+    fun scrollToLatestFile(fileName: String): ConversationViewPage {
+        val fileVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            if (findElementOrNull(fileWithName(fileName))?.visibleBounds?.isEmpty == false) {
+                return@retryUntilTimeout true
+            }
+            waitElement(conversationMessages).swipe(Direction.UP, 0.5f)
+            false
+        }
+        Assert.assertTrue("File '$fileName' is not visible after scrolling through the conversation", fileVisible)
+        return this
     }
 
     fun scrollToBottomOfConversationScreen() {
@@ -856,6 +859,17 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun pasteClipboardIntoMessageInputField(): ConversationViewPage {
+        tapMessageInInputField()
+        device.pressKeyCode(KeyEvent.KEYCODE_PASTE)
+        return this
+    }
+
+    fun assertGuestLinkVisibleInCurrentConversation(): ConversationViewPage {
+        UiWaitUtils.waitElement(guestLink)
+        return this
+    }
+
     fun tapSelfDeleteTimerButton(): ConversationViewPage {
         val button = UiWaitUtils.waitElement(selfDeleteTimerButton)
         button.click()
@@ -964,6 +978,11 @@ data class ConversationViewPage(private val device: UiDevice) {
 
     fun assertSystemMessageVisible(message: String) = apply { waitElement(UiSelectorParams(textContains = message)) }
 
+    fun assertSystemMessageNotVisible(message: String): ConversationViewPage {
+        assertElementNotVisible(UiSelectorParams(textContains = message), "system message '$message'")
+        return this
+    }
+
     fun assertSystemMessageVisibleOnlyOnce(message: String): ConversationViewPage {
         UiWaitUtils.waitElement(UiSelectorParams(textContains = message))
         val messages = device.findObjects(By.textContains(message))
@@ -988,6 +1007,11 @@ data class ConversationViewPage(private val device: UiDevice) {
             throw AssertionError("Conversation screen is not visible: 'Type a message' field not found.", e)
         }
 
+        return this
+    }
+
+    fun assertConversationScreenNotVisible(): ConversationViewPage {
+        assertElementNotVisible(typeMessageField, "conversation screen")
         return this
     }
 

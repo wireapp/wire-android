@@ -82,6 +82,7 @@ import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
+import com.wire.android.ui.common.dialogs.StartupAccountLimitDialogFlow
 import com.wire.android.ui.common.setupOrientationForDevice
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
@@ -199,7 +200,7 @@ class WireActivity : AppCompatActivity() {
             appLogger.i("$TAG init login type selector")
 
             appLogger.i("$TAG start destination")
-            val startDestination = when (viewModel.initialAppState()) {
+            val startDestination = when (viewModel.initialAppState(taskId = taskId)) {
                 InitialAppState.NOT_LOGGED_IN -> when (loginTypeSelector.canUseNewLogin()) {
                     true -> NewWelcomeEmptyStartScreenDestination()
                     false -> WelcomeScreenDestination()
@@ -515,6 +516,17 @@ class WireActivity : AppCompatActivity() {
                         hideDialogStatus = featureFlagNotificationViewModel::dismissSelfDeletingMessagesDialog
                     )
                 }
+                StartupAccountLimitDialogFlow(
+                    excessAccounts = viewModel.globalAppState.startupAccountLimitExcessAccounts,
+                    onDismiss = viewModel::dismissStartupAccountLimitDialog,
+                    logout = { wipeData ->
+                        viewModel.doHardLogout(
+                            clearUserData = { UserDataStore(context, it) },
+                            switchAccountActions = NavigationSwitchAccountActions(navigate, loginTypeSelector::canUseNewLogin),
+                            wipeData = wipeData,
+                        )
+                    },
+                )
                 val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
 
                 LogoutOptionsDialog(

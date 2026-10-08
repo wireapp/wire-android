@@ -37,6 +37,7 @@ import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.StartupAccountLimitGate
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.framework.TestClient
@@ -133,7 +134,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+        assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState(taskId = 1))
     }
 
     @Test
@@ -144,7 +145,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+        assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState(taskId = 1))
     }
 
     @Test
@@ -177,7 +178,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState(taskId = 1))
                 assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 expectNoEvents()
             }
@@ -196,7 +197,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState(taskId = 1))
                 assertInstanceOf(CustomServerNoNetworkDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 expectNoEvents()
             }
@@ -215,7 +216,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState(taskId = 1))
                 assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 assertEquals(
                     newServerConfig(1).links,
@@ -236,7 +237,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState(taskId = 1))
                 assertInstanceOf(CustomServerDetailsDialogState::class.java, viewModel.globalAppState.customBackendDialog)
                 assertEquals(
                     newServerConfig(1).links,
@@ -273,7 +274,7 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState(taskId = 1))
             assertEquals(OnSSOLogin(ssoLogin), expectMostRecentItem())
         }
     }
@@ -290,7 +291,7 @@ class WireActivityViewModelTest {
         viewModel.actions.test {
 
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState(taskId = 1))
 
             assertEquals(OnSSOLogin(ssoLogin), expectMostRecentItem())
         }
@@ -308,7 +309,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState(taskId = 1))
                 assertEquals(OnMigrationLogin(result), expectMostRecentItem())
             }
         }
@@ -325,7 +326,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState(taskId = 1))
                 assertEquals(OnMigrationLogin(result), expectMostRecentItem())
             }
         }
@@ -342,7 +343,7 @@ class WireActivityViewModelTest {
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
 
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState(taskId = 1))
                 assertEquals(OpenConversation(result), expectMostRecentItem())
             }
         }
@@ -360,7 +361,7 @@ class WireActivityViewModelTest {
 
             viewModel.actions.test {
                 viewModel.handleDeepLink(mockedIntent())
-                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState())
+                assertEquals(InitialAppState.LOGGED_IN, viewModel.initialAppState(taskId = 1))
                 assertEquals(OnOpenUserProfile(result), expectMostRecentItem())
             }
         }
@@ -375,7 +376,7 @@ class WireActivityViewModelTest {
 
         viewModel.actions.test {
             viewModel.handleDeepLink(mockedIntent())
-            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState())
+            assertEquals(InitialAppState.NOT_LOGGED_IN, viewModel.initialAppState(taskId = 1))
             assertEquals(OnAuthorizationNeeded, expectMostRecentItem())
         }
     }
@@ -869,7 +870,132 @@ class WireActivityViewModelTest {
         viewModel.globalAppState.maxAccountDialog shouldBeEqualTo true
     }
 
-    private class Arrangement {
+    @Test
+    fun `startup above limit warns once and dismissal remains for same task`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withObserveSessionsFlow(
+                flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO) + mockedTestAccounts(BuildConfig.MAX_ACCOUNTS)))
+            )
+            .arrange()
+
+        viewModel.initialAppState(taskId = 1)
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 1
+        viewModel.globalAppState.maxAccountDialog shouldBeEqualTo false
+        viewModel.dismissStartupAccountLimitDialog()
+        viewModel.initialAppState(taskId = 1)
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
+    }
+
+    @Test
+    fun `startup passes the number of accounts to remove to the dialog`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withObserveSessionsFlow(
+                flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO) + mockedTestAccounts(BuildConfig.MAX_ACCOUNTS + 1)))
+            )
+            .arrange()
+
+        viewModel.initialAppState(taskId = 1)
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 2
+    }
+
+    @Test
+    fun `recreated activity in same task stays dismissed and new task warns`() = runTest {
+        val gate = StartupAccountLimitGate()
+        val sessions = GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO) + mockedTestAccounts(BuildConfig.MAX_ACCOUNTS))
+        fun newViewModel() = Arrangement(gate)
+            .withSomeCurrentSession()
+            .withObserveSessionsFlow(flowOf(sessions))
+            .arrange().second
+
+        val firstActivity = newViewModel()
+        firstActivity.initialAppState(taskId = 10)
+        firstActivity.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 1
+        firstActivity.dismissStartupAccountLimitDialog()
+
+        val recreatedActivity = newViewModel()
+        recreatedActivity.initialAppState(taskId = 10)
+        recreatedActivity.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
+
+        val newTaskActivity = newViewModel()
+        newTaskActivity.initialAppState(taskId = 11)
+        newTaskActivity.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `startup at limit or without a valid current account does not warn`() = runTest {
+        val atLimit = Arrangement()
+            .withSomeCurrentSession()
+            .withObserveSessionsFlow(
+                flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO) + mockedTestAccounts(BuildConfig.MAX_ACCOUNTS - 1)))
+            ).arrange().second
+        atLimit.initialAppState(taskId = 1)
+        atLimit.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
+
+        val noCurrentAccount = Arrangement()
+            .withNoCurrentSession()
+            .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Success(mockedTestAccounts(BuildConfig.MAX_ACCOUNTS + 1))))
+            .arrange().second
+        noCurrentAccount.initialAppState(taskId = 2)
+        noCurrentAccount.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
+    }
+
+    @Test
+    fun `startup with failed session read does not warn`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Failure.Generic(NetworkFailure.NoNetworkConnection(null))))
+            .arrange()
+        viewModel.initialAppState(taskId = 1)
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
+    }
+
+    @Test
+    fun `warning closes if current session becomes unavailable`() = runTest {
+        val currentSession = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withCurrentSessionFlow(currentSession)
+            .withObserveSessionsFlow(
+                flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO) + mockedTestAccounts(BuildConfig.MAX_ACCOUNTS)))
+            )
+            .arrange()
+
+        viewModel.initialAppState(taskId = 1)
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 1
+        currentSession.value = CurrentSessionResult.Failure.SessionNotFound
+        advanceUntilIdle()
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
+    }
+
+    @Test
+    fun `logout keeps data by default from startup warning and wipes when selected`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withAccountSwitchResult(SwitchAccountResult.NoOtherAccountToSwitch)
+            .arrange()
+        val clearedAccounts = mutableListOf<UserId>()
+        val switchActions = mockk<com.wire.android.feature.SwitchAccountActions>(relaxed = true)
+        every { arrangement.coreLogic.getSessionScope(USER_ID) } returns mockk(relaxed = true)
+        val logoutUseCase = arrangement.coreLogic.getSessionScope(USER_ID).logout
+
+        viewModel.doHardLogout(clearedAccounts::add, switchActions, wipeData = false)
+        advanceUntilIdle()
+        coVerify(exactly = 1) {
+            logoutUseCase(LogoutReason.SELF_SOFT_LOGOUT, waitUntilCompletes = true)
+        }
+        clearedAccounts shouldBeEqualTo emptyList()
+
+        viewModel.doHardLogout(clearedAccounts::add, switchActions, wipeData = true)
+        advanceUntilIdle()
+        coVerify(exactly = 1) {
+            logoutUseCase(LogoutReason.SELF_HARD_LOGOUT, waitUntilCompletes = false)
+        }
+        clearedAccounts shouldBeEqualTo listOf(USER_ID)
+    }
+
+    private class Arrangement(private val startupAccountLimitGate: StartupAccountLimitGate = StartupAccountLimitGate()) {
 
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
@@ -935,7 +1061,7 @@ class WireActivityViewModelTest {
         private lateinit var observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
 
         @MockK
-        private lateinit var coreLogic: CoreLogic
+        lateinit var coreLogic: CoreLogic
 
         @MockK
         lateinit var servicesManager: ServicesManager
@@ -1003,6 +1129,7 @@ class WireActivityViewModelTest {
                 observeSelfUserFactory = observeSelfUserFactory,
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
                 managedConfigurationsManager = managedConfigurationsManager,
+                startupAccountLimitGate = startupAccountLimitGate,
             )
         }
 

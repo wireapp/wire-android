@@ -17,17 +17,31 @@
  */
 package com.wire.android.ui.home.meetings
 
+import android.app.AlarmManager
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
 import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
 import com.wire.android.navigation.HomeDestination
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dimensions
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.ui.calling.meetingsCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.android.ui.common.VisibilityState
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversations.call.HandleActions
 import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
@@ -43,6 +57,19 @@ internal fun MeetingsScreen(
     viewModel: MeetingsCallViewModel = meetingsCallViewModel(),
 ) {
     val context = LocalContext.current
+    val alarmManager = remember(context) { context.getSystemService(AlarmManager::class.java) }
+    val showExactAlarmAccessDialogState = rememberVisibilityState<Unit>()
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            !alarmManager.canScheduleExactAlarms() &&
+            !viewModel.isExactAlarmAccessDialogSeen()
+        ) {
+            viewModel.markExactAlarmAccessDialogSeen()
+            showExactAlarmAccessDialogState.show(Unit)
+        }
+    }
+
     AllMeetingsScreen(
         lazyListState = homeShellState.lazyListStateFor(HomeDestination.Meetings),
         contentPadding = PaddingValues(bottom = dimensions().spacing80x), // to ensure last item is not obscured by FAB
@@ -86,4 +113,27 @@ internal fun MeetingsScreen(
             }
         }
     )
+
+    VisibilityState(showExactAlarmAccessDialogState) {
+        WireDialog(
+            title = stringResource(R.string.meeting_reminder_exact_alarm_title),
+            text = stringResource(R.string.meeting_reminder_exact_alarm_description),
+            onDismiss = showExactAlarmAccessDialogState::dismiss,
+            optionButton1Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.meeting_reminder_exact_alarm_settings),
+                type = WireDialogButtonType.Primary,
+                onClick = {
+                    showExactAlarmAccessDialogState.dismiss()
+                    context.startActivity(
+                        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${context.packageName}"))
+                    )
+                },
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.label_cancel),
+                type = WireDialogButtonType.Primary,
+                onClick = showExactAlarmAccessDialogState::dismiss,
+            ),
+        )
+    }
 }

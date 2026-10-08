@@ -31,6 +31,7 @@ import com.wire.android.di.UseCaseModule
 import com.wire.android.notification.broadcastreceivers.DriveUploadActionReceiver
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
+import com.wire.android.notification.broadcastreceivers.MeetingReminderReceiver
 import com.wire.android.notification.broadcastreceivers.NomadLogoutReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.notification.broadcastreceivers.PlayPauseAudioMessageReceiver
@@ -91,6 +92,7 @@ interface WireApplicationGraph : ViewModelGraph {
     fun inject(receiver: IncomingCallActionReceiver)
     fun inject(receiver: NomadLogoutReceiver)
     fun inject(receiver: EndOngoingCallReceiver)
+    fun inject(receiver: MeetingReminderReceiver)
     fun inject(receiver: StopAudioMessageReceiver)
     fun inject(receiver: NotificationReplyReceiver)
     fun inject(receiver: PlayPauseAudioMessageReceiver)

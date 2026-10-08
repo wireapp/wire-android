@@ -21,6 +21,7 @@ package com.wire.android
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
@@ -57,11 +58,13 @@ import dev.zacsweers.metro.SingleIn
  * This is a helper class used to collect the necessary data and perform the actions required in order for the app to function properly,
  * such as notifications or persistent web socket.
  */
+@Suppress("LongParameterList")
 @SingleIn(AppScope::class)
 class GlobalObserversManager @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationManager: WireNotificationManager,
+    private val meetingReminderScheduler: MeetingReminderScheduler,
     private val notificationChannelsManager: NotificationChannelsManager,
     private val userDataStoreProvider: UserDataStoreProvider,
     private val currentScreenManager: CurrentScreenManager,
@@ -73,6 +76,7 @@ class GlobalObserversManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io())
 
     fun observe() {
+        scope.launch { meetingReminderScheduler.observe() }
         scope.launch { setUpNotifications() }
         scope.launch {
             coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {

@@ -24,6 +24,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.notification.NotificationChannelsManager
+import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
@@ -380,6 +381,9 @@ class GlobalObserversManagerTest {
         @MockK
         lateinit var networkStateObserver: NetworkStateObserver
 
+        @MockK
+        lateinit var meetingReminderScheduler: MeetingReminderScheduler
+
         private var pendingMessagesEnabled = true
 
         private val manager by lazy {
@@ -388,6 +392,7 @@ class GlobalObserversManagerTest {
                 coreLogic = coreLogic,
                 notificationChannelsManager = notificationChannelsManager,
                 notificationManager = notificationManager,
+                meetingReminderScheduler = meetingReminderScheduler,
                 userDataStoreProvider = userDataStoreProvider,
                 currentScreenManager = currentScreenManager,
                 sendPendingMessagesAfterForegroundSync = sendPendingMessagesAfterForegroundSync,

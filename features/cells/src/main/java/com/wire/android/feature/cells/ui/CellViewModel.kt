@@ -192,13 +192,7 @@ class CellViewModel @AssistedInject constructor(
     private val rootConversationId: String? = navArgs.conversationId?.substringBefore("/")
 
     private val _isSelfUserViewerOnly = MutableStateFlow(false)
-    internal val isSelfUserViewerOnly: StateFlow<Boolean> = _isSelfUserViewerOnly
-        .map { it && drivePermissionsEnabled }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = false,
-        )
+    internal val isSelfUserViewerOnly: StateFlow<Boolean> = _isSelfUserViewerOnly.asStateFlow()
 
     /**
      * Viewer access banner is shown while browsing files of a conversation the self user only has viewer access to,
@@ -222,6 +216,7 @@ class CellViewModel @AssistedInject constructor(
     }
 
     private fun checkViewerAccess() = viewModelScope.launch {
+        if (!drivePermissionsEnabled) return@launch
         val conversationId = rootConversationId?.takeIf { isConversationFiles() } ?: return@launch
         _isSelfUserViewerOnly.value = !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
     }

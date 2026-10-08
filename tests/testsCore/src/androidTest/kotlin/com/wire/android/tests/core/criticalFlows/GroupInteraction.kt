@@ -26,10 +26,12 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessage
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class GroupInteraction : BaseUiTest() {
@@ -218,13 +220,14 @@ class GroupInteraction : BaseUiTest() {
 
         step("And I tap on heart reaction icon") {
             pages.conversationViewPage.apply {
-                tapReactionIcon("\u2764\uFE0F") // ❤️
+                tapReactionIcon("❤️")
+                UiWaitUtils.waitFor(2.seconds)
             }
         }
 
         step("Then I see a heart reaction from 1 user as reaction to Member1 message") {
             pages.conversationViewPage.apply {
-                assertReactionAndUserCountVisible("\u2764\uFE0F", 1) // ❤️
+                assertReactionAndUserCountVisible("❤️", 1)
             }
         }
 
@@ -246,13 +249,13 @@ class GroupInteraction : BaseUiTest() {
                 "user1Name",
                 "AppsConversation",
                 "Device1",
-                "\uD83D\uDC4D" // 👍
+                "👍"
             )
         }
 
         step("Then I see a thumbs up reaction from 1 user as reaction to TeamOwnerA message") {
             pages.conversationViewPage.apply {
-                assertReactionAndUserCountVisible("\uD83D\uDC4D", 1) // 👍
+                assertReactionAndUserCountVisible("👍", 1)
             }
         }
 
@@ -281,6 +284,7 @@ class GroupInteraction : BaseUiTest() {
                 tapRemoveFromConversationButtonForParticipant()
                 tapRemoveConversationButtonOnModal()
                 tapCloseButtonOnConnectedUserProfilePage()
+                UiWaitUtils.waitFor(1.seconds)
             }
             pages.groupConversationDetailsPage.tapCloseButtonOnGroupConversationDetailsPage()
         }

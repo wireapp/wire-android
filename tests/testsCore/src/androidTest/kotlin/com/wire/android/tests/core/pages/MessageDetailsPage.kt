@@ -38,7 +38,17 @@ data class MessageDetailsPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertReactionsCount(expectedCount: Int): MessageDetailsPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "REACTIONS ($expectedCount)"))
+        return this
+    }
+
     fun assertUserReadMessage(userName: String): MessageDetailsPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = userName))
+        return this
+    }
+
+    fun assertUserReacted(userName: String): MessageDetailsPage {
         UiWaitUtils.waitElement(UiSelectorParams(text = userName))
         return this
     }

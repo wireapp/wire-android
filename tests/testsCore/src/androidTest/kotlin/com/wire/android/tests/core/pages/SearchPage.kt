@@ -18,7 +18,10 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiScrollable
+import androidx.test.uiautomator.UiSelector
 import org.junit.Assert
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.toBySelector
@@ -34,6 +37,7 @@ data class SearchPage(private val device: UiDevice) {
     private val noSearchResults = UiSelectorParams(
         text = "No results could be found. Please try again."
     )
+    private val showMoreButton = UiSelectorParams(text = "Show More")
 
     fun assertUsernameInSearchResultIs(expectedHandle: String): SearchPage {
         val handleSelector = UiSelectorParams(
@@ -41,6 +45,13 @@ data class SearchPage(private val device: UiDevice) {
             text = expectedHandle
         )
         try {
+            val firstVisible = UiWaitUtils.waitFirstVisibleSelector(listOf(handleSelector, showMoreButton))
+            if (firstVisible == showMoreButton) {
+                closeKeyboardIfOpened()
+                UiWaitUtils.waitElement(showMoreButton).click()
+                UiScrollable(UiSelector().scrollable(true))
+                    .scrollIntoView(UiSelector().text(expectedHandle))
+            }
             UiWaitUtils.waitElement(params = handleSelector)
         } catch (e: AssertionError) {
             throw AssertionError(
@@ -129,6 +140,22 @@ data class SearchPage(private val device: UiDevice) {
         field.click()
         UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text =
             uniqueUserName.uniqueUsername.orEmpty()
+        return this
+    }
+
+    fun typeFederatedUserNameInSearchField(
+        clientUserManager: ClientUserManager,
+        alias: String,
+        domain: String
+    ): SearchPage {
+        val uniqueUserName = clientUserManager.findUserBy(
+            alias,
+            ClientUserManager.FindBy.NAME_ALIAS
+        ).uniqueUsername.orEmpty()
+        val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
+        field.click()
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text =
+            "$uniqueUserName@$domain"
         return this
     }
 

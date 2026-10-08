@@ -36,6 +36,7 @@ import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
 import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.StartupAccountLimitGate
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
@@ -136,6 +137,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
+    private val startupAccountLimitGate: StartupAccountLimitGate,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -159,6 +161,7 @@ class WireActivityViewModel @Inject constructor(
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
+    private var startupAccountLimitUserId: UserId? = null
 
     init {
         observeSyncState()
@@ -223,6 +226,10 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             observeCurrentAccountInfo
                 .collect {
+                    val warningUserId = startupAccountLimitUserId
+                    if (warningUserId != null && (it as? AccountInfo.Valid)?.userId != warningUserId) {
+                        withContext(dispatchers.main()) { dismissStartupAccountLimitDialog() }
+                    }
                     if (it is AccountInfo.Invalid) {
                         handleInvalidSession(it.logoutReason)
                     }
@@ -285,13 +292,32 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
+    suspend fun initialAppState(taskId: Int): InitialAppState = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
-        when {
+        val initialAppState = when {
             shouldLogIn() -> InitialAppState.NOT_LOGGED_IN
             shouldEnrollToE2ei() -> InitialAppState.ENROLL_E2EI
             else -> InitialAppState.LOGGED_IN
         }
+        val currentValidUserId = observeCurrentValidUserId.first()
+        val accounts = validSessions.value
+        val showAccountLimitDialog = startupAccountLimitGate.shouldShow(
+            accounts = accounts,
+            currentUserId = currentValidUserId,
+            maxAccounts = BuildConfig.MAX_ACCOUNTS,
+            taskId = taskId,
+        )
+        withContext(dispatchers.main()) {
+            if (showAccountLimitDialog) startupAccountLimitUserId = currentValidUserId
+            globalAppState = globalAppState.copy(
+                startupAccountLimitExcessAccounts = if (showAccountLimitDialog) {
+                    accounts.count { it is AccountInfo.Valid } - BuildConfig.MAX_ACCOUNTS
+                } else {
+                    globalAppState.startupAccountLimitExcessAccounts
+                }
+            )
+        }
+        initialAppState
     }
 
     private suspend fun handleInvalidSession(logoutReason: LogoutReason) {
@@ -396,15 +422,17 @@ class WireActivityViewModel @Inject constructor(
     // TODO: needs to be covered with test once hard logout is validated to be used
     fun doHardLogout(
         clearUserData: (userId: UserId) -> Unit,
-        switchAccountActions: SwitchAccountActions
+        switchAccountActions: SwitchAccountActions,
+        wipeData: Boolean = true,
     ) {
         viewModelScope.launch {
             coreLogic.get().getGlobalScope().session.currentSession().takeIf {
                 it is CurrentSessionResult.Success
             }?.let {
                 val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
-                coreLogic.get().getSessionScope(currentUserId).logout(LogoutReason.SELF_HARD_LOGOUT)
-                clearUserData(currentUserId)
+                val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
+                coreLogic.get().getSessionScope(currentUserId).logout(logoutReason, waitUntilCompletes = !wipeData)
+                if (wipeData) clearUserData(currentUserId)
             }
             accountSwitch.get().invoke(SwitchAccountParam.TryToSwitchToNextAccount).also {
                 if (it == SwitchAccountResult.NoOtherAccountToSwitch) {
@@ -452,6 +480,11 @@ class WireActivityViewModel @Inject constructor(
             globalAppState = globalAppState.copy(maxAccountDialog = true)
         }
         return !reachedMax
+    }
+
+    fun dismissStartupAccountLimitDialog() {
+        startupAccountLimitUserId = null
+        globalAppState = globalAppState.copy(startupAccountLimitExcessAccounts = null)
     }
 
     private suspend fun loadServerConfig(url: String): ServerConfig.Links? =
@@ -668,6 +701,7 @@ data class NewClientInfo(val date: String, val deviceInfo: UIText) {
 data class GlobalAppState(
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
+    val startupAccountLimitExcessAccounts: Int? = null,
     val crossBackendLoginBlockedDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,

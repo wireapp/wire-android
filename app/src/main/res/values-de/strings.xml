@@ -1777,4 +1777,22 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="label_system_message_apps_access_enabled_by_other">%1$s hat **Apps** für diese Unterhaltung aktiviert</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s hat **Apps** für diese Unterhaltung deaktiviert</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Hinzugefügte Apps haben Zugriff auf den Inhalt dieser Unterhaltung.</string>
+    <plurals name="startup_account_limit_title">
+        <item quantity="one">Ein Konto entfernen</item>
+        <item quantity="other">%1$d Konten entfernen</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_one_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von dem anderen Konto abzumelden.</item>
+        <item quantity="other">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_two_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.</item>
+        <item quantity="other">Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_other_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie nur %1$d Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.</item>
+        <item quantity="other">Auf diesem Gerät können Sie nur %1$d Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.</item>
+    </plurals>
+    <string name="startup_account_limit_logout">Von diesem Konto abmelden</string>
+    <string name="startup_account_limit_later">Später</string>
 </resources>

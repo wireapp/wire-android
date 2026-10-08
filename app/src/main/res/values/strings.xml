@@ -1996,4 +1996,8 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="notification_meeting_update_short">Meeting updated</string>
     <string name="notification_meeting_cancel">%1$s canceled this meeting</string>
     <string name="notification_meeting_cancel_short">Meeting canceled</string>
+    <string name="notification_meeting_starting_at">Starting at %1$s</string>
+    <string name="meeting_reminder_exact_alarm_title">Enable precise meeting reminders</string>
+    <string name="meeting_reminder_exact_alarm_description">Allow alarms and reminders for Wire in device settings to receive meeting reminders on time.</string>
+    <string name="meeting_reminder_exact_alarm_settings">Open settings</string>
 </resources>

@@ -24,6 +24,7 @@ import androidx.core.app.NotificationCompat
 import com.wire.android.R
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.DateAndTimeParsers
+import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
@@ -93,5 +94,22 @@ class MeetingNotificationBuilder @Inject constructor(
             ?.let { name -> context.getString(R.string.notification_meeting_cancel, name) }
             ?: context.getString(R.string.notification_meeting_cancel_short)
         return build(userId = userId, title = title, smallText = smallText, bigText = bigText, time = cancel.time)
+    }
+
+    fun buildReminder(reminder: MeetingReminder, userId: UserId): Notification {
+        val title = reminder.title.ifBlank { context.getString(R.string.notification_meeting_title) }
+        val text = context.getString(R.string.notification_meeting_starting_at, DateAndTimeParsers.meetingTime(reminder.startTime))
+        return NotificationCompat.Builder(context, NotificationConstants.getMeetingsChannelId(userId))
+            .setSmallIcon(com.wire.android.feature.notification.R.drawable.notification_icon_small)
+            .setGroup(NotificationConstants.getMeetingsGroupKey(userId))
+            .setContentTitle(title)
+            .setContentText(text)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setCategory(NotificationCompat.CATEGORY_EVENT)
+            .setWhen(reminder.reminderTime.toEpochMilliseconds())
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .setContentIntent(meetingsPendingIntent(context, userId.toString()))
+            .build()
     }
 }

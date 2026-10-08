@@ -18,6 +18,7 @@
 
 package com.wire.android.di
 
+import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
 import android.location.Geocoder
@@ -83,6 +84,10 @@ object AppModule {
     @Provides
     fun provideNotificationManager(appContext: Context): NotificationManager =
         appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    @Provides
+    fun provideAlarmManager(appContext: Context): AlarmManager =
+        appContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     @Provides
     fun provideMusicMediaPlayer(): MediaPlayer {

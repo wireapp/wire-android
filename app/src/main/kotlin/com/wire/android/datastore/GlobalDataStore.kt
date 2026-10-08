@@ -58,6 +58,7 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         private val ANONYMOUS_REGISTRATION_TRACK_ID = stringPreferencesKey("anonymous_registration_track_id")
         private val IS_ANONYMOUS_REGISTRATION_ENABLED = booleanPreferencesKey("is_anonymous_registration_enabled")
         private val PERSISTENT_WEBSOCKET_ENFORCED_BY_MDM = booleanPreferencesKey("persistent_websocket_enforced_by_mdm")
+        private val EXACT_ALARM_ACCESS_DIALOG_SEEN = booleanPreferencesKey("exact_alarm_access_dialog_seen")
 
         val APP_THEME_OPTION = stringPreferencesKey("app_theme_option")
         val RECORD_AUDIO_EFFECTS_CHECKBOX = booleanPreferencesKey("record_audio_effects_checkbox")
@@ -89,6 +90,12 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
 
     suspend fun setLoggingEnabled(enabled: Boolean) {
         context.dataStore.edit { it[IS_LOGGING_ENABLED] = enabled }
+    }
+
+    fun isExactAlarmAccessDialogSeen(): Flow<Boolean> = getBooleanPreference(EXACT_ALARM_ACCESS_DIALOG_SEEN, false)
+
+    suspend fun setExactAlarmAccessDialogSeen(seen: Boolean) {
+        context.dataStore.edit { it[EXACT_ALARM_ACCESS_DIALOG_SEEN] = seen }
     }
 
     fun isRecordAudioEffectsCheckboxEnabled(): Flow<Boolean> =

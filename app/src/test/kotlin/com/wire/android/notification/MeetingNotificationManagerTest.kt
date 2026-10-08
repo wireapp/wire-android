@@ -26,6 +26,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
 import io.mockk.every
@@ -105,6 +106,45 @@ class MeetingNotificationManagerTest {
         assertEquals(0, arrangement.platform.activeNotifications.size)
     }
 
+    @Test
+    fun givenReminder_whenPosting_thenUseMeetingNotificationIdentityAndCleanup() {
+        val (arrangement, manager) = Arrangement()
+            .withGrantedNotificationPermission()
+            .withBuiltNotifications()
+            .arrange()
+        val reminder = MeetingReminder(
+            occurrenceId = "occurrence",
+            meetingId = invite.meetingId,
+            title = invite.meetingTitle,
+            startTime = invite.startTime,
+            conversationId = invite.conversationId,
+        )
+
+        manager.showReminder(reminder, user1)
+
+        val posted = arrangement.platform.activeNotifications.single()
+        assertEquals(NotificationIds.MEETING_NOTIFICATION_ID.ordinal, posted.id)
+        assertEquals(
+            NotificationConstants.getMeetingTag(user1, invite.meetingId.toString(), "occurrence_10mins_before_reminder"),
+            posted.tag,
+        )
+        manager.hideAllNotificationsForUser(user1)
+        assertEquals(0, arrangement.platform.activeNotifications.size)
+    }
+
+    @Test
+    fun givenDeniedNotificationPermission_whenPostingReminder_thenDoNotBuildOrPost() {
+        val (arrangement, manager) = Arrangement()
+            .withDeniedNotificationPermission()
+            .arrange()
+        manager.showReminder(
+            MeetingReminder("occurrence", invite.meetingId, invite.conversationId, invite.meetingTitle, invite.startTime),
+            user1,
+        )
+        verify(exactly = 0) { arrangement.builder.buildReminder(any(), any()) }
+        assertEquals(0, arrangement.platform.activeNotifications.size)
+    }
+
     private class Arrangement {
         val context = ApplicationProvider.getApplicationContext<Application>()
         val platform = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -119,6 +159,11 @@ class MeetingNotificationManagerTest {
         }
         fun withBuiltNotifications() = apply {
             every { builder.build(any(), any()) } answers {
+                NotificationCompat.Builder(context, NotificationConstants.getMeetingsChannelId(secondArg()))
+                    .setGroup(NotificationConstants.getMeetingsGroupKey(secondArg()))
+                    .build()
+            }
+            every { builder.buildReminder(any(), any()) } answers {
                 NotificationCompat.Builder(context, NotificationConstants.getMeetingsChannelId(secondArg()))
                     .setGroup(NotificationConstants.getMeetingsGroupKey(secondArg()))
                     .build()

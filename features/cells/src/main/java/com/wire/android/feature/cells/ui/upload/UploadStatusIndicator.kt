@@ -188,6 +188,7 @@ private fun UploadStatusIndicatorPreview() {
             uploads = listOf(
                 CellUploadItem(
                     id = "1",
+                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file1.txt".toPath(),
                         fileName = "file1.txt",
@@ -200,6 +201,7 @@ private fun UploadStatusIndicatorPreview() {
                 ),
                 CellUploadItem(
                     id = "2",
+                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file2.txt".toPath(),
                         fileName = "file2.txt",
@@ -225,6 +227,7 @@ private fun UploadStatusIndicatorSuccessPreview() {
             uploads = listOf(
                 CellUploadItem(
                     id = "1",
+                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file1.txt".toPath(),
                         fileName = "file1.txt",
@@ -250,6 +253,7 @@ private fun UploadStatusIndicatorFailedPreview() {
             uploads = listOf(
                 CellUploadItem(
                     id = "1",
+                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file1.txt".toPath(),
                         fileName = "file1.txt",
@@ -262,6 +266,7 @@ private fun UploadStatusIndicatorFailedPreview() {
                 ),
                 CellUploadItem(
                     id = "2",
+                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file2.txt".toPath(),
                         fileName = "file2.txt",

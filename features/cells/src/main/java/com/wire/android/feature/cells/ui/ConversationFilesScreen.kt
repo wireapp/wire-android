@@ -97,7 +97,7 @@ internal fun ConversationFilesRouteScreen(
     val isOnlineState by viewModel.isOnline.collectAsState()
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
     val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
-    val uploadStatusViewModel = uploadStatusViewModel()
+    val uploadStatusViewModel = uploadStatusViewModel(viewModel.currentNodeUuid()?.substringBefore("/"))
     val uploads by uploadStatusViewModel.uploads.collectAsState()
     val uploadConfirmation by viewModel.uploadConfirmation.collectAsState()
 

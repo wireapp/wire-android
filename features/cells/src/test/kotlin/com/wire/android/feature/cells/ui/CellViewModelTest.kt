@@ -782,7 +782,7 @@ class CellViewModelTest {
 
         // beginPreparing registers a placeholder for every file synchronously, before staging
         // (which can take a while for large files) has had a chance to resolve any of them.
-        coVerify(exactly = 2) { arrangement.uploadCoordinator.beginPreparing(any()) }
+        coVerify(exactly = 2) { arrangement.uploadCoordinator.beginPreparing(any(), "conversationId") }
         coVerify(exactly = 0) { arrangement.uploadCoordinator.failPreparing(any()) }
 
         prepareGate.complete(Unit)
@@ -909,6 +909,7 @@ class CellViewModelTest {
 
     private fun completedUpload(id: String, destinationFolderPath: String) = CellUploadItem(
         id = id,
+        conversationId = destinationFolderPath.substringBefore("/"),
         request = CellUploadRequest(
             localPath = "/tmp/$id.txt".toPath(),
             fileName = "$id.txt",
@@ -920,6 +921,7 @@ class CellViewModelTest {
 
     private fun queuedUpload(id: String, destinationFolderPath: String) = CellUploadItem(
         id = id,
+        conversationId = destinationFolderPath.substringBefore("/"),
         request = CellUploadRequest(
             localPath = "/tmp/$id.txt".toPath(),
             fileName = "$id.txt",
@@ -1028,7 +1030,7 @@ class CellViewModelTest {
             every { uploadCoordinator.uploads } returns uploadsFlow
             // beginPreparing returns a String, so relaxUnitFun doesn't cover it; give each call a distinct id.
             var preparingIdCounter = 0
-            every { uploadCoordinator.beginPreparing(any()) } answers { "preparing-${preparingIdCounter++}" }
+            every { uploadCoordinator.beginPreparing(any(), any()) } answers { "preparing-${preparingIdCounter++}" }
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(

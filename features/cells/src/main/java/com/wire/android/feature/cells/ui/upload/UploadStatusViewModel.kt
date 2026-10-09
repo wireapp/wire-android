@@ -18,27 +18,43 @@
 package com.wire.android.feature.cells.ui.upload
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadItem
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 /**
- * Thin Compose-facing wrapper around [CellUploadCoordinator]: exposes its state and forwards every
- * user action straight back to it. Scheduling, concurrency and retry logic all stay in the coordinator.
+ * Thin Compose-facing wrapper around [CellUploadCoordinator], scoped to a single conversation's Shared
+ * Drive: [uploads] only ever exposes items whose [CellUploadItem.conversationId] is [conversationId], and
+ * every "all" action is scoped the same way, so an upload running in one conversation never shows up in, or
+ * is affected by, another conversation's bottom sheet. Scheduling, concurrency and retry logic all stay in
+ * the coordinator, which is shared by every conversation.
  */
-class UploadStatusViewModel @Inject constructor(
+class UploadStatusViewModel @AssistedInject constructor(
+    @Assisted private val conversationId: String?,
     private val coordinator: CellUploadCoordinator,
 ) : ViewModel() {
 
     val uploads: StateFlow<List<CellUploadItem>> = coordinator.uploads
+        .map { items -> items.filter { it.conversationId == conversationId } }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = coordinator.uploads.value.filter { it.conversationId == conversationId },
+        )
 
     fun cancel(id: String) {
         coordinator.cancel(id)
     }
 
     fun cancelAll() {
-        coordinator.cancelAll()
+        conversationId?.let(coordinator::cancelAll)
     }
 
     fun retry(id: String) {
@@ -46,7 +62,7 @@ class UploadStatusViewModel @Inject constructor(
     }
 
     fun retryAllFailed() {
-        coordinator.retryAllFailed()
+        conversationId?.let(coordinator::retryAllFailed)
     }
 
     fun dismiss(id: String) {
@@ -54,6 +70,11 @@ class UploadStatusViewModel @Inject constructor(
     }
 
     fun dismissAll() {
-        coordinator.dismissAll()
+        conversationId?.let(coordinator::dismissAll)
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(conversationId: String?): UploadStatusViewModel
     }
 }

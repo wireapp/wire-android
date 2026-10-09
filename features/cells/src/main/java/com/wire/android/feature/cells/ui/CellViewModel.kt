@@ -423,8 +423,9 @@ class CellViewModel @AssistedInject constructor(
         _uploadConfirmation.value = null
         pendingUploadUris = emptyList()
 
+        val conversationId = confirmation.destinationFolderPath.substringBefore("/")
         val preparingIds = uris.indices.map { index ->
-            uploadCoordinator.beginPreparing(confirmation.fileNames.getOrElse(index) { uris[index].toString() })
+            uploadCoordinator.beginPreparing(confirmation.fileNames.getOrElse(index) { uris[index].toString() }, conversationId)
         }
         sendAction(FilesPickedForUpload(uris))
         viewModelScope.launch {

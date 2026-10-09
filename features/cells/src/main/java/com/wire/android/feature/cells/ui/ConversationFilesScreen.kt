@@ -113,7 +113,6 @@ internal fun ConversationFilesRouteScreen(
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
         isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
-        drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
         driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
@@ -151,7 +150,6 @@ internal fun ConversationFilesScreenContent(
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
     showViewerAccessBanner: Boolean = false,
     isSelfUserViewerOnly: Boolean = false,
-    drivePermissionsEnabled: Boolean = false,
     driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
 ) {

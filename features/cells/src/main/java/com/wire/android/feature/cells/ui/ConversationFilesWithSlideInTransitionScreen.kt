@@ -67,6 +67,5 @@ internal fun ConversationFilesSlideRouteScreen(
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
         isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
-        drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
     )
 }

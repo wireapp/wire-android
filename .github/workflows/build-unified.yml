@@ -16,6 +16,73 @@ on:
         description: "Suffix for the concurrency group"
         required: true
         type: string
+      release-version:
+        description: "Optional beta release tag"
+        required: false
+        type: string
+        default: ''
+    # Each caller provides the credentials for its signing and deployment targets.
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+      ENCODED_KEYSTORE_DEBUG:
+        required: false
+      SIGNING_KEY_ALIAS_DEBUG:
+        required: false
+      SIGNING_KEY_PASSWORD_DEBUG:
+        required: false
+      SIGNING_STORE_PASSWORD_DEBUG:
+        required: false
+      ENCODED_KEYSTORE_PRE_RELEASE:
+        required: false
+      SIGNING_KEY_ALIAS_PRE_RELEASE:
+        required: false
+      SIGNING_KEY_PASSWORD_PRE_RELEASE:
+        required: false
+      SIGNING_STORE_PASSWORD_PRE_RELEASE:
+        required: false
+      ENCODED_KEYSTORE_INTERNAL_RELEASE:
+        required: false
+      SIGNING_KEY_ALIAS_INTERNAL_RELEASE:
+        required: false
+      SIGNING_KEY_PASSWORD_INTERNAL_RELEASE:
+        required: false
+      SIGNING_STORE_PASSWORD_INTERNAL_RELEASE:
+        required: false
+      ENCODED_KEYSTORE_PUBLIC_RELEASE:
+        required: false
+      SIGNING_KEY_ALIAS_PUBLIC_RELEASE:
+        required: false
+      SIGNING_KEY_PASSWORD_PUBLIC_RELEASE:
+        required: false
+      SIGNING_STORE_PASSWORD_PUBLIC_RELEASE:
+        required: false
+      ENCODED_KEYSTORE_PUBLIC_RELEASE_OLD:
+        required: false
+      SIGNING_KEY_ALIAS_PUBLIC_RELEASE_OLD:
+        required: false
+      SIGNING_KEY_PASSWORD_PUBLIC_RELEASE_OLD:
+        required: false
+      SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD:
+        required: false
+      APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64:
+        required: false
+      DATADOG_APP_ID:
+        required: false
+      DATADOG_CLIENT_TOKEN:
+        required: false
+      ENABLE_SIGNING:
+        required: false
+      DOMAIN_REMOVAL_KEYS_FOR_REPAIR:
+        required: false
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+      AWS_S3_BUCKET:
+        required: false
+      SERVICE_ACCOUNT_JSON:
+        required: false
 
 permissions:
   contents: read # reusable workflow default; deploy job escalates explicitly where required
@@ -156,6 +223,8 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
+    env:
+      WIRE_RELEASE_VERSION: ${{ inputs.release-version }}
     needs: [ workflow-security, lint, style, compose-stability, ui-tests, unit-tests ]
     runs-on: ubuntu-latest
     strategy:

@@ -133,7 +133,7 @@ internal fun ConversationFilesRouteScreen(
         onSortByClicked = viewModel::setSortBy,
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
-        drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
+        isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
         driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
@@ -170,7 +170,7 @@ internal fun ConversationFilesScreenContent(
     onSortByClicked: (SortBy) -> Unit = {},
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
     showViewerAccessBanner: Boolean = false,
-    drivePermissionsEnabled: Boolean = false,
+    isSelfUserViewerOnly: Boolean = false,
     driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
     uploads: List<CellUploadItem> = emptyList(),
@@ -200,7 +200,7 @@ internal fun ConversationFilesScreenContent(
     )
 
     val isFabVisible = when {
-        showViewerAccessBanner && drivePermissionsEnabled -> false
+        isSelfUserViewerOnly -> false
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
         isRecycleBin -> false
@@ -302,7 +302,7 @@ internal fun ConversationFilesScreenContent(
                             val shouldShowActionIcon =
                                 !isRecycleBin &&
                                         isOnline &&
-                                        (!drivePermissionsEnabled || !showViewerAccessBanner)
+                                        !isSelfUserViewerOnly
                             if (shouldShowActionIcon) {
                                 MoreOptionIcon(
                                     contentDescription = R.string.content_description_conversation_files_more_button,

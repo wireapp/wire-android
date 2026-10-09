@@ -1925,4 +1925,22 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
     <string name="more_information_about_this_server">More information about this backend</string>
+    <plurals name="startup_account_limit_title">
+        <item quantity="one">Remove an account</item>
+        <item quantity="other">Remove %1$d accounts</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_one_allowed">
+        <item quantity="one">You can only use one account at once on this device. Log out of this account or select Later to log out of the other account.</item>
+        <item quantity="other">You can only use one account at once on this device. Log out of this account or select Later to log out of the other accounts.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_two_allowed">
+        <item quantity="one">You can only use two accounts at once on this device. Log out of this account or select Later to log out of the other account.</item>
+        <item quantity="other">You can only use two accounts at once on this device. Log out of this account or select Later to log out of the other accounts.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_other_allowed">
+        <item quantity="one">You can only use %1$d accounts at once on this device. Log out of this account or select Later to log out of the other account.</item>
+        <item quantity="other">You can only use %1$d accounts at once on this device. Log out of this account or select Later to log out of the other accounts.</item>
+    </plurals>
+    <string name="startup_account_limit_logout">Log out of this account</string>
+    <string name="startup_account_limit_later">Later</string>
 </resources>

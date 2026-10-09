@@ -1834,4 +1834,22 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="mls_migration_success">Die Unterhaltung wurde erfolgreich auf MLS umgestellt.</string>
     <string name="mls_migration_failure">Die Umstellung der Unterhaltung auf MLS ist fehlgeschlagen.</string>
     <string name="mls_migration_failure_with_backend_error">Die Umstellung der Unterhaltung auf MLS ist fehlgeschlagen (HTTP %1$d, Bezeichnung: %2$s).</string>
+    <plurals name="startup_account_limit_title">
+        <item quantity="one">Ein Konto entfernen</item>
+        <item quantity="other">%1$d Konten entfernen</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_one_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von dem anderen Konto abzumelden.</item>
+        <item quantity="other">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_two_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.</item>
+        <item quantity="other">Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_other_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie nur %1$d Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.</item>
+        <item quantity="other">Auf diesem Gerät können Sie nur %1$d Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.</item>
+    </plurals>
+    <string name="startup_account_limit_logout">Von diesem Konto abmelden</string>
+    <string name="startup_account_limit_later">Später</string>
 </resources>

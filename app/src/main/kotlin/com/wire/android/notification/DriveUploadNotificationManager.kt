@@ -27,6 +27,7 @@ import com.wire.android.R
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.cells.domain.CellUploadItem
 import com.wire.kalium.cells.domain.CellUploadState
+import com.wire.kalium.cells.domain.isActive
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
@@ -99,7 +100,7 @@ class DriveUploadNotificationManager @Inject constructor(
         val total = uploads.size
         val completed = uploads.count { it.state is CellUploadState.Completed }
         val failed = uploads.count { it.state is CellUploadState.Failed }
-        val active = uploads.count { it.state is CellUploadState.Queued || it.state is CellUploadState.Uploading }
+        val active = uploads.count { it.state.isActive }
 
         val builder = NotificationCompat.Builder(context, NotificationConstants.DRIVE_UPLOAD_CHANNEL_ID)
             .setSmallIcon(NR.drawable.notification_icon_small)
@@ -152,7 +153,7 @@ class DriveUploadNotificationManager @Inject constructor(
      * so this should always hold, but falls back to just opening the app rather than guessing otherwise.
      */
     private fun contentIntent(userId: UserId, uploads: List<CellUploadItem>): PendingIntent =
-        uploads.map { it.request.destinationFolderPath.substringBefore("/") }
+        uploads.mapNotNull { it.request?.destinationFolderPath?.substringBefore("/") }
             .distinct()
             .singleOrNull()
             ?.let { conversationId -> driveFilesPendingIntent(context, conversationId, userId.toString()) }

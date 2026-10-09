@@ -72,7 +72,6 @@ internal fun ConversationFilesSlideRouteScreen(
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
         isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
-        drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
         driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         uploads = uploads,
         onCancelUpload = uploadStatusViewModel::cancel,

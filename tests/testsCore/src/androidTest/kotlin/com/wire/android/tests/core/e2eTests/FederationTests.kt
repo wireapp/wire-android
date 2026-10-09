@@ -300,7 +300,7 @@ class FederationTests : BaseUiTest() {
         }
 
         step("Then I do not see TeamOwnerB in the search results") {
-            pages.searchPage.assertUsernameNotInSearchResult(teamOwnerB.name ?: "")
+            pages.searchPage.assertNoSearchResultsVisible()
         }
 
         step("When I clear the search field and enter the first 5 characters of TeamOwnerB's name") {
@@ -311,7 +311,7 @@ class FederationTests : BaseUiTest() {
         }
 
         step("Then I do not see TeamOwnerB in the search results") {
-            pages.searchPage.assertUsernameNotInSearchResult(teamOwnerB.name ?: "")
+            pages.searchPage.assertUsernameNotReturnedBySearch(teamOwnerB.name ?: "")
         }
 
         // TC-4101 - I want to be able to find a user from another team through exact handle,
@@ -449,7 +449,7 @@ class FederationTests : BaseUiTest() {
         }
 
         step("Then I do not see TeamOwnerB in the search results") {
-            pages.searchPage.assertUsernameNotInSearchResult(teamOwnerB.name ?: "")
+            pages.searchPage.assertNoSearchResultsVisible()
         }
 
         // TC-4103 - I want to find a user from another team by their exact handle,
@@ -580,7 +580,7 @@ class FederationTests : BaseUiTest() {
         }
 
         step("Then I do not see personal user user3Name in the search results") {
-            pages.searchPage.assertUsernameNotInSearchResult(personalUser.name ?: "")
+            pages.searchPage.assertNoSearchResultsVisible()
         }
 
         // TC-4105 - I want to find a personal user by their exact handle,

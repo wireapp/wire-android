@@ -31,6 +31,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.Path.Companion.toPath
@@ -38,6 +39,7 @@ import okio.Sink
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import java.io.IOException
 
 class DriveUploadFilePreparerTest {
 
@@ -181,6 +183,34 @@ class DriveUploadFilePreparerTest {
         )
     }
 
+    @Test
+    fun `given writing the staged file throws, when preparing, then null is returned`() = runTest {
+        val stagedPath = "/tmp/staged.tmp".toPath()
+        val (arrangement, preparer) = Arrangement()
+            .withContentUri(fileName = "report.pdf")
+            .withInputStream("file content".toByteArray())
+            .withWriteFailing(stagedPath, IOException("No space left on device"))
+            .arrange()
+
+        val result = preparer.prepare(arrangement.uri, DESTINATION_FOLDER_PATH)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `given writing the staged file throws, when preparing, then the partial staged file is deleted`() = runTest {
+        val stagedPath = "/tmp/staged.tmp".toPath()
+        val (arrangement, preparer) = Arrangement()
+            .withContentUri(fileName = "report.pdf")
+            .withInputStream("file content".toByteArray())
+            .withWriteFailing(stagedPath, IOException("No space left on device"))
+            .arrange()
+
+        preparer.prepare(arrangement.uri, DESTINATION_FOLDER_PATH)
+
+        verify(exactly = 1) { arrangement.kaliumFileSystem.delete(stagedPath, any()) }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -238,6 +268,12 @@ class DriveUploadFilePreparerTest {
             every { kaliumFileSystem.tempFilePath(any()) } returns path
             every { kaliumFileSystem.sink(path, any()) } returns mockk<Sink>(relaxed = true)
             coEvery { kaliumFileSystem.writeData(any(), any()) } returns sizeBytes
+        }
+
+        fun withWriteFailing(path: Path, exception: Throwable) = apply {
+            every { kaliumFileSystem.tempFilePath(any()) } returns path
+            every { kaliumFileSystem.sink(path, any()) } returns mockk<Sink>(relaxed = true)
+            coEvery { kaliumFileSystem.writeData(any(), any()) } throws exception
         }
 
         fun arrange() = this to preparer

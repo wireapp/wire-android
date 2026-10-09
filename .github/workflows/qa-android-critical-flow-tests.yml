@@ -15,6 +15,12 @@ on:
     - cron: "0 4 * * *"
   workflow_dispatch:
     inputs:
+      testServiceUrl:
+        description: "Test Service HTTP(S) origin. Leave empty to use TEST_SERVICE_URL."
+        required: false
+        default: ""
+        type: string
+
       appBuildNumber:
         description: "AppBuildNumber. Use 'latest' or build number(e.g 71389)"
         required: true
@@ -259,6 +265,13 @@ jobs:
           submodules: recursive
           persist-credentials: false
 
+      - name: Resolve Test Service URL
+        id: resolve_test_service
+        env:
+          TEST_SERVICE_URL_INPUT: ${{ inputs.testServiceUrl }}
+          TEST_SERVICE_URL_DEFAULT: ${{ vars.TEST_SERVICE_URL }}
+        run: python3 scripts/qa/android-ui/resolve_test_service_url.py
+
       - name: Set up Java and Gradle
         uses: ./.github/actions/setup-java-gradle
         with:
@@ -330,9 +343,9 @@ jobs:
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
         env:
-          TEST_SERVICE_URL: ${{ vars.TEST_SERVICE_URL }}
+          TEST_SERVICE_URL: ${{ steps.resolve_test_service.outputs.testServiceUrl }}
         run: |
-          : "${TEST_SERVICE_URL:?Configure the TEST_SERVICE_URL GitHub Actions variable}"
+          : "${TEST_SERVICE_URL:?Test Service URL resolution failed}"
           make qa-ui-setup cmd=build-test-apk
 
       # Resolve the built androidTest APK path for execution steps.
@@ -419,6 +432,7 @@ jobs:
         if: always()
         env:
           DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input
+          TEST_SERVICE_URL: ${{ steps.resolve_test_service.outputs.testServiceUrl }}
           SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
           SOURCE_WORKFLOW_FILE: ".github/workflows/qa-android-critical-flow-tests.yml"
           SOURCE_REPOSITORY: ${{ github.repository }}

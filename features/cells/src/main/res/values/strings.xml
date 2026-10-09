@@ -63,6 +63,8 @@
     <string name="error_create_public_link">Unable to create public link.</string>
     <string name="cell_files_download_failure_message">Download failed.</string>
     <string name="no_space_left_error">Not enough storage space to download the file.</string>
+    <string name="cells_upload_preparation_failed">Couldn\'t upload the selected files.</string>
+    <string name="cells_upload_preparation_partially_failed">Some files could not be uploaded.</string>
     <string name="download_file_message">This file is not downloaded yet. Do you want to download it now?</string>
     <string name="download">Download</string>
     <string name="downloading_file_message">Downloading file…</string>

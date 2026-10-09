@@ -236,7 +236,7 @@ class CellViewModel @AssistedInject constructor(
         viewModelScope.launch {
             uploadCoordinator.uploads.collect { uploads ->
                 val completedHere = uploads.filter {
-                    it.state is CellUploadState.Completed && it.request.destinationFolderPath == destinationFolderPath
+                    it.state is CellUploadState.Completed && it.request?.destinationFolderPath == destinationFolderPath
                 }
                 val hasNewlyCompleted = completedHere.count { refreshedIds.add(it.id) } > 0
                 if (hasNewlyCompleted) refreshNodes()
@@ -409,22 +409,38 @@ class CellViewModel @AssistedInject constructor(
     }
 
     /**
-     * Sends [CellViewAction] immediately so the screen can navigate to the upload status screen without
-     * waiting on staging, then stages each picked file into a local file and hands the batch to the
-     * upload coordinator. Files that fail to stage (e.g. no longer accessible) are silently dropped from
-     * the batch rather than failing the whole selection.
+     * Registers every picked file as [com.wire.kalium.cells.domain.CellUploadState.Preparing] in the
+     * upload coordinator immediately, so the status screen can open right away showing a real row per file
+     * rather than waiting on staging (which can take a moment for large files) or showing an empty list
+     * that would read as "Upload complete" before anything has actually started. Each file is then staged
+     * in turn: a successful one is attached to its placeholder (moving it to Queued) right away, a failed
+     * one is dropped. Any file dropped from the batch during staging (whether all of them or just some) is
+     * surfaced as an error instead of silently vanishing.
      */
     internal fun confirmUpload() {
-        val destinationFolderPath = _uploadConfirmation.value?.destinationFolderPath ?: return
+        val confirmation = _uploadConfirmation.value ?: return
         val uris = pendingUploadUris
         _uploadConfirmation.value = null
         pendingUploadUris = emptyList()
 
+        val preparingIds = uris.indices.map { index ->
+            uploadCoordinator.beginPreparing(confirmation.fileNames.getOrElse(index) { uris[index].toString() })
+        }
         sendAction(FilesPickedForUpload(uris))
         viewModelScope.launch {
-            val requests = uris.mapNotNull { uploadFilePreparer.prepare(it, destinationFolderPath) }
-            if (requests.isNotEmpty()) {
-                uploadCoordinator.enqueue(requests)
+            var stagedCount = 0
+            uris.forEachIndexed { index, uri ->
+                val request = uploadFilePreparer.prepare(uri, confirmation.destinationFolderPath)
+                if (request != null) {
+                    stagedCount++
+                    uploadCoordinator.attachPreparedRequest(preparingIds[index], request)
+                } else {
+                    uploadCoordinator.failPreparing(preparingIds[index])
+                }
+            }
+            when {
+                stagedCount == 0 -> sendAction(ShowError(CellError.UPLOAD_PREPARATION_FAILED))
+                stagedCount < uris.size -> sendAction(ShowError(CellError.UPLOAD_PREPARATION_PARTIALLY_FAILED))
             }
         }
     }
@@ -878,6 +894,8 @@ enum class CellError(val message: Int) {
     OTHER_ERROR(R.string.action_failed),
     DOWNLOAD_FAILED(R.string.action_failed),
     NO_SPACE_LEFT(R.string.no_space_left_error),
+    UPLOAD_PREPARATION_FAILED(R.string.cells_upload_preparation_failed),
+    UPLOAD_PREPARATION_PARTIALLY_FAILED(R.string.cells_upload_preparation_partially_failed),
 }
 
 data class MenuOptions(

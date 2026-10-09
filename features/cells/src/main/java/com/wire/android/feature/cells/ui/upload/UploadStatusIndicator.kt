@@ -51,6 +51,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.kalium.cells.domain.CellUploadItem
 import com.wire.kalium.cells.domain.CellUploadRequest
 import com.wire.kalium.cells.domain.CellUploadState
+import com.wire.kalium.cells.domain.isActive
 import okio.Path.Companion.toPath
 import com.wire.android.ui.common.R as commonR
 
@@ -76,7 +77,7 @@ internal fun UploadStatusIndicator(
 ) {
     if (uploads.isEmpty()) return
 
-    val isActive = uploads.any { it.state is CellUploadState.Queued || it.state is CellUploadState.Uploading }
+    val isActive = uploads.any { it.state.isActive }
     val failedCount = uploads.count { it.state is CellUploadState.Failed }
     val iconState = when {
         isActive -> UploadStatusIconState.Loading

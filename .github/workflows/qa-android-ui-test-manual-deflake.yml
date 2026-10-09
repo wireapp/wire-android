@@ -14,6 +14,12 @@ on:
         required: true
         type: string
 
+      testServiceUrl:
+        description: "Optional Test Service URL override. Empty reuses the source run URL; required for legacy artifacts without it."
+        required: false
+        default: ""
+        type: string
+
       testinyRunName:
         description: "TESTINY_RUN_NAME override. Leave empty to reuse the selected run value."
         required: false
@@ -135,6 +141,7 @@ jobs:
         id: validate_deflake_input
         env:
           DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
+          TEST_SERVICE_URL_OVERRIDE: ${{ inputs.testServiceUrl }}
           TESTINY_RUN_NAME_OVERRIDE: ${{ inputs.testinyRunName }}
           EXPECTED_SOURCE_REPOSITORY: ${{ needs.validate-request.outputs.sourceRepository }}
           EXPECTED_SOURCE_RUN_ID: ${{ needs.validate-request.outputs.sourceRunId }}
@@ -236,9 +243,9 @@ jobs:
 
       - name: Build test APK (assemble once)
         env:
-          TEST_SERVICE_URL: ${{ vars.TEST_SERVICE_URL }}
+          TEST_SERVICE_URL: ${{ steps.validate_deflake_input.outputs.testServiceUrl }}
         run: |
-          : "${TEST_SERVICE_URL:?Configure the TEST_SERVICE_URL GitHub Actions variable}"
+          : "${TEST_SERVICE_URL:?Test Service URL resolution failed}"
           make qa-ui-setup cmd=build-test-apk
 
       - name: Resolve test APK path
@@ -314,6 +321,7 @@ jobs:
         if: always()
         env:
           DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input-next
+          TEST_SERVICE_URL: ${{ steps.validate_deflake_input.outputs.testServiceUrl }}
           SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
           SOURCE_WORKFLOW_FILE: ".github/workflows/qa-android-ui-test-manual-deflake.yml"
           SOURCE_REPOSITORY: ${{ github.repository }}

@@ -15,11 +15,18 @@ import com.wire.android.feature.meetings.ui.newMeetingViewModel
 import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
+import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.common.HandleActions
 import com.wire.navigation.WireNavigationCommand
 import com.wire.navigation.WireViewModelOwner
+import com.wire.navigation.WireNavResult
+
+val NewMeetingNavigation3ResultType = WireNavigation3ResultType(
+    contract = NewMeetingResultContract,
+    serializer = NewMeetingResult.serializer(),
+)
 
 /** Host actions used by entries inside the Navigation 3 meeting flow. */
 interface MeetingsNavigation3Actions {
@@ -37,6 +44,7 @@ data class MeetingParticipantId(val value: String, val domain: String) {
 
 object MeetingsNavigation3Contribution {
     const val ROUTE_REGISTRATION_COUNT: Int = 2
+    val resultTypes: List<WireNavigation3ResultType<*>> = listOf(NewMeetingNavigation3ResultType)
 
     fun entryProviderInstallers(
         runtime: WireNavigation3Runtime,
@@ -95,8 +103,17 @@ private fun NewMeetingDetailsNavigation3Entry(
     if (viewModel.state.initialLoading == NewMeetingState.InitialLoadingState.Error) {
         FailedToLoadEditMeetingDataError(navigateBack)
     }
-    HandleActions(viewModel.actions) {
-        navigateBack()
+    HandleActions(viewModel.actions) { action ->
+        when (action) {
+            is NewMeetingViewActions.Success ->
+                if (!runtime.completeCurrentAndPop(
+                        resultType = NewMeetingNavigation3ResultType,
+                        result = WireNavResult.Value(NewMeetingResult(action.conversationIdToStartACall))
+                    )
+                ) {
+                    navigateBack()
+                }
+        }
     }
 }
 

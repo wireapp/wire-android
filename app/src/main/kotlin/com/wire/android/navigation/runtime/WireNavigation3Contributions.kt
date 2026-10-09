@@ -123,6 +123,7 @@ internal object WireNavigation3Contributions {
             addAll(UtilityNavigation3Contribution.resultTypes)
             addAll(AppLockNavigation3Contribution.resultTypes)
             addAll(CellsNavigation3Contribution.resultTypes)
+            addAll(MeetingsNavigation3Contribution.resultTypes)
             addAll(SketchNavigation3Contribution.resultTypes)
         }.requireUniqueResultContractIds()
 

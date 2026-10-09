@@ -8151,12 +8151,13 @@ public fun com.wire.android.ui.home.homeViewModel(): com.wire.android.ui.home.Ho
   params:
 
 @Composable
-internal fun com.wire.android.ui.home.meetings.MeetingsScreen(homeShellState: com.wire.android.ui.home.HomeShellState, navigationActions: com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions, viewModel: com.wire.android.ui.home.meetings.MeetingsCallViewModel): kotlin.Unit
+internal fun com.wire.android.ui.home.meetings.MeetingsScreen(homeShellState: com.wire.android.ui.home.HomeShellState, sessionId: com.wire.navigation.WireSessionId, runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, viewModel: com.wire.android.ui.home.meetings.MeetingsCallViewModel): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - homeShellState: RUNTIME (requires runtime check)
-    - navigationActions: STABLE (class with no mutable properties)
+    - sessionId: STABLE (class with no mutable properties)
+    - runtime: STABLE (marked @Stable or @Immutable)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable

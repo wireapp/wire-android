@@ -112,6 +112,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -1294,6 +1295,33 @@ class WireActivityViewModelTest {
         }
 
     @Test
+    fun `given sync is stopping, when restart requested twice, then restart once after shutdown completes`() = runTest {
+        val stopped = CompletableDeferred<Unit>()
+        var shutdownCalls = 0
+        val (_, viewModel) = Arrangement()
+            .withStopSyncForRestart {
+                shutdownCalls++
+                stopped.await()
+            }
+            .arrange()
+        advanceUntilIdle()
+        viewModel.actions.test {
+            viewModel.restartApp()
+            viewModel.restartApp()
+            advanceUntilIdle()
+            assertEquals(1, shutdownCalls)
+            expectNoEvents()
+            assertTrue(viewModel.globalAppState.isRestarting)
+            viewModel.dismissRestartAppDialog()
+            assertTrue(viewModel.globalAppState.restartAppDialog)
+            stopped.complete(Unit)
+            advanceUntilIdle()
+            assertEquals(OnRestartApp, awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    @Test
     fun `given API mismatch at startup, then show restart dialog`() = runTest {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
@@ -1716,6 +1744,10 @@ class WireActivityViewModelTest {
 
         fun withProductionServerConfig(): Arrangement = apply {
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(ServerConfig.PRODUCTION)
+        }
+
+        fun withStopSyncForRestart(block: suspend () -> Unit) = apply {
+            coEvery { coreLogic.stopSyncForRestart() } coAnswers { block() }
         }
 
         fun arrange() = this to viewModel

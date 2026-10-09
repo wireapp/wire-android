@@ -126,7 +126,8 @@ internal fun WireActivityDialogs(
         UpdateAppDialog(viewModel.globalAppState.updateAppDialog, actions.updateApp)
         RestartAppDialog(
             shouldShow = viewModel.globalAppState.restartAppDialog,
-            onRestart = { RestartActivity.restart(context) },
+            loading = viewModel.globalAppState.isRestarting,
+            onRestart = viewModel::restartApp,
             onDismiss = viewModel::dismissRestartAppDialog,
         )
         CustomBackendDialog(
@@ -272,7 +273,8 @@ internal fun WireActivityDialogs(
             UpdateAppDialog(viewModel.globalAppState.updateAppDialog, actions.updateApp)
             RestartAppDialog(
                 shouldShow = viewModel.globalAppState.restartAppDialog,
-                onRestart = { RestartActivity.restart(context) },
+                loading = viewModel.globalAppState.isRestarting,
+                onRestart = viewModel::restartApp,
                 onDismiss = viewModel::dismissRestartAppDialog,
             )
             JoinConversationDialog(
@@ -443,7 +445,7 @@ fun TeamAppLockFeatureFlagDialog(
 }
 
 @Composable
-fun RestartAppDialog(shouldShow: Boolean, onRestart: () -> Unit, onDismiss: () -> Unit) {
+fun RestartAppDialog(shouldShow: Boolean, loading: Boolean, onRestart: () -> Unit, onDismiss: () -> Unit) {
     if (shouldShow) {
         WireDialog(
             title = stringResource(id = R.string.restart_app_dialog_title),
@@ -453,15 +455,18 @@ fun RestartAppDialog(shouldShow: Boolean, onRestart: () -> Unit, onDismiss: () -
                 text = stringResource(R.string.restart_app_dialog_button_later),
                 onClick = onDismiss,
                 type = WireDialogButtonType.Secondary,
+                state = if (loading) WireButtonState.Disabled else WireButtonState.Default,
             ),
             optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.restart_app_dialog_button_restart),
                 onClick = onRestart,
                 type = WireDialogButtonType.Primary,
+                state = if (loading) WireButtonState.Disabled else WireButtonState.Default,
+                loading = loading,
             ),
             properties = wireDialogPropertiesBuilder(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true,
+                dismissOnBackPress = !loading,
+                dismissOnClickOutside = !loading,
                 usePlatformDefaultWidth = false
             )
         )

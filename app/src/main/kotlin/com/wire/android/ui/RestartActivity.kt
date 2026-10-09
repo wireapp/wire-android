@@ -47,6 +47,7 @@ class RestartActivity : ComponentActivity() {
 
     private fun restartMainProcess() {
         // This activity runs in :restart, so it survives terminating the original app process.
+        // The caller has already stopped sync and awaited its in-flight processing in the main process.
         // Discard that process and its cached user scopes so they pick up the new API version.
         val previousPid = intent.getIntExtra(EXTRA_PID, -1)
         if (previousPid > 0 && previousPid != Process.myPid()) {

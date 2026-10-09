@@ -70,7 +70,10 @@ data class GroupConversationOptionsState(
     val isWireCellFeatureEnabled: Boolean = false,
     val isWireCellEnabled: Boolean = false,
     val isSelfPartOfATeam: Boolean = false,
-    val canSelfAddParticipants: Boolean = false
+    val canSelfAddParticipants: Boolean = false,
+    val canManuallyMigrateToMLS: Boolean = false,
+    val shouldShowMlsMigrationDialog: Boolean = false,
+    val isMigratingToMLS: Boolean = false,
 ) {
 
     sealed interface Error {

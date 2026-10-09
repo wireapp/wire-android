@@ -149,7 +149,8 @@ class SearchScreenViewModel @AssistedInject constructor(
                         params.tagIds.isNotEmpty() ||
                         params.ownerIds.isNotEmpty() ||
                         params.mimeTypes.isNotEmpty() ||
-                        params.filesWithPublicLink == true
+                        params.filesWithPublicLink == true ||
+                        params.conversationId != navArgs.conversationId
 
                 if (!hasFilters) {
                     return@flatMapLatest kotlinx.coroutines.flow.flowOf(

@@ -33,14 +33,19 @@ import java.net.URI
 /**
  * Creates a SCIM auth token for the given backend user so tests can call SCIM endpoints on that team.
  */
-fun BackendClient.createScimAccessToken(asUser: ClientUser, description: String): String {
+fun BackendClient.createScimAccessToken(
+    asUser: ClientUser,
+    description: String,
+    identityProviderId: String? = null
+): String {
     val token = runBlocking { getAuthToken(asUser) }
-    val url = URI("scim/auth-tokens".composeCompleteUrl()).toURL()
+    val url = URI("scim/auth-tokens".composePublicApiUrl()).toURL()
 
     val requestBody = JSONObject().apply {
         put("description", description)
         put("password", asUser.password)
         asUser.verificationCode?.let { put("verification_code", it) }
+        identityProviderId?.let { put("idp", it) }
     }
 
     val headers = defaultheaders.toMutableMap().apply {

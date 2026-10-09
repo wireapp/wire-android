@@ -66,6 +66,12 @@ class AccountManagement : BaseUiTest() {
                 )
                 registeredUser = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
+                backendSetupHelper.userConfiguresMLSForTeam(
+                    "user1Name",
+                    "AccountManagement",
+                    backendClient
+                )
+
                 backendSetupHelper.userXAddsUsersToTeam(
                     "user1Name",
                     "user2Name,user3Name",
@@ -76,12 +82,18 @@ class AccountManagement : BaseUiTest() {
                     true
                 )
 
-                backendSetupHelper.userHasGroupConversationInTeam(
-                    "user1Name",
-                    "MyTeam",
-                    "user2Name",
-                    "AccountManagement"
-                )
+                testServiceHelper.apply {
+                    listOf("user1Name", "user2Name").forEach { user ->
+                        addDevice(user, null, "Device1")
+                    }
+
+                    userCreatesMLSGroupConversation(
+                        ownerAlias = "user1Name",
+                        participantAliases = "user2Name",
+                        conversationName = "MyTeam",
+                        deviceName = "Device1"
+                    )
+                }
 
                 teamMember = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
                 newEmail = clientUserManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
@@ -152,8 +164,8 @@ class AccountManagement : BaseUiTest() {
 
             step("Change email address and verify confirmation notification") {
                 pages.settingsPage.apply {
-                    clickDisplayedEmailAddress()
-                    changeToNewEmailAddress(newEmail.email ?: "")
+                    clickDisplayedEmailAddress(teamMember?.email ?: "")
+                    changeToNewEmailAddress(teamMember?.email ?: "", newEmail.email ?: "")
                     clickSaveButton()
                     assertNotificationWithNewEmail(newEmail.email ?: "")
                 }

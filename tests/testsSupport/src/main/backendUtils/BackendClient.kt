@@ -59,7 +59,9 @@ class BackendClient(
         const val accept = "Accept"
         const val applicationJson = "application/json"
         const val AUTHORIZATION = "Authorization"
+        private const val API_VERSION = 16
         private const val DEFAULT_BACKEND_NAME = "STAGING"
+        private const val INTERNAL_API_PREFIX = "i"
 
         data class BackendSecrets(
             val backendUrl: String,
@@ -182,7 +184,18 @@ class BackendClient(
         NetworkBackendClient.registerProxy(inbucketUrl, proxy)
     }
 
-    fun String.composeCompleteUrl(): String {
-        return "${backendUrl}$this"
+    /** Builds a URL for Wire's versioned public API. */
+    fun String.composePublicApiUrl(): String = composeUrl("v$API_VERSION", this)
+
+    /** Builds a URL for Wire's unversioned internal API. */
+    fun String.composeInternalApiUrl(): String = composeUrl(INTERNAL_API_PREFIX, this)
+
+    /** Builds a URL for Wire routes which explicitly do not use an API version prefix. */
+    fun String.composeUnversionedUrl(): String = composeUrl(route = this)
+
+    private fun composeUrl(prefix: String? = null, route: String): String {
+        val normalizedRoute = route.trimStart('/').takeIf(String::isNotEmpty)
+        val path = listOfNotNull(prefix, normalizedRoute).joinToString("/")
+        return "${backendUrl.trimEnd('/')}/$path"
     }
 }

@@ -46,6 +46,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -68,6 +69,7 @@ internal fun CellFilesScreen(
     lazyListState: LazyListState = rememberLazyListState(),
     showConversationName: Boolean = true,
     showViewerOnlyIcon: Boolean = false,
+    sortBy: SortBy = SortBy.Default,
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     if (isPullToRefreshEnabled) {
@@ -83,6 +85,7 @@ internal fun CellFilesScreen(
                 onItemMenuClick = onItemMenuClick,
                 showConversationName = showConversationName,
                 showViewerOnlyIcon = showViewerOnlyIcon,
+                sortBy = sortBy,
             )
         }
     } else {
@@ -94,6 +97,7 @@ internal fun CellFilesScreen(
             onItemMenuClick = onItemMenuClick,
             showConversationName = showConversationName,
             showViewerOnlyIcon = showViewerOnlyIcon,
+            sortBy = sortBy,
         )
     }
 }
@@ -107,6 +111,7 @@ private fun ContentList(
     modifier: Modifier = Modifier,
     showConversationName: Boolean = true,
     showViewerOnlyIcon: Boolean = false,
+    sortBy: SortBy = SortBy.Default,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -128,6 +133,7 @@ private fun ContentList(
                     cell = item,
                     showConversationName = showConversationName,
                     showViewerOnlyIcon = showViewerOnlyIcon,
+                    sortBy = sortBy,
                     onMenuClick = { onItemMenuClick(item) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())

@@ -20,7 +20,10 @@ package com.wire.android.di.accountScoped
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
+import com.wire.android.pdfviewer.PdfPreSignedLoader
+import com.wire.android.pdfviewer.PdfRemoteLoader
 import com.wire.kalium.cells.CellsScope
+import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
@@ -28,6 +31,7 @@ import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.GetPdfPreviewUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.GetMessageAttachmentUseCase
 import com.wire.kalium.cells.domain.usecase.GetOwnersUseCase
@@ -71,11 +75,15 @@ import com.wire.kalium.cells.domain.usecase.versioning.GetNodeVersionsUseCase
 import com.wire.kalium.cells.domain.usecase.versioning.RestoreNodeVersionUseCase
 import com.wire.kalium.cells.paginatedConversationsFlowUseCase
 import com.wire.kalium.cells.paginatedFilesFlowUseCase
+import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
+import java.io.IOException
+import okio.Path.Companion.toOkioPath
+import okio.sink
 
 @Suppress("TooManyFunctions")
 @BindingContainer
@@ -104,6 +112,9 @@ class CellsModule {
 
     @Provides
     fun provideCellUploadManager(cellsScope: CellsScope): CellUploadManager = cellsScope.uploadManager
+
+    @Provides
+    fun provideCellUploadCoordinator(cellsScope: CellsScope): CellUploadCoordinator = cellsScope.uploadCoordinator
 
     @Provides
     fun provideObserveFilesUseCase(cellsScope: CellsScope): GetPaginatedNodesUseCase = cellsScope.observeFiles
@@ -204,6 +215,9 @@ class CellsModule {
     fun provideEditorUrlUseCase(cellsScope: CellsScope): GetEditorUrlUseCase = cellsScope.getEditorUrl
 
     @Provides
+    fun provideGetPdfPreviewUrlUseCase(cellsScope: CellsScope): GetPdfPreviewUrlUseCase = cellsScope.getPdfPreviewUrl
+
+    @Provides
     fun provideGetNodeVersionsUseCase(cellsScope: CellsScope): GetNodeVersionsUseCase =
         cellsScope.getNodeVersions
 
@@ -249,4 +263,35 @@ class CellsModule {
 
     @Provides
     fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNameUseCase = cellsScope.getUserName
+
+    @Provides
+    fun providePdfPreSignedLoader(download: DownloadCellVersionUseCase): PdfPreSignedLoader =
+        PdfPreSignedLoader { url, outFile ->
+            outFile.sink().use { sink ->
+                download(
+                    bufferedSink = sink,
+                    preSignedUrl = url,
+                    onProgressUpdate = { _, _ -> },
+                ).fold(
+                    { failure -> Result.failure(IOException("PDF rendition download failed: $failure")) },
+                    { Result.success(Unit) },
+                )
+            }
+        }
+
+    @Provides
+    fun providePdfRemoteLoader(download: DownloadCellFileUseCase): PdfRemoteLoader =
+        PdfRemoteLoader { assetId, remotePath, conversationId, assetSize, outFile ->
+            download(
+                assetId = assetId,
+                conversationId = conversationId,
+                outFilePath = outFile.toPath().toOkioPath(),
+                assetSize = assetSize,
+                remoteFilePath = remotePath,
+                onProgressUpdate = {},
+            ).fold(
+                { failure -> Result.failure(IOException("PDF download failed: $failure")) },
+                { Result.success(Unit) },
+            )
+        }
 }

@@ -139,6 +139,10 @@ android {
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
     testOptions {
+        unitTests.all { test ->
+            // Robolectric loads multiple Android SDKs in the test JVM, separate from the Gradle daemon.
+            test.maxHeapSize = "2g"
+        }
         screenshotTests {
             imageDifferenceThreshold = 0.0001f // 0.01%
         }
@@ -199,6 +203,7 @@ dependencies {
     implementation(libs.kermit.io)
 
     implementation("com.wire.kalium:kalium-logic")
+    implementation("com.wire.kalium:kalium-network")
     implementation("com.wire.kalium:kalium-util")
     implementation("com.wire.kalium:kalium-cells")
     implementation("com.wire.kalium:kalium-core-libsodium")
@@ -216,6 +221,7 @@ dependencies {
     implementationWithCoverage(projects.core.media)
     implementationWithCoverage(projects.core.videoPlayer)
     implementationWithCoverage(projects.core.audioPlayer)
+    implementationWithCoverage(projects.core.pdfViewer)
     implementationWithCoverage(projects.core.notification)
     implementationWithCoverage(projects.core.navigation)
     implementationWithCoverage(projects.core.search)
@@ -370,6 +376,18 @@ dependencies {
     devImplementation(libs.dataDog.core)
     alphaImplementation(libs.dataDog.core)
     betaImplementation(libs.dataDog.core)
+
+    devImplementation(libs.dataDog.logs)
+    alphaImplementation(libs.dataDog.logs)
+    betaImplementation(libs.dataDog.logs)
+
+    devImplementation(libs.dataDog.trace)
+    alphaImplementation(libs.dataDog.trace)
+    betaImplementation(libs.dataDog.trace)
+
+    devImplementation(libs.dataDog.rum)
+    alphaImplementation(libs.dataDog.rum)
+    betaImplementation(libs.dataDog.rum)
 
     devImplementation(libs.dataDog.compose)
     alphaImplementation(libs.dataDog.compose)

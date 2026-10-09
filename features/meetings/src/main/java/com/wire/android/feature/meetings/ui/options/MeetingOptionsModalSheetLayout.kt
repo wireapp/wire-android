@@ -80,6 +80,7 @@ fun MeetingOptionsModalSheetLayout(
                             viewModel.deleteMeetingDialogState.show(
                                 DeleteMeetingDialogState(
                                     deleteType = DeleteMeetingType.ForMe,
+                                    isRecurring = state.isRecurring,
                                     meetingId = state.meetingId,
                                     meetingTitle = state.title
                                 )
@@ -91,6 +92,7 @@ fun MeetingOptionsModalSheetLayout(
                             viewModel.deleteMeetingDialogState.show(
                                 DeleteMeetingDialogState(
                                     deleteType = DeleteMeetingType.ForEveryone,
+                                    isRecurring = state.isRecurring,
                                     meetingId = state.meetingId,
                                     meetingTitle = state.title
                                 )

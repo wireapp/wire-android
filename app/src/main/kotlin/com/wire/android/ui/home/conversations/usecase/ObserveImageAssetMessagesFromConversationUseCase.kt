@@ -25,21 +25,21 @@ import com.wire.android.mapper.UIAssetMapper
 import com.wire.android.ui.common.monthYearHeader
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.UIAssetMessage
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.time.TimeZoneProvider
+import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.toLocalDateTime
-import dev.zacsweers.metro.Inject
 import kotlin.math.max
 
 class ObserveImageAssetMessagesFromConversationUseCase @Inject constructor(
     private val getAssetMessages: ObservePaginatedAssetImageMessages,
     private val assetMapper: UIAssetMapper,
     private val dispatchers: DispatcherProvider,
-    private val timeZoneProvider: TimeZoneProvider
+    private val timeZoneProvider: CurrentTimeZoneProvider
 ) {
 
     /**
@@ -63,7 +63,7 @@ class ObserveImageAssetMessagesFromConversationUseCase @Inject constructor(
             startingOffset = max(0, initialOffset - PREFETCH_DISTANCE).toLong(),
             pagingConfig = pagingConfig
         ).map { pagingData ->
-            val currentTime = timeZoneProvider.currentSystemDefault()
+            val currentTime = timeZoneProvider()
             pagingData.map { assetMessage ->
                 UIImageAssetPagingItem.Asset(assetMapper.toUIAsset(assetMessage))
             }.insertSeparators { before: UIImageAssetPagingItem.Asset?, after: UIImageAssetPagingItem.Asset? ->

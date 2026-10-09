@@ -21,11 +21,22 @@ package com.wire.android.ui.home.gallery
 import com.wire.android.model.ImageAsset
 
 data class MediaGalleryViewState(
-    val imageAsset: MediaGalleryImage? = null,
+    val assetState: MediaGalleryAssetState = MediaGalleryAssetState.Loading,
     val screenTitle: String? = null,
     val menuItems: List<MediaGalleryMenuItem> = emptyList(),
     val viewerAccess: Boolean = false,
 )
+
+/**
+ * Loading state of the image shown by the gallery. Modelled explicitly so that an asset we cannot
+ * resolve (missing content URL, deleted local file, …) surfaces as an error with a retry action
+ * instead of rendering an empty screen.
+ */
+sealed interface MediaGalleryAssetState {
+    data object Loading : MediaGalleryAssetState
+    data class Loaded(val image: MediaGalleryImage) : MediaGalleryAssetState
+    data object Failure : MediaGalleryAssetState
+}
 
 sealed interface MediaGalleryImage {
     data class PrivateAsset(val asset: ImageAsset.PrivateAsset) : MediaGalleryImage

@@ -53,5 +53,6 @@ enum class SupportPage(
     SEARCH("search", R.string.url_learn_about_search),
     CELLS_CONVERSATION("cells_conversation", R.string.empty_screen_learn_more_link_conversation),
     CELLS_ALL_FILES("cells_all_files", R.string.empty_screen_learn_more_link_all_files_screen),
-    FILE_PERMISSIONS_IN_SHARED_DRIVE("file_permissions_in_shared_drive", R.string.file_permissions_in_shared_drive)
+    FILE_PERMISSIONS_IN_SHARED_DRIVE("file_permissions_in_shared_drive", R.string.file_permissions_in_shared_drive),
+    ADMINLESS_GROUP_DELETE("adminless_group_delete", R.string.url_system_message_adminless_group_delete),
 }

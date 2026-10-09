@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -63,6 +65,7 @@ fun MeetingList(
         LocalInspectionMode.current -> remember(type) { MeetingListViewModelPreview(type = type) }
         else -> meetingListViewModel(type)
     }
+    val displayTimeZone by meetingListViewModel.displayTimeZoneFlow.collectAsStateWithLifecycle()
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItemsWithLifecycle()
     when {
         lazyPagingItems.isLoading() -> LoadingListContent(
@@ -101,11 +104,13 @@ fun MeetingList(
                     when (item) {
                         is MeetingHeader -> MeetingHeader(
                             header = item,
+                            displayTimeZone = displayTimeZone,
                             modifier = Modifier.animateItem()
                         )
 
                         is MeetingItem -> MeetingItem(
                             meeting = item,
+                            displayTimeZone = displayTimeZone,
                             modifier = Modifier.animateItem(),
                             openMeetingOptions = openMeetingOptions,
                             startCall = startCall,
@@ -121,6 +126,12 @@ fun MeetingList(
                     MeetingLoadMoreFooter()
                 }
             }
+        }
+    }
+
+    LaunchedEffect(lazyPagingItems.loadState, lazyPagingItems.itemCount) {
+        if (lazyPagingItems.loadState.isIdle && !lazyPagingItems.loadState.hasError && lazyPagingItems.itemCount == 0) {
+            meetingListViewModel.onEmptyListLoaded()
         }
     }
 }
@@ -146,7 +157,7 @@ private fun EmptyMeetingListContent(type: MeetingsTabItem, modifier: Modifier = 
 @Composable
 private fun LazyPagingItems<MeetingListItem>.isLoading(): Boolean {
     var initialLoadCompleted by remember { mutableStateOf(false) }
-    if (loadState.refresh is LoadState.NotLoading) {
+    if (loadState.refresh !is LoadState.Loading) {
         initialLoadCompleted = true
     }
     return !initialLoadCompleted && loadState.refresh == LoadState.Loading && itemCount == 0

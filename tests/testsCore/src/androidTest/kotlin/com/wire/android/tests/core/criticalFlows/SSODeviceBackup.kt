@@ -77,6 +77,15 @@ class SSODeviceBackup : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
+        step("Team Messaging is configured for MLS and TeamOwner has an MLS device") {
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user1Name",
+                "Messaging",
+                backendClient
+            )
+            testServiceHelper.addDevice("user1Name", null, "Device1")
+        }
+
         step("User Member1 is created in Keycloak for SSO login") {
             runBlocking {
                 SSOServiceHelper.addKeycloakSsoUsers(
@@ -129,7 +138,7 @@ class SSODeviceBackup : BaseUiTest() {
         }
 
         step("And I wait until username setup page is visible") {
-            pages.registrationPage.assertEnterYourUserNameInfoText()
+            pages.registrationPage.assertEnterYourUserNameInfoText(timeout = 16.seconds)
         }
 
         step("And I set Member1 username and confirm profile setup") {
@@ -287,10 +296,7 @@ class SSODeviceBackup : BaseUiTest() {
         }
 
         step("And I complete post-login privacy prompt after logout") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickDeclineShareDataAlert()
-            }
+            pages.registrationPage.waitUntilConversationPageVisibleDismissingPostLoginPrompts()
         }
 
         step("And I open the conversation with TeamOwner before restoring the backup") {

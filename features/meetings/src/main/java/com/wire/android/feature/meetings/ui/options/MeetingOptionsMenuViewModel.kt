@@ -68,7 +68,8 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
                 meetingId = it.meetingId,
                 conversationId = it.conversationId,
                 title = it.title,
-                selfRole = it.selfRole
+                selfRole = it.selfRole,
+                isRecurring = it.repeatingInterval != null,
             )
         } ?: MeetingOptionsMenuState.NotAvailable
     )
@@ -104,6 +105,7 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
                                 MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
                                 MeetingOccurrence.SelfRole.Member -> MeetingOptionsMenuState.Meeting.DeleteOption.ForMe
                             },
+                            isRecurring = it.meeting.recurrence != null,
                         )
                     } ?: MeetingOptionsMenuState.NotAvailable
                 }
@@ -172,6 +174,7 @@ sealed interface MeetingOptionsMenuState {
         val meetingId: MeetingId,
         val conversationId: ConversationId,
         val title: String,
+        val isRecurring: Boolean,
         val selfRole: MeetingItem.SelfRole = MeetingItem.SelfRole.Member,
         val deleteOption: DeleteOption = DeleteOption.None,
         val createConversationEnabled: Boolean = false,

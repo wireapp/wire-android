@@ -47,8 +47,10 @@ internal fun NewGroupNameRouteScreen(
         newConversationViewModel.observeGroupNameChanges()
     }
     LaunchedEffect(newConversationViewModel.createGroupState) {
-        (newConversationViewModel.createGroupState as? CreateGroupState.Created)?.let {
-            onConversationCreated(it.conversationId)
+        when (val state = newConversationViewModel.createGroupState) {
+            is CreateGroupState.Created -> onConversationCreated(state.conversationId)
+            CreateGroupState.Discarded -> onDiscard()
+            else -> Unit
         }
     }
     GroupNameScreen(
@@ -70,16 +72,14 @@ internal fun NewGroupNameRouteScreen(
             onDismiss = newConversationViewModel::onCreateGroupErrorDismiss,
             onRetryPendingCreation = newConversationViewModel::retryPendingMLSGroupCreation,
             onPendingCreationAcknowledged = {
-                newConversationViewModel.onCreateGroupErrorDismiss()
-                onDiscard()
+                newConversationViewModel.discardGroupCreation()
             },
             onEditParticipantsList = {
                 newConversationViewModel.onCreateGroupErrorDismiss()
                 onEditParticipants()
             },
             onCancel = {
-                newConversationViewModel.onCreateGroupErrorDismiss()
-                onDiscard()
+                newConversationViewModel.discardGroupCreation()
             },
         )
     }

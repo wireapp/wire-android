@@ -569,6 +569,12 @@
     <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="channel_name_description">Give this channel a meaningful name.</string>
     <string name="protocol">Protocol</string>
+    <string name="mls_migration_dialog_title">Change protocol to MLS?</string>
+    <string name="mls_migration_dialog_description">The standard messaging protocol will change from Proteus to Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Change Protocol</string>
+    <string name="mls_migration_success">Conversation migrated to MLS successfully.</string>
+    <string name="mls_migration_failure">Conversation migration to MLS failed.</string>
+    <string name="mls_migration_failure_with_backend_error">Conversation migration to MLS failed (HTTP %1$d, label: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>
     <string name="last_key_material_update_label">Last Key Material Update</string>
@@ -640,13 +646,13 @@
     <string name="leave_conversation_admin_options_dialog_description_with_promote">You\'re the only admin.\nPromote another participant before leaving, or delete the group if it is no longer needed.</string>
     <string name="leave_conversation_admin_options_dialog_description_with_promote_no_delete">You\'re the only admin.\nPromote another participant before leaving.</string>
     <string name="leave_conversation_admin_options_dialog_description_no_promote">You\'re the only admin. The other participants can\'t be admins.\nAdd at least one team member and promote them as an admin before you leave. Alternatively, delete the group if it is no longer needed.</string>
-    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">There are no other eligible admins in the group and as a personal user you cannot delete the group. However, add another team member and make that user admin to delete the group.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">Add at least one team member from the team that created this group and select them as an admin before you leave.</string>
     <string name="leave_conversation_admin_options_dialog_promote_button">Promote new admin</string>
     <string name="leave_conversation_admin_options_dialog_delete_button">Delete group</string>
     <string name="promote_admin_screen_title">Promote new admin</string>
     <string name="promote_admin_search_placeholder">Enter a name or email</string>
     <string name="promote_admin_button">Promote as admin and leave group</string>
-    <string name="promote_admin_error_failed_to_promote">Failed to promote user to admin</string>
+    <string name="promote_admin_error_failed_to_promote">Group member could not be promoted to admin</string>
     <string name="promote_admin_error_failed_to_leave">Failed to leave conversation</string>
     <string name="delete_conversation_conversation_menu_item">Delete Conversation…</string>
     <string name="delete_conversation_conversation_dialog_title">Delete “%s”?</string>
@@ -1034,6 +1040,9 @@
     <string name="left_conversation_success">You left the conversation.</string>
     <string name="delete_conversation_conversation_error">There was an error while deleting conversation</string>
     <string name="error_limit_number_assets_imported_exceeded">You can only send up to 20 files at once</string>
+    <string name="error_conversation_not_found">Conversation could not be found</string>
+    <string name="error_conversation_unknown_error">There was an error while loading conversation</string>
+    <string name="error_conversation_opening_meetings_unsupported">You can\'t use the chat option in this meeting</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Conversation was archived</string>
     <string name="success_unarchiving_conversation">Conversation was unarchived</string>
@@ -1081,6 +1090,23 @@
     <string name="notification_audio_message_body">Audio message</string>
     <string name="notification_deleting_conversation">Deleting conversation…</string>
     <string name="notification_uploading_files">Uploading files…</string>
+    <plurals name="notification_drive_upload_uploading_title">
+        <item quantity="one">Uploading %1$d file</item>
+        <item quantity="other">Uploading %1$d files</item>
+    </plurals>
+    <string name="notification_drive_upload_progress_text">%1$d of %2$d completed</string>
+    <string name="notification_drive_upload_complete_title">Upload complete</string>
+    <plurals name="notification_drive_upload_complete_text">
+        <item quantity="one">%1$d file uploaded</item>
+        <item quantity="other">%1$d files uploaded</item>
+    </plurals>
+    <string name="notification_drive_upload_partial_title">%1$d of %2$d uploaded</string>
+    <plurals name="notification_drive_upload_partial_text">
+        <item quantity="one">%1$d file couldn\'t be uploaded</item>
+        <item quantity="other">%1$d files couldn\'t be uploaded</item>
+    </plurals>
+    <string name="notification_drive_upload_action_cancel_all">Cancel all</string>
+    <string name="notification_drive_upload_action_retry">Retry</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -1389,6 +1415,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="backup_dialog_restoring_backup_title">Restoring backup...</string>
     <string name="backup_label_conversation_restored">Conversations have been restored</string>
     <string name="backup_label_loading_conversations">Loading conversations</string>
+    <string name="backup_label_cancelling">Cancelling...</string>
     <string name="backup_dialog_restore_backup_title">Restore from backup </string>
     <string name="backup_dialog_restore_backup_message">The existing history on this device remains and will be completed by the new backup. You can restore history from all your devices and different platforms but not from another account.</string>
     <string name="backup_dialog_choose_backup_file_option">Choose Backup File</string>
@@ -1754,6 +1781,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="location_app_permission_dialog_body">Allow Wire to access your device location to send your location.</string>
     <string name="location_loading_label">Please wait...</string>
     <string name="location_could_not_be_shared">Location could not be shared</string>
+    <string name="label_no_application_found_open_location">No application found to open location</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Remove asset</string>
     <string name="asset_attention_description">Asset attention</string>
@@ -1950,10 +1978,31 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="label_system_message_apps_access_disabled_by_other">%1$s disabled **apps** for this conversation</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Added apps have access to the content of this conversation.</string>
     <string name="label_system_message_admin_role_assigned">You were promoted to group admin</string>
+    <string name="label_system_message_adminless_delete_reminder">This group will be automatically deleted on %1$s, as there are no eligible group admins.</string>
+    <string name="last_message_adminless_delete_reminder">Will be deleted soon</string>
     <string name="more_information_about_this_server">More information about this backend</string>
 
     <!-- Pending messages service notification -->
     <string name="pending_messages_notification_waiting">Waiting for connection</string>
     <string name="pending_messages_notification_sending">Sending messages</string>
 
+    <string name="notification_meeting_title">Meeting</string>
+    <string name="notification_meeting_title_ongoing">Ongoing: %1$s</string>
+    <string name="notification_meeting_invite">%1$s invited you to a meeting on %2$s · %3$s to %4$s</string>
+    <string name="notification_meeting_invite_unknown">You are invited to a meeting on %1$s · %2$s to %3$s</string>
+    <string name="notification_meeting_invite_short">You are invited to a meeting</string>
+    <string name="notification_meeting_update">%1$s updated this meeting to %2$s · %3$s to %4$s</string>
+    <string name="notification_meeting_update_unknown">Meeting is updated to %1$s · %2$s to %3$s</string>
+    <string name="notification_meeting_update_short">Meeting updated</string>
+    <string name="notification_meeting_cancel">%1$s canceled this meeting</string>
+    <string name="notification_meeting_cancel_short">Meeting canceled</string>
+    <string name="startup_account_limit_title">Account limit reached</string>
+    <plurals name="startup_account_limit_message">
+        <item quantity="one">This device allows up to %1$d logged-in account.</item>
+        <item quantity="other">This device allows up to %1$d logged-in accounts.</item>
+    </plurals>
+    <string name="startup_account_limit_backup_reminder">Before logging out, consider creating a backup to preserve your conversation history.</string>
+    <string name="startup_account_limit_guidance">Log out of your current account now, or choose Later to log out of another account from its profile.</string>
+    <string name="startup_account_limit_logout">Log out of current account</string>
+    <string name="startup_account_limit_later">Later</string>
 </resources>

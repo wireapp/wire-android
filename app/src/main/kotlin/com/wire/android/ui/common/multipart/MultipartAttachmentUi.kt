@@ -33,6 +33,7 @@ data class MultipartAttachmentUi(
     val contentUrl: String? = null,
     val contentUrlExpiresAt: Long? = null,
     val previewUrl: String? = null,
+    val remotePath: String? = null,
     val mimeType: String,
     val assetType: AttachmentFileType,
     val assetSize: Long?,
@@ -41,7 +42,14 @@ data class MultipartAttachmentUi(
     val progress: Float? = null,
     val isEditSupported: Boolean = false,
     val isAvailableOffline: Boolean = false,
+    val openLoadState: MultipartAttachmentOpenLoadState? = null,
 )
+
+sealed interface MultipartAttachmentOpenLoadState {
+    data class Loading(val progress: Float? = null) : MultipartAttachmentOpenLoadState
+    data class Ready(val localPath: String) : MultipartAttachmentOpenLoadState
+    data object Error : MultipartAttachmentOpenLoadState
+}
 
 enum class AssetSource {
     CELL, ASSET_STORAGE
@@ -60,6 +68,7 @@ fun CellAssetContent.toUiModel(progress: Float?, isAvailableOffline: Boolean = f
     contentUrl = this.contentUrl,
     contentUrlExpiresAt = this.contentUrlExpiresAt,
     previewUrl = this.previewUrl,
+    remotePath = this.assetPath,
     mimeType = this.mimeType,
     assetType = AttachmentFileType.fromMimeType(mimeType),
     assetSize = this.assetSize,

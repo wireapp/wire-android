@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -33,9 +34,11 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
+import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
 import com.wire.android.feature.cells.ui.search.sort.SortBy
@@ -46,6 +49,8 @@ import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
 import com.wire.kalium.cells.data.SortingSpec
+import com.wire.kalium.cells.domain.CellUploadCoordinator
+import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -65,6 +70,7 @@ import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Assisted
@@ -105,6 +111,7 @@ class CellViewModel @AssistedInject constructor(
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val getEditorUrl: GetEditorUrlUseCase,
+    private val featureFlags: KaliumConfigs,
     private val onlineEditor: OnlineEditor,
     private val cellFileActionsMenu: CellFileActionsMenu,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
@@ -120,11 +127,14 @@ class CellViewModel @AssistedInject constructor(
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     private val userDataStore: UserDataStore,
     private val qualifiedIdMapper: QualifiedIdMapper,
+    private val uploadFilePreparer: DriveUploadFilePreparer,
+    private val uploadCoordinator: CellUploadCoordinator,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
-    ) : ActionsViewModel<CellViewAction>() {
+    @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
+) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
     interface Factory {
@@ -158,6 +168,11 @@ class CellViewModel @AssistedInject constructor(
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1, extraBufferCapacity = 1)
 
     private val cellAvailableFlow = MutableStateFlow(false)
+
+    private val _uploadConfirmation = MutableStateFlow<UploadConfirmation?>(null)
+    internal val uploadConfirmation: StateFlow<UploadConfirmation?> = _uploadConfirmation.asStateFlow()
+
+    private var pendingUploadUris: List<Uri> = emptyList()
 
     // AllFiles context (no conversationId, not recycle bin) defaults to newest-first;
     // ConversationFiles and RecycleBin default to folders-first.
@@ -207,6 +222,26 @@ class CellViewModel @AssistedInject constructor(
         loadWireCellConfig()
         checkCellAvailabilityAndRefresh()
         checkViewerAccess()
+        refreshOnUploadsCompletedInThisFolder()
+    }
+
+    /**
+     * The paging source has no way to know a node it already fetched just got published, so a completed
+     * upload into the folder currently open has to trigger a refresh explicitly, or the file stays
+     * invisible until the user leaves and re-enters.
+     */
+    private fun refreshOnUploadsCompletedInThisFolder() {
+        val destinationFolderPath = currentNodeUuid() ?: return
+        val refreshedIds = mutableSetOf<String>()
+        viewModelScope.launch {
+            uploadCoordinator.uploads.collect { uploads ->
+                val completedHere = uploads.filter {
+                    it.state is CellUploadState.Completed && it.request.destinationFolderPath == destinationFolderPath
+                }
+                val hasNewlyCompleted = completedHere.count { refreshedIds.add(it.id) } > 0
+                if (hasNewlyCompleted) refreshNodes()
+            }
+        }
     }
 
     private fun checkViewerAccess() = viewModelScope.launch {
@@ -286,25 +321,31 @@ class CellViewModel @AssistedInject constructor(
         }
     }.shareIn(viewModelScope, started = SharingStarted.Eagerly, replay = 1)
 
+    /**
+     * Files saved for offline use, listed folder by folder so browsing a conversation without
+     * network shows the same structure as online: only the nodes of the folder currently open.
+     */
     private val offlineNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
             observeOfflineFiles(),
             sharedPathCache.openLoadStates,
             offlineFileDownloadController.downloadProgresses,
         ) { offlineFiles, openLoadStates, downloadProgresses ->
-            val filtered = if (rootConversationId != null) {
-                offlineFiles.filter { it.conversationId == rootConversationId }
-            } else {
-                offlineFiles
-            }
+            val entries = buildOfflineListing(
+                currentPath = navArgs.conversationId,
+                offlineFiles = offlineFiles,
+            )
             PagingData.from(
-                data = filtered.map { info ->
-                    info.toCellNodeUi(
-                        conversationName = info.conversationId?.let { getConversationName(it) },
-                        userName = info.owner.ifEmpty { null }?.let { getUserName(it) },
-                        openLoadState = openLoadStates[info.id],
-                        downloadProgress = downloadProgresses[info.id],
-                    )
+                data = entries.map { entry ->
+                    when (entry) {
+                        is OfflineListingEntry.FolderEntry -> entry.toCellNodeUi()
+                        is OfflineListingEntry.FileEntry -> entry.info.toCellNodeUi(
+                            conversationName = entry.info.conversationId?.let { getConversationName(it) },
+                            userName = entry.info.owner.ifEmpty { null }?.let { getUserName(it) },
+                            openLoadState = openLoadStates[entry.info.id],
+                            downloadProgress = downloadProgresses[entry.info.id],
+                        )
+                    }
                 },
                 sourceLoadStates = LoadStates(
                     refresh = LoadState.NotLoading(true),
@@ -349,7 +390,48 @@ class CellViewModel @AssistedInject constructor(
             is CellViewIntent.OnNodeRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnParentFolderRestoreConfirmed -> restoreNodeFromRecycleBin(intent.node)
             is CellViewIntent.OnCancelDownload -> cancelDownload(intent.uuid)
+            is CellViewIntent.OnFilesPickedForUpload -> onFilesPickedForUpload(intent.uris)
         }
+    }
+
+    /**
+     * Resolves the display name of each picked [Uri] and surfaces [uploadConfirmation]
+     * so the screen can show the confirmation dialog before anything is actually uploaded.
+     */
+    private fun onFilesPickedForUpload(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        val destinationFolderPath = currentNodeUuid() ?: return
+        pendingUploadUris = uris
+        viewModelScope.launch {
+            val fileNames = uris.map { uploadFilePreparer.fileName(it) ?: it.lastPathSegment ?: it.toString() }
+            _uploadConfirmation.value = UploadConfirmation(fileNames, destinationFolderPath)
+        }
+    }
+
+    /**
+     * Sends [CellViewAction] immediately so the screen can navigate to the upload status screen without
+     * waiting on staging, then stages each picked file into a local file and hands the batch to the
+     * upload coordinator. Files that fail to stage (e.g. no longer accessible) are silently dropped from
+     * the batch rather than failing the whole selection.
+     */
+    internal fun confirmUpload() {
+        val destinationFolderPath = _uploadConfirmation.value?.destinationFolderPath ?: return
+        val uris = pendingUploadUris
+        _uploadConfirmation.value = null
+        pendingUploadUris = emptyList()
+
+        sendAction(FilesPickedForUpload(uris))
+        viewModelScope.launch {
+            val requests = uris.mapNotNull { uploadFilePreparer.prepare(it, destinationFolderPath) }
+            if (requests.isNotEmpty()) {
+                uploadCoordinator.enqueue(requests)
+            }
+        }
+    }
+
+    internal fun cancelUploadConfirmation() {
+        _uploadConfirmation.value = null
+        pendingUploadUris = emptyList()
     }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
@@ -362,13 +444,43 @@ class CellViewModel @AssistedInject constructor(
 
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
-            cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
             cellNode.openLoadState is OpenLoadState.Loading -> cancelOpenDownload(cellNode.uuid)
             cellNode.downloadProgress != null -> offlineFileDownloadController.cancel(cellNode.uuid, viewModelScope)
+            cellNode.isEditableDocument() -> openEditableDocument(cellNode)
+            cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
             cellNode.openLoadState is OpenLoadState.Error -> startOpenDownload(cellNode)
             cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
             else -> startOpenDownload(cellNode)
+        }
+    }
+
+    /**
+     * Both the editor and the PDF rendition are served by the backend, so while offline such a
+     * document falls back to the regular open path — a local copy, if there is one.
+     */
+    private fun CellNodeUi.File.isEditableDocument() =
+        isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration && isOnline.value
+
+    private fun CellNodeUi.isViewerOnlyWithDrivePermissions() = isViewerOnly && drivePermissionsEnabled
+
+    /**
+     * Documents, presentations and spreadsheets open in the online editor. A user with viewer
+     * access can't edit them, so they are shown read-only through the PDF rendition the backend
+     * generates for them. Without such a rendition (still processing, failed or unsupported) there
+     * is nothing a viewer may be shown, which is reported the same way as for any other file a
+     * viewer can't open.
+     */
+    private fun openEditableDocument(cellNode: CellNodeUi.File) {
+        if (!cellNode.isViewerOnlyWithDrivePermissions()) {
+            editNode(cellNode.uuid)
+            return
+        }
+
+        if (cellNode.pdfRenditionUrl() != null) {
+            sendAction(OpenPdfViewer(cellNode))
+        } else {
+            sendAction(ShowError(CellError.OTHER_ERROR))
         }
     }
 
@@ -434,69 +546,64 @@ class CellViewModel @AssistedInject constructor(
 
     @Suppress("ReturnCount")
     private fun openFileContentUrl(file: CellNodeUi.File) {
-        when (file.assetType) {
-            AttachmentFileType.IMAGE -> {
-                if (file.shouldOpenInAppImageViewer()) {
-                    sendAction(OpenImageViewer(file))
-                    return
-                }
-            }
-
-            AttachmentFileType.VIDEO -> {
-                sendAction(OpenVideoViewer(file))
-                return
-            }
-
-            AttachmentFileType.AUDIO -> {
-                sendAction(OpenAudioPlayer(file))
-                return
-            }
-
-            else -> Unit
+        inAppViewerAction(file)?.let {
+            sendAction(it)
+            return
         }
-        file.contentUrl?.let { url ->
-            fileHelper.openAssetUrlWithExternalApp(
-                url = url,
-                mimeType = file.mimeType,
-                onError = {
-                    sendAction(ShowError(CellError.NO_APP_FOUND))
-                }
-            )
+
+        val isViewerWithDrivePermissions = isViewerOnly.value && drivePermissionsEnabled
+
+        if (!isViewerWithDrivePermissions) {
+            file.contentUrl?.let { url ->
+                fileHelper.openAssetUrlWithExternalApp(
+                    url = url,
+                    mimeType = file.mimeType,
+                    onError = {
+                        sendAction(ShowError(CellError.NO_APP_FOUND))
+                    }
+                )
+            }
+        } else {
+            sendAction(ShowError(CellError.FILE_NOT_SUPPORTED))
         }
     }
 
     @Suppress("ReturnCount")
     private fun openLocalFile(file: CellNodeUi.File) {
-        when (file.assetType) {
-            AttachmentFileType.IMAGE -> {
-                if (file.shouldOpenInAppImageViewer()) {
-                    sendAction(OpenImageViewer(file))
-                    return
-                }
-            }
-
-            AttachmentFileType.VIDEO -> {
-                sendAction(OpenVideoViewer(file))
-                return
-            }
-
-            AttachmentFileType.AUDIO -> {
-                sendAction(OpenAudioPlayer(file))
-                return
-            }
-
-            else -> Unit
+        inAppViewerAction(file)?.let {
+            sendAction(it)
+            return
         }
-        file.localPath?.let { path ->
-            fileHelper.openAssetFileWithExternalApp(
-                localPath = path.toPath(),
-                assetName = file.name,
-                mimeType = file.mimeType,
-                onError = {
-                    sendAction(ShowError(CellError.NO_APP_FOUND))
-                }
-            )
+        val isViewerWithDrivePermissions = isViewerOnly.value && drivePermissionsEnabled
+
+        if (!isViewerWithDrivePermissions) {
+            file.localPath?.let { path ->
+                fileHelper.openAssetFileWithExternalApp(
+                    localPath = path.toPath(),
+                    assetName = file.name,
+                    mimeType = file.mimeType,
+                    onError = {
+                        sendAction(ShowError(CellError.NO_APP_FOUND))
+                    }
+                )
+            }
+        } else {
+            sendAction(ShowError(CellError.FILE_NOT_SUPPORTED))
         }
+    }
+
+    /**
+     * The in-app viewer that can show [file], or null when the file has to be handed over to
+     * another app.
+     */
+    private fun inAppViewerAction(file: CellNodeUi.File): CellViewAction? = when (file.assetType) {
+        AttachmentFileType.IMAGE -> OpenImageViewer(file).takeIf { file.shouldOpenInAppImageViewer() }
+        AttachmentFileType.VIDEO -> OpenVideoViewer(file)
+        AttachmentFileType.AUDIO -> OpenAudioPlayer(file)
+        AttachmentFileType.PDF ->
+            OpenPdfViewer(file).takeIf { file.localPath != null || file.remotePath != null }
+
+        else -> null
     }
 
     private fun CellNodeUi.File.shouldOpenInAppImageViewer(): Boolean =
@@ -542,7 +649,10 @@ class CellViewModel @AssistedInject constructor(
         offlineFileDownloadController.start(
             scope = viewModelScope,
             cellNode = node.copy(
-                conversationId = navArgs.conversationId
+                // Nodes listed inside a conversation don't carry their conversation id, and
+                // [navArgs.conversationId] is the path of the folder being browsed, so only its
+                // root segment is the conversation the file belongs to.
+                conversationId = node.conversationId ?: rootConversationId,
             ),
             onSuccess = { _ -> sendAction(ShowOfflineFileSaved) },
             onError = { sendAction(ShowError(it)) },
@@ -665,6 +775,19 @@ class CellViewModel @AssistedInject constructor(
         isCollaboraEnabled = config?.collabora != CollaboraEdition.NO
     }
 
+    /** Folder rebuilt from offline files: it only carries what is needed to render and open it. */
+    private fun OfflineListingEntry.FolderEntry.toCellNodeUi(): CellNodeUi.Folder = CellNodeUi.Folder(
+        uuid = remotePath,
+        name = name,
+        remotePath = remotePath,
+        modifiedTime = modifiedTime,
+        size = null,
+        userName = null,
+        userHandle = null,
+        ownerUserId = null,
+        conversationName = null,
+    )
+
     private fun OfflineFileInfo.toCellNodeUi(
         conversationName: String? = null,
         userName: String? = null,
@@ -685,6 +808,7 @@ class CellViewModel @AssistedInject constructor(
             },
             size = size,
             localPath = localPath,
+            remotePath = remotePath,
             ownerUserId = owner.ifEmpty { null },
             userName = userName,
             userHandle = null,
@@ -715,6 +839,7 @@ sealed interface CellViewIntent {
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnParentFolderRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnCancelDownload(val uuid: String) : CellViewIntent
+    data class OnFilesPickedForUpload(val uris: List<Uri>) : CellViewIntent
 }
 
 sealed interface CellViewAction
@@ -739,8 +864,16 @@ internal data object ShowOfflineFileSaved : CellViewAction
 internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
+internal data class OpenPdfViewer(val file: CellNodeUi.File) : CellViewAction
+internal data class FilesPickedForUpload(val uris: List<Uri>) : CellViewAction
 
-internal enum class CellError(val message: Int) {
+internal data class UploadConfirmation(
+    val fileNames: List<String>,
+    val destinationFolderPath: String,
+)
+
+enum class CellError(val message: Int) {
+    FILE_NOT_SUPPORTED(R.string.file_not_supported),
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed),
     DOWNLOAD_FAILED(R.string.action_failed),

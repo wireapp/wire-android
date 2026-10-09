@@ -33,6 +33,7 @@ import com.wire.android.feature.cells.ui.createFileViewModel
 import com.wire.android.feature.cells.ui.createFolderViewModel
 import com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreenContent
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.moveToFolderViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen
 import com.wire.android.feature.cells.ui.publicLinkExpirationViewModel
@@ -52,6 +53,8 @@ import com.wire.android.feature.cells.ui.searchScreenViewModel
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsRouteScreen
 import com.wire.android.feature.cells.ui.versionHistoryViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryRouteScreen
+import com.wire.android.pdfviewer.PdfDocumentSource
+import com.wire.android.pdfviewer.PdfViewer
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.videoplayer.VideoPlayer
@@ -253,7 +256,18 @@ internal fun CellsNavigation3RouteScreen(
             fileName = route.fileName,
             onNavigateBack = navigateBack,
         )
-
+        is PdfViewerRoute -> PdfViewer(
+            source = PdfDocumentSource(
+                localPath = route.localPath,
+                assetId = route.assetId,
+                remotePath = route.remotePath,
+                conversationId = route.conversationId,
+                fileName = route.fileName,
+                assetSize = route.assetSize,
+                preSignedUrl = route.preSignedUrl,
+            ),
+            onNavigateBack = navigateBack,
+        )
         is SearchRoute -> AnimatedVisibility(visible = true) {
             SearchRouteScreen(
                 navigation = filesNavigation,
@@ -383,6 +397,26 @@ private class Navigation3CellsFilesNavigation(
         runtime.navigator.navigate(
             WireNavigationCommand(
                 AudioPlayerRoute(sessionId, file.localPath, file.contentUrl, file.name)
+            )
+        )
+    }
+
+    override fun pdf(file: CellNodeUi.File) {
+        val renditionUrl = file.pdfRenditionUrl()
+        runtime.navigator.navigate(
+            WireNavigationCommand(
+                PdfViewerRoute(
+                    sessionId = sessionId,
+                    // A document shown through its PDF rendition has a local copy that is not a
+                    // PDF, so only the rendition may be rendered for it.
+                    localPath = file.localPath.takeIf { renditionUrl == null },
+                    assetId = file.uuid,
+                    remotePath = file.remotePath,
+                    conversationId = file.conversationId,
+                    assetSize = file.size ?: 0L,
+                    fileName = file.name,
+                    preSignedUrl = renditionUrl,
+                )
             )
         )
     }

@@ -46,7 +46,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,13 +60,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -293,13 +292,11 @@ fun EnabledMessageComposer(
 
                         val keyboardActionHandler by remember {
                             derivedStateOf {
-                                KeyboardActionHandler {
-                                    if (canSendMessage) {
-                                        onSendButtonClicked()
-                                    } else {
-                                        Unit
-                                    }
-                                }
+                                messageComposerKeyboardActionHandler(
+                                    enterToSend = messageComposerViewState.value.enterToSend,
+                                    canSendMessage = canSendMessage,
+                                    onSend = onSendButtonClicked,
+                                )
                             }
                         }
 
@@ -309,17 +306,17 @@ fun EnabledMessageComposer(
                             keyboardOptions = keyboardOptions,
                             onKeyboardAction = keyboardActionHandler,
                             onHardwareEnter = { isShiftPressed ->
-                                if (isShiftPressed) {
-                                    messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {
-                                        append("\n")
-                                    }
-                                    true
-                                } else if (canSendMessage) {
-                                    onSendButtonClicked()
-                                    true
-                                } else {
-                                    false
-                                }
+                                handleMessageComposerEnter(
+                                    enterToSend = messageComposerViewState.value.enterToSend,
+                                    isShiftPressed = isShiftPressed,
+                                    canSendMessage = canSendMessage,
+                                    onNewLine = {
+                                        messageComposerStateHolder.messageCompositionInputStateHolder.messageTextState.edit {
+                                            append("\n")
+                                        }
+                                    },
+                                    onSend = onSendButtonClicked,
+                                )
                             },
                             onHardwareTab = {
                                 if (mentionSearchResult.isNotEmpty()) {
@@ -452,13 +449,10 @@ fun EnabledMessageComposer(
                                 additionalOptionStateHolder.toRichTextEditing()
                             },
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
-                            onDrawingModeClicked = {
-                                if (messageComposerViewState.value.areAttachmentOptionsEnabled && BuildConfig.DRIVE_PERMISSIONS_ENABLED) {
-                                    openDrawingCanvas()
-                                }
-                            },
+                            onDrawingModeClicked = openDrawingCanvas,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled,
+                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled ||
+                                    !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
                             useKeyboardNavigation = isHardwareKeyboardConnected,
                         )
                     }

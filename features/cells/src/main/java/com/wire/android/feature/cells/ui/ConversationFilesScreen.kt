@@ -24,7 +24,9 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -37,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -57,11 +60,15 @@ import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toNavArg
+import com.wire.android.feature.cells.ui.upload.UploadConfirmationDialog
+import com.wire.android.feature.cells.ui.upload.UploadStatusBottomSheetContent
+import com.wire.android.feature.cells.ui.upload.UploadStatusIndicator
 import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.navigation.transition.SHARED_ELEMENT_TOP_APP_BAR_KEY
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.banner.ViewerAccessBanner
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.bottomsheet.show
 import com.wire.android.ui.common.button.FloatingActionButton
@@ -72,12 +79,15 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
+import com.wire.kalium.cells.domain.CellUploadItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+
 @Composable
 internal fun ConversationFilesRouteScreen(
     navigation: CellsFilesNavigation,
@@ -87,10 +97,23 @@ internal fun ConversationFilesRouteScreen(
     val isOnlineState by viewModel.isOnline.collectAsState()
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
     val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
+    val uploadStatusViewModel = uploadStatusViewModel()
+    val uploads by uploadStatusViewModel.uploads.collectAsState()
+    val uploadConfirmation by viewModel.uploadConfirmation.collectAsState()
 
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
         navigation = navigation,
+        uploads = uploads,
+        onCancelUpload = uploadStatusViewModel::cancel,
+        onCancelAllUploads = uploadStatusViewModel::cancelAll,
+        onRetryUpload = uploadStatusViewModel::retry,
+        onRetryAllFailedUploads = uploadStatusViewModel::retryAllFailed,
+        onDismissUpload = uploadStatusViewModel::dismiss,
+        onDismissAllUploads = uploadStatusViewModel::dismissAll,
+        uploadConfirmation = uploadConfirmation,
+        onConfirmUpload = viewModel::confirmUpload,
+        onCancelUploadConfirmation = viewModel::cancelUploadConfirmation,
         currentNodeUuid = viewModel.currentNodeUuid(),
         isRecycleBin = viewModel.isRecycleBin(),
         actions = viewModel.actions,
@@ -110,6 +133,8 @@ internal fun ConversationFilesRouteScreen(
         onSortByClicked = viewModel::setSortBy,
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
+        drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
+        driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
 
@@ -145,15 +170,37 @@ internal fun ConversationFilesScreenContent(
     onSortByClicked: (SortBy) -> Unit = {},
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
     showViewerAccessBanner: Boolean = false,
+    drivePermissionsEnabled: Boolean = false,
+    driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
+    uploads: List<CellUploadItem> = emptyList(),
+    onCancelUpload: (String) -> Unit = {},
+    onCancelAllUploads: () -> Unit = {},
+    onRetryUpload: (String) -> Unit = {},
+    onRetryAllFailedUploads: () -> Unit = {},
+    onDismissUpload: (String) -> Unit = {},
+    onDismissAllUploads: () -> Unit = {},
+    uploadConfirmation: UploadConfirmation? = null,
+    onConfirmUpload: () -> Unit = {},
+    onCancelUploadConfirmation: () -> Unit = {},
 ) {
     val sharedScope = LocalSharedTransitionScope.current
 
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
+    val uploadStatusSheetState = rememberWireModalSheetState<Unit>()
     val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
+    val uploadFilesFlow = rememberChooseMultipleFilesFlow(
+        onFileBrowserItemPicked = { uris ->
+            sendIntent(CellViewIntent.OnFilesPickedForUpload(uris))
+        },
+        onPermissionDenied = { /* Nothing to do */ },
+        onPermissionPermanentlyDenied = { /* Nothing to do */ },
+    )
+
     val isFabVisible = when {
+        showViewerAccessBanner && drivePermissionsEnabled -> false
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
         isRecycleBin -> false
@@ -177,7 +224,12 @@ internal fun ConversationFilesScreenContent(
         onCreateFile = {
             newActionBottomSheetState.hide()
             fileTypeBottomSheetState.show()
-        }
+        },
+        onUploadFiles = {
+            newActionBottomSheetState.hide()
+            uploadFilesFlow.launch()
+        },
+        driveDirectUploadEnabled = driveDirectUploadEnabled,
     )
 
     CellsOptionsBottomSheet(
@@ -190,7 +242,7 @@ internal fun ConversationFilesScreenContent(
                 CellFilesNavArgs(
                     conversationId = currentNodeUuid?.substringBefore("/"),
                     isRecycleBin = true,
-                    breadcrumbs = arrayOf(breadcrumbs?.first() ?: ""),
+                    breadcrumbs = arrayOf(breadcrumbs?.firstOrNull() ?: ""),
                 )
             )
             optionsBottomSheetState.hide()
@@ -209,6 +261,29 @@ internal fun ConversationFilesScreenContent(
             fileTypeBottomSheetState.hide()
         },
     )
+
+    WireModalSheetLayout(sheetState = uploadStatusSheetState) {
+        UploadStatusBottomSheetContent(
+            uploads = uploads,
+            onCollapse = uploadStatusSheetState::hide,
+            onCancel = onCancelUpload,
+            onCancelAll = onCancelAllUploads,
+            onRetry = onRetryUpload,
+            onRetryAllFailed = onRetryAllFailedUploads,
+            onDismiss = onDismissUpload,
+        )
+    }
+
+    uploadConfirmation?.let { confirmation ->
+        val destinationName = breadcrumbs?.lastOrNull() ?: screenTitle ?: stringResource(R.string.conversation_files_title)
+        UploadConfirmationDialog(
+            fileNames = confirmation.fileNames,
+            destinationName = destinationName,
+            onConfirm = onConfirmUpload,
+            onDismiss = onCancelUploadConfirmation,
+        )
+    }
+
     with(sharedScope) {
         WireScaffold(
             modifier = modifier,
@@ -224,7 +299,11 @@ internal fun ConversationFilesScreenContent(
                         navigationIconType = NavigationIconType.Back(),
                         elevation = dimensions().spacing0x,
                         actions = {
-                            if (!isRecycleBin && isOnline) {
+                            val shouldShowActionIcon =
+                                !isRecycleBin &&
+                                        isOnline &&
+                                        (!drivePermissionsEnabled || !showViewerAccessBanner)
+                            if (shouldShowActionIcon) {
                                 MoreOptionIcon(
                                     contentDescription = R.string.content_description_conversation_files_more_button,
                                     onButtonClicked = { optionsBottomSheetState.show() }
@@ -275,6 +354,9 @@ internal fun ConversationFilesScreenContent(
                         exit = fadeOut(),
                     ) {
                         FloatingActionButton(
+                            modifier = Modifier.padding(
+                                bottom = if (uploads.isNotEmpty()) dimensions().spacing72x else dimensions().spacing0x
+                            ),
                             text = stringResource(R.string.cells_new_label),
                             icon = {
                                 Image(
@@ -296,42 +378,57 @@ internal fun ConversationFilesScreenContent(
                 }
             },
         ) { innerPadding ->
-            CellScreenContent(
-                modifier = Modifier.padding(innerPadding),
-                lazyListState = lazyListState,
-                actionsFlow = actions,
-                pagingListItems = pagingListItems,
-                sendIntent = sendIntent,
-                menuState = menu,
-                isSearchResult = isSearchResult,
-                isRestoreInProgress = isRestoreInProgress,
-                isDeleteInProgress = isDeleteInProgress,
-                isRecycleBin = isRecycleBin,
-                isOffline = !isOnline,
-                openFolder = { path, title, parentFolderUuid ->
-                    navigation.folder(
-                        CellFilesNavArgs(
-                            conversationId = path,
-                            screenTitle = title,
-                            isRecycleBin = isRecycleBin,
-                            parentFolderUuid = parentFolderUuid,
-                            breadcrumbs = (breadcrumbs ?: emptyArray()) + title,
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                CellScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    lazyListState = lazyListState,
+                    actionsFlow = actions,
+                    pagingListItems = pagingListItems,
+                    sendIntent = sendIntent,
+                    menuState = menu,
+                    isSearchResult = isSearchResult,
+                    isRestoreInProgress = isRestoreInProgress,
+                    isDeleteInProgress = isDeleteInProgress,
+                    isRecycleBin = isRecycleBin,
+                    isOffline = !isOnline,
+                    openFolder = { path, title, parentFolderUuid ->
+                        navigation.folder(
+                            CellFilesNavArgs(
+                                conversationId = path,
+                                screenTitle = title,
+                                isRecycleBin = isRecycleBin,
+                                parentFolderUuid = parentFolderUuid,
+                                breadcrumbs = (breadcrumbs ?: emptyArray()) + title,
+                            )
                         )
-                    )
-                },
-                showPublicLinkScreen = navigation::publicLink,
-                showMoveToFolderScreen = navigation::move,
-                showRenameScreen = navigation::rename,
-                showAddRemoveTagsScreen = navigation::tags,
-                showVersionHistoryScreen = navigation::versionHistory,
-                showImageViewer = navigation::image,
-                showVideoViewer = navigation::video,
-                showAudioPlayer = navigation::audio,
-                retryEditNodeError = { retryEditNodeError(it) },
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
-                fileReadyFlow = fileReadyFlow,
-            )
+                    },
+                    showPublicLinkScreen = navigation::publicLink,
+                    showMoveToFolderScreen = navigation::move,
+                    showRenameScreen = navigation::rename,
+                    showAddRemoveTagsScreen = navigation::tags,
+                    showVersionHistoryScreen = navigation::versionHistory,
+                    showUploadStatusBottomSheet = { uploadStatusSheetState.show() },
+                    showImageViewer = navigation::image,
+                    showVideoViewer = navigation::video,
+                    showAudioPlayer = navigation::audio,
+                    showPdfViewer = navigation::pdf,
+                    retryEditNodeError = { retryEditNodeError(it) },
+                    isRefreshing = isRefreshing,
+                    onRefresh = onRefresh,
+                    fileReadyFlow = fileReadyFlow,
+                    sortBy = sortingCriteria.by,
+                )
+                UploadStatusIndicator(
+                    uploads = uploads,
+                    onDismissAll = onDismissAllUploads,
+                    onClick = { uploadStatusSheetState.show() },
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
+            }
         }
     }
 }

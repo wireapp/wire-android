@@ -561,7 +561,6 @@ class ClientUserManager(
     ) {
         verifyUsersCountSatisfiesConstraints(1)
         var owner = findUserByNameOrNameAlias(nameAlias)
-        WireTestLogger.getLog("Hello").info(owner.toString() + "innnnn")
         owner = runBlocking { backend.createTeamOwnerViaBackend(owner, teamName, locale, updateHandle, context) }
         owner.backendName = backend.name
         appendCustomUser(owner)

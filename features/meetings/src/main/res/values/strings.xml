@@ -38,7 +38,7 @@
     <string name="meeting_options_delete_meeting_for_everyone">Delete meeting for everyone</string>
     <string name="meetings_empty_title_next">No upcoming meetings yet</string>
     <string name="meetings_empty_title_past">No past meetings yet</string>
-    <string name="meetings_empty_text_next">"Start a meeting with team members, guests or external parties."</string>
+    <string name="meetings_empty_text_next">Start a meeting with your team members.</string>
     <string name="meetings_empty_text_past">Previous meetings will be listed here.</string>
     <string name="new_meeting_title">New Meeting</string>
     <string name="new_meeting_participants_title">Select participants</string>
@@ -73,8 +73,10 @@
     <string name="meeting_audio_permission_dialog_description">To join a meeting, allow Wire to access your microphone in your device settings.</string>
     <string name="delete_meeting_for_everyone_title">Delete meeting for everyone</string>
     <string name="delete_meeting_for_everyone_description">The meeting will be deleted for you and everybody else. All participants will be notified.</string>
+    <string name="delete_meeting_for_everyone_recurring_description">This is a recurring meeting. Deleting it removes every occurrence for you and everybody else. All participants will be notified.</string>
     <string name="delete_meeting_for_me_title">Delete meeting for me</string>
     <string name="delete_meeting_for_me_description">The meeting will be deleted from your calendar. This will not affect other participants.</string>
+    <string name="delete_meeting_for_me_recurring_description">This is a recurring meeting. Deleting it removes every occurrence from your calendar. This will not affect other participants.</string>
     <string name="meeting_deleted_success">“%s” deleted</string>
     <string name="meeting_deleted_failure">There was an error while deleting meeting “%s”</string>
     <string name="new_meeting_now_failure_title">Could not start meeting</string>
@@ -83,10 +85,10 @@
     <string name="new_meeting_schedule_failure_description">Something went wrong while scheduling the meeting. Please try again.</string>
     <string name="new_meeting_edit_failure_title">Could not update meeting</string>
     <string name="new_meeting_edit_failure_description">Something went wrong while updating the meeting. Please try again.</string>
-    <string name="new_meeting_edit_init_failure_title">Could not load meeting</string>
-    <string name="new_meeting_edit_init_failure_description">Something went wrong while loading the meeting for update. Please try again.</string>
+    <string name="new_meeting_edit_init_failure_title">Could not edit meeting</string>
+    <string name="new_meeting_edit_init_failure_description">Unable to edit the meeting. Please try again.</string>
     <string name="new_meeting_edit_conversation_name_failure_title">Could not update call name</string>
-    <string name="new_meeting_edit_conversation_name_failure_description">The meeting title was updated, but the name shown in the call could not be updated. Please try again.</string>
+    <string name="new_meeting_edit_conversation_name_failure_description">The meeting title was updated, but the call may still show the previous title. Please try again.</string>
     <string name="new_meeting_edit_conversation_name_failure_action">Retry</string>
     <string name="meeting_join_failure_title">Could not join meeting</string>
     <string name="meeting_join_failure_description">Something went wrong while joining the meeting. Please try again.</string>

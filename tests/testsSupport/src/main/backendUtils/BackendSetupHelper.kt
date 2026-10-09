@@ -24,19 +24,31 @@ import backendUtils.connection.acceptIncomingConnectionRequest
 import backendUtils.connection.sendConnectionRequest
 import backendUtils.conversation.addUsersToGroupConversation
 import backendUtils.conversation.createChannelTeamConversation
+import backendUtils.conversation.createGroupConversation
+import backendUtils.conversation.createInviteLink
 import backendUtils.conversation.createTeamConversation
 import backendUtils.conversation.deleteTeamConversation
+import backendUtils.conversation.enableGuestAccessForConversation
 import backendUtils.conversation.getConversationByName
+import backendUtils.conversation.getInviteLink
 import backendUtils.conversation.removeUserFromGroupConversation
+import backendUtils.conversation.revokeInviteLink
 import backendUtils.conversation.setArchivedStateForConversation
+import backendUtils.team.addTeamCollaborator
+import backendUtils.conversation.setReadReceiptsForConversation
 import backendUtils.team.addServiceToConversation
 import backendUtils.team.disableFileSharingFeature
+import backendUtils.team.enableAppsFeatureTeam
 import backendUtils.team.enableChannelFeatureViaBackdoorTeam
 import backendUtils.team.enableForceAppLockFeature
 import backendUtils.team.enableMLSFeatureTeam
 import backendUtils.team.getTeamByName
+import backendUtils.team.setSearchVisibilityInbound
+import backendUtils.team.setTeamSearchVisibility
+import backendUtils.team.setTeamSearchVisibilityEnabled
 import backendUtils.team.switchServiceForTeam
 import backendUtils.team.TeamRoles
+import backendUtils.team.unlockAppsFeature
 import backendUtils.team.unlockChannelFeature
 import backendUtils.team.unlockFileSharingFeature
 import backendUtils.team.updateUniqueUsername
@@ -167,8 +179,34 @@ class BackendSetupHelper(
                 defaultCipherSuite = 2,
                 allowedCipherSuites = listOf(2),
                 defaultProtocol = "mls",
-                allowedProtocols = listOf("mls", "proteus")
+                allowedProtocols = listOf("mls")
             )
+        }
+    }
+
+    fun userEnablesAppsForTeam(
+        ownerUserAlias: String,
+        teamName: String,
+        backendClient: BackendClient
+    ) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.unlockAppsFeature(team)
+            backendClient.enableAppsFeatureTeam(team)
+        }
+    }
+
+    fun userAddsAppAsTeamCollaborator(
+        ownerUserAlias: String,
+        teamName: String,
+        appUserId: String,
+        backendClient: BackendClient
+    ) {
+        val owner = toClientUser(ownerUserAlias)
+        runBlocking {
+            val team = backendClient.getTeamByName(owner, teamName)
+            backendClient.addTeamCollaborator(owner, team, appUserId)
         }
     }
 
@@ -248,6 +286,33 @@ class BackendSetupHelper(
         userSwitchesServicesForTeam(ownerOrAdminUserAlias, true, serviceName, teamName)
     }
 
+    fun setSearchVisibilityInbound(ownerUserAlias: String, teamName: String, enabled: Boolean) {
+        val owner = toClientUser(ownerUserAlias)
+        val backend = backendFor(owner)
+        runBlocking {
+            val team = backend.getTeamByName(owner, teamName)
+            backend.setSearchVisibilityInbound(team, enabled)
+        }
+    }
+
+    fun setTeamSearchVisibilityEnabled(ownerUserAlias: String, teamName: String, enabled: Boolean) {
+        val owner = toClientUser(ownerUserAlias)
+        val backend = backendFor(owner)
+        runBlocking {
+            val team = backend.getTeamByName(owner, teamName)
+            backend.setTeamSearchVisibilityEnabled(team, enabled)
+        }
+    }
+
+    fun setTeamSearchVisibility(ownerUserAlias: String, teamName: String, searchVisibility: String) {
+        val owner = toClientUser(ownerUserAlias)
+        val backend = backendFor(owner)
+        runBlocking {
+            val team = backend.getTeamByName(owner, teamName)
+            backend.setTeamSearchVisibility(team, searchVisibility)
+        }
+    }
+
     fun userSwitchesServicesForTeam(
         ownerOrAdminUserAlias: String,
         isEnabled: Boolean,
@@ -302,6 +367,72 @@ class BackendSetupHelper(
             val dstTeam = backend.getTeamByName(chatOwner, teamName)
             backend.createTeamConversation(chatOwner, participants, chatName, dstTeam)
         }
+    }
+
+    fun userSetsReadReceiptsForConversation(userAlias: String, conversationName: String, enabled: Boolean) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        backendFor(user).setReadReceiptsForConversation(user, conversation, enabled)
+    }
+
+    fun userEnablesGuestAccessForConversation(userAlias: String, conversationName: String) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, conversationName)
+        backendFor(user).enableGuestAccessForConversation(user, conversation)
+    }
+
+    fun userHasGroupConversationAsPersonalUser(
+        chatOwnerNameAlias: String,
+        chatName: String,
+        otherParticipantsNameAliases: String
+    ) {
+        val chatOwner = toClientUser(chatOwnerNameAlias)
+        val participants = usersManager
+            .splitAliases(otherParticipantsNameAliases)
+            .map(this::toClientUser)
+        val backend = backendFor(chatOwner)
+
+        runBlocking {
+            backend.createGroupConversation(chatOwner, participants, chatName)
+        }
+    }
+
+    fun userCreatesInviteLink(
+        userNameAlias: String,
+        conversationName: String,
+        password: String? = null
+    ) {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+
+        runBlocking {
+            backend.createInviteLink(user, conversation, password)
+        }
+    }
+
+    fun userRevokesInviteLink(userNameAlias: String, conversationName: String) {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+
+        runBlocking {
+            backend.revokeInviteLink(user, conversation)
+        }
+    }
+
+    fun getClientDeepLinkForPublicConversation(userNameAlias: String, conversationName: String): String {
+        val user = toClientUser(userNameAlias)
+        val backend = backendFor(user)
+        val conversation = toConvoObj(user, conversationName)
+        val inviteLink = runBlocking {
+            backend.getInviteLink(user, conversation)
+        }
+        val conversationJoinIndex = inviteLink.indexOf("conversation-join")
+        require(conversationJoinIndex >= 0) {
+            "Invite link does not contain a conversation-join path."
+        }
+        return "wire://${inviteLink.substring(conversationJoinIndex)}"
     }
 
     fun userHasChannelConversationInTeam(

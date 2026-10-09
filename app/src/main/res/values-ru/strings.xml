@@ -550,6 +550,12 @@
     <string name="group_name_description">Дайте этой группе осмысленное название.</string>
     <string name="channel_name_description">Дайте этому каналу осмысленное название.</string>
     <string name="protocol">Протокол</string>
+    <string name="mls_migration_dialog_title">Изменить протокол на MLS?</string>
+    <string name="mls_migration_dialog_description">Стандартный протокол обмена сообщениями изменится с Proteus на Messaging Layer Security (MLS).</string>
+    <string name="mls_migration_dialog_confirm">Изменить протокол</string>
+    <string name="mls_migration_success">Беседа успешно смигрирована на MLS.</string>
+    <string name="mls_migration_failure">Не удалось смигрировать беседу на MLS.</string>
+    <string name="mls_migration_failure_with_backend_error">Переход к MLS не удался (HTTP %1$d, метка: %2$s).</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Набор шифров</string>
     <string name="last_key_material_update_label">Последнее обновление набора ключей</string>
@@ -621,13 +627,13 @@
     <string name="leave_conversation_admin_options_dialog_description_with_promote">Вы - единственный администратор.\nНазначьте другого пользователя, прежде чем покинуть, или удалите группу, если она больше не нужна.</string>
     <string name="leave_conversation_admin_options_dialog_description_with_promote_no_delete">Вы - единственный администратор.\nНазначьте другого пользователя, прежде чем покинуть.</string>
     <string name="leave_conversation_admin_options_dialog_description_no_promote">Вы - единственный администратор. Другие участники не могут быть администраторами.\nДобавьте хотя бы одного члена команды и назначьте его администратором, прежде чем покинуть. Или удалите группу, если она больше не нужна.</string>
-    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">В группе нет других подходящих администраторов, и вы как персональный пользователь не можете удалить группу. Однако добавьте другого члена команды и сделайте его администратором, чтобы удалить группу.</string>
+    <string name="leave_conversation_admin_options_dialog_description_no_promote_no_delete">Перед тем как покинуть группу, добавьте в нее хотя бы одного пользователя из команды, создавшей эту группу, и назначьте его администратором.</string>
     <string name="leave_conversation_admin_options_dialog_promote_button">Назначить нового администратора</string>
     <string name="leave_conversation_admin_options_dialog_delete_button">Удалить группу</string>
     <string name="promote_admin_screen_title">Назначить нового администратора</string>
     <string name="promote_admin_search_placeholder">Введите имя или email</string>
     <string name="promote_admin_button">Назначить администратором и покинуть группу</string>
-    <string name="promote_admin_error_failed_to_promote">Не удалось назначить пользователя администратором</string>
+    <string name="promote_admin_error_failed_to_promote">Член группы не может быть повышен до admin</string>
     <string name="promote_admin_error_failed_to_leave">Не удалось покинуть беседу</string>
     <string name="delete_conversation_conversation_menu_item">Удалить беседу…</string>
     <string name="delete_conversation_conversation_dialog_title">Удалить “%s”?</string>
@@ -1060,6 +1066,9 @@
     <string name="left_conversation_success">Вы покинули беседу.</string>
     <string name="delete_conversation_conversation_error">При удалении беседы произошла ошибка</string>
     <string name="error_limit_number_assets_imported_exceeded">Одновременно можно отправить не более 20 файлов</string>
+    <string name="error_conversation_not_found">Не удалось найти беседу</string>
+    <string name="error_conversation_unknown_error">При загрузке беседы произошла ошибка</string>
+    <string name="error_conversation_opening_meetings_unsupported">В этой встрече нельзя воспользоваться функцией чата</string>
     <!-- Archiving -->
     <string name="success_archiving_conversation">Беседа архивирована</string>
     <string name="success_unarchiving_conversation">Беседа разархивирована</string>
@@ -1104,6 +1113,29 @@
     <string name="notification_audio_message_body">Аудиосообщение</string>
     <string name="notification_deleting_conversation">Удаление беседы…</string>
     <string name="notification_uploading_files">Выгрузка файлов…</string>
+    <plurals name="notification_drive_upload_uploading_title">
+        <item quantity="one">Загрузка %1$d файла</item>
+        <item quantity="few">Загрузка %1$d файлов</item>
+        <item quantity="many">Загрузка %1$d файлов</item>
+        <item quantity="other">Загрузка %1$d файла</item>
+    </plurals>
+    <string name="notification_drive_upload_progress_text">%1$d из %2$d завершено</string>
+    <string name="notification_drive_upload_complete_title">Загрузка завершена</string>
+    <plurals name="notification_drive_upload_complete_text">
+        <item quantity="one">%1$d файл загружен</item>
+        <item quantity="few">%1$d файла загружено</item>
+        <item quantity="many">%1$d файлов загружено</item>
+        <item quantity="other">%1$d файла загружено</item>
+    </plurals>
+    <string name="notification_drive_upload_partial_title">%1$d из %2$d загружено</string>
+    <plurals name="notification_drive_upload_partial_text">
+        <item quantity="one">%1$d файл не может быть загружен</item>
+        <item quantity="few">%1$d файла не могут быть загружены</item>
+        <item quantity="many">%1$d файлов не могут быть загружены</item>
+        <item quantity="other">%1$d файла не могут быть загружены</item>
+    </plurals>
+    <string name="notification_drive_upload_action_cancel_all">Отменить все</string>
+    <string name="notification_drive_upload_action_retry">Повторить</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>
@@ -1411,6 +1443,7 @@
     <string name="backup_dialog_restoring_backup_title">Восстановление резервной копии...</string>
     <string name="backup_label_conversation_restored">Беседы были восстановлены</string>
     <string name="backup_label_loading_conversations">Загрузка бесед</string>
+    <string name="backup_label_cancelling">Отмена...</string>
     <string name="backup_dialog_restore_backup_title">Восстановить из резервной копии </string>
     <string name="backup_dialog_restore_backup_message">Текущая история на этом устройстве сохранится и будет дополнена новой резервной копией. Вы можете восстановить историю со всех ваших устройств и разных платформ, но не из другого аккаунта.</string>
     <string name="backup_dialog_choose_backup_file_option">Выберите резервную копию</string>
@@ -1812,6 +1845,7 @@
     <string name="location_app_permission_dialog_body">Разрешите Wire получить доступ к местоположению вашего устройства, чтобы иметь возможность им поделиться.</string>
     <string name="location_loading_label">Пожалуйста, подождите...</string>
     <string name="location_could_not_be_shared">Не удалось поделиться местоположением</string>
+    <string name="label_no_application_found_open_location">Не найдено приложение для открытия местоположения</string>
     <!-- Asset Preview -->
     <string name="remove_asset_description">Удалить медиафайл</string>
     <string name="asset_attention_description">Уведомление</string>
@@ -1944,8 +1978,20 @@
     <string name="label_system_message_apps_access_disabled_by_other">%1$s ** приложений** отключено для этой беседы</string>
     <string name="label_system_message_apps_access_enabled_disclaimer">Добавленные приложения имеют доступ к содержимому этой беседы.</string>
     <string name="label_system_message_admin_role_assigned">Вы были назначены администратором группы</string>
+    <string name="label_system_message_adminless_delete_reminder">Эта группа будет автоматически удалена %1$s, так как в ней нет администраторов, отвечающих требованиям.</string>
+    <string name="last_message_adminless_delete_reminder">Будет удалена в ближайшее время</string>
     <string name="more_information_about_this_server">Больше информации об этом бэкенде</string>
     <!-- Pending messages service notification -->
     <string name="pending_messages_notification_waiting">Ожидание подключения</string>
     <string name="pending_messages_notification_sending">Отправка сообщений</string>
+    <string name="notification_meeting_title">Встреча</string>
+    <string name="notification_meeting_title_ongoing">Текущая: %1$s</string>
+    <string name="notification_meeting_invite">%1$s пригласил вас на встречу с %2$s · %3$s по %4$s</string>
+    <string name="notification_meeting_invite_unknown">Вы приглашены на встречу с %1$s · %2$s по %3$s</string>
+    <string name="notification_meeting_invite_short">Вас пригласили на встречу</string>
+    <string name="notification_meeting_update">%1$s обновил информацию об этой встрече: %2$s · %3$s - %4$s</string>
+    <string name="notification_meeting_update_unknown">Встреча обновлена: %1$s · %2$s - %3$s</string>
+    <string name="notification_meeting_update_short">Встрече обновлена</string>
+    <string name="notification_meeting_cancel">%1$s отменил(а) эту встречу</string>
+    <string name="notification_meeting_cancel_short">Встреча отменена</string>
 </resources>

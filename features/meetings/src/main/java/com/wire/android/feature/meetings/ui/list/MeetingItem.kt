@@ -79,6 +79,8 @@ import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaZoneId
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -88,6 +90,7 @@ import com.wire.android.ui.common.R as commonR
 fun MeetingItem(
     meeting: MeetingItem,
     modifier: Modifier = Modifier,
+    displayTimeZone: TimeZone = TimeZone.currentSystemDefault(),
     openMeetingOptions: (occurrenceId: String) -> Unit = {},
     startCall: (conversationId: ConversationId) -> Unit = {},
     joinCall: (conversationId: ConversationId) -> Unit = {},
@@ -115,6 +118,7 @@ fun MeetingItem(
             Column {
                 MeetingTimeInfoRow(
                     status = meeting.status,
+                    displayTimeZone = displayTimeZone,
                     repeatingInterval = meeting.repeatingInterval
                 )
                 MeetingBelongingInfoRow(
@@ -204,19 +208,6 @@ internal fun MeetingLeadingIcon(
 }
 
 @Composable
-private fun MeetingOngoingDurationTimeSublineText(startedTime: Instant) {
-    val currentTime = rememberCurrentTimeProvider()
-    var currentDuration by remember { mutableStateOf(currentTime().minus(startedTime)) }
-    LaunchedEffect(currentDuration) {
-        val durationInWholeMinutes = currentDuration.inWholeMinutes.toDuration(DurationUnit.MINUTES)
-        val durationToNextFullMinute = durationInWholeMinutes.plus(1.minutes) - currentDuration
-        delay(durationToNextFullMinute.inWholeMilliseconds)
-        currentDuration = currentTime().minus(startedTime)
-    }
-    SublineText(text = "%d:%02d".format(currentDuration.inWholeMinutes / 60, currentDuration.inWholeMinutes % 60))
-}
-
-@Composable
 private fun RepeatingIntervalInfoLabel(repeatingInterval: MeetingItem.RepeatingInterval?) {
     if (repeatingInterval != null) {
         WireItemLabel(text = repeatingInterval.label.asString(), textStyle = typography().label01)
@@ -224,30 +215,16 @@ private fun RepeatingIntervalInfoLabel(repeatingInterval: MeetingItem.RepeatingI
 }
 
 @Composable
-private fun MeetingTimeInfoRow(status: Status, repeatingInterval: MeetingItem.RepeatingInterval?) {
+private fun MeetingTimeInfoRow(status: Status, repeatingInterval: MeetingItem.RepeatingInterval?, displayTimeZone: TimeZone) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing3x)
     ) {
-        when (status) {
-            is Status.Scheduled -> {
-                SublineText(DateAndTimeParsers.meetingTime(status.startTime) + " - " + DateAndTimeParsers.meetingTime(status.endTime))
-            }
-
-            is Status.Ongoing -> {
-                SublineText(text = stringResource(R.string.meeting_started_at, DateAndTimeParsers.meetingTime(status.startTime)))
-                SublineText(text = "•")
-                MeetingOngoingDurationTimeSublineText(startedTime = status.startTime)
-            }
-
-            is Status.Ended -> {
-                SublineText(text = DateAndTimeParsers.meetingDate(status.startTime))
-                SublineText(text = "•")
-                SublineText(text = stringResource(R.string.meeting_started_at, DateAndTimeParsers.meetingTime(status.startTime)))
-                SublineText(text = "•")
-                SublineText(text = "%d:%02d".format(status.duration.inWholeMinutes / 60, status.duration.inWholeMinutes % 60))
-            }
-        }
+        val zoneId = displayTimeZone.toJavaZoneId()
+        SublineText(
+            DateAndTimeParsers.meetingTime(instant = status.startTime, zoneId = zoneId) + " - " +
+                    DateAndTimeParsers.meetingTime(instant = status.endTime, zoneId = zoneId)
+        )
         RepeatingIntervalInfoLabel(repeatingInterval)
     }
 }

@@ -18,8 +18,13 @@ DEVICE_SECRET_SECTIONS = {
     "KEYCLOAK_QA_AUTOMATION",
     "SOCKS_PROXY_PASSWORD",
 }
+LOGIN_SECRET_SECTIONS = {
+    "LARGE_TEAM_MEMBER_LOGIN_DETAILS",
+    "LARGE_TEAM_OWNER_LOGIN_DETAILS",
+}
 HOST_SECRET_SECTIONS = {"TESTINY_API_KEY_ANDROID"}
 PASSWORD_FIELD = {"PASSWORD"}
+LOGIN_FIELDS = {"USERNAME", "PASSWORD"}
 BACKEND_FIELDS = {
     "ACMEDISCOVERYURL",
     "BACKENDURL",
@@ -48,6 +53,8 @@ def allowed_fields_for_title(title: str) -> set[str] | None:
     section = sanitize(title)
     if section.startswith("BACKENDCONNECTION_"):
         return BACKEND_FIELDS
+    if section in LOGIN_SECRET_SECTIONS:
+        return LOGIN_FIELDS
     if section in DEVICE_SECRET_SECTIONS or section in HOST_SECRET_SECTIONS:
         return PASSWORD_FIELD
     return None

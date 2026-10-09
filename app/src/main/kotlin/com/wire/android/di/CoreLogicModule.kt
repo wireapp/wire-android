@@ -99,10 +99,6 @@ import dev.zacsweers.metro.SingleIn
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class CurrentAccount
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
 annotation class NoSession
 
 @Qualifier

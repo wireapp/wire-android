@@ -60,6 +60,7 @@ internal class NewConversationViewModelArrangement {
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.Success(CONVERSATION)
+        coEvery { createRegularGroup.discardPendingMLSGroupCreation(any()) } returns true
         coEvery { observeChannelsCreationPermissionUseCase() } returns flowOf(ChannelCreationPermission.Forbidden)
         coEvery { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
         coEvery { isWireCellsEnabled() } returns false
@@ -189,6 +190,16 @@ internal class NewConversationViewModelArrangement {
         )
     }
 
+    fun withBackendConflictOnCreatingGroup(domains: List<String>) = apply {
+        coEvery { createRegularGroup(any(), any(), any()) } returns
+            ConversationCreationResult.BackendConflictFailure(domains)
+    }
+
+    fun withBackendConflictCleanupFallbackOnCreatingGroup(domains: List<String>) = apply {
+        coEvery { createRegularGroup(any(), any(), any()) } returns
+            ConversationCreationResult.BackendConflictFailure(domains, CONVERSATION_ID)
+    }
+
     fun withPendingMLSGroupCreation() = apply {
         coEvery { createRegularGroup(any(), any(), any()) } returns ConversationCreationResult.PendingMLSGroupCreation(
             CONVERSATION_ID,
@@ -201,6 +212,11 @@ internal class NewConversationViewModelArrangement {
     fun withPendingMLSGroupCreationRetryFailure() = apply {
         coEvery { createRegularGroup.retryPendingMLSGroupCreation(CONVERSATION_ID) } returns
             ConversationCreationResult.UnknownFailure(CoreFailure.Unknown(UnsupportedOperationException("retry failed")))
+    }
+
+    fun withPendingMLSGroupCreationRetryBackendConflict(domains: List<String>) = apply {
+        coEvery { createRegularGroup.retryPendingMLSGroupCreation(CONVERSATION_ID) } returns
+            ConversationCreationResult.BackendConflictFailure(domains)
     }
 
     fun withConflictingBackendsFailure() = apply {

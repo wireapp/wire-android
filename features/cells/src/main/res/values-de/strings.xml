@@ -47,6 +47,7 @@
     <string name="share_file_via_link">Datei über Link teilen</string>
     <string name="share_folder_via_link">Ordner per Link teilen</string>
     <string name="no_app_found">Keine App zum Öffnen dieser Datei gefunden.</string>
+    <string name="file_not_supported">Datei kann nicht geöffnet werden. Dateityp wird nicht unterstützt.</string>
     <string name="cell_files_load_failure_message">Laden nicht möglich. Bitte versuchen Sie es später erneut.</string>
     <string name="cancel">Abbrechen</string>
     <string name="confirm_delete_file_title">Datei löschen</string>
@@ -59,6 +60,7 @@
     <string name="error_delete_public_link">Öffentlicher Link kann nicht entfernt werden.</string>
     <string name="error_load_public_link">Öffentlicher Link kann nicht geladen werden.</string>
     <string name="error_create_public_link">Öffentlicher Link kann nicht erstellt werden.</string>
+    <string name="cell_files_download_failure_message">Download fehlgeschlagen.</string>
     <string name="no_space_left_error">Nicht genügend Speicherplatz, um die Datei herunterzuladen.</string>
     <string name="download_file_message">Diese Datei wurde noch nicht heruntergeladen. Jetzt herunterladen?</string>
     <string name="download">Herunterladen</string>
@@ -69,6 +71,34 @@
     <string name="cells_new_label">Neu</string>
     <string name="cells_new_label_content_description">Neu</string>
     <string name="cells_create_folder">Ordner erstellen</string>
+    <string name="cells_upload_files">Dateien hochladen</string>
+    <plurals name="cells_upload_status_title_uploading">
+        <item quantity="one">%1$d Datei hochladen</item>
+        <item quantity="other">%1$d Dateien hochladen</item>
+    </plurals>
+    <string name="cells_upload_status_title_complete">Upload abgeschlossen</string>
+    <string name="cells_upload_status_title_partial">%1$d von %2$d hochgeladen</string>
+    <plurals name="cells_upload_status_subtitle_failed_count">
+        <item quantity="one">%1$d nicht hochgeladen</item>
+        <item quantity="other">%1$d nicht hochgeladen</item>
+    </plurals>
+    <string name="cells_upload_status_subtitle_queued">Warten…</string>
+    <string name="cells_upload_status_subtitle_uploading">Hochladen…</string>
+    <string name="cells_upload_status_subtitle_completed_with_size">%1$s hochgeladen</string>
+    <string name="cells_upload_status_subtitle_failed">Datei nicht hochgeladen</string>
+    <string name="cells_upload_status_subtitle_cancelled">Abgebrochen</string>
+    <string name="cells_upload_status_retry_failed">Wiederholen</string>
+    <string name="cells_upload_status_cancel_all">Alle abbrechen</string>
+    <plurals name="cells_upload_confirmation_title">
+        <item quantity="one">%1$d Datei hochladen?</item>
+        <item quantity="other">%1$d Dateien hochladen?</item>
+    </plurals>
+    <string name="cells_upload_confirmation_destination">Dateien werden auf %1$s hochgeladen</string>
+    <string name="cells_upload_confirmation_confirm">Hochladen</string>
+    <string name="content_description_cancel_upload">Upload abbrechen</string>
+    <string name="content_description_open_upload_status">Upload-Status öffnen</string>
+    <string name="content_description_retry_upload">Upload wiederholen</string>
+    <string name="content_description_dismiss_upload">Verwerfen</string>
     <string name="cells_folder_name">Ordnername</string>
     <string name="loading_files">Dateien werden geladen…</string>
     <string name="tap_to_cancel_loading">Tippen, um Laden abzubrechen</string>
@@ -251,6 +281,7 @@
     <string name="sort_name_z_to_a">Z bis A</string>
     <string name="sort_size_smallest_first">Kleinste zuerst</string>
     <string name="sort_size_largest_first">Größte zuerst</string>
+    <string name="content_description_offline_available">Offline verfügbar</string>
     <string name="content_description_image_message">Bild</string>
     <string name="cells_video_enter_fullscreen">Vollbild öffnen</string>
     <string name="cells_video_exit_fullscreen">Vollbild beenden</string>

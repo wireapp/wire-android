@@ -15,93 +15,110 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.AUDIO
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.IMAGE
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.PDF
 import com.wire.android.feature.cells.domain.model.AttachmentFileType.VIDEO
+import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.OpenFileDownloadController
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.OpenLoadState
+import com.wire.android.ui.common.multipart.MultipartAttachmentOpenLoadState
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.common.multipart.toUiModel
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 import com.wire.android.util.FileManager
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
+import com.wire.kalium.cells.domain.usecase.GetPdfPreviewUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
-import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
-import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesByConversationUseCase
+import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.common.functional.getOrNull
 import com.wire.kalium.common.functional.onSuccess
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.featureConfig.CollaboraEdition
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.data.message.MessageAttachment
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
 interface MultipartAttachmentsViewModel {
     val offlineAttachmentIds: StateFlow<Set<String>>
+    val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>>
+
+    val openAttachmentErrorEvent: Flow<Unit>
+
+    @Suppress("LongParameterList")
     fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit,
     )
-    fun mapAttachment(attachment: MessageAttachment): MultipartAttachmentUi {
-        val isAvailableOffline = attachment.assetId() in offlineAttachmentIds.value
-        return attachment.toUiModel(isAvailableOffline = isAvailableOffline)
-    }
 
     fun mapAttachments(
         attachments: List<MessageAttachment>,
+        offlineAttachmentIds: Set<String> = emptySet(),
+        openLoadStates: Map<String, MultipartAttachmentOpenLoadState> = emptyMap(),
     ): List<MultipartAttachmentGroup> {
-        val offlineIds = offlineAttachmentIds.value
 
         val result = mutableListOf<MultipartAttachmentGroup>()
         var group: MultipartAttachmentGroup? = null
 
         attachments.forEach {
-            val isAvailableOffline = it.assetId() in offlineIds
+            val uiAttachment = it.toMappedUiAttachment(offlineAttachmentIds, openLoadStates)
             if (it.isMediaAttachment()) {
                 group = when (group) {
-                    null -> MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                    null -> MultipartAttachmentGroup.Media(listOf(uiAttachment))
                     is MultipartAttachmentGroup.Media -> {
-                        val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
-                        group.copy(attachments = group.attachments + newAttachment)
+                        group.copy(attachments = group.attachments + uiAttachment)
                     }
+
                     else -> {
                         result.add(group)
-                        MultipartAttachmentGroup.Media(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                        MultipartAttachmentGroup.Media(listOf(uiAttachment))
                     }
                 }
             } else {
                 group = when (group) {
-                    null -> MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                    null -> MultipartAttachmentGroup.Files(listOf(uiAttachment))
                     is MultipartAttachmentGroup.Files -> {
-                        val newAttachment = it.toUiModel(isAvailableOffline = isAvailableOffline)
-                        group.copy(attachments = group.attachments + newAttachment)
+                        group.copy(attachments = group.attachments + uiAttachment)
                     }
+
                     else -> {
                         result.add(group)
-                        MultipartAttachmentGroup.Files(listOf(it.toUiModel(isAvailableOffline = isAvailableOffline)))
+                        MultipartAttachmentGroup.Files(listOf(uiAttachment))
                     }
                 }
             }
@@ -126,12 +143,17 @@ interface MultipartAttachmentsViewModel {
 @Suppress("EmptyFunctionBlock")
 object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
     override val offlineAttachmentIds: StateFlow<Set<String>> = MutableStateFlow(emptySet<String>())
+    override val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>> = MutableStateFlow(emptyMap())
+    override val openAttachmentErrorEvent: Flow<Unit> = Channel<Unit>().receiveAsFlow()
     override fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
-    ) {}
+        openInPdfViewer: (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit,
+    ) {
+    }
+
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {}
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {}
 }
@@ -141,14 +163,16 @@ object MultipartAttachmentsViewModelPreview : MultipartAttachmentsViewModel {
 class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     @Assisted private val conversationId: ConversationId,
     private val refreshHelper: CellAssetRefreshHelper,
-    private val download: DownloadCellFileUseCase,
+    private val openFileDownloadController: OpenFileDownloadController,
+    private val sharedPathCache: CellFileLocalPathCache,
     private val getEditorUrl: GetEditorUrlUseCase,
     private val onlineEditor: OnlineEditor,
     private val fileManager: FileManager,
-    private val kaliumFileSystem: KaliumFileSystem,
     private val featureFlags: KaliumConfigs,
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
-    observeOfflineFilesByConversation: ObserveOfflineFilesByConversationUseCase,
+    private val getPdfPreviewUrl: GetPdfPreviewUrlUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel(), MultipartAttachmentsViewModel {
 
     @AssistedFactory
@@ -156,31 +180,60 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
         fun create(conversationId: ConversationId): MultipartAttachmentsViewModelImpl
     }
 
-    private val uploadProgress = mutableStateMapOf<String, Float>()
-    override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFilesByConversation(conversationId)
+    private val _openAttachmentErrorEvent = Channel<Unit>(Channel.BUFFERED)
+    override val openAttachmentErrorEvent: Flow<Unit> = _openAttachmentErrorEvent.receiveAsFlow()
+
+    override val openLoadStates: StateFlow<Map<String, MultipartAttachmentOpenLoadState>> =
+        sharedPathCache.openLoadStates
+            .map { states -> states.mapValues { (_, state) -> state.toMultipartState() } }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    override val offlineAttachmentIds: StateFlow<Set<String>> = observeOfflineFiles()
         .map { offlineFiles -> offlineFiles.mapTo(mutableSetOf()) { it.id } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     private var isCollaboraEnabled: Boolean = false
 
+    /**
+     * `true` when the self user only has viewer access to this conversation and therefore can't edit its files.
+     * Resolved on the first click on an editable attachment and cached for the next ones.
+     */
+    private val viewerOnlyAccess: Deferred<Boolean> = viewModelScope.async(start = CoroutineStart.LAZY) {
+        featureFlags.drivePermissionsEnabled && !isSelfUserViewerOnConversation(conversationId)
+    }
+
     init {
         loadWireCellConfig()
     }
 
-    @Suppress("CyclomaticComplexMethod")
+    @Suppress("CyclomaticComplexMethod", "LongParameterList")
     override fun onClick(
         attachment: MultipartAttachmentUi,
         openInImageViewer: (String) -> Unit,
         openInVideoPlayer: (MultipartAttachmentUi) -> Unit,
         openInAudioPlayer: (MultipartAttachmentUi) -> Unit,
+        openInPdfViewer: (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit,
     ) {
+        // Always use the authoritative shared-cache state — the `attachment` snapshot may be stale
+        // if recomposition hasn't fired yet when the user taps.
+        val currentLoadState = sharedPathCache.openLoadStates.value[attachment.uuid]
+
+        if (currentLoadState != null) {
+            when (currentLoadState) {
+                is OpenLoadState.Loading -> openFileDownloadController.cancel(attachment.uuid, viewModelScope)
+                is OpenLoadState.Ready -> openFileAtPath(currentLoadState.localPath.toString(), attachment)
+                OpenLoadState.Error -> startDownload(attachment)
+            }
+            return
+        }
+
         when {
             attachment.isImage() && !attachment.fileNotFound() -> openInImageViewer(attachment.uuid)
             attachment.isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration ->
-                openOnlineEditor(attachment.uuid)
+                openEditableAttachment(attachment, openInPdfViewer)
 
             attachment.fileNotFound() -> {
-                refreshHelper.refresh(attachment.uuid)
+                refreshHelper.refresh(attachment.uuid, conversationId.toString())
             }
 
             attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
@@ -189,14 +242,17 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             attachment.isAudio() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->
                 openInAudioPlayer(attachment)
 
+            attachment.isPdf() && (attachment.localFileAvailable() || attachment.canDownloadRemotely()) ->
+                openInPdfViewer(attachment, null)
+
             attachment.localFileAvailable() -> openLocalFile(attachment)
             attachment.canOpenWithUrl() -> openUrl(attachment)
-            else -> downloadAsset(attachment)
+            else -> startDownload(attachment)
         }
     }
 
     override fun onAttachmentsVisible(attachments: List<MessageAttachment>) {
-        refreshHelper.onAttachmentsVisible(attachments)
+        refreshHelper.onAttachmentsVisible(attachments, conversationId.toString())
     }
 
     override fun onAttachmentsHidden(attachments: List<MessageAttachment>) {
@@ -210,6 +266,18 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             mimeType = attachment.mimeType
         ) {
             appLogger.e("Failed to open: ${attachment.localPath}", tag = "MultipartAttachmentsViewModel")
+            _openAttachmentErrorEvent.trySend(Unit)
+        }
+    }
+
+    private fun openFileAtPath(localPath: String, attachment: MultipartAttachmentUi) {
+        fileManager.openWithExternalApp(
+            assetDataPath = localPath.toPath(),
+            assetName = attachment.fileName ?: "",
+            mimeType = attachment.mimeType
+        ) {
+            appLogger.e("Failed to open file at path: $localPath", tag = "MultipartAttachmentsViewModel")
+            _openAttachmentErrorEvent.trySend(Unit)
         }
     }
 
@@ -219,36 +287,49 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             mimeType = attachment.mimeType
         ) {
             appLogger.e("Failed to open: ${attachment.previewUrl}", tag = "MultipartAttachmentsViewModel")
+            _openAttachmentErrorEvent.trySend(Unit)
         }
     }
 
-    private fun downloadAsset(attachment: MultipartAttachmentUi) = viewModelScope.launch {
+    private fun startDownload(attachment: MultipartAttachmentUi) {
+        openFileDownloadController.start(
+            scope = viewModelScope,
+            cellNode = attachment.toCellNode(conversationId.toString()),
+            onOpenFile = { cellNode ->
+                val localPath = cellNode.localPath ?: return@start
+                openFileAtPath(localPath, attachment)
+            },
+            onError = { error ->
+                appLogger.e("Download failed for ${attachment.uuid}: $error", tag = "MultipartAttachmentsViewModel")
+                _openAttachmentErrorEvent.trySend(Unit)
+            },
+        )
+    }
 
-        // TODO: Move kaliumFileSystem to common kalium module so that it can be used in use case
-        val path = kaliumFileSystem.providePersistentAssetPath(attachment.fileName ?: error("No asset path"))
-
-        if (kaliumFileSystem.exists(path)) {
-            kaliumFileSystem.delete(path)
+    /**
+     * Editable attachments — documents, presentations and spreadsheets — open in the online editor.
+     * A user with viewer access can't edit them, so they are shown read-only through the PDF
+     * rendition the backend generates for them. Without such a rendition (still processing, failed
+     * or unsupported) there is nothing a viewer may be shown: the original file is deliberately not
+     * handed over, since viewer access is what stops them from taking it.
+     */
+    private fun openEditableAttachment(
+        attachment: MultipartAttachmentUi,
+        openInPdfViewer: (attachment: MultipartAttachmentUi, pdfPreviewUrl: String?) -> Unit,
+    ) = viewModelScope.launch {
+        if (!viewerOnlyAccess.await()) {
+            openOnlineEditor(attachment.uuid)
+            return@launch
         }
 
-        download(
-            assetId = attachment.uuid,
-            conversationId = conversationId.value,
-            outFilePath = path,
-            assetSize = attachment.assetSize ?: 0,
-        ) { progress ->
-            attachment.assetSize?.let {
-                val value = progress.toFloat() / it
-                if (value < 1) {
-                    uploadProgress[attachment.uuid] = value
-                } else {
-                    uploadProgress.remove(attachment.uuid)
-                }
-            }
+        val pdfPreviewUrl = getPdfPreviewUrl(attachment.uuid).getOrNull()
+
+        if (pdfPreviewUrl != null) {
+            openInPdfViewer(attachment, pdfPreviewUrl)
         }
     }
 
-    private fun openOnlineEditor(attachmentUuid: String) = viewModelScope.launch {
+    private suspend fun openOnlineEditor(attachmentUuid: String) {
         getEditorUrl(attachmentUuid)
             .onSuccess { url ->
                 if (url != null) {
@@ -258,6 +339,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
     }
 
     override fun onCleared() {
+        _openAttachmentErrorEvent.close()
         refreshHelper.close()
     }
 
@@ -285,6 +367,8 @@ private fun MultipartAttachmentUi.isVideo() = assetType == VIDEO
 
 private fun MultipartAttachmentUi.isAudio() = assetType == AUDIO
 
+private fun MultipartAttachmentUi.isPdf() = assetType == PDF
+
 private fun MessageAttachment.isMediaAttachment() =
     when (AttachmentFileType.fromMimeType(mimeType())) {
         IMAGE, VIDEO -> true
@@ -293,4 +377,52 @@ private fun MessageAttachment.isMediaAttachment() =
 
 private fun MultipartAttachmentUi.fileNotFound() = transferStatus == AssetTransferStatus.NOT_FOUND
 private fun MultipartAttachmentUi.localFileAvailable() = localPath != null
-private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
+private fun MultipartAttachmentUi.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO)
+private fun MultipartAttachmentUi.canDownloadRemotely() = remotePath != null && assetType == PDF
+
+/**
+ * Maps [OpenLoadState] (cells-module type) to [MultipartAttachmentOpenLoadState].
+ * [OpenLoadState.Loading] uses 0f to signal indeterminate; [MultipartAttachmentOpenLoadState.Loading] uses null.
+ */
+private fun OpenLoadState.toMultipartState(): MultipartAttachmentOpenLoadState = when (this) {
+    is OpenLoadState.Loading -> MultipartAttachmentOpenLoadState.Loading(if (progress > 0f) progress else null)
+    is OpenLoadState.Ready -> MultipartAttachmentOpenLoadState.Ready(localPath.toString())
+    OpenLoadState.Error -> MultipartAttachmentOpenLoadState.Error
+}
+
+/**
+ * Converts [MultipartAttachmentUi] to a minimal [CellNodeUi.File] for use with [OpenFileDownloadController].
+ * Only fields used by the controller (uuid, name, size, conversationId) need to be set.
+ */
+private fun MultipartAttachmentUi.toCellNode(conversationId: String?): CellNodeUi.File = CellNodeUi.File(
+    uuid = uuid,
+    name = fileName,
+    mimeType = mimeType,
+    assetType = assetType,
+    size = assetSize,
+    localPath = localPath,
+    conversationId = conversationId,
+    userName = null,
+    userHandle = null,
+    ownerUserId = null,
+    conversationName = null,
+    modifiedTime = null,
+    remotePath = null,
+)
+
+private fun MessageAttachment.toMappedUiAttachment(
+    offlineAttachmentIds: Set<String>,
+    openLoadStates: Map<String, MultipartAttachmentOpenLoadState>,
+): MultipartAttachmentUi {
+    val openLoadState = openLoadStates[assetId()]
+    val loadingProgress = (openLoadState as? MultipartAttachmentOpenLoadState.Loading)?.progress
+    val readyLocalPath = (openLoadState as? MultipartAttachmentOpenLoadState.Ready)?.localPath
+    val base = toUiModel(
+        progress = loadingProgress,
+        isAvailableOffline = assetId() in offlineAttachmentIds,
+    )
+    return base.copy(
+        openLoadState = openLoadState,
+        localPath = readyLocalPath ?: base.localPath,
+    )
+}

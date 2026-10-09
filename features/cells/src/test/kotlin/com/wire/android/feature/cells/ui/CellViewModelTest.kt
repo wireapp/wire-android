@@ -17,21 +17,28 @@
  */
 package com.wire.android.feature.cells.ui
 
+import android.net.Uri
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
+import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
+import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -45,6 +52,8 @@ import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
+import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -71,15 +80,36 @@ import okio.Path.Companion.toPath
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.io.File
+import kotlin.io.path.createTempDirectory
 import com.wire.kalium.cells.data.SortingCriteria as KaliumSortingCriteria
 
 class CellViewModelTest {
 
     private companion object {
+        const val EDITOR_URL = "https://collabora.example.com/edit"
+        const val PDF_RENDITION_URL = "https://cells.example.com/previews/document.pdf?signed"
+
+        /** An office document: the backend offers an editor for it and generates a PDF rendition. */
+        val editableDocument = Node.File(
+            uuid = "documentUuid",
+            conversationId = "conversationId",
+            versionId = "versionId",
+            name = "document.docx",
+            mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            remotePath = "remotePath/document.docx",
+            localPath = "localPath/document.docx",
+            contentUrl = "https://example.com/document.docx",
+            size = 1024,
+            modifiedTime = 1234567890L,
+            isEditSupported = true,
+            pdfPreviewUrl = PDF_RENDITION_URL,
+        )
+
         val testFiles = listOf(
             Node.File(
                 uuid = "fileUuid",
@@ -107,6 +137,19 @@ class CellViewModelTest {
             )
         )
         val localFilePath = "localPath".toPath()
+
+        val offlineFileInSubFolder = OfflineFileInfo(
+            id = "fileUuid",
+            conversationId = "conversationId",
+            name = "report.pdf",
+            mimeType = "application/pdf",
+            owner = "",
+            localPath = "/local/report.pdf",
+            size = 1024L,
+            downloadedAt = 1L,
+            modifiedAt = 1234567890L,
+            remotePath = "conversationId/reports/report.pdf",
+        )
     }
 
     private val dispatcher = UnconfinedTestDispatcher()
@@ -162,6 +205,7 @@ class CellViewModelTest {
                 any(),
                 any(),
                 match { it.criteria == KaliumSortingCriteria.NAME_CASE_SENSITIVE && !it.descending },
+                any()
             )
         }
     }
@@ -260,10 +304,93 @@ class CellViewModelTest {
             .withLoadSuccess()
             .arrange()
 
-        val nonImageFile = testFiles[0].copy(mimeType = "application/pdf").toUiModel()
+        val nonImageFile = testFiles[0].copy(mimeType = "application/zip").toUiModel()
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(nonImageFile))
 
+        coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given view model when pdf file clicked and local file is present then in-app pdf viewer is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        val pdfFile = testFiles[0].copy(mimeType = "application/pdf").toUiModel()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(pdfFile))
+
+            val action = awaitItem()
+            assert(action is OpenPdfViewer)
+        }
+        coVerify(exactly = 0) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given editable document when clicked with editor access then the online editor is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withEditorUrl(EDITOR_URL)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(editableDocument.toUiModel()))
+
+            expectNoEvents()
+        }
+        coVerify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL) }
+    }
+
+    @Test
+    fun `given editable document when clicked with viewer access then its pdf rendition is opened`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(editableDocument.copy(isViewerOnly = true).toUiModel()))
+
+            val action = awaitItem()
+            assertTrue(action is OpenPdfViewer)
+            assertEquals(PDF_RENDITION_URL, (action as OpenPdfViewer).file.pdfRenditionUrl())
+        }
+        coVerify(exactly = 0) { arrangement.getEditorUrlUseCase(any()) }
+    }
+
+    @Test
+    fun `given editable document without pdf rendition when clicked with viewer access then an error is shown`() = runTest {
+        // The backend has no rendition yet: still processing, failed, or the type is not convertible.
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+        val withoutRendition = editableDocument.copy(isViewerOnly = true, pdfPreviewUrl = null)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(withoutRendition.toUiModel()))
+
+            assertEquals(ShowError(CellError.OTHER_ERROR), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given editable document when clicked while offline then the editor is not opened`() = runTest {
+        // Both the editor and the rendition come from the backend, so offline keeps the regular
+        // open path — here the local copy.
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withNoNetwork()
+            .withEditorUrl(EDITOR_URL)
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(editableDocument.toUiModel()))
+
+            expectNoEvents()
+        }
+        coVerify(exactly = 0) { arrangement.getEditorUrlUseCase(any()) }
+        coVerify(exactly = 0) { arrangement.onlineEditor.open(any()) }
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetFileWithExternalApp(any(), any(), any(), any()) }
     }
 
@@ -309,19 +436,68 @@ class CellViewModelTest {
         }
 
     @Test
-    fun `given view model when non-image file clicked and local file is not present and url is openable then url is opened`() = runTest {
+    fun `given view model when a file type that cannot be opened by url is clicked then it is downloaded first`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withDownloadSuccess()
+            .arrange()
+
+        // Only image, video, audio and pdf can be opened straight from the content url.
+        val testFile = testFiles[0].copy(
+            mimeType = "text/plain",
+            localPath = null,
+            contentUrl = "https://example.com/file"
+        )
+
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given view model when pdf file clicked and only url is available then in-app pdf viewer is opened`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
             .arrange()
 
+        // remotePath is what the in-app viewer downloads from; testFiles[0] provides one.
         val testFile = testFiles[0].copy(
             mimeType = "application/pdf",
             localPath = null,
             contentUrl = "https://example.com/file"
         )
 
-        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
+            val action = awaitItem()
+            assert(action is OpenPdfViewer)
+        }
+        coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `given view model when pdf file clicked with no local path and no remote path then url is opened externally`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        // Without a remote path the in-app viewer has nothing to download, so claiming the click
+        // would leave the user on an unrecoverable error screen instead of opening the file.
+        val testFile = testFiles[0].copy(
+            mimeType = "application/pdf",
+            localPath = null,
+            remotePath = null,
+            contentUrl = "https://example.com/file"
+        )
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+            expectNoEvents()
+        }
         coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
     }
 
@@ -353,8 +529,8 @@ class CellViewModelTest {
             .arrange()
 
         // File has localPath from DB but also carries an error state (stale UI state)
-        // Use a non-image file so we can verify the external app opener is called
-        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null, mimeType = "application/pdf").toUiModel()
+        // Use a file type without an in-app viewer so we can verify the external app opener is called
+        val testFile = testFiles[0].copy(localPath = "localPath", contentUrl = null, mimeType = "application/zip").toUiModel()
             .copy(openLoadState = OpenLoadState.Error)
 
         viewModel.sendIntent(CellViewIntent.OnItemClick(testFile))
@@ -433,6 +609,119 @@ class CellViewModelTest {
         }
     }
 
+    @Test
+    fun `GIVEN offline file saved in a subfolder WHEN browsing the conversation offline THEN the folder is listed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withNoNetwork()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
+            assertEquals(1, size)
+            assertTrue(first() is CellNodeUi.Folder)
+            assertEquals("reports", first().name)
+            assertEquals("conversationId/reports", first().remotePath)
+        }
+    }
+
+    @Test
+    fun `GIVEN offline file saved in a subfolder WHEN browsing that folder offline THEN the file is listed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId/reports")
+            .withNoNetwork()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
+            assertEquals(1, size)
+            assertTrue(first() is CellNodeUi.File)
+            assertEquals("report.pdf", first().name)
+            assertTrue(first().isAvailableOffline)
+        }
+    }
+
+    @Test
+    fun `GIVEN a file in a subfolder WHEN made available offline THEN it is saved with its path and conversation`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId/reports")
+            .withDownloadSuccess()
+            .withMakeAvailableOfflineSelected()
+            .arrange()
+
+        val file = testFiles[0].copy(
+            conversationId = null,
+            localPath = null,
+            remotePath = "conversationId/reports/report.pdf",
+        ).toUiModel()
+
+        viewModel.sendIntent(
+            CellViewIntent.OnMenuItemActionSelected(file, NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE)
+        )
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.saveOfflineFile(
+                match {
+                    it.remotePath == "conversationId/reports/report.pdf" && it.conversationId == "conversationId"
+                }
+            )
+        }
+    }
+
+    @Test
+    fun `given files picked for upload when forwarded then upload confirmation is populated`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val pickedUris = List(5) { mockk<Uri>() }
+
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+        val confirmation = viewModel.uploadConfirmation.value
+        assertNotNull(confirmation)
+        assertEquals(5, confirmation?.fileNames?.size)
+    }
+
+    @Test
+    fun `given no files picked for upload when forwarded then no confirmation is shown`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(emptyList()))
+
+        assertNull(viewModel.uploadConfirmation.value)
+    }
+
+    @Test
+    fun `given upload confirmed when forwarded then files are forwarded and confirmation is cleared`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val pickedUris = List(3) { mockk<Uri>() }
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+        viewModel.actions.test {
+            viewModel.confirmUpload()
+
+            val action = awaitItem()
+            assertTrue(action is FilesPickedForUpload)
+            assertEquals(pickedUris, (action as FilesPickedForUpload).uris)
+        }
+        assertNull(viewModel.uploadConfirmation.value)
+    }
+
+    @Test
+    fun `given upload confirmation cancelled when forwarded then no action is sent and confirmation is cleared`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val pickedUris = List(2) { mockk<Uri>() }
+        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+
+        viewModel.actions.test {
+            viewModel.cancelUploadConfirmation()
+
+            expectNoEvents()
+        }
+        assertNull(viewModel.uploadConfirmation.value)
+    }
+
     private class Arrangement(
         private var conversationId: String? = null,
         private var inAppImageViewerEnabled: Boolean = false,
@@ -467,6 +756,9 @@ class CellViewModelTest {
         lateinit var onlineEditor: OnlineEditor
 
         @MockK
+        lateinit var kaliumConfigs: KaliumConfigs
+
+        @MockK
         lateinit var cellFileActionsMenu: CellFileActionsMenu
 
         @MockK
@@ -474,6 +766,9 @@ class CellViewModelTest {
 
         @MockK
         lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
+
+        @MockK
+        lateinit var saveOfflineFile: SaveOfflineFileUseCase
 
         @MockK
         lateinit var deleteOfflineFile: DeleteOfflineFileUseCase
@@ -499,6 +794,12 @@ class CellViewModelTest {
         @MockK
         lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+        @MockK
+        lateinit var uploadFilePreparer: DriveUploadFilePreparer
+
+        @MockK
+        lateinit var uploadCoordinator: CellUploadCoordinator
+
         init {
 
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -513,6 +814,9 @@ class CellViewModelTest {
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
             every { userDataStore.isViewerAccessBannerDismissed(any()) } returns flowOf(false)
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
+            coEvery { uploadFilePreparer.prepare(any(), any()) } returns null
+            coEvery { uploadFilePreparer.fileName(any()) } returns "file"
+            every { uploadCoordinator.uploads } returns MutableStateFlow(emptyList())
 
             coEvery { getCellFilesPagedUseCase.invoke(any(), any(), any(), any()) } returns flowOf(
                 PagingData.from(
@@ -562,6 +866,26 @@ class CellViewModelTest {
             coEvery { isCellAvailableUseCase.invoke() } returns false.right()
         }
 
+        fun withEditorUrl(url: String?) = apply {
+            coEvery { getEditorUrlUseCase(any()) } returns Either.Right(url)
+        }
+
+        fun withNoNetwork() = apply {
+            every { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.NotConnected)
+        }
+
+        fun withOfflineFiles(files: List<OfflineFileInfo>) = apply {
+            every { observeOfflineFiles() } returns flowOf(files)
+        }
+
+        /** Makes the (mocked) actions menu answer every selected action with "make available offline". */
+        fun withMakeAvailableOfflineSelected() = apply {
+            every { cellFileActionsMenu.onMenuItemAction(any(), any(), any(), any(), any()) } answers {
+                val node = arg<CellNodeUi>(2) as CellNodeUi.File
+                arg<(CellFileActionsMenu.MenuActionResult) -> Unit>(4)(CellFileActionsMenu.MakeAvailableOffline(node))
+            }
+        }
+
         fun withInAppImageViewerEnabled() = apply {
             inAppImageViewerEnabled = true
         }
@@ -581,9 +905,10 @@ class CellViewModelTest {
 
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
-            every { fileHelper.getExternalFilesDir() } returns File("")
+            every { fileHelper.getExternalFilesDir() } returns createTempDirectory("cells-view-model-test").toFile()
 
             coEvery { getWireCellsConfig() } returns null
+            every { kaliumConfigs.collaboraIntegration } returns true
 
             val openFileDownloadController = OpenFileDownloadController(
                 download = downloadCellFileUseCase,
@@ -594,7 +919,7 @@ class CellViewModelTest {
             val offlineFileDownloadController = OfflineFileDownloadController(
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
-                saveOfflineFile = mockk(relaxUnitFun = true),
+                saveOfflineFile = saveOfflineFile,
                 sharedPathCache = sharedPathCache,
             )
 
@@ -606,8 +931,9 @@ class CellViewModelTest {
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
-                onlineEditor = onlineEditor,
                 getEditorUrl = getEditorUrlUseCase,
+                featureFlags = kaliumConfigs,
+                onlineEditor = onlineEditor,
                 cellFileActionsMenu = cellFileActionsMenu,
                 getWireCellsConfig = getWireCellsConfig,
                 sharedPathCache = sharedPathCache,
@@ -622,9 +948,12 @@ class CellViewModelTest {
                 isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
                 userDataStore = userDataStore,
                 qualifiedIdMapper = qualifiedIdMapper,
+                uploadFilePreparer = uploadFilePreparer,
+                uploadCoordinator = uploadCoordinator,
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
                 drivePermissionsEnabled = true,
+                driveDirectUploadEnabled = true,
             )
         }
     }

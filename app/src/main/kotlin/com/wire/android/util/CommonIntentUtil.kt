@@ -21,8 +21,10 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.core.net.toUri
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.appLogger
 
 // geo intent url scheme
@@ -31,6 +33,7 @@ internal const val GEO_INTENT_URL = "geo:0,0?q=%f,%f"
 /**
  * Launches a geo intent with the given latitude and longitude.
  * If no app/activity can be found to handle the [GEO_INTENT_URL], a [fallbackUrl] is used.
+ * Shows a toast if neither intent can be handled.
  */
 fun launchGeoIntent(
     latitude: Float,
@@ -45,7 +48,12 @@ fun launchGeoIntent(
         context.startActivity(Intent(Intent.ACTION_VIEW, geoStringUrl.toString().toUri()))
     } catch (e: ActivityNotFoundException) {
         appLogger.e("No activity found to handle geo intent, fallback to url", e)
-        context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri()))
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUrl.toUri()))
+        } catch (fallbackException: ActivityNotFoundException) {
+            appLogger.e("No activity found to handle location fallback url", fallbackException)
+            Toast.makeText(context, R.string.label_no_application_found_open_location, Toast.LENGTH_SHORT).show()
+        }
     }
 }
 

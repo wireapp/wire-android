@@ -10,6 +10,8 @@
 
 package com.wire.android.ui.home.conversations
 
+import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId
 import kotlinx.serialization.encodeToString
@@ -66,6 +68,21 @@ class ConversationAuxNavigation3Test {
 
         assertNotEquals(first.entryId, second.entryId)
         assertEquals(first.routeId, second.routeId)
+    }
+
+    @Test
+    fun givenConversationFolderArguments_whenRouteIsRestored_thenAllArgumentsSurvive() {
+        val arguments = ConversationFoldersNavArgs(
+            conversationId = QualifiedID("conversation", "wire.example"),
+            conversationName = "Dudley Reichert",
+            currentFolderId = "current-folder",
+        )
+
+        val restoredArguments = Json.decodeFromString<ConversationFoldersRoute>(
+            Json.encodeToString(arguments.toNavigation3Route(session))
+        ).toViewModelArgs()
+
+        assertEquals(arguments, restoredArguments)
     }
 
     private inline fun <reified T> assertRoundTrip(value: T) {

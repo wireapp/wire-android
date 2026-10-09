@@ -48,7 +48,7 @@ internal fun NewMeetingParticipantsRouteContent(
     onOpenUserProfile: (UserId) -> Unit,
 ) {
     SearchUsersAndAppsScreen(
-        onlyConnectedContacts = true,
+        onlySelfTeamAndDomain = true,
         searchTitle = stringResource(R.string.new_meeting_participants_title),
         selectedContacts = newMeetingViewModel.state.selectedContacts,
         onContactChecked = newMeetingViewModel::updateSelectedContact,
@@ -56,7 +56,9 @@ internal fun NewMeetingParticipantsRouteContent(
             newMeetingViewModel.resetSelectedContacts()
             onNavigateBack()
         },
-        navigationIconType = NavigationIconType.Back(R.string.content_description_new_meeting_participants_back_icon),
+        navigationIconType = NavigationIconType.Close(
+            contentDescription = R.string.content_description_new_meeting_participants_back_icon
+        ),
         itemActionType = ItemActionType.CHECK,
         isAppsTabVisible = false,
         onOpenUserProfile = { contact ->

@@ -32,8 +32,10 @@ import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toOkioPath
-import dev.zacsweers.metro.Inject
 import java.io.File
+import com.wire.android.di.metro.MetroSessionScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 
 /**
  * Controller responsible for managing the download and open flow for cell files.
@@ -44,7 +46,14 @@ import java.io.File
  * Once the download completes, it updates the cache with either a "Ready" state (if the spinner
  * was shown) or opens the file immediately (if the download was fast). It also handles cancellation
  * of in-progress downloads and error states.
+ *
+ * Scoped to [MetroSessionScope] to match [CellFileLocalPathCache]: the load state it publishes is
+ * shared by every ViewModel in the session, so [activeDownloads] must be too. With a narrower scope
+ * a download started from one ViewModel (e.g. `CellViewModel`) could not be cancelled from another
+ * (e.g. `MultipartAttachmentsViewModel`) even though both render the same spinner. It cannot be
+ * `AppScope` either — [DownloadCellFileUseCase] comes from the per-account `CellsScope`.
  */
+@SingleIn(MetroSessionScope::class)
 class OpenFileDownloadController @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,
@@ -54,9 +63,9 @@ class OpenFileDownloadController @Inject constructor(
 
     private val activeDownloads = mutableMapOf<String, ActiveDownload>()
 
-    internal val openLoadStates = sharedPathCache.openLoadStates
+    val openLoadStates = sharedPathCache.openLoadStates
 
-    internal fun start(
+    fun start(
         scope: CoroutineScope,
         cellNode: CellNodeUi.File,
         onOpenFile: (CellNodeUi.File) -> Unit,
@@ -157,7 +166,7 @@ class OpenFileDownloadController @Inject constructor(
         }
     }
 
-    internal fun cancel(uuid: String, scope: CoroutineScope) {
+    fun cancel(uuid: String, scope: CoroutineScope) {
         val active = activeDownloads.remove(uuid) ?: return
         active.job.cancel()
         sharedPathCache.clearOpenLoadState(uuid)

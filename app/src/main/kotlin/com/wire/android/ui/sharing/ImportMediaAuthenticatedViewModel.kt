@@ -18,6 +18,7 @@
 package com.wire.android.ui.sharing
 
 import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Named
 
 import android.content.ContentResolver
 import android.content.Context
@@ -82,6 +83,7 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase,
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     val dispatchers: DispatcherProvider,
+    @Named("drivePermissionsEnabled") private val drivePermissionsEnabled: Boolean,
 ) : ViewModel() {
     val searchQueryTextState: TextFieldState = TextFieldState()
     private val conversationsFlow: Flow<PagingData<ConversationItemType>> = searchQueryTextState.textAsFlow()
@@ -103,7 +105,12 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
             }
         }
         .flowOn(dispatchers.io())
-    var importMediaState by mutableStateOf(ImportMediaAuthenticatedState(conversations = conversationsFlow))
+    var importMediaState by mutableStateOf(
+        ImportMediaAuthenticatedState(
+            conversations = conversationsFlow,
+            drivePermissionsEnabled = drivePermissionsEnabled
+        )
+    )
         private set
     var avatarAsset by mutableStateOf<ImageAsset.UserAvatarAsset?>(null)
         private set
@@ -130,6 +137,10 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     }
 
     fun onConversationClicked(conversationItem: ConversationItem) {
+        if (!importMediaState.isConversationSelectable(conversationItem)) {
+            appLogger.i("$TAG: Ignoring selection of a conversation with viewer only access")
+            return
+        }
         viewModelScope.launch {
             with(conversationItem) {
                 val selfDeletingTimer = observeSelfDeletionSettingsForConversation(

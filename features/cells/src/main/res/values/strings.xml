@@ -47,6 +47,7 @@
     <string name="share_file_via_link">Share file via link</string>
     <string name="share_folder_via_link">Share folder via link</string>
     <string name="no_app_found">No application found to open the file.</string>
+    <string name="file_not_supported">Can\'t open this file. File type isn\'t supported.</string>
     <string name="cell_files_load_failure_message">Unable to load. Please try again later.</string>
     <string name="action_failed">Action failed.</string>
     <string name="cancel">Cancel</string>
@@ -71,6 +72,35 @@
     <string name="cells_new_label">New</string>
     <string name="cells_new_label_content_description">New</string>
     <string name="cells_create_folder">Create Folder</string>
+    <string name="cells_upload_files">Upload Files</string>
+    <plurals name="cells_upload_status_title_uploading">
+        <item quantity="one">Uploading %1$d file</item>
+        <item quantity="other">Uploading %1$d files</item>
+    </plurals>
+    <string name="cells_upload_status_title_complete">Upload complete</string>
+    <string name="cells_upload_status_title_partial">%1$d of %2$d uploaded</string>
+    <string name="cells_upload_status_title_failed_partial">%1$d of %2$d couldn\'t upload</string>
+    <plurals name="cells_upload_status_subtitle_failed_count">
+        <item quantity="one">%1$d couldn\'t upload</item>
+        <item quantity="other">%1$d couldn\'t upload</item>
+    </plurals>
+    <string name="cells_upload_status_subtitle_queued">Waiting…</string>
+    <string name="cells_upload_status_subtitle_uploading">Uploading…</string>
+    <string name="cells_upload_status_subtitle_completed_with_size">Uploaded %1$s</string>
+    <string name="cells_upload_status_subtitle_failed">Couldn\'t upload file</string>
+    <string name="cells_upload_status_subtitle_cancelled">Canceled</string>
+    <string name="cells_upload_status_retry_failed">Retry</string>
+    <string name="cells_upload_status_cancel_all">Cancel all</string>
+    <plurals name="cells_upload_confirmation_title">
+        <item quantity="one">Upload %1$d file?</item>
+        <item quantity="other">Upload %1$d files?</item>
+    </plurals>
+    <string name="cells_upload_confirmation_destination">Files will be uploaded to %1$s</string>
+    <string name="cells_upload_confirmation_confirm">Upload</string>
+    <string name="content_description_cancel_upload">Cancel upload</string>
+    <string name="content_description_open_upload_status">Open upload status</string>
+    <string name="content_description_retry_upload">Retry upload</string>
+    <string name="content_description_dismiss_upload">Dismiss</string>
     <string name="cells_folder_name">Folder Name</string>
     <string name="loading_files">Loading files…</string>
     <string name="tap_to_cancel_loading">Tap to cancel loading</string>
@@ -257,6 +287,7 @@
     <string name="sort_name_z_to_a">Z to A</string>
     <string name="sort_size_smallest_first">Smallest first</string>
     <string name="sort_size_largest_first">Largest first</string>
+    <string name="content_description_offline_available">Offline available</string>
     <string name="content_description_image_message">Image</string>
     <string name="cells_video_enter_fullscreen">Enter full screen</string>
     <string name="cells_video_exit_fullscreen">Exit full screen</string>

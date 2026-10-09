@@ -77,6 +77,18 @@ class FileSharingBetweenTeams : BaseUiTest() {
                 context
             )
 
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user1Name",
+                "sendTeam",
+                backendClient
+            )
+
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user3Name",
+                "receiveTeam",
+                backendClient
+            )
+
             backendSetupHelper.userXAddsUsersToTeam(
                 "user3Name",
                 "user4Name",
@@ -242,6 +254,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
                     "Device1",
                     "user4Name"
                 )
+                scrollToLatestFile("TextFile")
                 assertFileWithNameIsVisible("TextFile")
                 clickTextFileWithName("TextFile")
                 assertFileActionModalIsVisible()
@@ -273,7 +286,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
 
         step("Scroll to latest messages and verify video file is visible") {
             pages.conversationViewPage.apply {
-                scrollToBottomOfConversationScreen()
+                scrollToLatestFile("VideoFile")
                 assertFileWithNameIsVisible("VideoFile")
             }
         }

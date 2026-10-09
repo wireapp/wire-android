@@ -21,16 +21,21 @@ package com.wire.android.ui.home.gallery
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import coil3.annotation.ExperimentalCoilApi
 import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
@@ -40,9 +45,13 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.edit.DeleteItemMenuOption
 import com.wire.android.ui.edit.DownloadAssetExternallyOption
@@ -111,6 +120,8 @@ internal fun MediaGalleryRouteScreen(
         state = viewModelState,
         onCloseClick = onNavigateBack,
         onOptionsClick = mediaGalleryViewModel::onOptionsClick,
+        onRetryClick = mediaGalleryViewModel::retryLoadingAsset,
+        onAssetRenderFailed = mediaGalleryViewModel::onAssetRenderFailed,
         modifier = modifier,
     )
 
@@ -184,6 +195,8 @@ private fun MediaGalleryContent(
     state: MediaGalleryViewState,
     onCloseClick: () -> Unit,
     onOptionsClick: () -> Unit,
+    onRetryClick: () -> Unit,
+    onAssetRenderFailed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WireScaffold(
@@ -202,18 +215,50 @@ private fun MediaGalleryContent(
                     .padding(internalPadding)
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .background(colorsScheme().surface)
+                    .background(colorsScheme().surface),
+                contentAlignment = Alignment.Center,
             ) {
-                state.imageAsset?.let {
-                    ZoomableImage(
-                        modifier = Modifier.align(Alignment.Center),
-                        image = it,
-                        contentDescription = stringResource(R.string.content_description_image_message)
+                when (val assetState = state.assetState) {
+                    MediaGalleryAssetState.Loading -> WireCircularProgressIndicator(
+                        progressColor = colorsScheme().onSurface,
+                        size = dimensions().spacing32x,
                     )
+
+                    is MediaGalleryAssetState.Loaded -> ZoomableImage(
+                        image = assetState.image,
+                        contentDescription = stringResource(R.string.content_description_image_message),
+                        onRenderFailed = onAssetRenderFailed,
+                    )
+
+                    MediaGalleryAssetState.Failure -> MediaGalleryLoadFailure(onRetryClick = onRetryClick)
                 }
             }
         }
     )
+}
+
+@Composable
+private fun MediaGalleryLoadFailure(
+    onRetryClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.padding(dimensions().spacing16x),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(dimensions().spacing16x),
+    ) {
+        Text(
+            text = stringResource(R.string.label_general_error),
+            style = MaterialTheme.wireTypography.body01,
+            color = colorsScheme().onSurface,
+            textAlign = TextAlign.Center,
+        )
+        WireSecondaryButton(
+            text = stringResource(R.string.label_retry),
+            onClick = onRetryClick,
+            fillMaxWidth = false,
+        )
+    }
 }
 
 @Composable
@@ -278,11 +323,43 @@ private fun MediaGalleryOptionsBottomSheetLayout(
 fun PreviewMediaGalleryScreen() = WireTheme {
     MediaGalleryContent(
         state = MediaGalleryViewState(
-            imageAsset = MediaGalleryImage.PrivateAsset(mockedPrivateAsset()),
+            assetState = MediaGalleryAssetState.Loaded(MediaGalleryImage.PrivateAsset(mockedPrivateAsset())),
             screenTitle = "Media Gallery",
         ),
         onCloseClick = {},
-        onOptionsClick = {}
+        onOptionsClick = {},
+        onRetryClick = {},
+        onAssetRenderFailed = {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMediaGalleryScreenLoading() = WireTheme {
+    MediaGalleryContent(
+        state = MediaGalleryViewState(
+            assetState = MediaGalleryAssetState.Loading,
+            screenTitle = "Media Gallery",
+        ),
+        onCloseClick = {},
+        onOptionsClick = {},
+        onRetryClick = {},
+        onAssetRenderFailed = {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewMediaGalleryScreenFailure() = WireTheme {
+    MediaGalleryContent(
+        state = MediaGalleryViewState(
+            assetState = MediaGalleryAssetState.Failure,
+            screenTitle = "Media Gallery",
+        ),
+        onCloseClick = {},
+        onOptionsClick = {},
+        onRetryClick = {},
+        onAssetRenderFailed = {},
     )
 }
 

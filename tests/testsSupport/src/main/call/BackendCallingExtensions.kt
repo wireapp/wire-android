@@ -33,7 +33,7 @@ import java.net.URI
 
 suspend fun BackendClient.unlockConferenceCallingFeature(team: Team) {
     val teamId = Uri.encode(team.id)
-    val url = URI("i/teams/$teamId/features/conferenceCalling/unlocked".composeCompleteUrl()).toURL()
+    val url = URI("teams/$teamId/features/conferenceCalling/unlocked".composeInternalApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", basicAuth.getEncoded())
@@ -52,7 +52,7 @@ suspend fun BackendClient.unlockConferenceCallingFeature(team: Team) {
 
 suspend fun BackendClient.enableConferenceCallingBackdoorViaBackendTeam(team: Team) {
     val teamId = Uri.encode(team.id)
-    val url = URI("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl()).toURL()
+    val url = URI("teams/$teamId/features/conferenceCalling".composeInternalApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", basicAuth.getEncoded())
@@ -75,7 +75,7 @@ suspend fun BackendClient.enableConferenceCallingBackdoorViaBackendTeam(team: Te
 
 suspend fun BackendClient.disableConferenceCallingBackdoorViaBackendTeam(team: Team) {
     val teamId = Uri.encode(team.id)
-    val url = URI("i/teams/$teamId/features/conferenceCalling".composeCompleteUrl()).toURL()
+    val url = URI("teams/$teamId/features/conferenceCalling".composeInternalApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", basicAuth.getEncoded())
@@ -98,7 +98,7 @@ suspend fun BackendClient.disableConferenceCallingBackdoorViaBackendTeam(team: T
 
 suspend fun BackendClient.enableConferenceCallingViaBackendPersonalUser(personalUser: ClientUser) {
     val userId = Uri.encode(personalUser.id)
-    val url = URI("i/users/$userId/features/conferenceCalling".composeCompleteUrl()).toURL()
+    val url = URI("users/$userId/features/conferenceCalling".composeInternalApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", basicAuth.getEncoded())
@@ -124,7 +124,7 @@ suspend fun BackendClient.upgradeToEnterprisePlanResult(team: Team) {
 }
 
 suspend fun BackendClient.getCallConfig(): JSONObject {
-    val url = URI("calls/config/v2".composeCompleteUrl()).toURL()
+    val url = URI("calls/config/v2".composePublicApiUrl()).toURL()
 
     val headers = defaultheaders.toMutableMap().apply {
         put("Authorization", basicAuth.getEncoded())

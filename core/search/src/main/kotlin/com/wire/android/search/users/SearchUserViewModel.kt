@@ -56,7 +56,7 @@ import com.wire.android.search.SearchManualViewModelFactoryGroup
 @WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)
 class SearchUserViewModel @AssistedInject constructor(
     @Assisted private val conversationId: ConversationId?,
-    @Assisted private val onlyConnectedContacts: Boolean,
+    @Assisted private val onlySelfTeamAndDomain: Boolean,
     private val searchUsersByName: SearchUsersByNameUseCase,
     private val searchUsersByHandle: SearchUsersByHandleUseCase,
     private val contactMapper: ContactMapper,
@@ -66,7 +66,7 @@ class SearchUserViewModel @AssistedInject constructor(
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(conversationId: ConversationId?, onlyConnectedContacts: Boolean): SearchUserViewModel
+        fun create(conversationId: ConversationId?, onlySelfTeamAndDomain: Boolean): SearchUserViewModel
     }
 
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
@@ -152,8 +152,8 @@ class SearchUserViewModel @AssistedInject constructor(
     private suspend fun searchByHandle(searchTerm: String, domain: String?): SearchUserResult =
         searchUsersByHandle(
             searchTerm,
-            excludingConversation = conversationId,
-            skipRemoteSearch = onlyConnectedContacts,
+            excludingMembersOfConversation = conversationId,
+            onlySelfTeamAndDomain = onlySelfTeamAndDomain,
             customDomain = domain
         )
 
@@ -161,7 +161,7 @@ class SearchUserViewModel @AssistedInject constructor(
         searchUsersByName(
             searchTerm,
             excludingMembersOfConversation = conversationId,
-            skipRemoteSearch = onlyConnectedContacts,
+            onlySelfTeamAndDomain = onlySelfTeamAndDomain,
             customDomain = domain
         )
 }

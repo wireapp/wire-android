@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert.assertTrue
@@ -27,6 +28,13 @@ data class GroupAccessOptionsPage(private val device: UiDevice) {
     private val clickableSwitch = UiSelector().className("android.view.View").clickable(true)
     private val disableButton = UiSelectorParams(text = "Disable")
     private val backButton = UiSelectorParams(description = "Go back to conversation details")
+    private val createLinkButton = UiSelectorParams(text = "Create Link")
+    private val createLinkWithPassword = UiSelectorParams(text = "Create password secured link")
+    private val createLinkWithoutPassword = UiSelectorParams(text = "Create link without password")
+    private val createPasswordSecuredLinkHeading = UiSelectorParams(text = "Create Password Secured Link")
+    private val guestLink = UiSelectorParams(textContains = "/conversation-join")
+    private val copyLinkButton = UiSelectorParams(text = "Copy Link")
+    private val passwordSecuredLinkBanner = UiSelectorParams(text = "Link is password secured")
 
     fun assertGuestSwitchState(expectedState: String): GroupAccessOptionsPage {
         return assertSwitchState("Guests", expectedState)
@@ -46,6 +54,62 @@ data class GroupAccessOptionsPage(private val device: UiDevice) {
 
     fun tapDisableButton(): GroupAccessOptionsPage {
         UiWaitUtils.waitElement(disableButton).click()
+        return this
+    }
+
+    fun tapCreateLinkButton(): GroupAccessOptionsPage {
+        UiWaitUtils.waitElement(createLinkButton).click()
+        return this
+    }
+
+    fun tapCreateLinkWithPassword(): GroupAccessOptionsPage {
+        UiWaitUtils.waitElement(createLinkWithPassword).click()
+        return this
+    }
+
+    fun tapCreateLinkWithoutPassword(): GroupAccessOptionsPage {
+        UiWaitUtils.waitElement(createLinkWithoutPassword).click()
+        return this
+    }
+
+    fun assertGuestLinkCreated(): GroupAccessOptionsPage {
+        UiWaitUtils.waitElement(guestLink)
+        return this
+    }
+
+    fun assertCreatePasswordSecuredLinkPageVisible(): GroupAccessOptionsPage {
+        UiWaitUtils.waitElement(createPasswordSecuredLinkHeading)
+        return this
+    }
+
+    fun enterGuestLinkPassword(password: String?): GroupAccessOptionsPage {
+        enterPassword(password, 0)
+        return this
+    }
+
+    fun enterGuestLinkConfirmPassword(password: String?): GroupAccessOptionsPage {
+        enterPassword(password, 1)
+        return this
+    }
+
+    fun assertGuestLinkIsPasswordSecured(): GroupAccessOptionsPage {
+        UiWaitUtils.waitElement(passwordSecuredLinkBanner)
+        return this
+    }
+
+    fun tapCopyGuestLinkButton(): GroupAccessOptionsPage {
+        UiWaitUtils.waitElement(copyLinkButton).click()
+        return this
+    }
+
+    fun assertGuestLinkNotVisible(): GroupAccessOptionsPage {
+        val linkIsGone = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            UiWaitUtils.findElementOrNull(guestLink) == null
+        }
+        assertTrue("Guest link is visible after guest access was disabled.", linkIsGone)
         return this
     }
 
@@ -75,5 +139,13 @@ data class GroupAccessOptionsPage(private val device: UiDevice) {
         assertTrue("$optionName switch is not visible.", switch.exists() && !switch.visibleBounds.isEmpty)
         switch.click()
         return this
+    }
+
+    private fun enterPassword(password: String?, fieldIndex: Int) {
+        val fieldsAreVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            device.findObjects(By.clazz("android.widget.EditText")).size > fieldIndex
+        }
+        assertTrue("Guest-link password field is not visible.", fieldsAreVisible)
+        device.findObjects(By.clazz("android.widget.EditText"))[fieldIndex].text = password
     }
 }

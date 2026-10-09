@@ -45,6 +45,10 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
     private val notificationsButton = UiSelectorParams(text = "Notifications")
     private val devicesTab = UiSelectorParams(text = "DEVICES")
     private val verifiedShield = UiSelectorParams(description = "Verified")
+    private val editRoleButton = UiSelectorParams(description = "Edit role")
+    private val adminRoleButton = UiSelectorParams(text = "Admin")
+    private val editRoleSheetTitle = UiSelectorParams(textContains = "Role in")
+    private val closeButtonBackToConversationDetails = UiSelectorParams(description = "Go back to conversation details")
 
     private val removeConversationButtonOnModal = UiSelectorParams(text = "Remove")
 
@@ -124,6 +128,36 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
 
     fun tapCloseButtonOnConnectedUserProfilePage(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(closeButton).click()
+        return this
+    }
+
+    fun tapEditRoleButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(editRoleButton).click()
+        return this
+    }
+
+    fun tapAdminRoleButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(adminRoleButton).click()
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = editRoleSheetTitle.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Edit role sheet is still visible after selecting Admin"
+        )
+        return this
+    }
+
+    fun assertAdminRoleVisible(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(adminRoleButton)
+        return this
+    }
+
+    fun tapBackToConversationDetailsButton(): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(closeButtonBackToConversationDetails).click()
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = closeButtonBackToConversationDetails.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Connected user profile is still visible after tapping back"
+        )
         return this
     }
 

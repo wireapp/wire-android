@@ -146,16 +146,40 @@ suspend fun BackendClient.createGroupConversation(
     return JSONObject(response).getJSONObject("qualified_id").getString("id")
 }
 
-suspend fun BackendClient.createInviteLink(user: ClientUser, conversation: Conversation): String =
-    requestInviteLink(user, conversation, "POST")
+suspend fun BackendClient.createInviteLink(
+    user: ClientUser,
+    conversation: Conversation,
+    password: String? = null
+): String = requestInviteLink(user, conversation, "POST", password)
 
 suspend fun BackendClient.getInviteLink(user: ClientUser, conversation: Conversation): String =
-    requestInviteLink(user, conversation, "GET")
+    requestInviteLink(user, conversation, "GET", null)
+
+suspend fun BackendClient.revokeInviteLink(user: ClientUser, conversation: Conversation) {
+    val token = getAuthToken(user)
+    val url = URI("conversations/${conversation.id}/code".composePublicApiUrl()).toURL()
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", "${token?.type} ${token?.value}")
+    }
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = url,
+        method = "DELETE",
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+}
 
 private suspend fun BackendClient.requestInviteLink(
     user: ClientUser,
     conversation: Conversation,
-    method: String
+    method: String,
+    password: String?
 ): String {
     val token = getAuthToken(user)
     val url = URI("conversations/${conversation.id}/code".composePublicApiUrl()).toURL()
@@ -166,7 +190,7 @@ private suspend fun BackendClient.requestInviteLink(
         url = url,
         method = method,
         body = if (method == "POST") {
-            JSONObject().put("password", JSONObject.NULL).toString()
+            JSONObject().put("password", password ?: JSONObject.NULL).toString()
         } else {
             null
         },
@@ -363,6 +387,37 @@ fun BackendClient.setReadReceiptsForConversation(
         put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
     }
     val requestBody = JSONObject().put("receipt_mode", if (enabled) 1 else 0)
+
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI(url).toURL(),
+        method = "PUT",
+        body = requestBody.toString(),
+        headers = headers,
+        options = RequestOptions(
+            accessToken = token,
+            expectedResponseCodes = NumberSequence.Array(
+                intArrayOf(HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_NO_CONTENT)
+            )
+        )
+    )
+}
+
+fun BackendClient.enableGuestAccessForConversation(
+    asUser: ClientUser,
+    conversation: Conversation
+) {
+    val token = runBlocking { getAuthToken(asUser) }
+    val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/access".composePublicApiUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
+    }
+    val requestBody = JSONObject().apply {
+        put("access", JSONArray(listOf("invite", "code")))
+        put(
+            "access_role",
+            JSONArray(listOf("team_member", "non_team_member", "guest", "service"))
+        )
+    }
 
     NetworkBackendClient.sendJsonRequestWithCookies(
         url = URI(url).toURL(),

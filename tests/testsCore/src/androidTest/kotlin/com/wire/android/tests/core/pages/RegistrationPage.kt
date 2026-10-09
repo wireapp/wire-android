@@ -245,8 +245,8 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertEnterYourUserNameInfoText(): RegistrationPage {
-        val info = UiWaitUtils.waitElement(userNameInfoText, timeout = 15.seconds)
+    fun assertEnterYourUserNameInfoText(timeout: Duration = 15.seconds): RegistrationPage {
+        val info = UiWaitUtils.waitElement(userNameInfoText, timeout = timeout)
         assertTrue("Username info not visible", !info.visibleBounds.isEmpty)
         return this
     }

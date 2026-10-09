@@ -99,6 +99,10 @@ class FederationTests : BaseUiTest() {
             backendSetupHelper.userConfiguresMLSForTeam("user2Name", "SearchEnabled", backendClient)
         }
 
+        step("And TeamOwnerB sets SearchVisibilityInbound to SearchableByAllTeams for team SearchEnabled") {
+            backendSetupHelper.setSearchVisibilityInbound("user2Name", "SearchEnabled", true)
+        }
+
         step("And Member1 is me") {
             teamMember = clientUserManager.findUserByNameOrNameAlias("user3Name")
             clientUserManager.setSelfUser(teamMember)
@@ -154,10 +158,6 @@ class FederationTests : BaseUiTest() {
 
         step("And I tap on start a new conversation button") {
             pages.conversationListPage.tapStartNewConversationButton()
-        }
-
-        step("And TeamOwnerB sets SearchVisibilityInbound to SearchableByAllTeams for team SearchEnabled") {
-            backendSetupHelper.setSearchVisibilityInbound("user2Name", "SearchEnabled", true)
         }
 
         step("When I tap on search people field and enter TeamOwnerB's exact unique username") {
@@ -231,6 +231,10 @@ class FederationTests : BaseUiTest() {
             backendSetupHelper.userConfiguresMLSForTeam("user2Name", "SearchDisabled", backendClient)
         }
 
+        step("And TeamOwnerB sets SearchVisibilityInbound to SearchableByOwnTeam for team SearchDisabled") {
+            backendSetupHelper.setSearchVisibilityInbound("user2Name", "SearchDisabled", false)
+        }
+
         step("And Member1 is me") {
             teamMember = clientUserManager.findUserByNameOrNameAlias("user3Name")
             clientUserManager.setSelfUser(teamMember)
@@ -286,10 +290,6 @@ class FederationTests : BaseUiTest() {
 
         step("And I tap on start a new conversation button") {
             pages.conversationListPage.tapStartNewConversationButton()
-        }
-
-        step("And TeamOwnerB sets SearchVisibilityInbound to SearchableByOwnTeam for team SearchDisabled") {
-            backendSetupHelper.setSearchVisibilityInbound("user2Name", "SearchDisabled", false)
         }
 
         step("When I tap on search people field and enter TeamOwnerB's full name") {
@@ -376,6 +376,14 @@ class FederationTests : BaseUiTest() {
             backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ToSearch", backendClient)
         }
 
+        step("And TeamOwnerA enables TeamSearchVisibility for team Searchers") {
+            backendSetupHelper.setTeamSearchVisibilityEnabled("user1Name", "Searchers", true)
+        }
+
+        step("And TeamOwnerA sets TeamSearchVisibility to SearchVisibilityNoNameOutsideTeam for team Searchers") {
+            backendSetupHelper.setTeamSearchVisibility("user1Name", "Searchers", "no-name-outside-team")
+        }
+
         step("And Member1 is me") {
             teamMember = clientUserManager.findUserByNameOrNameAlias("user3Name")
             clientUserManager.setSelfUser(teamMember)
@@ -431,14 +439,6 @@ class FederationTests : BaseUiTest() {
 
         step("And I tap on start a new conversation button") {
             pages.conversationListPage.tapStartNewConversationButton()
-        }
-
-        step("And TeamOwnerA enables TeamSearchVisibility for team Searchers") {
-            backendSetupHelper.setTeamSearchVisibilityEnabled("user1Name", "Searchers", true)
-        }
-
-        step("And TeamOwnerA sets TeamSearchVisibility to SearchVisibilityNoNameOutsideTeam for team Searchers") {
-            backendSetupHelper.setTeamSearchVisibility("user1Name", "Searchers", "no-name-outside-team")
         }
 
         step("When I tap on search people field and enter TeamOwnerB's full name") {
@@ -503,6 +503,14 @@ class FederationTests : BaseUiTest() {
             backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Searchers", backendClient)
         }
 
+        step("And TeamOwner enables TeamSearchVisibility for team Searchers") {
+            backendSetupHelper.setTeamSearchVisibilityEnabled("user1Name", "Searchers", true)
+        }
+
+        step("And TeamOwner sets TeamSearchVisibility to SearchVisibilityNoNameOutsideTeam for team Searchers") {
+            backendSetupHelper.setTeamSearchVisibility("user1Name", "Searchers", "no-name-outside-team")
+        }
+
         step("And Member1 is me") {
             teamMember = clientUserManager.findUserByNameOrNameAlias("user2Name")
             clientUserManager.setSelfUser(teamMember)
@@ -562,14 +570,6 @@ class FederationTests : BaseUiTest() {
 
         step("And I tap on start a new conversation button") {
             pages.conversationListPage.tapStartNewConversationButton()
-        }
-
-        step("And TeamOwner enables TeamSearchVisibility for team Searchers") {
-            backendSetupHelper.setTeamSearchVisibilityEnabled("user1Name", "Searchers", true)
-        }
-
-        step("And TeamOwner sets TeamSearchVisibility to SearchVisibilityNoNameOutsideTeam for team Searchers") {
-            backendSetupHelper.setTeamSearchVisibility("user1Name", "Searchers", "no-name-outside-team")
         }
 
         step("When I tap on search people field and enter personal user user3Name's full name") {

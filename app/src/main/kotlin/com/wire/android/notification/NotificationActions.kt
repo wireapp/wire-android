@@ -59,14 +59,14 @@ fun getDeclineCallAction(context: Context, conversationId: String, userId: Strin
     declineCallPendingIntent(context, conversationId, userId)
 )
 
-fun getCancelAllDriveUploadsAction(context: Context, userId: String) = getAction(
+fun getCancelAllDriveUploadsAction(context: Context, userId: String, conversationId: String) = getAction(
     context.getString(R.string.notification_drive_upload_action_cancel_all),
-    cancelAllDriveUploadsPendingIntent(context, userId)
+    cancelAllDriveUploadsPendingIntent(context, userId, conversationId)
 )
 
-fun getRetryFailedDriveUploadsAction(context: Context, userId: String) = getAction(
+fun getRetryFailedDriveUploadsAction(context: Context, userId: String, conversationId: String) = getAction(
     context.getString(R.string.notification_drive_upload_action_retry),
-    retryFailedDriveUploadsPendingIntent(context, userId)
+    retryFailedDriveUploadsPendingIntent(context, userId, conversationId)
 )
 
 private fun getAction(title: String, intent: PendingIntent) = NotificationCompat.Action

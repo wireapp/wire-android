@@ -138,7 +138,7 @@ class SSODeviceBackup : BaseUiTest() {
         }
 
         step("And I wait until username setup page is visible") {
-            pages.registrationPage.assertEnterYourUserNameInfoText()
+            pages.registrationPage.assertEnterYourUserNameInfoText(timeout = 16.seconds)
         }
 
         step("And I set Member1 username and confirm profile setup") {

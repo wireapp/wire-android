@@ -295,7 +295,11 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 )
                 state = state.copy(isSubmitting = false, continueButtonEnabled = true)
                 when (creationResult) {
-                    is CreateNewMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
+                    is CreateNewMeetingUseCase.Result.Success -> sendAction(
+                        NewMeetingViewActions.Success(
+                            conversationIdToStartACall = creationResult.conversationId.takeIf { type == NewMeetingType.MeetNow }
+                        )
+                    )
                     is CreateNewMeetingUseCase.Result.Failure -> state = state.copy(submitError = NewMeetingState.SubmitError.Other)
                 }
             }
@@ -322,7 +326,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 )
                 state = state.copy(isSubmitting = false, continueButtonEnabled = true)
                 when (updateResult) {
-                    is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success)
+                    is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success())
                     is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
                         submitError = when (updateResult) {
                             is UpdateMeetingUseCase.Result.Failure.UpdateConversationNameFailure ->
@@ -344,7 +348,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 when (it) {
                     is RenamingResult.Failure ->
                         state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))
-                    RenamingResult.Success -> sendAction(NewMeetingViewActions.Success)
+                    RenamingResult.Success -> sendAction(NewMeetingViewActions.Success())
                 }
             }
         }
@@ -444,5 +448,5 @@ data class NewMeetingState(
 }
 
 sealed interface NewMeetingViewActions {
-    data object Success : NewMeetingViewActions
+    data class Success(val conversationIdToStartACall: ConversationId? = null) : NewMeetingViewActions
 }

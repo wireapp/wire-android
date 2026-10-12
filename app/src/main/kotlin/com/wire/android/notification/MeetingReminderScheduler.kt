@@ -9,7 +9,6 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.broadcastreceivers.MeetingReminderReceiver
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.meeting.MeetingReminder.Companion.REMINDER_NOTIFICATION_LEAD_TIME
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult

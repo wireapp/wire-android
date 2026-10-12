@@ -88,7 +88,7 @@ jobs:
             gh run download "${source_run_id}" --repo "${GITHUB_REPOSITORY}" --name Dev-Debug-artifacts --dir downloaded-artifacts
             apk_path="$(find_dev_debug_apk downloaded-artifacts)"
           else
-            ./gradlew :app:assembleDevDebug
+            make build-dev
             apk_path="$(find_dev_debug_apk app/build/outputs)"
           fi
 
@@ -108,6 +108,7 @@ jobs:
           trap 'rm -f "${credentials_file}"' EXIT
           printf '%s' "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON}" > "${credentials_file}"
           chmod 600 "${credentials_file}"
+          export GOOGLE_APPLICATION_CREDENTIALS="${credentials_file}"
 
           firebase_app_id="$(jq -er '.flavors.dev.firebase_app_id | strings | select(length > 0)' default.json)"
           upload_args=(appdistribution:distribute "${APK_PATH}" "--app=${firebase_app_id}" "--release-notes=${RELEASE_NOTES}" "--non-interactive")

@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       source-branch:
-        description: "Repository branch to build; defaults to develop. Keep the workflow branch set to develop."
+        description: "Branch to build (defaults to develop); run the workflow itself from develop"
         required: false
         type: string
       pull-request:
-        description: "Develop PR whose current successful CI APK should be distributed; mutually exclusive with source-branch"
+        description: "PR number to reuse its current successful Develop CI APK instead of building a branch"
         required: false
         type: string
       release-notes:
-        description: "What testers should test in this build"
+        description: "What testers should test"
         required: true
         type: string
 
@@ -27,114 +27,60 @@ concurrency:
 
 jobs:
   prepare:
-    name: Prepare DevDebug APK
     runs-on: warp-ubuntu-2404-x64-8x
     timeout-minutes: 45
     outputs:
-      source-kind: ${{ steps.source.outputs.kind }}
-      source-label: ${{ steps.source.outputs.label }}
-      source-sha: ${{ steps.source.outputs.sha }}
-      source-run: ${{ steps.source.outputs.run }}
-      validation: ${{ steps.source.outputs.validation }}
+      details: ${{ steps.apk.outputs.details }}
     steps:
-      - name: Require trusted workflow revision
-        run: |
-          [[ "${GITHUB_REF}" == refs/heads/develop ]] || {
-            echo "Run this workflow from develop; select build code through source-branch or pull-request."
-            exit 1
-          }
-
-      - name: Checkout trusted workflow tools
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-          fetch-depth: 1
-
-      - name: Resolve source
-        id: source
+      - name: Validate selection
         env:
-          GH_TOKEN: ${{ github.token }}
           SOURCE_BRANCH: ${{ inputs.source-branch }}
           PULL_REQUEST: ${{ inputs.pull-request }}
         run: |
-          [[ -z "${SOURCE_BRANCH}" || -z "${PULL_REQUEST}" ]] || {
-            echo "Choose source-branch or pull-request, not both."
-            exit 1
-          }
-          if [[ -n "${PULL_REQUEST}" ]]; then
-            [[ "${PULL_REQUEST}" =~ ^[1-9][0-9]*$ ]] || { echo "pull-request must be a positive PR number"; exit 1; }
-            pr="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST}")"
-            jq -e '.base.ref == "develop" and .head.repo.full_name == env.GITHUB_REPOSITORY' <<< "${pr}" > /dev/null || {
-              echo "Only repository PRs targeting develop are eligible."
-              exit 1
-            }
-            head_sha="$(jq -er '.head.sha' <<< "${pr}")"
-            runs="$(gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/workflows/build-develop-pr.yml/runs?event=pull_request&head_sha=${head_sha}&status=success&per_page=100")"
-            run_id="$(jq -er --argjson pr "${PULL_REQUEST}" --arg sha "${head_sha}" '[.[] | .workflow_runs[] | select(.event == "pull_request" and .conclusion == "success") | select(any(.pull_requests[]; .number == $pr and .head.sha == $sha and .base.ref == "develop"))] | sort_by(.run_number, .run_attempt) | last | .id // empty' <<< "${runs}")" || {
-              echo "No successful Develop CI build for the current PR revision. Re-run PR CI first."
-              exit 1
-            }
-            artifacts="$(gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts?per_page=100")"
-            jq -e '[.[] | .artifacts[] | select(.name == "Dev-Debug-artifacts" and .expired == false)] | length == 1' <<< "${artifacts}" > /dev/null || {
-              echo "The PR APK artifact is missing or expired. Re-run PR CI first."
-              exit 1
-            }
-            gh run download "${run_id}" --repo "${GITHUB_REPOSITORY}" --name Dev-Debug-artifacts --dir apk-input
-            {
-              echo "kind=pr"
-              echo "label=PR #${PULL_REQUEST} (CI test merge)"
-              echo "sha=${head_sha}"
-              echo "run=${run_id}"
-              echo "validation=Successful Develop PR CI workflow"
-            } >> "${GITHUB_OUTPUT}"
-          else
-            branch="${SOURCE_BRANCH:-develop}"
-            git check-ref-format "refs/heads/${branch}" || { echo "Invalid repository branch"; exit 1; }
-            branch_encoded="$(jq -rn --arg branch "${branch}" '$branch | @uri')"
-            sha="$(gh api "repos/${GITHUB_REPOSITORY}/branches/${branch_encoded}" --jq .commit.sha)"
-            {
-              echo "kind=branch"
-              echo "label=Branch ${branch} (branch head)"
-              echo "sha=${sha}"
-              echo "run=${GITHUB_RUN_ID}"
-              echo "validation=APK build only; full PR CI gates were not run"
-            } >> "${GITHUB_OUTPUT}"
-          fi
+          [[ "${GITHUB_REF}" == refs/heads/develop ]] || { echo "Run the workflow from develop"; exit 1; }
+          [[ -z "${SOURCE_BRANCH}" || -z "${PULL_REQUEST}" ]] || { echo "Choose a branch or a PR, not both"; exit 1; }
+          [[ -z "${PULL_REQUEST}" || "${PULL_REQUEST}" =~ ^[1-9][0-9]*$ ]] || { echo "PR number must be a positive integer"; exit 1; }
+          git check-ref-format "refs/heads/${SOURCE_BRANCH:-develop}"
 
-      - name: Checkout branch at resolved commit
-        if: steps.source.outputs.kind == 'branch'
+      - name: Checkout workflow tools
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
-          ref: ${{ steps.source.outputs.sha }}
+          persist-credentials: false
+
+      - name: Download PR APK
+        if: inputs.pull-request != ''
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_REQUEST: ${{ inputs.pull-request }}
+        run: |
+          pr="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST}")"
+          jq -e '.base.ref == "develop" and .head.repo.full_name == env.GITHUB_REPOSITORY' <<< "${pr}" > /dev/null || {
+            echo "Choose a repository PR targeting develop"; exit 1;
+          }
+          sha="$(jq -er '.head.sha' <<< "${pr}")"
+          run_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/build-develop-pr.yml/runs?event=pull_request&head_sha=${sha}&status=success&per_page=100" \
+            --jq "[.workflow_runs[] | select(any(.pull_requests[]; .number == ${PULL_REQUEST}))][0].id // empty")"
+          [[ -n "${run_id}" ]] || { echo "No successful CI build for this PR revision; run PR CI first"; exit 1; }
+          gh run download "${run_id}" --repo "${GITHUB_REPOSITORY}" --name Dev-Debug-artifacts --dir apk-input
+          echo "details=PR #${PULL_REQUEST} | head ${sha} | CI test merge, successful Develop CI | ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${run_id}" >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout build branch
+        if: inputs.pull-request == ''
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: refs/heads/${{ inputs.source-branch || 'develop' }}
           path: source
           persist-credentials: false
           submodules: recursive
           fetch-depth: 1
 
-      - name: Set up JDK 21
-        if: steps.source.outputs.kind == 'branch'
-        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
-        with:
-          java-version: "21"
-          distribution: temurin
-
-      - name: Restore Gradle cache
-        if: steps.source.outputs.kind == 'branch'
-        uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('source/**/*.gradle*', 'source/**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Validate Gradle wrapper
-        if: steps.source.outputs.kind == 'branch'
-        uses: gradle/actions/wrapper-validation@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+      - name: Set up Java and Gradle
+        if: inputs.pull-request == ''
+        uses: ./.github/actions/setup-java-gradle
 
       - name: Setup shared debug keystore
-        if: steps.source.outputs.kind == 'branch'
+        if: inputs.pull-request == ''
         uses: ./.github/actions/setup-keystore
         with:
           keystore-type: debug
@@ -142,7 +88,7 @@ jobs:
           ENCODED_KEYSTORE_DEBUG: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
 
       - name: Build branch APK
-        if: steps.source.outputs.kind == 'branch'
+        if: inputs.pull-request == ''
         env:
           ENABLE_SIGNING: "TRUE"
           KEYSTORE_KEY_NAME_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
@@ -153,22 +99,26 @@ jobs:
           DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
         run: make -C source build-dev
 
-      - name: Stage exactly one DevDebug APK
+      - name: Stage DevDebug APK
+        id: apk
         env:
-          SOURCE_KIND: ${{ steps.source.outputs.kind }}
+          SOURCE_BRANCH: ${{ inputs.source-branch }}
+          PULL_REQUEST: ${{ inputs.pull-request }}
+          PR_DETAILS: ${{ steps.pr.outputs.details }}
         run: |
-          if [[ "${SOURCE_KIND}" == branch ]]; then
+          search_root=apk-input
+          details="${PR_DETAILS}"
+          if [[ -z "${PULL_REQUEST}" ]]; then
             search_root=source/app/build/outputs
-          else
-            search_root=apk-input
+            details="Branch ${SOURCE_BRANCH:-develop} | commit $(git -C source rev-parse HEAD) | APK build only | ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           fi
           mapfile -t apks < <(find "${search_root}" -type f -path '*/apk/dev/debug/*.apk' -print)
-          (( ${#apks[@]} == 1 )) || { echo "Expected exactly one DevDebug APK, found ${#apks[@]}"; exit 1; }
+          (( ${#apks[@]} == 1 )) || { echo "Expected one DevDebug APK, found ${#apks[@]}"; exit 1; }
           mkdir -p distribution-apk
           cp -- "${apks[0]}" distribution-apk/app.apk
+          echo "details=${details}" >> "${GITHUB_OUTPUT}"
 
-      - name: Transfer APK to upload job
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: firebase-dev-apk
           path: distribution-apk/app.apk
@@ -176,90 +126,39 @@ jobs:
           retention-days: 1
 
   distribute:
-    name: Distribute DevDebug
     needs: prepare
     runs-on: warp-ubuntu-2404-x64-8x
     timeout-minutes: 15
-    # This environment must restrict deployment to develop and own the Firebase secret.
     environment: firebase-dev
     steps:
-      - name: Checkout trusted upload configuration
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
-          fetch-depth: 1
 
-      - name: Download prepared APK
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: firebase-dev-apk
           path: distribution-apk
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
-        with:
-          java-version: "21"
-          distribution: temurin
-
-      - name: Setup expected debug signing identity
-        uses: ./.github/actions/setup-keystore
-        with:
-          keystore-type: debug
-        env:
-          ENCODED_KEYSTORE_DEBUG: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
-
-      - name: Verify APK package and signing identity
-        env:
-          KEYSTORE_KEY_NAME_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
-          KEYSTOREPWD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
-        run: |
-          build_tools="$(find "${ANDROID_HOME:?Android SDK is required}/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
-          package="$("${build_tools}/aapt" dump badging distribution-apk/app.apk | sed -n "s/^package: name='\([^']*\)'.*/\1/p")"
-          expected_package="$(jq -er '.flavors.dev.application_id + ".debug"' default.json)"
-          [[ "${package}" == "${expected_package}" ]] || { echo "APK package does not match the trusted DevDebug configuration"; exit 1; }
-          expected_cert="$(keytool -exportcert -keystore "${KEYSTORE_FILE_PATH_DEBUG}" -alias "${KEYSTORE_KEY_NAME_DEBUG}" -storepass:env KEYSTOREPWD_DEBUG | sha256sum | cut -d ' ' -f 1)"
-          actual_cert="$("${build_tools}/apksigner" verify --print-certs distribution-apk/app.apk | sed -n 's/^Signer #[0-9]* certificate SHA-256 digest: //p')"
-          [[ "${actual_cert}" == "${expected_cert}" ]] || { echo "APK must use the shared debug signing key; configure ENABLE_SIGNING=TRUE for PR CI"; exit 1; }
-
-      - name: Set up Node.js
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 24
 
-      - name: Require PR revision to remain current
-        if: needs.prepare.outputs.source-kind == 'pr'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PULL_REQUEST: ${{ inputs.pull-request }}
-          SOURCE_SHA: ${{ needs.prepare.outputs.source-sha }}
-        run: |
-          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST}" \
-            --jq '.head.sha' | { read -r current_sha; [[ "${current_sha}" == "${SOURCE_SHA}" ]]; } || {
-            echo "The PR changed after source selection. Dispatch distribution again."
-            exit 1
-          }
-
-      - name: Upload to Firebase App Distribution
+      - name: Upload to Firebase
         env:
           FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON }}
           FIREBASE_APP_DISTRIBUTION_GROUPS: ${{ vars.FIREBASE_APP_DISTRIBUTION_GROUPS }}
-          SOURCE_LABEL: ${{ needs.prepare.outputs.source-label }}
-          SOURCE_SHA: ${{ needs.prepare.outputs.source-sha }}
-          SOURCE_RUN: ${{ needs.prepare.outputs.source-run }}
-          VALIDATION: ${{ needs.prepare.outputs.validation }}
+          BUILD_DETAILS: ${{ needs.prepare.outputs.details }}
           RELEASE_NOTES: ${{ inputs.release-notes }}
         run: |
-          : "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON:?Configure this secret in the firebase-dev environment}"
+          : "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON:?Configure the firebase-dev environment secret}"
           : "${FIREBASE_APP_DISTRIBUTION_GROUPS:?Configure the internal tester group aliases}"
           credentials_file="$(mktemp "${RUNNER_TEMP}/firebase-app-distribution.XXXXXX.json")"
           trap 'rm -f "${credentials_file}"' EXIT
           printf '%s' "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON}" > "${credentials_file}"
           chmod 600 "${credentials_file}"
           export GOOGLE_APPLICATION_CREDENTIALS="${credentials_file}"
-          notes_file="${RUNNER_TEMP}/firebase-release-notes.txt"
-          printf '%s\n\nSource: %s\nSource SHA: %s\nCI run: %s/%s/actions/runs/%s\nValidation: %s\n' \
-            "${RELEASE_NOTES}" "${SOURCE_LABEL}" "${SOURCE_SHA}" "${GITHUB_SERVER_URL}" "${GITHUB_REPOSITORY}" "${SOURCE_RUN}" "${VALIDATION}" > "${notes_file}"
           firebase_app_id="$(jq -er '.flavors.dev.firebase_app_id | strings | select(length > 0)' default.json)"
           npx --yes firebase-tools@15.27.0 appdistribution:distribute distribution-apk/app.apk \
-            "--app=${firebase_app_id}" "--release-notes-file=${notes_file}" \
-            "--groups=${FIREBASE_APP_DISTRIBUTION_GROUPS}" --non-interactive
+            "--app=${firebase_app_id}" "--groups=${FIREBASE_APP_DISTRIBUTION_GROUPS}" \
+            "--release-notes=${RELEASE_NOTES}"$'\n\n'"${BUILD_DETAILS}" --non-interactive

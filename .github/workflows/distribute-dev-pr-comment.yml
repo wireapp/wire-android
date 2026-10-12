@@ -5,17 +5,22 @@ on:
     types: [created]
 
 permissions:
-  actions: read
-  contents: read
-  pull-requests: read
+  actions: read # the called workflow downloads existing PR build artifacts
+  contents: read # the called workflow checks out trusted upload configuration
+  pull-requests: read # the called workflow resolves the PR's current revision
+
+concurrency:
+  group: firebase-dev-comment-${{ github.event.issue.number }}
+  cancel-in-progress: false
 
 jobs:
   authorize:
+    name: Authorize distribution request
     if: github.event.issue.pull_request && github.event.comment.body == '/distribute-dev'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      issues: write
+      issues: write # acknowledge accepted or rejected requests with comment reactions
     steps:
       - name: Check commenter permission and acknowledge
         env:
@@ -33,9 +38,11 @@ jobs:
           [[ "${reaction}" == +1 ]] || { echo "Repository write access is required"; exit 1; }
 
   distribute:
+    name: Distribute requested PR build
     needs: authorize
     uses: ./.github/workflows/distribute-dev-firebase.yml
     with:
       pull-request: ${{ format('{0}', github.event.issue.number) }}
       release-notes: ${{ github.event.issue.title }}
-    secrets: inherit
+    secrets:
+      FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON }}

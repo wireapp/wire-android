@@ -19,11 +19,21 @@ on:
       release-notes:
         required: true
         type: string
+    secrets:
+      FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON:
+        required: true
+      ENCODED_KEYSTORE_DEBUG: {required: false}
+      SIGNING_KEY_ALIAS_DEBUG: {required: false}
+      SIGNING_KEY_PASSWORD_DEBUG: {required: false}
+      SIGNING_STORE_PASSWORD_DEBUG: {required: false}
+      DATADOG_APP_ID: {required: false}
+      DATADOG_CLIENT_TOKEN: {required: false}
+      DOMAIN_REMOVAL_KEYS_FOR_REPAIR: {required: false}
 
 permissions:
-  actions: read
-  contents: read
-  pull-requests: read
+  actions: read # find and download existing PR build artifacts
+  contents: read # check out workflow tools and branch sources
+  pull-requests: read # resolve the selected PR's repository and current revision
 
 concurrency:
   group: firebase-app-distribution-dev-${{ inputs.pull-request || inputs.source-branch || 'develop' }}
@@ -31,6 +41,7 @@ concurrency:
 
 jobs:
   prepare:
+    name: Prepare DevDebug APK
     runs-on: warp-ubuntu-2404-x64-8x
     timeout-minutes: 45
     outputs:
@@ -130,6 +141,7 @@ jobs:
           retention-days: 1
 
   distribute:
+    name: Distribute DevDebug
     needs: prepare
     runs-on: warp-ubuntu-2404-x64-8x
     timeout-minutes: 15
@@ -139,7 +151,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: firebase-dev-apk
           path: distribution-apk

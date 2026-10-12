@@ -170,8 +170,6 @@ class TeamCreationTest : BaseUiTest() {
         step("And I complete post-login permission and privacy prompts") {
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-                clickDeclineShareDataAlert()
             }
         }
 

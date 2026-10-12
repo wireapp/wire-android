@@ -377,6 +377,18 @@ dependencies {
     alphaImplementation(libs.dataDog.core)
     betaImplementation(libs.dataDog.core)
 
+    devImplementation(libs.dataDog.logs)
+    alphaImplementation(libs.dataDog.logs)
+    betaImplementation(libs.dataDog.logs)
+
+    devImplementation(libs.dataDog.trace)
+    alphaImplementation(libs.dataDog.trace)
+    betaImplementation(libs.dataDog.trace)
+
+    devImplementation(libs.dataDog.rum)
+    alphaImplementation(libs.dataDog.rum)
+    betaImplementation(libs.dataDog.rum)
+
     devImplementation(libs.dataDog.compose)
     alphaImplementation(libs.dataDog.compose)
     betaImplementation(libs.dataDog.compose)

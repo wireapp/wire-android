@@ -17,40 +17,40 @@ libsodiumBindings = "0.9.5"
 
 # Android Core / Architecture
 detekt = "1.23.8"
-google-gms = "4.4.4"
-gms-location = "21.3.0"
+google-gms = "4.5.0"
+gms-location = "21.4.0"
 android-gradlePlugin = "9.2.0"
 desugaring = "2.1.5"
-firebaseBOM = "34.13.0"
+firebaseBOM = "34.19.0"
 fragment = "1.5.6"
-resaca = "5.0.2"
-metro = "1.2.1"
+resaca = "5.1.6"
+metro = "1.4.5"
 bundlizer = "0.8.0"
 squareup-javapoet = "1.13.0"
 visibilityModifiers = "1.1.0"
-kover = "0.9.8"
+kover = "0.9.11"
 
 # AndroidX
-androidx-appcompat = "1.7.1"
-androidx-core = "1.15.0"
-androidx-dataStore = "1.1.7"
+androidx-appcompat = "1.8.0"
+androidx-core = "1.16.0"
+androidx-dataStore = "1.2.1"
 androidx-exif = "1.4.2"
-androidx-emoji = "1.6.0"
+androidx-emoji = "1.7.0"
 androidx-jetpack = "1.1.0"
 androidx-lifecycle = "2.11.0"
-androidx-paging3 = "3.3.6"
-androidx-paging3Compose = "3.3.4"
+androidx-paging3 = "3.5.1"
+androidx-paging3Compose = "3.5.1"
 androidx-splashscreen = "1.2.0"
-androidx-workManager = "2.11.2"
-androidx-browser = "1.8.0"
+androidx-workManager = "2.12.0"
+androidx-browser = "1.10.0"
 androidx-biometric = "1.1.0"
 androidx-startup = "1.2.0"
-androidx-compose-runtime = "1.7.2"
+androidx-compose-runtime = "1.8.0"
 compose-qr = "1.0.1"
 enterprise-feedback = "1.1.0"
 
 # Compose
-composeBom = "2026.06.01"
+composeBom = "2026.09.00"
 compose-activity = "1.13.0"
 compose-constraint = "1.1.2"
 compose-multiplatform-navigation3 = "1.1.1"
@@ -65,10 +65,10 @@ compose-edgetoedge-preview = "0.9.0"
 
 # Android UI
 accompanist = "0.32.0"
-material = "1.12.0"
+material = "1.14.0"
 material3 = "1.4.0"
-coil = "3.5.0"
-media3 = "1.10.1"
+coil = "3.6.3"
+media3 = "1.11.1"
 commonmark = "0.28.0"
 
 # Countly
@@ -78,7 +78,7 @@ countly = "26.1.2"
 rss-parser = "6.0.7"
 
 # Logging
-dataDog = "1.19.3"
+dataDog = "3.14.1"
 
 # Lint
 lint-compose = "1.4.3"
@@ -87,7 +87,7 @@ lint-compose = "1.4.3"
 openIdAppAuth = "0.11.1"
 
 # Other Tools
-aboutLibraries = "14.0.0-b03"
+aboutLibraries = "14.2.1"
 cyclonedx = "3.1.0"
 leakCanary = "2.14"
 ksp = "2.3.11"
@@ -105,7 +105,7 @@ androidx-test-extensions = "1.2.1"
 androidx-test-orchestrator = "1.5.1"
 androidx-test-rules = "1.7.0"
 androidx-test-runner = "1.7.0"
-androidx-test-uiAutomator = "2.4.0-beta02"
+androidx-test-uiAutomator = "2.4.0"
 androidx-text-archCore = "2.2.0"
 junit4 = "4.13.2"
 junit5 = "5.11.0"
@@ -271,7 +271,10 @@ rss-parser = { module = "com.prof18.rssparser:rssparser", version.ref = "rss-par
 lint-compose = { module = "com.slack.lint.compose:compose-lint-checks", version.ref = "lint-compose" }
 
 # Logging
-dataDog-core = { module = "com.datadoghq:dd-sdk-android", version.ref = "dataDog" }
+dataDog-core = { module = "com.datadoghq:dd-sdk-android-core", version.ref = "dataDog" }
+dataDog-logs = { module = "com.datadoghq:dd-sdk-android-logs", version.ref = "dataDog" }
+dataDog-trace = { module = "com.datadoghq:dd-sdk-android-trace", version.ref = "dataDog" }
+dataDog-rum = { module = "com.datadoghq:dd-sdk-android-rum", version.ref = "dataDog" }
 dataDog-compose = { module = "com.datadoghq:dd-sdk-android-compose", version.ref = "dataDog" }
 
 # OAuth

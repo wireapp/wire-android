@@ -42,6 +42,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
+import com.wire.kalium.logic.feature.meeting.SyncMeetingsUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -58,6 +59,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -69,6 +71,7 @@ interface MeetingListViewModel {
     val currentTimeZoneProvider: CurrentTimeZoneProvider
     val displayTimeZoneFlow: StateFlow<TimeZone>
     val meetings: Flow<PagingData<MeetingListItem>> get() = flowOf()
+    fun onEmptyListLoaded() {}
 }
 
 class MeetingListViewModelPreview(type: MeetingsTabItem) : MeetingListViewModel {
@@ -91,8 +94,19 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     systemTimeObserver: SystemTimeObserver,
     getMeetingsPaginated: GetPaginatedFlowOfMeetingsUseCase,
     observeActiveCalls: ObserveActiveCallsUseCase,
-    dispatcher: DispatcherProvider,
+    private val syncMeetings: SyncMeetingsUseCase,
+    private val dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
+    private var initialMeetingsLoaded = false
+
+    override fun onEmptyListLoaded() {
+        if (!initialMeetingsLoaded) {
+            initialMeetingsLoaded = true
+            viewModelScope.launch(dispatcher.io()) {
+                syncMeetings()
+            }
+        }
+    }
 
     @AssistedFactory
     interface Factory {

@@ -205,7 +205,7 @@ fun ConnectionActionButton(
         when (action) {
             is OpenConversation -> onOpenConversation(action.conversationId)
             is ConnectionRequestIgnored -> onConnectionRequestIgnored(action.userName)
-            is MissingKeyPackages -> unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
+            is UnableToStartConversation -> unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
         }
     }
 }

@@ -67,13 +67,13 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavigationCommand
 import com.wire.navigation.WireRoute
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import dev.zacsweers.metro.Inject
 
 @Suppress("TooManyFunctions", "LargeClass")
 class WireActivity : BaseActivity() {
@@ -139,7 +139,7 @@ class WireActivity : BaseActivity() {
             viewModel.observePersistentConnectionStatus()
 
             traceStartup("activity.initialAppState.start", startupAt)
-            val startupSnapshot = viewModel.initialStartupSnapshot()
+            val startupSnapshot = viewModel.initialStartupSnapshot(taskId = taskId)
             val initialAppState = startupSnapshot.initialAppState
             val initialRoute = WireInitialRouteResolver.resolve(
                 initialAppState = initialAppState,

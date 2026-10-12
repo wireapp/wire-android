@@ -56,6 +56,7 @@ object UiAutomatorSetup {
         this.appPackage = selectedPackage
 
         val device = getDevice()
+        device.wakeUp()
 
         if (clearData) {
             device.executeShellCommand("pm clear $selectedPackage")

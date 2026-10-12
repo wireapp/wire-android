@@ -4,7 +4,7 @@ Date: 2026-08-20
 
 ## Status
 
-Accepted
+Superseded by [ADR 0016](0016-trusted-dev-distribution-from-branches-and-prs.md).
 
 ## Context
 

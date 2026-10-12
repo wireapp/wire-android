@@ -21,11 +21,11 @@
 package com.wire.android.ui.home
 
 import androidx.compose.runtime.Composable
+import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
 import com.wire.android.feature.cells.ui.AllFilesNavigationActions
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.cellViewModel
-import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.ui.home.archive.ArchiveScreen
@@ -96,7 +96,8 @@ internal fun HomeNavigation3TopLevelContent(
 
         HomeTopLevelDestination.MEETINGS -> MeetingsScreen(
             homeShellState = shellState,
-            navigationActions = actions.meetings,
+            sessionId = sessionId,
+            runtime = runtime,
         )
     }
 }

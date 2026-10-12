@@ -18,7 +18,11 @@
 package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiScrollable
+import androidx.test.uiautomator.UiSelector
+import androidx.test.uiautomator.Until
 import org.junit.Assert
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.toBySelector
@@ -34,6 +38,7 @@ data class SearchPage(private val device: UiDevice) {
     private val noSearchResults = UiSelectorParams(
         text = "No results could be found. Please try again."
     )
+    private val showMoreButton = UiSelectorParams(text = "Show More")
 
     fun assertUsernameInSearchResultIs(expectedHandle: String): SearchPage {
         val handleSelector = UiSelectorParams(
@@ -41,6 +46,13 @@ data class SearchPage(private val device: UiDevice) {
             text = expectedHandle
         )
         try {
+            val firstVisible = UiWaitUtils.waitFirstVisibleSelector(listOf(handleSelector, showMoreButton))
+            if (firstVisible == showMoreButton) {
+                closeKeyboardIfOpened()
+                UiWaitUtils.waitElement(showMoreButton).click()
+                UiScrollable(UiSelector().scrollable(true))
+                    .scrollIntoView(UiSelector().text(expectedHandle))
+            }
             UiWaitUtils.waitElement(params = handleSelector)
         } catch (e: AssertionError) {
             throw AssertionError(
@@ -68,6 +80,22 @@ data class SearchPage(private val device: UiDevice) {
             params = noSearchResults,
             errorMessage = "Search did not finish with an empty result list."
         )
+        return this
+    }
+
+    fun assertUsernameNotReturnedBySearch(expectedUsername: String): SearchPage {
+        val resultState = UiWaitUtils.waitFirstVisibleSelector(
+            listOf(noSearchResults, UiSelectorParams(text = "CONTACTS"), UiSelectorParams(text = "PUBLIC WIRE"))
+        )
+        Assert.assertNotNull("Search results were not displayed.", resultState)
+
+        val userAppeared = device.wait(
+            Until.hasObject(
+                UiSelectorParams(className = "android.widget.TextView", text = expectedUsername).toBySelector()
+            ),
+            UiWaitUtils.DEFAULT_TIMEOUT.inWholeMilliseconds
+        )
+        Assert.assertFalse("User '$expectedUsername' appeared in the search results.", userAppeared)
         return this
     }
 
@@ -111,6 +139,11 @@ data class SearchPage(private val device: UiDevice) {
 
     fun clearSearchInputField(): SearchPage {
         UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text = ""
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = noSearchResults.toBySelector(),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Previous empty search results did not clear."
+        )
         return this
     }
 
@@ -129,6 +162,22 @@ data class SearchPage(private val device: UiDevice) {
         field.click()
         UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text =
             uniqueUserName.uniqueUsername.orEmpty()
+        return this
+    }
+
+    fun typeFederatedUserNameInSearchField(
+        clientUserManager: ClientUserManager,
+        alias: String,
+        domain: String
+    ): SearchPage {
+        val uniqueUserName = clientUserManager.findUserBy(
+            alias,
+            ClientUserManager.FindBy.NAME_ALIAS
+        ).uniqueUsername.orEmpty()
+        val field = UiWaitUtils.waitElement(searchFieldSearchPeople)
+        field.click()
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text =
+            "$uniqueUserName@$domain"
         return this
     }
 

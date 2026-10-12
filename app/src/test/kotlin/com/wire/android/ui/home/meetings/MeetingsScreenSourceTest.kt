@@ -28,9 +28,9 @@ internal class MeetingsScreenSourceTest {
     fun `editing a meeting opens the typed Navigation 3 edit flow`() {
         val source = sourceFile().readText().filterNot(Char::isWhitespace)
 
-        assertTrue("navigationActions:MeetingsHomeNavigationActions" in source)
+        assertTrue("runtime:WireNavigation3Runtime" in source)
         assertTrue(
-            "editMeeting={meetingId->navigationActions.openNewMeeting(NewMeetingType.Edit(meetingId))}," in source
+            "editMeeting={meetingId->openNewMeeting(NewMeetingType.Edit(meetingId))}," in source
         )
     }
 

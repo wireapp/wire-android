@@ -76,18 +76,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         }
 
         extensions.configure<ApplicationAndroidComponentsExtension> {
-            val betaReleaseVersion = BetaReleaseVersion.resolve(
-                AndroidApp.versionName,
-                providers.environmentVariable("WIRE_RELEASE_VERSION").orNull
-            )
-            if (betaReleaseVersion != null) {
-                finalizeDsl { android ->
-                    android.productFlavors.getByName("beta").apply {
-                        versionName = betaReleaseVersion
-                        versionNameSuffix = ""
-                    }
-                }
-            }
+            configureBetaReleaseVersion(target)
             onVariants(selector().all()) { variant ->
                 val taskName = "rename${variant.name.replaceFirstChar { firstChar ->
                     if (firstChar.isLowerCase()) firstChar.titlecase() else firstChar.toString()
@@ -107,6 +96,21 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
                 renameApkTask.configure {
                     this.transformationRequest.set(transformationRequest)
+                }
+            }
+        }
+    }
+
+    private fun ApplicationAndroidComponentsExtension.configureBetaReleaseVersion(project: Project) {
+        val betaReleaseVersion = BetaReleaseVersion.resolve(
+            AndroidApp.versionName,
+            project.providers.environmentVariable("WIRE_RELEASE_VERSION").orNull
+        )
+        if (betaReleaseVersion != null) {
+            finalizeDsl { android ->
+                android.productFlavors.getByName("beta").apply {
+                    versionName = betaReleaseVersion
+                    versionNameSuffix = ""
                 }
             }
         }

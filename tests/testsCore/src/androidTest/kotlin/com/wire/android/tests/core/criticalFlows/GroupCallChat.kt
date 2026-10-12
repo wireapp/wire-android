@@ -143,6 +143,10 @@ class GroupCallChat : BaseCallUiTest() {
             }
         }
 
+        step("Wait until Wire service notification disappears") {
+            pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
+        }
+
         step("Start group call from GroupCallChats conversation") {
             pages.conversationViewPage.apply {
                 iTapStartCallButton()

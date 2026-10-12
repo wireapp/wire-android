@@ -202,6 +202,7 @@ class GroupInteraction : BaseUiTest() {
 
         step("Then I see the message Hello fellow members in current conversation") {
             pages.conversationViewPage.apply {
+                scrollToBottomOfConversationScreen()
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello fellow members")
             }
         }
@@ -221,7 +222,6 @@ class GroupInteraction : BaseUiTest() {
         step("And I tap on heart reaction icon") {
             pages.conversationViewPage.apply {
                 tapReactionIcon("❤️")
-                UiWaitUtils.waitFor(2.seconds)
             }
         }
 

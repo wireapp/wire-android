@@ -129,9 +129,9 @@ internal fun MeetingsScreen(
                     )
                 },
             ),
-            optionButton2Properties = WireDialogButtonProperties(
+            dismissButtonProperties = WireDialogButtonProperties(
                 text = stringResource(R.string.label_cancel),
-                type = WireDialogButtonType.Primary,
+                type = WireDialogButtonType.Secondary,
                 onClick = showExactAlarmAccessDialogState::dismiss,
             ),
         )

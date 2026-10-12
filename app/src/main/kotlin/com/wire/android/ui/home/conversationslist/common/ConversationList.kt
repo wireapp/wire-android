@@ -96,7 +96,7 @@ fun ConversationList(
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
     onJoinCall: (ConversationId) -> Unit = {},
-    onConversationSelectedOnRadioGroup: (ConversationItem) -> Unit = {},
+    onConversationSelectionChanged: (Boolean, ConversationItem) -> Unit = { _, _ -> },
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {},
@@ -156,13 +156,16 @@ fun ConversationList(
                         ConversationItemFactory(
                             conversation = item,
                             modifier = conversationModifier,
-                            isSelectableItem = isSelectableList,
+                            selectionMode = when {
+                                isSelectableList -> ConversationItemSelectionMode.SINGLE
+                                else -> ConversationItemSelectionMode.NONE
+                            },
                             isChecked = selectedConversations.contains(item.conversationId),
                             isEnabled = isConversationEnabled(item),
                             searchQuery = searchQuery,
                             isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
                             playingAudio = playingAudio,
-                            onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(item) },
+                            onConversationSelectionChanged = { selected -> onConversationSelectionChanged(selected, item) },
                             openConversation = onOpenConversation,
                             openMenu = onEditConversation,
                             openUserProfile = onOpenUserProfile,
@@ -236,7 +239,7 @@ fun ConversationList(
     onEditConversation: (ConversationItem) -> Unit = {},
     onOpenUserProfile: (UserId) -> Unit = {},
     onJoinCall: (ConversationId) -> Unit = {},
-    onConversationSelectedOnRadioGroup: (ConversationId) -> Unit = {},
+    onConversationSelectionChanged: (Boolean, ConversationId) -> Unit = { _, _ -> },
     onAudioPermissionPermanentlyDenied: () -> Unit = {},
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {},
@@ -273,12 +276,14 @@ fun ConversationList(
                 ConversationItemFactory(
                     conversation = generalConversation,
                     modifier = conversationModifier,
-                    isSelectableItem = isSelectableList,
+                    selectionMode = if (isSelectableList) ConversationItemSelectionMode.SINGLE else ConversationItemSelectionMode.NONE,
                     isChecked = selectedConversations.contains(generalConversation),
                     searchQuery = searchQuery,
                     isSelfUserUnderLegalHold = isSelfUserUnderLegalHold,
                     playingAudio = playingAudio,
-                    onConversationSelectedOnRadioGroup = { onConversationSelectedOnRadioGroup(generalConversation.conversationId) },
+                    onConversationSelectionChanged = { selected ->
+                        onConversationSelectionChanged(selected, generalConversation.conversationId)
+                    },
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,

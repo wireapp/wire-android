@@ -27,12 +27,13 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
+import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.Companion.initialState
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.InitialLoadingState
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
-import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
+import com.wire.android.search.groups.SearchGroup
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -52,6 +53,7 @@ import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import kotlin.time.Duration.Companion.hours
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
@@ -66,7 +68,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Duration.Companion.hours
 
 interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     val currentTimeProvider: CurrentTimeProvider
@@ -76,6 +77,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     val state: NewMeetingState
 
     fun updateSelectedContact(selected: Boolean, contact: Contact) {}
+    fun updateSelectedGroup(selected: Boolean, group: SearchGroup) {}
     fun confirmSelectedContacts() {}
     fun resetSelectedContacts() {}
     fun updateStartTime(startTime: Instant) {}
@@ -144,8 +146,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                             endTime = meetingOccurrence.occurrenceEndTime,
                             tzid = meetingOccurrence.meeting.tzid,
                             repeatingInterval = meetingOccurrence.meeting.recurrence?.toRepeatingInterval(),
-                            selectedContacts = otherContacts,
-                            confirmedContacts = otherContacts,
+                            selectedIndividualContacts = otherContacts,
+                            confirmedIndividualContacts = otherContacts,
                         )
                     }
                 }
@@ -167,20 +169,42 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     }
 
     override fun updateSelectedContact(selected: Boolean, contact: Contact) {
-        state = state.copy(
-            selectedContacts = when (selected) {
-                true -> state.selectedContacts.plus(contact).toPersistentSet()
-                false -> state.selectedContacts.minus(contact).toPersistentSet()
+        if (selected) {
+            state = state.copy(selectedIndividualContacts = (state.selectedIndividualContacts + contact).toPersistentSet())
+        } else {
+            val affectedGroups = state.selectedGroups.filter { group ->
+                group.members.any { it.id == contact.id && it.domain == contact.domain }
             }
+            // A partially selected group becomes individual selections, preserving its other members.
+            state = state.copy(
+                selectedGroups = (state.selectedGroups - affectedGroups.toSet()).toPersistentSet(),
+                selectedIndividualContacts = (state.selectedIndividualContacts + affectedGroups.flatMap { it.members })
+                    .filterNot { it.id == contact.id && it.domain == contact.domain }
+                    .distinctBy { it.id to it.domain }
+                    .toPersistentSet(),
+            )
+        }
+    }
+
+    override fun updateSelectedGroup(selected: Boolean, group: SearchGroup) {
+        state = state.copy(
+            selectedGroups = (state.selectedGroups.filterNot { it.id == group.id } + if (selected) listOf(group) else emptyList())
+                .toPersistentSet()
         )
     }
 
     override fun confirmSelectedContacts() {
-        state = state.copy(confirmedContacts = state.selectedContacts)
+        state = state.copy(
+            confirmedGroups = state.selectedGroups,
+            confirmedIndividualContacts = state.selectedIndividualContacts,
+        )
     }
 
     override fun resetSelectedContacts() {
-        state = state.copy(selectedContacts = state.confirmedContacts)
+        state = state.copy(
+            selectedGroups = state.confirmedGroups,
+            selectedIndividualContacts = state.confirmedIndividualContacts,
+        )
     }
 
     override fun updateStartTime(startTime: Instant) {
@@ -362,8 +386,10 @@ private fun Instant.latestEndTimeOnSameDay(timeZone: TimeZone): Instant {
 
 @Stable
 data class NewMeetingState(
-    val selectedContacts: ImmutableSet<Contact> = persistentSetOf(),
-    val confirmedContacts: ImmutableSet<Contact> = persistentSetOf(),
+    val selectedIndividualContacts: ImmutableSet<Contact> = persistentSetOf(),
+    val confirmedIndividualContacts: ImmutableSet<Contact> = persistentSetOf(),
+    val selectedGroups: ImmutableSet<SearchGroup> = persistentSetOf(),
+    val confirmedGroups: ImmutableSet<SearchGroup> = persistentSetOf(),
     val continueButtonEnabled: Boolean = false,
     val titleError: TitleError? = null,
     val startTime: Instant,
@@ -376,6 +402,16 @@ data class NewMeetingState(
     val isSubmitting: Boolean = false,
     val initialLoading: InitialLoadingState = InitialLoadingState.Loading,
 ) {
+    val selectedContacts: ImmutableSet<Contact> = mergeContacts(selectedIndividualContacts, selectedGroups)
+    val confirmedContacts: ImmutableSet<Contact> = mergeContacts(confirmedIndividualContacts, confirmedGroups)
+
+    private fun mergeContacts(
+        individualContacts: ImmutableSet<Contact>,
+        groups: ImmutableSet<SearchGroup>,
+    ): ImmutableSet<Contact> = (individualContacts + groups.flatMap { it.members })
+        .distinctBy { it.id to it.domain }
+        .toPersistentSet()
+
     enum class InitialLoadingState { Error, Loading, Loaded }
 
     @Stable

@@ -43,9 +43,9 @@ class ConversationItemFactoryTest {
             WireTestTheme {
                 ConversationItemFactory(
                     conversation = viewerOnlyConversation,
-                    isSelectableItem = true,
+                    selectionMode = ConversationItemSelectionMode.SINGLE,
                     isEnabled = false,
-                    onConversationSelectedOnRadioGroup = { selectionCount++ },
+                    onConversationSelectionChanged = { selectionCount++ },
                     openConversation = { selectionCount++ },
                 )
             }
@@ -63,9 +63,9 @@ class ConversationItemFactoryTest {
             WireTestTheme {
                 ConversationItemFactory(
                     conversation = viewerOnlyConversation,
-                    isSelectableItem = true,
+                    selectionMode = ConversationItemSelectionMode.SINGLE,
                     isEnabled = true,
-                    onConversationSelectedOnRadioGroup = { selectionCount++ },
+                    onConversationSelectionChanged = { selectionCount++ },
                     openConversation = { selectionCount++ },
                 )
             }

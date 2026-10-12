@@ -572,7 +572,7 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
         titleState = rememberTextFieldState("Meeting with 9 users"),
         type = NewMeetingType.MeetNow,
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
-            confirmedContacts = buildContacts(names.size),
+            confirmedIndividualContacts = buildContacts(names.size),
             continueButtonEnabled = true,
             initialLoading = NewMeetingState.InitialLoadingState.Loaded,
         ),

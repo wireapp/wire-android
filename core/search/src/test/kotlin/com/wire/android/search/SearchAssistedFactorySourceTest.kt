@@ -21,6 +21,7 @@ internal class SearchAssistedFactorySourceTest {
         val graph = source("SearchViewModelGraph.kt")
         val searchAppsViewModel = source("apps/SearchAppsViewModel.kt")
         val searchUserViewModel = source("users/SearchUserViewModel.kt")
+        val searchGroupsToAddMembersViewModel = source("groups/SearchGroupsToAddMembersViewModel.kt")
 
         assertTrue(graph.contains("@WireAssistedViewModelFactoryGroup"))
         assertTrue(searchAppsViewModel.contains("@WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)"))
@@ -30,6 +31,10 @@ internal class SearchAssistedFactorySourceTest {
             searchUserViewModel.contains(
                 "fun create(conversationId: ConversationId?, onlySelfTeamAndDomain: Boolean): SearchUserViewModel"
             )
+        )
+        assertTrue(searchGroupsToAddMembersViewModel.contains("@WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)"))
+        assertTrue(
+            searchGroupsToAddMembersViewModel.contains("fun create(onlySelfTeamAndDomain: Boolean): SearchGroupsToAddMembersViewModel")
         )
         assertFalse(File("src/main/kotlin/com/wire/android/search/SearchMetroViewModelBindings.kt").exists())
     }

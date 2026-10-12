@@ -7,12 +7,16 @@ on:
         description: "Branch to build (defaults to develop); run the workflow itself from develop"
         required: false
         type: string
-      pull-request:
-        description: "PR number to reuse its current successful Develop CI APK instead of building a branch"
-        required: false
-        type: string
       release-notes:
         description: "What testers should test"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      pull-request:
+        required: true
+        type: string
+      release-notes:
         required: true
         type: string
 

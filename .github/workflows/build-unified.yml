@@ -57,6 +57,7 @@ jobs:
           inputs: |
             .github/workflows/build-unified.yml
             .github/workflows/distribute-dev-firebase.yml
+            .github/workflows/distribute-dev-pr-comment.yml
           version: 1.25.2
           persona: pedantic
           min-severity: informational

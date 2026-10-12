@@ -1,8 +1,13 @@
 # Distribute Dev builds
 
-Run **Distribute Dev Build** from `develop`. Set `source-branch` to build a repository branch, or
-`pull-request` to reuse its current successful Develop CI APK. Leave both blank to build `develop`.
-Provide release notes; the workflow adds source and CI details.
+For a branch, run **Distribute Dev Build** from `develop`, choose `source-branch` (default `develop`),
+and provide release notes. The manual form is for branches only.
+
+For a PR, post a new comment containing exactly `/distribute-dev`. Repository write access or higher
+is required. The shortcut uses the PR title as release notes and promotes its current successful
+Develop CI APK. A thumbs-up reaction means the request was accepted; thumbs down means it was
+rejected. Check Actions for the final upload result. Editing an existing comment does not trigger it.
+Both paths add source and CI details to the release notes.
 
 ## One-time setup
 
@@ -13,6 +18,7 @@ Provide release notes; the workflow adds source and CI details.
 - Use the existing shared debug signing secrets and set `ENABLE_SIGNING=TRUE` for PR CI. Branch
   distribution enables it explicitly. Both paths must produce `com.wire.android.dev.debug`.
 - Run preparation and upload jobs on fresh runners so build code cannot access upload credentials.
+- Keep `develop` as the default branch; the comment workflow must be present there to receive events.
 
 PRs must belong to this repository and target `develop`. If their APK is missing or expired,
 rerun PR CI. Branch builds do not run the full PR quality gates. Package/signing configuration

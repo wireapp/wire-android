@@ -13,9 +13,15 @@ adding a separate verification pipeline around Firebase uploads.
 
 ## Decision
 
-Run the workflow from `develop`. Choose a repository `source-branch` (default `develop`) or a PR
-number. Build branches with `make build-dev` and the shared debug signing configuration. For a
-same-repository PR targeting `develop`, download the successful Develop CI APK for its head
+Manual dispatch from `develop` builds a repository `source-branch` (default `develop`) with
+`make build-dev` and the shared debug signing configuration. For PRs, a new comment containing
+exactly `/distribute-dev` invokes the same workflow through `workflow_call`, using the PR number
+and title as release notes. The shortcut checks the original commenter's effective repository
+permission and allows write access or higher. It reacts with thumbs up on acceptance or thumbs
+down on rejection; reactions acknowledge the request, while deployment results remain in Actions.
+The comment workflow lives on the default branch, which must be `develop` for this trusted flow.
+
+For a same-repository PR targeting `develop`, download the successful Develop CI APK for its head
 revision at selection time. Missing or expired artifacts fail at download; there is no rebuild fallback.
 
 Prepare one APK, transfer it to a separate upload job, and distribute it using the Firebase CLI.

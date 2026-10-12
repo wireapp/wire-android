@@ -2000,4 +2000,13 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="meeting_reminder_exact_alarm_title">Enable precise meeting reminders</string>
     <string name="meeting_reminder_exact_alarm_description">Allow alarms and reminders for Wire in device settings to receive meeting reminders on time.</string>
     <string name="meeting_reminder_exact_alarm_settings">Open settings</string>
+    <string name="startup_account_limit_title">Account limit reached</string>
+    <plurals name="startup_account_limit_message">
+        <item quantity="one">This device allows up to %1$d logged-in account.</item>
+        <item quantity="other">This device allows up to %1$d logged-in accounts.</item>
+    </plurals>
+    <string name="startup_account_limit_backup_reminder">Before logging out, consider creating a backup to preserve your conversation history.</string>
+    <string name="startup_account_limit_guidance">Log out of your current account now, or choose Later to log out of another account from its profile.</string>
+    <string name="startup_account_limit_logout">Log out of current account</string>
+    <string name="startup_account_limit_later">Later</string>
 </resources>

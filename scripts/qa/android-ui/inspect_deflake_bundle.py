@@ -9,6 +9,8 @@ import re
 import uuid
 from pathlib import Path
 
+from resolve_test_service_url import resolve_url
+
 
 def env(name: str, default: str = "") -> str:
     return os.environ.get(name, default).strip()
@@ -87,6 +89,17 @@ for field, expected_value in expected_fields.items():
             f"ERROR: Deflake metadata field '{field}' does not match the selected GitHub Actions run."
         )
 
+# Never silently switch a rerun to today's repository default. Old bundles
+# need an explicit URL because their original service cannot be reconstructed.
+try:
+    test_service_url = resolve_url(
+        os.environ.get("TEST_SERVICE_URL_OVERRIDE", ""),
+        metadata.get("test_service_url", ""),
+        deflake=True,
+    )
+except ValueError as error:
+    raise SystemExit(f"ERROR: {error}") from None
+
 test_source_sha = str(metadata.get("test_source_sha") or metadata["source_sha"]).strip()
 if not re.fullmatch(r"[0-9a-f]{40}", test_source_sha):
     raise SystemExit("ERROR: test_source_sha must be a full lowercase Git commit SHA.")
@@ -128,6 +141,7 @@ write_output("sourceRunId", str(metadata["source_run_id"]))
 write_output("sourceRefName", str(metadata["source_ref_name"]))
 write_output("sourceSha", str(metadata["source_sha"]))
 write_output("testSourceSha", test_source_sha)
+write_output("testServiceUrl", test_service_url)
 write_output("flavor", str(metadata["flavor"]))
 write_output("tags", str(metadata.get("tags", "")))
 write_output("selectorType", str(metadata.get("selector_type", "")))
@@ -151,6 +165,7 @@ write_output("effectiveTestinyRunName", effective_testiny_run_name)
 # shows its selected-run context without opening the artifact contents manually.
 summary_lines = [
     "### Manual Deflake Input",
+    f"- Test Service URL: `{test_service_url}`",
     f"- selected workflow name: {metadata['source_workflow_name']}",
     f"- selected workflow file: `{metadata['source_workflow_file']}`",
     f"- selected run id: {metadata['source_run_id']}",

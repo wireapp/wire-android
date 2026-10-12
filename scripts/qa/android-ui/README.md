@@ -14,6 +14,24 @@ CI reads it from the GitHub Actions variable `TEST_SERVICE_URL`. Configure the
 variable with the full URL, including scheme and port, that is reachable from
 the test devices, for example `http://test-service.internal:8080`.
 
+For a single manual critical-flow run, set the optional `testServiceUrl` input
+to an existing service instance. An empty input (including scheduled runs)
+uses `TEST_SERVICE_URL` from Actions variables. The chosen URL is validated
+before setup and recorded in the run summary and deflake artifact. Use an
+HTTP(S) origin with an optional port and trailing slash; credentials, path
+prefixes, query strings, fragments and control characters are rejected.
+This does not deploy a service or rebuild the Wire app: only the instrumentation
+APK is built with the selected address. Existing trusted-ref and `android-e2e`
+environment restrictions still apply.
+
+Manual deflake inherits `test_service_url` from the selected run's artifact,
+even if the Actions variable has since changed. Its optional `testServiceUrl`
+input explicitly overrides that address, and the new artifact records the
+effective URL for subsequent reruns. Legacy artifacts without a URL require
+an explicit input: their original service cannot be inferred safely from the
+current Actions variable. A stable URL alone does not pin the service binary;
+use an instance deployed with an immutable image revision for reproducibility.
+
 For local runs, set the URL once in the ignored root `local.properties` file:
 
 ```properties
@@ -82,6 +100,7 @@ Bundle contents:
 - workflow name and file
 - run ID, run number, run attempt, branch, and commit
 - flavor and selector
+- effective Test Service URL
 - build inputs and resolved build info
 - upgrade flags
 - device selection

@@ -201,17 +201,18 @@ class CellViewModel @AssistedInject constructor(
 
     private val rootConversationId: String? = navArgs.conversationId?.substringBefore("/")
 
-    private val isViewerOnly = MutableStateFlow(false)
+    private val _isSelfUserViewerOnly = MutableStateFlow(false)
+    internal val isSelfUserViewerOnly: StateFlow<Boolean> = _isSelfUserViewerOnly.asStateFlow()
 
     /**
      * Viewer access banner is shown while browsing files of a conversation the self user only has viewer access to,
      * until it is dismissed. Dismissal is remembered for that conversation.
      */
     internal val showViewerAccessBanner: StateFlow<Boolean> = combine(
-        isViewerOnly,
+        isSelfUserViewerOnly,
         rootConversationId?.let { userDataStore.isViewerAccessBannerDismissed(it) } ?: flowOf(true),
     ) { viewerOnly, dismissed ->
-        viewerOnly && !dismissed && drivePermissionsEnabled
+        viewerOnly && !dismissed
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
@@ -245,8 +246,9 @@ class CellViewModel @AssistedInject constructor(
     }
 
     private fun checkViewerAccess() = viewModelScope.launch {
+        if (!drivePermissionsEnabled) return@launch
         val conversationId = rootConversationId?.takeIf { isConversationFiles() } ?: return@launch
-        isViewerOnly.value = !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+        _isSelfUserViewerOnly.value = !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
     }
 
     internal fun onViewerAccessBannerDismissed() {
@@ -551,7 +553,7 @@ class CellViewModel @AssistedInject constructor(
             return
         }
 
-        val isViewerWithDrivePermissions = isViewerOnly.value && drivePermissionsEnabled
+        val isViewerWithDrivePermissions = isSelfUserViewerOnly.value
 
         if (!isViewerWithDrivePermissions) {
             file.contentUrl?.let { url ->
@@ -574,7 +576,7 @@ class CellViewModel @AssistedInject constructor(
             sendAction(it)
             return
         }
-        val isViewerWithDrivePermissions = isViewerOnly.value && drivePermissionsEnabled
+        val isViewerWithDrivePermissions = isSelfUserViewerOnly.value
 
         if (!isViewerWithDrivePermissions) {
             file.localPath?.let { path ->

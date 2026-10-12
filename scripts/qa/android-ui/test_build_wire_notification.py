@@ -25,6 +25,7 @@ class BuildWireNotificationTest(unittest.TestCase):
                 "RUN_NUMBER": "123",
                 "EVENT_NAME": "workflow_dispatch",
                 "PASSED_ON_RERUN_COUNT": "2",
+                "REPORT_TITLE": "android critical flows",
             },
             clear=True,
         ):

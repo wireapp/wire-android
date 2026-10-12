@@ -18,12 +18,19 @@ import com.wire.kalium.logic.feature.meeting.MeetingRemindersUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingScope
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
+import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.junit.Assert.assertEquals
@@ -35,6 +42,50 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [36])
 class MeetingReminderSchedulerTest {
+    @Test
+    fun givenMeetingsDisabled_whenObserving_thenDoNotScheduleAlarm() = runTest {
+        val arrangement = Arrangement().apply {
+            upcomingStarts += FIRST_START
+            meetingsEnabled = flowOf(false)
+        }
+
+        arrangement.scheduler.observe()
+
+        assertEquals(0, arrangement.scheduledAlarms.size)
+        coVerify(exactly = 0) { arrangement.reminders.next(any()) }
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun givenScheduledAlarm_whenMeetingsDisabledAndEnabledAgain_thenCancelAndResumeScheduling() = runTest {
+        val enabled = MutableStateFlow(true)
+        val changes = MutableStateFlow(0)
+        val arrangement = Arrangement().apply {
+            upcomingStarts += FIRST_START
+            meetingsEnabled = enabled
+            reminderChanges = changes.map {}
+        }
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
+        assertEquals(1, arrangement.scheduledAlarms.size)
+
+        enabled.value = false
+        runCurrent()
+        verify(exactly = 1) { arrangement.alarmManager.cancel(arrangement.scheduledAlarms.single()) }
+
+        arrangement.upcomingStarts.clear()
+        arrangement.upcomingStarts += LATER_START
+        changes.value++
+        runCurrent()
+        assertEquals(1, arrangement.scheduledAlarms.size)
+        coVerify(exactly = 1) { arrangement.reminders.next(any()) }
+
+        enabled.value = true
+        runCurrent()
+        assertEquals(2, arrangement.scheduledAlarms.size)
+        coVerify(exactly = 2) { arrangement.reminders.next(any()) }
+    }
+
     @Test
     fun givenScheduledMeetingIsRemoved_whenMeetingsChange_thenReplaceOrCancelItsAlarm() = runTest {
         val arrangement = Arrangement().apply { upcomingStarts += listOf(FIRST_START, LATER_START) }
@@ -151,6 +202,9 @@ class MeetingReminderSchedulerTest {
         val reminders = mockk<MeetingRemindersUseCase>()
         val alarmManager = mockk<AlarmManager>(relaxed = true)
         val notificationManager = mockk<MeetingNotificationManager>(relaxUnitFun = true)
+        var meetingsEnabled: Flow<Boolean> = flowOf(true)
+        var reminderChanges: Flow<Unit> = flowOf(Unit)
+        private val observeIsMeetingsEnabled = mockk<ObserveIsMeetingsEnabledUseCase>()
         private val meetings = mockk<MeetingScope>()
         private val calls = mockk<CallsScope>()
         private val establishedCall = mockk<ObserveEstablishedCallsUseCase>()
@@ -168,6 +222,8 @@ class MeetingReminderSchedulerTest {
             coEvery { validSession(user.id) } returns DoesValidSessionExistResult.Success(true)
             every { coreLogic.getSessionScope(user.id) } returns session
             every { session.meetings } returns meetings
+            every { session.observeIsMeetingsEnabled } returns observeIsMeetingsEnabled
+            coEvery { observeIsMeetingsEnabled() } answers { meetingsEnabled }
             every { meetings.meetingReminders } returns reminders
             every { session.calls } returns calls
             every { calls.establishedCall } returns establishedCall
@@ -181,7 +237,7 @@ class MeetingReminderSchedulerTest {
                 val end = secondArg<Instant>()
                 remindersInWindow.filter { it.startTime >= from && it.startTime < end }
             }
-            every { reminders.changes() } returns flowOf(Unit)
+            every { reminders.changes() } answers { reminderChanges }
             every { alarmManager.canScheduleExactAlarms() } returns true
             every { alarmManager.setExactAndAllowWhileIdle(any(), any(), capture(scheduledAlarms)) } returns Unit
         }

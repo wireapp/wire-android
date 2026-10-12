@@ -18,6 +18,7 @@ import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.scan
@@ -48,9 +49,18 @@ class MeetingReminderScheduler @Inject constructor(
                 coroutineScope {
                     users.forEach { userId ->
                         launch {
-                            coreLogic.getSessionScope(userId).meetings.meetingReminders.changes().collect {
-                                scheduleNext(userId)
-                            }
+                            val sessionScope = coreLogic.getSessionScope(userId)
+                            combine(
+                                sessionScope.observeIsMeetingsEnabled(),
+                                sessionScope.meetings.meetingReminders.changes(),
+                            ) { isMeetingsEnabled, _ -> isMeetingsEnabled }
+                                .collect { isMeetingsEnabled ->
+                                    if (isMeetingsEnabled) {
+                                        scheduleNext(userId)
+                                    } else {
+                                        cancel(userId)
+                                    }
+                                }
                         }
                     }
                 }
